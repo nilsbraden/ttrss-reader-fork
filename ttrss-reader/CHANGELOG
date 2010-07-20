@@ -1,4 +1,8 @@
-Nils:
+TODO
+- Automatically open Article if only one unread article in list (does'nt work yet)
+- Cache Articles or download for offline usage
+
+0.3.0
 - Next/previous-Button in Article-View Options-menu
 - Use Swipe for Previous/Next Article
 - Preference for "Use Swipe", default on
@@ -11,15 +15,8 @@ Nils:
 - Show attached images
 - Automatically open webpage for empty Feed-Entrys
 - Automatically leave FeedHeadlineView if there are no items (see FeedHeadlineListActivity.java:207)
-
-- FIXED: Disabled concurrent modifications in Refresher.java and Updater.java because of Exceptions (see comments in source)
-- FIXED: forceRefresh not disabled automatically anymore, so we can forceRefresh several Adapters in one step
-	(neccessary for Main-Activity with Categories and FeedHeadlines, see Comment in DataController.java)
-
-TODO:
-- Automatically open Article if only one unread article in list (does'nt work yet)
-- Cache Articles or download for offline usage
-
+- Disabled concurrent modifications in Refresher.java and Updater.java because of Exceptions (see comments in source)
+- forceRefresh not disabled automatically anymore, so we can forceRefresh several Adapters in one step (neccessary for Main-Activity with Categories and FeedHeadlines, see Comment in DataController.java)
 
 0.2.0:
 - Switch to new TTRSS JSON-based API; XML-RPC is no longer supported (need TTRSS >= 1.4.0);
