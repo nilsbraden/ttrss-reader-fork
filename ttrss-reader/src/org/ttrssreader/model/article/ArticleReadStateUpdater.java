@@ -71,9 +71,10 @@ public class ArticleReadStateUpdater implements IUpdatable {
 			}
 			String categoryId = mFeed.getCategoryId();
 			
-			DataController.getInstance()
-				.getSingleArticleForFeedsHeadlines(feedId, articleId).setUnread(
-					mArticleState == 1 ? true : false);
+			ArticleItem articleTemp = DataController.getInstance().getSingleArticleForFeedsHeadlines(feedId, articleId);
+			if (articleTemp != null) {
+				articleTemp.setUnread(mArticleState == 1 ? true : false);
+			}
 			
 			FeedItem feed = DataController.getInstance().getFeed(feedId, displayOnlyUnread);
 			if (feed != null) {
