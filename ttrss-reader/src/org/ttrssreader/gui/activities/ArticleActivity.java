@@ -1,0 +1,360 @@
+/*
+ * Tiny Tiny RSS Reader for Android
+ * 
+ * Copyright (C) 2009 J. Devauchelle and contributors.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 3 as published by the Free Software Foundation.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
+package org.ttrssreader.gui.activities;
+
+import java.util.ArrayList;
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.IRefreshEndListener;
+import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.model.Refresher;
+import org.ttrssreader.model.Updater;
+import org.ttrssreader.model.article.ArticleItem;
+import org.ttrssreader.model.article.ArticleItemAdapter;
+import org.ttrssreader.model.article.ArticleReadStateUpdater;
+import org.ttrssreader.utils.Utils;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.GestureDetector.OnGestureListener;
+import android.webkit.WebView;
+import android.widget.TextView;
+
+public class ArticleActivity extends Activity implements IRefreshEndListener, IUpdateEndListener {
+	
+	public static final String ARTICLE_ID = "ARTICLE_ID";
+	public static final String FEED_ID = "FEED_ID";
+	public static final String ARTICLE_LIST = "ARTICLE_LIST";
+	
+	private static final int MENU_MARK_READ = Menu.FIRST;
+	private static final int MENU_MARK_UNREAD = Menu.FIRST + 1;
+	private static final int MENU_OPEN_LINK = Menu.FIRST + 2;
+	private static final int MENU_OPEN_COMMENT_LINK = Menu.FIRST + 3;
+	private static final int MENU_NEXT_ARTICLE = Menu.FIRST + 4; // Newer Article
+	private static final int MENU_PREV_ARTICLE = Menu.FIRST + 5; // Older Article
+	
+	private String mArticleId;
+	private String mFeedId;
+	private ArrayList<String> mArticleIds;
+	
+	private ArticleItem mArticleItem = null;
+	
+	private ArticleItemAdapter mAdapter = null;
+	
+	private WebView webview;
+	private TextView webviewSwipeText;
+	private ProgressDialog mProgressDialog;
+	private GestureDetector mGestureDetector;
+	private boolean useSwipe;
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.articleitem);
+		
+//		Controller.getInstance().checkAndInitializeController(this);
+		
+		webview = (WebView) findViewById(R.id.webview);
+		webview.getSettings().setJavaScriptEnabled(true);
+		mGestureDetector = new GestureDetector(onGestureListener);
+		
+		webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
+		webviewSwipeText.setVisibility(TextView.INVISIBLE);
+		useSwipe = Controller.getInstance().isUseSwipeEnabled();
+
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			mArticleId = extras.getString(ARTICLE_ID);
+			mFeedId = extras.getString(FEED_ID);
+			mArticleIds = extras.getStringArrayList(ARTICLE_LIST);
+		} else if (savedInstanceState != null) {
+			mArticleId = savedInstanceState.getString(ARTICLE_ID);
+			mFeedId = savedInstanceState.getString(FEED_ID);
+			mArticleIds = savedInstanceState.getStringArrayList(ARTICLE_LIST);
+		} else {
+			mArticleId = "-1";
+			mFeedId = "-1";
+			mArticleIds = new ArrayList<String>();
+		}
+	}
+	
+	@Override
+	protected void onResume() {
+		doRefresh();
+		super.onResume();
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		
+		MenuItem item;
+		
+		item = menu.add(0, MENU_MARK_READ, 0, R.string.ArticleActivity_MarkRead);
+		
+		item = menu.add(0, MENU_MARK_UNREAD, 0, R.string.ArticleActivity_MarkUnread);
+		
+		item = menu.add(0, MENU_OPEN_LINK, 0, R.string.ArticleActivity_OpenLink);
+		item.setIcon(R.drawable.link32);
+		
+		item = menu.add(0, MENU_OPEN_COMMENT_LINK, 0, R.string.ArticleActivity_OpenCommentLink);
+		item.setIcon(R.drawable.commentlink32);
+		
+		item = menu.add(0, MENU_NEXT_ARTICLE, 0, "");
+		item.setIcon(android.R.drawable.arrow_up_float);
+		
+		item = menu.add(0, MENU_PREV_ARTICLE, 0, "");
+		item.setIcon(android.R.drawable.arrow_down_float);
+		
+		return true;
+	}
+	
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+			case MENU_MARK_READ:
+				changeUnreadState(0);
+				return true;
+			case MENU_MARK_UNREAD:
+				changeUnreadState(1);
+				return true;
+			case MENU_OPEN_LINK:
+				openLink();
+				return true;
+			case MENU_OPEN_COMMENT_LINK:
+				openCommentLink();
+				return true;
+			case MENU_NEXT_ARTICLE:
+				openNextOlderArticle();
+				return true;
+			case MENU_PREV_ARTICLE:
+				openNextNewerArticle();
+				return true;
+		}
+		
+		return super.onMenuItemSelected(featureId, item);
+	}
+	
+	private void doRefresh() {
+		
+		Controller.getInstance().setRefreshNeeded(false);
+		
+		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(
+				R.string.Commons_PleaseWait));
+		
+		mAdapter = new ArticleItemAdapter(mFeedId, mArticleId);
+		new Refresher(this, mAdapter);
+	}
+	
+	private void changeUnreadState(int articleState) {
+		
+		mProgressDialog = ProgressDialog.show(this, this.getResources().getString(R.string.Commons_UpdateReadState),
+				this.getResources().getString(R.string.Commons_PleaseWait));
+		
+		new Updater(this, new ArticleReadStateUpdater(mFeedId, mArticleItem, articleState));
+	}
+	
+	private void openUrl(String url) {
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		i.setData(Uri.parse(url));
+		startActivity(i);
+	}
+	
+	private void openLink() {
+		if (mArticleItem != null) {
+			String url = mArticleItem.getArticleUrl();
+			if ((url != null) && (url.length() > 0)) {
+				openUrl(url);
+			}
+		}
+	}
+	
+	private void openCommentLink() {
+		if (mArticleItem != null) {
+			String url = mArticleItem.getArticleCommentUrl();
+			if ((url != null) && (url.length() > 0)) {
+				openUrl(url);
+			}
+		}
+	}
+	
+	private void openNextNewerArticle() {
+		Intent i = new Intent(this, ArticleActivity.class);
+		
+		int index = mArticleIds.indexOf(mArticleId) + 1;
+		if (index < 0 || index >= mArticleIds.size()) {
+			Log.i(Utils.TAG, "openPreviousArticle() FeedID: " + mFeedId + " and Can't open Article with index " + index);
+			return;
+		}
+		
+		i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
+		i.putExtra(ArticleActivity.FEED_ID, mFeedId);
+		i.putExtra(ArticleActivity.ARTICLE_LIST, mArticleIds);
+		
+		Log.i(Utils.TAG, "openPreviousArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
+		
+		startActivityForResult(i, 0);
+	}
+	
+	private void openNextOlderArticle() {
+		Intent i = new Intent(this, ArticleActivity.class);
+		
+		int index = mArticleIds.indexOf(mArticleId) - 1;
+		if (index < 0 || index >= mArticleIds.size()) {
+			Log.i(Utils.TAG, "openNextArticle() FeedID: " + mFeedId + " and Can't open Article with index " + index);
+			return;
+		}
+		
+		i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
+		i.putExtra(ArticleActivity.FEED_ID, mFeedId);
+		i.putExtra(ArticleActivity.ARTICLE_LIST, mArticleIds);
+		
+		Log.i(Utils.TAG, "openNextArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
+		
+		startActivityForResult(i, 0);
+	}
+	
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent e){
+		super.dispatchTouchEvent(e);
+		return mGestureDetector.onTouchEvent(e);
+	}
+	
+	private OnGestureListener onGestureListener = new OnGestureListener() {
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			
+			if (!useSwipe) {
+				// Swiping is disabled in preferences
+				return false;
+			}
+			
+			// Define SWIPE_AREA to be in the bottom and have a height of 80px
+			int SWIPE_HEIGHT = 80;
+			int SWIPE_BOTTOM = webview.getHeight() - SWIPE_HEIGHT;
+			
+			int dx = (int) (e2.getX() - e1.getX());
+			int dy = (int) (e2.getY() - e1.getY());
+			
+			if (Math.abs(dy) > 60) {
+				// Too much Y-Movement or
+				return false;
+			} else if (e1.getY() < SWIPE_BOTTOM || e2.getY() < SWIPE_BOTTOM) {
+				
+				// Only accept swipe in SWIPE_AREA so we can use scrolling as usual
+				if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
+					
+					// Display text for swipe-area
+					webviewSwipeText.setVisibility(TextView.VISIBLE);
+					new Handler().postDelayed(timerTask, 1000);
+				}
+				return false;
+			}
+			
+			
+			// don't accept the fling if it's too short as it may conflict with a button push
+			if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
+				
+				Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY() + 
+						") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
+				
+				if (velocityX > 0) {
+					Log.d(Utils.TAG, "Fling right");
+					openNextOlderArticle();
+				} else {
+					Log.d(Utils.TAG, "Fling left");
+					openNextNewerArticle();
+				}
+				return true;
+			}
+			return false;
+		}
+		
+		// I need this to set the text invisible after some time 
+		private Runnable timerTask = new Runnable() {
+			public void run() {
+				webviewSwipeText.setVisibility(TextView.INVISIBLE);
+			}
+		}; 
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) { return false; }
+		@Override
+		public boolean onDown(MotionEvent e) { return false; }
+		@Override
+		public void onLongPress(MotionEvent e) { }
+		@Override
+		public void onShowPress(MotionEvent e) { }
+	};
+	
+	private void openConnectionErrorDialog(String errorMessage) {
+		Intent i = new Intent(this, ConnectionErrorActivity.class);
+		i.putExtra(ConnectionErrorActivity.ERROR_MESSAGE, errorMessage);
+		startActivity(i);
+	}
+	
+	@Override
+	public void onRefreshEnd() {
+		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+			mArticleItem = mAdapter.getArticle();
+			
+			if (mArticleItem != null) {
+				// Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
+				webview.loadDataWithBaseURL(null, mArticleItem.getContent(), "text/html", "utf-8", "about:blank");
+				
+				if (mArticleItem.getTitle() != null) {
+					this.setTitle(this.getResources().getString(R.string.ApplicationName) + " - "
+							+ mArticleItem.getTitle());
+				} else {
+					this.setTitle(this.getResources().getString(R.string.ApplicationName));
+				}
+				
+				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkReadEnabled())) {
+					new ArticleReadStateUpdater(mArticleItem.getFeedId(), mArticleItem, 0).update();
+				}
+				
+				// TODO: Is 3 a resonable size? What about "..." in articles, shall we skip that?
+				if (mArticleItem.getContent().length() < 3) {
+					openLink();
+				}
+			}
+		} else {
+			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+		}
+		
+		mProgressDialog.dismiss();
+	}
+	
+	@Override
+	public void onUpdateEnd() {
+		if (Controller.getInstance().getTTRSSConnector().hasLastError()) {
+			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+		}
+		
+		mProgressDialog.dismiss();
+	}
+	
+}

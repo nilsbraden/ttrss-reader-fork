@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="org.ttrssreader"
+	android:versionCode="2"
+	android:versionName="0.2.0">
+	
+	<application android:icon="@drawable/icon"
+		android:label="@string/ApplicationName"
+		android:description="@string/ApplicationDescription">
+
+		<activity android:name=".TtrssReaderMainActivity"
+			android:label="@string/ApplicationName">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".gui.activities.FeedListActivity" />
+		<activity android:name=".gui.activities.FeedHeadlineListActivity" />
+		<activity android:name=".gui.activities.ArticleActivity"
+			android:noHistory="true" />
+		<activity android:name=".gui.activities.PreferencesActivity" />
+		<activity android:name=".gui.activities.OverviewActivity" />
+		<activity android:name=".gui.activities.ConnectionErrorActivity" />
+		<activity android:name=".gui.activities.AboutActivity"
+			android:theme="@android:style/Theme.Dialog"
+			android:label="@string/AboutActivity.Title" />
+	</application>
+
+	<uses-sdk android:minSdkVersion="7" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	
+</manifest> 

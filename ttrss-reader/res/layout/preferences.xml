@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="@string/ConnectionPreferenceCategoryTitle">
+	
+		<EditTextPreference
+			android:name="@string/ConnectionUrlPreferenceTitle"
+			android:summary="@string/ConnectionUrlPreferenceSummary"
+			android:defaultValue="http://localhost/"
+			android:title="@string/ConnectionUrlPreferenceTitle"
+			android:key="ConnectionUrlPreference" />
+		<EditTextPreference
+			android:name="@string/ConnectionUsernamePreferenceTitle"
+			android:summary="@string/ConnectionUsernamePreferenceSummary"
+			android:defaultValue=""
+			android:title="@string/ConnectionUsernamePreferenceTitle"
+			android:key="ConnectionUsernamePreference" />
+		<EditTextPreference
+			android:name="@string/ConnectionPasswordPreferenceTitle"
+			android:summary="@string/ConnectionPasswordPreferenceSummary"
+			android:defaultValue=""
+			android:title="@string/ConnectionPasswordPreferenceTitle"
+			android:key="ConnectionPasswordPreference" 
+			android:password="true"  />
+			
+	</PreferenceCategory>
+	
+	<PreferenceCategory android:title="@string/UsagePreferenceCategoryTitle">
+	
+		<CheckBoxPreference
+			android:title="@string/AutomaticMarkReadPreferenceTitle"
+			android:defaultValue="true"
+			android:summary="@string/AutomaticMarkReadPreferenceSummary"
+			android:key="UsageAutomaticMarkReadPreference" />
+			
+	</PreferenceCategory>
+	
+	<PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle">
+	
+		<CheckBoxPreference
+			android:title="@string/DisplayVirtualPreferenceTitle"
+			android:defaultValue="true"
+			android:summary="@string/DisplayVirtualPreferenceSummary"
+			android:key="DisplayShowVirtualPreference" />
+		<CheckBoxPreference
+			android:title="@string/DisplayVirtualUnreadPreferenceTitle"
+			android:defaultValue="false"
+			android:summary="@string/DisplayVirtualUnreadPreferenceSummary"
+			android:key="DisplayShowVirtualUnreadPreference" />
+		<CheckBoxPreference
+			android:title="@string/AlwaysFullRefreshPreferenceTitle"
+			android:defaultValue="false"
+			android:summary="@string/AlwaysFullRefreshPreferenceSummary"
+			android:key="DisplayAlwaysFullRefreshPreference" />
+		<CheckBoxPreference
+			android:title="@string/UseSwipeTitle"
+			android:defaultValue="true"
+			android:summary="@string/UseSwipeSummary"
+			android:key="DisplayUseSwipePreference" />
+		<CheckBoxPreference
+			android:title="@string/ShowUnreadOnly"
+			android:defaultValue="false"
+			android:summary="@string/ShowUnreadOnlySummary"
+			android:key="DisplayShowUnreadOnlyPreference" />
+			
+	</PreferenceCategory>
+	
+</PreferenceScreen>
