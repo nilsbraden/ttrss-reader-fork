@@ -18,7 +18,7 @@ package org.ttrssreader;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.activities.ConnectionErrorActivity;
 import org.ttrssreader.gui.activities.FeedListActivity;
-import org.ttrssreader.gui.activities.OverviewActivity;
+import org.ttrssreader.gui.activities.CategoryActivity;
 import android.app.ProgressDialog;
 import android.app.TabActivity;
 import android.content.Intent;
@@ -46,9 +46,9 @@ public class TtrssReaderMainActivity extends TabActivity {
 		TabHost.TabSpec spec;
 		Intent i;
 		
-		// TAB 1: Overview, Virtual Categories, other Categories
-		i = new Intent().setClass(this, OverviewActivity.class);
-		spec = tabHost.newTabSpec("TAB_1").setIndicator("Overview").setContent(i);
+		// TAB 1: Virtual Categories, other Categories
+		i = new Intent().setClass(this, CategoryActivity.class);
+		spec = tabHost.newTabSpec("TAB_1").setIndicator("Categories").setContent(i);
 		tabHost.addTab(spec);
 		
 		// TAB 2: All uncategorized Feeds
