@@ -545,6 +545,11 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private int getUncatUnreadCount() {
 		// Get unread-count for Uncategorized feeds...
 		Map<String, List<FeedItem>> map = getSubsribedFeeds();
+		
+		if (map == null) {
+			return 0;
+		}
+		
 		int uncatCount = 0;
 		for (String key : map.keySet()) {
 			List<FeedItem> feeds = map.get(key);
