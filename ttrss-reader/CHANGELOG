@@ -1,6 +1,11 @@
 TODO
 - Automatically open Article if only one unread article in list (does'nt work yet)
 - Cache Articles or download for offline usage
+- Mark everything as read button
+- Share Article-URL via Twitter, Mail...
+- Zoom-Button for Articles
+- Faster startup?
+- https-support with own Certificates
 
 0.3.0
 - Next/previous-Button in Article-View Options-menu
