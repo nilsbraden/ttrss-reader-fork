@@ -85,6 +85,12 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		return result;
 	}
 	
+	public void markAllRead() {
+		for (FeedItem c : mFeeds) {
+			DataController.getInstance().markAllRead(c.getId(), false);
+		}
+	}
+	
 	private String formatTitle(String title, int unread) {
 		if (unread > 0) {
 			return title + " (" + unread + ")";

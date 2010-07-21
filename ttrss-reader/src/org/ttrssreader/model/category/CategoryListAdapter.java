@@ -69,6 +69,12 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		return mCategories.get(position).getUnreadCount();
 	}
 	
+	public void markAllRead() {
+		for (CategoryItem c : mCategories) {
+			DataController.getInstance().markAllRead(c.getId(), true);
+		}
+	}
+	
 	private String formatTitle(String title, int unread) {
 		if (unread > 0) {
 			return title + " (" + unread + ")";

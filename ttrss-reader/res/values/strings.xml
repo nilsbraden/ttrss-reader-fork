@@ -19,7 +19,8 @@
 <string name="Commons.PleaseWait">Please wait...</string>
 <string name="Commons.NothingToDisplay">Nothing to display.</string>
 <string name="Commons.UpdateReadState">Updating read state</string>
-<string name="Commons.DisplayOnlyUnread">Toggle display</string><!-- TODO: Search for better caption... -->
+<string name="Commons.DisplayOnlyUnread">Toggle display unread</string>
+<string name="Commons.MarkAllRead">Mark everything read</string>
 
 <string name="FeedHeadlinesListActivity.MarkAllRead">Mark all as read</string>
 <string name="FeedHeadlinesListActivity.MarkAllUnread">Mark all as unread</string>

@@ -37,6 +37,7 @@ public interface ITTRSSConnector {
 	public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter);
 	
 	public void setArticleRead(String articleId, int articleState);
+	void setRead(String id, boolean isCategory);
 	
 	public boolean hasLastError();
 	public String getLastError();
