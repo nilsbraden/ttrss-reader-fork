@@ -51,8 +51,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	private static final int MENU_MARK_UNREAD = Menu.FIRST + 1;
 	private static final int MENU_OPEN_LINK = Menu.FIRST + 2;
 	private static final int MENU_OPEN_COMMENT_LINK = Menu.FIRST + 3;
-	private static final int MENU_NEXT_ARTICLE = Menu.FIRST + 4; // Newer Article
-	private static final int MENU_PREV_ARTICLE = Menu.FIRST + 5; // Older Article
+//	private static final int MENU_NEXT_ARTICLE = Menu.FIRST + 4; // Newer Article
+//	private static final int MENU_PREV_ARTICLE = Menu.FIRST + 5; // Older Article
 	private static final int MENU_SHARE_LINK = Menu.FIRST + 6;
 	
 	private String mArticleId;
@@ -78,6 +78,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		
 		webview = (WebView) findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
+		webview.getSettings().setBuiltInZoomControls(true);
 		mGestureDetector = new GestureDetector(onGestureListener);
 		
 		webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
@@ -350,7 +351,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 					new ArticleReadStateUpdater(mArticleItem.getFeedId(), mArticleItem, 0).update();
 				}
 				
-				// TODO: Is 3 a resonable size? What about "..." in articles, shall we skip that?
 				if (mArticleItem.getContent().length() < 3) {
 					openLink();
 				}
