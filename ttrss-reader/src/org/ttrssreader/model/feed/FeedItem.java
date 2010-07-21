@@ -51,6 +51,10 @@ public class FeedItem {
 		return mUnread;
 	}
 	
+	public void setUnreadCount(int value) {
+		mUnread = value;
+	}
+	
 	public void setDeltaUnreadCount(int value) {
 		mUnread += value;
 	}

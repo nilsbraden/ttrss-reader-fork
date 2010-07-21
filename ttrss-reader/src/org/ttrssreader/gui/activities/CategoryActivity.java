@@ -40,6 +40,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private static final int MENU_SHOW_PREFERENCES = Menu.FIRST +1;
 	private static final int MENU_SHOW_ABOUT = Menu.FIRST + 2;
 	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
+	private static final int MENU_MARK_ALL_READ = Menu.FIRST + 4;
 	
 	private ListView mCategoryListView;
 	private CategoryListAdapter mAdapter = null;
@@ -117,13 +118,15 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
 		item.setIcon(R.drawable.refresh32);
 		
+		item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
+		
+		item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
+		
 		item = menu.add(0, MENU_SHOW_PREFERENCES, 0, R.string.Main_ShowPreferencesMenu);
 		item.setIcon(R.drawable.preferences32);
 		
 		item = menu.add(0, MENU_SHOW_ABOUT, 0, R.string.Main_ShowAboutMenu);
 		item.setIcon(R.drawable.about32);
-		
-		item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
 		
 		return true;
     }
@@ -134,14 +137,17 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			case MENU_REFRESH:
 				doForceRefresh();
 				return true;
+			case MENU_DISPLAY_ONLY_UNREAD:
+				displayOnlyUnreadSwitch();
+				return true;
+			case MENU_MARK_ALL_READ:
+				markAllRead();
+				return true;
 			case MENU_SHOW_PREFERENCES:
 				openPreferences();
 				return true;
 			case MENU_SHOW_ABOUT:
 				openAboutDialog();
-				return true;
-			case MENU_DISPLAY_ONLY_UNREAD:
-				displayOnlyUnreadSwitch();
 				return true;
 		}
 		
@@ -168,6 +174,11 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private void displayOnlyUnreadSwitch() {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
 		Controller.getInstance().setDisplayOnlyUnread(this, !displayOnlyUnread);
+		doRefresh();
+	}
+	
+	private void markAllRead() {
+		mAdapter.markAllRead();
 		doRefresh();
 	}
 

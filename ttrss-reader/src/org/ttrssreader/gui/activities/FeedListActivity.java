@@ -37,6 +37,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	
 	private static final int MENU_REFRESH = Menu.FIRST;
 	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 1;
+	private static final int MENU_MARK_ALL_READ = Menu.FIRST + 2;
 	
 	public static final String CATEGORY_ID = "CATEGORY_ID";
 	public static final String CATEGORY_TITLE = "CATEGORY_TITLE";
@@ -124,6 +125,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         item.setIcon(R.drawable.refresh32);
         
 		item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
+		
+		item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
         
     	return true;
     }
@@ -137,6 +140,9 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     	case MENU_DISPLAY_ONLY_UNREAD:
     		displayOnlyUnreadSwitch();
     		return true;
+		case MENU_MARK_ALL_READ:
+			markAllRead();
+			return true;
     	}
     	
     	return super.onMenuItemSelected(featureId, item);
@@ -151,6 +157,11 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	private void displayOnlyUnreadSwitch() {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
 		Controller.getInstance().setDisplayOnlyUnread(this, !displayOnlyUnread);
+		doRefresh();
+	}
+	
+	private void markAllRead() {
+		mAdapter.markAllRead();
 		doRefresh();
 	}
 

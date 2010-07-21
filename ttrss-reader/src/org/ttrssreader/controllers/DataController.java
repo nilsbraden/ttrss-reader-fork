@@ -27,6 +27,8 @@ import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryItemComparator;
 import org.ttrssreader.model.category.VirtualCategoryItemComparator;
 import org.ttrssreader.model.feed.FeedItem;
+import org.ttrssreader.utils.Utils;
+import android.util.Log;
 
 public class DataController {
 	
@@ -128,10 +130,11 @@ public class DataController {
 			List<CategoryItem> virtualList = internalGetVirtualCategories();
 			
 			if (virtualList != null) {
-				Iterator<CategoryItem> iter = virtualList.iterator();
-				while (iter.hasNext()) {
-					finalList.add(iter.next());
-				}
+//				Iterator<CategoryItem> iter = virtualList.iterator();
+//				while (iter.hasNext()) {
+//					finalList.add(iter.next());
+//				}
+				finalList.addAll(virtualList);
 				Collections.sort(finalList, new VirtualCategoryItemComparator());
 			}
 		}
@@ -143,16 +146,18 @@ public class DataController {
 		List<CategoryItem> categoryList = internalGetCategories();
 		
 		if (categoryList != null) {
-			Iterator<CategoryItem> iter = categoryList.iterator();
-			while (iter.hasNext()) {
-				tempList.add(iter.next());
-			}
+//			Iterator<CategoryItem> iter = categoryList.iterator();
+//			while (iter.hasNext()) {
+//				tempList.add(iter.next());
+//			}
+			finalList.addAll(categoryList);
 			Collections.sort(tempList, new CategoryItemComparator());
 		}
 		
-		for (CategoryItem category : tempList) {
-			finalList.add(category);
-		}
+//		for (CategoryItem category : tempList) {
+//			finalList.addAll(tempList);
+//		}
+		finalList.addAll(tempList);
 		
 		// If option "ShowUnreadOnly" is enabled filter out all categories without unread items
 		if (displayOnlyUnread && finalList != null) {
@@ -313,6 +318,66 @@ public class DataController {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * Iterates over all the given items and marks them and all sub-items as read. 
+	 * 
+	 * @param id the id of the item
+	 * @param isCategory indicates whether the item is a category (or a feed if false)
+	 */
+	public void markAllRead(String id, boolean isCategory) {
+		try {
+			
+			List<FeedItem> feeds = new ArrayList<FeedItem>();
+			
+			if (id.startsWith("-") || isCategory) {
+				// Virtual Category or Category
+				
+				List<CategoryItem> iterate = getCategories(true, true);
+				if (iterate != null) {
+					
+					for (CategoryItem categoryItem : iterate) {
+						Log.i(Utils.TAG, "Marking category as read: " + categoryItem.getTitle());
+						if (categoryItem.getId().equals(id)) {
+							categoryItem.setUnreadCount(0);
+						}
+						List<FeedItem> thisFeed = mSubscribedFeeds.get(categoryItem.getId());
+						if (thisFeed != null) feeds.addAll(thisFeed);
+					}
+
+				}
+			} else {
+				// Feed
+				FeedItem feedItem = getFeed(id, true);
+				if (feedItem != null) {
+					feeds.add(feedItem);
+				}
+			}
+			
+			// Set all items as read here
+			for (FeedItem feedItem : feeds) {
+				Log.i(Utils.TAG, "Marking feed as read: " + feedItem.getTitle());
+				
+				feedItem.setUnreadCount(0);
+				List<ArticleItem> internalFeeds = mFeedsHeadlines.get(feedItem.getId());
+				if (internalFeeds != null) {
+					for (ArticleItem ai : internalFeeds) {
+						ai.setUnread(false);
+					}
+				}
+			}
+			
+		} catch (NullPointerException npe) {
+			npe.printStackTrace();
+			Log.e(Utils.TAG, "Catched NPE in DataController.markAllRead(). " +
+					"All articles should be marked read on server though, so " +
+					"Refreshing from menu should do the trick.");
+		} finally {
+			
+			Controller.getInstance().getTTRSSConnector().setRead(id, isCategory);
+			
+		}
 	}
 	
 }

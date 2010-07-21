@@ -47,6 +47,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s";
 	private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
 	private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
+	private static final String OP_CATCHUP = "?op=catchupFeed&sid=%s&feed_id=%s&is_cat=%s";
 	
 	private static final String ERROR_NAME = "{\"error\":";
 	private static final String SESSION_ID = "session_id";
@@ -603,6 +604,22 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		}
 		
 		String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, mSessionId, articlesIds, articleState, 2);
+	
+		doRequest(url);
+	}
+	
+	// TODO: Test this!
+	@Override
+	public void setRead(String id, boolean isCategory) {
+		if (mSessionId == null) {
+			login();
+			
+			if (mHasLastError) {
+				return;
+			}
+		}
+		
+		String url = mServerUrl + String.format(OP_CATCHUP, mSessionId, id, isCategory);
 	
 		doRequest(url);
 	}
