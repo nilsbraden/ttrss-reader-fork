@@ -32,7 +32,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
-public class OverviewActivity extends ListActivity implements IRefreshEndListener {
+public class CategoryActivity extends ListActivity implements IRefreshEndListener {
 	
 	private static final int ACTIVITY_SHOW_FEEDS = 0;
 	
@@ -49,7 +49,7 @@ public class OverviewActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.overview);
+		setContentView(R.layout.category);
 		
 //		Controller.getInstance().checkAndInitializeController(this);
 

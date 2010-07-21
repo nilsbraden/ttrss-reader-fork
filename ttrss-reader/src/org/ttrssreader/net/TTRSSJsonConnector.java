@@ -220,7 +220,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		try {
 			
-			// TODO: We can't handle arrays here, i put the code for the attachment-array in ArticleItem.doLoadContent()
+			// Handle array with attachments, put them in the map with key "attachment_[0-9]"
 			for (int i = 0; i < jsonResult.getNames().length(); i++) {
 				
 				

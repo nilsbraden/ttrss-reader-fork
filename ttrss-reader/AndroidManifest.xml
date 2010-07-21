@@ -21,7 +21,7 @@
 		<activity android:name=".gui.activities.ArticleActivity"
 			android:noHistory="true" />
 		<activity android:name=".gui.activities.PreferencesActivity" />
-		<activity android:name=".gui.activities.OverviewActivity" />
+		<activity android:name=".gui.activities.CategoryActivity" />
 		<activity android:name=".gui.activities.ConnectionErrorActivity" />
 		<activity android:name=".gui.activities.AboutActivity"
 			android:theme="@android:style/Theme.Dialog"
