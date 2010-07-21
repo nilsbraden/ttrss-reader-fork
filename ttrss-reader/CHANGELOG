@@ -1,7 +1,6 @@
 TODO
 - Automatically open Article if only one unread article in list (does'nt work yet)
 - Cache Articles or download for offline usage
-- Mark everything as read button
 - Share Article-URL via Twitter, Mail...
 - Zoom-Button for Articles
 - Faster startup?
@@ -22,6 +21,7 @@ TODO
 - Automatically leave FeedHeadlineView if there are no items (see FeedHeadlineListActivity.java:207)
 - Disabled concurrent modifications in Refresher.java and Updater.java because of Exceptions (see comments in source)
 - forceRefresh not disabled automatically anymore, so we can forceRefresh several Adapters in one step (neccessary for Main-Activity with Categories and FeedHeadlines, see Comment in DataController.java)
+- Mark everything as read button
 
 0.2.0:
 - Switch to new TTRSS JSON-based API; XML-RPC is no longer supported (need TTRSS >= 1.4.0);
