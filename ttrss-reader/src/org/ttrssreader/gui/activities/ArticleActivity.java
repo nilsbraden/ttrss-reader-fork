@@ -53,6 +53,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	private static final int MENU_OPEN_COMMENT_LINK = Menu.FIRST + 3;
 	private static final int MENU_NEXT_ARTICLE = Menu.FIRST + 4; // Newer Article
 	private static final int MENU_PREV_ARTICLE = Menu.FIRST + 5; // Older Article
+	private static final int MENU_SHARE_LINK = Menu.FIRST + 6;
 	
 	private String mArticleId;
 	private String mFeedId;
@@ -121,11 +122,13 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		item = menu.add(0, MENU_OPEN_COMMENT_LINK, 0, R.string.ArticleActivity_OpenCommentLink);
 		item.setIcon(R.drawable.commentlink32);
 		
-		item = menu.add(0, MENU_NEXT_ARTICLE, 0, "");
-		item.setIcon(android.R.drawable.arrow_up_float);
+//		item = menu.add(0, MENU_NEXT_ARTICLE, 0, "");
+//		item.setIcon(android.R.drawable.arrow_up_float);
+//		
+//		item = menu.add(0, MENU_PREV_ARTICLE, 0, "");
+//		item.setIcon(android.R.drawable.arrow_down_float);
 		
-		item = menu.add(0, MENU_PREV_ARTICLE, 0, "");
-		item.setIcon(android.R.drawable.arrow_down_float);
+		item = menu.add(0, MENU_SHARE_LINK, 0, R.string.ArticleActivity_ShareLink);
 		
 		return true;
 	}
@@ -145,11 +148,14 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			case MENU_OPEN_COMMENT_LINK:
 				openCommentLink();
 				return true;
-			case MENU_NEXT_ARTICLE:
-				openNextOlderArticle();
-				return true;
-			case MENU_PREV_ARTICLE:
-				openNextNewerArticle();
+//			case MENU_NEXT_ARTICLE:
+//				openNextOlderArticle();
+//				return true;
+//			case MENU_PREV_ARTICLE:
+//				openNextNewerArticle();
+//				return true;
+			case MENU_SHARE_LINK:
+				shareLink();
 				return true;
 		}
 		
@@ -197,6 +203,14 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 				openUrl(url);
 			}
 		}
+	}
+	
+	private void shareLink() {
+		Intent i = new Intent(Intent.ACTION_SEND);
+		i.setType("text/plain");
+		i.putExtra(Intent.EXTRA_SUBJECT, "Link from ttrss-reader");
+		i.putExtra(Intent.EXTRA_TEXT, mArticleItem.getArticleUrl());
+		this.startActivity(Intent.createChooser(i, "Send link..."));
 	}
 	
 	private void openNextNewerArticle() {
