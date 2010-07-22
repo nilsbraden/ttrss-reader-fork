@@ -29,10 +29,8 @@ public class Updater implements Runnable {
 		mParent = parent;
 		mUpdatable = updatable;
 
-		// Disabled concurrent update, see Refresher.java
-//		Thread mThread = new Thread(this);
-//		mThread.start();
-		run();
+		Thread mThread = new Thread(this);
+		mThread.start();
 	}
 	
 	private Handler handler = new Handler() {
