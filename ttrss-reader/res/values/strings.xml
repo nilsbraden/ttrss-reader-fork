@@ -47,8 +47,10 @@
 <string name="AlwaysFullRefreshPreferenceSummary">Check to always perform full data refresh.</string>
 <string name="UseSwipeTitle">Use Swipe</string>
 <string name="UseSwipeSummary">Use Left/Right-Swipe to navigate through articles.</string>
-<string name="ShowUnreadOnly">Only show unread</string>
+<string name="ShowUnreadOnlyTitle">Only show unread</string>
 <string name="ShowUnreadOnlySummary">Hide Feeds and Articles that have no unread items.</string>
+<string name="ArticleLimitTitle">Store Articles limit</string>
+<string name="ArticleLimitSummary">How many Articles will be cached locally.</string>
 
 <string name="ConnectionErrorActivity.Title">Oups...</string>
 <string name="ConnectionErrorActivity.UserMessage">I was unable to connect to your Tiny Tiny RSS instance, please check your connection and/or connection settings.</string>

@@ -16,6 +16,7 @@
 package org.ttrssreader;
 
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.activities.ConnectionErrorActivity;
 import org.ttrssreader.gui.activities.FeedListActivity;
 import org.ttrssreader.gui.activities.CategoryActivity;
@@ -40,6 +41,8 @@ public class TtrssReaderMainActivity extends TabActivity {
 		setContentView(R.layout.main);
 		
 		Controller.getInstance().checkAndInitializeController(this);
+		DBHelper.getInstance().checkAndInitializeController(this);
+		
 		
 		// Create Tab-Layout...
 		tabHost = getTabHost();

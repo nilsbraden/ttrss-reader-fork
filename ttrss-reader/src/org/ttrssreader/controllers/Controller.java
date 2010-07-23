@@ -37,6 +37,7 @@ public class Controller {
 	private boolean mUseSwipe = true;
 	private boolean mDisplayOnlyUnread = false;
 	private boolean mDisplayVirtuals = true;
+	private int mArticleLimit = 100;
 	
 	private static Controller mInstance = null;
 	private SharedPreferences prefs = null;
@@ -86,6 +87,10 @@ public class Controller {
 		
 		mDisplayVirtuals = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
 				PreferencesConstants.DISPLAY_SHOW_VIRTUAL, true);
+		
+		String artLimit = PreferenceManager.getDefaultSharedPreferences(context).getString(
+				PreferencesConstants.ARTICLE_LIMIT, "100");
+		mArticleLimit = new Integer(artLimit).intValue();
 		
 		mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, showUnreadInVirtualFeeds);
 		
@@ -138,6 +143,10 @@ public class Controller {
 	
 	public boolean isDisplayVirtualsEnabled() {
 		return mDisplayVirtuals;
+	}
+	
+	public int getArticleLimit() {
+		return mArticleLimit;
 	}
 	
 }

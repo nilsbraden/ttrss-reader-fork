@@ -17,6 +17,7 @@ package org.ttrssreader.controllers;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,10 +43,20 @@ public class DataController {
 	private List<CategoryItem> mCategories;
 	
 	private DataController() {
-		mFeedsHeadlines = new HashMap<String, List<ArticleItem>>();
-		mSubscribedFeeds = null;
-		mVirtualCategories = null;
-		mCategories = null;
+
+		int articleLimit = Controller.getInstance().getArticleLimit();
+		
+		mFeedsHeadlines = DBHelper.getInstance().getArticles(articleLimit);
+		mSubscribedFeeds = DBHelper.getInstance().getFeeds();
+		mVirtualCategories = DBHelper.getInstance().getVirtualCategories();
+		mCategories = DBHelper.getInstance().getCategories();
+		
+		if (mFeedsHeadlines.isEmpty()) mFeedsHeadlines = new HashMap<String, List<ArticleItem>>();
+		if (mSubscribedFeeds.isEmpty()) mSubscribedFeeds = null;
+		if (mVirtualCategories.isEmpty()) mVirtualCategories = null;
+		if (mCategories.isEmpty()) mCategories = null;
+		
+		purgeArticlesNumber();
 	}
 	
 	public static DataController getInstance() {
@@ -72,8 +83,12 @@ public class DataController {
 	}
 	
 	private List<CategoryItem> internalGetVirtualCategories() {
-		if ((mVirtualCategories == null) || (needFullRefresh())) {
+		if (mVirtualCategories == null || needFullRefresh()) {
+			Log.i(Utils.TAG, "Refreshing Data: internalGetVirtualCategories()");
 			mVirtualCategories = Controller.getInstance().getTTRSSConnector().getVirtualFeeds();
+
+			DBHelper.getInstance().insertCategories(mVirtualCategories);
+			
 			// mForceFullRefresh = false;
 		}
 		return mVirtualCategories;
@@ -81,7 +96,11 @@ public class DataController {
 	
 	private List<CategoryItem> internalGetCategories() {
 		if ((mCategories == null) || (needFullRefresh())) {
+			Log.i(Utils.TAG, "Refreshing Data: internalGetCategories()");
 			mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
+
+			DBHelper.getInstance().insertCategories(mCategories);
+			
 			// mForceFullRefresh = false;
 		}
 		return mCategories;
@@ -122,41 +141,26 @@ public class DataController {
 	}
 	
 	public List<CategoryItem> getCategories(boolean withVirtuals, boolean displayOnlyUnread) {
-		boolean tmpForceFullRefresh = mForceFullRefresh;
-		
+
 		List<CategoryItem> finalList = new ArrayList<CategoryItem>();
 		
 		if (withVirtuals) {
 			List<CategoryItem> virtualList = internalGetVirtualCategories();
 			
 			if (virtualList != null) {
-//				Iterator<CategoryItem> iter = virtualList.iterator();
-//				while (iter.hasNext()) {
-//					finalList.add(iter.next());
-//				}
 				finalList.addAll(virtualList);
 				Collections.sort(finalList, new VirtualCategoryItemComparator());
 			}
 		}
 		
-		mForceFullRefresh = tmpForceFullRefresh;
-		
 		List<CategoryItem> tempList = new ArrayList<CategoryItem>();
-		
 		List<CategoryItem> categoryList = internalGetCategories();
 		
 		if (categoryList != null) {
-//			Iterator<CategoryItem> iter = categoryList.iterator();
-//			while (iter.hasNext()) {
-//				tempList.add(iter.next());
-//			}
 			finalList.addAll(categoryList);
 			Collections.sort(tempList, new CategoryItemComparator());
 		}
 		
-//		for (CategoryItem category : tempList) {
-//			finalList.addAll(tempList);
-//		}
 		finalList.addAll(tempList);
 		
 		// If option "ShowUnreadOnly" is enabled filter out all categories without unread items
@@ -185,8 +189,13 @@ public class DataController {
 	}
 	
 	public Map<String, List<FeedItem>> getSubscribedFeeds() {
-		if ((mSubscribedFeeds == null) || (needFullRefresh())) {
+		if (mSubscribedFeeds == null || needFullRefresh()) {
+			Log.i(Utils.TAG, "Refreshing Data: getSubscribedFeeds()");
 			mSubscribedFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
+
+			for (String s : mSubscribedFeeds.keySet()) {
+				DBHelper.getInstance().insertFeeds(mSubscribedFeeds.get(s));
+			}
 			// mForceFullRefresh = false;
 		}
 		return mSubscribedFeeds;
@@ -258,10 +267,16 @@ public class DataController {
 	public List<ArticleItem> getArticlesForFeedsHeadlines(String feedId, boolean displayOnlyUnread) {
 		List<ArticleItem> result = mFeedsHeadlines.get(feedId);
 		
-		if ((result == null) || (needFullRefresh())) {
-			result = Controller.getInstance().getTTRSSConnector().getFeedHeadlines(new Integer(feedId).intValue(), 100,
-					0);
+		if (result == null || needFullRefresh()) {
+			Log.i(Utils.TAG, "Refreshing Data: getArticlesForFeedsHeadlines()");
+			int limit = Controller.getInstance().getArticleLimit();
+			
+			result = Controller.getInstance().getTTRSSConnector().getFeedHeadlines(new Integer(feedId).intValue(), limit, 0);
+			
 			mFeedsHeadlines.put(feedId, result);
+			
+			DBHelper.getInstance().insertArticles(result, limit);
+
 			// mForceFullRefresh = false;
 		}
 		
@@ -313,7 +328,9 @@ public class DataController {
 		
 		if (result != null) {
 			if (!result.isContentLoaded()) {
+				Log.i(Utils.TAG, "Refreshing Data: getSingleArticleWithFullContentLoaded() -> doLoadContent()");
 				result.doLoadContent();
+				DBHelper.getInstance().updateArticleContent(result);
 			}
 		}
 		
@@ -341,9 +358,12 @@ public class DataController {
 						Log.i(Utils.TAG, "Marking category as read: " + categoryItem.getTitle());
 						if (categoryItem.getId().equals(id)) {
 							categoryItem.setUnreadCount(0);
+							DBHelper.getInstance().updateCategoryUnreadCount(categoryItem.getId(), 0);
 						}
 						List<FeedItem> thisFeed = mSubscribedFeeds.get(categoryItem.getId());
-						if (thisFeed != null) feeds.addAll(thisFeed);
+						if (thisFeed != null) {
+							feeds.addAll(thisFeed);
+						}
 					}
 
 				}
@@ -360,10 +380,13 @@ public class DataController {
 				Log.i(Utils.TAG, "Marking feed as read: " + feedItem.getTitle());
 				
 				feedItem.setUnreadCount(0);
+				DBHelper.getInstance().updateFeedUnreadCount(feedItem.getId(), feedItem.getCategoryId(), 0);
+				
 				List<ArticleItem> internalFeeds = mFeedsHeadlines.get(feedItem.getId());
 				if (internalFeeds != null) {
 					for (ArticleItem ai : internalFeeds) {
 						ai.setUnread(false);
+						DBHelper.getInstance().updateArticleUnread(ai.getId(), ai.getFeedId(), false);						
 					}
 				}
 			}
@@ -377,7 +400,31 @@ public class DataController {
 			
 			Controller.getInstance().getTTRSSConnector().setRead(id, isCategory);
 			
+
 		}
+	}
+	
+	/**
+	 * Purge articles that are older then [days].
+	 * Only removes read articles, unread articles are not touched.
+	 */
+	public void purgeArticlesDays(int days) {
+		long date = System.currentTimeMillis() - (days * 1000 * 60 * 60 * 24);
+		DBHelper.getInstance().purgeArticlesDays(new Date(date));
+	}
+	
+	/**
+	 * Purge old articles so only the newest [number] articles are left.
+	 * Only removes read articles, unread articles are not touched.
+	 * 
+	 * @param number
+	 */
+	public void purgeArticlesNumber() {
+		int maxArticles = Controller.getInstance().getArticleLimit();
+		
+		DBHelper.getInstance().purgeArticlesNumber(maxArticles);
+		
+		mFeedsHeadlines = DBHelper.getInstance().getArticles(maxArticles);
 	}
 	
 }
