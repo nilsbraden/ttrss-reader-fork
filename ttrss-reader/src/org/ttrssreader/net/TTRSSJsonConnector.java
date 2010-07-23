@@ -381,8 +381,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 						id,
 						title,
 						unread,
-						new Date(new Long(updated + "000").longValue()),
-						null);
+						new Date(new Long(updated + "000").longValue()));
 				
 				finalResult.add(articleItem);
 			}

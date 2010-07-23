@@ -2,14 +2,14 @@
  * Tiny Tiny RSS Reader for Android
  * 
  * Copyright (C) 2009 J. Devauchelle and contributors.
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
 
@@ -18,11 +18,10 @@ package org.ttrssreader.model.article;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.ttrssreader.controllers.Controller;
 
 public class ArticleItem {
-
+	
 	private String mId;
 	private String mTitle;
 	private String mFeedId;
@@ -32,13 +31,12 @@ public class ArticleItem {
 	private String mArticleCommentUrl;
 	private Date mUpdateDate;
 	private boolean mIsContentLoaded;
-	private Map<String, String> mAttachments;
-
+	
 	public ArticleItem(String feedId, String id) {
-		this(feedId, id, null, false, null, null);
+		this(feedId, id, null, false, null);
 	}
 	
-	public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate, Map<String, String> attachments) {
+	public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate) {
 		mId = id;
 		mTitle = title;
 		mFeedId = feedId;
@@ -48,7 +46,23 @@ public class ArticleItem {
 		mArticleUrl = null;
 		mArticleCommentUrl = null;
 		mIsContentLoaded = false;
-		mAttachments = attachments;
+	}
+	
+	public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate, String content,
+			String articleUrl, String articleCommentUrl) {
+		mId = id;
+		mTitle = title;
+		mFeedId = feedId;
+		mIsUnread = isUnread;
+		mUpdateDate = updateDate;
+		mContent = content;
+		mArticleUrl = articleUrl;
+		mArticleCommentUrl = articleCommentUrl;
+		if (mContent == null) {	
+			mIsContentLoaded = false;
+		} else {
+			mIsContentLoaded = (content.length() > 0 ? true : false);
+		}
 	}
 	
 	public String getId() {
@@ -106,22 +120,13 @@ public class ArticleItem {
 	public boolean isContentLoaded() {
 		return mIsContentLoaded;
 	}
-
-	public void setAttachments(Map<String, String> mAttachments) {
-		this.mAttachments = mAttachments;
-	}
-
-	public Map<String, String> getAttachments() {
-		return mAttachments;
-	}
 	
 	public void doLoadContent() {
 		Map<?, ?> result = Controller.getInstance().getTTRSSConnector().getArticle(new Integer(mId).intValue());
 		if (result != null) {
 			mContent = result.get("content").toString();
 			
-			if ((mTitle == null) ||
-					(mTitle.length() == 0)) {
+			if ((mTitle == null) || (mTitle.length() == 0)) {
 				mTitle = result.get("title").toString();
 			}
 			
@@ -130,8 +135,7 @@ public class ArticleItem {
 			
 			if (mUpdateDate == null) {
 				String updatedDate = result.get("updated").toString();
-				if ((updatedDate != null) &&
-						(updatedDate.length() > 0)) {
+				if ((updatedDate != null) && (updatedDate.length() > 0)) {
 					// PHP strtotime gives timestamp in seconds.
 					mUpdateDate = new Date(new Long(result.get("updated").toString() + "000").longValue());
 				} else {
@@ -139,7 +143,7 @@ public class ArticleItem {
 				}
 			}
 			
-			mAttachments = new HashMap<String, String>();
+			Map<String, String> mAttachments = new HashMap<String, String>();
 			
 			// Find attachments (key = "attachment_[0-9]*"
 			for (Object key : result.keySet()) {
@@ -148,7 +152,7 @@ public class ArticleItem {
 				String value;
 				
 				if (string.startsWith("attachment_")) {
-
+					
 					string = string.replace("attachment_", "");
 					value = (String) result.get(key);
 					
@@ -157,7 +161,7 @@ public class ArticleItem {
 				}
 			}
 			
-			//Add Attachments to Content
+			// Add Attachments to Content
 			if (mAttachments.size() > 0) {
 				mContent += "<br>\n";
 				for (String s : mAttachments.keySet()) {

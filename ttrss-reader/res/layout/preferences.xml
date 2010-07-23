@@ -57,10 +57,18 @@
 			android:summary="@string/UseSwipeSummary"
 			android:key="DisplayUseSwipePreference" />
 		<CheckBoxPreference
-			android:title="@string/ShowUnreadOnly"
+			android:title="@string/ShowUnreadOnlyTitle"
 			android:defaultValue="false"
 			android:summary="@string/ShowUnreadOnlySummary"
 			android:key="DisplayShowUnreadOnlyPreference" />
+		<EditTextPreference
+			android:name="@string/ArticleLimitTitle"
+			android:title="@string/ArticleLimitTitle"
+			android:summary="@string/ArticleLimitSummary"
+			android:defaultValue="100"
+			android:key="ArticleLimitPreference"
+			android:maxLength="5"
+			android:inputType="number" />
 			
 	</PreferenceCategory>
 	

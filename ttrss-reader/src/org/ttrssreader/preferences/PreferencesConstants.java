@@ -28,5 +28,6 @@ public class PreferencesConstants {
 	public static String DISPLAY_ALWAYS_FULL_REFRESH = "DisplayAlwaysFullRefreshPreference";
 	public static String USE_SWIPE = "DisplayUseSwipePreference";
 	public static String DISPLAY_ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
+	public static String ARTICLE_LIMIT = "ArticleLimitPreference";
 
 }
