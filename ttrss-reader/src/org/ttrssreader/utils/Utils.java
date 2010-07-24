@@ -31,7 +31,7 @@ public class Utils {
          * there's no more data to read. Each line will appended to a StringBuilder
          * and returned as String.
          */
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is), 1024*8);
         StringBuilder sb = new StringBuilder();
  
         String line = null;

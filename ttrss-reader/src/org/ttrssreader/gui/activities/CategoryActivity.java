@@ -156,6 +156,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	private void doForceRefresh() {
 		DataController.getInstance().forceFullRefresh();
+		DataController.getInstance().forceFullReload();
 		doRefresh();
 		DataController.getInstance().disableFullRefresh();
 	}
