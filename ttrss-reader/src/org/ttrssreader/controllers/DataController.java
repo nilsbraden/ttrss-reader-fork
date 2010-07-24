@@ -36,15 +36,18 @@ public class DataController {
 	private static DataController mInstance = null;
 	
 	private boolean mForceFullRefresh = false;
+	private boolean mForceFullReload= false;
 	
 	private Map<String, List<ArticleItem>> mFeedsHeadlines;
 	private Map<String, List<FeedItem>> mSubscribedFeeds;
 	private List<CategoryItem> mVirtualCategories;
 	private List<CategoryItem> mCategories;
 	
+	private int articleLimit;
+	
 	private DataController() {
 
-		int articleLimit = Controller.getInstance().getArticleLimit();
+		articleLimit = Controller.getInstance().getArticleLimit();
 		
 		mFeedsHeadlines = DBHelper.getInstance().getArticles(articleLimit);
 		mSubscribedFeeds = DBHelper.getInstance().getFeeds();
@@ -76,6 +79,10 @@ public class DataController {
 	 */
 	public void disableFullRefresh() {
 		mForceFullRefresh = false;
+	}
+	
+	public void forceFullReload() {
+		mForceFullReload = true;
 	}
 	
 	private boolean needFullRefresh() {
@@ -269,13 +276,12 @@ public class DataController {
 		
 		if (result == null || needFullRefresh()) {
 			Log.i(Utils.TAG, "Refreshing Data: getArticlesForFeedsHeadlines()");
-			int limit = Controller.getInstance().getArticleLimit();
 			
-			result = Controller.getInstance().getTTRSSConnector().getFeedHeadlines(new Integer(feedId).intValue(), limit, 0);
+			result = Controller.getInstance().getTTRSSConnector().getFeedHeadlines(new Integer(feedId).intValue(), articleLimit, 0);
 			
 			mFeedsHeadlines.put(feedId, result);
 			
-			DBHelper.getInstance().insertArticles(result, limit);
+			DBHelper.getInstance().insertArticles(result, articleLimit);
 
 			// mForceFullRefresh = false;
 		}
@@ -337,6 +343,23 @@ public class DataController {
 		return result;
 	}
 	
+	public List<ArticleItem> getArticlesWithFullContentLoaded(String feedId) {
+		
+		List<ArticleItem> result = getArticlesForFeedsHeadlines(feedId, false);
+		
+		if (result != null) {
+			for (ArticleItem a : result) {
+				if (!a.isContentLoaded()) {
+					Log.i(Utils.TAG, "Refreshing Data: getArticlesWithFullContentLoaded() -> doLoadContent()");
+					a.doLoadContent();
+					DBHelper.getInstance().updateArticleContent(a);
+				}
+			}
+		}
+		
+		return result;
+	}
+	
 	/**
 	 * Iterates over all the given items and marks them and all sub-items as read. 
 	 * 
@@ -380,22 +403,14 @@ public class DataController {
 				Log.i(Utils.TAG, "Marking feed as read: " + feedItem.getTitle());
 				
 				feedItem.setUnreadCount(0);
-				DBHelper.getInstance().updateFeedUnreadCount(feedItem.getId(), feedItem.getCategoryId(), 0);
-				
-				List<ArticleItem> internalFeeds = mFeedsHeadlines.get(feedItem.getId());
-				if (internalFeeds != null) {
-					for (ArticleItem ai : internalFeeds) {
-						ai.setUnread(false);
-						DBHelper.getInstance().updateArticleUnread(ai.getId(), ai.getFeedId(), false);						
-					}
-				}
+				DBHelper.getInstance().markFeedRead(feedItem);
 			}
 			
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
 			Log.e(Utils.TAG, "Catched NPE in DataController.markAllRead(). " +
 					"All articles should be marked read on server though, so " +
-					"Refreshing from menu should do the trick.");
+					"refreshing from menu should do the trick.");
 		} finally {
 			
 			Controller.getInstance().getTTRSSConnector().setRead(id, isCategory);
@@ -420,11 +435,32 @@ public class DataController {
 	 * @param number
 	 */
 	public void purgeArticlesNumber() {
-		int maxArticles = Controller.getInstance().getArticleLimit();
+		Log.i(Utils.TAG, "Puring old articles... (Keeping " + articleLimit + " articles)");
 		
-		DBHelper.getInstance().purgeArticlesNumber(maxArticles);
+		DBHelper.getInstance().purgeArticlesNumber(articleLimit);
 		
-		mFeedsHeadlines = DBHelper.getInstance().getArticles(maxArticles);
+		mFeedsHeadlines = DBHelper.getInstance().getArticles(articleLimit);
+	}
+	
+	public void reloadEverything() {
+		if (!mForceFullReload) {
+			mForceFullReload = false;
+			return;
+		}
+		
+		DBHelper.getInstance().deleteAll();
+		
+		internalGetCategories();
+		internalGetVirtualCategories();
+		getSubscribedFeeds();
+		
+		for (String s : mSubscribedFeeds.keySet()) {
+			List<FeedItem> list = mSubscribedFeeds.get(s);
+			for (FeedItem f : list) {
+				getArticlesForFeedsHeadlines(f.getId(), false);
+//				getArticlesWithFullContentLoaded(f.getId());
+			}
+		}
 	}
 	
 }
