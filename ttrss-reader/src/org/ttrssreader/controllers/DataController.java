@@ -446,6 +446,8 @@ public class DataController {
 		if (!mForceFullReload) {
 			mForceFullReload = false;
 			return;
+		} else {
+			forceFullRefresh();
 		}
 		
 		DBHelper.getInstance().deleteAll();
