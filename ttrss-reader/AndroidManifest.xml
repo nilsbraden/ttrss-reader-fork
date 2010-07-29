@@ -8,7 +8,7 @@
 		android:label="@string/ApplicationName"
 		android:description="@string/ApplicationDescription">
 
-		<activity android:name=".TtrssReaderMainActivity"
+		<activity android:name=".gui.activities.CategoryActivity"
 			android:label="@string/ApplicationName">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -21,7 +21,7 @@
 		<activity android:name=".gui.activities.ArticleActivity"
 			android:noHistory="true" />
 		<activity android:name=".gui.activities.PreferencesActivity" />
-		<activity android:name=".gui.activities.CategoryActivity" />
+<!--		<activity android:name=".gui.activities.CategoryActivity" />-->
 		<activity android:name=".gui.activities.ConnectionErrorActivity" />
 		<activity android:name=".gui.activities.AboutActivity"
 			android:theme="@android:style/Theme.Dialog"

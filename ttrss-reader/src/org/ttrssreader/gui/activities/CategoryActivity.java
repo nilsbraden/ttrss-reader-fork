@@ -17,6 +17,7 @@ package org.ttrssreader.gui.activities;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
@@ -48,7 +49,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	private ListView mCategoryListView;
 	private CategoryListAdapter mAdapter = null;
-	
 //	private ProgressDialog mProgressDialog;
 	
 	@Override
@@ -56,9 +56,11 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.category);
+		
+		Controller.getInstance().checkAndInitializeController(this);
+		DBHelper.getInstance().checkAndInitializeController(this);
 
 		setProgressBarIndeterminateVisibility(false);
-		// Controller.getInstance().checkAndInitializeController(this);
 
 		mCategoryListView = getListView();
 	}
@@ -73,11 +75,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		setProgressBarVisibility(true);
 //		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
 		
-		if (mAdapter == null) {
-			mAdapter = new CategoryListAdapter(this);
-			mCategoryListView.setAdapter(mAdapter);
-		}
-		
 		int totalUnread = Controller.getInstance().getTTRSSConnector().getTotalUnread();
 		
 		if (totalUnread > 0) {
@@ -86,6 +83,16 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			this.setTitle(this.getResources().getString(R.string.ApplicationName));
 		}
 		
+		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+		} else {
+			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+		}
+//		mProgressDialog.dismiss();
+		
+		if (mAdapter == null) {
+			mAdapter = new CategoryListAdapter(this);
+			mCategoryListView.setAdapter(mAdapter);
+		} 
 		new Refresher(this, mAdapter);
 	}
 

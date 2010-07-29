@@ -100,12 +100,14 @@ public class DBHelper {
 		if (mDBLocationSDCard) {
 			OpenHelper openHelper = new OpenHelper(context);
 			db = openHelper.getWritableDatabase();
+			
 			insertCat = db.compileStatement(INSERT_CAT);
 			insertFeed = db.compileStatement(INSERT_FEEDS);
 		
 			mDBLocationSDCard = false;
 		} else {
 			openDatabase();
+			
 			insertCat = db.compileStatement(INSERT_CAT);
 			insertFeed = db.compileStatement(INSERT_FEEDS);
 			insertArticle = db.compileStatement(INSERT_ARTICLES);

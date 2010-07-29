@@ -16,8 +16,6 @@
 package org.ttrssreader.model.article;
 
 import java.util.Date;
-import org.ttrssreader.utils.Utils;
-import android.util.Log;
 
 public class ArticleItem {
 	
@@ -59,12 +57,10 @@ public class ArticleItem {
 		mArticleUrl = articleUrl;
 		mArticleCommentUrl = articleCommentUrl;
 		
-		
 		if ( content == null || (content.length() < 1 || content.equals("null")) ) {	
 			setIsContentLoaded(false);
 			mContent = "";
 		} else {
-			Log.e(Utils.TAG, "Content: " + content);
 			setIsContentLoaded(true);
 			mContent = content;
 		}

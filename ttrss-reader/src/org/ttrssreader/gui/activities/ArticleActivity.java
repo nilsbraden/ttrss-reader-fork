@@ -332,10 +332,10 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 				}
 				
 				// TODO: FIXTHIS
-//				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkReadEnabled())) {
-//					new Updater(this, new ArticleReadStateUpdater(mArticleItem.getFeedId(), mArticleItem, 0));
-//					mArticleItem.setIsUnread(false);
-//				}
+				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkReadEnabled())) {
+					new Updater(this, new ArticleReadStateUpdater(mArticleItem.getFeedId(), mArticleItem, 0));
+					mArticleItem.setIsUnread(false);
+				}
 				
 				if (mArticleItem.getContent().length() < 3) {
 					openLink();
