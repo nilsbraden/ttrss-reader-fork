@@ -93,8 +93,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 
 	private void doRefresh() {
 		
-		Controller.getInstance().setRefreshNeeded(false);
-		
 		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
 
 		if (mAdapter == null) {

@@ -28,8 +28,9 @@ public class Refresher implements Runnable {
 		mParent = parent;
 		mRefreshable = refreshable;
 		
-		 Thread mThread = new Thread(this);
-		 mThread.start();
+//		 Thread mThread = new Thread(this);
+//		 mThread.start();
+		run();
 	}
 	
 	private Handler handler = new Handler() {

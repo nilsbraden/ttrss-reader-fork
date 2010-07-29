@@ -54,13 +54,13 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	private FeedHeadlineListAdapter mAdapter = null;
 	
 	private ProgressDialog mProgressDialog;
-
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.feedheadlinelist);
 		
-//		Controller.getInstance().checkAndInitializeController(this);
+		// Controller.getInstance().checkAndInitializeController(this);
 		
 		mFeedHeadlineListView = getListView();
 		
@@ -85,9 +85,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	private void doRefresh() {
 		
-		Controller.getInstance().setRefreshNeeded(false);
-		
-		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
+		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(
+				R.string.Commons_PleaseWait));
 		
 		if (mAdapter == null) {
 			mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
@@ -201,20 +200,20 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		
 		if (Controller.getInstance().isDisplayOnlyUnreadEnabled()) {
 			// Close FeedHeadlineList if no unread article exists
-			// AND: Not doing this with virtual feeds, starting with "-[0-9]" 
+			// AND: Not doing this with virtual feeds, starting with "-[0-9]"
 			if (mAdapter.getArticleUnreadList().isEmpty() && !mFeedId.matches("-[0-9]")) {
 				finish();
 			}
-//			
-//			// Directly open Article if only one unread Article exists
-//			if (mAdapter.getArticleUnreadList().size() == 1) {
-//				Intent i = new Intent(this, ArticleActivity.class);
-//				i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(0));
-//				i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-//				i.putStringArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
-//				
-//				startActivityForResult(i, ACTIVITY_SHOW_FEED_ITEM);
-//			}
+			//			
+			// // Directly open Article if only one unread Article exists
+			// if (mAdapter.getArticleUnreadList().size() == 1) {
+			// Intent i = new Intent(this, ArticleActivity.class);
+			// i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(0));
+			// i.putExtra(ArticleActivity.FEED_ID, mFeedId);
+			// i.putStringArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
+			//				
+			// startActivityForResult(i, ACTIVITY_SHOW_FEED_ITEM);
+			// }
 		}
 	}
 	

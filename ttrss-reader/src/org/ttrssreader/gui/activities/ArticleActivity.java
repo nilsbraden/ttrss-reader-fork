@@ -51,8 +51,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	private static final int MENU_MARK_UNREAD = Menu.FIRST + 1;
 	private static final int MENU_OPEN_LINK = Menu.FIRST + 2;
 	private static final int MENU_OPEN_COMMENT_LINK = Menu.FIRST + 3;
-//	private static final int MENU_NEXT_ARTICLE = Menu.FIRST + 4; // Newer Article
-//	private static final int MENU_PREV_ARTICLE = Menu.FIRST + 5; // Older Article
 	private static final int MENU_SHARE_LINK = Menu.FIRST + 6;
 	
 	private String mArticleId;
@@ -123,12 +121,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		item = menu.add(0, MENU_OPEN_COMMENT_LINK, 0, R.string.ArticleActivity_OpenCommentLink);
 		item.setIcon(R.drawable.commentlink32);
 		
-//		item = menu.add(0, MENU_NEXT_ARTICLE, 0, "");
-//		item.setIcon(android.R.drawable.arrow_up_float);
-//		
-//		item = menu.add(0, MENU_PREV_ARTICLE, 0, "");
-//		item.setIcon(android.R.drawable.arrow_down_float);
-		
 		item = menu.add(0, MENU_SHARE_LINK, 0, R.string.ArticleActivity_ShareLink);
 		
 		return true;
@@ -149,12 +141,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			case MENU_OPEN_COMMENT_LINK:
 				openCommentLink();
 				return true;
-//			case MENU_NEXT_ARTICLE:
-//				openNextOlderArticle();
-//				return true;
-//			case MENU_PREV_ARTICLE:
-//				openNextNewerArticle();
-//				return true;
 			case MENU_SHARE_LINK:
 				shareLink();
 				return true;
@@ -165,12 +151,10 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	
 	private void doRefresh() {
 		
-		Controller.getInstance().setRefreshNeeded(false);
-		
 		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(
 				R.string.Commons_PleaseWait));
 		
-		mAdapter = new ArticleItemAdapter(mFeedId, mArticleId);
+		mAdapter = new ArticleItemAdapter(mArticleId);
 		new Refresher(this, mAdapter);
 	}
 	
@@ -347,9 +331,11 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 					this.setTitle(this.getResources().getString(R.string.ApplicationName));
 				}
 				
-				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkReadEnabled())) {
-					new ArticleReadStateUpdater(mArticleItem.getFeedId(), mArticleItem, 0).update();
-				}
+				// TODO: FIXTHIS
+//				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkReadEnabled())) {
+//					new Updater(this, new ArticleReadStateUpdater(mArticleItem.getFeedId(), mArticleItem, 0));
+//					mArticleItem.setIsUnread(false);
+//				}
 				
 				if (mArticleItem.getContent().length() < 3) {
 					openLink();

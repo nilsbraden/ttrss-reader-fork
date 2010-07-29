@@ -23,6 +23,10 @@ public class FeedItem {
 	private String mUrl;
 	private int mUnread;
 	
+	public FeedItem() {
+		
+	}
+	
 	public FeedItem(String categoryId, String id, String title, String url, int unread) {
 		mCategoryId = categoryId;
 		mId = id;
@@ -31,32 +35,48 @@ public class FeedItem {
 		mUnread = unread;		
 	}
 	
+	public void setDeltaUnreadCount(int value) {
+		mUnread += value;
+	}
+
 	public String getId() {
 		return mId;
 	}
-	
+
+	public void setId(String mId) {
+		this.mId = mId;
+	}
+
 	public String getCategoryId() {
 		return mCategoryId;
 	}
-	
+
+	public void setCategoryId(String mCategoryId) {
+		this.mCategoryId = mCategoryId;
+	}
+
 	public String getTitle() {
 		return mTitle;
 	}
-	
+
+	public void setTitle(String mTitle) {
+		this.mTitle = mTitle;
+	}
+
 	public String getUrl() {
 		return mUrl;
 	}
-	
-	public int getUnreadCount() {
+
+	public void setUrl(String mUrl) {
+		this.mUrl = mUrl;
+	}
+
+	public int getUnread() {
 		return mUnread;
 	}
-	
-	public void setUnreadCount(int value) {
-		mUnread = value;
-	}
-	
-	public void setDeltaUnreadCount(int value) {
-		mUnread += value;
+
+	public void setUnread(int mUnread) {
+		this.mUnread = mUnread;
 	}
 
 }

@@ -1,13 +1,19 @@
 TODO
 - Automatically open Article if only one unread article in list
-- Cache Articles or download for offline usage
 - Faster startup?
 - https-support with own Certificates
+- only refresh feedlist if &op=getConfig returns a new number of feeds
+- Watch for removed sdcard
+
+
+IN PROGRESS
+- Cache Articles or download for offline usage
+
 
 0.5.0
 - Added local caching in DB for Articles, Feeds and Categories
-- On startup noch update is performed yet, press Menu->Refresh for a full update in background
-- HTML content is saved base64-encoded and compressed to avoid syntax-problems while inserting
+- On startup no update is performed yet, press Menu->Refresh for a full update in background
+- HTML content is saved base64-encoded to avoid syntax-problems while inserting
 
 0.4.0
 - Mark everything as read button

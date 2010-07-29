@@ -30,8 +30,6 @@ public class Controller {
 	private boolean mIsControllerInitialized = false;
 	private ITTRSSConnector mTTRSSConnector;
 	
-	private boolean mRefreshNeeded = false;
-	
 	private boolean mAlwaysFullRefresh = false;
 	private boolean mAutomaticMarkRead = true;
 	private boolean mUseSwipe = true;
@@ -93,8 +91,6 @@ public class Controller {
 		mArticleLimit = new Integer(artLimit).intValue();
 		
 		mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, showUnreadInVirtualFeeds);
-		
-		mRefreshNeeded = true;
 	}
 	
 	public void checkAndInitializeController(final Context context) {
@@ -108,14 +104,6 @@ public class Controller {
 	
 	public ITTRSSConnector getTTRSSConnector() {
 		return mTTRSSConnector;		
-	}
-
-	public boolean isRefreshNeeded() {
-		return mRefreshNeeded;
-	}
-
-	public void setRefreshNeeded(boolean mRefreshNeeded) {
-		this.mRefreshNeeded = mRefreshNeeded;
 	}
 	
 	public boolean isAlwaysPerformFullRefresh() {

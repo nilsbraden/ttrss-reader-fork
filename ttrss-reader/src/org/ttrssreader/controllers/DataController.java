@@ -33,10 +33,10 @@ import android.util.Log;
 
 public class DataController {
 	
+	private static String mutex = "";
 	private static DataController mInstance = null;
 	
 	private boolean mForceFullRefresh = false;
-	private boolean mForceFullReload= false;
 	
 	private Map<String, List<ArticleItem>> mFeedsHeadlines;
 	private Map<String, List<FeedItem>> mSubscribedFeeds;
@@ -63,8 +63,10 @@ public class DataController {
 	}
 	
 	public static DataController getInstance() {
-		if (mInstance == null) {
-			mInstance = new DataController();
+		synchronized (mutex) {
+			if (mInstance == null) {
+				mInstance = new DataController();
+			}
 		}
 		return mInstance;
 	}
@@ -79,10 +81,6 @@ public class DataController {
 	 */
 	public void disableFullRefresh() {
 		mForceFullRefresh = false;
-	}
-	
-	public void forceFullReload() {
-		mForceFullReload = true;
 	}
 	
 	private boolean needFullRefresh() {
@@ -219,7 +217,7 @@ public class DataController {
 		if (displayOnlyUnread && result != null) {
 			List<FeedItem> feedList = new ArrayList<FeedItem>();
 			for (FeedItem fi : result) {
-				if (fi.getUnreadCount() > 0) {
+				if (fi.getUnread() > 0) {
 					feedList.add(fi);
 				}
 			}
@@ -277,7 +275,8 @@ public class DataController {
 		if (result == null || needFullRefresh()) {
 			Log.i(Utils.TAG, "Refreshing Data: getArticlesForFeedsHeadlines()");
 			
-			result = Controller.getInstance().getTTRSSConnector().getFeedHeadlines(new Integer(feedId).intValue(), articleLimit, 0);
+			result = Controller.getInstance().getTTRSSConnector().
+				getFeedHeadlines(new Integer(feedId).intValue(), articleLimit, 0);
 			
 			mFeedsHeadlines.put(feedId, result);
 			
@@ -328,14 +327,29 @@ public class DataController {
 	 * @param articleId
 	 * @return
 	 */
-	public ArticleItem getSingleArticleWithFullContentLoaded(String feedId, String articleId) {
+	public ArticleItem getSingleArticleWithFullContentLoaded(String articleId) {
 		
-		ArticleItem result = getSingleArticleForFeedsHeadlines(feedId, articleId);
+		ArticleItem result = null;
+		if (!needFullRefresh()) {
+			result = DBHelper.getInstance().getArticle(articleId);
+		}
+		
+		if (result == null || needFullRefresh()) {
+			Log.i(Utils.TAG, "Refreshing Data: getSingleArticleWithFullContentLoaded()");
+			
+			result = Controller.getInstance().getTTRSSConnector().getArticle(Integer.parseInt(articleId));
+				
+			DBHelper.getInstance().insertArticle(result, articleLimit);
+
+			// mForceFullRefresh = false;
+		}
 		
 		if (result != null) {
 			if (!result.isContentLoaded()) {
-				Log.i(Utils.TAG, "Refreshing Data: getSingleArticleWithFullContentLoaded() -> doLoadContent()");
-				result.doLoadContent();
+				Log.i(Utils.TAG, "Loading Content for Article \"" + result.getTitle() + "\"");
+				
+				result = Controller.getInstance().getTTRSSConnector().getArticle(Integer.parseInt(articleId));
+				
 				DBHelper.getInstance().updateArticleContent(result);
 			}
 		}
@@ -344,17 +358,22 @@ public class DataController {
 	}
 	
 	public List<ArticleItem> getArticlesWithFullContentLoaded(String feedId) {
+		FeedItem fi = new FeedItem();
+		fi.setId(feedId);
 		
-		List<ArticleItem> result = getArticlesForFeedsHeadlines(feedId, false);
+		List<ArticleItem> result = null;
+		if (!needFullRefresh()) {
+			result = DBHelper.getInstance().getArticles(fi);
+		}
 		
-		if (result != null) {
-			for (ArticleItem a : result) {
-				if (!a.isContentLoaded()) {
-					Log.i(Utils.TAG, "Refreshing Data: getArticlesWithFullContentLoaded() -> doLoadContent()");
-					a.doLoadContent();
-					DBHelper.getInstance().updateArticleContent(a);
-				}
-			}
+		if (result == null || needFullRefresh()) {
+			Log.i(Utils.TAG, "Refreshing Data: getArticlesWithFullContentLoaded()");
+			
+			result = Controller.getInstance().getTTRSSConnector().getFeedArticles(Integer.parseInt(feedId), 0, 0);
+			
+			DBHelper.getInstance().insertArticles(result, articleLimit);
+
+			// mForceFullRefresh = false;
 		}
 		
 		return result;
@@ -402,7 +421,7 @@ public class DataController {
 			for (FeedItem feedItem : feeds) {
 				Log.i(Utils.TAG, "Marking feed as read: " + feedItem.getTitle());
 				
-				feedItem.setUnreadCount(0);
+				feedItem.setUnread(0);
 				DBHelper.getInstance().markFeedRead(feedItem);
 			}
 			
@@ -435,22 +454,39 @@ public class DataController {
 	 * @param number
 	 */
 	public void purgeArticlesNumber() {
-		Log.i(Utils.TAG, "Puring old articles... (Keeping " + articleLimit + " articles)");
+		Log.i(Utils.TAG, "Purging old articles... (Keeping " + articleLimit + " articles)");
 		
 		DBHelper.getInstance().purgeArticlesNumber(articleLimit);
 		
 		mFeedsHeadlines = DBHelper.getInstance().getArticles(articleLimit);
 	}
 	
-	public void reloadEverything() {
-		if (!mForceFullReload) {
-			mForceFullReload = false;
-			return;
-		} else {
-			forceFullRefresh();
+//	public void reloadEverything() {
+//		Log.w(Utils.TAG, "=== reloadEverything() called...");
+//		forceFullRefresh();
+//		
+//		DBHelper.getInstance().deleteAll();
+//		
+//		internalGetCategories();
+//		internalGetVirtualCategories();
+//		getSubscribedFeeds();
+//		
+//		for (String s : mSubscribedFeeds.keySet()) {
+//			List<FeedItem> list = mSubscribedFeeds.get(s);
+//			for (FeedItem f : list) {
+////				getArticlesForFeedsHeadlines(f.getId(), false);
+//				getArticlesWithFullContentLoaded(f.getId());
+//			}
+//		}
+//	}
+	
+	public void updateUnread() {
+		// Mark eveything as read
+		for (CategoryItem c : mCategories) {
+			DBHelper.getInstance().markCategoryRead(c);
 		}
 		
-		DBHelper.getInstance().deleteAll();
+		forceFullRefresh();
 		
 		internalGetCategories();
 		internalGetVirtualCategories();
@@ -459,8 +495,7 @@ public class DataController {
 		for (String s : mSubscribedFeeds.keySet()) {
 			List<FeedItem> list = mSubscribedFeeds.get(s);
 			for (FeedItem f : list) {
-				getArticlesForFeedsHeadlines(f.getId(), false);
-//				getArticlesWithFullContentLoaded(f.getId());
+				getArticlesWithFullContentLoaded(f.getId());
 			}
 		}
 	}
