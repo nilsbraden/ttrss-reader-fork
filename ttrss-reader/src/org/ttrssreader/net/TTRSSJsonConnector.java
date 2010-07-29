@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +44,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String OP_GET_CATEGORIES = "?op=getCategories&sid=%s";
 	private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s";
 	private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s";
+	private static final String OP_GET_ARTICLES_WITH_CONTENT = "?op=getArticles&sid=%s&feed_id=%s";
 	private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
 	private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
 	private static final String OP_CATCHUP = "?op=catchupFeed&sid=%s&feed_id=%s&is_cat=%s";
@@ -58,6 +58,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String FEED_URL_NAME = "feed_url";
 	private static final String FEED_ID_NAME = "feed_id";
 	private static final String UPDATED_NAME = "updated";
+	private static final String CONTENT_NAME = "content";
+	private static final String URL_NAME = "articleUrl";
+	private static final String COMMENT_URL_NAME = "articleCommentUrl";
+	private static final String ATTACHMENTS_NAME = "attachments";
 	
 	private String mServerUrl;
 	private String mUserName;
@@ -193,83 +197,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		return result;
 	}
-	
-	@Override
-	public Map<?, ?> getArticle(int articleId) {
-		
-		Map<String, String> finalResult = new Hashtable<String, String>();
-		
-		if (mSessionId == null) {
-			login();
-			
-			if (mHasLastError) {
-				return null;
-			}
-		}
-		
-		if (mSessionId == null) {
-			login();
-			
-			if (mHasLastError) {
-				return null;
-			}
-		}
-		
-		String url = mServerUrl + String.format(OP_GET_ARTICLE, mSessionId, articleId);
-		
-		TTRSSJsonResult jsonResult = getJSONResponse(url);
-		
-		try {
-			
-			// Handle array with attachments, put them in the map with key "attachment_[0-9]"
-			for (int i = 0; i < jsonResult.getNames().length(); i++) {
-				
-				
-				Object o = jsonResult.getValues().get(i);
-				if (o.getClass().getName().equals(JSONArray.class.getName())) {
-					// We got a JSONArray-Object here
-					
-					if (!jsonResult.getNames().getString(i).equals("attachments")) {
-						// Wrong array...
-						continue;
-					}
-					
-					JSONArray array = (JSONArray) o;
-					for (int j = 0; j < array.length(); j++) {
-						
-						TTRSSJsonResult att = new TTRSSJsonResult(array.getString(j));
-
-						String attId = "";
-						String attUrl = "";
-						
-						// Filter for id and content_url, other fields are not neccessary
-						for (int k = 0; k < att.getNames().length(); k++) {
-							if (att.getNames().getString(k).equals("id")) {
-								attId = att.getValues().getString(k);
-							}
-							if (att.getNames().getString(k).equals("content_url")) {
-								attUrl = att.getValues().getString(k);
-							}
-						}
-						
-						// Add only if both, id and url, are found
-						if (attId.length() > 0 && attUrl.length() > 0) {
-							finalResult.put("attachment_" + attId, attUrl);
-						}
-					}
-					
-				} else {
-					finalResult.put(jsonResult.getNames().getString(i), jsonResult.getValues().getString(i));
-				}
-			}
-			
-		} catch (JSONException e) {
-			mHasLastError = true;
-			mLastError = e.getMessage();
-		}
-		
-		return finalResult;
-	}
 
 	@Override
 	public List<CategoryItem> getCategories() {
@@ -356,32 +283,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				JSONArray names = object.names();
 				JSONArray values = object.toJSONArray(names);
 				
-				String id = null;
-				String title = null;
-				boolean unread = false;
-				String updated = null;
-				String realFeedId = null;
-				
-				for (int j = 0; j < names.length(); j++) {
-				
-					if (names.getString(j).equals(ID_NAME)) {
-						id = values.getString(j);
-					} else  if (names.getString(j).equals(TITLE_NAME)) {
-						title = values.getString(j);
-					} else  if (names.getString(j).equals(UNREAD_NAME)) {
-						unread = values.getBoolean(j);
-					} else  if (names.getString(j).equals(UPDATED_NAME)) {
-						updated = values.getString(j);
-					} else  if (names.getString(j).equals(FEED_ID_NAME)) {
-						realFeedId = values.getString(j);
-					}									
-				}
-				
-				articleItem = new ArticleItem(realFeedId,
-						id,
-						title,
-						unread,
-						new Date(new Long(updated + "000").longValue()));
+				articleItem = parseDataForArticle(names, values);
 				
 				finalResult.add(articleItem);
 			}
@@ -392,7 +294,133 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		return finalResult;
 	}
+	
+	@Override
+	public List<ArticleItem> getFeedArticles(int feedId, int limit, int filter) {
+		
+		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
+		
+		if (mSessionId == null) {
+			login();
+			
+			if (mHasLastError) {
+				return null;
+			}
+		}
+		
+		String url = mServerUrl + String.format(OP_GET_ARTICLES_WITH_CONTENT, mSessionId, feedId);
+		
+		JSONArray jsonResult = getJSONResponseAsArray(url);
+		
+		JSONObject object;
 
+		try {
+			for (int i = 0; i < jsonResult.length(); i++) {
+				object = jsonResult.getJSONObject(i);
+				
+				JSONArray names = object.names();
+				JSONArray values = object.toJSONArray(names);
+				
+				finalResult.add(parseDataForArticle(names, values));
+			}
+		} catch (JSONException e) {
+			mHasLastError = true;
+			mLastError = e.getMessage();
+		}
+		
+		return finalResult;
+	}
+	
+	@Override
+	public ArticleItem getArticle(int articleId) {
+		
+		ArticleItem ret = new ArticleItem();
+		
+		if (mSessionId == null) {
+			login();
+			
+			if (mHasLastError) {
+				return null;
+			}
+		}
+		
+		String url = mServerUrl + String.format(OP_GET_ARTICLE, mSessionId, articleId);
+		
+		TTRSSJsonResult jsonResult = getJSONResponse(url);
+		
+		if (!mHasLastError) {
+			ret = parseDataForArticle(jsonResult.getNames(), jsonResult.getValues());
+			if (ret.getId() == null || ret.getId().length() < 1) {
+				ret.setId(articleId + "");
+			}
+		}
+		
+		return ret;
+	}
+
+	public ArticleItem parseDataForArticle(JSONArray names, JSONArray values) {
+		ArticleItem articleItem = new ArticleItem();
+		
+		try {
+			String realFeedId = null;
+			String id = null;
+			String title = null;
+			boolean isUnread = false;
+			String updated = null;
+			String content = "";
+			String articleUrl = null;
+			String articleCommentUrl = null;
+			String attachments = "";
+			
+			for (int i = 0; i < names.length(); i++) {
+			
+				if (names.getString(i).equals(ID_NAME)) {
+					id = values.getString(i);
+				} else if (names.getString(i).equals(TITLE_NAME)) {
+					title = values.getString(i);
+				} else if (names.getString(i).equals(UNREAD_NAME)) {
+					isUnread = values.getBoolean(i);
+				} else if (names.getString(i).equals(UPDATED_NAME)) {
+					updated = values.getString(i);
+				} else if (names.getString(i).equals(FEED_ID_NAME)) {
+					realFeedId = values.getString(i);
+				} else if (names.getString(i).equals(CONTENT_NAME)) {
+					content = values.getString(i);
+				} else if (names.getString(i).equals(URL_NAME)) {
+					articleUrl = values.getString(i);
+				} else if (names.getString(i).equals(COMMENT_URL_NAME)) {
+					articleCommentUrl = values.getString(i);
+				} else if (names.getString(i).equals(ATTACHMENTS_NAME)) {
+					Map<String, String> map = handleAttachments((JSONArray) values.get(i));
+					if (map.size() > 0) {
+						attachments += "<br>\n";
+						for (String s : map.keySet()) {
+							attachments += "Attachment " + s + ": <br><img src=\"" + map.get(s) + "\" /><br>\n";
+						}
+					}
+				}
+			}
+			
+			content += attachments;
+			
+			articleItem = new ArticleItem(
+					realFeedId,
+					id,
+					title,
+					isUnread,
+					new Date(new Long(updated + "000").longValue()),
+					content,
+					articleUrl,
+					articleCommentUrl);
+		} catch (JSONException e) {
+			mHasLastError = true;
+    		mLastError = e.getMessage();
+			e.printStackTrace();
+		}
+		
+		return articleItem;
+	}
+	
 	@Override
 	public String getLastError() {
 		return mLastError;
@@ -555,7 +583,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			List<FeedItem> feeds = map.get(key);
 			for (FeedItem f : feeds) {
 				if ("0".equals(f.getCategoryId())) {
-					uncatCount += f.getUnreadCount();
+					uncatCount += f.getUnread();
 				}
 			}
 		}
@@ -621,6 +649,39 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		String url = mServerUrl + String.format(OP_CATCHUP, mSessionId, id, isCategory);
 	
 		doRequest(url);
+	}
+	
+	public Map<String, String> handleAttachments(JSONArray array) {
+		Map<String, String> ret = new HashMap<String, String>();
+		
+		try {
+			for (int j = 0; j < array.length(); j++) {
+				
+				TTRSSJsonResult att = new TTRSSJsonResult(array.getString(j));
+	
+				String attId = "";
+				String attUrl = "";
+				
+				// Filter for id and content_url, other fields are not neccessary
+				for (int k = 0; k < att.getNames().length(); k++) {
+					if (att.getNames().getString(k).equals("id")) {
+						attId = att.getValues().getString(k);
+					}
+					if (att.getNames().getString(k).equals("content_url")) {
+						attUrl = att.getValues().getString(k);
+					}
+				}
+				
+				// Add only if both, id and url, are found
+				if (attId.length() > 0 && attUrl.length() > 0) {
+					ret.put("attachment_" + attId, attUrl);
+				}
+			}
+		} catch (JSONException je) {
+			je.printStackTrace();
+		}
+		
+		return ret;
 	}
 
 }

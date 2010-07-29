@@ -26,15 +26,17 @@ public interface ITTRSSConnector {
 	
 	public int getTotalUnread();
 	
-	public Map<?, ?> getArticle(int articleId);
-	
 	public List<CategoryItem> getVirtualFeeds();
 	
 	public List<CategoryItem> getCategories();
 	
 	public Map<String, List<FeedItem>> getSubsribedFeeds();
 	
+	public ArticleItem getArticle(int articleId);
+	
 	public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter);
+	
+	public List<ArticleItem> getFeedArticles(int feedId, int limit, int filter);
 	
 	public void setArticleRead(String articleId, int articleState);
 	void setRead(String id, boolean isCategory);

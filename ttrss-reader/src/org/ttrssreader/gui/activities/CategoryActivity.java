@@ -19,40 +19,46 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.gui.IRefreshEndListener;
+import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.model.DataUpdater;
 import org.ttrssreader.model.Refresher;
+import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.category.CategoryListAdapter;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ListView;
 
-public class CategoryActivity extends ListActivity implements IRefreshEndListener {
+public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
 	
 	private static final int ACTIVITY_SHOW_FEEDS = 0;
 	
 	private static final int MENU_REFRESH = Menu.FIRST;
-	private static final int MENU_SHOW_PREFERENCES = Menu.FIRST +1;
-	private static final int MENU_SHOW_ABOUT = Menu.FIRST + 2;
-	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
-	private static final int MENU_MARK_ALL_READ = Menu.FIRST + 4;
+	private static final int MENU_UPDATE = Menu.FIRST + 1;
+	private static final int MENU_SHOW_PREFERENCES = Menu.FIRST +2;
+	private static final int MENU_SHOW_ABOUT = Menu.FIRST + 3;
+	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 4;
+	private static final int MENU_MARK_ALL_READ = Menu.FIRST + 5;
 	
 	private ListView mCategoryListView;
 	private CategoryListAdapter mAdapter = null;
 	
-	private ProgressDialog mProgressDialog;
+//	private ProgressDialog mProgressDialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.category);
-		
-//		Controller.getInstance().checkAndInitializeController(this);
+
+		setProgressBarIndeterminateVisibility(false);
+		// Controller.getInstance().checkAndInitializeController(this);
 
 		mCategoryListView = getListView();
 	}
@@ -64,9 +70,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	}
 
 	private void doRefresh() {
-		Controller.getInstance().setRefreshNeeded(false);
-		
-		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
+		setProgressBarVisibility(true);
+//		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
 		
 		if (mAdapter == null) {
 			mAdapter = new CategoryListAdapter(this);
@@ -118,6 +123,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
 		item.setIcon(R.drawable.refresh32);
 		
+		item = menu.add(0, MENU_UPDATE, 0, R.string.Main_UpdateMenu);
+		
 		item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
 		
 		item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
@@ -136,6 +143,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		switch (item.getItemId()) {
 			case MENU_REFRESH:
 				doForceRefresh();
+				return true;
+			case MENU_UPDATE:
+				doUpdateEverything();
 				return true;
 			case MENU_DISPLAY_ONLY_UNREAD:
 				displayOnlyUnreadSwitch();
@@ -156,9 +166,13 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	private void doForceRefresh() {
 		DataController.getInstance().forceFullRefresh();
-		DataController.getInstance().forceFullReload();
 		doRefresh();
 		DataController.getInstance().disableFullRefresh();
+	}
+	
+	private void doUpdateEverything() {
+		setProgressBarIndeterminateVisibility(true);
+		new Updater(this, new DataUpdater());
 	}
 	
 	private void openPreferences() {
@@ -196,7 +210,16 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-		mProgressDialog.dismiss();
+		setProgressBarVisibility(true);
+//		mProgressDialog.dismiss();
+	}
+
+	@Override
+	public void onUpdateEnd() {
+		// TODO: Add some notification about updating..
+		doRefresh();
+		setProgressBarIndeterminateVisibility(false);
+//		mAdapter.notifyDataSetChanged();
 	}
 
 }

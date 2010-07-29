@@ -126,14 +126,14 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		FeedHeadlineListView sv;
-		
-		if (position > mArticles.size()) {
+
+		if (position >= mArticles.size()) {
 			return new View(mContext);
 		}
 		
 		if (convertView == null) {
 			sv = new FeedHeadlineListView(mContext, position, mArticles.get(position).getTitle(), mArticles.get(position)
-					.getId(), mArticles.get(position).isUnread(), mArticles.get(position).getContent(), mArticles.get(position)
+					.getId(), mArticles.get(position).isUnread(), /*mArticles.get(position).getContent(),*/ mArticles.get(position)
 					.getUpdateDate());
 		} else {
 			sv = (FeedHeadlineListView) convertView;
@@ -149,7 +149,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	
 	private class FeedHeadlineListView extends LinearLayout {
 		public FeedHeadlineListView(Context context, int position, String title, String id, boolean isUnread,
-				String content, Date updatedDate) {
+				/*String content,*/ Date updatedDate) {
 			super(context);
 			
 			this.setOrientation(HORIZONTAL);

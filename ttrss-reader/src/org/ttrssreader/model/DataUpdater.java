@@ -13,28 +13,16 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model.article;
+package org.ttrssreader.model;
 
 import org.ttrssreader.controllers.DataController;
-import org.ttrssreader.model.IRefreshable;
 
-public class ArticleItemAdapter implements IRefreshable {
+public class DataUpdater implements IUpdatable {
 
-	private String mArticleId;
-		
-	private ArticleItem mArticle;
-	
-	public ArticleItemAdapter(String articleId) {
-		mArticleId = articleId;
-	}
-	
-	public ArticleItem getArticle() {
-		return mArticle;
-	}
-	
 	@Override
-	public void refreshData() {
-		mArticle = DataController.getInstance().getSingleArticleWithFullContentLoaded(mArticleId);
+	public void update() {
+		// TODO Auto-generated method stub
+		DataController.getInstance().updateUnread();
 	}
-
+	
 }

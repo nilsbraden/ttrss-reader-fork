@@ -70,8 +70,8 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		return mFeeds.get(position).getTitle();
 	}
 	
-	public int getUnreadCount(int position) {
-		return mFeeds.get(position).getUnreadCount();
+	public int getUnread(int position) {
+		return mFeeds.get(position).getUnread();
 	}
 	
 	public int getTotalUnreadCount() {
@@ -79,7 +79,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		
 		Iterator<FeedItem> iter = mFeeds.iterator();
 		while (iter.hasNext()) {
-			result += iter.next().getUnreadCount();
+			result += iter.next().getUnread();
 		}
 		
 		return result;
@@ -105,12 +105,12 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
         if (convertView == null) {
             sv = new FeedListView(mContext, mFeeds.get(position).getTitle(),
             		mFeeds.get(position).getId(),
-            		mFeeds.get(position).getUnreadCount());
+            		mFeeds.get(position).getUnread());
         } else {
             sv = (FeedListView) convertView;
-            sv.setIcon(mFeeds.get(position).getUnreadCount() > 0);
-            sv.setBoldTitleIfNecessary(mFeeds.get(position).getUnreadCount() > 0);
-            sv.setTitle(formatTitle(mFeeds.get(position).getTitle(), mFeeds.get(position).getUnreadCount()));
+            sv.setIcon(mFeeds.get(position).getUnread() > 0);
+            sv.setBoldTitleIfNecessary(mFeeds.get(position).getUnread() > 0);
+            sv.setTitle(formatTitle(mFeeds.get(position).getTitle(), mFeeds.get(position).getUnread()));
         }
 
         return sv;

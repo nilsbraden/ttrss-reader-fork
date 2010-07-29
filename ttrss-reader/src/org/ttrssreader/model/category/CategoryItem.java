@@ -21,6 +21,10 @@ public class CategoryItem {
 	private String mTitle;
 	private int mUnreadCount;
 	
+	public CategoryItem() {
+		
+	}
+	
 	public CategoryItem(String id, String title, int unreadCount) {
 		mId = id;
 		mTitle = title;

@@ -17,11 +17,13 @@ package org.ttrssreader.controllers;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.os.Environment;
 import android.util.Log;
-import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,7 +39,9 @@ public class DBHelper {
 	
 	private static DBHelper mInstance = null;
 	private boolean mIsControllerInitialized = false;
-	
+	private boolean mDBLocationSDCard = false;
+
+	private static final String DATABASE_PATH = "ttrss-reader-fork";
 	private static final String DATABASE_NAME = "ttrss.db";
 	private static final int DATABASE_VERSION = 1;
 	
@@ -45,12 +49,12 @@ public class DBHelper {
 	private static final String TABLE_FEEDS = "feeds";
 	private static final String TABLE_ARTICLES = "articles";
 	
-	private static final String INSERT_CAT = "replace into " + TABLE_CAT + "(id, title, unread) values (?, ?, ?)";
-	private static final String INSERT_FEEDS = "replace into " + TABLE_FEEDS
-			+ "(id, categoryId, title, url, unread) values (?, ?, ?, ?, ?)";
-	private static final String INSERT_ARTICLES = "replace into "
+	private static final String INSERT_CAT = "REPLACE INTO " + TABLE_CAT + "(id, title, unread) VALUES (?, ?, ?)";
+	private static final String INSERT_FEEDS = "REPLACE INTO " + TABLE_FEEDS
+			+ "(id, categoryId, title, url, unread) VALUES (?, ?, ?, ?, ?)";
+	private static final String INSERT_ARTICLES = "REPLACE INTO "
 			+ TABLE_ARTICLES
-			+ "(id, feedId, title, isUnread, content, articleUrl, articleCommentUrl, updateDate) values (?, ?, ?, ?, ?, ?, ?, ?)";
+			+ "(id, feedId, title, isUnread, content, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String UPDATE_ARTICLES = "UPDATE " + TABLE_ARTICLES
 			+ " SET content=?, title=?, articleUrl=?, articleCommentUrl=?, updateDate=? WHERE id=? AND feedId=?";
@@ -70,17 +74,45 @@ public class DBHelper {
 		insertArticle = null;
 		updateArticle = null;
 	}
-	
+
 	public void initializeController(Context c) {
 		context = c;
-		OpenHelper openHelper = new OpenHelper(context);
-		db = openHelper.getWritableDatabase();
-		insertCat = db.compileStatement(INSERT_CAT);
-		insertFeed = db.compileStatement(INSERT_FEEDS);
-		insertArticle = db.compileStatement(INSERT_ARTICLES);
-		updateArticle = db.compileStatement(UPDATE_ARTICLES);
+		if (openDatabase()) {
+			insertCat = db.compileStatement(INSERT_CAT);
+			insertFeed = db.compileStatement(INSERT_FEEDS);
+			insertArticle = db.compileStatement(INSERT_ARTICLES);
+			updateArticle = db.compileStatement(UPDATE_ARTICLES);
+			
+			mDBLocationSDCard = true;
+		} else {
+			Log.e(Utils.TAG, "Could not open DB on sdcard");
+
+			OpenHelper openHelper = new OpenHelper(context);
+			db = openHelper.getWritableDatabase();
+			insertCat = db.compileStatement(INSERT_CAT);
+			insertFeed = db.compileStatement(INSERT_FEEDS);
 		
-		// deleteAll();
+			mDBLocationSDCard = false;
+		}
+	}
+	
+	public void switchDB(Context c) {
+		if (mDBLocationSDCard) {
+			OpenHelper openHelper = new OpenHelper(context);
+			db = openHelper.getWritableDatabase();
+			insertCat = db.compileStatement(INSERT_CAT);
+			insertFeed = db.compileStatement(INSERT_FEEDS);
+		
+			mDBLocationSDCard = false;
+		} else {
+			openDatabase();
+			insertCat = db.compileStatement(INSERT_CAT);
+			insertFeed = db.compileStatement(INSERT_FEEDS);
+			insertArticle = db.compileStatement(INSERT_ARTICLES);
+			updateArticle = db.compileStatement(UPDATE_ARTICLES);
+			
+			mDBLocationSDCard = true;
+		}
 	}
 	
 	public void checkAndInitializeController(Context context) {
@@ -117,6 +149,81 @@ public class DBHelper {
 		}
 	}
 	
+	public boolean isSDCardAvailable() {
+		return mDBLocationSDCard;
+	}
+
+	public void setSDCardAvailable(boolean sDCardAvailable) {
+		this.mDBLocationSDCard = sDCardAvailable;
+	}
+	
+	/**
+	 * Opens the SDcard database. If it cannot be opened, it
+	 * creates a new instance. If a new instance cannot be created, it throws
+	 * an exception and logs the failure.
+	 * 
+	 * @return true if successful
+	 * @throws SQLException
+	 *             if the database is unable to be opened or created
+	 */
+	public synchronized boolean openDatabase() throws SQLException {
+		if (db != null && db.isOpen()) {
+			return true;
+		} else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			Log.w(Utils.TAG, "SDcard not mounted, cant access article-database.");
+			return false;
+		} else {
+			StringBuilder builder = new StringBuilder();
+			
+			// open or create a new directory
+			builder.setLength(0);
+			builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
+			
+			File dir = new File(builder.toString());
+			dir.mkdirs();
+			File file = new File(dir, DATABASE_NAME);
+			
+			try {
+				Log.d(Utils.TAG, "Opening database: " + file.getAbsolutePath());
+				db = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
+				
+				// Create tables if they dont exist
+				createTables();
+			} catch (SQLException e) {
+				Log.e(Utils.TAG, "failed to open" + e);
+				throw e;
+			}
+		}
+		return true;
+	}
+	
+	public synchronized void createTables() {
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_CAT + " (" + 
+				"id INTEGER PRIMARY KEY, " + 
+				"title TEXT, " + 
+				"unread INTEGER)");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_FEEDS + " (" + 
+				"id INTEGER, " + 
+				"categoryId INTEGER, " + 
+				"title TEXT, "
+				+ "url TEXT, " + 
+				"unread INTEGER, " + 
+				"PRIMARY KEY( id, categoryId ))");
+		
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ARTICLES + " (" + 
+				"id INTEGER, " + 
+				"feedId INTEGER, " + 
+				"title TEXT, " + 
+				"isUnread INTEGER, " + 
+				"content BLOB, " + 
+				"articleUrl TEXT, " + 
+				"articleCommentUrl TEXT, " + 
+				"updateDate INTEGER, " + 
+				"PRIMARY KEY( id , feedId ))");
+	}
+	
+	
 	private static class OpenHelper extends SQLiteOpenHelper {
 		
 		OpenHelper(Context context) {
@@ -125,15 +232,29 @@ public class DBHelper {
 		
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + TABLE_CAT + " (" + "id INTEGER PRIMARY KEY, " + "title TEXT, "
-					+ "unread INTEGER)");
+			db.execSQL("CREATE TABLE " + TABLE_CAT + " (" + 
+					"id INTEGER PRIMARY KEY, " + 
+					"title TEXT, " + 
+					"unread INTEGER)");
 			
-			db.execSQL("CREATE TABLE " + TABLE_FEEDS + " (" + "id INTEGER, " + "categoryId INTEGER, " + "title TEXT, "
-					+ "url TEXT, " + "unread INTEGER, " + "PRIMARY KEY( id, categoryId ))");
+			db.execSQL("CREATE TABLE " + TABLE_FEEDS + " (" + 
+					"id INTEGER, " + 
+					"categoryId INTEGER, " + 
+					"title TEXT, "
+					+ "url TEXT, " + 
+					"unread INTEGER, " + 
+					"PRIMARY KEY( id, categoryId ))");
 			
-			db.execSQL("CREATE TABLE " + TABLE_ARTICLES + " (" + "id INTEGER, " + "feedId INTEGER, " + "title TEXT, "
-					+ "isUnread INTEGER, " + "content BLOB, " + "articleUrl TEXT, " + "articleCommentUrl TEXT, "
-					+ "updateDate INTEGER, " + "PRIMARY KEY( id , feedId ))");
+//			db.execSQL("CREATE TABLE " + TABLE_ARTICLES + " (" + 
+//					"id INTEGER, " + 
+//					"feedId INTEGER, " + 
+//					"title TEXT, " + 
+//					"isUnread INTEGER, " + 
+//					"content BLOB, " + 
+//					"articleUrl TEXT, " + 
+//					"articleCommentUrl TEXT, " + 
+//					"updateDate INTEGER, " + 
+//					"PRIMARY KEY( id , feedId ))");
 		}
 		
 		@Override
@@ -141,7 +262,7 @@ public class DBHelper {
 			Log.w("Example", "Upgrading database, this will drop tables and recreate.");
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAT);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
+//			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
 			onCreate(db);
 		}
 	}
@@ -149,17 +270,21 @@ public class DBHelper {
 	// *******| INSERT |*******************************************************************
 	
 	private long insertCategory(String id, String title, int unread) {
-		
+
 		if (id == null)
 			return 0;
 		if (title == null)
 			title = "";
-		
-		insertCat.bindString(1, id);
-		insertCat.bindString(2, title);
-		insertCat.bindLong(3, unread);
-		
-		return insertCat.executeInsert();
+
+		long ret = 0;
+		synchronized(this) {
+			insertCat.bindString(1, id);
+			insertCat.bindString(2, title);
+			insertCat.bindLong(3, unread);
+			
+			ret = insertCat.executeInsert();
+		}
+		return ret;
 	}
 	
 	public long insertCategory(CategoryItem c) {
@@ -172,12 +297,15 @@ public class DBHelper {
 		}
 		
 		for (CategoryItem c : list) {
-			insertCategory(c.getId(), c.getTitle(), c.getUnreadCount());
+			insertCategory(
+					c.getId(),
+					c.getTitle(),
+					c.getUnreadCount());
 		}
 	}
 	
 	private long insertFeed(String feedId, String categoryId, String title, String url, int unread) {
-		
+
 		if (feedId == null)
 			return 0;
 		if (categoryId == null)
@@ -188,14 +316,18 @@ public class DBHelper {
 			url = "";
 		if (title == null)
 			title = "";
-		
-		insertFeed.bindLong(1, new Integer(feedId).longValue());
-		insertFeed.bindLong(2, new Integer(categoryId).longValue());
-		insertFeed.bindString(3, title);
-		insertFeed.bindString(4, url);
-		insertFeed.bindLong(5, unread);
-		
-		return insertFeed.executeInsert();
+
+		long ret = 0;
+		synchronized(this) {
+			insertFeed.bindLong(1, new Integer(feedId).longValue());
+			insertFeed.bindLong(2, new Integer(categoryId).longValue());
+			insertFeed.bindString(3, title);
+			insertFeed.bindString(4, url);
+			insertFeed.bindLong(5, unread);
+			
+			ret = insertFeed.executeInsert();
+		}
+		return ret;
 	}
 	
 	public long insertFeed(FeedItem f) {
@@ -203,7 +335,12 @@ public class DBHelper {
 			return 0;
 		}
 		
-		return insertFeed(f.getId(), f.getCategoryId(), f.getTitle(), f.getUrl(), f.getUnreadCount());
+		return insertFeed(
+				f.getId(),
+				f.getCategoryId(),
+				f.getTitle(),
+				f.getUrl(),
+				f.getUnread());
 	}
 	
 	public void insertFeeds(List<FeedItem> list) {
@@ -217,7 +354,12 @@ public class DBHelper {
 				continue;
 			}
 			
-			insertFeed(f.getId(), f.getCategoryId(), f.getTitle(), f.getUrl(), f.getUnreadCount());
+			insertFeed(
+					f.getId(),
+					f.getCategoryId(),
+					f.getTitle(),
+					f.getUrl(),
+					f.getUnread());
 		}
 	}
 	
@@ -238,32 +380,36 @@ public class DBHelper {
 			articleCommentUrl = "";
 		if (updateDate == null)
 			updateDate = new Date(System.currentTimeMillis());
-		
-		
-		insertArticle.bindLong(1, new Integer(articleId).longValue());
-		insertArticle.bindLong(2, new Integer(feedId).longValue());
-		insertArticle.bindString(3, title);
-		insertArticle.bindLong(4, (isUnread ? 1 : 0));
-		try {
-			byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes(), 0, content.getBytes().length, Base64.GZIP);
+
+		long ret = 0;
+		synchronized(this) {
+			insertArticle.bindLong(1, Long.parseLong(articleId));
+			insertArticle.bindLong(2, Long.parseLong(feedId));
+			insertArticle.bindString(3, title);
+			insertArticle.bindLong(4, (isUnread ? 1 : 0));
+			byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
 			insertArticle.bindBlob(5, contentBytes);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			insertArticle.bindBlob(5, "".getBytes());
+			insertArticle.bindString(6, articleUrl);
+			insertArticle.bindString(7, articleCommentUrl);
+			insertArticle.bindLong(8, updateDate.getTime());
+			
+			ret = insertArticle.executeInsert();
 		}
-		insertArticle.bindString(6, articleUrl);
-		insertArticle.bindString(7, articleCommentUrl);
-		insertArticle.bindLong(8, updateDate.getTime());
-		
-		return insertArticle.executeInsert();
+		return ret;
 	}
 	
-	public long insertArticle(ArticleItem a, int number) {
-		long ret = insertArticle(a.getId(), a.getFeedId(), a.getTitle(), a.isUnread(), a.getContent(), a
-				.getArticleUrl(), a.getArticleCommentUrl(), a.getUpdateDate());
+	public long insertArticle(ArticleItem a, int maxArticles) {
+		long ret = insertArticle(
+				a.getId(),
+				a.getFeedId(),
+				a.getTitle(),
+				a.isUnread(),
+				a.getContent(),
+				a.getArticleUrl(),
+				a.getArticleCommentUrl(),
+				a.getUpdateDate());
 		
-		purgeArticlesNumber(number);
+		purgeArticlesNumber(maxArticles);
 		
 		return ret;
 	}
@@ -276,8 +422,15 @@ public class DBHelper {
 		}
 		
 		for (ArticleItem a : list) {
-			insertArticle(a.getId(), a.getFeedId(), a.getTitle(), a.isUnread(), a.getContent(), a.getArticleUrl(), a
-					.getArticleCommentUrl(), a.getUpdateDate());
+			insertArticle(
+					a.getId(),
+					a.getFeedId(),
+					a.getTitle(),
+					a.isUnread(),
+					a.getContent(),
+					a.getArticleUrl(),
+					a.getArticleCommentUrl(),
+					a.getUpdateDate());
 		}
 		
 		purgeArticlesNumber(number);
@@ -286,39 +439,39 @@ public class DBHelper {
 	// *******| UPDATE |*******************************************************************
 	
 	public void markCategoryRead(CategoryItem c) {
-		// TODO Implement more efficient method here. We need to iterate over the feeds here first so we can get the
-		// feedIDs and mark all articles with these IDs as read. Perhaps its easier to leave this to the DataController
-		// who is handling it right now.
+		updateCategoryUnreadCount(c.getId(), 0);
+		
+		for (FeedItem f : getFeeds(c)) {
+			markFeedRead(f);
+		}
 	}
 	
 	public void markFeedRead(FeedItem f) {
-		String feedId = f.getId();
-		String categoryId = f.getCategoryId();
+		updateFeedUnreadCount(f.getId(), f.getCategoryId(), 0);
 		
-		updateFeedUnreadCount(feedId, categoryId, 0);
-		
-		db.execSQL("UPDATE " + TABLE_ARTICLES + " SET isUnread='0' " + "WHERE feedId='" + feedId + "' AND categoryId='"
-				+ categoryId + "'");
+		db.execSQL("UPDATE " + TABLE_ARTICLES +
+				" SET isUnread='0' WHERE feedId='" + f.getId() + "'");
 	}
 	
 	public void updateCategoryUnreadCount(String id, int count) {
 		if (id == null) return;
 		
-		db.execSQL("UPDATE " + TABLE_CAT + " SET unread='" + count + "' " + "WHERE id='" + id + "'");
+		db.execSQL("UPDATE " + TABLE_CAT +
+				" SET unread='" + count + "' " + "WHERE id='" + id + "'");
 	}
 	
 	public void updateFeedUnreadCount(String id, String categoryId, int count) {
 		if (id == null || categoryId == null) return;
 		
-		db.execSQL("UPDATE " + TABLE_FEEDS + " SET unread='" + count + "' " + "WHERE id='" + id + "' and categoryId='"
-				+ categoryId + "'");
+		db.execSQL("UPDATE " + TABLE_FEEDS +
+				" SET unread='" + count + "' " + "WHERE id='" + id + "' and categoryId='" + categoryId + "'");
 	}
 	
 	public void updateArticleUnread(String id, String feedId, boolean isUnread) {
 		if (id == null || feedId == null) return;
 		
-		db.execSQL("UPDATE " + TABLE_ARTICLES + " SET isUnread='" + isUnread + "' " + "WHERE id='" + id
-				+ "' and feedId='" + feedId + "'");
+		db.execSQL("UPDATE " + TABLE_ARTICLES + 
+				" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "' and feedId='" + feedId + "'");
 	}
 	
 	public void updateArticleContent(ArticleItem result) {
@@ -341,23 +494,18 @@ public class DBHelper {
 			articleCommentUrl = "";
 		if (updateDate == null)
 			updateDate = new Date();
-		
-		try {
-			byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes(), 0, content.getBytes().length, Base64.GZIP);
+
+		synchronized(this) {
+			byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
 			updateArticle.bindBlob(1, contentBytes);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			updateArticle.bindBlob(1, "".getBytes());
+			updateArticle.bindString(2, title);
+			updateArticle.bindString(3, articleUrl);
+			updateArticle.bindString(4, articleCommentUrl);
+			updateArticle.bindLong(5, updateDate.getTime());
+			updateArticle.bindLong(6, new Long(id));
+			updateArticle.bindLong(7, new Long(feedId));
+			updateArticle.executeInsert();
 		}
-		
-		updateArticle.bindString(2, title);
-		updateArticle.bindString(3, articleUrl);
-		updateArticle.bindString(4, articleCommentUrl);
-		updateArticle.bindLong(5, updateDate.getTime());
-		updateArticle.bindLong(6, new Long(id));
-		updateArticle.bindLong(7, new Long(feedId));
-		updateArticle.executeInsert();
 	}
 	
 	public void purgeArticlesDays(Date olderThenThis) {
@@ -371,49 +519,106 @@ public class DBHelper {
 	
 	// *******| SELECT |*******************************************************************
 	
+	public ArticleItem getArticle(String id) {
+		ArticleItem ret = null;
+		
+		Cursor c = db.query(TABLE_ARTICLES, null, "id=" + id, null, null, null, null, null);
+		
+		while (!c.isAfterLast()) {
+			ret = handleArticleCursor(c);
+			
+			c.move(1);
+		}
+		c.close();
+		
+		return ret;
+	}
+	
+	public FeedItem getFeed(String id) {
+		FeedItem ret = new FeedItem();
+		
+		Cursor c = db.query(TABLE_FEEDS, null, "id=" + id, null, null, null, null, null);
+		
+		while (!c.isAfterLast()) {
+			ret = handleFeedCursor(c);
+			
+			c.move(1);
+		}
+		c.close();
+		
+		return ret;
+	}
+	
+	public CategoryItem getCategory(String id) {
+		CategoryItem ret = new CategoryItem();
+		
+		Cursor c = db.query(TABLE_CAT, null, "id=" + id, null, null, null, null, null);
+		
+		while (!c.isAfterLast()) {
+			ret = handleCategoryCursor(c);
+			
+			c.move(1);
+		}
+		c.close();
+		
+		return ret;
+	}
+	
+	
+	public List<ArticleItem> getArticles(FeedItem fi) {
+		List<ArticleItem> ret = new ArrayList<ArticleItem>();
+		
+		Cursor c = db.query(TABLE_ARTICLES, null, "feedId=" + fi.getId(), null, null, null, null, null);
+		
+		while (!c.isAfterLast()) {
+			ret.add(handleArticleCursor(c));
+			
+			c.move(1);
+		}
+		c.close();
+		
+		return ret;
+	}
+	
+	public List<FeedItem> getFeeds(CategoryItem ci) {
+		List<FeedItem> ret = new ArrayList<FeedItem>();
+		
+		Cursor c = db.query(TABLE_FEEDS, null, "categoryId=" + ci.getId(), null, null, null, null, null);
+		
+		while (!c.isAfterLast()) {
+			ret.add(handleFeedCursor(c));
+			
+			c.move(1);
+		}
+		c.close();
+		
+		return ret;
+	}
+	
+	
+	/**
+	 * Returns the maxArticles newest articles, mapped in lists to their feed-id.Returns all articles if maxArticles is 0 or lower. 
+	 */
 	public Map<String, List<ArticleItem>> getArticles(int maxArticles) {
 		Map<String, List<ArticleItem>> ret = new HashMap<String, List<ArticleItem>>();
 		
-		Cursor c = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC", String
-				.valueOf(maxArticles));
-		if (c.isBeforeFirst()) {
-			if (!c.moveToFirst()) {
-				return ret;
-			}
-		}
+		String limit = (maxArticles > 0 ? String.valueOf(maxArticles) : "0");
+		
+		Cursor c = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC", limit);
 		
 		while (!c.isAfterLast()) {
-			String key = c.getString(1);
-			byte[] content = c.getBlob(4);
-			String contentStr = "";
-			
-			try {
-				if (content.length > 0) {
-					contentStr = new String(Base64.decode(content, 0, content.length, Base64.GZIP));
-				}
-			} catch (Exception e) {
-				Log.w(Utils.TAG, "Could not decode content or title. length: " + content.length);
-			}
-			
-			ArticleItem fi = new ArticleItem(key, // feedId
-					c.getString(0), // id
-					c.getString(2), // title
-					(c.getInt(3) != 0 ? true : false), // isUnread
-					new Date(c.getLong(7)), // updateDate
-					contentStr, // content
-					c.getString(5), // articleUrl
-					c.getString(6) // articleCommentUrl
-			);
+			ArticleItem a = handleArticleCursor(c);
+			String feedId = a.getFeedId();
 			
 			List<ArticleItem> list;
-			if (ret.get(key) != null) {
-				list = ret.get(key);
+			if (ret.get(feedId) != null) {
+				list = ret.get(feedId);
 			} else {
 				list = new ArrayList<ArticleItem>();
 			}
 			
-			list.add(fi);
-			ret.put(key, list);
+			list.add(a);
+			ret.put(feedId, list);
 			
 			c.move(1);
 		}
@@ -426,29 +631,20 @@ public class DBHelper {
 		Map<String, List<FeedItem>> ret = new HashMap<String, List<FeedItem>>();
 		
 		Cursor c = db.query(TABLE_FEEDS, null, null, null, null, null, null);
-		if (c.isBeforeFirst()) {
-			if (!c.moveToFirst()) {
-				return ret;
-			}
-		}
 		
 		while (!c.isAfterLast()) {
-			String key = c.getString(1);
-			FeedItem fi = new FeedItem(key, // categoryId
-					c.getString(0), // id
-					c.getString(2), // title
-					c.getString(3), // url
-					c.getInt(4)); // unread
+			FeedItem fi = handleFeedCursor(c);
+			String catId = c.getString(1);
 			
 			List<FeedItem> list;
-			if (ret.get(key) != null) {
-				list = ret.get(key);
+			if (ret.get(catId) != null) {
+				list = ret.get(catId);
 			} else {
 				list = new ArrayList<FeedItem>();
 			}
 			
 			list.add(fi);
-			ret.put(key, list);
+			ret.put(catId, list);
 			
 			c.move(1);
 		}
@@ -460,20 +656,14 @@ public class DBHelper {
 	public List<CategoryItem> getVirtualCategories() {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
-		Cursor c = db.query(TABLE_CAT, null, null, null, null, null, null);
-		if (c.isBeforeFirst()) {
-			if (!c.moveToFirst()) {
-				return ret;
-			}
-		}
-		
+		Cursor c = db.query(TABLE_CAT, null, "id like '-%'", null, null, null, null);
+
 		while (!c.isAfterLast()) {
-			CategoryItem ci = new CategoryItem(c.getString(0), // id
-					c.getString(1), // title
-					(int) c.getLong(2)); // unread
-			if (ci.getId().startsWith("-")) {
-				ret.add(ci);
-			}
+			CategoryItem ci = handleCategoryCursor(c);
+			
+//			if (ci.getId().startsWith("-")) {
+			ret.add(ci);
+//			}
 			c.move(1);
 		}
 		c.close();
@@ -484,25 +674,91 @@ public class DBHelper {
 	public List<CategoryItem> getCategories() {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
-		Cursor c = db.query(TABLE_CAT, null, null, null, null, null, null);
-		if (c.isBeforeFirst()) {
-			if (!c.moveToFirst()) {
-				return ret;
-			}
-		}
+		Cursor c = db.query(TABLE_CAT, null, "id not like '-%'", null, null, null, null);
 		
 		while (!c.isAfterLast()) {
-			CategoryItem ci = new CategoryItem(c.getString(0), // id
-					c.getString(1), // title
-					(int) c.getLong(2)); // unread
-			if (!ci.getId().startsWith("-")) {
-				ret.add(ci);
-			}
+			CategoryItem ci = handleCategoryCursor(c);
+			
+//			if (!ci.getId().startsWith("-")) {
+			ret.add(ci);
+//			}
 			c.move(1);
 		}
 		c.close();
 		
 		return ret;
 	}
+
 	
+	// *******************************************
+	
+	private ArticleItem handleArticleCursor(Cursor c) {
+		ArticleItem ret = null;
+		
+		if (c.isBeforeFirst()) {
+			if (!c.moveToFirst()) {
+				return ret;
+			}
+		}
+		
+		String key = c.getString(1);
+		byte[] content = c.getBlob(4);
+		String contentStr = "";
+		
+		try {
+			if (content.length > 0) {
+				contentStr = new String(Base64.decode(content));
+			}
+		} catch (Exception e) {
+			Log.w(Utils.TAG, "Could not decode content or title. length: " + content.length);
+		}
+		
+		ret = new ArticleItem(key,					// feedId
+				c.getString(0),						// id
+				c.getString(2),						// title
+				(c.getInt(3) != 0 ? true : false),	// isUnread
+				new Date(c.getLong(7)),				// updateDate
+				contentStr,							// content
+				c.getString(5),						// articleUrl
+				c.getString(6)						// articleCommentUrl
+		);
+		
+		return ret;
+	}
+	
+	private FeedItem handleFeedCursor(Cursor c) {
+		FeedItem ret = null;
+		
+		if (c.isBeforeFirst()) {
+			if (!c.moveToFirst()) {
+				return ret;
+			}
+		}
+		
+		ret = new FeedItem(
+				c.getString(1),			// categoryId
+				c.getString(0), 		// id
+				c.getString(2),			// title
+				c.getString(3),			// url
+				c.getInt(4));			// unread
+		
+		return ret;
+	}
+	
+	private CategoryItem handleCategoryCursor(Cursor c) {
+		CategoryItem ret = null;
+		
+		if (c.isBeforeFirst()) {
+			if (!c.moveToFirst()) {
+				return ret;
+			}
+		}
+
+		ret = new CategoryItem(
+				c.getString(0),			// id
+				c.getString(1),			// title
+				(int) c.getLong(2));	// unread
+		
+		return ret;
+	}
 }

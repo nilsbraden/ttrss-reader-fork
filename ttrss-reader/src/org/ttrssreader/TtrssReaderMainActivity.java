@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.TabHost;
 
 public class TtrssReaderMainActivity extends TabActivity {
@@ -38,11 +39,13 @@ public class TtrssReaderMainActivity extends TabActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.main);
-		
+
+		setProgressBarIndeterminateVisibility(false);
+
 		Controller.getInstance().checkAndInitializeController(this);
 		DBHelper.getInstance().checkAndInitializeController(this);
-		
 		
 		// Create Tab-Layout...
 		tabHost = getTabHost();
@@ -61,8 +64,8 @@ public class TtrssReaderMainActivity extends TabActivity {
 		spec = tabHost.newTabSpec("TAB_2").setIndicator("Uncategorized Feeds").setContent(i);
 		tabHost.addTab(spec);
 		
-		tabHost.getTabWidget().getChildAt(0).getLayoutParams().height = 60;
-		tabHost.getTabWidget().getChildAt(1).getLayoutParams().height = 60;
+		tabHost.getTabWidget().getChildAt(0).getLayoutParams().height = 50;
+		tabHost.getTabWidget().getChildAt(1).getLayoutParams().height = 50;
 	}
 	
 	@Override
@@ -72,8 +75,6 @@ public class TtrssReaderMainActivity extends TabActivity {
 	}
 	
 	private void doRefresh() {
-		Controller.getInstance().setRefreshNeeded(false);
-		
 		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(
 				R.string.Commons_PleaseWait));
 		

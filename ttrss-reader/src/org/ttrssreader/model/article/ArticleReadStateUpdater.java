@@ -16,7 +16,6 @@
 package org.ttrssreader.model.article;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.ttrssreader.controllers.Controller;
@@ -24,8 +23,9 @@ import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
+import android.os.AsyncTask;
 
-public class ArticleReadStateUpdater implements IUpdatable {
+public class ArticleReadStateUpdater extends AsyncTask<Object, Object, Object> implements IUpdatable {
 	
 	private List<ArticleItem> mArticleList;
 	private String mFeedId;
@@ -45,16 +45,18 @@ public class ArticleReadStateUpdater implements IUpdatable {
 	}
 
 	@Override
+	protected Object doInBackground(Object... params) {
+		update();
+		return null;
+	}
+	
+	@Override
 	public void update() {
-		ArticleItem article;				
-		Iterator<ArticleItem> iter = mArticleList.iterator();
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
 		
 		String idList = "";
 
-		while (iter.hasNext()) {
-			article = iter.next();
-			
+		for (ArticleItem article : mArticleList) {
 			// Build a list of articles id to update.
 			if (idList.length() > 0) {
 				idList += ",";
@@ -73,7 +75,7 @@ public class ArticleReadStateUpdater implements IUpdatable {
 			
 			ArticleItem articleTemp = DataController.getInstance().getSingleArticleForFeedsHeadlines(feedId, articleId);
 			if (articleTemp != null) {
-				articleTemp.setUnread(mArticleState == 1 ? true : false);
+				articleTemp.setIsUnread(mArticleState == 1 ? true : false);
 			}
 			
 			FeedItem feed = DataController.getInstance().getFeed(feedId, displayOnlyUnread);
@@ -93,7 +95,7 @@ public class ArticleReadStateUpdater implements IUpdatable {
 					(mFeedId.equals("-4"))) {
 				
 				DataController.getInstance()
-					.getSingleArticleForFeedsHeadlines(mFeedId, articleId).setUnread(
+					.getSingleArticleForFeedsHeadlines(mFeedId, articleId).setIsUnread(
 							mArticleState == 1 ? true : false);
 				
 				DataController.getInstance()
@@ -106,8 +108,6 @@ public class ArticleReadStateUpdater implements IUpdatable {
 				
 		int deltaUnread = mArticleState == 1 ? mArticleList.size() : - mArticleList.size();
 		DataController.getInstance().getVirtualCategory("-4").setDeltaUnreadCount(deltaUnread);
-		
-		Controller.getInstance().setRefreshNeeded(true);
 	}
 
 }
