@@ -34,7 +34,12 @@ public class ArticleItemAdapter implements IRefreshable {
 	
 	@Override
 	public void refreshData() {
-		mArticle = DataController.getInstance().getSingleArticleWithFullContentLoaded(mArticleId);
+		mArticle = DataController.getInstance().getArticleWithContent(mArticleId);
+	}
+
+	@Override
+	public void refreshSubData() {
+		// empty
 	}
 
 }

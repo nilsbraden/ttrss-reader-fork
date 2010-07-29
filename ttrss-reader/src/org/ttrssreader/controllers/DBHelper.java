@@ -96,6 +96,15 @@ public class DBHelper {
 		}
 	}
 	
+	public synchronized void checkAndInitializeController(Context context) {
+		if (!mIsControllerInitialized) {
+			
+			initializeController(context);
+			
+			mIsControllerInitialized = true;
+		}
+	}
+	
 	public void switchDB(Context c) {
 		if (mDBLocationSDCard) {
 			OpenHelper openHelper = new OpenHelper(context);
@@ -103,6 +112,8 @@ public class DBHelper {
 			
 			insertCat = db.compileStatement(INSERT_CAT);
 			insertFeed = db.compileStatement(INSERT_FEEDS);
+			insertArticle = null;
+			updateArticle = null;
 		
 			mDBLocationSDCard = false;
 		} else {
@@ -114,15 +125,6 @@ public class DBHelper {
 			updateArticle = db.compileStatement(UPDATE_ARTICLES);
 			
 			mDBLocationSDCard = true;
-		}
-	}
-	
-	public void checkAndInitializeController(Context context) {
-		if (!mIsControllerInitialized) {
-			
-			initializeController(context);
-			
-			mIsControllerInitialized = true;
 		}
 	}
 	
@@ -289,15 +291,11 @@ public class DBHelper {
 		return ret;
 	}
 	
-	public long insertCategory(CategoryItem c) {
-		return insertCategory(c.getId(), c.getTitle(), c.getUnreadCount());
+	public void insertCategory(CategoryItem c) {
+		insertCategory(c.getId(), c.getTitle(), c.getUnreadCount());
 	}
 	
 	public void insertCategories(List<CategoryItem> list) {
-		if (list != null && list.size() > 0) {
-			db.execSQL("DELETE FROM " + TABLE_CAT);
-		}
-		
 		for (CategoryItem c : list) {
 			insertCategory(
 					c.getId(),
@@ -332,25 +330,20 @@ public class DBHelper {
 		return ret;
 	}
 	
-	public long insertFeed(FeedItem f) {
+	public void insertFeed(FeedItem f) {
 		if (f.getCategoryId().startsWith("-")) {
-			return 0;
+			return;
 		}
 		
-		return insertFeed(
-				f.getId(),
-				f.getCategoryId(),
-				f.getTitle(),
-				f.getUrl(),
-				f.getUnread());
+		insertFeed(
+			f.getId(),
+			f.getCategoryId(),
+			f.getTitle(),
+			f.getUrl(),
+			f.getUnread());
 	}
 	
 	public void insertFeeds(List<FeedItem> list) {
-		if (list != null && list.size() > 0) {
-			String categoryId = list.get(0).getCategoryId();
-			db.execSQL("DELETE FROM " + TABLE_FEEDS + " WHERE categoryId='" + categoryId + "'");
-		}
-		
 		for (FeedItem f : list) {
 			if (f.getCategoryId().startsWith("-")) {
 				continue;
@@ -400,29 +393,19 @@ public class DBHelper {
 		return ret;
 	}
 	
-	public long insertArticle(ArticleItem a, int maxArticles) {
-		long ret = insertArticle(
-				a.getId(),
-				a.getFeedId(),
-				a.getTitle(),
-				a.isUnread(),
-				a.getContent(),
-				a.getArticleUrl(),
-				a.getArticleCommentUrl(),
-				a.getUpdateDate());
-		
-		purgeArticlesNumber(maxArticles);
-		
-		return ret;
+	public void insertArticle(ArticleItem a) {
+		insertArticle(
+			a.getId(),
+			a.getFeedId(),
+			a.getTitle(),
+			a.isUnread(),
+			a.getContent(),
+			a.getArticleUrl(),
+			a.getArticleCommentUrl(),
+			a.getUpdateDate());
 	}
 	
-	public void insertArticles(List<ArticleItem> list, int number) {
-		
-		if (list != null && list.size() > 0) {
-			String feedId = list.get(0).getFeedId();
-			db.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE feedId='" + feedId + "'");
-		}
-		
+	public void insertArticles(List<ArticleItem> list) {
 		for (ArticleItem a : list) {
 			insertArticle(
 					a.getId(),
@@ -434,8 +417,6 @@ public class DBHelper {
 					a.getArticleCommentUrl(),
 					a.getUpdateDate());
 		}
-		
-		purgeArticlesNumber(number);
 	}
 	
 	// *******| UPDATE |*******************************************************************

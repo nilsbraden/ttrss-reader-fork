@@ -218,7 +218,12 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	@Override
 	public void refreshData() {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
-		mArticles = DataController.getInstance().getArticlesForFeedsHeadlines(mFeedId, displayOnlyUnread);
+		mArticles = DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread);
+	}
+
+	@Override
+	public void refreshSubData() {
+		DataController.getInstance().getArticlesWithContent(mFeedId);
 	}
 	
 }

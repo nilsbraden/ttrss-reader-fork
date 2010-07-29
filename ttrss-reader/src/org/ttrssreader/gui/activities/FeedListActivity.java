@@ -79,12 +79,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	}
 	
 	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-	}
-	
-	@Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(CATEGORY_ID, mCategoryId);
@@ -92,7 +86,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     }
 
 	private void doRefresh() {
-		
 		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
 
 		if (mAdapter == null) {
@@ -149,7 +142,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	private void doForceRefresh() {
 		DataController.getInstance().forceFullRefresh();
 		doRefresh();
-		DataController.getInstance().disableFullRefresh();
 	}
 	
 	private void displayOnlyUnreadSwitch() {

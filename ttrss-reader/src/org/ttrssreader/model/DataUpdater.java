@@ -21,8 +21,7 @@ public class DataUpdater implements IUpdatable {
 
 	@Override
 	public void update() {
-		// TODO Auto-generated method stub
 		DataController.getInstance().updateUnread();
 	}
-	
+
 }

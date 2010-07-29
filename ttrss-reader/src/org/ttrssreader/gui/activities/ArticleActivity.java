@@ -150,9 +150,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	}
 	
 	private void doRefresh() {
-		
-		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(
-				R.string.Commons_PleaseWait));
+		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
 		
 		mAdapter = new ArticleItemAdapter(mArticleId);
 		new Refresher(this, mAdapter);
