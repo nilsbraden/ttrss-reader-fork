@@ -59,7 +59,7 @@ public class DataController {
 		if (mVirtualCategories.isEmpty()) mVirtualCategories = null;
 		if (mCategories.isEmpty()) mCategories = null;
 		
-		purgeArticlesNumber();
+		purgeArticles();
 	}
 	
 	public static DataController getInstance() {
@@ -75,14 +75,6 @@ public class DataController {
 		mForceFullRefresh = true;
 	}
 	
-	/*
-	 * Changed forceRefresh-Behaviour because we need several runs with fullRefresh in Main-Activity (Categorys and
-	 * FeedHeadLineList) but it was automatically reset inbetween. Now we set it by hand and reset it afterwards.
-	 */
-	public void disableFullRefresh() {
-		mForceFullRefresh = false;
-	}
-	
 	private boolean needFullRefresh() {
 		return mForceFullRefresh || Controller.getInstance().isAlwaysPerformFullRefresh();
 	}
@@ -93,8 +85,6 @@ public class DataController {
 			mVirtualCategories = Controller.getInstance().getTTRSSConnector().getVirtualFeeds();
 
 			DBHelper.getInstance().insertCategories(mVirtualCategories);
-			
-			// mForceFullRefresh = false;
 		}
 		return mVirtualCategories;
 	}
@@ -105,8 +95,6 @@ public class DataController {
 			mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
 
 			DBHelper.getInstance().insertCategories(mCategories);
-			
-			// mForceFullRefresh = false;
 		}
 		return mCategories;
 	}
@@ -165,7 +153,6 @@ public class DataController {
 			finalList.addAll(categoryList);
 			Collections.sort(tempList, new CategoryItemComparator());
 		}
-		
 		finalList.addAll(tempList);
 		
 		// If option "ShowUnreadOnly" is enabled filter out all categories without unread items
@@ -174,13 +161,13 @@ public class DataController {
 			
 			for (CategoryItem ci : finalList) {
 				
-				// Dont filter for virtual Categories
+				// Dont filter for virtual Categories, only 0 (uncategorized feeds) are filtered
 				if (new Integer(ci.getId()).intValue() < 0) {
 					catList.add(ci);
 					continue;
 				}
 				
-				List<FeedItem> temp = getSubscribedFeedsByCategory(ci.getId(), displayOnlyUnread);
+				List<FeedItem> temp = getSubscribedFeeds(ci.getId(), displayOnlyUnread);
 				if (temp != null && temp.size() > 0) {
 					catList.add(ci);
 				}
@@ -206,7 +193,7 @@ public class DataController {
 		return mSubscribedFeeds;
 	}
 	
-	public List<FeedItem> getSubscribedFeedsByCategory(String categoryId, boolean displayOnlyUnread) {
+	public List<FeedItem> getSubscribedFeeds(String categoryId, boolean displayOnlyUnread) {
 		Map<String, List<FeedItem>> map = getSubscribedFeeds();
 		List<FeedItem> result = new ArrayList<FeedItem>();
 		if (map != null) {
@@ -230,7 +217,7 @@ public class DataController {
 	}
 	
 	public FeedItem getFeed(String categoryId, String feedId, boolean displayOnlyUnread) {
-		List<FeedItem> feedList = getSubscribedFeedsByCategory(categoryId, displayOnlyUnread);
+		List<FeedItem> feedList = getSubscribedFeeds(categoryId, displayOnlyUnread);
 		
 		FeedItem result = null;
 		
@@ -269,7 +256,7 @@ public class DataController {
 		return result;
 	}
 	
-	public List<ArticleItem> getArticlesForFeedsHeadlines(String feedId, boolean displayOnlyUnread) {
+	public List<ArticleItem> getArticlesHeadlines(String feedId, boolean displayOnlyUnread) {
 		List<ArticleItem> result = mFeedsHeadlines.get(feedId);
 		
 		if (result == null || needFullRefresh()) {
@@ -280,9 +267,8 @@ public class DataController {
 			
 			mFeedsHeadlines.put(feedId, result);
 			
-			DBHelper.getInstance().insertArticles(result, articleLimit);
-
-			// mForceFullRefresh = false;
+			DBHelper.getInstance().insertArticles(result);
+			purgeArticles();
 		}
 		
 		// If option "ShowUnreadOnly" is enabled filter out all read items
@@ -301,8 +287,8 @@ public class DataController {
 		return result;
 	}
 	
-	public ArticleItem getSingleArticleForFeedsHeadlines(String feedId, String articleId) {
-		List<ArticleItem> articlesList = getArticlesForFeedsHeadlines(feedId, false);
+	public ArticleItem getArticleHeadlines(String feedId, String articleId) {
+		List<ArticleItem> articlesList = getArticlesHeadlines(feedId, false);
 		
 		ArticleItem result = null;
 		
@@ -327,7 +313,7 @@ public class DataController {
 	 * @param articleId
 	 * @return
 	 */
-	public ArticleItem getSingleArticleWithFullContentLoaded(String articleId) {
+	public ArticleItem getArticleWithContent(String articleId) {
 		
 		ArticleItem result = null;
 		if (!needFullRefresh()) {
@@ -339,9 +325,8 @@ public class DataController {
 			
 			result = Controller.getInstance().getTTRSSConnector().getArticle(Integer.parseInt(articleId));
 				
-			DBHelper.getInstance().insertArticle(result, articleLimit);
-
-			// mForceFullRefresh = false;
+			DBHelper.getInstance().insertArticle(result);
+			purgeArticles();
 		}
 		
 		if (result != null) {
@@ -353,11 +338,11 @@ public class DataController {
 				DBHelper.getInstance().updateArticleContent(result);
 			}
 		}
-		
+
 		return result;
 	}
 	
-	public List<ArticleItem> getArticlesWithFullContentLoaded(String feedId) {
+	public List<ArticleItem> getArticlesWithContent(String feedId) {
 		FeedItem fi = new FeedItem();
 		fi.setId(feedId);
 		
@@ -371,27 +356,23 @@ public class DataController {
 			
 			result = Controller.getInstance().getTTRSSConnector().getFeedArticles(Integer.parseInt(feedId), 0, 0);
 			
-			DBHelper.getInstance().insertArticles(result, articleLimit);
-
-			// mForceFullRefresh = false;
+			DBHelper.getInstance().insertArticles(result);
+			purgeArticles();
 		}
-		
 		return result;
 	}
 	
 	/**
 	 * Iterates over all the given items and marks them and all sub-items as read. 
 	 * 
-	 * @param id the id of the item
+	 * @param id the id of the item, beeing a feed or a caetgory
 	 * @param isCategory indicates whether the item is a category (or a feed if false)
 	 */
 	public void markAllRead(String id, boolean isCategory) {
 		try {
-			
 			List<FeedItem> feeds = new ArrayList<FeedItem>();
 			
-			if (id.startsWith("-") || isCategory) {
-				// Virtual Category or Category
+			if (id.startsWith("-") || isCategory) { // Virtual Category or Category
 				
 				List<CategoryItem> iterate = getCategories(true, true);
 				if (iterate != null) {
@@ -431,10 +412,7 @@ public class DataController {
 					"All articles should be marked read on server though, so " +
 					"refreshing from menu should do the trick.");
 		} finally {
-			
 			Controller.getInstance().getTTRSSConnector().setRead(id, isCategory);
-			
-
 		}
 	}
 	
@@ -453,32 +431,10 @@ public class DataController {
 	 * 
 	 * @param number
 	 */
-	public void purgeArticlesNumber() {
-		Log.i(Utils.TAG, "Purging old articles... (Keeping " + articleLimit + " articles)");
-		
+	public void purgeArticles() {
 		DBHelper.getInstance().purgeArticlesNumber(articleLimit);
-		
 		mFeedsHeadlines = DBHelper.getInstance().getArticles(articleLimit);
 	}
-	
-//	public void reloadEverything() {
-//		Log.w(Utils.TAG, "=== reloadEverything() called...");
-//		forceFullRefresh();
-//		
-//		DBHelper.getInstance().deleteAll();
-//		
-//		internalGetCategories();
-//		internalGetVirtualCategories();
-//		getSubscribedFeeds();
-//		
-//		for (String s : mSubscribedFeeds.keySet()) {
-//			List<FeedItem> list = mSubscribedFeeds.get(s);
-//			for (FeedItem f : list) {
-////				getArticlesForFeedsHeadlines(f.getId(), false);
-//				getArticlesWithFullContentLoaded(f.getId());
-//			}
-//		}
-//	}
 	
 	public void updateUnread() {
 		// Mark eveything as read
@@ -495,7 +451,7 @@ public class DataController {
 		for (String s : mSubscribedFeeds.keySet()) {
 			List<FeedItem> list = mSubscribedFeeds.get(s);
 			for (FeedItem f : list) {
-				getArticlesWithFullContentLoaded(f.getId());
+				getArticlesWithContent(f.getId());
 			}
 		}
 	}

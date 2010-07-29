@@ -19,4 +19,5 @@ public interface IRefreshable {
 	
 	public void refreshData();
 
+	public void refreshSubData();
 }

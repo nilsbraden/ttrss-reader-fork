@@ -49,14 +49,13 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	private ListView mCategoryListView;
 	private CategoryListAdapter mAdapter = null;
-//	private ProgressDialog mProgressDialog;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.category);
-		
+
 		Controller.getInstance().checkAndInitializeController(this);
 		DBHelper.getInstance().checkAndInitializeController(this);
 
@@ -67,32 +66,19 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	@Override
 	protected void onResume() {
+		Log.i(Utils.TAG, "onResume() wird also auch beim starten aufgerufen...");
 		super.onResume();
 		doRefresh();
 	}
 
 	private void doRefresh() {
-		setProgressBarVisibility(true);
-//		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
-		
-		int totalUnread = Controller.getInstance().getTTRSSConnector().getTotalUnread();
-		
-		if (totalUnread > 0) {
-			this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + totalUnread + ")");
-		} else {
-			this.setTitle(this.getResources().getString(R.string.ApplicationName));
-		}
-		
-		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
-		} else {
-			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
-		}
-//		mProgressDialog.dismiss();
+		setProgressBarIndeterminateVisibility(true);
 		
 		if (mAdapter == null) {
 			mAdapter = new CategoryListAdapter(this);
 			mCategoryListView.setAdapter(mAdapter);
 		} 
+		this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread() + ")");
 		new Refresher(this, mAdapter);
 	}
 
@@ -174,7 +160,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private void doForceRefresh() {
 		DataController.getInstance().forceFullRefresh();
 		doRefresh();
-		DataController.getInstance().disableFullRefresh();
 	}
 	
 	private void doUpdateEverything() {
@@ -217,16 +202,19 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-		setProgressBarVisibility(true);
-//		mProgressDialog.dismiss();
+		setProgressBarIndeterminateVisibility(false);
 	}
 
 	@Override
 	public void onUpdateEnd() {
-		// TODO: Add some notification about updating..
-		doRefresh();
+		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+			mAdapter.notifyDataSetChanged();
+		} else {
+			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+		}
+
 		setProgressBarIndeterminateVisibility(false);
-//		mAdapter.notifyDataSetChanged();
+		doRefresh();
 	}
 
 }

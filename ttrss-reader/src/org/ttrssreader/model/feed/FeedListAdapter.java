@@ -171,10 +171,16 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 	@Override
 	public void refreshData() {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
-		mFeeds = DataController.getInstance().getSubscribedFeedsByCategory(mCategoryId, displayOnlyUnread);
+		mFeeds = DataController.getInstance().getSubscribedFeeds(mCategoryId, displayOnlyUnread);
 		if (mFeeds != null) {
 			Collections.sort(mFeeds, new FeedItemComparator());
 		}
+	}
+
+	@Override
+	public void refreshSubData() {
+		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
+		DataController.getInstance().getArticlesHeadlines(mCategoryId, displayOnlyUnread);
 	}
 
 }

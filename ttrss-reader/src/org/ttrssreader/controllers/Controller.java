@@ -93,7 +93,7 @@ public class Controller {
 		mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, showUnreadInVirtualFeeds);
 	}
 	
-	public void checkAndInitializeController(final Context context) {
+	public synchronized void checkAndInitializeController(final Context context) {
 		if (!mIsControllerInitialized) {					
 
 			initializeController(context);

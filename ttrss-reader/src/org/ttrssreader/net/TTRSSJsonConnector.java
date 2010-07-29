@@ -540,20 +540,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		return result;
 	}
-
-	/* 
-	 * Deleted call to this function as it just returns the overall item count of a feed, not the number of unread items.
-	 * It was only used in getVirtualFeeds() to set the number of unread items for virtual categories.
-	 */
-//	private int getFeedCount(int feedId) {
-//		List<ArticleItem> feedHeadlines = getFeedHeadlines(feedId, 100, 0);
-//		
-//		if (feedHeadlines != null) {
-//			return feedHeadlines.size();
-//		}
-//		
-//		return 0; 
-//	}
 	
 	private int getFeedUnreadCount(int feedId) {
 		List<ArticleItem> feedHeadlines = getFeedHeadlines(feedId, 100, 0);
@@ -635,7 +621,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		doRequest(url);
 	}
 	
-	// TODO: Test this!
 	@Override
 	public void setRead(String id, boolean isCategory) {
 		if (mSessionId == null) {
@@ -645,9 +630,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				return;
 			}
 		}
-		
 		String url = mServerUrl + String.format(OP_CATCHUP, mSessionId, id, isCategory);
-	
 		doRequest(url);
 	}
 	
@@ -685,43 +668,3 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	}
 
 }
-
-/*
-public void testConnection() {
-	HttpClient httpclient = new DefaultHttpClient();
-	 
-	String url = mServerUrl + String.format(OP_LOGIN, mUserName, mPassword); 
-	
-	HttpPost httpPost = new HttpPost(url);
-
-    // Execute the request
-    HttpResponse response;
-    
-    try {
-    	
-        response = httpclient.execute(httpPost);
-        
-        HttpEntity entity = response.getEntity();
-        
-        if (entity != null) {
-        	InputStream instream = entity.getContent();
-        	
-        	String result = Utils.convertStreamToString(instream);
-        	
-        	JSONObject json = new JSONObject(result);
-        	
-        	JSONArray nameArray = json.names();
-            JSONArray valArray = json.toJSONArray(nameArray);
-        	
-        	System.out.println(result);
-        }
-        
-    } catch (ClientProtocolException e) {
-        e.printStackTrace();
-    } catch (IOException e) {
-        e.printStackTrace();
-    } catch (JSONException e) {
-        e.printStackTrace();
-    }
-}
-*/

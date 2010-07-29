@@ -43,6 +43,10 @@ public class Refresher implements Runnable {
 	public void run() {
 		mRefreshable.refreshData();
 		handler.sendEmptyMessage(0);
+		
+		// Refresh data of next view below the current one, e.g. Feeds->Headlines.
+		mRefreshable.refreshSubData();
+//		handler.sendEmptyMessage(0);
 	}
 	
 }

@@ -84,9 +84,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	}
 	
 	private void doRefresh() {
-		
-		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(
-				R.string.Commons_PleaseWait));
+		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
 		
 		if (mAdapter == null) {
 			mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
@@ -149,7 +147,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	private void doForceRefresh() {
 		DataController.getInstance().forceFullRefresh();
 		doRefresh();
-		DataController.getInstance().disableFullRefresh();
 	}
 	
 	private void setReadState() {
