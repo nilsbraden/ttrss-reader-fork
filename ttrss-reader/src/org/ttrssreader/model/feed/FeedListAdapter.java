@@ -23,9 +23,11 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.model.IRefreshable;
+import org.ttrssreader.utils.Utils;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -179,10 +181,13 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 
 	@Override
 	public void refreshSubData() {
+		Log.d(Utils.TAG, "Refreshing SUB Data (from Categories)");
+		
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
 		for (FeedItem f : mFeeds) {
 			DataController.getInstance().getArticlesHeadlines(f.getId(), displayOnlyUnread);
 		}
+		
 		DataController.getInstance().disableForceFullRefresh();
 	}
 
