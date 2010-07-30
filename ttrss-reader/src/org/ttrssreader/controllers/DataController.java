@@ -479,19 +479,21 @@ public class DataController {
 			DBHelper.getInstance().markCategoryRead(c);
 		}
 		
-		forceFullRefresh(); // TODO: Fix this...
+		forceFullRefresh();
+		
 		internalGetCategories();
 		internalGetVirtualCategories();
 		getSubscribedFeeds();
+		
 		disableForceFullRefresh();
 		
 		// Leave article-content for now, its getting too slow.
-		// for (String s : mSubscribedFeeds.keySet()) {
-		// List<FeedItem> list = mSubscribedFeeds.get(s);
-		// for (FeedItem f : list) {
-		// getArticlesWithContent(f.getId());
-		// }
-		// }
+		for (String s : mSubscribedFeeds.keySet()) {
+			List<FeedItem> list = mSubscribedFeeds.get(s);
+			for (FeedItem f : list) {
+				getArticlesHeadlines(f.getId(), true);
+			}
+		}
 	}
 	
 }
