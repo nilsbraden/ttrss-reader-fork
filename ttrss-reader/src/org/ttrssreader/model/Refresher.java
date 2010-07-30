@@ -37,13 +37,18 @@ public class Refresher implements Runnable {
 	
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
+			
 			if (msg.arg1 == 0) {
+				
 				Log.d(Utils.TAG, "Calling onRefreshEnd");
 				mParent.onRefreshEnd();
+				
 			} else if (msg.arg1 == 1) {
+				
 				Log.d(Utils.TAG, "Calling onSUBRefreshEnd");
 				mParent.onSubRefreshEnd();
 			}
+			
 		}
 	};
 	
