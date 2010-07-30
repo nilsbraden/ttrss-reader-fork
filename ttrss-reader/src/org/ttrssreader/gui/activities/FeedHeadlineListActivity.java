@@ -26,13 +26,13 @@ import org.ttrssreader.model.article.ArticleReadStateUpdater;
 import org.ttrssreader.model.feedheadline.FeedHeadlineListAdapter;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ListView;
 
 public class FeedHeadlineListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
@@ -53,15 +53,13 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	private ListView mFeedHeadlineListView;
 	private FeedHeadlineListAdapter mAdapter = null;
 	
-	private ProgressDialog mProgressDialog;
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.feedheadlinelist);
-		
-		// Controller.getInstance().checkAndInitializeController(this);
-		
+
+		setProgressBarIndeterminateVisibility(false);
 		mFeedHeadlineListView = getListView();
 		
 		Bundle extras = getIntent().getExtras();
@@ -84,7 +82,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	}
 	
 	private void doRefresh() {
-		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
+		setProgressBarIndeterminateVisibility(true);
 		
 		if (mAdapter == null) {
 			mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
@@ -150,18 +148,12 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	}
 	
 	private void setReadState() {
-		
-		mProgressDialog = ProgressDialog.show(this, this.getResources().getString(R.string.Commons_UpdateReadState),
-				this.getResources().getString(R.string.Commons_PleaseWait));
-		
+		setProgressBarIndeterminateVisibility(true);
 		new Updater(this, new ArticleReadStateUpdater(mFeedId, mAdapter.getArticleUnreadList(), 0));
 	}
 	
 	private void setUnreadState() {
-		
-		mProgressDialog = ProgressDialog.show(this, this.getResources().getString(R.string.Commons_UpdateReadState),
-				this.getResources().getString(R.string.Commons_PleaseWait));
-		
+		setProgressBarIndeterminateVisibility(true);
 		new Updater(this, new ArticleReadStateUpdater(mFeedId, mAdapter.getArticleReadList(), 1));
 	}
 	
@@ -192,8 +184,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-		
-		mProgressDialog.dismiss();
+
+		setProgressBarIndeterminateVisibility(false);
 		
 		if (Controller.getInstance().isDisplayOnlyUnreadEnabled()) {
 			// Close FeedHeadlineList if no unread article exists
@@ -215,8 +207,20 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	}
 	
 	@Override
+	public void onSubRefreshEnd() {
+		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+			mAdapter.notifyDataSetChanged();
+		} else {
+			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+		}
+
+		setProgressBarIndeterminateVisibility(false);
+		DataController.getInstance().disableForceFullRefresh();
+	}
+	
+	@Override
 	public void onUpdateEnd() {
-		mProgressDialog.dismiss();
+		setProgressBarIndeterminateVisibility(false);
 		doRefresh();
 	}
 	

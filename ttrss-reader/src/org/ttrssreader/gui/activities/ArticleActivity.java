@@ -18,6 +18,7 @@ package org.ttrssreader.gui.activities;
 import java.util.ArrayList;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.Refresher;
@@ -27,7 +28,6 @@ import org.ttrssreader.model.article.ArticleItemAdapter;
 import org.ttrssreader.model.article.ArticleReadStateUpdater;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +37,7 @@ import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.Window;
 import android.view.GestureDetector.OnGestureListener;
 import android.webkit.WebView;
 import android.widget.TextView;
@@ -63,17 +64,17 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	
 	private WebView webview;
 	private TextView webviewSwipeText;
-	private ProgressDialog mProgressDialog;
 	private GestureDetector mGestureDetector;
 	private boolean useSwipe;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.articleitem);
 		
-//		Controller.getInstance().checkAndInitializeController(this);
-		
+		setProgressBarIndeterminateVisibility(false);		
+
 		webview = (WebView) findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.getSettings().setBuiltInZoomControls(true);
@@ -150,17 +151,14 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	}
 	
 	private void doRefresh() {
-		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
+		setProgressBarIndeterminateVisibility(true);
 		
 		mAdapter = new ArticleItemAdapter(mArticleId);
 		new Refresher(this, mAdapter);
 	}
 	
 	private void changeUnreadState(int articleState) {
-		
-		mProgressDialog = ProgressDialog.show(this, this.getResources().getString(R.string.Commons_UpdateReadState),
-				this.getResources().getString(R.string.Commons_PleaseWait));
-		
+		setProgressBarIndeterminateVisibility(true);
 		new Updater(this, new ArticleReadStateUpdater(mFeedId, mArticleItem, articleState));
 	}
 	
@@ -342,8 +340,14 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-		
-		mProgressDialog.dismiss();
+
+		setProgressBarIndeterminateVisibility(false);
+	}
+	
+	@Override
+	public void onSubRefreshEnd() {
+		setProgressBarIndeterminateVisibility(false);
+		DataController.getInstance().disableForceFullRefresh();
 	}
 	
 	@Override
@@ -351,8 +355,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		if (Controller.getInstance().getTTRSSConnector().hasLastError()) {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-		
-		mProgressDialog.dismiss();
+
+		setProgressBarIndeterminateVisibility(false);
 	}
 	
 }

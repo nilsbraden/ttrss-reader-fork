@@ -18,6 +18,6 @@ package org.ttrssreader.model;
 public interface IRefreshable {
 	
 	public void refreshData();
-
 	public void refreshSubData();
+	
 }

@@ -35,7 +35,6 @@ IN PROGRESS
 - Automatically open webpage for empty Feed-Entrys
 - Automatically leave FeedHeadlineView if there are no items (see FeedHeadlineListActivity.java:207)
 - Disabled concurrent modifications in Refresher.java and Updater.java because of Exceptions (see comments in source)
-- forceRefresh not disabled automatically anymore, so we can forceRefresh several Adapters in one step (neccessary for Main-Activity with Categories and FeedHeadlines, see Comment in DataController.java)
 
 0.2.0:
 - Switch to new TTRSS JSON-based API; XML-RPC is no longer supported (need TTRSS >= 1.4.0);

@@ -16,37 +16,61 @@
 package org.ttrssreader.model;
 
 import org.ttrssreader.gui.IRefreshEndListener;
+import org.ttrssreader.utils.Utils;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 public class Refresher implements Runnable {
 	
 	private IRefreshEndListener mParent;
 	private IRefreshable mRefreshable;
 	
+	private boolean refreshSubData;
+	
 	public Refresher(IRefreshEndListener parent, IRefreshable refreshable) {
 		mParent = parent;
 		mRefreshable = refreshable;
+		refreshSubData = false;
 		
-//		 Thread mThread = new Thread(this);
-//		 mThread.start();
-		run();
+		Thread mThread = new Thread(this);
+		mThread.start();
+		// run();
 	}
 	
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
-			mParent.onRefreshEnd();
+			if (msg.arg1 == 0) {
+				mParent.onRefreshEnd();
+			} else if (msg.arg1 == 1) {
+				mParent.onSubRefreshEnd();
+			}
 		}
 	};
 	
 	@Override
 	public void run() {
-		mRefreshable.refreshData();
-		handler.sendEmptyMessage(0);
-		
-		// Refresh data of next view below the current one, e.g. Feeds->Headlines.
-		mRefreshable.refreshSubData();
-//		handler.sendEmptyMessage(0);
+		if (!refreshSubData) {
+			
+			// Refresh data oh this view
+			mRefreshable.refreshData();
+			Message m = new Message();
+			m.arg1 = 0;
+			handler.sendMessage(m);
+			
+			refreshSubData = true;
+			
+		} else {
+			
+			// Refresh data of next view below the current one, e.g. Feeds->Headlines.
+			mRefreshable.refreshSubData();
+			handler.sendEmptyMessage(1);
+			
+			Message m = new Message();
+			m.arg1 = 1;
+			handler.sendMessage(m);
+			
+		}
 	}
 	
 }

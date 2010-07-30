@@ -138,11 +138,11 @@ public class Controller {
 		return mArticleLimit;
 	}
 
-	public void setShowUnreadInVirtualFeed(boolean showUnreadInVirtualFeed) {
-		this.mShowUnreadInVirtualFeeds = showUnreadInVirtualFeed;
+	public void setShowUnreadInVirtualFeeds(boolean showUnreadInVirtualFeeds) {
+		this.mShowUnreadInVirtualFeeds = showUnreadInVirtualFeeds;
 	}
 
-	public boolean isShowUnreadInVirtualFeed() {
+	public boolean isShowUnreadInVirtualFeeds() {
 		return mShowUnreadInVirtualFeeds;
 	}
 	

@@ -73,7 +73,7 @@ public class ArticleReadStateUpdater extends AsyncTask<Object, Object, Object> i
 			}
 			String categoryId = mFeed.getCategoryId();
 			
-			ArticleItem articleTemp = DataController.getInstance().getArticleHeadlines(feedId, articleId);
+			ArticleItem articleTemp = DataController.getInstance().getArticleHeadline(feedId, articleId);
 			if (articleTemp != null) {
 				articleTemp.setIsUnread(mArticleState == 1 ? true : false);
 			}
@@ -95,7 +95,7 @@ public class ArticleReadStateUpdater extends AsyncTask<Object, Object, Object> i
 					(mFeedId.equals("-4"))) {
 				
 				DataController.getInstance()
-					.getArticleHeadlines(mFeedId, articleId).setIsUnread(
+					.getArticleHeadline(mFeedId, articleId).setIsUnread(
 							mArticleState == 1 ? true : false);
 				
 				DataController.getInstance()

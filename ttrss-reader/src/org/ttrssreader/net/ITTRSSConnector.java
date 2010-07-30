@@ -32,7 +32,7 @@ public interface ITTRSSConnector {
 	
 	public ArticleItem getArticle(int articleId);
 	
-	public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter);
+	public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode);
 	
 	public List<ArticleItem> getFeedArticles(int feedId, int limit, int filter);
 	

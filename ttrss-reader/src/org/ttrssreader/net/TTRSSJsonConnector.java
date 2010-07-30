@@ -36,6 +36,7 @@ import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
+import android.util.Log;
 
 public class TTRSSJsonConnector implements ITTRSSConnector {
 
@@ -43,7 +44,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String OP_GET_UNREAD = "?op=getUnread&sid=%s";
 	private static final String OP_GET_CATEGORIES = "?op=getCategories&sid=%s";
 	private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s";
-	private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s";
+	private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&view_mode=%s";
 	private static final String OP_GET_ARTICLES_WITH_CONTENT = "?op=getArticles&sid=%s&feed_id=%s";
 	private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
 	private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
@@ -196,6 +197,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 
 	@Override
 	public List<CategoryItem> getCategories() {
+		Log.w(Utils.TAG, "-- Called: getCategories()");
 		
 		List<CategoryItem> finalResult = new ArrayList<CategoryItem>();
 		
@@ -249,11 +251,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mLastError = e.getMessage();
 		}
 		
+		Log.w(Utils.TAG, "-- END Called: getCategories()");
 		return finalResult;
 	}
 
 	@Override
-	public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter) {
+	public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode) {
+		Log.w(Utils.TAG, "-- Called: getFeedHeadlines(feedId " + feedId + ", limit " + limit + ", filter " + filter + ")");
 		
 		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
 		
@@ -265,7 +269,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		}
 		
-		String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, mSessionId, feedId);
+		String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, mSessionId, feedId, limit, viewMode);
 		
 		JSONArray jsonResult = getJSONResponseAsArray(url);
 		
@@ -288,11 +292,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mLastError = e.getMessage();
 		}
 		
+		Log.w(Utils.TAG, "-- END Called: getFeedHeadlines(feedId " + feedId + ", limit " + limit + ", filter " + filter + ")");
 		return finalResult;
 	}
 	
 	@Override
 	public List<ArticleItem> getFeedArticles(int feedId, int limit, int filter) {
+		Log.w(Utils.TAG, "-- Called: getFeedArticles(feedId " + feedId + ", limit " + limit + ", filter " + filter + ")");
 		
 		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
 		
@@ -324,11 +330,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mLastError = e.getMessage();
 		}
 		
+		Log.w(Utils.TAG, "-- END Called: getFeedArticles(feedId " + feedId + ", limit " + limit + ", filter " + filter + ")");
 		return finalResult;
 	}
 	
 	@Override
 	public ArticleItem getArticle(int articleId) {
+		Log.w(Utils.TAG, "-- Called: getArticle(articleId " + articleId + ")");
 		
 		ArticleItem ret = new ArticleItem();
 		
@@ -351,6 +359,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		}
 		
+		Log.w(Utils.TAG, "-- END Called: getArticle(articleId " + articleId + ")");
 		return ret;
 	}
 
@@ -424,6 +433,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 
 	@Override
 	public Map<String, List<FeedItem>> getSubsribedFeeds() {
+		Log.w(Utils.TAG, "-- Called: getSubscribedFeeds()");
 		
 		Map<String, List<FeedItem>> finalResult = new HashMap<String, List<FeedItem>>();;
 		
@@ -492,6 +502,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mLastError = e.getMessage();
 		}
 		
+		Log.w(Utils.TAG, "-- END Called: getSubscribedFeeds()");
 		return finalResult;
 	}
 
