@@ -26,23 +26,22 @@ public class Refresher implements Runnable {
 	private IRefreshEndListener mParent;
 	private IRefreshable mRefreshable;
 	
-	private boolean refreshSubData;
 	
 	public Refresher(IRefreshEndListener parent, IRefreshable refreshable) {
 		mParent = parent;
 		mRefreshable = refreshable;
-		refreshSubData = false;
 		
 		Thread mThread = new Thread(this);
 		mThread.start();
-		// run();
 	}
 	
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			if (msg.arg1 == 0) {
+				Log.d(Utils.TAG, "Calling onRefreshEnd");
 				mParent.onRefreshEnd();
 			} else if (msg.arg1 == 1) {
+				Log.d(Utils.TAG, "Calling onSUBRefreshEnd");
 				mParent.onSubRefreshEnd();
 			}
 		}
@@ -50,27 +49,19 @@ public class Refresher implements Runnable {
 	
 	@Override
 	public void run() {
-		if (!refreshSubData) {
-			
-			// Refresh data oh this view
-			mRefreshable.refreshData();
-			Message m = new Message();
-			m.arg1 = 0;
-			handler.sendMessage(m);
-			
-			refreshSubData = true;
-			
-		} else {
-			
-			// Refresh data of next view below the current one, e.g. Feeds->Headlines.
-			mRefreshable.refreshSubData();
-			handler.sendEmptyMessage(1);
-			
-			Message m = new Message();
-			m.arg1 = 1;
-			handler.sendMessage(m);
-			
-		}
+		// Refresh data oh this view
+		mRefreshable.refreshData();
+		Message m = new Message();
+		m.arg1 = 0;
+		handler.sendMessage(m);
+		
+		// Refresh data of next view below the current one, e.g. Feeds->Headlines.
+		mRefreshable.refreshSubData();
+		handler.sendEmptyMessage(1);
+		
+		m = new Message();
+		m.arg1 = 1;
+		handler.sendMessage(m);
 	}
 	
 }

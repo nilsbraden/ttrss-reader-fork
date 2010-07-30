@@ -481,10 +481,9 @@ public class DataController {
 		
 		forceFullRefresh(); // TODO: Fix this...
 		internalGetCategories();
-		forceFullRefresh(); // TODO: Fix this...
 		internalGetVirtualCategories();
-		forceFullRefresh(); // TODO: Fix this...
 		getSubscribedFeeds();
+		disableForceFullRefresh();
 		
 		// Leave article-content for now, its getting too slow.
 		// for (String s : mSubscribedFeeds.keySet()) {

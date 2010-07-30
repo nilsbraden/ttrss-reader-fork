@@ -21,8 +21,10 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.model.IRefreshable;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -170,6 +172,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	}
 	
 	public void refreshSubData() {
+		Log.d(Utils.TAG, "Refreshing SUB Data (from Categories)");
 		DataController.getInstance().getSubscribedFeeds();
 		DataController.getInstance().disableForceFullRefresh();
 	}
