@@ -36,12 +36,10 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	private Context mContext;
 	
 	private List<CategoryItem> mCategories;
-	private int totalUnread;
 	
 	public CategoryListAdapter(Context context) {
 		mContext = context;
 		mCategories = new ArrayList<CategoryItem>();
-		totalUnread = 0;
 	}
 	
 	@Override
@@ -69,14 +67,6 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	
 	public int getUnreadCount(int position) {
 		return mCategories.get(position).getUnreadCount();
-	}
-	
-	public void setTotalUnread(int totalUnread) {
-		this.totalUnread = totalUnread;
-	}
-
-	public int getTotalUnread() {
-		return totalUnread;
 	}
 
 	public void markAllRead() {
@@ -176,7 +166,6 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		boolean virtuals = Controller.getInstance().isDisplayVirtualsEnabled();
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
 		
-		totalUnread = Controller.getInstance().getTTRSSConnector().getTotalUnread();
 		mCategories = DataController.getInstance().getCategories(virtuals, displayOnlyUnread);
 	}
 	

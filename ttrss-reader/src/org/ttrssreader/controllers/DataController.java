@@ -81,19 +81,50 @@ public class DataController {
 	
 	private List<CategoryItem> internalGetVirtualCategories() {
 		if (mVirtualCategories == null || needFullRefresh()) {
-			Log.i(Utils.TAG, "Refreshing Data: internalGetVirtualCategories()");
-			mVirtualCategories = Controller.getInstance().getTTRSSConnector().getVirtualFeeds();
-
+			boolean showUnreadInVirtualFeeds = Controller.getInstance().isShowUnreadInVirtualFeed();
+			
+			CategoryItem categoryItem;
+			categoryItem = new CategoryItem("-1", "Starred articles", showUnreadInVirtualFeeds ? getFeedUnreadCount(-1) : 0);
+			mVirtualCategories.add(categoryItem);
+			categoryItem = new CategoryItem("-2", "Published articles", showUnreadInVirtualFeeds ? getFeedUnreadCount(-2) : 0);
+			mVirtualCategories.add(categoryItem);
+			categoryItem = new CategoryItem("-3", "Fresh articles", showUnreadInVirtualFeeds ? getFeedUnreadCount(-3) : 0);
+			mVirtualCategories.add(categoryItem);
+			categoryItem = new CategoryItem("-4", "All articles", showUnreadInVirtualFeeds ? getFeedUnreadCount(-4) : 0);
+			mVirtualCategories.add(categoryItem);
+			categoryItem = new CategoryItem("0", "Uncategorized Feeds", showUnreadInVirtualFeeds ? getUncatUnreadCount() : 0);
+			mVirtualCategories.add(categoryItem);
+			
 			DBHelper.getInstance().insertCategories(mVirtualCategories);
 		}
 		return mVirtualCategories;
 	}
 	
+	
+	private int getFeedUnreadCount(int feedId) {
+		List<ArticleItem> feedHeadlines = getArticlesHeadlines(feedId+"", true);
+		return feedHeadlines.size(); 
+	}
+		
+	private int getUncatUnreadCount() {
+		// Get unread-count for Uncategorized feeds...
+		List<FeedItem> list = getSubscribedFeeds("0", true);
+		
+		int uncatCount = 0;
+
+		for (FeedItem f : list) {
+			uncatCount += f.getUnread();
+		}
+		
+		return uncatCount;
+	}
+	
 	private List<CategoryItem> internalGetCategories() {
 		if ((mCategories == null) || (needFullRefresh())) {
 			Log.i(Utils.TAG, "Refreshing Data: internalGetCategories()");
+			mForceFullRefresh = false;
+			
 			mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
-
 			DBHelper.getInstance().insertCategories(mCategories);
 		}
 		return mCategories;
@@ -146,6 +177,8 @@ public class DataController {
 			}
 		}
 		
+		mForceFullRefresh = false;
+		
 		List<CategoryItem> tempList = new ArrayList<CategoryItem>();
 		List<CategoryItem> categoryList = internalGetCategories();
 		
@@ -183,12 +216,12 @@ public class DataController {
 	public Map<String, List<FeedItem>> getSubscribedFeeds() {
 		if (mSubscribedFeeds == null || needFullRefresh()) {
 			Log.i(Utils.TAG, "Refreshing Data: getSubscribedFeeds()");
+			mForceFullRefresh = false;
+			
 			mSubscribedFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
-
 			for (String s : mSubscribedFeeds.keySet()) {
 				DBHelper.getInstance().insertFeeds(mSubscribedFeeds.get(s));
 			}
-			// mForceFullRefresh = false;
 		}
 		return mSubscribedFeeds;
 	}
@@ -261,6 +294,7 @@ public class DataController {
 		
 		if (result == null || needFullRefresh()) {
 			Log.i(Utils.TAG, "Refreshing Data: getArticlesForFeedsHeadlines()");
+			mForceFullRefresh = false;
 			
 			result = Controller.getInstance().getTTRSSConnector().
 				getFeedHeadlines(new Integer(feedId).intValue(), articleLimit, 0);
@@ -442,10 +476,11 @@ public class DataController {
 			DBHelper.getInstance().markCategoryRead(c);
 		}
 		
-		forceFullRefresh();
-		
+		forceFullRefresh();	// TODO: Fix this...	
 		internalGetCategories();
+		forceFullRefresh();	// TODO: Fix this...
 		internalGetVirtualCategories();
+		forceFullRefresh();	// TODO: Fix this...
 		getSubscribedFeeds();
 		
 		for (String s : mSubscribedFeeds.keySet()) {

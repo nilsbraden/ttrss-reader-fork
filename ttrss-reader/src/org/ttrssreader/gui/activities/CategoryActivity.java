@@ -66,7 +66,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	@Override
 	protected void onResume() {
-		Log.i(Utils.TAG, "onResume() wird also auch beim starten aufgerufen...");
 		super.onResume();
 		doRefresh();
 	}
@@ -74,11 +73,17 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private void doRefresh() {
 		setProgressBarIndeterminateVisibility(true);
 		
+		int totalUnread = Controller.getInstance().getTTRSSConnector().getTotalUnread();
+		if (totalUnread < 0) {
+			this.setTitle(this.getResources().getString(R.string.ApplicationName));
+		} else {
+			this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + totalUnread + ")");
+		}
+
 		if (mAdapter == null) {
 			mAdapter = new CategoryListAdapter(this);
 			mCategoryListView.setAdapter(mAdapter);
-		} 
-		this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread() + ")");
+		}
 		new Refresher(this, mAdapter);
 	}
 
