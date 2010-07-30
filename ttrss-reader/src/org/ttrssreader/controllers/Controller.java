@@ -36,6 +36,7 @@ public class Controller {
 	private boolean mDisplayOnlyUnread = false;
 	private boolean mDisplayVirtuals = true;
 	private int mArticleLimit = 100;
+	private boolean mShowUnreadInVirtualFeeds = true;
 	
 	private static Controller mInstance = null;
 	private SharedPreferences prefs = null;
@@ -68,7 +69,7 @@ public class Controller {
 		String password = PreferenceManager.getDefaultSharedPreferences(context).getString(
 				PreferencesConstants.CONNECTION_PASSWORD, "");
 		
-		boolean showUnreadInVirtualFeeds = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+		mShowUnreadInVirtualFeeds = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
 				PreferencesConstants.DISPLAY_SHOW_VIRTUAL_UNREAD, false);
 		
 		mAlwaysFullRefresh = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
@@ -90,7 +91,7 @@ public class Controller {
 				PreferencesConstants.ARTICLE_LIMIT, "100");
 		mArticleLimit = new Integer(artLimit).intValue();
 		
-		mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, showUnreadInVirtualFeeds);
+		mTTRSSConnector = new TTRSSJsonConnector(url, userName, password);
 	}
 	
 	public synchronized void checkAndInitializeController(final Context context) {
@@ -135,6 +136,14 @@ public class Controller {
 	
 	public int getArticleLimit() {
 		return mArticleLimit;
+	}
+
+	public void setShowUnreadInVirtualFeed(boolean showUnreadInVirtualFeed) {
+		this.mShowUnreadInVirtualFeeds = showUnreadInVirtualFeed;
+	}
+
+	public boolean isShowUnreadInVirtualFeed() {
+		return mShowUnreadInVirtualFeeds;
 	}
 	
 }

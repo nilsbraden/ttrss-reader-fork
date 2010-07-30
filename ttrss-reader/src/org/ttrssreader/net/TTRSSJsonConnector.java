@@ -66,20 +66,16 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private String mServerUrl;
 	private String mUserName;
 	private String mPassword;
-	private boolean mShowUnreadInVirtualFeeds;
 	
 	private String mSessionId;
 	
 	private String mLastError = "";
 	private boolean mHasLastError = false;
 	
-	public TTRSSJsonConnector(String serverUrl, String userName, String password, boolean showUnreadInVirtualFeeds) {
+	public TTRSSJsonConnector(String serverUrl, String userName, String password) {
 		mServerUrl = serverUrl;
 		mUserName = userName;
 		mPassword = password;
-		
-		mShowUnreadInVirtualFeeds = showUnreadInVirtualFeeds;
-		
 		mSessionId = null;
 	}
 	
@@ -539,66 +535,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		}
 		
 		return result;
-	}
-	
-	private int getFeedUnreadCount(int feedId) {
-		List<ArticleItem> feedHeadlines = getFeedHeadlines(feedId, 100, 0);
-		int count = 0;
-		
-		if (feedHeadlines != null) {
-			for (ArticleItem ai : feedHeadlines) {
-				if (ai.isUnread()) {
-					count++;
-				}
-			}
-		}
-		
-		return count; 
-	}
-		
-	private int getUncatUnreadCount() {
-		// Get unread-count for Uncategorized feeds...
-		Map<String, List<FeedItem>> map = getSubsribedFeeds();
-		
-		if (map == null) {
-			return 0;
-		}
-		
-		int uncatCount = 0;
-		for (String key : map.keySet()) {
-			List<FeedItem> feeds = map.get(key);
-			for (FeedItem f : feeds) {
-				if ("0".equals(f.getCategoryId())) {
-					uncatCount += f.getUnread();
-				}
-			}
-		}
-		return uncatCount;
-	}
-	
-	@Override
-	public List<CategoryItem> getVirtualFeeds() {
-		List<CategoryItem> finalResult = new ArrayList<CategoryItem>();				
-		
-		CategoryItem categoryItem;
-		
-		
-		categoryItem = new CategoryItem("-1", "Starred articles", mShowUnreadInVirtualFeeds ? getFeedUnreadCount(-1) : 0);
-		finalResult.add(categoryItem);
-		
-		categoryItem = new CategoryItem("-2", "Published articles", mShowUnreadInVirtualFeeds ? getFeedUnreadCount(-2) : 0);
-		finalResult.add(categoryItem);
-		
-		categoryItem = new CategoryItem("-3", "Fresh articles", mShowUnreadInVirtualFeeds ? getFeedUnreadCount(-3) : 0);
-		finalResult.add(categoryItem);
-		
-		categoryItem = new CategoryItem("-4", "All articles", mShowUnreadInVirtualFeeds ? getFeedUnreadCount(-4) : 0);
-		finalResult.add(categoryItem);
-		
-		categoryItem = new CategoryItem("0", "Uncategorized Feeds", mShowUnreadInVirtualFeeds ? getUncatUnreadCount() : 0);
-		finalResult.add(categoryItem);
-		
-		return finalResult;
 	}
 
 	@Override

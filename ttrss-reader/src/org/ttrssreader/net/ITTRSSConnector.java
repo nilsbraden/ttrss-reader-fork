@@ -26,8 +26,6 @@ public interface ITTRSSConnector {
 	
 	public int getTotalUnread();
 	
-	public List<CategoryItem> getVirtualFeeds();
-	
 	public List<CategoryItem> getCategories();
 	
 	public Map<String, List<FeedItem>> getSubsribedFeeds();
