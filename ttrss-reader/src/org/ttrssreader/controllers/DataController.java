@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryItemComparator;
@@ -46,7 +47,7 @@ public class DataController {
 	private int articleLimit;
 	
 	private DataController() {
-
+		
 		articleLimit = Controller.getInstance().getArticleLimit();
 		
 		mFeedsHeadlines = DBHelper.getInstance().getArticles(articleLimit);
@@ -54,10 +55,14 @@ public class DataController {
 		mVirtualCategories = DBHelper.getInstance().getVirtualCategories();
 		mCategories = DBHelper.getInstance().getCategories();
 		
-		if (mFeedsHeadlines.isEmpty()) mFeedsHeadlines = new HashMap<String, List<ArticleItem>>();
-		if (mSubscribedFeeds.isEmpty()) mSubscribedFeeds = null;
-		if (mVirtualCategories.isEmpty()) mVirtualCategories = null;
-		if (mCategories.isEmpty()) mCategories = null;
+		if (mFeedsHeadlines.isEmpty())
+			mFeedsHeadlines = new HashMap<String, List<ArticleItem>>();
+		if (mSubscribedFeeds.isEmpty())
+			mSubscribedFeeds = null;
+		if (mVirtualCategories.isEmpty())
+			mVirtualCategories = null;
+		if (mCategories.isEmpty())
+			mCategories = null;
 		
 		purgeArticles();
 	}
@@ -75,24 +80,29 @@ public class DataController {
 		mForceFullRefresh = true;
 	}
 	
+	public void disableForceFullRefresh() {
+		mForceFullRefresh = false;
+	}
+	
 	private boolean needFullRefresh() {
 		return mForceFullRefresh || Controller.getInstance().isAlwaysPerformFullRefresh();
 	}
 	
 	private List<CategoryItem> internalGetVirtualCategories() {
 		if (mVirtualCategories == null || needFullRefresh()) {
-			boolean showUnreadInVirtualFeeds = Controller.getInstance().isShowUnreadInVirtualFeed();
+			mVirtualCategories = new ArrayList<CategoryItem>();
+			boolean showUnread = Controller.getInstance().isShowUnreadInVirtualFeeds();
 			
 			CategoryItem categoryItem;
-			categoryItem = new CategoryItem("-1", "Starred articles", showUnreadInVirtualFeeds ? getFeedUnreadCount(-1) : 0);
+			categoryItem = new CategoryItem("-1", "Starred articles", showUnread ? getUnreadCount(-1) : 0);
 			mVirtualCategories.add(categoryItem);
-			categoryItem = new CategoryItem("-2", "Published articles", showUnreadInVirtualFeeds ? getFeedUnreadCount(-2) : 0);
+			categoryItem = new CategoryItem("-2", "Published articles", showUnread ? getUnreadCount(-2) : 0);
 			mVirtualCategories.add(categoryItem);
-			categoryItem = new CategoryItem("-3", "Fresh articles", showUnreadInVirtualFeeds ? getFeedUnreadCount(-3) : 0);
+			categoryItem = new CategoryItem("-3", "Fresh articles", showUnread ? getUnreadCount(-3) : 0);
 			mVirtualCategories.add(categoryItem);
-			categoryItem = new CategoryItem("-4", "All articles", showUnreadInVirtualFeeds ? getFeedUnreadCount(-4) : 0);
+			categoryItem = new CategoryItem("-4", "All articles", showUnread ? getUnreadCount(-4) : 0);
 			mVirtualCategories.add(categoryItem);
-			categoryItem = new CategoryItem("0", "Uncategorized Feeds", showUnreadInVirtualFeeds ? getUncatUnreadCount() : 0);
+			categoryItem = new CategoryItem("0", "Uncategorized Feeds", showUnread ? getUnreadCount(0) : 0);
 			mVirtualCategories.add(categoryItem);
 			
 			DBHelper.getInstance().insertCategories(mVirtualCategories);
@@ -100,34 +110,25 @@ public class DataController {
 		return mVirtualCategories;
 	}
 	
-	
-	private int getFeedUnreadCount(int feedId) {
-		List<ArticleItem> feedHeadlines = getArticlesHeadlines(feedId+"", true);
-		return feedHeadlines.size(); 
-	}
-		
-	private int getUncatUnreadCount() {
-		// Get unread-count for Uncategorized feeds...
-		List<FeedItem> list = getSubscribedFeeds("0", true);
-		
-		int uncatCount = 0;
-
-		for (FeedItem f : list) {
-			uncatCount += f.getUnread();
-		}
-		
-		return uncatCount;
-	}
-	
 	private List<CategoryItem> internalGetCategories() {
 		if ((mCategories == null) || (needFullRefresh())) {
-			Log.i(Utils.TAG, "Refreshing Data: internalGetCategories()");
-			mForceFullRefresh = false;
-			
 			mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
 			DBHelper.getInstance().insertCategories(mCategories);
 		}
 		return mCategories;
+	}
+
+	private int getUnreadCount(int feedId) {
+		if (feedId == 0) {
+			int ret = 0;
+			for (FeedItem f : getSubscribedFeeds("0", true)) {
+				ret += f.getUnread();
+			}
+			return ret;
+		} else {
+			List<ArticleItem> feedHeadlines = getArticlesHeadlines(feedId+"", true);
+			return feedHeadlines.size();
+		}
 	}
 	
 	public CategoryItem getVirtualCategory(String categoryId) {
@@ -165,32 +166,27 @@ public class DataController {
 	}
 	
 	public List<CategoryItem> getCategories(boolean withVirtuals, boolean displayOnlyUnread) {
-
+		
 		List<CategoryItem> finalList = new ArrayList<CategoryItem>();
 		
 		if (withVirtuals) {
-			List<CategoryItem> virtualList = internalGetVirtualCategories();
-			
-			if (virtualList != null) {
-				finalList.addAll(virtualList);
-				Collections.sort(finalList, new VirtualCategoryItemComparator());
-			}
+			finalList.addAll(internalGetVirtualCategories());
+			Collections.sort(finalList, new VirtualCategoryItemComparator());
 		}
 		
-		mForceFullRefresh = false;
-		
-		List<CategoryItem> tempList = new ArrayList<CategoryItem>();
 		List<CategoryItem> categoryList = internalGetCategories();
-		
+		Collections.sort(categoryList, new CategoryItemComparator());
 		if (categoryList != null) {
 			finalList.addAll(categoryList);
-			Collections.sort(tempList, new CategoryItemComparator());
 		}
-		finalList.addAll(tempList);
 		
 		// If option "ShowUnreadOnly" is enabled filter out all categories without unread items
 		if (displayOnlyUnread && finalList != null) {
 			List<CategoryItem> catList = new ArrayList<CategoryItem>();
+			
+			// Workaround for too much needFullRefresh-Confusion..
+			getSubscribedFeeds();
+			disableForceFullRefresh();
 			
 			for (CategoryItem ci : finalList) {
 				
@@ -203,11 +199,13 @@ public class DataController {
 				List<FeedItem> temp = getSubscribedFeeds(ci.getId(), displayOnlyUnread);
 				if (temp != null && temp.size() > 0) {
 					catList.add(ci);
+					continue;
 				}
 			}
-			
-			// Overwrite old list with filtered one
 			finalList = catList;
+			
+			// Workaround for too much needFullRefresh-Confusion..
+			forceFullRefresh();
 		}
 		
 		return finalList;
@@ -215,9 +213,6 @@ public class DataController {
 	
 	public Map<String, List<FeedItem>> getSubscribedFeeds() {
 		if (mSubscribedFeeds == null || needFullRefresh()) {
-			Log.i(Utils.TAG, "Refreshing Data: getSubscribedFeeds()");
-			mForceFullRefresh = false;
-			
 			mSubscribedFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
 			for (String s : mSubscribedFeeds.keySet()) {
 				DBHelper.getInstance().insertFeeds(mSubscribedFeeds.get(s));
@@ -290,14 +285,22 @@ public class DataController {
 	}
 	
 	public List<ArticleItem> getArticlesHeadlines(String feedId, boolean displayOnlyUnread) {
-		List<ArticleItem> result = mFeedsHeadlines.get(feedId);
+		int fId = new Integer(feedId);
+		List<ArticleItem> result = null;
+		
+		if (fId == -4) {
+			result = new ArrayList<ArticleItem>();
+			for (Entry<String, List<ArticleItem>> e : mFeedsHeadlines.entrySet()) {
+				result.addAll(e.getValue());
+			}
+		} else {
+			result = mFeedsHeadlines.get(feedId);
+		}
 		
 		if (result == null || needFullRefresh()) {
-			Log.i(Utils.TAG, "Refreshing Data: getArticlesForFeedsHeadlines()");
-			mForceFullRefresh = false;
-			
+			String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
 			result = Controller.getInstance().getTTRSSConnector().
-				getFeedHeadlines(new Integer(feedId).intValue(), articleLimit, 0);
+				getFeedHeadlines(new Integer(feedId), articleLimit, 0, viewMode);
 			
 			mFeedsHeadlines.put(feedId, result);
 			
@@ -321,7 +324,7 @@ public class DataController {
 		return result;
 	}
 	
-	public ArticleItem getArticleHeadlines(String feedId, String articleId) {
+	public ArticleItem getArticleHeadline(String feedId, String articleId) {
 		List<ArticleItem> articlesList = getArticlesHeadlines(feedId, false);
 		
 		ArticleItem result = null;
@@ -355,10 +358,9 @@ public class DataController {
 		}
 		
 		if (result == null || needFullRefresh()) {
-			Log.i(Utils.TAG, "Refreshing Data: getSingleArticleWithFullContentLoaded()");
 			
 			result = Controller.getInstance().getTTRSSConnector().getArticle(Integer.parseInt(articleId));
-				
+			
 			DBHelper.getInstance().insertArticle(result);
 			purgeArticles();
 		}
@@ -372,7 +374,7 @@ public class DataController {
 				DBHelper.getInstance().updateArticleContent(result);
 			}
 		}
-
+		
 		return result;
 	}
 	
@@ -386,7 +388,6 @@ public class DataController {
 		}
 		
 		if (result == null || needFullRefresh()) {
-			Log.i(Utils.TAG, "Refreshing Data: getArticlesWithFullContentLoaded()");
 			
 			result = Controller.getInstance().getTTRSSConnector().getFeedArticles(Integer.parseInt(feedId), 0, 0);
 			
@@ -397,17 +398,19 @@ public class DataController {
 	}
 	
 	/**
-	 * Iterates over all the given items and marks them and all sub-items as read. 
+	 * Iterates over all the given items and marks them and all sub-items as read.
 	 * 
-	 * @param id the id of the item, beeing a feed or a caetgory
-	 * @param isCategory indicates whether the item is a category (or a feed if false)
+	 * @param id
+	 *            the id of the item, beeing a feed or a caetgory
+	 * @param isCategory
+	 *            indicates whether the item is a category (or a feed if false)
 	 */
 	public void markAllRead(String id, boolean isCategory) {
 		try {
 			List<FeedItem> feeds = new ArrayList<FeedItem>();
 			
 			if (id.startsWith("-") || isCategory) { // Virtual Category or Category
-				
+			
 				List<CategoryItem> iterate = getCategories(true, true);
 				if (iterate != null) {
 					
@@ -422,7 +425,7 @@ public class DataController {
 							feeds.addAll(thisFeed);
 						}
 					}
-
+					
 				}
 			} else {
 				// Feed
@@ -442,9 +445,9 @@ public class DataController {
 			
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
-			Log.e(Utils.TAG, "Catched NPE in DataController.markAllRead(). " +
-					"All articles should be marked read on server though, so " +
-					"refreshing from menu should do the trick.");
+			Log.e(Utils.TAG, "Catched NPE in DataController.markAllRead(). "
+					+ "All articles should be marked read on server though, so "
+					+ "refreshing from menu should do the trick.");
 		} finally {
 			Controller.getInstance().getTTRSSConnector().setRead(id, isCategory);
 		}
@@ -476,19 +479,20 @@ public class DataController {
 			DBHelper.getInstance().markCategoryRead(c);
 		}
 		
-		forceFullRefresh();	// TODO: Fix this...	
+		forceFullRefresh(); // TODO: Fix this...
 		internalGetCategories();
-		forceFullRefresh();	// TODO: Fix this...
+		forceFullRefresh(); // TODO: Fix this...
 		internalGetVirtualCategories();
-		forceFullRefresh();	// TODO: Fix this...
+		forceFullRefresh(); // TODO: Fix this...
 		getSubscribedFeeds();
 		
-		for (String s : mSubscribedFeeds.keySet()) {
-			List<FeedItem> list = mSubscribedFeeds.get(s);
-			for (FeedItem f : list) {
-				getArticlesWithContent(f.getId());
-			}
-		}
+		// Leave article-content for now, its getting too slow.
+		// for (String s : mSubscribedFeeds.keySet()) {
+		// List<FeedItem> list = mSubscribedFeeds.get(s);
+		// for (FeedItem f : list) {
+		// getArticlesWithContent(f.getId());
+		// }
+		// }
 	}
 	
 }

@@ -23,12 +23,12 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.feed.FeedListAdapter;
 
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ListView;
 
 public class FeedListActivity extends ListActivity implements IRefreshEndListener {
@@ -48,15 +48,13 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	private ListView mFeedListView;
 	private FeedListAdapter mAdapter = null;
 	
-	private ProgressDialog mProgressDialog;
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.feedlist);
 		
-//		Controller.getInstance().checkAndInitializeController(this);
-
+		setProgressBarIndeterminateVisibility(false);
 		mFeedListView = getListView();
 
 		Bundle extras = getIntent().getExtras();
@@ -86,7 +84,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     }
 
 	private void doRefresh() {
-		mProgressDialog = ProgressDialog.show(this, "Refreshing", this.getResources().getString(R.string.Commons_PleaseWait));
+		setProgressBarIndeterminateVisibility(true);
 
 		if (mAdapter == null) {
 			mAdapter = new FeedListAdapter(this, mCategoryId);
@@ -174,8 +172,20 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-		
-		mProgressDialog.dismiss();
+
+		setProgressBarIndeterminateVisibility(false);
+	}
+	
+	@Override
+	public void onSubRefreshEnd() {
+		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {			
+			mAdapter.notifyDataSetChanged();
+		} else {
+			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+		}
+
+		setProgressBarIndeterminateVisibility(false);
+		DataController.getInstance().disableForceFullRefresh();
 	}
 
 }

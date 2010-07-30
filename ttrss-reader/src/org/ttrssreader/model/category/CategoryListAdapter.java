@@ -171,6 +171,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	
 	public void refreshSubData() {
 		DataController.getInstance().getSubscribedFeeds();
+		DataController.getInstance().disableForceFullRefresh();
 	}
 
 }

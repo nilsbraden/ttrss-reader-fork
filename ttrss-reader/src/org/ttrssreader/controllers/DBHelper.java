@@ -639,14 +639,12 @@ public class DBHelper {
 	public List<CategoryItem> getVirtualCategories() {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
-		Cursor c = db.query(TABLE_CAT, null, "id like '-%'", null, null, null, null);
+		Cursor c = db.query(TABLE_CAT, null, "id like '-%' OR id=0", null, null, null, null);
 
 		while (!c.isAfterLast()) {
 			CategoryItem ci = handleCategoryCursor(c);
 			
-//			if (ci.getId().startsWith("-")) {
 			ret.add(ci);
-//			}
 			c.move(1);
 		}
 		c.close();
@@ -657,14 +655,12 @@ public class DBHelper {
 	public List<CategoryItem> getCategories() {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
-		Cursor c = db.query(TABLE_CAT, null, "id not like '-%'", null, null, null, null);
+		Cursor c = db.query(TABLE_CAT, null, "id not like '-%' AND id!=0", null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			CategoryItem ci = handleCategoryCursor(c);
 			
-//			if (!ci.getId().startsWith("-")) {
 			ret.add(ci);
-//			}
 			c.move(1);
 		}
 		c.close();

@@ -223,7 +223,9 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 
 	@Override
 	public void refreshSubData() {
-		DataController.getInstance().getArticlesWithContent(mFeedId);
+		// TODO: Too slow
+//		DataController.getInstance().getArticlesWithContent(mFeedId);
+		DataController.getInstance().disableForceFullRefresh();
 	}
 	
 }
