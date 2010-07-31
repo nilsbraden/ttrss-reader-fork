@@ -117,7 +117,7 @@ public class DataController {
 		}
 		return mCategories;
 	}
-
+	
 	private int getUnreadCount(int feedId) {
 		if (feedId == 0) {
 			int ret = 0;
@@ -126,7 +126,7 @@ public class DataController {
 			}
 			return ret;
 		} else {
-			List<ArticleItem> feedHeadlines = getArticlesHeadlines(feedId+"", true);
+			List<ArticleItem> feedHeadlines = getArticlesHeadlines(feedId + "", true);
 			return feedHeadlines.size();
 		}
 	}
@@ -184,9 +184,13 @@ public class DataController {
 		if (displayOnlyUnread && finalList != null) {
 			List<CategoryItem> catList = new ArrayList<CategoryItem>();
 			
-			// Workaround for too much needFullRefresh-Confusion..
 			getSubscribedFeeds();
-			disableForceFullRefresh();
+			
+			// Workaround for too many getSubscribedFeeds-Calls with needFullRefresh() enabled..
+			boolean tempState = needFullRefresh();
+			if (tempState) {
+				disableForceFullRefresh();
+			}
 			
 			for (CategoryItem ci : finalList) {
 				
@@ -203,9 +207,11 @@ public class DataController {
 				}
 			}
 			finalList = catList;
-			
+				
 			// Workaround for too much needFullRefresh-Confusion..
-			forceFullRefresh();
+			if (tempState) {
+				forceFullRefresh();
+			}
 		}
 		
 		return finalList;
@@ -299,8 +305,8 @@ public class DataController {
 		
 		if (result == null || needFullRefresh()) {
 			String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
-			result = Controller.getInstance().getTTRSSConnector().
-				getFeedHeadlines(new Integer(feedId), articleLimit, 0, viewMode);
+			result = Controller.getInstance().getTTRSSConnector().getFeedHeadlines(new Integer(feedId), articleLimit,
+					0, viewMode);
 			
 			mFeedsHeadlines.put(feedId, result);
 			
@@ -397,59 +403,86 @@ public class DataController {
 		return result;
 	}
 	
-	/**
-	 * Iterates over all the given items and marks them and all sub-items as read.
-	 * 
-	 * @param id
-	 *            the id of the item, beeing a feed or a caetgory
-	 * @param isCategory
-	 *            indicates whether the item is a category (or a feed if false)
-	 */
-	public void markAllRead(String id, boolean isCategory) {
-		try {
-			List<FeedItem> feeds = new ArrayList<FeedItem>();
+	public void markItemRead(Object o, String pid) {
+		markItemRead(o, pid, false);
+	}
+	
+	// TODO: Save to DB!!!
+	public void markItemRead(Object o, String pid, boolean notifiedController) {
+		boolean oIsNull = (o == null ? true : false);
+		boolean unread = false;
+		int deltaUnread = -1;
+		
+		if (o instanceof CategoryItem) {
 			
-			if (id.startsWith("-") || isCategory) { // Virtual Category or Category
-			
-				List<CategoryItem> iterate = getCategories(true, true);
-				if (iterate != null) {
-					
-					for (CategoryItem categoryItem : iterate) {
-						Log.i(Utils.TAG, "Marking category as read: " + categoryItem.getTitle());
-						if (categoryItem.getId().equals(id)) {
-							categoryItem.setUnreadCount(0);
-							DBHelper.getInstance().updateCategoryUnreadCount(categoryItem.getId(), 0);
-						}
-						List<FeedItem> thisFeed = mSubscribedFeeds.get(categoryItem.getId());
-						if (thisFeed != null) {
-							feeds.addAll(thisFeed);
-						}
-					}
-					
-				}
-			} else {
-				// Feed
-				FeedItem feedItem = getFeed(id, true);
-				if (feedItem != null) {
-					feeds.add(feedItem);
-				}
+			CategoryItem c = (CategoryItem) o;
+			c.setUnread(0);
+			if (!notifiedController) {
+				Controller.getInstance().getTTRSSConnector().setRead(c.getId(), true);
 			}
 			
-			// Set all items as read here
-			for (FeedItem feedItem : feeds) {
-				Log.i(Utils.TAG, "Marking feed as read: " + feedItem.getTitle());
+			for (FeedItem f : getSubscribedFeeds(c.getId(), false)) {
+				markItemRead(f, c.getId(), true);
+			}
+			
+		} else if (o instanceof FeedItem) {
+			
+			FeedItem f = (FeedItem) o;
+			f.setUnread(0);
+			if (!notifiedController) {
+				Controller.getInstance().getTTRSSConnector().setRead(f.getId(), false);
+			}
+			
+			for (ArticleItem a : getArticlesHeadlines(f.getId(), false)) {
+				markItemRead(a, pid, true);
+			}
+			
+		} else if (oIsNull) {
+			
+			List<ArticleItem> list = getArticlesHeadlines(pid, false);
+			for (ArticleItem a : list) {
+				markItemRead(a, pid, false);
+			}
+			
+		} else if (o instanceof ArticleItem) {
+			
+			ArticleItem a = (ArticleItem) o;
+			
+			// Set article depending on markRead (1 = true, 0 = false)
+			a.setUnread(unread);
+			DBHelper.getInstance().updateArticleUnread(a.getId(), a.getFeedId(), unread);
+			
+			// Update unread-count of the feed
+			FeedItem fTemp = DataController.getInstance().getFeed(a.getFeedId(), false);
+			if (fTemp != null) {
+				fTemp.setDeltaUnreadCount(deltaUnread);
+				DBHelper.getInstance().updateFeedUnreadCount(a.getFeedId(), fTemp.getCategoryId(), fTemp.getUnread());
 				
-				feedItem.setUnread(0);
-				DBHelper.getInstance().markFeedRead(feedItem);
+				// Update unread-count of the category
+				CategoryItem cTemp = DataController.getInstance().getCategory(fTemp.getCategoryId());
+				if (cTemp != null) {
+					cTemp.setDeltaUnreadCount(deltaUnread);
+					DBHelper.getInstance().updateCategoryUnreadCount(fTemp.getCategoryId(), cTemp.getUnread());
+				}
 			}
 			
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-			Log.e(Utils.TAG, "Catched NPE in DataController.markAllRead(). "
-					+ "All articles should be marked read on server though, so "
-					+ "refreshing from menu should do the trick.");
-		} finally {
-			Controller.getInstance().getTTRSSConnector().setRead(id, isCategory);
+			// TODO: Does this actually work??
+			if (pid.startsWith("-")) {
+				
+				DataController.getInstance().getArticleHeadline(pid, a.getId()).setUnread(unread);
+				
+				DataController.getInstance().getVirtualCategory(pid).setDeltaUnreadCount(deltaUnread);
+				
+			}
+			
+			// Set Article-read-state on server
+			if (!notifiedController) {
+				Controller.getInstance().getTTRSSConnector().setArticleRead(a.getId(), 0);
+			}
+			
+			// Set count of "All articles"
+			DataController.getInstance().getVirtualCategory("-4").setDeltaUnreadCount(deltaUnread);
+			
 		}
 	}
 	

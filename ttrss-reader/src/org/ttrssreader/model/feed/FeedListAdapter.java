@@ -89,7 +89,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 	
 	public void markAllRead() {
 		for (FeedItem c : mFeeds) {
-			DataController.getInstance().markAllRead(c.getId(), false);
+			DataController.getInstance().markItemRead(c, mCategoryId);
 		}
 	}
 	
@@ -181,7 +181,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 
 	@Override
 	public void refreshSubData() {
-		Log.d(Utils.TAG, "Refreshing SUB Data (from Categories)");
+		Log.d(Utils.TAG, "Refreshing SUB Data (from FeedList)");
 		
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
 		for (FeedItem f : mFeeds) {

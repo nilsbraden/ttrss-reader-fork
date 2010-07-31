@@ -292,7 +292,7 @@ public class DBHelper {
 	}
 	
 	public void insertCategory(CategoryItem c) {
-		insertCategory(c.getId(), c.getTitle(), c.getUnreadCount());
+		insertCategory(c.getId(), c.getTitle(), c.getUnread());
 	}
 	
 	public void insertCategories(List<CategoryItem> list) {
@@ -300,7 +300,7 @@ public class DBHelper {
 			insertCategory(
 					c.getId(),
 					c.getTitle(),
-					c.getUnreadCount());
+					c.getUnread());
 		}
 	}
 	

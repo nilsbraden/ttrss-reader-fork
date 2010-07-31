@@ -146,7 +146,7 @@ public class ArticleItem {
 		return mIsUnread;
 	}
 
-	public void setIsUnread(boolean mIsUnread) {
+	public void setUnread(boolean mIsUnread) {
 		this.mIsUnread = mIsUnread;
 	}
 

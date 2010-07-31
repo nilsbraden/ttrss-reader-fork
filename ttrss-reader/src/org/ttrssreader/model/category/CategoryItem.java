@@ -39,7 +39,7 @@ public class CategoryItem {
 		return mTitle;
 	}
 	
-	public int getUnreadCount() {
+	public int getUnread() {
 		return mUnreadCount;
 	}
 	
@@ -47,7 +47,7 @@ public class CategoryItem {
 		return mUnreadCount >= 0;
 	}
 	
-	public void setUnreadCount(int value) {
+	public void setUnread(int value) {
 		mUnreadCount = value;
 	}
 	

@@ -16,10 +16,8 @@
 package org.ttrssreader.model;
 
 import org.ttrssreader.gui.IRefreshEndListener;
-import org.ttrssreader.utils.Utils;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 public class Refresher implements Runnable {
 	
@@ -39,13 +37,8 @@ public class Refresher implements Runnable {
 		public void handleMessage(Message msg) {
 			
 			if (msg.arg1 == 0) {
-				
-				Log.d(Utils.TAG, "Calling onRefreshEnd");
 				mParent.onRefreshEnd();
-				
 			} else if (msg.arg1 == 1) {
-				
-				Log.d(Utils.TAG, "Calling onSUBRefreshEnd");
 				mParent.onSubRefreshEnd();
 			}
 			
