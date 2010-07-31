@@ -68,12 +68,12 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	}
 	
 	public int getUnreadCount(int position) {
-		return mCategories.get(position).getUnreadCount();
+		return mCategories.get(position).getUnread();
 	}
 
 	public void markAllRead() {
 		for (CategoryItem c : mCategories) {
-			DataController.getInstance().markAllRead(c.getId(), true);
+			DataController.getInstance().markItemRead(c, "");
 		}
 	}
 	
@@ -90,12 +90,12 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		CategoryListView sv;
 		if (convertView == null) {
 			sv = new CategoryListView(mContext, mCategories.get(position).getTitle(),
-					mCategories.get(position).getId(), mCategories.get(position).getUnreadCount());
+					mCategories.get(position).getId(), mCategories.get(position).getUnread());
 		} else {
 			sv = (CategoryListView) convertView;
-			sv.setIcon(mCategories.get(position).getId(), mCategories.get(position).getUnreadCount() > 0);
-			sv.setBoldTitleIfNecessary(mCategories.get(position).getUnreadCount() > 0);
-			sv.setTitle(formatTitle(mCategories.get(position).getTitle(), mCategories.get(position).getUnreadCount()));
+			sv.setIcon(mCategories.get(position).getId(), mCategories.get(position).getUnread() > 0);
+			sv.setBoldTitleIfNecessary(mCategories.get(position).getUnread() > 0);
+			sv.setTitle(formatTitle(mCategories.get(position).getTitle(), mCategories.get(position).getUnread()));
 		}
 		
 		return sv;

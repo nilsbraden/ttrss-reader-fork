@@ -93,7 +93,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Log.i(Utils.TAG, "onListItemClick() FeedID: " + mFeedId + ", ArticleID: " + mAdapter.getFeedItemId(position));
 		super.onListItemClick(l, v, position, id);
 		
 		Intent i = new Intent(this, ArticleActivity.class);
@@ -149,12 +148,12 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	private void setReadState() {
 		setProgressBarIndeterminateVisibility(true);
-		new Updater(this, new ArticleReadStateUpdater(mFeedId, mAdapter.getArticleUnreadList(), 0));
+		new Updater(this, new ArticleReadStateUpdater(null, mFeedId));
 	}
 	
 	private void setUnreadState() {
 		setProgressBarIndeterminateVisibility(true);
-		new Updater(this, new ArticleReadStateUpdater(mFeedId, mAdapter.getArticleReadList(), 1));
+		new Updater(this, new ArticleReadStateUpdater(null, mFeedId));
 	}
 	
 	private void displayOnlyUnreadSwitch() {

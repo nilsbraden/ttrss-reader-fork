@@ -131,10 +131,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 			case MENU_MARK_READ:
-				changeUnreadState(0);
-				return true;
-			case MENU_MARK_UNREAD:
-				changeUnreadState(1);
+				changeUnreadState();
 				return true;
 			case MENU_OPEN_LINK:
 				openLink();
@@ -157,9 +154,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		new Refresher(this, mAdapter);
 	}
 	
-	private void changeUnreadState(int articleState) {
+	private void changeUnreadState() {
 		setProgressBarIndeterminateVisibility(true);
-		new Updater(this, new ArticleReadStateUpdater(mFeedId, mArticleItem, articleState));
+		new Updater(this, new ArticleReadStateUpdater(mArticleItem, mFeedId));
 	}
 	
 	private void openUrl(String url) {
@@ -329,8 +326,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 				
 				// TODO: FIXTHIS
 				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkReadEnabled())) {
-					new Updater(this, new ArticleReadStateUpdater(mArticleItem.getFeedId(), mArticleItem, 0));
-					mArticleItem.setIsUnread(false);
+					new ArticleReadStateUpdater(mArticleItem, mFeedId).execute(0);
+					mArticleItem.setUnread(false);
 				}
 				
 				if (mArticleItem.getContent().length() < 3) {
