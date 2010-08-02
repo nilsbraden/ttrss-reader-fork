@@ -24,11 +24,9 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleReadStateUpdater;
 import org.ttrssreader.model.feedheadline.FeedHeadlineListAdapter;
-import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,7 +39,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	private static final int MENU_REFRESH = Menu.FIRST;
 	private static final int MENU_MARK_ALL_READ = Menu.FIRST + 1;
-	private static final int MENU_MARK_ALL_UNREAD = Menu.FIRST + 2;
+//	private static final int MENU_MARK_ALL_UNREAD = Menu.FIRST + 2;
 	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
 	
 	public static final String FEED_ID = "FEED_ID";
@@ -114,7 +112,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		
 		item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.FeedHeadlinesListActivity_MarkAllRead);
 		
-		item = menu.add(0, MENU_MARK_ALL_UNREAD, 0, R.string.FeedHeadlinesListActivity_MarkAllUnread);
+//		item = menu.add(0, MENU_MARK_ALL_UNREAD, 0, R.string.FeedHeadlinesListActivity_MarkAllUnread);
 		
 		item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
 		
@@ -130,9 +128,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			case MENU_MARK_ALL_READ:
 				setReadState();
 				return true;
-			case MENU_MARK_ALL_UNREAD:
-				setUnreadState();
-				return true;
+//			case MENU_MARK_ALL_UNREAD:
+//				setUnreadState();
+//				return true;
 			case MENU_DISPLAY_ONLY_UNREAD:
 				displayOnlyUnreadSwitch();
 				return true;
@@ -151,14 +149,14 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		new Updater(this, new ArticleReadStateUpdater(null, mFeedId));
 	}
 	
-	private void setUnreadState() {
-		setProgressBarIndeterminateVisibility(true);
-		new Updater(this, new ArticleReadStateUpdater(null, mFeedId));
-	}
+//	private void setUnreadState() {
+//		setProgressBarIndeterminateVisibility(true);
+//		new Updater(this, new ArticleReadStateUpdater(null, mFeedId));
+//	}
 	
 	private void displayOnlyUnreadSwitch() {
-		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
-		Controller.getInstance().setDisplayOnlyUnread(this, !displayOnlyUnread);
+		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+		Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
 		doRefresh();
 	}
 	
@@ -186,7 +184,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 
 		setProgressBarIndeterminateVisibility(false);
 		
-		if (Controller.getInstance().isDisplayOnlyUnreadEnabled()) {
+		if (Controller.getInstance().isDisplayOnlyUnread()) {
 			// Close FeedHeadlineList if no unread article exists
 			// AND: Not doing this with virtual feeds, starting with "-[0-9]"
 			if (mAdapter.getArticleUnreadList().isEmpty() && !mFeedId.matches("-[0-9]")) {

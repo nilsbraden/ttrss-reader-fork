@@ -165,8 +165,8 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	}
 	
 	public void refreshData() {
-		boolean virtuals = Controller.getInstance().isDisplayVirtualsEnabled();
-		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
+		boolean virtuals = Controller.getInstance().isDisplayVirtuals();
+		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		
 		mCategories = DataController.getInstance().getCategories(virtuals, displayOnlyUnread);
 	}

@@ -17,7 +17,7 @@ package org.ttrssreader.gui.activities;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.preferences.PreferencesConstants;
+import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 
 import android.content.SharedPreferences;
@@ -35,24 +35,29 @@ public class PreferencesActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.layout.preferences);
 		Log.e(Utils.TAG, "PreferencesActivity.onCreate()...");
 		
-		PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener() {
-			@Override
-			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-				if ((key.equals(PreferencesConstants.CONNECTION_URL)) ||
-						(key.equals(PreferencesConstants.CONNECTION_USERNAME)) ||
-						(key.equals(PreferencesConstants.CONNECTION_PASSWORD)) ||
-						(key.equals(PreferencesConstants.DISPLAY_SHOW_VIRTUAL_UNREAD)) ||
-						(key.equals(PreferencesConstants.DISPLAY_ALWAYS_FULL_REFRESH)) ||
-						(key.equals(PreferencesConstants.USAGE_AUTOMATIC_MARK_READ)) ||
-						(key.equals(PreferencesConstants.USE_SWIPE))) {
-					updatePreferences();
-				}
-			}			
-		});
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.registerOnSharedPreferenceChangeListener(mListener);
 	}
 	
 	private void updatePreferences() {
 		Controller.getInstance().initializeController(this);
 	}
 
+	
+	private OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if ((key.equals(Constants.CONNECTION_URL)) ||
+					(key.equals(Constants.CONNECTION_USERNAME)) ||
+					(key.equals(Constants.CONNECTION_PASSWORD)) ||
+					(key.equals(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD)) ||
+					(key.equals(Constants.DISPLAY_ALWAYS_FULL_REFRESH)) ||
+					(key.equals(Constants.USAGE_AUTOMATIC_MARK_READ)) ||
+					(key.equals(Constants.DISPLAY_USE_SWIPE)) || 
+					(key.equals(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE))) {
+				updatePreferences();
+			}
+		}
+	};
+	
 }

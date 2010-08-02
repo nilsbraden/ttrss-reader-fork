@@ -27,11 +27,16 @@
 	<PreferenceCategory android:title="@string/UsagePreferenceCategoryTitle">
 	
 		<CheckBoxPreference
-			android:title="@string/AutomaticMarkReadPreferenceTitle"
+			android:title="@string/UsageAutomaticMarkReadPreferenceTitle"
 			android:defaultValue="true"
-			android:summary="@string/AutomaticMarkReadPreferenceSummary"
+			android:summary="@string/UsageAutomaticMarkReadPreferenceSummary"
 			android:key="UsageAutomaticMarkReadPreference" />
 			
+		<CheckBoxPreference
+			android:title="@string/UsageOpenUrlEmptyArticleTitle"
+			android:defaultValue="false"
+			android:summary="@string/UsageOpenUrlEmptyArticleSummary"
+			android:key="UsageOpenUrlEmptyArticlePreference" />
 	</PreferenceCategory>
 	
 	<PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle">
@@ -47,26 +52,26 @@
 			android:summary="@string/DisplayVirtualUnreadPreferenceSummary"
 			android:key="DisplayShowVirtualUnreadPreference" />
 		<CheckBoxPreference
-			android:title="@string/AlwaysFullRefreshPreferenceTitle"
+			android:title="@string/DisplayAlwaysFullRefreshPreferenceTitle"
 			android:defaultValue="false"
-			android:summary="@string/AlwaysFullRefreshPreferenceSummary"
+			android:summary="@string/DisplayAlwaysFullRefreshPreferenceSummary"
 			android:key="DisplayAlwaysFullRefreshPreference" />
 		<CheckBoxPreference
-			android:title="@string/UseSwipeTitle"
+			android:title="@string/DisplayUseSwipeTitle"
 			android:defaultValue="true"
-			android:summary="@string/UseSwipeSummary"
+			android:summary="@string/DisplayUseSwipeSummary"
 			android:key="DisplayUseSwipePreference" />
 		<CheckBoxPreference
-			android:title="@string/ShowUnreadOnlyTitle"
+			android:title="@string/DisplayShowUnreadOnlyTitle"
 			android:defaultValue="false"
-			android:summary="@string/ShowUnreadOnlySummary"
+			android:summary="@string/DisplayShowUnreadOnlySummary"
 			android:key="DisplayShowUnreadOnlyPreference" />
 		<EditTextPreference
-			android:name="@string/ArticleLimitTitle"
-			android:title="@string/ArticleLimitTitle"
-			android:summary="@string/ArticleLimitSummary"
+			android:name="@string/DisplayArticleLimitTitle"
+			android:title="@string/DisplayArticleLimitTitle"
+			android:summary="@string/DisplayArticleLimitSummary"
 			android:defaultValue="100"
-			android:key="ArticleLimitPreference"
+			android:key="DisplayArticleLimitPreference"
 			android:maxLength="5"
 			android:inputType="number" />
 			

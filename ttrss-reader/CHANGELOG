@@ -4,7 +4,7 @@ TODO
 - only refresh feedlist if &op=getConfig returns a new number of feeds
 - Watch for removed sdcard
 - Update unread-counts on startup (needs API method for getCounters on Tiny Tiny RSS)
-
+Number of unread articles in All articles and Fresh articles is wrong.
 
 IN PROGRESS
 - Cache Articles or download for offline usage and develop a good strategy for when to use which data and when to fetch new data.
@@ -15,6 +15,7 @@ IN PROGRESS
 - On startup no update is performed at the moment, press Menu->Update for a full update or Refresh for Update of Headlines and Feeds
 - HTML content is saved base64-encoded to avoid syntax-problems while inserting
 - Removed Tabs, they were unneccessary since we have uncategorized Feeds as a virtual category now
+- Added preference for "automatically open url for empty article".
 
 0.4.0
 - Mark everything as read button

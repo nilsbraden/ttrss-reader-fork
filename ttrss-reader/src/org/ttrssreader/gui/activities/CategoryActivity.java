@@ -182,8 +182,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	}
 	
 	private void displayOnlyUnreadSwitch() {
-		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnreadEnabled();
-		Controller.getInstance().setDisplayOnlyUnread(this, !displayOnlyUnread);
+		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+		Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
 		doRefresh();
 	}
 	

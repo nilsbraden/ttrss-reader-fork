@@ -85,13 +85,13 @@ public class DataController {
 	}
 	
 	private boolean needFullRefresh() {
-		return mForceFullRefresh || Controller.getInstance().isAlwaysPerformFullRefresh();
+		return mForceFullRefresh || Controller.getInstance().isAlwaysFullRefresh();
 	}
 	
 	private List<CategoryItem> internalGetVirtualCategories() {
 		if (mVirtualCategories == null || needFullRefresh()) {
 			mVirtualCategories = new ArrayList<CategoryItem>();
-			boolean showUnread = Controller.getInstance().isShowUnreadInVirtualFeeds();
+			boolean showUnread = Controller.getInstance().isDisplayUnreadInVirtualFeeds();
 			
 			CategoryItem categoryItem;
 			categoryItem = new CategoryItem("-1", "Starred articles", showUnread ? getUnreadCount(-1) : 0);
@@ -410,11 +410,11 @@ public class DataController {
 	// TODO: Save to DB!!!
 	public void markItemRead(Object o, String pid, boolean notifiedController) {
 		boolean oIsNull = (o == null ? true : false);
-		boolean unread = false;
 		int deltaUnread = -1;
 		
 		if (o instanceof CategoryItem) {
 			
+			Log.i(Utils.TAG, "markItemRead CategoryItem");
 			CategoryItem c = (CategoryItem) o;
 			c.setUnread(0);
 			if (!notifiedController) {
@@ -427,6 +427,7 @@ public class DataController {
 			
 		} else if (o instanceof FeedItem) {
 			
+			Log.i(Utils.TAG, "markItemRead FeedItem");
 			FeedItem f = (FeedItem) o;
 			f.setUnread(0);
 			if (!notifiedController) {
@@ -439,18 +440,27 @@ public class DataController {
 			
 		} else if (oIsNull) {
 			
-			List<ArticleItem> list = getArticlesHeadlines(pid, false);
-			for (ArticleItem a : list) {
-				markItemRead(a, pid, false);
+			Log.i(Utils.TAG, "markItemRead NULL-Item");
+			
+			if (pid.startsWith("-")) {
+				for (ArticleItem a : DataController.getInstance().getArticlesHeadlines(pid, false)) {
+					a.setUnread(false);
+				}
+				DataController.getInstance().getVirtualCategory(pid).setDeltaUnreadCount(deltaUnread);
+			} else {
+				FeedItem f = getFeed(pid, false);
+				if (f != null) {
+					markItemRead(f, pid, false);
+				}
 			}
 			
 		} else if (o instanceof ArticleItem) {
 			
+			Log.i(Utils.TAG, "markItemRead ArticleItem");
 			ArticleItem a = (ArticleItem) o;
 			
-			// Set article depending on markRead (1 = true, 0 = false)
-			a.setUnread(unread);
-			DBHelper.getInstance().updateArticleUnread(a.getId(), a.getFeedId(), unread);
+			a.setUnread(false);
+			DBHelper.getInstance().updateArticleUnread(a.getId(), a.getFeedId(), false);
 			
 			// Update unread-count of the feed
 			FeedItem fTemp = DataController.getInstance().getFeed(a.getFeedId(), false);
@@ -468,11 +478,9 @@ public class DataController {
 			
 			// TODO: Does this actually work??
 			if (pid.startsWith("-")) {
-				
-				DataController.getInstance().getArticleHeadline(pid, a.getId()).setUnread(unread);
-				
+				Log.w(Utils.TAG, "TODO: Does this actually work??");
+				DataController.getInstance().getArticleHeadline(pid, a.getId()).setUnread(false);
 				DataController.getInstance().getVirtualCategory(pid).setDeltaUnreadCount(deltaUnread);
-				
 			}
 			
 			// Set Article-read-state on server
