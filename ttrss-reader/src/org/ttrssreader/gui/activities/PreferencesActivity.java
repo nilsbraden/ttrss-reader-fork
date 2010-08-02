@@ -20,20 +20,26 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 
+import android.content.ComponentName;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class PreferencesActivity extends PreferenceActivity {
+	
+	private static final int MENU_RESET_PREFERENCES = Menu.FIRST;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.layout.preferences);
-		Log.e(Utils.TAG, "PreferencesActivity.onCreate()...");
+		Log.i(Utils.TAG, "PreferencesActivity.onCreate()...");
 		
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(mListener);
@@ -48,16 +54,69 @@ public class PreferencesActivity extends PreferenceActivity {
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 			if ((key.equals(Constants.CONNECTION_URL)) ||
-					(key.equals(Constants.CONNECTION_USERNAME)) ||
-					(key.equals(Constants.CONNECTION_PASSWORD)) ||
-					(key.equals(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD)) ||
-					(key.equals(Constants.DISPLAY_ALWAYS_FULL_REFRESH)) ||
-					(key.equals(Constants.USAGE_AUTOMATIC_MARK_READ)) ||
-					(key.equals(Constants.DISPLAY_USE_SWIPE)) || 
-					(key.equals(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE))) {
+				(key.equals(Constants.CONNECTION_USERNAME)) ||
+				(key.equals(Constants.CONNECTION_PASSWORD)) ||
+				
+				(key.equals(Constants.USAGE_AUTOMATIC_MARK_READ)) ||
+				(key.equals(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE)) ||
+
+				(key.equals(Constants.DISPLAY_SHOW_VIRTUAL)) ||
+				(key.equals(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD)) ||
+				(key.equals(Constants.DISPLAY_ALWAYS_FULL_REFRESH)) ||
+				(key.equals(Constants.DISPLAY_USE_SWIPE)) ||
+				(key.equals(Constants.DISPLAY_ONLY_UNREAD)) ||
+				(key.equals(Constants.DISPLAY_ARTICLE_LIMIT)) ||
+					
+				false) {
 				updatePreferences();
 			}
 		}
 	};
+	
+	@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		
+		MenuItem item;
+		
+		item = menu.add(0, MENU_RESET_PREFERENCES, 0, R.string.Preferences_Reset);
+		item.setIcon(R.drawable.refresh32);
+		
+		return true;
+    }
+	
+	@Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+			case MENU_RESET_PREFERENCES:
+				resetPreferences();
+				return true;
+		}
+		
+		return super.onMenuItemSelected(featureId, item);
+    }
+	
+	protected void resetPreferences() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences.Editor editor = prefs.edit();
+		
+		editor.putString(Constants.CONNECTION_URL, "http://localhost/");
+		editor.putString(Constants.CONNECTION_USERNAME, "");
+		editor.putString(Constants.CONNECTION_PASSWORD, "");
+		editor.putBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);
+		editor.putBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);
+		editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL, true);
+		editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD, false);
+		editor.putBoolean(Constants.DISPLAY_ALWAYS_FULL_REFRESH, false);
+		editor.putBoolean(Constants.DISPLAY_USE_SWIPE, true);
+		editor.putBoolean(Constants.DISPLAY_ONLY_UNREAD, false);
+		editor.putString(Constants.DISPLAY_ARTICLE_LIMIT, "100");
+		
+		editor.commit();
+		finish();
+		ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
+		startActivity(new Intent().setComponent(comp));
+	}
+
 	
 }

@@ -20,7 +20,8 @@
 			android:defaultValue=""
 			android:title="@string/ConnectionPasswordPreferenceTitle"
 			android:key="ConnectionPasswordPreference" 
-			android:password="true"  />
+			android:password="true"
+			android:singleLine="true" />
 			
 	</PreferenceCategory>
 	

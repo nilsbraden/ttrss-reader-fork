@@ -18,10 +18,12 @@ package org.ttrssreader.controllers;
 import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.Utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class Controller {
 	
@@ -78,7 +80,12 @@ public class Controller {
 		mAlwaysFullRefresh = prefs.getBoolean(Constants.DISPLAY_ALWAYS_FULL_REFRESH, false);
 		mUseSwipe = prefs.getBoolean(Constants.DISPLAY_USE_SWIPE, true);
 		mDisplayOnlyUnread = prefs.getBoolean(Constants.DISPLAY_ONLY_UNREAD, false);
-		mArticleLimit = prefs.getInt(Constants.DISPLAY_ARTICLE_LIMIT, 100);
+		try {
+			mArticleLimit = Integer.parseInt(prefs.getString(Constants.DISPLAY_ARTICLE_LIMIT, "100"));
+		} catch (ClassCastException e) {
+			mArticleLimit = 100;
+			Log.e(Utils.TAG, "DISPLAY_ARTICLE_LIMIT was not an integer value, using default value: " + mArticleLimit);
+		}
 	}
 	
 	public synchronized void checkAndInitializeController(final Context context) {
