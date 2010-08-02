@@ -66,4 +66,6 @@
 <string name="Main.ShowAboutMenu">About</string>
 <string name="Main.Nothing">No categories to display. Check your connection and/or your connection settings.</string>
 
+<string name="Preferences.Reset">Reset Preferences</string>
+
 </resources>
