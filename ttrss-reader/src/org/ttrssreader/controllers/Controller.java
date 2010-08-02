@@ -17,7 +17,7 @@ package org.ttrssreader.controllers;
 
 import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.net.TTRSSJsonConnector;
-import org.ttrssreader.preferences.PreferencesConstants;
+import org.ttrssreader.preferences.Constants;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -30,16 +30,18 @@ public class Controller {
 	private boolean mIsControllerInitialized = false;
 	private ITTRSSConnector mTTRSSConnector;
 	
-	private boolean mAlwaysFullRefresh = false;
-	private boolean mAutomaticMarkRead = true;
-	private boolean mUseSwipe = true;
-	private boolean mDisplayOnlyUnread = false;
-	private boolean mDisplayVirtuals = true;
-	private int mArticleLimit = 100;
-	private boolean mShowUnreadInVirtualFeeds = true;
-	
 	private static Controller mInstance = null;
 	private SharedPreferences prefs = null;
+	
+	private boolean mAutomaticMarkRead = true;
+	private boolean mOpenUrlEmptyArticle = false;
+	private boolean mDisplayVirtuals = true;
+	private boolean mDisplayUnreadInVirtualFeeds = false;
+	private boolean mAlwaysFullRefresh = false;
+	private boolean mUseSwipe = true;
+	private boolean mDisplayOnlyUnread = false;
+	private int mArticleLimit = 100;
+	
 	
 	private Controller() {}
 	
@@ -53,45 +55,30 @@ public class Controller {
 	public void initializeController(Context context) {
 		
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		
-		String url = PreferenceManager.getDefaultSharedPreferences(context).getString(
-				PreferencesConstants.CONNECTION_URL, "http://localhost/");
-		
+
+		// Login
+		String url = prefs.getString(Constants.CONNECTION_URL, "http://localhost/");
 		if (!url.endsWith(JSON_END_URL)) {
 			if (!url.endsWith("/")) {
 				url += "/";
 			}
 			url += JSON_END_URL;
 		}
-		
-		String userName = PreferenceManager.getDefaultSharedPreferences(context).getString(
-				PreferencesConstants.CONNECTION_USERNAME, "");
-		String password = PreferenceManager.getDefaultSharedPreferences(context).getString(
-				PreferencesConstants.CONNECTION_PASSWORD, "");
-		
-		mShowUnreadInVirtualFeeds = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-				PreferencesConstants.DISPLAY_SHOW_VIRTUAL_UNREAD, false);
-		
-		mAlwaysFullRefresh = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-				PreferencesConstants.DISPLAY_ALWAYS_FULL_REFRESH, false);
-		
-		mAutomaticMarkRead = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-				PreferencesConstants.USAGE_AUTOMATIC_MARK_READ, true);
-		
-		mUseSwipe = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-				PreferencesConstants.USE_SWIPE, true);
-		
-		mDisplayOnlyUnread = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-				PreferencesConstants.DISPLAY_ONLY_UNREAD, false);
-		
-		mDisplayVirtuals = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
-				PreferencesConstants.DISPLAY_SHOW_VIRTUAL, true);
-		
-		String artLimit = PreferenceManager.getDefaultSharedPreferences(context).getString(
-				PreferencesConstants.ARTICLE_LIMIT, "100");
-		mArticleLimit = new Integer(artLimit).intValue();
-		
+		String userName = prefs.getString(Constants.CONNECTION_USERNAME, "");
+		String password = prefs.getString(Constants.CONNECTION_PASSWORD, "");
 		mTTRSSConnector = new TTRSSJsonConnector(url, userName, password);
+		
+		// Usage
+		mAutomaticMarkRead = prefs.getBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);
+		mOpenUrlEmptyArticle = prefs.getBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);
+		
+		// Display
+		mDisplayVirtuals = prefs.getBoolean(Constants.DISPLAY_SHOW_VIRTUAL, true);
+		mDisplayUnreadInVirtualFeeds = prefs.getBoolean(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD, false);
+		mAlwaysFullRefresh = prefs.getBoolean(Constants.DISPLAY_ALWAYS_FULL_REFRESH, false);
+		mUseSwipe = prefs.getBoolean(Constants.DISPLAY_USE_SWIPE, true);
+		mDisplayOnlyUnread = prefs.getBoolean(Constants.DISPLAY_ONLY_UNREAD, false);
+		mArticleLimit = prefs.getInt(Constants.DISPLAY_ARTICLE_LIMIT, 100);
 	}
 	
 	public synchronized void checkAndInitializeController(final Context context) {
@@ -103,47 +90,101 @@ public class Controller {
 		}
 	}
 	
+	
+	
+	// **** Getter / Setter **********
+	
 	public ITTRSSConnector getTTRSSConnector() {
 		return mTTRSSConnector;		
 	}
-	
-	public boolean isAlwaysPerformFullRefresh() {
-		return mAlwaysFullRefresh;
-	}
-	
-	public boolean isAutomaticMarkReadEnabled() {
+
+	public boolean isAutomaticMarkRead() {
 		return mAutomaticMarkRead;
 	}
+	
+	public void setAutomaticMarkRead(boolean automaticMarkRead) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, automaticMarkRead);
+		editor.commit();
+		this.mAutomaticMarkRead = automaticMarkRead;
+	}
 
-	public boolean isUseSwipeEnabled() {
+	public boolean isOpenUrlEmptyArticle() {
+		return mOpenUrlEmptyArticle;
+	}
+
+	public void setOpenUrlEmptyArticle(boolean openUrlEmptyArticle) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
+		editor.commit();
+		this.mOpenUrlEmptyArticle = openUrlEmptyArticle;
+	}
+
+	public boolean isDisplayVirtuals() {
+		return mDisplayVirtuals;
+	}
+
+	public void setDisplayVirtuals(boolean displayVirtuals) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL, displayVirtuals);
+		editor.commit();
+		this.mDisplayVirtuals = displayVirtuals;
+	}
+
+	public boolean isDisplayUnreadInVirtualFeeds() {
+		return mDisplayUnreadInVirtualFeeds;
+	}
+
+	public void setDisplayUnreadInVirtualFeeds(boolean displayUnreadInVirtualFeeds) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD, displayUnreadInVirtualFeeds);
+		editor.commit();
+		this.mDisplayUnreadInVirtualFeeds = displayUnreadInVirtualFeeds;
+	}
+	
+	public boolean isAlwaysFullRefresh() {
+		return mAlwaysFullRefresh;
+	}
+
+	public void setAlwaysFullRefresh(boolean alwaysFullRefresh) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.DISPLAY_ALWAYS_FULL_REFRESH, alwaysFullRefresh);
+		editor.commit();
+		this.mAlwaysFullRefresh = alwaysFullRefresh;
+	}
+
+
+	public boolean isUseSwipe() {
 		return mUseSwipe;
 	}
 
-	public void setDisplayOnlyUnread(Context context, boolean displayOnlyUnread) {
+	public void setUseSwipe(boolean useSwipe) {
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putBoolean(PreferencesConstants.DISPLAY_ONLY_UNREAD, displayOnlyUnread);
+		editor.putBoolean(Constants.DISPLAY_USE_SWIPE, useSwipe);
 		editor.commit();
-		mDisplayOnlyUnread = displayOnlyUnread;
+		this.mUseSwipe = useSwipe;
 	}
-	
-	public boolean isDisplayOnlyUnreadEnabled() {
+
+	public boolean isDisplayOnlyUnread() {
 		return mDisplayOnlyUnread;
 	}
-	
-	public boolean isDisplayVirtualsEnabled() {
-		return mDisplayVirtuals;
+
+	public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.DISPLAY_ONLY_UNREAD, displayOnlyUnread);
+		editor.commit();
+		this.mDisplayOnlyUnread = displayOnlyUnread;
 	}
-	
+
 	public int getArticleLimit() {
 		return mArticleLimit;
 	}
 
-	public void setShowUnreadInVirtualFeeds(boolean showUnreadInVirtualFeeds) {
-		this.mShowUnreadInVirtualFeeds = showUnreadInVirtualFeeds;
-	}
-
-	public boolean isShowUnreadInVirtualFeeds() {
-		return mShowUnreadInVirtualFeeds;
+	public void setArticleLimit(int articleLimit) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putInt(Constants.DISPLAY_ARTICLE_LIMIT, articleLimit);
+		editor.commit();
+		this.mArticleLimit = articleLimit;
 	}
 	
 }

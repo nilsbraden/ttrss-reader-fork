@@ -15,19 +15,20 @@
 
 package org.ttrssreader.preferences;
 
-public class PreferencesConstants {
+public class Constants {
 	
 	public static String CONNECTION_URL = "ConnectionUrlPreference";
 	public static String CONNECTION_USERNAME = "ConnectionUsernamePreference";
 	public static String CONNECTION_PASSWORD = "ConnectionPasswordPreference";
 	
 	public static String USAGE_AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
+	public static String USAGE_OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
 	
 	public static String DISPLAY_SHOW_VIRTUAL = "DisplayShowVirtualPreference";
 	public static String DISPLAY_SHOW_VIRTUAL_UNREAD = "DisplayShowVirtualUnreadPreference";
 	public static String DISPLAY_ALWAYS_FULL_REFRESH = "DisplayAlwaysFullRefreshPreference";
-	public static String USE_SWIPE = "DisplayUseSwipePreference";
+	public static String DISPLAY_USE_SWIPE = "DisplayUseSwipePreference";
 	public static String DISPLAY_ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
-	public static String ARTICLE_LIMIT = "ArticleLimitPreference";
+	public static String DISPLAY_ARTICLE_LIMIT = "DisplayArticleLimitPreference";
 
 }

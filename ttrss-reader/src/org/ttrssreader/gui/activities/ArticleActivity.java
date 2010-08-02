@@ -41,6 +41,7 @@ import android.view.Window;
 import android.view.GestureDetector.OnGestureListener;
 import android.webkit.WebView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ArticleActivity extends Activity implements IRefreshEndListener, IUpdateEndListener {
 	
@@ -82,7 +83,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		
 		webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
 		webviewSwipeText.setVisibility(TextView.INVISIBLE);
-		useSwipe = Controller.getInstance().isUseSwipeEnabled();
+		useSwipe = Controller.getInstance().isUseSwipe();
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -131,7 +132,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 			case MENU_MARK_READ:
-				changeUnreadState();
+				markRead();
 				return true;
 			case MENU_OPEN_LINK:
 				openLink();
@@ -154,7 +155,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		new Refresher(this, mAdapter);
 	}
 	
-	private void changeUnreadState() {
+	private void markRead() {
 		setProgressBarIndeterminateVisibility(true);
 		new Updater(this, new ArticleReadStateUpdater(mArticleItem, mFeedId));
 	}
@@ -325,13 +326,18 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 				}
 				
 				// TODO: FIXTHIS
-				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkReadEnabled())) {
+				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkRead())) {
 					new ArticleReadStateUpdater(mArticleItem, mFeedId).execute(0);
 					mArticleItem.setUnread(false);
 				}
 				
 				if (mArticleItem.getContent().length() < 3) {
-					openLink();
+					if (Controller.getInstance().isOpenUrlEmptyArticle()) {
+						Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+						openLink();
+					} else {
+						Log.i(Utils.TAG, "Article-Content is empty");
+					}
 				}
 			}
 		} else {
