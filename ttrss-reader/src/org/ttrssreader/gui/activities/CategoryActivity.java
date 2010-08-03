@@ -232,7 +232,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
 
-		setProgressBarIndeterminateVisibility(false);
 		doRefresh();
 	}
 
