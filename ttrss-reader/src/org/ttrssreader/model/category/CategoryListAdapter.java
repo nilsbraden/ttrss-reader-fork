@@ -167,10 +167,12 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		
 		mCategories = DataController.getInstance().getCategories(virtuals, displayOnlyUnread);
+		DataController.getInstance().disableForceFullRefresh();
 	}
 	
 	public void refreshSubData() {
 		Log.d(Utils.TAG, "Refreshing SUB Data (from Categories)");
+		DataController.getInstance().forceFullRefresh();
 		DataController.getInstance().getSubscribedFeeds();
 		DataController.getInstance().disableForceFullRefresh();
 	}

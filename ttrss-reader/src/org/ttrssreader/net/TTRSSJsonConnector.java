@@ -83,7 +83,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	}
 	
 	private String doRequest(String url) {
-		Log.d(Utils.TAG, "url: " + url);
+//		Log.d(Utils.TAG, "url: " + url);
 		String strResponse = null;
 		
 		HttpClient httpclient = new DefaultHttpClient();		 				

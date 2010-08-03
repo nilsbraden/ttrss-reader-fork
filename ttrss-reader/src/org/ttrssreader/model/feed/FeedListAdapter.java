@@ -175,17 +175,18 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		if (mFeeds != null) {
 			Collections.sort(mFeeds, new FeedItemComparator());
 		}
+		DataController.getInstance().disableForceFullRefresh();
 	}
 
 	@Override
 	public void refreshSubData() {
 		Log.d(Utils.TAG, "Refreshing SUB Data (from FeedList)");
-		
+
+		DataController.getInstance().forceFullRefresh();
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		for (FeedItem f : mFeeds) {
 			DataController.getInstance().getArticlesHeadlines(f.getId(), displayOnlyUnread);
 		}
-		
 		DataController.getInstance().disableForceFullRefresh();
 	}
 
