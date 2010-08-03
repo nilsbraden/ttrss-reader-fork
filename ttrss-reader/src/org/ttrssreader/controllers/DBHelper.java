@@ -39,9 +39,9 @@ public class DBHelper {
 	
 	private static DBHelper mInstance = null;
 	private boolean mIsControllerInitialized = false;
-	private boolean mDBLocationSDCard = false;
+//	private boolean mDBLocationSDCard = false;
 
-	private static final String DATABASE_PATH = "ttrss-reader-fork";
+//	private static final String DATABASE_PATH = "ttrss-reader-fork";
 	private static final String DATABASE_NAME = "ttrss.db";
 	private static final int DATABASE_VERSION = 1;
 	
@@ -67,6 +67,7 @@ public class DBHelper {
 	private SQLiteStatement updateArticle;
 	
 	public DBHelper() {
+		
 		context = null;
 		db = null;
 		insertCat = null;
@@ -77,23 +78,14 @@ public class DBHelper {
 
 	public void initializeController(Context c) {
 		context = c;
-		if (openDatabase()) {
-			insertCat = db.compileStatement(INSERT_CAT);
-			insertFeed = db.compileStatement(INSERT_FEEDS);
-			insertArticle = db.compileStatement(INSERT_ARTICLES);
-			updateArticle = db.compileStatement(UPDATE_ARTICLES);
-			
-			mDBLocationSDCard = true;
-		} else {
-			Log.e(Utils.TAG, "Could not open DB on sdcard");
 
-			OpenHelper openHelper = new OpenHelper(context);
-			db = openHelper.getWritableDatabase();
-			insertCat = db.compileStatement(INSERT_CAT);
-			insertFeed = db.compileStatement(INSERT_FEEDS);
-		
-			mDBLocationSDCard = false;
-		}
+		OpenHelper openHelper = new OpenHelper(context);
+		db = openHelper.getWritableDatabase();		
+
+		insertCat = db.compileStatement(INSERT_CAT);
+		insertFeed = db.compileStatement(INSERT_FEEDS);
+		insertArticle = db.compileStatement(INSERT_ARTICLES);
+		updateArticle = db.compileStatement(UPDATE_ARTICLES);
 	}
 	
 	public synchronized void checkAndInitializeController(Context context) {
@@ -105,28 +97,28 @@ public class DBHelper {
 		}
 	}
 	
-	public void switchDB(Context c) {
-		if (mDBLocationSDCard) {
-			OpenHelper openHelper = new OpenHelper(context);
-			db = openHelper.getWritableDatabase();
-			
-			insertCat = db.compileStatement(INSERT_CAT);
-			insertFeed = db.compileStatement(INSERT_FEEDS);
-			insertArticle = null;
-			updateArticle = null;
-		
-			mDBLocationSDCard = false;
-		} else {
-			openDatabase();
-			
-			insertCat = db.compileStatement(INSERT_CAT);
-			insertFeed = db.compileStatement(INSERT_FEEDS);
-			insertArticle = db.compileStatement(INSERT_ARTICLES);
-			updateArticle = db.compileStatement(UPDATE_ARTICLES);
-			
-			mDBLocationSDCard = true;
-		}
-	}
+//	public void switchDB(Context c) {
+//		if (mDBLocationSDCard) {
+//			OpenHelper openHelper = new OpenHelper(context);
+//			db = openHelper.getWritableDatabase();
+//			
+//			insertCat = db.compileStatement(INSERT_CAT);
+//			insertFeed = db.compileStatement(INSERT_FEEDS);
+//			insertArticle = null;
+//			updateArticle = null;
+//		
+//			mDBLocationSDCard = false;
+//		} else {
+//			openDatabase();
+//			
+//			insertCat = db.compileStatement(INSERT_CAT);
+//			insertFeed = db.compileStatement(INSERT_FEEDS);
+//			insertArticle = db.compileStatement(INSERT_ARTICLES);
+//			updateArticle = db.compileStatement(UPDATE_ARTICLES);
+//			
+//			mDBLocationSDCard = true;
+//		}
+//	}
 	
 	public static DBHelper getInstance() {
 		if (mInstance == null) {
@@ -145,7 +137,7 @@ public class DBHelper {
 		db.execSQL("DELETE FROM " + TABLE_ARTICLES);
 	}
 	
-	public void DropDB() {
+	public void dropDB() {
 		if (context.deleteDatabase(DATABASE_NAME)) {
 			Log.d(Utils.TAG, "deleteDatabase(): database deleted.");
 		} else {
@@ -153,53 +145,53 @@ public class DBHelper {
 		}
 	}
 	
-	public boolean isSDCardAvailable() {
-		return mDBLocationSDCard;
-	}
-
-	public void setSDCardAvailable(boolean sDCardAvailable) {
-		this.mDBLocationSDCard = sDCardAvailable;
-	}
-	
-	/**
-	 * Opens the SDcard database. If it cannot be opened, it
-	 * creates a new instance. If a new instance cannot be created, it throws
-	 * an exception and logs the failure.
-	 * 
-	 * @return true if successful
-	 * @throws SQLException
-	 *             if the database is unable to be opened or created
-	 */
-	public synchronized boolean openDatabase() throws SQLException {
-		if (db != null && db.isOpen()) {
-			return true;
-		} else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-			Log.w(Utils.TAG, "SDcard not mounted, cant access article-database.");
-			return false;
-		} else {
-			StringBuilder builder = new StringBuilder();
-			
-			// open or create a new directory
-			builder.setLength(0);
-			builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
-			
-			File dir = new File(builder.toString());
-			dir.mkdirs();
-			File file = new File(dir, DATABASE_NAME);
-			
-			try {
-				Log.d(Utils.TAG, "Opening database: " + file.getAbsolutePath());
-				db = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
-				
-				// Create tables if they dont exist
-				createTables();
-			} catch (SQLException e) {
-				Log.e(Utils.TAG, "failed to open" + e);
-				throw e;
-			}
-		}
-		return true;
-	}
+//	public boolean isSDCardAvailable() {
+//		return mDBLocationSDCard;
+//	}
+//
+//	public void setSDCardAvailable(boolean sDCardAvailable) {
+//		this.mDBLocationSDCard = sDCardAvailable;
+//	}
+//	
+//	/**
+//	 * Opens the SDcard database. If it cannot be opened, it
+//	 * creates a new instance. If a new instance cannot be created, it throws
+//	 * an exception and logs the failure.
+//	 * 
+//	 * @return true if successful
+//	 * @throws SQLException
+//	 *             if the database is unable to be opened or created
+//	 */
+//	public synchronized boolean openDatabase() throws SQLException {
+//		if (db != null && db.isOpen()) {
+//			return true;
+//		} else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+//			Log.w(Utils.TAG, "SDcard not mounted, cant access article-database.");
+//			return false;
+//		} else {
+//			StringBuilder builder = new StringBuilder();
+//			
+//			// open or create a new directory
+//			builder.setLength(0);
+//			builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
+//			
+//			File dir = new File(builder.toString());
+//			dir.mkdirs();
+//			File file = new File(dir, DATABASE_NAME);
+//			
+//			try {
+//				Log.d(Utils.TAG, "Opening database: " + file.getAbsolutePath());
+//				db = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
+//				
+//				// Create tables if they dont exist
+//				createTables();
+//			} catch (SQLException e) {
+//				Log.e(Utils.TAG, "failed to open" + e);
+//				throw e;
+//			}
+//		}
+//		return true;
+//	}
 	
 	public synchronized void createTables() {
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_CAT + " (" + 
@@ -210,8 +202,8 @@ public class DBHelper {
 		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_FEEDS + " (" + 
 				"id INTEGER, " + 
 				"categoryId INTEGER, " + 
-				"title TEXT, "
-				+ "url TEXT, " + 
+				"title TEXT, " +
+				"url TEXT, " + 
 				"unread INTEGER, " + 
 				"PRIMARY KEY( id, categoryId ))");
 		
@@ -249,16 +241,16 @@ public class DBHelper {
 					"unread INTEGER, " + 
 					"PRIMARY KEY( id, categoryId ))");
 			
-//			db.execSQL("CREATE TABLE " + TABLE_ARTICLES + " (" + 
-//					"id INTEGER, " + 
-//					"feedId INTEGER, " + 
-//					"title TEXT, " + 
-//					"isUnread INTEGER, " + 
-//					"content BLOB, " + 
-//					"articleUrl TEXT, " + 
-//					"articleCommentUrl TEXT, " + 
-//					"updateDate INTEGER, " + 
-//					"PRIMARY KEY( id , feedId ))");
+			db.execSQL("CREATE TABLE " + TABLE_ARTICLES + " (" + 
+					"id INTEGER, " + 
+					"feedId INTEGER, " + 
+					"title TEXT, " + 
+					"isUnread INTEGER, " + 
+					"content BLOB, " + 
+					"articleUrl TEXT, " + 
+					"articleCommentUrl TEXT, " + 
+					"updateDate INTEGER, " + 
+					"PRIMARY KEY( id , feedId ))");
 		}
 		
 		@Override
@@ -266,7 +258,7 @@ public class DBHelper {
 			Log.w("Example", "Upgrading database, this will drop tables and recreate.");
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAT);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
-//			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
 			onCreate(db);
 		}
 	}

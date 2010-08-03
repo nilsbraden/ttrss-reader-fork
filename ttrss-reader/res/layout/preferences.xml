@@ -29,7 +29,7 @@
 	
 		<CheckBoxPreference
 			android:title="@string/UsageAutomaticMarkReadPreferenceTitle"
-			android:defaultValue="true"
+			android:defaultValue="false"
 			android:summary="@string/UsageAutomaticMarkReadPreferenceSummary"
 			android:key="UsageAutomaticMarkReadPreference" />
 			
@@ -38,12 +38,19 @@
 			android:defaultValue="false"
 			android:summary="@string/UsageOpenUrlEmptyArticleSummary"
 			android:key="UsageOpenUrlEmptyArticlePreference" />
-		
+
 <!--		<CheckBoxPreference
 			android:title="@string/UsageUpdateArticlesOnStartupTitle"
 			android:defaultValue="false"
 			android:summary="@string/UsageUpdateArticlesOnStartupSummary"
 			android:key="UsageUpdateArticlesOnStartupPreference" />-->
+
+		<CheckBoxPreference
+			android:title="@string/UsageRefreshSubDataTitle"
+			android:defaultValue="false"
+			android:summary="@string/UsageRefreshSubDataSummary"
+			android:key="UsageRefreshSubDataPreference" />
+
 	</PreferenceCategory>
 	
 	<PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle">

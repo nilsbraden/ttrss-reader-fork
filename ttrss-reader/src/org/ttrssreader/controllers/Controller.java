@@ -35,16 +35,17 @@ public class Controller {
 	private static Controller mInstance = null;
 	private SharedPreferences prefs = null;
 	
-	private boolean mAutomaticMarkRead = true;
-	private boolean mOpenUrlEmptyArticle = false;
-	private boolean mUpdateUnreadOnStartup = false;
+	private boolean mAutomaticMarkRead;
+	private boolean mOpenUrlEmptyArticle;
+	private boolean mUpdateUnreadOnStartup;
+	private boolean mRefreshSubData;
 	
-	private boolean mDisplayVirtuals = true;
-	private boolean mDisplayUnreadInVirtualFeeds = false;
-	private boolean mAlwaysFullRefresh = false;
-	private boolean mUseSwipe = true;
-	private boolean mDisplayOnlyUnread = false;
-	private int mArticleLimit = 100;
+	private boolean mDisplayVirtuals;
+	private boolean mDisplayUnreadInVirtualFeeds;
+	private boolean mAlwaysFullRefresh;
+	private boolean mUseSwipe;
+	private boolean mDisplayOnlyUnread;
+	private int mArticleLimit;
 	
 	
 	private Controller() {}
@@ -75,7 +76,8 @@ public class Controller {
 		// Usage
 		mAutomaticMarkRead = prefs.getBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);
 		mOpenUrlEmptyArticle = prefs.getBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);
-		setUpdateUnreadOnStartup(prefs.getBoolean(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, false));
+		mUpdateUnreadOnStartup = prefs.getBoolean(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, false);
+		mRefreshSubData = prefs.getBoolean(Constants.USAGE_REFRESH_SUB_DATA, false);
 		
 		// Display
 		mDisplayVirtuals = prefs.getBoolean(Constants.DISPLAY_SHOW_VIRTUAL, true);
@@ -136,6 +138,14 @@ public class Controller {
 
 	public void setUpdateUnreadOnStartup(boolean mUpdateUnreadOnStartup) {
 		this.mUpdateUnreadOnStartup = mUpdateUnreadOnStartup;
+	}
+
+	public boolean isRefreshSubData() {
+		return mRefreshSubData;
+	}
+
+	public void setRefreshSubData(boolean refreshSubData) {
+		this.mRefreshSubData = refreshSubData;
 	}
 
 	public boolean isDisplayVirtuals() {
