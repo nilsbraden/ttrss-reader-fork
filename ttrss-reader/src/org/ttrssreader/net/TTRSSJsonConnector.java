@@ -200,8 +200,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 
 	@Override
 	public List<CategoryItem> getCategories() {
-		Log.w(Utils.TAG, "-- Called: getCategories()");
-		
 		List<CategoryItem> finalResult = new ArrayList<CategoryItem>();
 		
 		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
@@ -254,14 +252,11 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mLastError = e.getMessage();
 		}
 		
-		Log.w(Utils.TAG, "-- END Called: getCategories()");
 		return finalResult;
 	}
 
 	@Override
 	public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode) {
-		Log.w(Utils.TAG, "-- Called: getFeedHeadlines(feedId " + feedId + ", limit " + limit + ", filter " + filter + ")");
-		
 		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
 		
 		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
@@ -295,14 +290,11 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mLastError = e.getMessage();
 		}
 		
-		Log.w(Utils.TAG, "-- END Called: getFeedHeadlines(feedId " + feedId + ", limit " + limit + ", filter " + filter + ")");
 		return finalResult;
 	}
 	
 	@Override
 	public List<ArticleItem> getFeedArticles(int feedId, int limit, int filter) {
-		Log.w(Utils.TAG, "-- Called: getFeedArticles(feedId " + feedId + ", limit " + limit + ", filter " + filter + ")");
-		
 		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
 		
 		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
@@ -333,14 +325,11 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mLastError = e.getMessage();
 		}
 		
-		Log.w(Utils.TAG, "-- END Called: getFeedArticles(feedId " + feedId + ", limit " + limit + ", filter " + filter + ")");
 		return finalResult;
 	}
 	
 	@Override
 	public ArticleItem getArticle(int articleId) {
-		Log.w(Utils.TAG, "-- Called: getArticle(articleId " + articleId + ")");
-		
 		ArticleItem ret = new ArticleItem();
 		
 		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
@@ -362,7 +351,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		}
 		
-		Log.w(Utils.TAG, "-- END Called: getArticle(articleId " + articleId + ")");
 		return ret;
 	}
 
@@ -436,8 +424,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 
 	@Override
 	public Map<String, List<FeedItem>> getSubsribedFeeds() {
-		Log.w(Utils.TAG, "-- Called: getSubscribedFeeds()");
-		
 		Map<String, List<FeedItem>> finalResult = new HashMap<String, List<FeedItem>>();;
 		
 		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
@@ -505,7 +491,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mLastError = e.getMessage();
 		}
 		
-		Log.w(Utils.TAG, "-- END Called: getSubscribedFeeds()");
 		return finalResult;
 	}
 
@@ -557,7 +542,14 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	}
 
 	@Override
-	public void setArticleRead(String articlesIds, int articleState) {
+	public void setArticleRead(List<String> list, int articleState) {
+		
+		StringBuilder sb = new StringBuilder();
+		for (String s : list) {
+			sb.append(s + ",");
+		}
+		if (sb.length() > 0) sb.deleteCharAt(sb.length()-1);
+		
 		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
 			
@@ -566,7 +558,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		}
 		
-		String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, mSessionId, articlesIds, articleState, 2);
+		String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, mSessionId, sb, articleState, 2);
 	
 		doRequest(url);
 	}

@@ -295,6 +295,7 @@ public class DataController {
 		int fId = new Integer(feedId);
 		List<ArticleItem> result = null;
 		
+		// TODO: Add check for fresh articles here?
 		if (fId == -4) {
 			result = new ArrayList<ArticleItem>();
 			for (Entry<String, List<ArticleItem>> e : mFeedsHeadlines.entrySet()) {
@@ -528,27 +529,27 @@ public class DataController {
 //		}
 //		
 //	}
-	
-	/**
-	 * Purge articles that are older then [days].
-	 * Only removes read articles, unread articles are not touched.
-	 */
-	public void purgeArticlesDays(int days) {
-		long date = System.currentTimeMillis() - (days * 1000 * 60 * 60 * 24);
-		DBHelper.getInstance().purgeArticlesDays(new Date(date));
-	}
-	
-	/**
-	 * Purge old articles so only the newest [number] articles are left.
-	 * Only removes read articles, unread articles are not touched.
-	 * 
-	 * @param number
-	 */
-	public void purgeArticles() {
-		int articleLimit = Controller.getInstance().getArticleLimit();
-		DBHelper.getInstance().purgeArticlesNumber(articleLimit);
-		mFeedsHeadlines = DBHelper.getInstance().getArticles(articleLimit);
-	}
+//	
+//	/**
+//	 * Purge articles that are older then [days].
+//	 * Only removes read articles, unread articles are not touched.
+//	 */
+//	public void purgeArticlesDays(int days) {
+//		long date = System.currentTimeMillis() - (days * 1000 * 60 * 60 * 24);
+//		DBHelper.getInstance().purgeArticlesDays(new Date(date));
+//	}
+//	
+//	/**
+//	 * Purge old articles so only the newest [number] articles are left.
+//	 * Only removes read articles, unread articles are not touched.
+//	 * 
+//	 * @param number
+//	 */
+//	public void purgeArticles() {
+//		int articleLimit = Controller.getInstance().getArticleLimit();
+//		DBHelper.getInstance().purgeArticlesNumber(articleLimit);
+//		mFeedsHeadlines = DBHelper.getInstance().getArticles(articleLimit);
+//	}
 	
 	public void updateUnread() {
 		// Mark eveything as read

@@ -450,6 +450,14 @@ public class DBHelper {
 		}
 	}
 	
+	public void markArticlesRead(List<String> list, int articleState) {
+		boolean isUnread = articleState == 0 ? false : true;
+		for (String id : list) {
+			db.execSQL("UPDATE " + TABLE_ARTICLES + 
+					" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "'");
+		}
+	}
+	
 	public void updateCategoryUnreadCount(String id, int count) {
 		if (id == null) return;
 		
