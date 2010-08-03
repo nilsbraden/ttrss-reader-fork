@@ -23,6 +23,7 @@ public class Constants {
 	
 	public static String USAGE_AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
 	public static String USAGE_OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
+	public static String USAGE_UPDATE_UNREAD_ON_STARTUP = "UsageUpdateArticlesOnStartupPreference";
 	
 	public static String DISPLAY_SHOW_VIRTUAL = "DisplayShowVirtualPreference";
 	public static String DISPLAY_SHOW_VIRTUAL_UNREAD = "DisplayShowVirtualUnreadPreference";

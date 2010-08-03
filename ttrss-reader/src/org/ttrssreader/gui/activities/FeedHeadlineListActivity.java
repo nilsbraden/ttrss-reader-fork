@@ -86,7 +86,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
 			mFeedHeadlineListView.setAdapter(mAdapter);
 		}
-		new Refresher(this, mAdapter);
+		new Refresher(this, mAdapter).execute();
 	}
 	
 	@Override
@@ -146,12 +146,12 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	private void setReadState() {
 		setProgressBarIndeterminateVisibility(true);
-		new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 0));
+		new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 0)).execute();
 	}
 	
 	private void setUnreadState() {
 		setProgressBarIndeterminateVisibility(true);
-		new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 1));
+		new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 1)).execute();
 	}
 	
 	private void displayOnlyUnreadSwitch() {

@@ -60,6 +60,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 
 		Controller.getInstance().checkAndInitializeController(this);
 		DBHelper.getInstance().checkAndInitializeController(this);
+		
+//		if (Controller.getInstance().isUpdateUnreadOnStartup()) {
+//			doUpdateEverything();
+//		}
 
 		setProgressBarIndeterminateVisibility(false);
 
@@ -86,7 +90,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			mAdapter = new CategoryListAdapter(this);
 			mCategoryListView.setAdapter(mAdapter);
 		}
-		new Refresher(this, mAdapter);
+		new Refresher(this, mAdapter).execute();
 	}
 
     @Override
@@ -194,7 +198,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private void markAllRead() {
 		setProgressBarIndeterminateVisibility(true);
 		List<CategoryItem> list = mAdapter.getCategories();
-		new Updater(this, new ReadStateUpdater(list, 0));
+		new Updater(this, new ReadStateUpdater(list, 0)).execute();
 	}
 
 	private void openConnectionErrorDialog(String errorMessage) {

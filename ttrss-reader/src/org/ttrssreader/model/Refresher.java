@@ -16,10 +16,11 @@
 package org.ttrssreader.model;
 
 import org.ttrssreader.gui.IRefreshEndListener;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-public class Refresher implements Runnable {
+public class Refresher extends AsyncTask<Void, Void, Void> {
 	
 	private IRefreshEndListener mParent;
 	private IRefreshable mRefreshable;
@@ -28,25 +29,20 @@ public class Refresher implements Runnable {
 	public Refresher(IRefreshEndListener parent, IRefreshable refreshable) {
 		mParent = parent;
 		mRefreshable = refreshable;
-		
-		Thread mThread = new Thread(this);
-		mThread.start();
 	}
 	
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
-			
 			if (msg.arg1 == 0) {
 				mParent.onRefreshEnd();
 			} else if (msg.arg1 == 1) {
 				mParent.onSubRefreshEnd();
 			}
-			
 		}
 	};
-	
+
 	@Override
-	public void run() {
+	protected Void doInBackground(Void... params) {
 		// Refresh data oh this view
 		mRefreshable.refreshData();
 		Message m = new Message();
@@ -60,6 +56,7 @@ public class Refresher implements Runnable {
 		m = new Message();
 		m.arg1 = 1;
 		handler.sendMessage(m);
+		return null;
 	}
 	
 }

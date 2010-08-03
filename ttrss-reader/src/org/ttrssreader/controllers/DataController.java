@@ -17,7 +17,6 @@ package org.ttrssreader.controllers;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -400,7 +399,7 @@ public class DataController {
 		
 		if (result == null || needFullRefresh()) {
 			
-			result = Controller.getInstance().getTTRSSConnector().getFeedArticles(Integer.parseInt(feedId), 0, 0);
+			result = Controller.getInstance().getTTRSSConnector().getFeedArticles(Integer.parseInt(feedId), 1, false);
 			
 			int articleLimit = Controller.getInstance().getArticleLimit();
 			DBHelper.getInstance().insertArticles(result, articleLimit);
@@ -408,171 +407,27 @@ public class DataController {
 		return result;
 	}
 	
-//	public void markItemRead(Object o, String pid) {
-//		markItemRead(o, pid, false);
-//	}
-//	
-//	public void markItemRead(Object o, String pid, boolean notifiedController) {
-//		int deltaUnread = -1;
-//		
-//		if (o instanceof CategoryItem) {
-//			
-//			Log.i(Utils.TAG, "markItemRead CategoryItem");
-//			CategoryItem c = (CategoryItem) o;
-//			
-//			c.setUnread(0);
-//			DBHelper.getInstance().markCategoryRead(c, false);
-//			
-//			if (!notifiedController) {
-//				Log.w(Utils.TAG, "Categorie: Notified TTRSSConnector");
-//				Controller.getInstance().getTTRSSConnector().setRead(c.getId(), true);
-//			}
-//			
-//			if (c.getId().startsWith("-")) {
-//				// Virtual category
-//				for (ArticleItem a : getArticlesHeadlines(c.getId(), true)) {
-//					markItemRead(a, null, true);
-//				}
-//			} else {
-//				// Normal category
-//				for (FeedItem f : getSubscribedFeeds(c.getId(), true)) {
-//					markItemRead(f, null, true);
-//				}
-//			}
-//			
-//		} else if (o instanceof FeedItem) {
-//			
-//			Log.i(Utils.TAG, "markItemRead FeedItem");
-//			FeedItem f = (FeedItem) o;
-//			
-//			if (pid != null) {
-//				// Get one step up in hierarchy if pid is set, its faster
-//				markItemRead(getCategory(pid, true), null, false);
-//				return;
-//			}
-//			
-//			f.setUnread(0);
-//			DBHelper.getInstance().markFeedRead(f, false);
-//			
-//			if (!notifiedController) {
-//				Log.w(Utils.TAG, "Feed: Notified TTRSSConnector");
-//				Controller.getInstance().getTTRSSConnector().setRead(f.getId(), false);
-//			}
-//			
-//			for (ArticleItem a : getArticlesHeadlines(f.getId(), true)) {
-//				if (a.isUnread()) {
-//					markItemRead(a, null, true);
-//				}
-//			}
-//			
-//		} else if (o instanceof ArticleItem) {
-//			
-//			Log.i(Utils.TAG, "markItemRead ArticleItem");
-//			ArticleItem a = (ArticleItem) o;
-//			
-//			if (pid != null) {
-//				// Get one step up in hierarchy if pid is set, its faster
-//				markItemRead(getFeed(pid, true), null, false);
-//				return;
-//			}
-//			
-//			a.setUnread(false);
-//			DBHelper.getInstance().updateArticleUnread(a.getId(), a.getFeedId(), false);
-//			
-//			// Update unread-count of the feed
-//			FeedItem fTemp = DataController.getInstance().getFeed(a.getFeedId(), false);
-//			if (fTemp != null) {
-//				fTemp.setDeltaUnreadCount(deltaUnread);
-//				DBHelper.getInstance().updateFeedUnreadCount(a.getFeedId(), fTemp.getCategoryId(), fTemp.getUnread());
-//				
-//				// Update unread-count of the category
-//				CategoryItem cTemp = DataController.getInstance().getCategory(fTemp.getCategoryId(), false);
-//				if (cTemp != null) {
-//					cTemp.setDeltaUnreadCount(deltaUnread);
-//					DBHelper.getInstance().updateCategoryUnreadCount(fTemp.getCategoryId(), cTemp.getUnread());
-//				}
-//			}
-//			
-////			// Update count on parent item
-////			if (pid.startsWith("-")) {
-////				Log.w(Utils.TAG, "TODO: Does this actually work??"); // TODO
-////				DataController.getInstance().getArticleHeadline(pid, a.getId()).setUnread(false);
-////				DataController.getInstance().getVirtualCategory(pid).setDeltaUnreadCount(deltaUnread);
-////			}
-//			
-//			// Set Article-read-state on server
-//			if (!notifiedController) {
-//				Log.w(Utils.TAG, "Article: Notified TTRSSConnector");
-//				Controller.getInstance().getTTRSSConnector().setArticleRead(a.getId(), 0);
-//			}
-//			
-//			// Set count of "All articles"
-//			DataController.getInstance().getVirtualCategory("-4").setDeltaUnreadCount(deltaUnread);
-//			
-//		} else if (o == null) {
-//			// We should be in a virtual category here..
-//			
-//			Log.i(Utils.TAG, "markItemRead NULL-Item");
-//			
-//			if (pid != null && pid.startsWith("-")) {
-//				for (ArticleItem a : DataController.getInstance().getArticlesHeadlines(pid, true)) {
-//					a.setUnread(false);
-//				}
-//				DataController.getInstance().getVirtualCategory(pid).setDeltaUnreadCount(deltaUnread);
-//			} else {
-//				Log.e(Utils.TAG, "Weird, why are we here? markItemRead() called with null-object and not a category. pid: " + pid);
-//				FeedItem f = getFeed(pid, false);
-//				if (f != null) {
-//					markItemRead(f, pid, false);
-//				}
-//			}
-//		}
-//		
-//	}
-//	
-//	/**
-//	 * Purge articles that are older then [days].
-//	 * Only removes read articles, unread articles are not touched.
-//	 */
-//	public void purgeArticlesDays(int days) {
-//		long date = System.currentTimeMillis() - (days * 1000 * 60 * 60 * 24);
-//		DBHelper.getInstance().purgeArticlesDays(new Date(date));
-//	}
-//	
-//	/**
-//	 * Purge old articles so only the newest [number] articles are left.
-//	 * Only removes read articles, unread articles are not touched.
-//	 * 
-//	 * @param number
-//	 */
-//	public void purgeArticles() {
-//		int articleLimit = Controller.getInstance().getArticleLimit();
-//		DBHelper.getInstance().purgeArticlesNumber(articleLimit);
-//		mFeedsHeadlines = DBHelper.getInstance().getArticles(articleLimit);
-//	}
-	
+	// unused
 	public void updateUnread() {
-		// Mark eveything as read
+		List<ArticleItem> list = new ArrayList<ArticleItem>();
+		int limit = Controller.getInstance().getArticleLimit();
+		
+		// Update uncategorized Feeds
+		DBHelper.getInstance().markCategoryRead(new CategoryItem("0", "", 0), true);
+		list = Controller.getInstance().getTTRSSConnector()
+			.getFeedArticles(0, 1, true);
+		
+		DBHelper.getInstance().insertArticles(list, limit);
+		
+		// Update other categories
 		for (CategoryItem c : mCategories) {
-			// TODO: Wirklich recursiv markieren?
 			DBHelper.getInstance().markCategoryRead(c, true);
+			list = Controller.getInstance().getTTRSSConnector()
+				.getFeedArticles(Integer.parseInt(c.getId()), 1, true);
+			
+			DBHelper.getInstance().insertArticles(list, limit);
 		}
-		
-		forceFullRefresh();
-		
-		internalGetCategories();
-		internalGetVirtualCategories();
-		getSubscribedFeeds();
-		
-		disableForceFullRefresh();
-		
-		// Leave article-content for now, its getting too slow.
-		for (String s : mSubscribedFeeds.keySet()) {
-			List<FeedItem> list = mSubscribedFeeds.get(s);
-			for (FeedItem f : list) {
-				getArticlesHeadlines(f.getId(), true);
-			}
-		}
+		mFeedsHeadlines = DBHelper.getInstance().getArticles(0);
 	}
 	
 }
