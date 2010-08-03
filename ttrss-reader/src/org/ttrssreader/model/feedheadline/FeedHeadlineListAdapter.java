@@ -93,6 +93,10 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 		return result;
 	}
 	
+	public List<ArticleItem> getArticles() {
+		return mArticles;
+	}
+	
 	public List<ArticleItem> getArticleReadList() {
 		List<ArticleItem> result = new ArrayList<ArticleItem>();
 		

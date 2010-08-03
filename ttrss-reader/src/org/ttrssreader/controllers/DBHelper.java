@@ -393,19 +393,29 @@ public class DBHelper {
 		return ret;
 	}
 	
-	public void insertArticle(ArticleItem a) {
-		insertArticle(
-			a.getId(),
-			a.getFeedId(),
-			a.getTitle(),
-			a.isUnread(),
-			a.getContent(),
-			a.getArticleUrl(),
-			a.getArticleCommentUrl(),
-			a.getUpdateDate());
+	public void insertArticle(ArticleItem a, int number) {
+		insertArticleInternal(a);
+		purgeArticlesNumber(number);
 	}
 	
-	public void insertArticles(List<ArticleItem> list) {
+	private void insertArticleInternal(ArticleItem a) {
+		insertArticle(
+				a.getId(),
+				a.getFeedId(),
+				a.getTitle(),
+				a.isUnread(),
+				a.getContent(),
+				a.getArticleUrl(),
+				a.getArticleCommentUrl(),
+				a.getUpdateDate());
+	}
+	
+	public void insertArticles(List<ArticleItem> list, int number) {
+		insertArticlesInternal(list);
+		purgeArticlesNumber(number);
+	}
+	
+	public void insertArticlesInternal(List<ArticleItem> list) {
 		for (ArticleItem a : list) {
 			insertArticle(
 					a.getId(),
@@ -421,19 +431,23 @@ public class DBHelper {
 	
 	// *******| UPDATE |*******************************************************************
 	
-	public void markCategoryRead(CategoryItem c) {
+	public void markCategoryRead(CategoryItem c, boolean recursive) {
 		updateCategoryUnreadCount(c.getId(), 0);
 		
-		for (FeedItem f : getFeeds(c)) {
-			markFeedRead(f);
+		if (recursive) {
+			for (FeedItem f : getFeeds(c)) {
+				markFeedRead(f, recursive);
+			}
 		}
 	}
 	
-	public void markFeedRead(FeedItem f) {
+	public void markFeedRead(FeedItem f, boolean recursive) {
 		updateFeedUnreadCount(f.getId(), f.getCategoryId(), 0);
 		
-		db.execSQL("UPDATE " + TABLE_ARTICLES +
-				" SET isUnread='0' WHERE feedId='" + f.getId() + "'");
+		if (recursive) {
+			db.execSQL("UPDATE " + TABLE_ARTICLES +
+					" SET isUnread='0' WHERE feedId='" + f.getId() + "'");
+		}
 	}
 	
 	public void updateCategoryUnreadCount(String id, int count) {
@@ -496,8 +510,11 @@ public class DBHelper {
 	}
 	
 	public void purgeArticlesNumber(int number) {
-		db.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id in( " + " select id from " + TABLE_ARTICLES
-				+ " WHERE isUnread=0" + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number + ")");
+		db.execSQL("DELETE FROM " + TABLE_ARTICLES +
+				" WHERE id in( select id from " + TABLE_ARTICLES +
+				" WHERE isUnread=0" +
+				" ORDER BY updateDate DESC" +
+				" LIMIT -1 OFFSET " + number + ")");
 	}
 	
 	// *******| SELECT |*******************************************************************
@@ -580,12 +597,13 @@ public class DBHelper {
 	
 	
 	/**
-	 * Returns the maxArticles newest articles, mapped in lists to their feed-id.Returns all articles if maxArticles is 0 or lower. 
+	 * Returns the maxArticles newest articles, mapped in lists to their feed-id.
+	 * Returns all articles if maxArticles is 0 or lower. 
 	 */
 	public Map<String, List<ArticleItem>> getArticles(int maxArticles) {
 		Map<String, List<ArticleItem>> ret = new HashMap<String, List<ArticleItem>>();
 		
-		String limit = (maxArticles > 0 ? String.valueOf(maxArticles) : "0");
+		String limit = (maxArticles > 0 ? String.valueOf(maxArticles) : null);
 		
 		Cursor c = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC", limit);
 		
