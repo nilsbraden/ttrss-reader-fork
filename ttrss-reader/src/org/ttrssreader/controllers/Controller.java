@@ -37,6 +37,8 @@ public class Controller {
 	
 	private boolean mAutomaticMarkRead = true;
 	private boolean mOpenUrlEmptyArticle = false;
+	private boolean mUpdateUnreadOnStartup = false;
+	
 	private boolean mDisplayVirtuals = true;
 	private boolean mDisplayUnreadInVirtualFeeds = false;
 	private boolean mAlwaysFullRefresh = false;
@@ -73,6 +75,7 @@ public class Controller {
 		// Usage
 		mAutomaticMarkRead = prefs.getBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);
 		mOpenUrlEmptyArticle = prefs.getBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);
+		setUpdateUnreadOnStartup(prefs.getBoolean(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, false));
 		
 		// Display
 		mDisplayVirtuals = prefs.getBoolean(Constants.DISPLAY_SHOW_VIRTUAL, true);
@@ -125,6 +128,14 @@ public class Controller {
 		editor.putBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
 		editor.commit();
 		this.mOpenUrlEmptyArticle = openUrlEmptyArticle;
+	}
+
+	public boolean isUpdateUnreadOnStartup() {
+		return mUpdateUnreadOnStartup;
+	}
+
+	public void setUpdateUnreadOnStartup(boolean mUpdateUnreadOnStartup) {
+		this.mUpdateUnreadOnStartup = mUpdateUnreadOnStartup;
 	}
 
 	public boolean isDisplayVirtuals() {

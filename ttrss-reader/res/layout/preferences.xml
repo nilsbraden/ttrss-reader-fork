@@ -38,6 +38,12 @@
 			android:defaultValue="false"
 			android:summary="@string/UsageOpenUrlEmptyArticleSummary"
 			android:key="UsageOpenUrlEmptyArticlePreference" />
+		
+<!--		<CheckBoxPreference
+			android:title="@string/UsageUpdateArticlesOnStartupTitle"
+			android:defaultValue="false"
+			android:summary="@string/UsageUpdateArticlesOnStartupSummary"
+			android:key="UsageUpdateArticlesOnStartupPreference" />-->
 	</PreferenceCategory>
 	
 	<PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle">

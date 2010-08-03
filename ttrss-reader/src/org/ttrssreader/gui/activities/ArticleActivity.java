@@ -151,12 +151,12 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		setProgressBarIndeterminateVisibility(true);
 		
 		mAdapter = new ArticleItemAdapter(mArticleId);
-		new Refresher(this, mAdapter);
+		new Refresher(this, mAdapter).execute();
 	}
 	
 	private void markRead() {
 		setProgressBarIndeterminateVisibility(true);
-		new Updater(this, new ReadStateUpdater(mArticleItem, mFeedId, 0));
+		new Updater(this, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
 	}
 	
 	private void openUrl(String url) {
@@ -329,7 +329,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 //					new ReadStateUpdater(mArticleItem, mFeedId).execute(0);
 
 					setProgressBarIndeterminateVisibility(true);
-					new Updater(this, new ReadStateUpdater(mAdapter.getArticle(), mFeedId, 0));
+					new Updater(this, new ReadStateUpdater(mAdapter.getArticle(), mFeedId, 0)).execute();
 					
 					mArticleItem.setUnread(false);
 				}

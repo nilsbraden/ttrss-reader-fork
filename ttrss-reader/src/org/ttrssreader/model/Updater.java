@@ -17,10 +17,11 @@ package org.ttrssreader.model;
 
 import org.ttrssreader.gui.IUpdateEndListener;
 
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-public class Updater implements Runnable {
+public class Updater extends AsyncTask<Void, Void, Void> {
 	
 	private IUpdateEndListener mParent;
 	private IUpdatable mUpdatable;
@@ -28,9 +29,6 @@ public class Updater implements Runnable {
 	public Updater(IUpdateEndListener parent, IUpdatable updatable) {
 		mParent = parent;
 		mUpdatable = updatable;
-
-		Thread mThread = new Thread(this);
-		mThread.start();
 	}
 	
 	private Handler handler = new Handler() {
@@ -40,9 +38,10 @@ public class Updater implements Runnable {
 	};
 
 	@Override
-	public void run() {
+	protected Void doInBackground(Void... params) {
 		mUpdatable.update();	
 		handler.sendEmptyMessage(0);
+		return null;
 	}
 
 }

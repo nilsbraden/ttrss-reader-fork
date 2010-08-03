@@ -39,6 +39,8 @@
 <string name="UsageAutomaticMarkReadPreferenceSummary">If checked, articles will be marked as read when openning them.</string>
 <string name="UsageOpenUrlEmptyArticleTitle">Open URL for empty article</string>
 <string name="UsageOpenUrlEmptyArticleSummary">Automatically visits the Website of the article in the browser if the content is empty.</string>
+<string name="UsageUpdateArticlesOnStartupTitle">Update all articles with content on startup</string>
+<string name="UsageUpdateArticlesOnStartupSummary">Loads all unread articles including their content on startup.</string>
 
 <string name="DisplayPreferenceCategoryTitle">Display</string>
 <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>

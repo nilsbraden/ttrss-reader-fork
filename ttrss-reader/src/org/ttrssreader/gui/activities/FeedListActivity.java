@@ -93,7 +93,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			mAdapter = new FeedListAdapter(this, mCategoryId);
 			mFeedListView.setAdapter(mAdapter);
 		}
-		new Refresher(this, mAdapter);		
+		new Refresher(this, mAdapter).execute();		
 	}
 
 	@Override
@@ -153,7 +153,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	
 	private void markAllRead() {
 		setProgressBarIndeterminateVisibility(true);
-		new Updater(this, new ReadStateUpdater(mAdapter.getFeeds(), mCategoryId, 0, false));
+		new Updater(this, new ReadStateUpdater(mAdapter.getFeeds(), mCategoryId, 0, false)).execute();
 	}
 
 	private void openConnectionErrorDialog(String errorMessage) {

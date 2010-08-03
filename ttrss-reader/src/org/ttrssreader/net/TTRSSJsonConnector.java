@@ -45,7 +45,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String OP_GET_CATEGORIES = "?op=getCategories&sid=%s";
 	private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s";
 	private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&view_mode=%s";
-	private static final String OP_GET_ARTICLES_WITH_CONTENT = "?op=getArticles&sid=%s&feed_id=%s";
+	private static final String OP_GET_ARTICLES_WITH_CONTENT = "?op=getArticles&sid=%s&id=%s&unread=%s&is_category=%s";
 	private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
 	private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
 	private static final String OP_CATCHUP = "?op=catchupFeed&sid=%s&feed_id=%s&is_cat=%s";
@@ -284,41 +284,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				articleItem = parseDataForArticle(names, values);
 				
 				finalResult.add(articleItem);
-			}
-		} catch (JSONException e) {
-			mHasLastError = true;
-			mLastError = e.getMessage();
-		}
-		
-		return finalResult;
-	}
-	
-	@Override
-	public List<ArticleItem> getFeedArticles(int feedId, int limit, int filter) {
-		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
-		
-		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
-			login();
-			
-			if (mHasLastError) {
-				return null;
-			}
-		}
-		
-		String url = mServerUrl + String.format(OP_GET_ARTICLES_WITH_CONTENT, mSessionId, feedId);
-		
-		JSONArray jsonResult = getJSONResponseAsArray(url);
-		
-		JSONObject object;
-
-		try {
-			for (int i = 0; i < jsonResult.length(); i++) {
-				object = jsonResult.getJSONObject(i);
-				
-				JSONArray names = object.names();
-				JSONArray values = object.toJSONArray(names);
-				
-				finalResult.add(parseDataForArticle(names, values));
 			}
 		} catch (JSONException e) {
 			mHasLastError = true;
@@ -607,6 +572,43 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		}
 		
 		return ret;
+	}
+
+	@Override
+	public List<ArticleItem> getFeedArticles(int id, int articleState, boolean isCategory) {
+		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
+		
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
+			login();
+			
+			if (mHasLastError) {
+				return null;
+			}
+		}
+		
+		int cat = isCategory ? 1 : 0;
+		
+		String url = mServerUrl + String.format(OP_GET_ARTICLES_WITH_CONTENT, mSessionId, id, articleState, cat);
+		
+		JSONArray jsonResult = getJSONResponseAsArray(url);
+		
+		JSONObject object;
+
+		try {
+			for (int i = 0; i < jsonResult.length(); i++) {
+				object = jsonResult.getJSONObject(i);
+				
+				JSONArray names = object.names();
+				JSONArray values = object.toJSONArray(names);
+				
+				finalResult.add(parseDataForArticle(names, values));
+			}
+		} catch (JSONException e) {
+			mHasLastError = true;
+			mLastError = e.getMessage();
+		}
+		
+		return finalResult;
 	}
 
 }
