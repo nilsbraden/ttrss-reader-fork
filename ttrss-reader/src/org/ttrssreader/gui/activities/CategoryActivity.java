@@ -15,13 +15,17 @@
 
 package org.ttrssreader.gui.activities;
 
+import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
+import org.ttrssreader.model.Updater;
+import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryListAdapter;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
@@ -188,8 +192,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	}
 	
 	private void markAllRead() {
-		mAdapter.markAllRead();
-		doRefresh();
+		setProgressBarIndeterminateVisibility(true);
+		List<CategoryItem> list = mAdapter.getCategories();
+		new Updater(this, new ReadStateUpdater(list, 0));
 	}
 
 	private void openConnectionErrorDialog(String errorMessage) {

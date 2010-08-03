@@ -42,7 +42,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 	private String mCategoryId;
 	
 	private List<FeedItem> mFeeds;
-	
+
 	public FeedListAdapter(Context context, String categoryId) {
 		mContext = context;		
 		mCategoryId = categoryId;
@@ -76,6 +76,10 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		return mFeeds.get(position).getUnread();
 	}
 	
+	public List<FeedItem> getFeeds() {
+		return mFeeds;
+	}
+	
 	public int getTotalUnreadCount() {
 		int result = 0;
 		
@@ -85,12 +89,6 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		}
 		
 		return result;
-	}
-	
-	public void markAllRead() {
-		for (FeedItem c : mFeeds) {
-			DataController.getInstance().markItemRead(c, mCategoryId);
-		}
 	}
 	
 	private String formatTitle(String title, int unread) {

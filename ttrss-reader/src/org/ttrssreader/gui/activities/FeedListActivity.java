@@ -19,7 +19,10 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.gui.IRefreshEndListener;
+import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
+import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.feed.FeedListAdapter;
 
 import android.app.ListActivity;
@@ -31,7 +34,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ListView;
 
-public class FeedListActivity extends ListActivity implements IRefreshEndListener {
+public class FeedListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
 	
 	private static final int ACTIVITY_SHOW_FEED_HEADLINE = 0;
 	
@@ -149,8 +152,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	}
 	
 	private void markAllRead() {
-		mAdapter.markAllRead();
-		doRefresh();
+		setProgressBarIndeterminateVisibility(true);
+		new Updater(this, new ReadStateUpdater(mAdapter.getFeeds(), mCategoryId, 0, false));
 	}
 
 	private void openConnectionErrorDialog(String errorMessage) {
@@ -178,7 +181,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	
 	@Override
 	public void onSubRefreshEnd() {
-		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {			
+		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
 			mAdapter.notifyDataSetChanged();
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
@@ -186,6 +189,19 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 
 		setProgressBarIndeterminateVisibility(false);
 		DataController.getInstance().disableForceFullRefresh();
+	}
+
+	@Override
+	public void onUpdateEnd() {
+		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+			// TODO: Is that right?
+			mAdapter.refreshData();
+			mAdapter.notifyDataSetChanged();
+		} else {
+			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+		}
+
+		setProgressBarIndeterminateVisibility(false);
 	}
 
 }

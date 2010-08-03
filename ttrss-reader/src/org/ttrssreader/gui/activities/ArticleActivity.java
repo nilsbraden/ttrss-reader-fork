@@ -21,11 +21,11 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.article.ArticleItemAdapter;
-import org.ttrssreader.model.article.ArticleReadStateUpdater;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Intent;
@@ -41,7 +41,6 @@ import android.view.Window;
 import android.view.GestureDetector.OnGestureListener;
 import android.webkit.WebView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ArticleActivity extends Activity implements IRefreshEndListener, IUpdateEndListener {
 	
@@ -157,7 +156,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	
 	private void markRead() {
 		setProgressBarIndeterminateVisibility(true);
-		new Updater(this, new ArticleReadStateUpdater(mArticleItem, mFeedId));
+		new Updater(this, new ReadStateUpdater(mArticleItem, mFeedId, 0));
 	}
 	
 	private void openUrl(String url) {
@@ -327,7 +326,11 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 				
 				// TODO: FIXTHIS
 				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkRead())) {
-					new ArticleReadStateUpdater(mArticleItem, mFeedId).execute(0);
+//					new ReadStateUpdater(mArticleItem, mFeedId).execute(0);
+
+					setProgressBarIndeterminateVisibility(true);
+					new Updater(this, new ReadStateUpdater(mAdapter.getArticle(), mFeedId, 0));
+					
 					mArticleItem.setUnread(false);
 				}
 				

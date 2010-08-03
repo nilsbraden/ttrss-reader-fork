@@ -50,6 +50,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
 	private static final String OP_CATCHUP = "?op=catchupFeed&sid=%s&feed_id=%s&is_cat=%s";
 	
+	private static final String NOT_LOGGED_IN = "{\"error\":\"NOT_LOGGED_IN\"}";
+	
 	private static final String ERROR_NAME = "{\"error\":";
 	private static final String SESSION_ID = "session_id";
 	private static final String ID_NAME = "id";
@@ -81,6 +83,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	}
 	
 	private String doRequest(String url) {
+		Log.d(Utils.TAG, "url: " + url);
 		String strResponse = null;
 		
 		HttpClient httpclient = new DefaultHttpClient();		 				
@@ -201,7 +204,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		List<CategoryItem> finalResult = new ArrayList<CategoryItem>();
 		
-		if (mSessionId == null) {
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
 			
 			if (mHasLastError) {
@@ -261,7 +264,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
 		
-		if (mSessionId == null) {
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
 			
 			if (mHasLastError) {
@@ -302,7 +305,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
 		
-		if (mSessionId == null) {
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
 			
 			if (mHasLastError) {
@@ -340,7 +343,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		ArticleItem ret = new ArticleItem();
 		
-		if (mSessionId == null) {
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
 			
 			if (mHasLastError) {
@@ -437,7 +440,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		Map<String, List<FeedItem>> finalResult = new HashMap<String, List<FeedItem>>();;
 		
-		if (mSessionId == null) {
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
 			
 			if (mHasLastError) {
@@ -508,7 +511,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 
 	@Override
 	public int getTotalUnread() {
-		if (mSessionId == null) {
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
 			
 			if (mHasLastError) {
@@ -555,7 +558,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 
 	@Override
 	public void setArticleRead(String articlesIds, int articleState) {
-		if (mSessionId == null) {
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
 			
 			if (mHasLastError) {
@@ -570,7 +573,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	
 	@Override
 	public void setRead(String id, boolean isCategory) {
-		if (mSessionId == null) {
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
 			
 			if (mHasLastError) {
