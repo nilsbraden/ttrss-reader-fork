@@ -33,7 +33,7 @@ import android.util.Log;
 
 public class DataController {
 	
-	private static String mutex = "";
+	private static final String mutex = "";
 	private static DataController mInstance = null;
 	
 	private boolean mForceFullRefresh = false;
@@ -151,7 +151,11 @@ public class DataController {
 			Collections.sort(finalList, new VirtualCategoryItemComparator());
 		}
 		
-		finalList.addAll(internalGetCategories());
+		List<CategoryItem> list = internalGetCategories();
+		if (list == null) {
+			return null;
+		}
+		finalList.addAll(list);
 		
 		Iterator<CategoryItem> iter = finalList.iterator();
 		while ((iter.hasNext()) && (result == null)) {
@@ -175,9 +179,11 @@ public class DataController {
 		}
 		
 		List<CategoryItem> categoryList = internalGetCategories();
-		Collections.sort(categoryList, new CategoryItemComparator());
 		if (categoryList != null) {
+			Collections.sort(categoryList, new CategoryItemComparator());
 			finalList.addAll(categoryList);
+		} else {
+			return null;
 		}
 		
 		// If option "ShowUnreadOnly" is enabled filter out all categories without unread items
@@ -232,6 +238,8 @@ public class DataController {
 		List<FeedItem> result = new ArrayList<FeedItem>();
 		if (map != null) {
 			result = map.get(categoryId);
+		} else {
+			return null;
 		}
 		
 		// If option "ShowUnreadOnly" is enabled filter out all Feeds without unread items
@@ -278,6 +286,10 @@ public class DataController {
 	public FeedItem getFeed(String feedId, boolean displayOnlyUnread) {
 		Map<String, List<FeedItem>> feedsList = getSubscribedFeeds();
 		
+		if (feedsList == null) {
+			return null;
+		}
+		
 		FeedItem result = null;
 		
 		Set<String> categories = feedsList.keySet();
@@ -309,6 +321,10 @@ public class DataController {
 			int articleLimit = Controller.getInstance().getArticleLimit();
 			result = Controller.getInstance().getTTRSSConnector()
 				.getFeedHeadlines(new Integer(feedId), articleLimit, 0, viewMode);
+			
+			if (result == null) {
+				return null;
+			}
 			
 			mFeedsHeadlines.put(feedId, result);
 			
