@@ -327,10 +327,10 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		// Intercept the volume-key-events if preference is set
 		if (Controller.getInstance().isUseVolumeKeys()) {
 		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-		        openNextOlderArticle();
+		    	openNextNewerArticle();
 		        return true;
 		    } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-		        openNextNewerArticle();
+		    	openNextOlderArticle();
 		        return true;
 		    }
 		}
