@@ -17,13 +17,10 @@ package org.ttrssreader.controllers;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
-import android.os.Environment;
 import android.util.Log;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -284,10 +281,16 @@ public class DBHelper {
 	}
 	
 	public void insertCategory(CategoryItem c) {
+		
+		if (c == null) return;
+		
 		insertCategory(c.getId(), c.getTitle(), c.getUnread());
 	}
 	
 	public void insertCategories(List<CategoryItem> list) {
+		
+		if (list == null) return;
+		
 		for (CategoryItem c : list) {
 			insertCategory(
 					c.getId(),
@@ -323,7 +326,8 @@ public class DBHelper {
 	}
 	
 	public void insertFeed(FeedItem f) {
-		if (f.getCategoryId().startsWith("-")) {
+		
+		if (f == null || f.getCategoryId().startsWith("-")) {
 			return;
 		}
 		
@@ -336,6 +340,9 @@ public class DBHelper {
 	}
 	
 	public void insertFeeds(List<FeedItem> list) {
+		
+		if (list == null) return;
+		
 		for (FeedItem f : list) {
 			if (f.getCategoryId().startsWith("-")) {
 				continue;
@@ -386,6 +393,9 @@ public class DBHelper {
 	}
 	
 	public void insertArticle(ArticleItem a, int number) {
+		
+		if (a == null) return;
+		
 		insertArticleInternal(a);
 		purgeArticlesNumber(number);
 	}
@@ -403,11 +413,17 @@ public class DBHelper {
 	}
 	
 	public void insertArticles(List<ArticleItem> list, int number) {
+		
+		if (list == null) return;
+		
 		insertArticlesInternal(list);
 		purgeArticlesNumber(number);
 	}
 	
 	public void insertArticlesInternal(List<ArticleItem> list) {
+		
+		if (list == null) return;
+		
 		for (ArticleItem a : list) {
 			insertArticle(
 					a.getId(),
