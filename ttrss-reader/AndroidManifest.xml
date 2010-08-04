@@ -21,7 +21,6 @@
 		<activity android:name=".gui.activities.ArticleActivity"
 			android:noHistory="true" />
 		<activity android:name=".gui.activities.PreferencesActivity" />
-<!--		<activity android:name=".gui.activities.CategoryActivity" />-->
 		<activity android:name=".gui.activities.ConnectionErrorActivity" />
 		<activity android:name=".gui.activities.AboutActivity"
 			android:theme="@android:style/Theme.Dialog"
@@ -29,7 +28,9 @@
 	</application>
 
 	<uses-sdk android:minSdkVersion="3" />
+	
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.VIBRATE" />
 
 </manifest> 

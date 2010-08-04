@@ -12,6 +12,8 @@ TODO
 - Removed Tabs, they were unneccessary since we have uncategorized feeds as a virtual category now
 - Added preference for "automatically open url for empty article".
 - Added preference for "automatically load data of categories below the current level".
+- Added preference for "use volume-keys to navigate to previous/next articles".
+- Added preference for "vibrate when first/last articles is reached".
 
 0.4.0
 - Mark everything as read button
