@@ -39,6 +39,8 @@ public class Controller {
 	private boolean mOpenUrlEmptyArticle;
 	private boolean mUpdateUnreadOnStartup;
 	private boolean mRefreshSubData;
+	private boolean mUseVolumeKeys;
+	private boolean mVibrateOnLastArticle;
 	
 	private boolean mDisplayVirtuals;
 	private boolean mDisplayUnreadInVirtualFeeds;
@@ -78,6 +80,8 @@ public class Controller {
 		mOpenUrlEmptyArticle = prefs.getBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);
 		mUpdateUnreadOnStartup = prefs.getBoolean(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, false);
 		mRefreshSubData = prefs.getBoolean(Constants.USAGE_REFRESH_SUB_DATA, false);
+		mUseVolumeKeys = prefs.getBoolean(Constants.USAGE_USE_VOLUME_KEYS, true);
+		mVibrateOnLastArticle = prefs.getBoolean(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE, true);
 		
 		// Display
 		mDisplayVirtuals = prefs.getBoolean(Constants.DISPLAY_SHOW_VIRTUAL, true);
@@ -146,6 +150,22 @@ public class Controller {
 
 	public void setRefreshSubData(boolean refreshSubData) {
 		this.mRefreshSubData = refreshSubData;
+	}
+
+	public boolean isUseVolumeKeys() {
+		return mUseVolumeKeys;
+	}
+
+	public void setUseVolumeKeys(boolean useVolumeKeys) {
+		this.mUseVolumeKeys = useVolumeKeys;
+	}
+
+	public boolean isVibrateOnLastArticle() {
+		return mVibrateOnLastArticle;
+	}
+
+	public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
+		this.mVibrateOnLastArticle = vibrateOnLastArticle;
 	}
 
 	public boolean isDisplayVirtuals() {

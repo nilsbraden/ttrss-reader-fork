@@ -28,12 +28,15 @@ import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.article.ArticleItemAdapter;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -47,6 +50,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	public static final String ARTICLE_ID = "ARTICLE_ID";
 	public static final String FEED_ID = "FEED_ID";
 	public static final String ARTICLE_LIST = "ARTICLE_LIST";
+	
+	public static final long SHORT_VIBRATE = 50;
 	
 	private static final int MENU_MARK_READ = Menu.FIRST;
 	private static final int MENU_MARK_UNREAD = Menu.FIRST + 1;
@@ -79,6 +84,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.getSettings().setBuiltInZoomControls(true);
 		mGestureDetector = new GestureDetector(onGestureListener);
+		findViewById(R.layout.articleitem);
 		
 		webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
 		webviewSwipeText.setVisibility(TextView.INVISIBLE);
@@ -195,8 +201,14 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		Intent i = new Intent(this, ArticleActivity.class);
 		
 		int index = mArticleIds.indexOf(mArticleId) + 1;
+
+		// No more articles in this direction
 		if (index < 0 || index >= mArticleIds.size()) {
-			Log.i(Utils.TAG, "openPreviousArticle() FeedID: " + mFeedId + " and Can't open Article with index " + index);
+			if (Controller.getInstance().isVibrateOnLastArticle()) {
+				Log.i(Utils.TAG, "No more articles, vibrate..");
+				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+				v.vibrate(SHORT_VIBRATE);
+			}
 			return;
 		}
 		
@@ -213,8 +225,14 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		Intent i = new Intent(this, ArticleActivity.class);
 		
 		int index = mArticleIds.indexOf(mArticleId) - 1;
+		
+		// No more articles in this direction
 		if (index < 0 || index >= mArticleIds.size()) {
-			Log.i(Utils.TAG, "openNextArticle() FeedID: " + mFeedId + " and Can't open Article with index " + index);
+			if (Controller.getInstance().isVibrateOnLastArticle()) {
+				Log.i(Utils.TAG, "No more articles, vibrate..");
+				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+				v.vibrate(SHORT_VIBRATE);
+			}
 			return;
 		}
 		
@@ -302,6 +320,36 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		public void onShowPress(MotionEvent e) { }
 	};
 	
+	
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// Intercept the volume-key-events if preference is set
+		if (Controller.getInstance().isUseVolumeKeys()) {
+		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+		        openNextOlderArticle();
+		        return true;
+		    } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+		        openNextNewerArticle();
+		        return true;
+		    }
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+	
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		// Intercept the volume-key-events if preference is set
+		if (Controller.getInstance().isUseVolumeKeys()) {
+		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+		        return true;
+		    }
+		    else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+		        return true;
+		    }
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+
+	
+	
 	private void openConnectionErrorDialog(String errorMessage) {
 		Intent i = new Intent(this, ConnectionErrorActivity.class);
 		i.putExtra(ConnectionErrorActivity.ERROR_MESSAGE, errorMessage);
@@ -326,11 +374,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 				
 				// TODO: FIXTHIS
 				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkRead())) {
-//					new ReadStateUpdater(mArticleItem, mFeedId).execute(0);
-
 					setProgressBarIndeterminateVisibility(true);
 					new Updater(this, new ReadStateUpdater(mAdapter.getArticle(), mFeedId, 0)).execute();
-					
 					mArticleItem.setUnread(false);
 				}
 				

@@ -50,6 +50,18 @@
 			android:defaultValue="false"
 			android:summary="@string/UsageRefreshSubDataSummary"
 			android:key="UsageRefreshSubDataPreference" />
+			
+		<CheckBoxPreference
+			android:title="@string/UsageUseVolumeKeysTitle"
+			android:defaultValue="true"
+			android:summary="@string/UsageUseVolumeKeysSummary"
+			android:key="UsageUseVolumeKeysPreference" />
+			
+		<CheckBoxPreference
+			android:title="@string/UsageVibrateOnLastArticleTitle"
+			android:defaultValue="true"
+			android:summary="@string/UsageVibrateOnLastArticleSummary"
+			android:key="UsageVibrateOnLastArticlePreference" />
 
 	</PreferenceCategory>
 	

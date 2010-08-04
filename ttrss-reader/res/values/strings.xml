@@ -41,8 +41,12 @@
 <string name="UsageOpenUrlEmptyArticleSummary">Automatically visits the Website of the article in the browser if the content is empty.</string>
 <string name="UsageUpdateArticlesOnStartupTitle">Update all articles with content on startup</string>
 <string name="UsageUpdateArticlesOnStartupSummary">Loads all unread articles including their content on startup.</string>
-<string name="UsageRefreshSubDataTitle">Refresh data of sub-categories </string>
+<string name="UsageRefreshSubDataTitle">Refresh data of sub-categories</string>
 <string name="UsageRefreshSubDataSummary">Loads the data for the next level of display in background when loading a view.</string>
+<string name="UsageUseVolumeKeysTitle">Navigate through articles with volume-keys</string>
+<string name="UsageUseVolumeKeysSummary">Press up for the next newer article, down for older article.</string>
+<string name="UsageVibrateOnLastArticleTitle">Vibrate when reached last article</string>
+<string name="UsageVibrateOnLastArticleSummary">Vibrates once when the first or last article is reached and tried to access the next article.</string>
 
 <string name="DisplayPreferenceCategoryTitle">Display</string>
 <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
