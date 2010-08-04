@@ -18,8 +18,7 @@
 
 		<activity android:name=".gui.activities.FeedListActivity" />
 		<activity android:name=".gui.activities.FeedHeadlineListActivity" />
-		<activity android:name=".gui.activities.ArticleActivity"
-			android:noHistory="true" />
+		<activity android:name=".gui.activities.ArticleActivity" /> <!-- android:noHistory="true" />-->
 		<activity android:name=".gui.activities.PreferencesActivity" />
 		<activity android:name=".gui.activities.ConnectionErrorActivity" />
 		<activity android:name=".gui.activities.AboutActivity"

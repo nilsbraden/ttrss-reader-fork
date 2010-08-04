@@ -219,6 +219,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		Log.i(Utils.TAG, "openPreviousArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
 		
 		startActivityForResult(i, 0);
+		finish();
 	}
 	
 	private void openNextOlderArticle() {
@@ -243,6 +244,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		Log.i(Utils.TAG, "openNextArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
 		
 		startActivityForResult(i, 0);
+		finish();
 	}
 	
 	@Override
