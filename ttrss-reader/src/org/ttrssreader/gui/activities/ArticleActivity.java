@@ -324,7 +324,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	
 	
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// Intercept the volume-key-events if preference is set
 		if (Controller.getInstance().isUseVolumeKeys()) {
 		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
 		    	openNextNewerArticle();
@@ -338,12 +337,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	}
 	
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		// Intercept the volume-key-events if preference is set
 		if (Controller.getInstance().isUseVolumeKeys()) {
-		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-		        return true;
-		    }
-		    else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
 		        return true;
 		    }
 		}

@@ -80,6 +80,24 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		return mFeeds;
 	}
 	
+	public ArrayList<String> getFeedIds() {
+		ArrayList<String> ret = new ArrayList<String>();
+		
+		for (FeedItem f : mFeeds) {
+			ret.add(f.getId());
+		}
+		return ret;
+	}
+
+	public ArrayList<String> getFeedNames() {
+		ArrayList<String> ret = new ArrayList<String>();
+		
+		for (FeedItem f : mFeeds) {
+			ret.add(f.getTitle());
+		}
+		return ret;
+	}
+	
 	public int getTotalUnreadCount() {
 		int result = 0;
 		
