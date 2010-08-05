@@ -36,7 +36,6 @@ import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
-import android.util.Log;
 
 public class TTRSSJsonConnector implements ITTRSSConnector {
 
@@ -62,8 +61,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String FEED_ID_NAME = "feed_id";
 	private static final String UPDATED_NAME = "updated";
 	private static final String CONTENT_NAME = "content";
-	private static final String URL_NAME = "articleUrl";
-	private static final String COMMENT_URL_NAME = "articleCommentUrl";
+	private static final String URL_NAME = "link";
+	private static final String COMMENT_URL_NAME = "comments";
 	private static final String ATTACHMENTS_NAME = "attachments";
 	
 	private String mServerUrl;
@@ -376,7 +375,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		} catch (JSONException e) {
 			mHasLastError = true;
     		mLastError = e.getMessage();
-			e.printStackTrace();
 		}
 		
 		return articleItem;
