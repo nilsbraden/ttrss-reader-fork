@@ -26,6 +26,7 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.article.ArticleItemAdapter;
+import org.ttrssreader.model.article.ArticleUpdateTask;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
@@ -104,6 +105,21 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			mFeedId = "-1";
 			mArticleIds = new ArrayList<String>();
 		}
+		
+		
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				String next = "", prev = "";
+				int index = mArticleIds.indexOf(mArticleId);
+				if (index >= 1 && index < mArticleIds.size() - 1) {
+					next = mArticleIds.get(index+1);
+				}
+				if (index > 1 && index <= mArticleIds.size() - 1) {
+					prev = mArticleIds.get(index-1);
+				}
+				new ArticleUpdateTask().execute(next, prev);
+			}
+		}, 500);
 	}
 	
 	@Override

@@ -24,10 +24,12 @@ import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.feed.FeedListAdapter;
+import org.ttrssreader.model.feed.FeedUpdateTask;
 
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -70,7 +72,13 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		} else {
 			mCategoryId = "-1";
 			mCategoryTitle = null;
-		}		
+		}
+		
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				new FeedUpdateTask().execute(mCategoryId);
+			}
+		}, 500);
 	}
 	
 	@Override

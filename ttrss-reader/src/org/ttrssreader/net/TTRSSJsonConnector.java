@@ -550,7 +550,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				String attId = "";
 				String attUrl = "";
 				
-				// Filter for id and content_url, other fields are not neccessary
+				// Filter for id and content_url, other fields are not necessary
 				for (int k = 0; k < att.getNames().length(); k++) {
 					if (att.getNames().getString(k).equals("id")) {
 						attId = att.getValues().getString(k);

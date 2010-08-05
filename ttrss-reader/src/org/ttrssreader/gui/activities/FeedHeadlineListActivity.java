@@ -25,11 +25,13 @@ import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.feedheadline.FeedHeadlineListAdapter;
+import org.ttrssreader.model.feedheadline.FeedHeadlineUpdateTask;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -94,7 +96,15 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		} else {
 			mFeedId = "-1";
 			mFeedTitle = null;
+			mFeedIds = null;
+			mFeedNames = null;
 		}
+		
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				new FeedHeadlineUpdateTask().execute(mFeedId);
+			}
+		}, 500);
 	}
 	
 	@Override
