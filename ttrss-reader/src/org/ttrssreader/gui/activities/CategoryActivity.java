@@ -27,10 +27,12 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryListAdapter;
+import org.ttrssreader.model.category.CategoryUpdateTask;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,13 +63,14 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		Controller.getInstance().checkAndInitializeController(this);
 		DBHelper.getInstance().checkAndInitializeController(this);
 		
-//		if (Controller.getInstance().isUpdateUnreadOnStartup()) {
-//			doUpdateEverything();
-//		}
-
 		setProgressBarIndeterminateVisibility(false);
-
 		mCategoryListView = getListView();
+
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				new CategoryUpdateTask().execute("");
+			}
+		}, 500);
 	}
 	
 	@Override
@@ -173,11 +176,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		doRefresh();
 	}
 	
-//	private void doUpdateEverything() {
-//		setProgressBarIndeterminateVisibility(true);
-//		new Updater(this, new DataUpdater());
-//	}
-	
 	private void openPreferences() {
 		Intent i = new Intent(this, PreferencesActivity.class);
 		Log.e(Utils.TAG, "Starting PreferencesActivity");
@@ -225,7 +223,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
 		setProgressBarIndeterminateVisibility(false);
-		DataController.getInstance().disableForceFullRefresh();
 	}
 	
 	@Override
