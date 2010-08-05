@@ -103,6 +103,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		Intent i = new Intent(this, FeedHeadlineListActivity.class);
 		i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getFeedId(position));
 		i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getFeedTitle(position));
+		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mAdapter.getFeedIds());
+		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mAdapter.getFeedNames());
 
 		startActivityForResult(i, ACTIVITY_SHOW_FEED_HEADLINE);
 	}

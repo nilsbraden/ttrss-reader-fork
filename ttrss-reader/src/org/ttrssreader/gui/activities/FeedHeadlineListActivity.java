@@ -15,6 +15,7 @@
 
 package org.ttrssreader.gui.activities;
 
+import java.util.ArrayList;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
@@ -24,13 +25,21 @@ import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.feedheadline.FeedHeadlineListAdapter;
+import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.GestureDetector.OnGestureListener;
 import android.widget.ListView;
 
 public class FeedHeadlineListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
@@ -41,12 +50,20 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	private static final int MENU_MARK_ALL_READ = Menu.FIRST + 1;
 	private static final int MENU_MARK_ALL_UNREAD = Menu.FIRST + 2;
 	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
+
+	public static final long SHORT_VIBRATE = 50;
 	
 	public static final String FEED_ID = "FEED_ID";
 	public static final String FEED_TITLE = "FEED_TITLE";
+	public static final String FEED_LIST = "FEED_LIST";
+	public static final String FEED_LIST_NAMES = "FEED_LIST_NAMES";
 	
 	private String mFeedId;
 	private String mFeedTitle;
+	private ArrayList<String> mFeedIds;
+	private ArrayList<String> mFeedNames;
+	private boolean useSwipe;
+	private GestureDetector mGestureDetector;
 	
 	private ListView mFeedHeadlineListView;
 	private FeedHeadlineListAdapter mAdapter = null;
@@ -59,14 +76,21 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 
 		setProgressBarIndeterminateVisibility(false);
 		mFeedHeadlineListView = getListView();
+
+		useSwipe = Controller.getInstance().isUseSwipe();
+		mGestureDetector = new GestureDetector(onGestureListener);
 		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mFeedId = extras.getString(FEED_ID);
 			mFeedTitle = extras.getString(FEED_TITLE);
+			mFeedIds = extras.getStringArrayList(FEED_LIST);
+			mFeedNames = extras.getStringArrayList(FEED_LIST_NAMES);
 		} else if (savedInstanceState != null) {
 			mFeedId = savedInstanceState.getString(FEED_ID);
 			mFeedTitle = savedInstanceState.getString(FEED_TITLE);
+			mFeedIds = savedInstanceState.getStringArrayList(FEED_LIST);
+			mFeedNames = savedInstanceState.getStringArrayList(FEED_LIST_NAMES);
 		} else {
 			mFeedId = "-1";
 			mFeedTitle = null;
@@ -159,6 +183,140 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
 		doRefresh();
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	private void openNextFeed() {
+		int index = mFeedIds.indexOf(mFeedId) + 1;
+
+		// No more feeds in this direction
+		if (index < 0 || index >= mFeedIds.size()) {
+			if (Controller.getInstance().isVibrateOnLastArticle()) {
+				Log.i(Utils.TAG, "No more feeds, vibrate..");
+				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+				v.vibrate(SHORT_VIBRATE);
+			}
+			return;
+		}
+
+		Intent i = new Intent(this, FeedHeadlineListActivity.class);
+		i.putExtra(FeedHeadlineListActivity.FEED_ID, mFeedIds.get(index));
+		i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mFeedNames.get(index));
+		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mFeedIds);
+		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mFeedNames);
+		
+		startActivityForResult(i, 0);
+		finish();
+	}
+	
+	private void openPreviousFeed() {
+		int index = mFeedIds.indexOf(mFeedId) - 1;
+		
+		// No more feeds in this direction
+		if (index < 0 || index >= mFeedIds.size()) {
+			if (Controller.getInstance().isVibrateOnLastArticle()) {
+				Log.i(Utils.TAG, "No more feeds, vibrate..");
+				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+				v.vibrate(SHORT_VIBRATE);
+			}
+			return;
+		}
+		
+		Intent i = new Intent(this, FeedHeadlineListActivity.class);
+		i.putExtra(FeedHeadlineListActivity.FEED_ID, mFeedIds.get(index));
+		i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mFeedNames.get(index));
+		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mFeedIds);
+		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mFeedNames);
+		
+		startActivityForResult(i, 0);
+		finish();
+	}
+	
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent e){
+		super.dispatchTouchEvent(e);
+		return mGestureDetector.onTouchEvent(e);
+	}
+	
+	private OnGestureListener onGestureListener = new OnGestureListener() {
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			
+			if (!useSwipe) {
+				// Swiping is disabled in preferences
+				return false;
+			}
+			
+			int dx = (int) (e2.getX() - e1.getX());
+			int dy = (int) (e2.getY() - e1.getY());
+			
+			if (Math.abs(dy) > 60) {
+				// Too much Y-Movement
+				return false;
+			}
+			
+			
+			// don't accept the fling if it's too short as it may conflict with a button push
+			if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
+				
+				Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY() + 
+						") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
+				
+				if (velocityX > 0) {
+					openPreviousFeed();
+				} else {
+					openNextFeed();
+				}
+				return true;
+			}
+			return false;
+		}
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) { return false; }
+		@Override
+		public boolean onDown(MotionEvent e) { return false; }
+		@Override
+		public void onLongPress(MotionEvent e) { }
+		@Override
+		public void onShowPress(MotionEvent e) { }
+	};
+	
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (Controller.getInstance().isUseVolumeKeys()) {
+		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+		    	openNextFeed();
+		        return true;
+		    } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+		    	openPreviousFeed();
+		        return true;
+		    }
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+	
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (Controller.getInstance().isUseVolumeKeys()) {
+		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+		        return true;
+		    }
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+	
+	
+	
+	
+	
+	
 	
 	private void openConnectionErrorDialog(String errorMessage) {
 		Intent i = new Intent(this, ConnectionErrorActivity.class);
