@@ -352,9 +352,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				} else if (names.getString(i).equals(COMMENT_URL_NAME)) {
 					articleCommentUrl = values.getString(i);
 				} else if (names.getString(i).equals(ATTACHMENTS_NAME)) {
-					
-					if (!(values.get(i) instanceof JSONArray)) continue;
-					
 					Map<String, String> map = handleAttachments((JSONArray) values.get(i));
 					if (map.size() > 0) {
 						attachments += "<br>\n";
@@ -606,7 +603,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				finalResult.add(parseDataForArticle(names, values));
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
 			mHasLastError = true;
 			mLastError = e.getMessage();
 		}
