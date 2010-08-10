@@ -58,10 +58,15 @@ public class ConnectionErrorActivity extends Activity {
 		Button closeBtn = (Button) this.findViewById(R.id.ConnectionErrorActivity_CloseBtn);
 		closeBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				finish();
-			}
-		});
-	}
+				 closeButtonPressed();
+			 }
+		 });
+	 }
+	 
+	 public void closeButtonPressed() {
+		 super.finish();
+		 this.finish();
+	 }
 	
 	private void openPreferences() {
 		Intent preferencesActivity = new Intent(this, PreferencesActivity.class);

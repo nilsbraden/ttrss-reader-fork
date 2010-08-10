@@ -40,6 +40,8 @@ public interface ITTRSSConnector {
 	
 	public void setRead(String id, boolean isCategory);
 	
+	public Map<CategoryItem, List<FeedItem>> getCounters();
+	
 	public boolean hasLastError();
 	public String getLastError();
 	

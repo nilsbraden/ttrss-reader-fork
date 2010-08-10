@@ -113,7 +113,8 @@ public class PreferencesActivity extends PreferenceActivity {
 		editor.putString(Constants.DISPLAY_ARTICLE_LIMIT, "100");
 		
 		editor.commit();
-		finish();
+		super.finish();
+		this.finish();
 		ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
 		startActivity(new Intent().setComponent(comp));
 	}

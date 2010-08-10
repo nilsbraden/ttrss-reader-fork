@@ -25,6 +25,7 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.feed.FeedListAdapter;
 import org.ttrssreader.model.feed.FeedUpdateTask;
+import org.ttrssreader.utils.Utils;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -78,7 +79,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			public void run() {
 				new FeedUpdateTask().execute(mCategoryId);
 			}
-		}, 500);
+		}, Utils.WAIT);
 	}
 	
 	@Override
