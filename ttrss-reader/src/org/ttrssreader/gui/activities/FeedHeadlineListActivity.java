@@ -121,6 +121,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (mAdapter != null) mAdapter.notifyDataSetChanged();
 		doRefresh();
 	}
 	

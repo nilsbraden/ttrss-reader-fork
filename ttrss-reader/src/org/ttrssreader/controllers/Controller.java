@@ -48,6 +48,8 @@ public class Controller {
 	private boolean mDisplayOnlyUnread;
 	private int mArticleLimit;
 	
+	private int mDatabaseVersion;
+	
 	private Controller() {
 	}
 	
@@ -94,6 +96,15 @@ public class Controller {
 			mArticleLimit = 100;
 			Log.e(Utils.TAG, "DISPLAY_ARTICLE_LIMIT was not an integer value, using default value: " + mArticleLimit);
 		}
+		
+		// Internal Data
+		try {
+			mDatabaseVersion = Integer.parseInt(prefs.getString(Constants.DATABASE_VERSION, "0"));
+		} catch (ClassCastException e) {
+			mDatabaseVersion = 0;
+			Log.e(Utils.TAG, "DATABASE_VERSION was not an integer value, using default value: 0");
+		}
+		
 	}
 	
 	public synchronized void checkAndInitializeController(final Context context) {
@@ -138,6 +149,9 @@ public class Controller {
 	}
 	
 	public void setUpdateUnreadOnStartup(boolean mUpdateUnreadOnStartup) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, mUpdateUnreadOnStartup);
+		editor.commit();
 		this.mUpdateUnreadOnStartup = mUpdateUnreadOnStartup;
 	}
 	
@@ -146,6 +160,9 @@ public class Controller {
 	}
 	
 	public void setRefreshSubData(boolean refreshSubData) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.USAGE_REFRESH_SUB_DATA, refreshSubData);
+		editor.commit();
 		this.mRefreshSubData = refreshSubData;
 	}
 	
@@ -154,6 +171,9 @@ public class Controller {
 	}
 	
 	public void setUseVolumeKeys(boolean useVolumeKeys) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.USAGE_USE_VOLUME_KEYS, useVolumeKeys);
+		editor.commit();
 		this.mUseVolumeKeys = useVolumeKeys;
 	}
 	
@@ -162,6 +182,9 @@ public class Controller {
 	}
 	
 	public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE, vibrateOnLastArticle);
+		editor.commit();
 		this.mVibrateOnLastArticle = vibrateOnLastArticle;
 	}
 	
@@ -229,6 +252,17 @@ public class Controller {
 		editor.putInt(Constants.DISPLAY_ARTICLE_LIMIT, articleLimit);
 		editor.commit();
 		this.mArticleLimit = articleLimit;
+	}
+	
+	public int getDatabaseVersion() {
+		return mDatabaseVersion;
+	}
+
+	public void setDatabaseVersion(int databaseVersion) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putInt(Constants.DATABASE_VERSION, databaseVersion);
+		editor.commit();
+		this.mDatabaseVersion = databaseVersion;
 	}
 	
 }

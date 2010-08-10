@@ -618,7 +618,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			login();
 			
 			if (mHasLastError) {
-				return null;
+				return ret;
 			}
 		}
 		

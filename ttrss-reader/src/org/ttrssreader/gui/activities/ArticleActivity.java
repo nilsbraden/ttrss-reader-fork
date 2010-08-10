@@ -399,11 +399,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 					this.setTitle(this.getResources().getString(R.string.ApplicationName));
 				}
 				
-				// TODO: FIXTHIS
 				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkRead())) {
 					setProgressBarIndeterminateVisibility(true);
 					new Updater(this, new ReadStateUpdater(mAdapter.getArticle(), mFeedId, 0)).execute();
-					mArticleItem.setUnread(false);
 				}
 				
 				if (mArticleItem.getContent().length() < 3) {
