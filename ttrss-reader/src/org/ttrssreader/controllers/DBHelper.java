@@ -36,9 +36,9 @@ public class DBHelper {
 	
 	private static DBHelper mInstance = null;
 	private boolean mIsControllerInitialized = false;
-//	private boolean mDBLocationSDCard = false;
-
-//	private static final String DATABASE_PATH = "ttrss-reader-fork";
+	// private boolean mDBLocationSDCard = false;
+	
+	// private static final String DATABASE_PATH = "ttrss-reader-fork";
 	private static final String DATABASE_NAME = "ttrss.db";
 	private static final int DATABASE_VERSION = 1;
 	
@@ -72,13 +72,13 @@ public class DBHelper {
 		insertArticle = null;
 		updateArticle = null;
 	}
-
+	
 	public void initializeController(Context c) {
 		context = c;
-
+		
 		OpenHelper openHelper = new OpenHelper(context);
-		db = openHelper.getWritableDatabase();		
-
+		db = openHelper.getWritableDatabase();
+		
 		insertCat = db.compileStatement(INSERT_CAT);
 		insertFeed = db.compileStatement(INSERT_FEEDS);
 		insertArticle = db.compileStatement(INSERT_ARTICLES);
@@ -94,28 +94,28 @@ public class DBHelper {
 		}
 	}
 	
-//	public void switchDB(Context c) {
-//		if (mDBLocationSDCard) {
-//			OpenHelper openHelper = new OpenHelper(context);
-//			db = openHelper.getWritableDatabase();
-//			
-//			insertCat = db.compileStatement(INSERT_CAT);
-//			insertFeed = db.compileStatement(INSERT_FEEDS);
-//			insertArticle = null;
-//			updateArticle = null;
-//		
-//			mDBLocationSDCard = false;
-//		} else {
-//			openDatabase();
-//			
-//			insertCat = db.compileStatement(INSERT_CAT);
-//			insertFeed = db.compileStatement(INSERT_FEEDS);
-//			insertArticle = db.compileStatement(INSERT_ARTICLES);
-//			updateArticle = db.compileStatement(UPDATE_ARTICLES);
-//			
-//			mDBLocationSDCard = true;
-//		}
-//	}
+	// public void switchDB(Context c) {
+	// if (mDBLocationSDCard) {
+	// OpenHelper openHelper = new OpenHelper(context);
+	// db = openHelper.getWritableDatabase();
+	//			
+	// insertCat = db.compileStatement(INSERT_CAT);
+	// insertFeed = db.compileStatement(INSERT_FEEDS);
+	// insertArticle = null;
+	// updateArticle = null;
+	//		
+	// mDBLocationSDCard = false;
+	// } else {
+	// openDatabase();
+	//			
+	// insertCat = db.compileStatement(INSERT_CAT);
+	// insertFeed = db.compileStatement(INSERT_FEEDS);
+	// insertArticle = db.compileStatement(INSERT_ARTICLES);
+	// updateArticle = db.compileStatement(UPDATE_ARTICLES);
+	//			
+	// mDBLocationSDCard = true;
+	// }
+	// }
 	
 	public static DBHelper getInstance() {
 		if (mInstance == null) {
@@ -142,80 +142,79 @@ public class DBHelper {
 		}
 	}
 	
-//	public boolean isSDCardAvailable() {
-//		return mDBLocationSDCard;
-//	}
-//
-//	public void setSDCardAvailable(boolean sDCardAvailable) {
-//		this.mDBLocationSDCard = sDCardAvailable;
-//	}
-//	
-//	/**
-//	 * Opens the SDcard database. If it cannot be opened, it
-//	 * creates a new instance. If a new instance cannot be created, it throws
-//	 * an exception and logs the failure.
-//	 * 
-//	 * @return true if successful
-//	 * @throws SQLException
-//	 *             if the database is unable to be opened or created
-//	 */
-//	public synchronized boolean openDatabase() throws SQLException {
-//		if (db != null && db.isOpen()) {
-//			return true;
-//		} else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-//			Log.w(Utils.TAG, "SDcard not mounted, cant access article-database.");
-//			return false;
-//		} else {
-//			StringBuilder builder = new StringBuilder();
-//			
-//			// open or create a new directory
-//			builder.setLength(0);
-//			builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
-//			
-//			File dir = new File(builder.toString());
-//			dir.mkdirs();
-//			File file = new File(dir, DATABASE_NAME);
-//			
-//			try {
-//				Log.d(Utils.TAG, "Opening database: " + file.getAbsolutePath());
-//				db = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
-//				
-//				// Create tables if they dont exist
-//				createTables();
-//			} catch (SQLException e) {
-//				Log.e(Utils.TAG, "failed to open" + e);
-//				throw e;
-//			}
-//		}
-//		return true;
-//	}
+	// public boolean isSDCardAvailable() {
+	// return mDBLocationSDCard;
+	// }
+	//
+	// public void setSDCardAvailable(boolean sDCardAvailable) {
+	// this.mDBLocationSDCard = sDCardAvailable;
+	// }
+	//	
+	// /**
+	// * Opens the SDcard database. If it cannot be opened, it
+	// * creates a new instance. If a new instance cannot be created, it throws
+	// * an exception and logs the failure.
+	// *
+	// * @return true if successful
+	// * @throws SQLException
+	// * if the database is unable to be opened or created
+	// */
+	// public synchronized boolean openDatabase() throws SQLException {
+	// if (db != null && db.isOpen()) {
+	// return true;
+	// } else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+	// Log.w(Utils.TAG, "SDcard not mounted, cant access article-database.");
+	// return false;
+	// } else {
+	// StringBuilder builder = new StringBuilder();
+	//			
+	// // open or create a new directory
+	// builder.setLength(0);
+	// builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
+	//			
+	// File dir = new File(builder.toString());
+	// dir.mkdirs();
+	// File file = new File(dir, DATABASE_NAME);
+	//			
+	// try {
+	// Log.d(Utils.TAG, "Opening database: " + file.getAbsolutePath());
+	// db = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
+	//				
+	// // Create tables if they dont exist
+	// createTables();
+	// } catch (SQLException e) {
+	// Log.e(Utils.TAG, "failed to open" + e);
+	// throw e;
+	// }
+	// }
+	// return true;
+	// }
 	
 	public synchronized void createTables() {
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_CAT + " (" + 
-				"id INTEGER PRIMARY KEY, " + 
-				"title TEXT, " + 
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_CAT + " (" +
+				"id INTEGER PRIMARY KEY, " +
+				"title TEXT, " +
 				"unread INTEGER)");
 		
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_FEEDS + " (" + 
-				"id INTEGER, " + 
-				"categoryId INTEGER, " + 
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_FEEDS + " (" +
+				"id INTEGER, " +
+				"categoryId INTEGER, " +
 				"title TEXT, " +
-				"url TEXT, " + 
-				"unread INTEGER, " + 
+				"url TEXT, " +
+				"unread INTEGER, " +
 				"PRIMARY KEY( id, categoryId ))");
 		
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ARTICLES + " (" + 
-				"id INTEGER, " + 
-				"feedId INTEGER, " + 
-				"title TEXT, " + 
-				"isUnread INTEGER, " + 
-				"content BLOB, " + 
-				"articleUrl TEXT, " + 
-				"articleCommentUrl TEXT, " + 
-				"updateDate INTEGER, " + 
+		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ARTICLES + " (" +
+				"id INTEGER, " +
+				"feedId INTEGER, " +
+				"title TEXT, " +
+				"isUnread INTEGER, " +
+				"content BLOB, " +
+				"articleUrl TEXT, " +
+				"articleCommentUrl TEXT, " +
+				"updateDate INTEGER, " +
 				"PRIMARY KEY( id , feedId ))");
 	}
-	
 	
 	private static class OpenHelper extends SQLiteOpenHelper {
 		
@@ -225,28 +224,28 @@ public class DBHelper {
 		
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + TABLE_CAT + " (" + 
-					"id INTEGER PRIMARY KEY, " + 
-					"title TEXT, " + 
+			db.execSQL("CREATE TABLE " + TABLE_CAT + " (" +
+					"id INTEGER PRIMARY KEY, " +
+					"title TEXT, " +
 					"unread INTEGER)");
 			
-			db.execSQL("CREATE TABLE " + TABLE_FEEDS + " (" + 
-					"id INTEGER, " + 
-					"categoryId INTEGER, " + 
+			db.execSQL("CREATE TABLE " + TABLE_FEEDS + " (" +
+					"id INTEGER, " +
+					"categoryId INTEGER, " +
 					"title TEXT, "
-					+ "url TEXT, " + 
-					"unread INTEGER, " + 
+					+ "url TEXT, " +
+					"unread INTEGER, " +
 					"PRIMARY KEY( id, categoryId ))");
 			
-			db.execSQL("CREATE TABLE " + TABLE_ARTICLES + " (" + 
-					"id INTEGER, " + 
-					"feedId INTEGER, " + 
-					"title TEXT, " + 
-					"isUnread INTEGER, " + 
-					"content BLOB, " + 
-					"articleUrl TEXT, " + 
-					"articleCommentUrl TEXT, " + 
-					"updateDate INTEGER, " + 
+			db.execSQL("CREATE TABLE " + TABLE_ARTICLES + " (" +
+					"id INTEGER, " +
+					"feedId INTEGER, " +
+					"title TEXT, " +
+					"isUnread INTEGER, " +
+					"content BLOB, " +
+					"articleUrl TEXT, " +
+					"articleCommentUrl TEXT, " +
+					"updateDate INTEGER, " +
 					"PRIMARY KEY( id , feedId ))");
 		}
 		
@@ -263,14 +262,12 @@ public class DBHelper {
 	// *******| INSERT |*******************************************************************
 	
 	private long insertCategory(String id, String title, int unread) {
-
-		if (id == null)
-			return 0;
-		if (title == null)
-			title = "";
-
+		
+		if (id == null) return 0;
+		if (title == null) title = "";
+		
 		long ret = 0;
-		synchronized(this) {
+		synchronized (this) {
 			insertCat.bindString(1, id);
 			insertCat.bindString(2, title);
 			insertCat.bindLong(3, unread);
@@ -300,20 +297,15 @@ public class DBHelper {
 	}
 	
 	private long insertFeed(String feedId, String categoryId, String title, String url, int unread) {
-
-		if (feedId == null)
-			return 0;
-		if (categoryId == null)
-			categoryId = "";
-		if (title == null)
-			title = "";
-		if (url == null)
-			url = "";
-		if (title == null)
-			title = "";
-
+		
+		if (feedId == null) return 0;
+		if (categoryId == null) categoryId = "";
+		if (title == null) title = "";
+		if (url == null) url = "";
+		if (title == null) title = "";
+		
 		long ret = 0;
-		synchronized(this) {
+		synchronized (this) {
 			insertFeed.bindLong(1, new Integer(feedId).longValue());
 			insertFeed.bindLong(2, new Integer(categoryId).longValue());
 			insertFeed.bindString(3, title);
@@ -332,11 +324,11 @@ public class DBHelper {
 		}
 		
 		insertFeed(
-			f.getId(),
-			f.getCategoryId(),
-			f.getTitle(),
-			f.getUrl(),
-			f.getUnread());
+				f.getId(),
+				f.getCategoryId(),
+				f.getTitle(),
+				f.getUrl(),
+				f.getUnread());
 	}
 	
 	public void insertFeeds(List<FeedItem> list) {
@@ -360,23 +352,16 @@ public class DBHelper {
 	private long insertArticle(String articleId, String feedId, String title, boolean isUnread, String content,
 			String articleUrl, String articleCommentUrl, Date updateDate) {
 		
-		if (articleId == null)
-			return 0;
-		if (feedId == null)
-			feedId = "";
-		if (title == null)
-			title = "";
-		if (content == null)
-			content = "";
-		if (articleUrl == null)
-			articleUrl = "";
-		if (articleCommentUrl == null)
-			articleCommentUrl = "";
-		if (updateDate == null)
-			updateDate = new Date(System.currentTimeMillis());
-
+		if (articleId == null) return 0;
+		if (feedId == null) feedId = "";
+		if (title == null) title = "";
+		if (content == null) content = "";
+		if (articleUrl == null) articleUrl = "";
+		if (articleCommentUrl == null) articleCommentUrl = "";
+		if (updateDate == null) updateDate = new Date(System.currentTimeMillis());
+		
 		long ret = 0;
-		synchronized(this) {
+		synchronized (this) {
 			insertArticle.bindLong(1, Long.parseLong(articleId));
 			insertArticle.bindLong(2, Long.parseLong(feedId));
 			insertArticle.bindString(3, title);
@@ -461,7 +446,7 @@ public class DBHelper {
 	public void markArticlesRead(List<String> list, int articleState) {
 		boolean isUnread = articleState == 0 ? false : true;
 		for (String id : list) {
-			db.execSQL("UPDATE " + TABLE_ARTICLES + 
+			db.execSQL("UPDATE " + TABLE_ARTICLES +
 					" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "'");
 		}
 	}
@@ -483,7 +468,7 @@ public class DBHelper {
 	public void updateArticleUnread(String id, String feedId, boolean isUnread) {
 		if (id == null || feedId == null) return;
 		
-		db.execSQL("UPDATE " + TABLE_ARTICLES + 
+		db.execSQL("UPDATE " + TABLE_ARTICLES +
 				" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "' and feedId='" + feedId + "'");
 	}
 	
@@ -497,18 +482,13 @@ public class DBHelper {
 		String articleCommentUrl = result.getArticleCommentUrl();
 		Date updateDate = result.getUpdateDate();
 		
-		if (content == null)
-			content = "";
-		if (title == null)
-			title = "";
-		if (articleUrl == null)
-			articleUrl = "";
-		if (articleCommentUrl == null)
-			articleCommentUrl = "";
-		if (updateDate == null)
-			updateDate = new Date();
-
-		synchronized(this) {
+		if (content == null) content = "";
+		if (title == null) title = "";
+		if (articleUrl == null) articleUrl = "";
+		if (articleCommentUrl == null) articleCommentUrl = "";
+		if (updateDate == null) updateDate = new Date();
+		
+		synchronized (this) {
 			byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
 			updateArticle.bindBlob(1, contentBytes);
 			updateArticle.bindString(2, title);
@@ -580,7 +560,6 @@ public class DBHelper {
 		return ret;
 	}
 	
-	
 	public List<ArticleItem> getArticles(FeedItem fi) {
 		List<ArticleItem> ret = new ArrayList<ArticleItem>();
 		
@@ -611,10 +590,9 @@ public class DBHelper {
 		return ret;
 	}
 	
-	
 	/**
 	 * Returns the maxArticles newest articles, mapped in lists to their feed-id.
-	 * Returns all articles if maxArticles is 0 or lower. 
+	 * Returns all articles if maxArticles is 0 or lower.
 	 */
 	public Map<String, List<ArticleItem>> getArticles(int maxArticles) {
 		Map<String, List<ArticleItem>> ret = new HashMap<String, List<ArticleItem>>();
@@ -674,7 +652,7 @@ public class DBHelper {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
 		Cursor c = db.query(TABLE_CAT, null, "id like '-%' OR id=0", null, null, null, null);
-
+		
 		while (!c.isAfterLast()) {
 			CategoryItem ci = handleCategoryCursor(c);
 			
@@ -701,7 +679,6 @@ public class DBHelper {
 		
 		return ret;
 	}
-
 	
 	// *******************************************
 	
@@ -726,14 +703,14 @@ public class DBHelper {
 			Log.w(Utils.TAG, "Could not decode content or title. length: " + content.length);
 		}
 		
-		ret = new ArticleItem(key,					// feedId
-				c.getString(0),						// id
-				c.getString(2),						// title
-				(c.getInt(3) != 0 ? true : false),	// isUnread
-				new Date(c.getLong(7)),				// updateDate
-				contentStr,							// content
-				c.getString(5),						// articleUrl
-				c.getString(6)						// articleCommentUrl
+		ret = new ArticleItem(key, // feedId
+				c.getString(0), // id
+				c.getString(2), // title
+				(c.getInt(3) != 0 ? true : false), // isUnread
+				new Date(c.getLong(7)), // updateDate
+				contentStr, // content
+				c.getString(5), // articleUrl
+				c.getString(6) // articleCommentUrl
 		);
 		
 		return ret;
@@ -749,11 +726,11 @@ public class DBHelper {
 		}
 		
 		ret = new FeedItem(
-				c.getString(1),			// categoryId
-				c.getString(0), 		// id
-				c.getString(2),			// title
-				c.getString(3),			// url
-				c.getInt(4));			// unread
+				c.getString(1), // categoryId
+				c.getString(0), // id
+				c.getString(2), // title
+				c.getString(3), // url
+				c.getInt(4)); // unread
 		
 		return ret;
 	}
@@ -766,11 +743,11 @@ public class DBHelper {
 				return ret;
 			}
 		}
-
+		
 		ret = new CategoryItem(
-				c.getString(0),			// id
-				c.getString(1),			// title
-				(int) c.getLong(2));	// unread
+				c.getString(0), // id
+				c.getString(1), // title
+				(int) c.getLong(2)); // unread
 		
 		return ret;
 	}

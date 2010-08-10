@@ -2,14 +2,14 @@
  * Tiny Tiny RSS Reader for Android
  * 
  * Copyright (C) 2009 J. Devauchelle and contributors.
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
 
@@ -29,7 +29,6 @@ public class ReadStateUpdater implements IUpdatable {
 	List<ArticleItem> mList = null;
 	private String mPid = "";
 	private int mArticleState;
-	
 	
 	public ReadStateUpdater(List<CategoryItem> list, int articleState) {
 		mList = new ArrayList<ArticleItem>();
@@ -75,7 +74,6 @@ public class ReadStateUpdater implements IUpdatable {
 		mArticleState = articleState;
 	}
 	
-	
 	@Override
 	public void update() {
 		
@@ -84,7 +82,7 @@ public class ReadStateUpdater implements IUpdatable {
 		
 		List<String> idList = new ArrayList<String>();
 		mList = filterList();
-
+		
 		for (ArticleItem article : mList) {
 			// Build a list of article ids to update.
 			idList.add(article.getId());
@@ -123,25 +121,25 @@ public class ReadStateUpdater implements IUpdatable {
 					("-4".equals(mPid))) {
 				
 				DataController.getInstance()
-					.getArticleHeadline(mPid, articleId).setUnread(bState);
+						.getArticleHeadline(mPid, articleId).setUnread(bState);
 				
 				DataController.getInstance()
-					.getVirtualCategory(mPid).setDeltaUnreadCount(iState);
+						.getVirtualCategory(mPid).setDeltaUnreadCount(iState);
 			}
 		}
 		
 		if (idList.size() > 0) {
 			Controller.getInstance().getTTRSSConnector().setArticleRead(idList, mArticleState);
 			DBHelper.getInstance().markArticlesRead(idList, mArticleState);
-					
-			int deltaUnread = mArticleState == 1 ? mList.size() : - mList.size();
+			
+			int deltaUnread = mArticleState == 1 ? mList.size() : -mList.size();
 			DataController.getInstance().getVirtualCategory("-4").setDeltaUnreadCount(deltaUnread);
 		}
 	}
 	
 	public List<ArticleItem> filterList() {
 		List<ArticleItem> ret = new ArrayList<ArticleItem>();
-
+		
 		boolean state = mArticleState == 0 ? true : false;
 		
 		for (ArticleItem a : mList) {
@@ -154,5 +152,5 @@ public class ReadStateUpdater implements IUpdatable {
 		
 		return ret;
 	}
-
+	
 }

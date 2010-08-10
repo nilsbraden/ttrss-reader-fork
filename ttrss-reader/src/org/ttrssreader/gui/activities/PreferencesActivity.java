@@ -2,14 +2,14 @@
  * Tiny Tiny RSS Reader for Android
  * 
  * Copyright (C) 2009 J. Devauchelle and contributors.
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
 
@@ -19,7 +19,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
-
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -48,33 +47,33 @@ public class PreferencesActivity extends PreferenceActivity {
 	private void updatePreferences() {
 		Controller.getInstance().initializeController(this);
 	}
-
 	
 	private OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
+		
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 			if ((key.equals(Constants.CONNECTION_URL)) ||
-				(key.equals(Constants.CONNECTION_USERNAME)) ||
-				(key.equals(Constants.CONNECTION_PASSWORD)) ||
-				
-				(key.equals(Constants.USAGE_AUTOMATIC_MARK_READ)) ||
-				(key.equals(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE)) ||
+					(key.equals(Constants.CONNECTION_USERNAME)) ||
+					(key.equals(Constants.CONNECTION_PASSWORD)) ||
 
-				(key.equals(Constants.DISPLAY_SHOW_VIRTUAL)) ||
-				(key.equals(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD)) ||
-				(key.equals(Constants.DISPLAY_ALWAYS_FULL_REFRESH)) ||
-				(key.equals(Constants.DISPLAY_USE_SWIPE)) ||
-				(key.equals(Constants.DISPLAY_ONLY_UNREAD)) ||
-				(key.equals(Constants.DISPLAY_ARTICLE_LIMIT)) ||
-					
-				false) {
+					(key.equals(Constants.USAGE_AUTOMATIC_MARK_READ)) ||
+					(key.equals(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE)) ||
+
+					(key.equals(Constants.DISPLAY_SHOW_VIRTUAL)) ||
+					(key.equals(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD)) ||
+					(key.equals(Constants.DISPLAY_ALWAYS_FULL_REFRESH)) ||
+					(key.equals(Constants.DISPLAY_USE_SWIPE)) ||
+					(key.equals(Constants.DISPLAY_ONLY_UNREAD)) ||
+					(key.equals(Constants.DISPLAY_ARTICLE_LIMIT)) ||
+
+					false) {
 				updatePreferences();
 			}
 		}
 	};
 	
 	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		
 		MenuItem item;
@@ -83,10 +82,10 @@ public class PreferencesActivity extends PreferenceActivity {
 		item.setIcon(R.drawable.refresh32);
 		
 		return true;
-    }
+	}
 	
 	@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 			case MENU_RESET_PREFERENCES:
 				resetPreferences();
@@ -94,7 +93,7 @@ public class PreferencesActivity extends PreferenceActivity {
 		}
 		
 		return super.onMenuItemSelected(featureId, item);
-    }
+	}
 	
 	protected void resetPreferences() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -118,6 +117,5 @@ public class PreferencesActivity extends PreferenceActivity {
 		ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
 		startActivity(new Intent().setComponent(comp));
 	}
-
 	
 }

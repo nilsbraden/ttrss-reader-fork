@@ -26,7 +26,7 @@ public class FeedUpdateTask extends AsyncTask<String, Integer, Boolean> {
 	protected Boolean doInBackground(String... ids) {
 		
 		Log.i(Utils.TAG, "doInBackground - getArticlesHeadlines(feedId: " + ids[0] + ")");
-
+		
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		
 		DataController.getInstance().forceFullRefresh();

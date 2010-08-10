@@ -23,7 +23,7 @@ import android.util.Log;
 public class CategoryUpdateTask extends AsyncTask<String, Integer, Boolean> {
 	
 	protected Boolean doInBackground(String... ids) {
-
+		
 		Log.i(Utils.TAG, "doInBackground - getSubscribedFeeds(categoryId: -4)");
 		
 		// Retreive data for all feeds

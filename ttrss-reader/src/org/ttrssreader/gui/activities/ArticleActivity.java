@@ -77,8 +77,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.articleitem);
 		
-		setProgressBarIndeterminateVisibility(false);		
-
+		setProgressBarIndeterminateVisibility(false);
+		
 		webview = (WebView) findViewById(R.id.webview);
 		webview.getSettings().setJavaScriptEnabled(true);
 		webview.getSettings().setBuiltInZoomControls(true);
@@ -88,7 +88,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
 		webviewSwipeText.setVisibility(TextView.INVISIBLE);
 		useSwipe = Controller.getInstance().isUseSwipe();
-
+		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mArticleId = extras.getString(ARTICLE_ID);
@@ -104,15 +104,15 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			mArticleIds = new ArrayList<String>();
 		}
 		
-		
 		new Handler().postDelayed(new Runnable() {
+			
 			public void run() {
 				String next = "";
 				int indexNext = mArticleIds.indexOf(mArticleId) + 1;
 				if (!(indexNext < 0 || indexNext >= mArticleIds.size())) {
 					next = mArticleIds.get(indexNext);
 				}
-
+				
 				String prev = "";
 				int indexPrev = mArticleIds.indexOf(mArticleId) - 1;
 				if (!(indexPrev < 0 || indexPrev >= mArticleIds.size())) {
@@ -219,12 +219,12 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		Intent i = new Intent(this, ArticleActivity.class);
 		
 		int index = mArticleIds.indexOf(mArticleId) + 1;
-
+		
 		// No more articles in this direction
 		if (index < 0 || index >= mArticleIds.size()) {
 			if (Controller.getInstance().isVibrateOnLastArticle()) {
 				Log.i(Utils.TAG, "No more articles, vibrate..");
-				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+				Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 				v.vibrate(Utils.SHORT_VIBRATE);
 			}
 			return;
@@ -250,7 +250,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		if (index < 0 || index >= mArticleIds.size()) {
 			if (Controller.getInstance().isVibrateOnLastArticle()) {
 				Log.i(Utils.TAG, "No more articles, vibrate..");
-				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+				Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 				v.vibrate(Utils.SHORT_VIBRATE);
 			}
 			return;
@@ -268,12 +268,13 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	}
 	
 	@Override
-	public boolean dispatchTouchEvent(MotionEvent e){
+	public boolean dispatchTouchEvent(MotionEvent e) {
 		super.dispatchTouchEvent(e);
 		return mGestureDetector.onTouchEvent(e);
 	}
 	
 	private OnGestureListener onGestureListener = new OnGestureListener() {
+		
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			
@@ -304,11 +305,10 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 				return false;
 			}
 			
-			
 			// don't accept the fling if it's too short as it may conflict with a button push
 			if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
 				
-				Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY() + 
+				Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY() +
 						") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
 				
 				if (velocityX > 0) {
@@ -323,49 +323,59 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			return false;
 		}
 		
-		// I need this to set the text invisible after some time 
+		// I need this to set the text invisible after some time
 		private Runnable timerTask = new Runnable() {
+			
 			public void run() {
 				webviewSwipeText.setVisibility(TextView.INVISIBLE);
 			}
-		}; 
-
+		};
+		
 		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+			return false;
+		}
+		
 		@Override
-		public boolean onSingleTapUp(MotionEvent e) { return false; }
+		public boolean onSingleTapUp(MotionEvent e) {
+			return false;
+		}
+		
 		@Override
-		public boolean onDown(MotionEvent e) { return false; }
+		public boolean onDown(MotionEvent e) {
+			return false;
+		}
+		
 		@Override
-		public void onLongPress(MotionEvent e) { }
+		public void onLongPress(MotionEvent e) {
+		}
+		
 		@Override
-		public void onShowPress(MotionEvent e) { }
+		public void onShowPress(MotionEvent e) {
+		}
 	};
-	
 	
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (Controller.getInstance().isUseVolumeKeys()) {
-		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-		    	openNextNewerArticle();
-		        return true;
-		    } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-		    	openNextOlderArticle();
-		        return true;
-		    }
+			if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+				openNextNewerArticle();
+				return true;
+			} else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+				openNextOlderArticle();
+				return true;
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
 	
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (Controller.getInstance().isUseVolumeKeys()) {
-		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-		        return true;
-		    }
+			if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+				return true;
+			}
 		}
 		return super.onKeyUp(keyCode, event);
 	}
-
-	
 	
 	private void openConnectionErrorDialog(String errorMessage) {
 		Intent i = new Intent(this, ConnectionErrorActivity.class);
@@ -408,7 +418,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-
+		
 		setProgressBarIndeterminateVisibility(false);
 	}
 	
@@ -423,7 +433,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		if (Controller.getInstance().getTTRSSConnector().hasLastError()) {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-
+		
 		setProgressBarIndeterminateVisibility(false);
 	}
 	

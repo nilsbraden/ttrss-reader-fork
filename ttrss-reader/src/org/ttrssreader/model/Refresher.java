@@ -26,13 +26,13 @@ public class Refresher extends AsyncTask<Void, Void, Void> {
 	private IRefreshEndListener mParent;
 	private IRefreshable mRefreshable;
 	
-	
 	public Refresher(IRefreshEndListener parent, IRefreshable refreshable) {
 		mParent = parent;
 		mRefreshable = refreshable;
 	}
 	
 	private Handler handler = new Handler() {
+		
 		public void handleMessage(Message msg) {
 			if (msg.arg1 == 0) {
 				mParent.onRefreshEnd();
@@ -41,7 +41,7 @@ public class Refresher extends AsyncTask<Void, Void, Void> {
 			}
 		}
 	};
-
+	
 	@Override
 	protected Void doInBackground(Void... params) {
 		// Refresh data oh this view

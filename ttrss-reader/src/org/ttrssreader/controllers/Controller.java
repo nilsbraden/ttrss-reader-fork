@@ -2,14 +2,14 @@
  * Tiny Tiny RSS Reader for Android
  * 
  * Copyright (C) 2009 J. Devauchelle and contributors.
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
 
@@ -19,7 +19,6 @@ import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -49,8 +48,8 @@ public class Controller {
 	private boolean mDisplayOnlyUnread;
 	private int mArticleLimit;
 	
-	
-	private Controller() {}
+	private Controller() {
+	}
 	
 	public static Controller getInstance() {
 		if (mInstance == null) {
@@ -62,7 +61,7 @@ public class Controller {
 	public void initializeController(Context context) {
 		
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
+		
 		// Login
 		String url = prefs.getString(Constants.CONNECTION_URL, "http://localhost/");
 		if (!url.endsWith(JSON_END_URL)) {
@@ -98,22 +97,20 @@ public class Controller {
 	}
 	
 	public synchronized void checkAndInitializeController(final Context context) {
-		if (!mIsControllerInitialized) {					
-
+		if (!mIsControllerInitialized) {
+			
 			initializeController(context);
-
+			
 			mIsControllerInitialized = true;
 		}
 	}
 	
-	
-	
 	// **** Getter / Setter **********
 	
 	public ITTRSSConnector getTTRSSConnector() {
-		return mTTRSSConnector;		
+		return mTTRSSConnector;
 	}
-
+	
 	public boolean isAutomaticMarkRead() {
 		return mAutomaticMarkRead;
 	}
@@ -124,65 +121,65 @@ public class Controller {
 		editor.commit();
 		this.mAutomaticMarkRead = automaticMarkRead;
 	}
-
+	
 	public boolean isOpenUrlEmptyArticle() {
 		return mOpenUrlEmptyArticle;
 	}
-
+	
 	public void setOpenUrlEmptyArticle(boolean openUrlEmptyArticle) {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
 		editor.commit();
 		this.mOpenUrlEmptyArticle = openUrlEmptyArticle;
 	}
-
+	
 	public boolean isUpdateUnreadOnStartup() {
 		return mUpdateUnreadOnStartup;
 	}
-
+	
 	public void setUpdateUnreadOnStartup(boolean mUpdateUnreadOnStartup) {
 		this.mUpdateUnreadOnStartup = mUpdateUnreadOnStartup;
 	}
-
+	
 	public boolean isRefreshSubData() {
 		return mRefreshSubData;
 	}
-
+	
 	public void setRefreshSubData(boolean refreshSubData) {
 		this.mRefreshSubData = refreshSubData;
 	}
-
+	
 	public boolean isUseVolumeKeys() {
 		return mUseVolumeKeys;
 	}
-
+	
 	public void setUseVolumeKeys(boolean useVolumeKeys) {
 		this.mUseVolumeKeys = useVolumeKeys;
 	}
-
+	
 	public boolean isVibrateOnLastArticle() {
 		return mVibrateOnLastArticle;
 	}
-
+	
 	public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
 		this.mVibrateOnLastArticle = vibrateOnLastArticle;
 	}
-
+	
 	public boolean isDisplayVirtuals() {
 		return mDisplayVirtuals;
 	}
-
+	
 	public void setDisplayVirtuals(boolean displayVirtuals) {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL, displayVirtuals);
 		editor.commit();
 		this.mDisplayVirtuals = displayVirtuals;
 	}
-
+	
 	public boolean isDisplayUnreadInVirtualFeeds() {
 		return mDisplayUnreadInVirtualFeeds;
 	}
-
+	
 	public void setDisplayUnreadInVirtualFeeds(boolean displayUnreadInVirtualFeeds) {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD, displayUnreadInVirtualFeeds);
@@ -193,41 +190,40 @@ public class Controller {
 	public boolean isAlwaysFullRefresh() {
 		return mAlwaysFullRefresh;
 	}
-
+	
 	public void setAlwaysFullRefresh(boolean alwaysFullRefresh) {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(Constants.DISPLAY_ALWAYS_FULL_REFRESH, alwaysFullRefresh);
 		editor.commit();
 		this.mAlwaysFullRefresh = alwaysFullRefresh;
 	}
-
-
+	
 	public boolean isUseSwipe() {
 		return mUseSwipe;
 	}
-
+	
 	public void setUseSwipe(boolean useSwipe) {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(Constants.DISPLAY_USE_SWIPE, useSwipe);
 		editor.commit();
 		this.mUseSwipe = useSwipe;
 	}
-
+	
 	public boolean isDisplayOnlyUnread() {
 		return mDisplayOnlyUnread;
 	}
-
+	
 	public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putBoolean(Constants.DISPLAY_ONLY_UNREAD, displayOnlyUnread);
 		editor.commit();
 		this.mDisplayOnlyUnread = displayOnlyUnread;
 	}
-
+	
 	public int getArticleLimit() {
 		return mArticleLimit;
 	}
-
+	
 	public void setArticleLimit(int articleLimit) {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putInt(Constants.DISPLAY_ARTICLE_LIMIT, articleLimit);
