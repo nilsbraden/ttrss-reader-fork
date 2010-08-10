@@ -6,6 +6,15 @@ TODO
 - Lots of work todo on performance
 
 
+Changed since 0.5.0:
+- Articles on SD-Card, small data like headlines stay in internal storage
+- Article-content stays only in memory if sdcard not available
+- DB-update if version changes, at the moment the old DB is just deleted.
+- DB_VERSION in Preferences-Storage, not settable by user
+- Adapters work with deepCopy() and get notified more often to avoid IllegalStateException
+- Better handling for synchronized-Methods in DataController, should lead to less time spent waiting for mutex.
+
+
 0.5.0
 - Added local caching in DB for Articles, Feeds and Categories.
 - HTML content is saved base64-encoded in DB to avoid syntax-problems while inserting
