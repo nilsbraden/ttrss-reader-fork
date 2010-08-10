@@ -2,14 +2,14 @@
  * Tiny Tiny RSS Reader for Android
  * 
  * Copyright (C) 2009 J. Devauchelle and contributors.
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
 
@@ -26,7 +26,6 @@ import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.feed.FeedListAdapter;
 import org.ttrssreader.model.feed.FeedUpdateTask;
 import org.ttrssreader.utils.Utils;
-
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -62,7 +61,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		
 		setProgressBarIndeterminateVisibility(false);
 		mFeedListView = getListView();
-
+		
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			mCategoryId = extras.getString(CATEGORY_ID);
@@ -76,6 +75,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		}
 		
 		new Handler().postDelayed(new Runnable() {
+			
 			public void run() {
 				new FeedUpdateTask().execute(mCategoryId);
 			}
@@ -83,73 +83,73 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	}
 	
 	@Override
-	protected void onResume() {	
+	protected void onResume() {
 		doRefresh();
 		super.onResume();
 	}
 	
 	@Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(CATEGORY_ID, mCategoryId);
-        outState.putString(CATEGORY_TITLE, mCategoryTitle);
-    }
-
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString(CATEGORY_ID, mCategoryId);
+		outState.putString(CATEGORY_TITLE, mCategoryTitle);
+	}
+	
 	private void doRefresh() {
 		setProgressBarIndeterminateVisibility(true);
-
+		
 		if (mAdapter == null) {
 			mAdapter = new FeedListAdapter(this, mCategoryId);
 			mFeedListView.setAdapter(mAdapter);
 		}
-		new Refresher(this, mAdapter).execute();		
+		new Refresher(this, mAdapter).execute();
 	}
-
+	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-
+		
 		Intent i = new Intent(this, FeedHeadlineListActivity.class);
 		i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getFeedId(position));
 		i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getFeedTitle(position));
 		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mAdapter.getFeedIds());
 		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mAdapter.getFeedNames());
-
+		
 		startActivityForResult(i, ACTIVITY_SHOW_FEED_HEADLINE);
 	}
 	
 	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	super.onCreateOptionsMenu(menu);
-    	
-    	MenuItem item;
-    	
-    	item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
-        item.setIcon(R.drawable.refresh32);
-        
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		
+		MenuItem item;
+		
+		item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
+		item.setIcon(R.drawable.refresh32);
+		
 		item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
 		
 		item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
-        
-    	return true;
-    }
+		
+		return true;
+	}
 	
 	@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-    	switch(item.getItemId()) {
-    	case MENU_REFRESH:
-    		doForceRefresh();
-            return true;
-    	case MENU_DISPLAY_ONLY_UNREAD:
-    		displayOnlyUnreadSwitch();
-    		return true;
-		case MENU_MARK_ALL_READ:
-			markAllRead();
-			return true;
-    	}
-    	
-    	return super.onMenuItemSelected(featureId, item);
-    }
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+			case MENU_REFRESH:
+				doForceRefresh();
+				return true;
+			case MENU_DISPLAY_ONLY_UNREAD:
+				displayOnlyUnreadSwitch();
+				return true;
+			case MENU_MARK_ALL_READ:
+				markAllRead();
+				return true;
+		}
+		
+		return super.onMenuItemSelected(featureId, item);
+	}
 	
 	private void doForceRefresh() {
 		DataController.getInstance().forceFullRefresh();
@@ -166,7 +166,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		setProgressBarIndeterminateVisibility(true);
 		new Updater(this, new ReadStateUpdater(mAdapter.getFeeds(), mCategoryId, 0, false)).execute();
 	}
-
+	
 	private void openConnectionErrorDialog(String errorMessage) {
 		Intent i = new Intent(this, ConnectionErrorActivity.class);
 		i.putExtra(ConnectionErrorActivity.ERROR_MESSAGE, errorMessage);
@@ -175,18 +175,20 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	
 	@Override
 	public void onRefreshEnd() {
-		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {			
+		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
 			mAdapter.notifyDataSetChanged();
-
+			
 			if (mCategoryTitle != null) {
-				this.setTitle(this.getResources().getString(R.string.ApplicationName) + " - " + mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
+				this.setTitle(this.getResources().getString(R.string.ApplicationName) + " - " + mCategoryTitle + " ("
+						+ mAdapter.getTotalUnreadCount() + ")");
 			} else {
-				this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnreadCount() + ")");
+				this.setTitle(this.getResources().getString(R.string.ApplicationName) + " ("
+						+ mAdapter.getTotalUnreadCount() + ")");
 			}
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-
+		
 		setProgressBarIndeterminateVisibility(false);
 	}
 	
@@ -197,11 +199,11 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-
+		
 		setProgressBarIndeterminateVisibility(false);
 		DataController.getInstance().disableForceFullRefresh();
 	}
-
+	
 	@Override
 	public void onUpdateEnd() {
 		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
@@ -211,8 +213,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-
+		
 		setProgressBarIndeterminateVisibility(false);
 	}
-
+	
 }

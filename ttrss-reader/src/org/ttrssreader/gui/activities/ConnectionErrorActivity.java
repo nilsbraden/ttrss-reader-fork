@@ -49,6 +49,7 @@ public class ConnectionErrorActivity extends Activity {
 		
 		Button prefBtn = (Button) this.findViewById(R.id.ConnectionErrorActivity_ShowPreferencesBtn);
 		prefBtn.setOnClickListener(new View.OnClickListener() {
+			
 			public void onClick(View view) {
 				finish();
 				openPreferences();
@@ -57,16 +58,17 @@ public class ConnectionErrorActivity extends Activity {
 		
 		Button closeBtn = (Button) this.findViewById(R.id.ConnectionErrorActivity_CloseBtn);
 		closeBtn.setOnClickListener(new View.OnClickListener() {
+			
 			public void onClick(View view) {
-				 closeButtonPressed();
-			 }
-		 });
-	 }
-	 
-	 public void closeButtonPressed() {
-		 super.finish();
-		 this.finish();
-	 }
+				closeButtonPressed();
+			}
+		});
+	}
+	
+	public void closeButtonPressed() {
+		super.finish();
+		this.finish();
+	}
 	
 	private void openPreferences() {
 		Intent preferencesActivity = new Intent(this, PreferencesActivity.class);

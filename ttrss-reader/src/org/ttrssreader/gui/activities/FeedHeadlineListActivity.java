@@ -52,7 +52,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	private static final int MENU_MARK_ALL_READ = Menu.FIRST + 1;
 	private static final int MENU_MARK_ALL_UNREAD = Menu.FIRST + 2;
 	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
-
+	
 	public static final String FEED_ID = "FEED_ID";
 	public static final String FEED_TITLE = "FEED_TITLE";
 	public static final String FEED_LIST = "FEED_LIST";
@@ -73,10 +73,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.feedheadlinelist);
-
+		
 		setProgressBarIndeterminateVisibility(false);
 		mFeedHeadlineListView = getListView();
-
+		
 		useSwipe = Controller.getInstance().isUseSwipe();
 		mGestureDetector = new GestureDetector(onGestureListener);
 		
@@ -99,13 +99,14 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		}
 		
 		new Handler().postDelayed(new Runnable() {
+			
 			public void run() {
 				String next = "";
 				int indexNext = mFeedIds.indexOf(mFeedIds) + 1;
 				if (!(indexNext < 0 || indexNext >= mFeedIds.size())) {
 					next = mFeedIds.get(indexNext);
 				}
-
+				
 				String prev = "";
 				int indexPrev = mFeedIds.indexOf(mFeedIds) - 1;
 				if (!(indexPrev < 0 || indexPrev >= mFeedIds.size())) {
@@ -206,17 +207,17 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	private void openNextFeed() {
 		int index = mFeedIds.indexOf(mFeedId) + 1;
-
+		
 		// No more feeds in this direction
 		if (index < 0 || index >= mFeedIds.size()) {
 			if (Controller.getInstance().isVibrateOnLastArticle()) {
 				Log.i(Utils.TAG, "No more feeds, vibrate..");
-				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+				Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 				v.vibrate(Utils.SHORT_VIBRATE);
 			}
 			return;
 		}
-
+		
 		Intent i = new Intent(this, FeedHeadlineListActivity.class);
 		i.putExtra(FeedHeadlineListActivity.FEED_ID, mFeedIds.get(index));
 		i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mFeedNames.get(index));
@@ -235,7 +236,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		if (index < 0 || index >= mFeedIds.size()) {
 			if (Controller.getInstance().isVibrateOnLastArticle()) {
 				Log.i(Utils.TAG, "No more feeds, vibrate..");
-				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+				Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 				v.vibrate(Utils.SHORT_VIBRATE);
 			}
 			return;
@@ -253,12 +254,13 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	}
 	
 	@Override
-	public boolean dispatchTouchEvent(MotionEvent e){
+	public boolean dispatchTouchEvent(MotionEvent e) {
 		super.dispatchTouchEvent(e);
 		return mGestureDetector.onTouchEvent(e);
 	}
 	
 	private OnGestureListener onGestureListener = new OnGestureListener() {
+		
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			
@@ -275,11 +277,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 				return false;
 			}
 			
-			
 			// don't accept the fling if it's too short as it may conflict with a button push
 			if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
 				
-				Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY() + 
+				Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY() +
 						") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
 				
 				if (velocityX > 0) {
@@ -291,41 +292,53 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			}
 			return false;
 		}
-
+		
 		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+			return false;
+		}
+		
 		@Override
-		public boolean onSingleTapUp(MotionEvent e) { return false; }
+		public boolean onSingleTapUp(MotionEvent e) {
+			return false;
+		}
+		
 		@Override
-		public boolean onDown(MotionEvent e) { return false; }
+		public boolean onDown(MotionEvent e) {
+			return false;
+		}
+		
 		@Override
-		public void onLongPress(MotionEvent e) { }
+		public void onLongPress(MotionEvent e) {
+		}
+		
 		@Override
-		public void onShowPress(MotionEvent e) { }
+		public void onShowPress(MotionEvent e) {
+		}
 	};
 	
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (Controller.getInstance().isUseVolumeKeys()) {
-		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-		    	openNextFeed();
-		        return true;
-		    } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-		    	openPreviousFeed();
-		        return true;
-		    }
+			if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+				openNextFeed();
+				return true;
+			} else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+				openPreviousFeed();
+				return true;
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
 	
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (Controller.getInstance().isUseVolumeKeys()) {
-		    if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-		        return true;
-		    }
+			if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+				return true;
+			}
 		}
 		return super.onKeyUp(keyCode, event);
 	}
-
+	
 	private void openConnectionErrorDialog(String errorMessage) {
 		Intent i = new Intent(this, ConnectionErrorActivity.class);
 		i.putExtra(ConnectionErrorActivity.ERROR_MESSAGE, errorMessage);
@@ -347,7 +360,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-
+		
 		setProgressBarIndeterminateVisibility(false);
 		
 		if (Controller.getInstance().isDisplayOnlyUnread()) {
@@ -356,7 +369,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			if (mAdapter.getArticleUnreadList().isEmpty() && !mFeedId.matches("-[0-9]")) {
 				finish();
 			}
-
+			
 			// // Directly open Article if only one unread Article exists
 			// if (mAdapter.getArticleUnreadList().size() == 1) {
 			// Intent i = new Intent(this, ArticleActivity.class);
@@ -376,7 +389,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-
+		
 		setProgressBarIndeterminateVisibility(false);
 		DataController.getInstance().disableForceFullRefresh();
 	}

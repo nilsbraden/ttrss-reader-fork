@@ -2,21 +2,20 @@
  * Tiny Tiny RSS Reader for Android
  * 
  * Copyright (C) 2009 J. Devauchelle and contributors.
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
 
 package org.ttrssreader.model;
 
 import org.ttrssreader.gui.IUpdateEndListener;
-
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -32,16 +31,17 @@ public class Updater extends AsyncTask<Void, Void, Void> {
 	}
 	
 	private Handler handler = new Handler() {
+		
 		public void handleMessage(Message msg) {
 			mParent.onUpdateEnd();
 		}
 	};
-
+	
 	@Override
 	protected Void doInBackground(Void... params) {
-		mUpdatable.update();	
+		mUpdatable.update();
 		handler.sendEmptyMessage(0);
 		return null;
 	}
-
+	
 }

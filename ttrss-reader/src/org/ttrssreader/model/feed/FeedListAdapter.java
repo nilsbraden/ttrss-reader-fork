@@ -2,14 +2,14 @@
  * Tiny Tiny RSS Reader for Android
  * 
  * Copyright (C) 2009 J. Devauchelle and contributors.
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
 
@@ -24,7 +24,6 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.utils.Utils;
-
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
@@ -42,23 +41,23 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 	private String mCategoryId;
 	
 	private List<FeedItem> mFeeds;
-
+	
 	public FeedListAdapter(Context context, String categoryId) {
-		mContext = context;		
+		mContext = context;
 		mCategoryId = categoryId;
 		mFeeds = new ArrayList<FeedItem>();
 	}
-
+	
 	@Override
 	public int getCount() {
 		return mFeeds.size();
 	}
-
+	
 	@Override
 	public Object getItem(int position) {
 		return mFeeds.get(position);
 	}
-
+	
 	@Override
 	public long getItemId(int position) {
 		return position;
@@ -88,7 +87,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		}
 		return ret;
 	}
-
+	
 	public ArrayList<String> getFeedNames() {
 		ArrayList<String> ret = new ArrayList<String>();
 		
@@ -116,76 +115,77 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 			return title;
 		}
 	}
-
+	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		FeedListView sv;
-        if (convertView == null) {
-            sv = new FeedListView(mContext, mFeeds.get(position).getTitle(),
-            		mFeeds.get(position).getId(),
-            		mFeeds.get(position).getUnread());
-        } else {
-            sv = (FeedListView) convertView;
-            sv.setIcon(mFeeds.get(position).getUnread() > 0);
-            sv.setBoldTitleIfNecessary(mFeeds.get(position).getUnread() > 0);
-            sv.setTitle(formatTitle(mFeeds.get(position).getTitle(), mFeeds.get(position).getUnread()));
-        }
-
-        return sv;
+		if (convertView == null) {
+			sv = new FeedListView(mContext, mFeeds.get(position).getTitle(),
+					mFeeds.get(position).getId(),
+					mFeeds.get(position).getUnread());
+		} else {
+			sv = (FeedListView) convertView;
+			sv.setIcon(mFeeds.get(position).getUnread() > 0);
+			sv.setBoldTitleIfNecessary(mFeeds.get(position).getUnread() > 0);
+			sv.setTitle(formatTitle(mFeeds.get(position).getTitle(), mFeeds.get(position).getUnread()));
+		}
+		
+		return sv;
 	}
 	
 	private class FeedListView extends LinearLayout {
-        public FeedListView(Context context, String title, String id, int unread) {
-            super(context);
-
-            this.setOrientation(HORIZONTAL);
-
-            // Here we build the child views in code. They could also have
-            // been specified in an XML file.
-
-            mIcon = new ImageView(context);
-            setIcon(unread > 0);
-            addView(mIcon, new LinearLayout.LayoutParams(
-                    LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
-            
-            mTitle = new TextView(context);
-            mTitle.setGravity(Gravity.CENTER_VERTICAL);
-            setBoldTitleIfNecessary(unread > 0);
-            mTitle.setText(formatTitle(title, unread));
-            
-            LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
-            layoutParams.setMargins(10, 0, 0, 0);
-            
-            addView(mTitle, layoutParams);
-        }
-
-        /**
-         * Convenience method to set the title of a SpeechView
-         */
-        public void setTitle(String title) {
-            mTitle.setText(title);
-        }
-        
-        public void setBoldTitleIfNecessary(boolean isUnread) {
-        	if (isUnread) {
-        		mTitle.setTypeface(Typeface.DEFAULT_BOLD, 1);
-        	} else {
-        		mTitle.setTypeface(Typeface.DEFAULT, 0);
-        	}
-        }
-        
-        public void setIcon(boolean hasUnread) {
-        	if (hasUnread) {        	
-            	mIcon.setImageResource(R.drawable.feedheadlinesunread48);
-            } else {
-            	mIcon.setImageResource(R.drawable.feedheadlinesread48);
-            }
-        }
-
-        private ImageView mIcon;
-        private TextView mTitle;
-    }
-
+		
+		public FeedListView(Context context, String title, String id, int unread) {
+			super(context);
+			
+			this.setOrientation(HORIZONTAL);
+			
+			// Here we build the child views in code. They could also have
+			// been specified in an XML file.
+			
+			mIcon = new ImageView(context);
+			setIcon(unread > 0);
+			addView(mIcon, new LinearLayout.LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
+			
+			mTitle = new TextView(context);
+			mTitle.setGravity(Gravity.CENTER_VERTICAL);
+			setBoldTitleIfNecessary(unread > 0);
+			mTitle.setText(formatTitle(title, unread));
+			
+			LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+			layoutParams.setMargins(10, 0, 0, 0);
+			
+			addView(mTitle, layoutParams);
+		}
+		
+		/**
+		 * Convenience method to set the title of a SpeechView
+		 */
+		public void setTitle(String title) {
+			mTitle.setText(title);
+		}
+		
+		public void setBoldTitleIfNecessary(boolean isUnread) {
+			if (isUnread) {
+				mTitle.setTypeface(Typeface.DEFAULT_BOLD, 1);
+			} else {
+				mTitle.setTypeface(Typeface.DEFAULT, 0);
+			}
+		}
+		
+		public void setIcon(boolean hasUnread) {
+			if (hasUnread) {
+				mIcon.setImageResource(R.drawable.feedheadlinesunread48);
+			} else {
+				mIcon.setImageResource(R.drawable.feedheadlinesread48);
+			}
+		}
+		
+		private ImageView mIcon;
+		private TextView mTitle;
+	}
+	
 	@Override
 	public void refreshData() {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
@@ -195,11 +195,11 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		}
 		DataController.getInstance().disableForceFullRefresh();
 	}
-
+	
 	@Override
 	public void refreshSubData() {
 		Log.d(Utils.TAG, "Refreshing SUB Data (from FeedList)");
-
+		
 		DataController.getInstance().forceFullRefresh();
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		for (FeedItem f : mFeeds) {
@@ -207,5 +207,5 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		}
 		DataController.getInstance().disableForceFullRefresh();
 	}
-
+	
 }

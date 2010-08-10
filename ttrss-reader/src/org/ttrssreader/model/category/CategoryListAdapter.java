@@ -70,7 +70,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	public int getUnreadCount(int position) {
 		return mCategories.get(position).getUnread();
 	}
-
+	
 	public List<CategoryItem> getCategories() {
 		return mCategories;
 	}
@@ -101,6 +101,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	}
 	
 	private class CategoryListView extends LinearLayout {
+		
 		public CategoryListView(Context context, String title, String id, int unreadCount) {
 			super(context);
 			
@@ -176,5 +177,5 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		DataController.getInstance().getSubscribedFeeds();
 		DataController.getInstance().disableForceFullRefresh();
 	}
-
+	
 }

@@ -72,7 +72,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	
 	public ArrayList<String> getFeedItemIds() {
 		ArrayList<String> result = new ArrayList<String>();
-
+		
 		for (ArticleItem ai : mArticles) {
 			result.add(ai.getId());
 		}
@@ -130,14 +130,16 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		FeedHeadlineListView sv;
-
+		
 		if (position >= mArticles.size()) {
 			return new View(mContext);
 		}
 		
 		if (convertView == null) {
-			sv = new FeedHeadlineListView(mContext, position, mArticles.get(position).getTitle(), mArticles.get(position)
-					.getId(), mArticles.get(position).isUnread(), /*mArticles.get(position).getContent(),*/ mArticles.get(position)
+			sv = new FeedHeadlineListView(mContext, position, mArticles.get(position).getTitle(), mArticles.get(
+					position)
+					.getId(), mArticles.get(position).isUnread(), /* mArticles.get(position).getContent(), */mArticles
+					.get(position)
 					.getUpdateDate());
 		} else {
 			sv = (FeedHeadlineListView) convertView;
@@ -152,8 +154,9 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	}
 	
 	private class FeedHeadlineListView extends LinearLayout {
+		
 		public FeedHeadlineListView(Context context, int position, String title, String id, boolean isUnread,
-				/*String content,*/ Date updatedDate) {
+				/* String content, */Date updatedDate) {
 			super(context);
 			
 			this.setOrientation(HORIZONTAL);
@@ -225,11 +228,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 		mArticles = DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread);
 		DataController.getInstance().disableForceFullRefresh();
 	}
-
+	
 	@Override
 	public void refreshSubData() {
 		// TODO: Too slow
-//		DataController.getInstance().getArticlesWithContent(mFeedId);
+		// DataController.getInstance().getArticlesWithContent(mFeedId);
 		DataController.getInstance().disableForceFullRefresh();
 	}
 	

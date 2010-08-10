@@ -2,14 +2,14 @@
  * Tiny Tiny RSS Reader for Android
  * 
  * Copyright (C) 2009 J. Devauchelle and contributors.
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
 
@@ -45,7 +45,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private static final int ACTIVITY_SHOW_FEEDS = 0;
 	
 	private static final int MENU_REFRESH = Menu.FIRST;
-	private static final int MENU_SHOW_PREFERENCES = Menu.FIRST +1;
+	private static final int MENU_SHOW_PREFERENCES = Menu.FIRST + 1;
 	private static final int MENU_SHOW_ABOUT = Menu.FIRST + 2;
 	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
 	private static final int MENU_MARK_ALL_READ = Menu.FIRST + 4;
@@ -58,14 +58,15 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.category);
-
+		
 		Controller.getInstance().checkAndInitializeController(this);
 		DBHelper.getInstance().checkAndInitializeController(this);
 		
 		setProgressBarIndeterminateVisibility(false);
 		mCategoryListView = getListView();
-
+		
 		new Handler().postDelayed(new Runnable() {
+			
 			public void run() {
 				new CategoryUpdateTask().execute("");
 			}
@@ -77,7 +78,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		super.onResume();
 		doRefresh();
 	}
-
+	
 	private void doRefresh() {
 		setProgressBarIndeterminateVisibility(true);
 		
@@ -87,41 +88,41 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		} else {
 			this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + totalUnread + ")");
 		}
-
+		
 		if (mAdapter == null) {
 			mAdapter = new CategoryListAdapter(this);
 			mCategoryListView.setAdapter(mAdapter);
 		}
 		new Refresher(this, mAdapter).execute();
 	}
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        
-        String categoryId = mAdapter.getCategoryId(position); 
-        Intent i;
-        
-        if ((categoryId.equals("-1")) ||
-        		(categoryId.equals("-2")) ||
-        		(categoryId.equals("-3")) ||
-        		(categoryId.equals("-4"))) {
-        	// Virtual feeds
-        	i = new Intent(this, FeedHeadlineListActivity.class);
-        	i.putExtra(FeedHeadlineListActivity.FEED_ID, categoryId);
-        	i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getCategoryTitle(position));
-        } else {
-        	// Categories
-        	i = new Intent(this, FeedListActivity.class);
-        	i.putExtra(FeedListActivity.CATEGORY_ID, categoryId);
-        	i.putExtra(FeedListActivity.CATEGORY_TITLE, mAdapter.getCategoryTitle(position));        	
-        }                
-    	
-    	startActivityForResult(i, ACTIVITY_SHOW_FEEDS);
-    }
 	
 	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		
+		String categoryId = mAdapter.getCategoryId(position);
+		Intent i;
+		
+		if ((categoryId.equals("-1")) ||
+				(categoryId.equals("-2")) ||
+				(categoryId.equals("-3")) ||
+				(categoryId.equals("-4"))) {
+			// Virtual feeds
+			i = new Intent(this, FeedHeadlineListActivity.class);
+			i.putExtra(FeedHeadlineListActivity.FEED_ID, categoryId);
+			i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getCategoryTitle(position));
+		} else {
+			// Categories
+			i = new Intent(this, FeedListActivity.class);
+			i.putExtra(FeedListActivity.CATEGORY_ID, categoryId);
+			i.putExtra(FeedListActivity.CATEGORY_TITLE, mAdapter.getCategoryTitle(position));
+		}
+		
+		startActivityForResult(i, ACTIVITY_SHOW_FEEDS);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		
 		MenuItem item;
@@ -140,10 +141,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		item.setIcon(R.drawable.about32);
 		
 		return true;
-    }
+	}
 	
 	@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 			case MENU_REFRESH:
 				doForceRefresh();
@@ -163,7 +164,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		}
 		
 		return super.onMenuItemSelected(featureId, item);
-    }
+	}
 	
 	private void doForceRefresh() {
 		DataController.getInstance().forceFullRefresh();
@@ -192,7 +193,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		List<CategoryItem> list = mAdapter.getCategories();
 		new Updater(this, new ReadStateUpdater(list, 0)).execute();
 	}
-
+	
 	private void openConnectionErrorDialog(String errorMessage) {
 		Intent i = new Intent(this, ConnectionErrorActivity.class);
 		i.putExtra(ConnectionErrorActivity.ERROR_MESSAGE, errorMessage);
@@ -226,8 +227,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-
+		
 		doRefresh();
 	}
-
+	
 }
