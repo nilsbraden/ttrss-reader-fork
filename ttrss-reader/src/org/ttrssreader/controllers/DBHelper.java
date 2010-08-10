@@ -15,12 +15,7 @@
 
 package org.ttrssreader.controllers;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
-import android.util.Log;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,14 +26,21 @@ import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.Utils;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
+import android.os.Environment;
+import android.util.Log;
 
 public class DBHelper {
 	
 	private static DBHelper mInstance = null;
 	private boolean mIsControllerInitialized = false;
-	// private boolean mDBLocationSDCard = false;
 	
-	// private static final String DATABASE_PATH = "ttrss-reader-fork";
+	private static final String DATABASE_PATH = "ttrss-reader-fork";
 	private static final String DATABASE_NAME = "ttrss.db";
 	private static final int DATABASE_VERSION = 1;
 	
@@ -51,71 +53,68 @@ public class DBHelper {
 			+ "(id, categoryId, title, url, unread) VALUES (?, ?, ?, ?, ?)";
 	private static final String INSERT_ARTICLES = "REPLACE INTO "
 			+ TABLE_ARTICLES
-			+ "(id, feedId, title, isUnread, content, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			+ "(id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
+	
+	private static final String INSERT_ARTICLES_EXTERN = "REPLACE INTO "
+			+ TABLE_ARTICLES
+			+ "(id, feedId, content, isUnread, updateDate) VALUES (?, ?, ?, ?, ?)";
 	
 	private static final String UPDATE_ARTICLES = "UPDATE " + TABLE_ARTICLES
-			+ " SET content=?, title=?, articleUrl=?, articleCommentUrl=?, updateDate=? WHERE id=? AND feedId=?";
+			+ " SET title=?, articleUrl=?, articleCommentUrl=?, updateDate=? WHERE id=? AND feedId=?";
+	
+	private static final String UPDATE_ARTICLES_EXTERN = "UPDATE " + TABLE_ARTICLES
+			+ " SET content=?, updateDate=? WHERE id=? AND feedId=?";
 	
 	private Context context;
-	private SQLiteDatabase db;
+	private SQLiteDatabase db_intern;
+	private SQLiteDatabase db_sdcard;
 	private SQLiteStatement insertCat;
 	private SQLiteStatement insertFeed;
 	private SQLiteStatement insertArticle;
+	private SQLiteStatement insertArticle_extern;
 	private SQLiteStatement updateArticle;
+	private SQLiteStatement updateArticle_extern;
+	
+	boolean externalDBState;
 	
 	public DBHelper() {
-		
 		context = null;
-		db = null;
+		db_intern = null;
+		db_sdcard = null;
 		insertCat = null;
 		insertFeed = null;
 		insertArticle = null;
 		updateArticle = null;
+		updateArticle_extern = null;
+		
+		externalDBState = false;
 	}
 	
 	public void initializeController(Context c) {
 		context = c;
 		
-		OpenHelper openHelper = new OpenHelper(context);
-		db = openHelper.getWritableDatabase();
+		handleDBUpdate();
 		
-		insertCat = db.compileStatement(INSERT_CAT);
-		insertFeed = db.compileStatement(INSERT_FEEDS);
-		insertArticle = db.compileStatement(INSERT_ARTICLES);
-		updateArticle = db.compileStatement(UPDATE_ARTICLES);
+		OpenHelper openHelper = new OpenHelper(context);
+		db_intern = openHelper.getWritableDatabase();
+		db_sdcard = openDatabase();
+		
+		insertCat = db_intern.compileStatement(INSERT_CAT);
+		insertFeed = db_intern.compileStatement(INSERT_FEEDS);
+		insertArticle = db_intern.compileStatement(INSERT_ARTICLES);
+		updateArticle = db_intern.compileStatement(UPDATE_ARTICLES);
+		
+		insertArticle_extern = db_sdcard.compileStatement(INSERT_ARTICLES_EXTERN);
+		updateArticle_extern = db_sdcard.compileStatement(UPDATE_ARTICLES_EXTERN);
+		
 	}
 	
 	public synchronized void checkAndInitializeController(Context context) {
 		if (!mIsControllerInitialized) {
-			
 			initializeController(context);
-			
 			mIsControllerInitialized = true;
 		}
 	}
-	
-	// public void switchDB(Context c) {
-	// if (mDBLocationSDCard) {
-	// OpenHelper openHelper = new OpenHelper(context);
-	// db = openHelper.getWritableDatabase();
-	//			
-	// insertCat = db.compileStatement(INSERT_CAT);
-	// insertFeed = db.compileStatement(INSERT_FEEDS);
-	// insertArticle = null;
-	// updateArticle = null;
-	//		
-	// mDBLocationSDCard = false;
-	// } else {
-	// openDatabase();
-	//			
-	// insertCat = db.compileStatement(INSERT_CAT);
-	// insertFeed = db.compileStatement(INSERT_FEEDS);
-	// insertArticle = db.compileStatement(INSERT_ARTICLES);
-	// updateArticle = db.compileStatement(UPDATE_ARTICLES);
-	//			
-	// mDBLocationSDCard = true;
-	// }
-	// }
 	
 	public static DBHelper getInstance() {
 		if (mInstance == null) {
@@ -124,96 +123,116 @@ public class DBHelper {
 		return mInstance;
 	}
 	
-	public SQLiteDatabase getDb() {
-		return this.db;
+	public SQLiteDatabase getInternalDb() {
+		return this.db_intern;
 	}
 	
-	public void deleteAll() {
-		db.execSQL("DELETE FROM " + TABLE_CAT);
-		db.execSQL("DELETE FROM " + TABLE_FEEDS);
-		db.execSQL("DELETE FROM " + TABLE_ARTICLES);
+	public SQLiteDatabase getExternalDb() {
+		return this.db_sdcard;
 	}
 	
-	public void dropDB() {
-		if (context.deleteDatabase(DATABASE_NAME)) {
-			Log.d(Utils.TAG, "deleteDatabase(): database deleted.");
-		} else {
-			Log.d(Utils.TAG, "deleteDatabase(): database NOT deleted.");
+	private void handleDBUpdate() {
+		if (DATABASE_VERSION > Controller.getInstance().getDatabaseVersion()) {
+			Log.i(Utils.TAG, "Database-Version: " + Controller.getInstance().getDatabaseVersion());
+			
+			OpenHelper openHelper = new OpenHelper(context);
+			db_intern = openHelper.getWritableDatabase();
+			db_sdcard = openDatabase();
+			
+			dropInternalDB();
+			dropExternalDB();
+			
+			db_intern.close();
+			db_sdcard.close();
+			
+			Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
 		}
 	}
 	
-	// public boolean isSDCardAvailable() {
-	// return mDBLocationSDCard;
-	// }
-	//
-	// public void setSDCardAvailable(boolean sDCardAvailable) {
-	// this.mDBLocationSDCard = sDCardAvailable;
-	// }
-	//	
-	// /**
-	// * Opens the SDcard database. If it cannot be opened, it
-	// * creates a new instance. If a new instance cannot be created, it throws
-	// * an exception and logs the failure.
-	// *
-	// * @return true if successful
-	// * @throws SQLException
-	// * if the database is unable to be opened or created
-	// */
-	// public synchronized boolean openDatabase() throws SQLException {
-	// if (db != null && db.isOpen()) {
-	// return true;
-	// } else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-	// Log.w(Utils.TAG, "SDcard not mounted, cant access article-database.");
-	// return false;
-	// } else {
-	// StringBuilder builder = new StringBuilder();
-	//			
-	// // open or create a new directory
-	// builder.setLength(0);
-	// builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
-	//			
-	// File dir = new File(builder.toString());
-	// dir.mkdirs();
-	// File file = new File(dir, DATABASE_NAME);
-	//			
-	// try {
-	// Log.d(Utils.TAG, "Opening database: " + file.getAbsolutePath());
-	// db = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
-	//				
-	// // Create tables if they dont exist
-	// createTables();
-	// } catch (SQLException e) {
-	// Log.e(Utils.TAG, "failed to open" + e);
-	// throw e;
-	// }
-	// }
-	// return true;
-	// }
+	public void deleteAll() {
+		db_intern.execSQL("DELETE FROM " + TABLE_CAT);
+		db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
+		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+		db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES);
+	}
 	
-	public synchronized void createTables() {
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_CAT + " (" +
-				"id INTEGER PRIMARY KEY, " +
-				"title TEXT, " +
-				"unread INTEGER)");
+	public void dropInternalDB() {
+		if (context.deleteDatabase(DATABASE_NAME)) {
+			Log.d(Utils.TAG, "dropInternalDB(): database deleted.");
+		} else {
+			Log.d(Utils.TAG, "dropInternalDB(): database NOT deleted.");
+		}
+	}
+	
+	public void dropExternalDB() {
+		StringBuilder builder = new StringBuilder();
+		builder.setLength(0);
+		builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
 		
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_FEEDS + " (" +
-				"id INTEGER, " +
-				"categoryId INTEGER, " +
-				"title TEXT, " +
-				"url TEXT, " +
-				"unread INTEGER, " +
-				"PRIMARY KEY( id, categoryId ))");
+		if (new File(builder.toString()).delete()) {
+			Log.d(Utils.TAG, "dropExternalDB(): database deleted.");
+		} else {
+			Log.d(Utils.TAG, "dropExternalDB(): database NOT deleted.");
+		}
+	}
+	
+	public void setExternalDB(boolean state) {
+		if (state) {
+			openDatabase();
+			externalDBState = true;
+		} else {
+			db_sdcard.close();
+			externalDBState = false;
+		}
+	}
+	
+	public boolean isExternalDBAvailable() {
+		return externalDBState;
+	}
+	
+	/**
+	 * Opens the SDcard database. If it cannot be opened, it
+	 * creates a new instance. If a new instance cannot be created, it throws
+	 * an exception and logs the failure.
+	 * 
+	 * @return true if successful
+	 * @throws SQLException
+	 *             if the database is unable to be opened or created
+	 */
+	public synchronized SQLiteDatabase openDatabase() throws SQLException {
+		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+			StringBuilder builder = new StringBuilder();
+			
+			// open or create a new directory
+			builder.setLength(0);
+			builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
+			
+			File dir = new File(builder.toString());
+			dir.mkdirs();
+			File file = new File(dir, DATABASE_NAME);
+			
+			try {
+				Log.d(Utils.TAG, "Opening database: " + file.getAbsolutePath());
+				db_sdcard = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
+				
+				// Create tables if they dont exist
+				db_sdcard.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ARTICLES + " (" +
+						"id INTEGER, " +
+						"feedId INTEGER, " +
+						"content BLOB, " +
+						"isUnread INTEGER, " +
+						"updateDate INTEGER, " +
+						"PRIMARY KEY( id , feedId ))");
+				
+			} catch (SQLException e) {
+				Log.e(Utils.TAG, "failed to open" + e);
+				throw e;
+			}
+		}
 		
-		db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ARTICLES + " (" +
-				"id INTEGER, " +
-				"feedId INTEGER, " +
-				"title TEXT, " +
-				"isUnread INTEGER, " +
-				"content BLOB, " +
-				"articleUrl TEXT, " +
-				"articleCommentUrl TEXT, " +
-				"updateDate INTEGER, " +
-				"PRIMARY KEY( id , feedId ))");
+		externalDBState = db_sdcard.isOpen();
+		
+		return db_sdcard;
 	}
 	
 	private static class OpenHelper extends SQLiteOpenHelper {
@@ -242,7 +261,6 @@ public class DBHelper {
 					"feedId INTEGER, " +
 					"title TEXT, " +
 					"isUnread INTEGER, " +
-					"content BLOB, " +
 					"articleUrl TEXT, " +
 					"articleCommentUrl TEXT, " +
 					"updateDate INTEGER, " +
@@ -281,7 +299,7 @@ public class DBHelper {
 		
 		if (c == null) return;
 		
-		insertCategory(c.getId(), c.getTitle(), c.getUnread());
+		insertCategory(c.getId(), c.getTitle(), c.getUnreadCount());
 	}
 	
 	public void insertCategories(List<CategoryItem> list) {
@@ -292,7 +310,7 @@ public class DBHelper {
 			insertCategory(
 					c.getId(),
 					c.getTitle(),
-					c.getUnread());
+					c.getUnreadCount());
 		}
 	}
 	
@@ -349,10 +367,10 @@ public class DBHelper {
 		}
 	}
 	
-	private long insertArticle(String articleId, String feedId, String title, boolean isUnread, String content,
+	private void insertArticle(String articleId, String feedId, String title, boolean isUnread, String content,
 			String articleUrl, String articleCommentUrl, Date updateDate) {
 		
-		if (articleId == null) return 0;
+		if (articleId == null) return;
 		if (feedId == null) feedId = "";
 		if (title == null) title = "";
 		if (content == null) content = "";
@@ -360,21 +378,26 @@ public class DBHelper {
 		if (articleCommentUrl == null) articleCommentUrl = "";
 		if (updateDate == null) updateDate = new Date(System.currentTimeMillis());
 		
-		long ret = 0;
 		synchronized (this) {
 			insertArticle.bindLong(1, Long.parseLong(articleId));
 			insertArticle.bindLong(2, Long.parseLong(feedId));
 			insertArticle.bindString(3, title);
 			insertArticle.bindLong(4, (isUnread ? 1 : 0));
-			byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
-			insertArticle.bindBlob(5, contentBytes);
-			insertArticle.bindString(6, articleUrl);
-			insertArticle.bindString(7, articleCommentUrl);
-			insertArticle.bindLong(8, updateDate.getTime());
+			insertArticle.bindString(5, articleUrl);
+			insertArticle.bindString(6, articleCommentUrl);
+			insertArticle.bindLong(7, updateDate.getTime());
+			insertArticle.executeInsert();
 			
-			ret = insertArticle.executeInsert();
+			if (isExternalDBAvailable()) {
+				insertArticle_extern.bindLong(1, Long.parseLong(articleId));
+				insertArticle_extern.bindLong(2, Long.parseLong(feedId));
+				byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
+				insertArticle_extern.bindBlob(3, contentBytes);
+				insertArticle.bindLong(4, (isUnread ? 1 : 0));
+				insertArticle.bindLong(5, updateDate.getTime());
+				insertArticle_extern.executeInsert();
+			}
 		}
-		return ret;
 	}
 	
 	public void insertArticle(ArticleItem a, int number) {
@@ -438,38 +461,53 @@ public class DBHelper {
 		updateFeedUnreadCount(f.getId(), f.getCategoryId(), 0);
 		
 		if (recursive) {
-			db.execSQL("UPDATE " + TABLE_ARTICLES +
+			db_intern.execSQL("UPDATE " + TABLE_ARTICLES +
 					" SET isUnread='0' WHERE feedId='" + f.getId() + "'");
+			
+			if (isExternalDBAvailable()) {
+				db_sdcard.execSQL("UPDATE " + TABLE_ARTICLES +
+						" SET isUnread='0' WHERE feedId='" + f.getId() + "'");
+			}
 		}
 	}
 	
 	public void markArticlesRead(List<String> list, int articleState) {
 		boolean isUnread = articleState == 0 ? false : true;
 		for (String id : list) {
-			db.execSQL("UPDATE " + TABLE_ARTICLES +
+			db_intern.execSQL("UPDATE " + TABLE_ARTICLES +
 					" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "'");
+			
+			if (isExternalDBAvailable()) {
+				db_sdcard.execSQL("UPDATE " + TABLE_ARTICLES +
+						" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "'");
+			}
 		}
 	}
 	
 	public void updateCategoryUnreadCount(String id, int count) {
 		if (id == null) return;
 		
-		db.execSQL("UPDATE " + TABLE_CAT +
+		db_intern.execSQL("UPDATE " + TABLE_CAT +
 				" SET unread='" + count + "' " + "WHERE id='" + id + "'");
 	}
 	
 	public void updateFeedUnreadCount(String id, String categoryId, int count) {
 		if (id == null || categoryId == null) return;
 		
-		db.execSQL("UPDATE " + TABLE_FEEDS +
+		db_intern.execSQL("UPDATE " + TABLE_FEEDS +
 				" SET unread='" + count + "' " + "WHERE id='" + id + "' and categoryId='" + categoryId + "'");
 	}
 	
 	public void updateArticleUnread(String id, String feedId, boolean isUnread) {
 		if (id == null || feedId == null) return;
 		
-		db.execSQL("UPDATE " + TABLE_ARTICLES +
+		db_intern.execSQL("UPDATE " + TABLE_ARTICLES +
 				" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "' and feedId='" + feedId + "'");
+		
+		if (isExternalDBAvailable()) {
+			db_sdcard.execSQL("UPDATE " + TABLE_ARTICLES +
+					" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "' and feedId='" + feedId + "'");
+		}
 	}
 	
 	public void updateArticleContent(ArticleItem result) {
@@ -489,28 +527,49 @@ public class DBHelper {
 		if (updateDate == null) updateDate = new Date();
 		
 		synchronized (this) {
-			byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
-			updateArticle.bindBlob(1, contentBytes);
-			updateArticle.bindString(2, title);
-			updateArticle.bindString(3, articleUrl);
-			updateArticle.bindString(4, articleCommentUrl);
-			updateArticle.bindLong(5, updateDate.getTime());
-			updateArticle.bindLong(6, new Long(id));
-			updateArticle.bindLong(7, new Long(feedId));
+			updateArticle.bindString(1, title);
+			updateArticle.bindString(2, articleUrl);
+			updateArticle.bindString(3, articleCommentUrl);
+			updateArticle.bindLong(4, updateDate.getTime());
+			updateArticle.bindLong(5, new Long(id));
+			updateArticle.bindLong(6, new Long(feedId));
 			updateArticle.executeInsert();
+			
+			if (isExternalDBAvailable()) {
+				byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
+				updateArticle_extern.bindBlob(1, contentBytes);
+				updateArticle_extern.bindLong(2, updateDate.getTime());
+				updateArticle_extern.bindLong(3, new Long(id));
+				updateArticle_extern.bindLong(4, new Long(feedId));
+				updateArticle_extern.executeInsert();
+			}
 		}
 	}
 	
 	public void purgeArticlesDays(Date olderThenThis) {
-		db.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE isUnread=0 AND updateDate<" + olderThenThis.getTime());
+		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE isUnread=0 AND updateDate<"
+				+ olderThenThis.getTime());
+		
+		if (isExternalDBAvailable()) {
+			// Dont rely on isUnread here, article could have been marked as read while sdcard wasnt available
+			db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE updateDate<" + olderThenThis.getTime());
+		}
 	}
 	
 	public void purgeArticlesNumber(int number) {
-		db.execSQL("DELETE FROM " + TABLE_ARTICLES +
+		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES +
 				" WHERE id in( select id from " + TABLE_ARTICLES +
 				" WHERE isUnread=0" +
 				" ORDER BY updateDate DESC" +
 				" LIMIT -1 OFFSET " + number + ")");
+		
+		if (isExternalDBAvailable()) {
+			// Dont rely on isUnread here, article could have been marked as read while sdcard wasnt available
+			db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES +
+					" WHERE id in( select id from " + TABLE_ARTICLES +
+					" ORDER BY updateDate DESC" +
+					" LIMIT -1 OFFSET " + number + ")");
+		}
 	}
 	
 	// *******| SELECT |*******************************************************************
@@ -518,7 +577,7 @@ public class DBHelper {
 	public ArticleItem getArticle(String id) {
 		ArticleItem ret = null;
 		
-		Cursor c = db.query(TABLE_ARTICLES, null, "id=" + id, null, null, null, null, null);
+		Cursor c = db_intern.query(TABLE_ARTICLES, null, "id=" + id, null, null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			ret = handleArticleCursor(c);
@@ -533,7 +592,7 @@ public class DBHelper {
 	public FeedItem getFeed(String id) {
 		FeedItem ret = new FeedItem();
 		
-		Cursor c = db.query(TABLE_FEEDS, null, "id=" + id, null, null, null, null, null);
+		Cursor c = db_intern.query(TABLE_FEEDS, null, "id=" + id, null, null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			ret = handleFeedCursor(c);
@@ -548,7 +607,7 @@ public class DBHelper {
 	public CategoryItem getCategory(String id) {
 		CategoryItem ret = new CategoryItem();
 		
-		Cursor c = db.query(TABLE_CAT, null, "id=" + id, null, null, null, null, null);
+		Cursor c = db_intern.query(TABLE_CAT, null, "id=" + id, null, null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			ret = handleCategoryCursor(c);
@@ -563,7 +622,7 @@ public class DBHelper {
 	public List<ArticleItem> getArticles(FeedItem fi) {
 		List<ArticleItem> ret = new ArrayList<ArticleItem>();
 		
-		Cursor c = db.query(TABLE_ARTICLES, null, "feedId=" + fi.getId(), null, null, null, null, null);
+		Cursor c = db_intern.query(TABLE_ARTICLES, null, "feedId=" + fi.getId(), null, null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			ret.add(handleArticleCursor(c));
@@ -578,7 +637,7 @@ public class DBHelper {
 	public List<FeedItem> getFeeds(CategoryItem ci) {
 		List<FeedItem> ret = new ArrayList<FeedItem>();
 		
-		Cursor c = db.query(TABLE_FEEDS, null, "categoryId=" + ci.getId(), null, null, null, null, null);
+		Cursor c = db_intern.query(TABLE_FEEDS, null, "categoryId=" + ci.getId(), null, null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			ret.add(handleFeedCursor(c));
@@ -599,7 +658,7 @@ public class DBHelper {
 		
 		String limit = (maxArticles > 0 ? String.valueOf(maxArticles) : null);
 		
-		Cursor c = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC", limit);
+		Cursor c = db_intern.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC", limit);
 		
 		while (!c.isAfterLast()) {
 			ArticleItem a = handleArticleCursor(c);
@@ -625,7 +684,7 @@ public class DBHelper {
 	public Map<String, List<FeedItem>> getFeeds() {
 		Map<String, List<FeedItem>> ret = new HashMap<String, List<FeedItem>>();
 		
-		Cursor c = db.query(TABLE_FEEDS, null, null, null, null, null, null);
+		Cursor c = db_intern.query(TABLE_FEEDS, null, null, null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			FeedItem fi = handleFeedCursor(c);
@@ -651,7 +710,7 @@ public class DBHelper {
 	public List<CategoryItem> getVirtualCategories() {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
-		Cursor c = db.query(TABLE_CAT, null, "id like '-%' OR id=0", null, null, null, null);
+		Cursor c = db_intern.query(TABLE_CAT, null, "id like '-%' OR id=0", null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			CategoryItem ci = handleCategoryCursor(c);
@@ -667,7 +726,7 @@ public class DBHelper {
 	public List<CategoryItem> getCategories() {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
-		Cursor c = db.query(TABLE_CAT, null, "id not like '-%' AND id!=0", null, null, null, null);
+		Cursor c = db_intern.query(TABLE_CAT, null, "id not like '-%' AND id!=0", null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			CategoryItem ci = handleCategoryCursor(c);
@@ -691,26 +750,40 @@ public class DBHelper {
 			}
 		}
 		
-		String key = c.getString(1);
-		byte[] content = c.getBlob(4);
+		String id = c.getString(0);
 		String contentStr = "";
 		
-		try {
-			if (content.length > 0) {
-				contentStr = new String(Base64.decode(content));
+		if (isExternalDBAvailable()) {
+
+			String[] column = {"content"};
+			Cursor content_cursor = db_sdcard.query(TABLE_ARTICLES, column, "id=" + id, null, null, null, null, null);
+			content_cursor.moveToFirst();
+			
+			byte[] content = null;
+			while (!content_cursor.isAfterLast()) {
+				content = content_cursor.getBlob(0);
+				content_cursor.move(1);
 			}
-		} catch (Exception e) {
-			Log.w(Utils.TAG, "Could not decode content or title. length: " + content.length);
+			content_cursor.close();
+			
+			try {
+				if (content.length > 0) {
+					contentStr = new String(Base64.decode(content));
+				}
+			} catch (Exception e) {
+				Log.w(Utils.TAG, "Could not decode content or title. length: " + content.length);
+			}
 		}
 		
-		ret = new ArticleItem(key, // feedId
-				c.getString(0), // id
+		ret = new ArticleItem(
+				c.getString(1), // feedId
+				id, // id
 				c.getString(2), // title
 				(c.getInt(3) != 0 ? true : false), // isUnread
-				new Date(c.getLong(7)), // updateDate
+				new Date(c.getLong(6)), // updateDate
 				contentStr, // content
-				c.getString(5), // articleUrl
-				c.getString(6) // articleCommentUrl
+				c.getString(4), // articleUrl
+				c.getString(5) // articleCommentUrl
 		);
 		
 		return ret;

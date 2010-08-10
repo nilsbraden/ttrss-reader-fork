@@ -34,4 +34,6 @@ public class Constants {
 	public static String DISPLAY_USE_SWIPE = "DisplayUseSwipePreference";
 	public static String DISPLAY_ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
 	public static String DISPLAY_ARTICLE_LIMIT = "DisplayArticleLimitPreference";
+	
+	public static String DATABASE_VERSION = "DatabaseVersion";
 }

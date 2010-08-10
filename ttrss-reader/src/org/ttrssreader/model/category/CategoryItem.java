@@ -31,24 +31,34 @@ public class CategoryItem {
 		mUnreadCount = unreadCount;
 	}
 	
+
 	public String getId() {
 		return mId;
 	}
+
+	
+	public void setId(String id) {
+		this.mId = id;
+	}
+
 	
 	public String getTitle() {
 		return mTitle;
 	}
+
 	
-	public int getUnread() {
+	public void setTitle(String title) {
+		this.mTitle = title;
+	}
+
+	
+	public int getUnreadCount() {
 		return mUnreadCount;
 	}
+
 	
-	public boolean isUnreadManaged() {
-		return mUnreadCount >= 0;
-	}
-	
-	public void setUnread(int value) {
-		mUnreadCount = value;
+	public void setUnreadCount(int unreadCount) {
+		this.mUnreadCount = unreadCount;
 	}
 	
 	public void setDeltaUnreadCount(int value) {
@@ -56,5 +66,19 @@ public class CategoryItem {
 			mUnreadCount += value;
 		}
 	}
+
+	public boolean isUnreadManaged() {
+		return mUnreadCount >= 0;
+	}
 	
+	public CategoryItem deepCopy() {
+		CategoryItem ret = new CategoryItem();
+		
+		ret.setId(mId != null ? new String(mId) : null);
+		ret.setTitle(mTitle != null ? new String(mTitle) : null);
+		ret.setUnreadCount(mUnreadCount);
+		
+		return ret;
+	}
+
 }

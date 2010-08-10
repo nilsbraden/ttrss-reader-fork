@@ -70,7 +70,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	}
 	
 	public int getUnreadCount(int position) {
-		return mCategories.get(position).getUnread();
+		return mCategories.get(position).getUnreadCount();
 	}
 	
 	public List<CategoryItem> getCategories() {
@@ -98,12 +98,12 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		CategoryListView sv;
 		if (convertView == null) {
 			sv = new CategoryListView(mContext, mCategories.get(position).getTitle(),
-					mCategories.get(position).getId(), mCategories.get(position).getUnread());
+					mCategories.get(position).getId(), mCategories.get(position).getUnreadCount());
 		} else {
 			sv = (CategoryListView) convertView;
-			sv.setIcon(mCategories.get(position).getId(), mCategories.get(position).getUnread() > 0);
-			sv.setBoldTitleIfNecessary(mCategories.get(position).getUnread() > 0);
-			sv.setTitle(formatTitle(mCategories.get(position).getTitle(), mCategories.get(position).getUnread()));
+			sv.setIcon(mCategories.get(position).getId(), mCategories.get(position).getUnreadCount() > 0);
+			sv.setBoldTitleIfNecessary(mCategories.get(position).getUnreadCount() > 0);
+			sv.setTitle(formatTitle(mCategories.get(position).getTitle(), mCategories.get(position).getUnreadCount()));
 		}
 		
 		return sv;
@@ -177,7 +177,15 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		boolean virtuals = Controller.getInstance().isDisplayVirtuals();
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		
-		mCategories = DataController.getInstance().getCategories(virtuals, displayOnlyUnread);
+		mCategories = new ArrayList<CategoryItem>();
+		List<CategoryItem> list = DataController.getInstance().getCategories(virtuals, displayOnlyUnread);
+		
+		if (list != null) {
+			for (CategoryItem c : list) {
+				mCategories.add(c.deepCopy());
+			}
+		}
+		
 		mUnreadCount = DataController.getInstance().getCategoryUnreadCount("-4");
 		DataController.getInstance().disableForceFullRefresh();
 	}

@@ -77,8 +77,8 @@ public class ReadStateUpdater implements IUpdatable {
 	@Override
 	public void update() {
 		
-		boolean bState = mArticleState == 1 ? true : false;
-		int iState = mArticleState == 1 ? 1 : -1;
+		boolean boolState = mArticleState == 1 ? true : false;
+		int intState = mArticleState == 1 ? 1 : -1;
 		
 		List<String> idList = new ArrayList<String>();
 		mList = filterList();
@@ -86,6 +86,7 @@ public class ReadStateUpdater implements IUpdatable {
 		for (ArticleItem article : mList) {
 			// Build a list of article ids to update.
 			idList.add(article.getId());
+			article.setUnread(false);
 			
 			String feedId = article.getFeedId();
 			String articleId = article.getId();
@@ -99,19 +100,19 @@ public class ReadStateUpdater implements IUpdatable {
 			
 			ArticleItem articleTemp = DataController.getInstance().getArticleHeadline(feedId, articleId);
 			if (articleTemp != null) {
-				articleTemp.setUnread(bState);
+				articleTemp.setUnread(boolState);
 			}
 			
 			FeedItem feed = DataController.getInstance().getFeed(feedId, false);
 			if (feed != null) {
-				feed.setDeltaUnreadCount(iState);
-				DBHelper.getInstance().updateFeedUnreadCount(feedId, categoryId, iState);
+				feed.setDeltaUnreadCount(intState);
+				DBHelper.getInstance().updateFeedUnreadCount(feedId, categoryId, intState);
 			}
 			
 			CategoryItem category = DataController.getInstance().getCategory(categoryId, true);
 			if (category != null) {
-				category.setDeltaUnreadCount(iState);
-				DBHelper.getInstance().updateCategoryUnreadCount(categoryId, iState);
+				category.setDeltaUnreadCount(intState);
+				DBHelper.getInstance().updateCategoryUnreadCount(categoryId, intState);
 			}
 			
 			// If on a virtual feeds, also update article state in it.
@@ -121,10 +122,10 @@ public class ReadStateUpdater implements IUpdatable {
 					("-4".equals(mPid))) {
 				
 				DataController.getInstance()
-						.getArticleHeadline(mPid, articleId).setUnread(bState);
+						.getArticleHeadline(mPid, articleId).setUnread(boolState);
 				
 				DataController.getInstance()
-						.getVirtualCategory(mPid).setDeltaUnreadCount(iState);
+						.getVirtualCategory(mPid).setDeltaUnreadCount(intState);
 			}
 		}
 		
@@ -140,12 +141,10 @@ public class ReadStateUpdater implements IUpdatable {
 	public List<ArticleItem> filterList() {
 		List<ArticleItem> ret = new ArrayList<ArticleItem>();
 		
-		boolean state = mArticleState == 0 ? true : false;
-		
 		for (ArticleItem a : mList) {
-			if (state && a.isUnread()) {
+			if (mArticleState == 0 && a.isUnread()) {
 				ret.add(a);
-			} else if (!state && !a.isUnread()) {
+			} else if (mArticleState != 0 && !a.isUnread()) {
 				ret.add(a);
 			}
 		}

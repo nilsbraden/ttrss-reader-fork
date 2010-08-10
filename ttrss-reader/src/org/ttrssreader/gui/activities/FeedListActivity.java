@@ -85,6 +85,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	protected void onResume() {
 		doRefresh();
+		if (mAdapter != null) mAdapter.notifyDataSetChanged();
 		super.onResume();
 	}
 	

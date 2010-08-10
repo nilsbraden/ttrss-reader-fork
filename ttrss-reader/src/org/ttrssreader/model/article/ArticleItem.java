@@ -67,58 +67,6 @@ public class ArticleItem {
 		}
 	}
 	
-	// public void doLoadContent() {
-	// Map<?, ?> result = Controller.getInstance().getTTRSSConnector().getArticle(new Integer(mId).intValue());
-	// if (result != null) {
-	// setContent(result.get("content").toString());
-	//			
-	// if ((mTitle == null) || (mTitle.length() == 0)) {
-	// setTitle(result.get("title").toString());
-	// }
-	//			
-	// setArticleUrl(result.get("link").toString());
-	// setArticleCommentUrl(result.get("comments").toString());
-	//			
-	// if (mUpdateDate == null) {
-	// String updatedDate = result.get("updated").toString();
-	// if ((updatedDate != null) && (updatedDate.length() > 0)) {
-	// // PHP strtotime gives timestamp in seconds.
-	// setUpdateDate(new Date(new Long(result.get("updated").toString() + "000").longValue()));
-	// } else {
-	// setUpdateDate(null);
-	// }
-	// }
-	//			
-	// Map<String, String> mAttachments = new HashMap<String, String>();
-	//			
-	// // Find attachments (key = "attachment_[0-9]*"
-	// for (Object key : result.keySet()) {
-	//				
-	// String string = (String) key;
-	// String value;
-	//				
-	// if (string.startsWith("attachment_")) {
-	//					
-	// string = string.replace("attachment_", "");
-	// value = (String) result.get(key);
-	//					
-	// mAttachments.put(string, value);
-	//					
-	// }
-	// }
-	//			
-	// // Add Attachments to Content
-	// if (mAttachments.size() > 0) {
-	// mContent += "<br>\n";
-	// for (String s : mAttachments.keySet()) {
-	// mContent += "Attachment " + s + ": <br><img src=\"" + mAttachments.get(s) + "\" /><br>\n";
-	// }
-	// }
-	//			
-	// }
-	// mIsContentLoaded = true;
-	// }
-	
 	public String getId() {
 		return mId;
 	}
@@ -191,4 +139,20 @@ public class ArticleItem {
 		this.mIsContentLoaded = mIsContentLoaded;
 	}
 	
+	
+	public ArticleItem deepCopy() {
+		ArticleItem ret = new ArticleItem();
+		
+		ret.setId(mId != null ? new String(mId) : null);
+		ret.setTitle(mTitle != null ? new String(mTitle) : null);
+		ret.setFeedId(mFeedId != null ? new String(mFeedId) : null);
+		ret.setUnread(mIsUnread);
+		ret.setContent(mContent != null ? new String(mContent) : null);
+		ret.setArticleUrl(mArticleUrl != null ? new String(mArticleUrl) : null);
+		ret.setArticleCommentUrl(mArticleCommentUrl != null ? new String(mArticleCommentUrl) : null);
+		ret.setUpdateDate(mUpdateDate != null ? new Date(mUpdateDate.getTime()) : null);
+		ret.setIsContentLoaded(mIsContentLoaded);
+		
+		return ret;
+	}
 }

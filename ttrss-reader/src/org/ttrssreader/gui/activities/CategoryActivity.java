@@ -30,8 +30,12 @@ import org.ttrssreader.model.category.CategoryListAdapter;
 import org.ttrssreader.model.category.CategoryUpdateTask;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
@@ -61,6 +65,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		
 		Controller.getInstance().checkAndInitializeController(this);
 		DBHelper.getInstance().checkAndInitializeController(this);
+		startWatchingExternalStorage();
 		
 		setProgressBarIndeterminateVisibility(false);
 		mCategoryListView = getListView();
@@ -76,6 +81,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (mAdapter != null) mAdapter.notifyDataSetChanged();
 		doRefresh();
 	}
 	
@@ -230,4 +236,43 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		doRefresh();
 	}
 	
+	
+	
+	private BroadcastReceiver mExternalStorageReceiver;
+	private boolean mExternalStorageAvailable = false;
+	private boolean mExternalStorageWriteable = false;
+	
+	private void updateExternalStorageState() {
+		String state = Environment.getExternalStorageState();
+		
+		if (Environment.MEDIA_MOUNTED.equals(state)) {
+			mExternalStorageAvailable = mExternalStorageWriteable = true;
+		} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+			mExternalStorageAvailable = true;
+			mExternalStorageWriteable = false;
+		} else {
+			mExternalStorageAvailable = mExternalStorageWriteable = false;
+		}
+		
+		handleExternalStorageState(mExternalStorageAvailable, mExternalStorageWriteable);
+	}
+	
+	private void startWatchingExternalStorage() {
+		mExternalStorageReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				Log.i("test", "Storage: " + intent.getData());
+				updateExternalStorageState();
+			}
+		};
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+		filter.addAction(Intent.ACTION_MEDIA_REMOVED);
+		registerReceiver(mExternalStorageReceiver, filter);
+		updateExternalStorageState();
+	}
+	
+	private void handleExternalStorageState(boolean storageAvailable, boolean storageWriteable) {
+		DBHelper.getInstance().setExternalDB(storageWriteable);
+	}
 }

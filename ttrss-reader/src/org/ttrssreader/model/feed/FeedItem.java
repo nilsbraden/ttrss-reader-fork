@@ -79,4 +79,15 @@ public class FeedItem {
 		this.mUnread = mUnread;
 	}
 	
+	public FeedItem deepCopy() {
+		FeedItem ret = new FeedItem();
+
+		ret.setId(mId != null ? new String(mId) : null);
+		ret.setCategoryId(mCategoryId != null ? new String(mCategoryId) : null);
+		ret.setTitle(mTitle != null ? new String(mTitle) : null);
+		ret.setUrl(mUrl != null ? new String(mUrl) : null);
+		ret.setUnread(mUnread);
+		
+		return ret;
+	}
 }
