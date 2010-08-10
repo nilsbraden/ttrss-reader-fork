@@ -25,12 +25,15 @@ public class ArticleUpdateTask extends AsyncTask<String, Integer, Boolean> {
 	protected Boolean doInBackground(String... ids) {
 		
 		DataController.getInstance().forceFullRefresh();
-		for (int i = 0; i < ids.length; i++) {
-			String id = ids[i];
-			
-			if (id != null && !id.equals("")) {
-				Log.i(Utils.TAG, "doInBackground - getArticleWithContent(articleId: " + ids[i] + ")");
-				DataController.getInstance().getArticleWithContent(ids[i]);
+		if (ids[0] != null && ids[1] != null) {
+			if (!ids[0].equals("")) {
+				Log.i(Utils.TAG, "doInBackground - getArticleWithContent(articleId: " + ids[0] + ")");
+				DataController.getInstance().getArticleWithContent(ids[0]);
+			}
+
+			if (!ids[1].equals("")) {
+				Log.i(Utils.TAG, "doInBackground - getArticleWithContent(articleId: " + ids[1] + ")");
+				DataController.getInstance().getArticleWithContent(ids[1]);
 			}
 		}
 		DataController.getInstance().disableForceFullRefresh();

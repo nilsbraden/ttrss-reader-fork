@@ -52,8 +52,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	public static final String FEED_ID = "FEED_ID";
 	public static final String ARTICLE_LIST = "ARTICLE_LIST";
 	
-	public static final long SHORT_VIBRATE = 50;
-	
 	private static final int MENU_MARK_READ = Menu.FIRST;
 	private static final int MENU_MARK_UNREAD = Menu.FIRST + 1;
 	private static final int MENU_OPEN_LINK = Menu.FIRST + 2;
@@ -109,17 +107,21 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		
 		new Handler().postDelayed(new Runnable() {
 			public void run() {
-				String next = "", prev = "";
-				int index = mArticleIds.indexOf(mArticleId);
-				if (index >= 1 && index < mArticleIds.size() - 1) {
-					next = mArticleIds.get(index+1);
+				String next = "";
+				int indexNext = mArticleIds.indexOf(mArticleId) + 1;
+				if (!(indexNext < 0 || indexNext >= mArticleIds.size())) {
+					next = mArticleIds.get(indexNext);
 				}
-				if (index > 1 && index <= mArticleIds.size() - 1) {
-					prev = mArticleIds.get(index-1);
+
+				String prev = "";
+				int indexPrev = mArticleIds.indexOf(mArticleId) - 1;
+				if (!(indexPrev < 0 || indexPrev >= mArticleIds.size())) {
+					prev = mArticleIds.get(indexPrev);
 				}
+				
 				new ArticleUpdateTask().execute(next, prev);
 			}
-		}, 500);
+		}, Utils.WAIT);
 	}
 	
 	@Override
@@ -223,7 +225,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			if (Controller.getInstance().isVibrateOnLastArticle()) {
 				Log.i(Utils.TAG, "No more articles, vibrate..");
 				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-				v.vibrate(SHORT_VIBRATE);
+				v.vibrate(Utils.SHORT_VIBRATE);
 			}
 			return;
 		}
@@ -235,7 +237,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		Log.i(Utils.TAG, "openPreviousArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
 		
 		startActivityForResult(i, 0);
-		finish();
+		super.finish();
+		this.finish();
 	}
 	
 	private void openNextOlderArticle() {
@@ -248,7 +251,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			if (Controller.getInstance().isVibrateOnLastArticle()) {
 				Log.i(Utils.TAG, "No more articles, vibrate..");
 				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-				v.vibrate(SHORT_VIBRATE);
+				v.vibrate(Utils.SHORT_VIBRATE);
 			}
 			return;
 		}
@@ -260,7 +263,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		Log.i(Utils.TAG, "openNextArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
 		
 		startActivityForResult(i, 0);
-		finish();
+		super.finish();
+		this.finish();
 	}
 	
 	@Override

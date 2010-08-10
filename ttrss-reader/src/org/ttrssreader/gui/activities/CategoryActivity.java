@@ -45,7 +45,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private static final int ACTIVITY_SHOW_FEEDS = 0;
 	
 	private static final int MENU_REFRESH = Menu.FIRST;
-//	private static final int MENU_UPDATE = Menu.FIRST + 1;
 	private static final int MENU_SHOW_PREFERENCES = Menu.FIRST +1;
 	private static final int MENU_SHOW_ABOUT = Menu.FIRST + 2;
 	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
@@ -70,7 +69,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			public void run() {
 				new CategoryUpdateTask().execute("");
 			}
-		}, 500);
+		}, Utils.WAIT);
 	}
 	
 	@Override
@@ -130,8 +129,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
 		item.setIcon(R.drawable.refresh32);
 		
-//		item = menu.add(0, MENU_UPDATE, 0, R.string.Main_UpdateMenu);
-		
 		item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
 		
 		item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
@@ -151,9 +148,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			case MENU_REFRESH:
 				doForceRefresh();
 				return true;
-//			case MENU_UPDATE:
-//				doUpdateEverything();
-//				return true;
 			case MENU_DISPLAY_ONLY_UNREAD:
 				displayOnlyUnreadSwitch();
 				return true;

@@ -15,6 +15,7 @@
 
 package org.ttrssreader.model.feedheadline;
 
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.utils.Utils;
 import android.os.AsyncTask;
@@ -26,8 +27,22 @@ public class FeedHeadlineUpdateTask extends AsyncTask<String, Integer, Boolean> 
 		
 		Log.i(Utils.TAG, "doInBackground - getArticlesWithContent(feedId: " + ids[0] + ")");
 		
+		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+		
 		DataController.getInstance().forceFullRefresh();
 		DataController.getInstance().getArticlesWithContent(ids[0]);
+		
+		if (ids[1] != null && ids[2] != null) {
+			if (!ids[1].equals("")) {
+				Log.i(Utils.TAG, "doInBackground - getArticlesHeadlines(feedId: " + ids[1] + ")");
+				DataController.getInstance().getArticlesHeadlines(ids[1], displayOnlyUnread);
+			}
+			
+			if (!ids[2].equals("")) {
+				Log.i(Utils.TAG, "doInBackground - getArticlesHeadlines(feedId: " + ids[2] + ")");
+				DataController.getInstance().getArticlesHeadlines(ids[2], displayOnlyUnread);
+			}
+		}
 		DataController.getInstance().disableForceFullRefresh();
 		
 		return true;

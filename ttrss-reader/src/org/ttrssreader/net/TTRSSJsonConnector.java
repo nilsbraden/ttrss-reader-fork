@@ -49,6 +49,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
 	private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
 	private static final String OP_CATCHUP = "?op=catchupFeed&sid=%s&feed_id=%s&is_cat=%s";
+	private static final String OP_GET_COUNTERS = "?op=getCounters";
 	
 	private static final String NOT_LOGGED_IN = "{\"error\":\"NOT_LOGGED_IN\"}";
 	
@@ -608,6 +609,57 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		}
 		
 		return finalResult;
+	}
+
+	@Override
+	public Map<CategoryItem, List<FeedItem>> getCounters() {
+		Map<CategoryItem, List<FeedItem>> ret = new HashMap<CategoryItem, List<FeedItem>>();
+		
+		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
+			login();
+			
+			if (mHasLastError) {
+				return null;
+			}
+		}
+
+		String url = mServerUrl + String.format(OP_GET_COUNTERS);
+		
+		JSONArray jsonResult = getJSONResponseAsArray(url);
+		
+		JSONObject object;
+		
+		try {
+			object = jsonResult.getJSONObject(0);
+			
+			JSONArray names = object.names();
+			JSONArray values = object.toJSONArray(names);
+			
+			String cat_id = "";
+			int unread = 0;
+			List<FeedItem> feeds = new ArrayList<FeedItem>();
+			
+			for (int i = 0; i < names.length(); i++) {
+				if (names.getString(i).equals("cat_id")) {
+					cat_id = values.getString(i);
+				} else if (names.getString(i).equals("unread")) {
+					unread = values.getInt(i);
+				} else if (names.getString(i).equals("feeds")) {
+					
+					// TODO
+					Log.e(Utils.TAG, "TODO: Parse feeds...");
+					
+				}
+			}
+			
+			ret.put(new CategoryItem(cat_id, "", unread), feeds);
+				
+		} catch (JSONException e) {
+			mHasLastError = true;
+			mLastError = e.getMessage();
+		}
+		
+		return ret;
 	}
 
 }

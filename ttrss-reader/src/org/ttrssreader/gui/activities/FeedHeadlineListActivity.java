@@ -53,8 +53,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	private static final int MENU_MARK_ALL_UNREAD = Menu.FIRST + 2;
 	private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
 
-	public static final long SHORT_VIBRATE = 50;
-	
 	public static final String FEED_ID = "FEED_ID";
 	public static final String FEED_TITLE = "FEED_TITLE";
 	public static final String FEED_LIST = "FEED_LIST";
@@ -102,15 +100,27 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		
 		new Handler().postDelayed(new Runnable() {
 			public void run() {
-				new FeedHeadlineUpdateTask().execute(mFeedId);
+				String next = "";
+				int indexNext = mFeedIds.indexOf(mFeedIds) + 1;
+				if (!(indexNext < 0 || indexNext >= mFeedIds.size())) {
+					next = mFeedIds.get(indexNext);
+				}
+
+				String prev = "";
+				int indexPrev = mFeedIds.indexOf(mFeedIds) - 1;
+				if (!(indexPrev < 0 || indexPrev >= mFeedIds.size())) {
+					prev = mFeedIds.get(indexPrev);
+				}
+				
+				new FeedHeadlineUpdateTask().execute(mFeedId, next, prev);
 			}
-		}, 500);
+		}, Utils.WAIT);
 	}
 	
 	@Override
 	protected void onResume() {
-		doRefresh();
 		super.onResume();
+		doRefresh();
 	}
 	
 	private void doRefresh() {
@@ -194,14 +204,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		doRefresh();
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
 	private void openNextFeed() {
 		int index = mFeedIds.indexOf(mFeedId) + 1;
 
@@ -210,7 +212,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			if (Controller.getInstance().isVibrateOnLastArticle()) {
 				Log.i(Utils.TAG, "No more feeds, vibrate..");
 				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-				v.vibrate(SHORT_VIBRATE);
+				v.vibrate(Utils.SHORT_VIBRATE);
 			}
 			return;
 		}
@@ -222,7 +224,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mFeedNames);
 		
 		startActivityForResult(i, 0);
-		finish();
+		super.finish();
+		this.finish();
 	}
 	
 	private void openPreviousFeed() {
@@ -233,7 +236,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			if (Controller.getInstance().isVibrateOnLastArticle()) {
 				Log.i(Utils.TAG, "No more feeds, vibrate..");
 				Vibrator v = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-				v.vibrate(SHORT_VIBRATE);
+				v.vibrate(Utils.SHORT_VIBRATE);
 			}
 			return;
 		}
@@ -245,7 +248,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mFeedNames);
 		
 		startActivityForResult(i, 0);
-		finish();
+		super.finish();
+		this.finish();
 	}
 	
 	@Override
@@ -321,13 +325,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		}
 		return super.onKeyUp(keyCode, event);
 	}
-	
-	
-	
-	
-	
-	
-	
+
 	private void openConnectionErrorDialog(String errorMessage) {
 		Intent i = new Intent(this, ConnectionErrorActivity.class);
 		i.putExtra(ConnectionErrorActivity.ERROR_MESSAGE, errorMessage);
@@ -358,7 +356,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			if (mAdapter.getArticleUnreadList().isEmpty() && !mFeedId.matches("-[0-9]")) {
 				finish();
 			}
-			//			
+
 			// // Directly open Article if only one unread Article exists
 			// if (mAdapter.getArticleUnreadList().size() == 1) {
 			// Intent i = new Intent(this, ArticleActivity.class);

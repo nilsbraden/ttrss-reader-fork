@@ -38,18 +38,21 @@ public class DataController {
 	
 	private boolean mForceFullRefresh = false;
 	
-	private Map<String, List<ArticleItem>>	mFeedsHeadlines;
-	private Map<String, List<FeedItem>>		mSubscribedFeeds;
-	private List<CategoryItem>				mVirtualCategories;
-	private List<CategoryItem>				mCategories;
+	private Map<CategoryItem, List<FeedItem>>	mCounters;
+	private Map<String, List<ArticleItem>>		mFeedsHeadlines;
+	private Map<String, List<FeedItem>>			mSubscribedFeeds;
+	private List<CategoryItem>					mVirtualCategories;
+	private List<CategoryItem>					mCategories;
 	
 	private DataController() {
 		
+		mCounters			= Controller.getInstance().getTTRSSConnector().getCounters();
 		mFeedsHeadlines		= DBHelper.getInstance().getArticles(0);
 		mSubscribedFeeds	= DBHelper.getInstance().getFeeds();
 		mVirtualCategories	= DBHelper.getInstance().getVirtualCategories();
 		mCategories 		= DBHelper.getInstance().getCategories();
 		
+		if (mCounters.isEmpty())			mCounters = new HashMap<CategoryItem, List<FeedItem>>();
 		if (mFeedsHeadlines.isEmpty())		mFeedsHeadlines = new HashMap<String, List<ArticleItem>>();
 		if (mSubscribedFeeds.isEmpty())		mSubscribedFeeds = null;
 		if (mVirtualCategories.isEmpty())	mVirtualCategories = null;
@@ -112,6 +115,8 @@ public class DataController {
 	}
 	
 	private int getUnreadCount(String feedId) {
+		
+		// TODO
 		if (feedId.equals("0")) {
 			int ret = 0;
 			for (FeedItem f : getSubscribedFeeds("0", true)) {

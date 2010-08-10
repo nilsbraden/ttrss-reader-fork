@@ -23,6 +23,8 @@ import java.io.InputStreamReader;
 public class Utils {
 	
 	public static final String TAG = "ttrss";
+	public static final int WAIT = 1000;
+	public static final long SHORT_VIBRATE = 50;
 	
 	public static String convertStreamToString(InputStream is) {
         /*

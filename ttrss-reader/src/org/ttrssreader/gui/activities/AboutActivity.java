@@ -37,12 +37,15 @@ public class AboutActivity extends Activity {
 		 
 		 Button closeBtn = (Button) this.findViewById(R.id.AboutActivity_CloseBtn);
 		 closeBtn.setOnClickListener(new View.OnClickListener() {
-
-			 public void onClick(View view) {            	
-				 finish();
+			 public void onClick(View view) {
+				 closeButtonPressed();
 			 }
-
 		 });
+	 }
+	 
+	 public void closeButtonPressed() {
+		 super.finish();
+		 this.finish();
 	 }
 	 
 	 private String getVersion() {		
