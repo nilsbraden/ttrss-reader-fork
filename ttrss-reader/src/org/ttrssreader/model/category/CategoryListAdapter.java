@@ -38,10 +38,12 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	private Context mContext;
 	
 	private List<CategoryItem> mCategories;
+	private int mUnreadCount;
 	
 	public CategoryListAdapter(Context context) {
 		mContext = context;
 		mCategories = new ArrayList<CategoryItem>();
+		mUnreadCount = 0;
 	}
 	
 	@Override
@@ -75,6 +77,10 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		return mCategories;
 	}
 	
+	public int getTotalUnread() {
+		return mUnreadCount;
+	}
+	
 	private String formatTitle(String title, int unread) {
 		if (unread > 0) {
 			return title + " (" + unread + ")";
@@ -85,6 +91,10 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		if (position >= mCategories.size()) {
+			return new View(mContext);
+		}
+		
 		CategoryListView sv;
 		if (convertView == null) {
 			sv = new CategoryListView(mContext, mCategories.get(position).getTitle(),
@@ -168,6 +178,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		
 		mCategories = DataController.getInstance().getCategories(virtuals, displayOnlyUnread);
+		mUnreadCount = DataController.getInstance().getCategoryUnreadCount("-4");
 		DataController.getInstance().disableForceFullRefresh();
 	}
 	

@@ -48,7 +48,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
 	private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
 	private static final String OP_CATCHUP = "?op=catchupFeed&sid=%s&feed_id=%s&is_cat=%s";
-	private static final String OP_GET_COUNTERS = "?op=getCounters";
+	private static final String OP_GET_COUNTERS = "?op=getCounters&sid=%s";
 	
 	private static final String NOT_LOGGED_IN = "{\"error\":\"NOT_LOGGED_IN\"}";
 	
@@ -546,17 +546,18 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			for (int j = 0; j < array.length(); j++) {
 				
 				TTRSSJsonResult att = new TTRSSJsonResult(array.getString(j));
+				JSONArray names = att.getNames();
+				JSONArray values = att.getValues();
 				
 				String attId = "";
 				String attUrl = "";
 				
 				// Filter for id and content_url, other fields are not necessary
-				for (int k = 0; k < att.getNames().length(); k++) {
-					if (att.getNames().getString(k).equals("id")) {
-						attId = att.getValues().getString(k);
-					}
-					if (att.getNames().getString(k).equals("content_url")) {
-						attUrl = att.getValues().getString(k);
+				for (int k = 0; k < names.length(); k++) {
+					if (names.getString(k).equals("id")) {
+						attId = values.getString(k);
+					} else if (names.getString(k).equals("content_url")) {
+						attUrl = values.getString(k);
 					}
 				}
 				
@@ -621,37 +622,37 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		}
 		
-		String url = mServerUrl + String.format(OP_GET_COUNTERS);
+		String url = mServerUrl + String.format(OP_GET_COUNTERS, mSessionId);
 		
 		JSONArray jsonResult = getJSONResponseAsArray(url);
 		
 		JSONObject object;
 		
 		try {
-			object = jsonResult.getJSONObject(0);
+			// Parse result-array
+			for (int i = 0; i < jsonResult.length(); i++) {
+				object = jsonResult.getJSONObject(i);
 			
-			JSONArray names = object.names();
-			JSONArray values = object.toJSONArray(names);
-			
-			String cat_id = "";
-			int unread = 0;
-			List<FeedItem> feeds = new ArrayList<FeedItem>();
-			
-			for (int i = 0; i < names.length(); i++) {
-				if (names.getString(i).equals("cat_id")) {
-					cat_id = values.getString(i);
-				} else if (names.getString(i).equals("unread")) {
-					unread = values.getInt(i);
-				} else if (names.getString(i).equals("feeds")) {
-					
-					// TODO
-					Log.e(Utils.TAG, "TODO: Parse feeds...");
-					
+				JSONArray names = object.names();
+				JSONArray values = object.toJSONArray(names);
+				
+				String cat_id = "";
+				int unread = 0;
+				List<FeedItem> feeds = null;
+				
+				// Parse one entry of the array
+				for (int j = 0; j < names.length(); j++) {
+					if (names.getString(j).equals("cat_id")) {
+						cat_id = values.getString(j);
+					} else if (names.getString(j).equals("unread")) {
+						unread = values.getInt(j);
+					} else if (names.getString(j).equals("feeds")) {
+						feeds = handleFeedCounters((JSONArray) values.get(j));
+					}
 				}
+				
+				ret.put(new CategoryItem(cat_id, "", unread), feeds);
 			}
-			
-			ret.put(new CategoryItem(cat_id, "", unread), feeds);
-			
 		} catch (JSONException e) {
 			mHasLastError = true;
 			mLastError = e.getMessage();
@@ -659,5 +660,34 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		return ret;
 	}
-	
+
+	public List<FeedItem> handleFeedCounters(JSONArray array) {
+		List<FeedItem> ret = new ArrayList<FeedItem>();
+		
+		try {
+			for (int j = 0; j < array.length(); j++) {
+				
+				TTRSSJsonResult att = new TTRSSJsonResult(array.getString(j));
+				JSONArray names = att.getNames();
+				JSONArray values = att.getValues();
+				
+				FeedItem f = new FeedItem();
+				
+				// Filter for feed_id and unread-count
+				for (int k = 0; k < names.length(); k++) {
+					if (names.getString(k).equals("feed_id")) {
+						f.setId(values.getString(k));
+					} else if (names.getString(k).equals("unread")) {
+						f.setUnread(values.getInt(k));
+					}
+				}
+				ret.add(f);
+				
+			}
+		} catch (JSONException je) {
+			je.printStackTrace();
+		}
+		
+		return ret;
+	}
 }

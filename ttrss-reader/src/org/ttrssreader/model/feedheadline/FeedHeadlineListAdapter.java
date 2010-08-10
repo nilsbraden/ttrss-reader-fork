@@ -129,12 +129,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		FeedHeadlineListView sv;
-		
 		if (position >= mArticles.size()) {
 			return new View(mContext);
 		}
-		
+
+		FeedHeadlineListView sv;
 		if (convertView == null) {
 			sv = new FeedHeadlineListView(mContext, position, mArticles.get(position).getTitle(), mArticles.get(
 					position)

@@ -82,12 +82,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private void doRefresh() {
 		setProgressBarIndeterminateVisibility(true);
 		
-		int totalUnread = Controller.getInstance().getTTRSSConnector().getTotalUnread();
-		if (totalUnread < 0) {
-			this.setTitle(this.getResources().getString(R.string.ApplicationName));
-		} else {
-			this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + totalUnread + ")");
-		}
+		this.setTitle(this.getResources().getString(R.string.ApplicationName));
 		
 		if (mAdapter == null) {
 			mAdapter = new CategoryListAdapter(this);
@@ -206,6 +201,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			mAdapter.notifyDataSetChanged();
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+		}
+		
+		if (mAdapter.getTotalUnread() >= 0) {
+			this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread() + ")");
 		}
 		setProgressBarIndeterminateVisibility(false);
 	}

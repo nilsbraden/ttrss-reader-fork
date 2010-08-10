@@ -87,15 +87,15 @@ public class DataController {
 				boolean showUnread = Controller.getInstance().isDisplayUnreadInVirtualFeeds();
 				
 				CategoryItem categoryItem;
-				categoryItem = new CategoryItem("-1", "Starred articles", showUnread ? getUnreadCount("-1") : 0);
+				categoryItem = new CategoryItem("-1", "Starred articles", showUnread ? getCategoryUnreadCount("-1") : 0);
 				mVirtualCategories.add(categoryItem);
-				categoryItem = new CategoryItem("-2", "Published articles", showUnread ? getUnreadCount("-2") : 0);
+				categoryItem = new CategoryItem("-2", "Published articles", showUnread ? getCategoryUnreadCount("-2") : 0);
 				mVirtualCategories.add(categoryItem);
-				categoryItem = new CategoryItem("-3", "Fresh articles", showUnread ? getUnreadCount("-3") : 0);
+				categoryItem = new CategoryItem("-3", "Fresh articles", showUnread ? getCategoryUnreadCount("-3") : 0);
 				mVirtualCategories.add(categoryItem);
-				categoryItem = new CategoryItem("-4", "All articles", showUnread ? getUnreadCount("-4") : 0);
+				categoryItem = new CategoryItem("-4", "All articles", showUnread ? getCategoryUnreadCount("-4") : 0);
 				mVirtualCategories.add(categoryItem);
-				categoryItem = new CategoryItem("0", "Uncategorized Feeds", showUnread ? getUnreadCount("0") : 0);
+				categoryItem = new CategoryItem("0", "Uncategorized Feeds", showUnread ? getCategoryUnreadCount("0") : 0);
 				mVirtualCategories.add(categoryItem);
 				
 				DBHelper.getInstance().insertCategories(mVirtualCategories);
@@ -105,7 +105,7 @@ public class DataController {
 	}
 	
 	private List<CategoryItem> internalGetCategories() {
-		if ((mCategories == null) || (needFullRefresh())) {
+		if (mCategories == null || needFullRefresh()) {
 			synchronized (mCategories) {
 				mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
 				DBHelper.getInstance().insertCategories(mCategories);
@@ -114,19 +114,20 @@ public class DataController {
 		return mCategories;
 	}
 	
-	private int getUnreadCount(String feedId) {
-		
-		// TODO
-		if (feedId.equals("0")) {
-			int ret = 0;
-			for (FeedItem f : getSubscribedFeeds("0", true)) {
-				ret += f.getUnread();
-			}
-			return ret;
-		} else {
-			List<ArticleItem> feedHeadlines = getArticlesHeadlines(feedId, true);
-			return feedHeadlines.size();
+	public int getCategoryUnreadCount(String feedId) {
+		if (mCounters == null || needFullRefresh()) {
+			mCounters = Controller.getInstance().getTTRSSConnector().getCounters();
 		}
+		
+		if (mCounters != null) {
+			for (CategoryItem c : mCounters.keySet()) {
+				if (feedId.equals(c.getId())) {
+					return c.getUnread();
+				}
+			}
+		}
+			
+		return 0;
 	}
 	
 	public CategoryItem getVirtualCategory(String categoryId) {
