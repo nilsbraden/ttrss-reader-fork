@@ -48,7 +48,8 @@ public class DataController {
 	
 	private DataController() {
 		
-		mCounters = Controller.getInstance().getTTRSSConnector().getCounters();
+//		mCounters = Controller.getInstance().getTTRSSConnector().getCounters();
+		mCounters = null;
 		mCountersUpdated = System.currentTimeMillis();
 		
 		mFeedsHeadlines = DBHelper.getInstance().getArticles(0);
@@ -56,7 +57,7 @@ public class DataController {
 		mVirtualCategories = DBHelper.getInstance().getVirtualCategories();
 		mCategories = DBHelper.getInstance().getCategories();
 		
-		if (mCounters == null) mCounters = new HashMap<CategoryItem, List<FeedItem>>();
+//		if (mCounters == null) mCounters = new HashMap<CategoryItem, List<FeedItem>>();
 		if (mFeedsHeadlines.isEmpty()) mFeedsHeadlines = new HashMap<String, List<ArticleItem>>();
 		if (mSubscribedFeeds.isEmpty()) mSubscribedFeeds = null;
 		if (mVirtualCategories.isEmpty()) mVirtualCategories = null;

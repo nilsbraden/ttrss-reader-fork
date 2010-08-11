@@ -126,8 +126,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	
 	@Override
 	protected void onResume() {
-		doRefresh();
 		super.onResume();
+		doRefresh();
 	}
 	
 	@Override

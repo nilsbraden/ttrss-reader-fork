@@ -110,6 +110,7 @@ public class PreferencesActivity extends PreferenceActivity {
 		editor.putBoolean(Constants.DISPLAY_USE_SWIPE, true);
 		editor.putBoolean(Constants.DISPLAY_ONLY_UNREAD, false);
 		editor.putString(Constants.DISPLAY_ARTICLE_LIMIT, "100");
+		editor.putString(Constants.DATABASE_VERSION, "1");
 		
 		editor.commit();
 		super.finish();

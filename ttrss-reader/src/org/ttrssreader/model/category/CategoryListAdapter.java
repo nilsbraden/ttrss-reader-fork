@@ -91,19 +91,25 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		if (position >= mCategories.size()) {
+		
+		CategoryItem c;
+		
+		try {
+			c = mCategories.get(position);
+			if (c == null) return new View(mContext);
+		} catch (Exception e) {
 			return new View(mContext);
 		}
 		
 		CategoryListView sv;
 		if (convertView == null) {
-			sv = new CategoryListView(mContext, mCategories.get(position).getTitle(),
-					mCategories.get(position).getId(), mCategories.get(position).getUnreadCount());
+			sv = new CategoryListView(mContext, c.getTitle(),
+					c.getId(), c.getUnreadCount());
 		} else {
 			sv = (CategoryListView) convertView;
-			sv.setIcon(mCategories.get(position).getId(), mCategories.get(position).getUnreadCount() > 0);
-			sv.setBoldTitleIfNecessary(mCategories.get(position).getUnreadCount() > 0);
-			sv.setTitle(formatTitle(mCategories.get(position).getTitle(), mCategories.get(position).getUnreadCount()));
+			sv.setIcon(c.getId(), c.getUnreadCount() > 0);
+			sv.setBoldTitleIfNecessary(c.getUnreadCount() > 0);
+			sv.setTitle(formatTitle(c.getTitle(), c.getUnreadCount()));
 		}
 		
 		return sv;
