@@ -66,6 +66,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		Controller.getInstance().checkAndInitializeController(this);
 		DBHelper.getInstance().checkAndInitializeController(this);
 		startWatchingExternalStorage();
+		DataController.getInstance().checkAndInitializeController(this);
 		
 		setProgressBarIndeterminateVisibility(false);
 		mCategoryListView = getListView();

@@ -28,8 +28,16 @@
 
 	<uses-sdk android:minSdkVersion="3" />
 	
+	<!-- Check connectivity -->
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	
+	<!-- Download -->	
 	<uses-permission android:name="android.permission.INTERNET" />
+
+	<!-- Save articles to SDCard -->	
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	
+	<!-- Vibrate on last article/feed -->
 	<uses-permission android:name="android.permission.VIBRATE" />
 
 </manifest> 

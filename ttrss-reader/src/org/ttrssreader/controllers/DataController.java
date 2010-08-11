@@ -29,35 +29,38 @@ import org.ttrssreader.model.category.CategoryItemComparator;
 import org.ttrssreader.model.category.VirtualCategoryItemComparator;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 public class DataController {
 	
 	private static final String mutex = "";
 	private static DataController mInstance = null;
+	private static boolean mIsControllerInitialized = false;
 	
 	private boolean mForceFullRefresh = false;
 	
 	private Map<CategoryItem, List<FeedItem>> mCounters;
-	private long mCountersUpdated;
+	private long mCountersUpdated = 0;
 	
 	private Map<String, List<ArticleItem>> mFeedsHeadlines;
 	private Map<String, List<FeedItem>> mSubscribedFeeds;
 	private List<CategoryItem> mVirtualCategories;
 	private List<CategoryItem> mCategories;
+
+	private NetworkInfo info;
 	
 	private DataController() {
 		
-//		mCounters = Controller.getInstance().getTTRSSConnector().getCounters();
-		mCounters = null;
-		mCountersUpdated = System.currentTimeMillis();
-		
+		mCounters = DBHelper.getInstance().getCounters();
 		mFeedsHeadlines = DBHelper.getInstance().getArticles(0);
 		mSubscribedFeeds = DBHelper.getInstance().getFeeds();
 		mVirtualCategories = DBHelper.getInstance().getVirtualCategories();
-		mCategories = DBHelper.getInstance().getCategories();
+		mCategories = DBHelper.getInstance().getCategories(false);
 		
-//		if (mCounters == null) mCounters = new HashMap<CategoryItem, List<FeedItem>>();
+		if (mCounters.isEmpty()) mCounters = new HashMap<CategoryItem, List<FeedItem>>();
 		if (mFeedsHeadlines.isEmpty()) mFeedsHeadlines = new HashMap<String, List<ArticleItem>>();
 		if (mSubscribedFeeds.isEmpty()) mSubscribedFeeds = null;
 		if (mVirtualCategories.isEmpty()) mVirtualCategories = null;
@@ -73,6 +76,18 @@ public class DataController {
 		}
 	}
 	
+	public synchronized void initializeController(Context context) {
+		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		info = cm.getActiveNetworkInfo();
+	}
+	
+	public synchronized void checkAndInitializeController(final Context context) {
+		if (!mIsControllerInitialized) {
+			initializeController(context);
+			mIsControllerInitialized = true;
+		}
+	}
+	
 	public void forceFullRefresh() {
 		mForceFullRefresh = true;
 	}
@@ -82,7 +97,16 @@ public class DataController {
 	}
 	
 	private boolean needFullRefresh() {
-		return mForceFullRefresh || Controller.getInstance().isAlwaysFullRefresh();
+		if (isOnline()) {
+			return mForceFullRefresh || Controller.getInstance().isAlwaysFullRefresh();
+		} else return false;
+	}
+	
+	public boolean isOnline() {
+		if (info != null) {
+			return info.isConnected();
+		}
+		return false;
 	}
 	
 	private List<CategoryItem> internalGetVirtualCategories() {
@@ -134,6 +158,7 @@ public class DataController {
 			// Only update counters once in 60 seconds
 			if (mCountersUpdated < System.currentTimeMillis() - 60000) {
 				mCounters = Controller.getInstance().getTTRSSConnector().getCounters();
+				DBHelper.getInstance().setCounters(mCounters);
 				mCountersUpdated = System.currentTimeMillis();
 			}
 		}

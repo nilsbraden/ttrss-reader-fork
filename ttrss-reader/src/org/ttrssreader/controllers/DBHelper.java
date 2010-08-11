@@ -40,9 +40,9 @@ public class DBHelper {
 	private static DBHelper mInstance = null;
 	private boolean mIsControllerInitialized = false;
 	
-	private static final String DATABASE_PATH = "ttrss-reader-fork";
+	private static final String DATABASE_PATH = "/Android/data/org.ttrssreader/files/";
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 3;
 	
 	private static final String TABLE_CAT = "categories";
 	private static final String TABLE_FEEDS = "feeds";
@@ -90,7 +90,7 @@ public class DBHelper {
 		externalDBState = false;
 	}
 	
-	public void initializeController(Context c) {
+	public synchronized void initializeController(Context c) {
 		context = c;
 		
 		handleDBUpdate();
@@ -158,7 +158,7 @@ public class DBHelper {
 	}
 	
 	public void dropInternalDB() {
-		if (context.deleteDatabase(DATABASE_NAME)) {
+		if (context.deleteFile(DATABASE_NAME)) {
 			Log.d(Utils.TAG, "dropInternalDB(): database deleted.");
 		} else {
 			Log.d(Utils.TAG, "dropInternalDB(): database NOT deleted.");
@@ -167,17 +167,10 @@ public class DBHelper {
 	
 	public void dropExternalDB() {
 		StringBuilder builder = new StringBuilder();
-		builder.setLength(0);
-		builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
+		builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH).append(
+				File.separator).append(DATABASE_NAME);
 		
-		// Dateien im Ordner löschen
-		File dir = new File(builder.toString());
-		for (File f : dir.listFiles()) {
-			f.delete();
-		}
-		
-		// Ordner löschen
-		if (dir.delete()) {
+		if (new File(builder.toString()).delete()) {
 			Log.d(Utils.TAG, "dropExternalDB(): database deleted.");
 		} else {
 			Log.d(Utils.TAG, "dropExternalDB(): database NOT deleted.");
@@ -499,11 +492,31 @@ public class DBHelper {
 				" SET unread='" + count + "' " + "WHERE id='" + id + "'");
 	}
 	
+	public void updateCategoryDeltaUnreadCount(String id, int delta) {
+		if (id == null) return;
+		
+		CategoryItem c = getCategory(id);
+		int count = c.getUnreadCount();
+		count += delta;
+		
+		updateCategoryUnreadCount(id, count);
+	}
+	
 	public void updateFeedUnreadCount(String id, String categoryId, int count) {
 		if (id == null || categoryId == null) return;
 		
 		db_intern.execSQL("UPDATE " + TABLE_FEEDS +
 				" SET unread='" + count + "' " + "WHERE id='" + id + "' and categoryId='" + categoryId + "'");
+	}
+	
+	public void updateFeedDeltaUnreadCount(String id, String categoryId, int delta) {
+		if (id == null || categoryId == null) return;
+		
+		FeedItem f = getFeed(id);
+		int count = f.getUnread();
+		count += delta;
+		
+		updateFeedUnreadCount(id, categoryId, count);
 	}
 	
 	public void updateArticleUnread(String id, String feedId, boolean isUnread) {
@@ -731,10 +744,15 @@ public class DBHelper {
 		return ret;
 	}
 	
-	public List<CategoryItem> getCategories() {
+	public List<CategoryItem> getCategories(boolean withVirtualCategories) {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
-		Cursor c = db_intern.query(TABLE_CAT, null, "id not like '-%' AND id!=0", null, null, null, null);
+		String wherePart = "id not like '-%' AND id!=0";
+		if (withVirtualCategories) {
+			wherePart = null;
+		}
+		
+		Cursor c = db_intern.query(TABLE_CAT, null, wherePart, null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			CategoryItem ci = handleCategoryCursor(c);
@@ -745,6 +763,32 @@ public class DBHelper {
 		c.close();
 		
 		return ret;
+	}
+	
+	/*
+	 * Equal to the API-Call to getCounters
+	 */
+	public Map<CategoryItem, List<FeedItem>> getCounters() {
+		Map<CategoryItem, List<FeedItem>> ret = new HashMap<CategoryItem, List<FeedItem>>();
+		
+		for (CategoryItem c : getCategories(true)) {
+			ret.put(c, getFeeds(c));
+		}
+		
+		return ret;
+	}
+	
+	public void setCounters(Map<CategoryItem, List<FeedItem>> map) {
+		for (CategoryItem c : map.keySet()) {
+			updateCategoryUnreadCount(c.getId(), c.getUnreadCount());
+			
+			List<FeedItem> list = map.get(c);
+			if (list == null) continue;
+			
+			for (FeedItem f : list) {
+				updateFeedUnreadCount(f.getId(), c.getId(), f.getUnread());
+			}
+		}
 	}
 	
 	// *******************************************
@@ -829,7 +873,7 @@ public class DBHelper {
 		ret = new CategoryItem(
 				c.getString(0), // id
 				c.getString(1), // title
-				(int) c.getLong(2)); // unread
+				c.getInt(2)); // unread
 		
 		return ret;
 	}

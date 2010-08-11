@@ -63,7 +63,7 @@ public class Controller {
 		}
 	}
 	
-	public void initializeController(Context context) {
+	public synchronized void initializeController(Context context) {
 		
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
@@ -112,9 +112,7 @@ public class Controller {
 	
 	public synchronized void checkAndInitializeController(final Context context) {
 		if (!mIsControllerInitialized) {
-			
 			initializeController(context);
-			
 			mIsControllerInitialized = true;
 		}
 	}

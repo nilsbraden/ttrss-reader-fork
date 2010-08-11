@@ -106,13 +106,13 @@ public class ReadStateUpdater implements IUpdatable {
 			FeedItem feed = DataController.getInstance().getFeed(feedId, false);
 			if (feed != null) {
 				feed.setDeltaUnreadCount(intState);
-				DBHelper.getInstance().updateFeedUnreadCount(feedId, categoryId, intState);
+				DBHelper.getInstance().updateFeedDeltaUnreadCount(feedId, categoryId, intState);
 			}
 			
 			CategoryItem category = DataController.getInstance().getCategory(categoryId, true);
 			if (category != null) {
 				category.setDeltaUnreadCount(intState);
-				DBHelper.getInstance().updateCategoryUnreadCount(categoryId, intState);
+				DBHelper.getInstance().updateCategoryDeltaUnreadCount(categoryId, intState);
 			}
 			
 			// If on a virtual feeds, also update article state in it.
