@@ -133,7 +133,8 @@ public class DBHelper {
 	
 	private void handleDBUpdate() {
 		if (DATABASE_VERSION > Controller.getInstance().getDatabaseVersion()) {
-			Log.i(Utils.TAG, "Database-Version: " + Controller.getInstance().getDatabaseVersion());
+			Log.i(Utils.TAG, "Database-Version: " + Controller.getInstance().getDatabaseVersion() + "(Internal: "
+					+ DATABASE_VERSION + ")");
 			
 			OpenHelper openHelper = new OpenHelper(context);
 			db_intern = openHelper.getWritableDatabase();
@@ -144,9 +145,9 @@ public class DBHelper {
 			
 			db_intern.close();
 			db_sdcard.close();
-			
-			Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
 		}
+		
+		Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
 	}
 	
 	public void deleteAll() {
@@ -169,7 +170,14 @@ public class DBHelper {
 		builder.setLength(0);
 		builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
 		
-		if (new File(builder.toString()).delete()) {
+		// Dateien im Ordner löschen
+		File dir = new File(builder.toString());
+		for (File f : dir.listFiles()) {
+			f.delete();
+		}
+		
+		// Ordner löschen
+		if (dir.delete()) {
 			Log.d(Utils.TAG, "dropExternalDB(): database deleted.");
 		} else {
 			Log.d(Utils.TAG, "dropExternalDB(): database NOT deleted.");
@@ -754,20 +762,21 @@ public class DBHelper {
 		String contentStr = "";
 		
 		if (isExternalDBAvailable()) {
-
-			String[] column = {"content"};
+			
+			String[] column = { "content" };
 			Cursor content_cursor = db_sdcard.query(TABLE_ARTICLES, column, "id=" + id, null, null, null, null, null);
 			content_cursor.moveToFirst();
 			
 			byte[] content = null;
-			while (!content_cursor.isAfterLast()) {
+			try {
 				content = content_cursor.getBlob(0);
-				content_cursor.move(1);
+			} catch (Exception e) {
 			}
+			
 			content_cursor.close();
 			
 			try {
-				if (content.length > 0) {
+				if (content != null && content.length > 0) {
 					contentStr = new String(Base64.decode(content));
 				}
 			} catch (Exception e) {

@@ -30,7 +30,8 @@ public class Controller {
 	
 	private boolean mIsControllerInitialized = false;
 	private ITTRSSConnector mTTRSSConnector;
-	
+
+	private static final String mutex = "";
 	private static Controller mInstance = null;
 	private SharedPreferences prefs = null;
 	
@@ -54,10 +55,12 @@ public class Controller {
 	}
 	
 	public static Controller getInstance() {
-		if (mInstance == null) {
-			mInstance = new Controller();
+		synchronized (mutex) {
+			if (mInstance == null) {
+				mInstance = new Controller();
+			}
+			return mInstance;
 		}
-		return mInstance;
 	}
 	
 	public void initializeController(Context context) {
@@ -93,7 +96,7 @@ public class Controller {
 		try {
 			mArticleLimit = Integer.parseInt(prefs.getString(Constants.DISPLAY_ARTICLE_LIMIT, "100"));
 		} catch (ClassCastException e) {
-			mArticleLimit = 100;
+			setArticleLimit(100);
 			Log.e(Utils.TAG, "DISPLAY_ARTICLE_LIMIT was not an integer value, using default value: " + mArticleLimit);
 		}
 		
@@ -101,8 +104,8 @@ public class Controller {
 		try {
 			mDatabaseVersion = Integer.parseInt(prefs.getString(Constants.DATABASE_VERSION, "0"));
 		} catch (ClassCastException e) {
-			mDatabaseVersion = 0;
-			Log.e(Utils.TAG, "DATABASE_VERSION was not an integer value, using default value: 0");
+			setDatabaseVersion(0);
+			Log.e(Utils.TAG, "DATABASE_VERSION was not an integer value");
 		}
 		
 	}
@@ -249,7 +252,7 @@ public class Controller {
 	
 	public void setArticleLimit(int articleLimit) {
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt(Constants.DISPLAY_ARTICLE_LIMIT, articleLimit);
+		editor.putString(Constants.DISPLAY_ARTICLE_LIMIT, articleLimit+"");
 		editor.commit();
 		this.mArticleLimit = articleLimit;
 	}
@@ -260,7 +263,7 @@ public class Controller {
 
 	public void setDatabaseVersion(int databaseVersion) {
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt(Constants.DATABASE_VERSION, databaseVersion);
+		editor.putString(Constants.DATABASE_VERSION, databaseVersion+"");
 		editor.commit();
 		this.mDatabaseVersion = databaseVersion;
 	}
