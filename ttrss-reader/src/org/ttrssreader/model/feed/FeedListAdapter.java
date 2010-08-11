@@ -122,16 +122,18 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 			return new View(mContext);
 		}
 		
-		FeedListView sv;
+		FeedListView sv = null;
 		if (convertView == null) {
 			sv = new FeedListView(mContext, mFeeds.get(position).getTitle(),
 					mFeeds.get(position).getId(),
 					mFeeds.get(position).getUnread());
 		} else {
-			sv = (FeedListView) convertView;
-			sv.setIcon(mFeeds.get(position).getUnread() > 0);
-			sv.setBoldTitleIfNecessary(mFeeds.get(position).getUnread() > 0);
-			sv.setTitle(formatTitle(mFeeds.get(position).getTitle(), mFeeds.get(position).getUnread()));
+			if (convertView instanceof FeedListView) {
+				sv = (FeedListView) convertView;
+				sv.setIcon(mFeeds.get(position).getUnread() > 0);
+				sv.setBoldTitleIfNecessary(mFeeds.get(position).getUnread() > 0);
+				sv.setTitle(formatTitle(mFeeds.get(position).getTitle(), mFeeds.get(position).getUnread()));
+			}
 		}
 		
 		return sv;
