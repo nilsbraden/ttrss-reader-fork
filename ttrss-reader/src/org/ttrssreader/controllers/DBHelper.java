@@ -567,6 +567,38 @@ public class DBHelper {
 		}
 	}
 	
+	public void deleteCategory(String id) {
+		db_intern.execSQL("DELETE FROM " + TABLE_CAT + " WHERE id=" + id);
+	}
+	
+	public void deleteFeed(String id) {
+		db_intern.execSQL("DELETE FROM " + TABLE_FEEDS + " WHERE id=" + id);
+	}
+
+	public void deleteArticle(String id) {
+		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id=" + id);
+		
+		if (isExternalDBAvailable()) {
+			db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id=" + id);
+		}
+	}
+	
+	public void deleteCategories() {
+		db_intern.execSQL("DELETE FROM " + TABLE_CAT);
+	}
+	
+	public void deleteFeeds() {
+		db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
+	}
+
+	public void deleteArticles() {
+		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+		
+		if (isExternalDBAvailable()) {
+			db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES);
+		}
+	}
+	
 	public void purgeArticlesDays(Date olderThenThis) {
 		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE isUnread=0 AND updateDate<"
 				+ olderThenThis.getTime());
