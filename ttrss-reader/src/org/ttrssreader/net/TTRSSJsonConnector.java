@@ -43,7 +43,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private static final String OP_GET_UNREAD = "?op=getUnread&sid=%s";
 	private static final String OP_GET_CATEGORIES = "?op=getCategories&sid=%s";
 	private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s";
-	private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&view_mode=%s";
+	private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&show_content=1&view_mode=%s";
 	private static final String OP_GET_ARTICLES_WITH_CONTENT = "?op=getArticles&sid=%s&id=%s&unread=%s&is_category=%s";
 	private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
 	private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
@@ -83,7 +83,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	}
 	
 	private String doRequest(String url) {
-		Log.d(Utils.TAG, "url: " + url);
+		long start = System.currentTimeMillis();
 		String strResponse = null;
 		
 		HttpClient httpclient = new DefaultHttpClient();
@@ -115,6 +115,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mHasLastError = true;
 			mLastError = e.getMessage();
 		}
+		
+		Log.d(Utils.TAG, "url: " + url.replace(mPassword, "*") + " (took " + (System.currentTimeMillis()-start) + " ms)");
 		
 		return strResponse;
 	}

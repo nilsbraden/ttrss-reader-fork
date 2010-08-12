@@ -34,7 +34,12 @@ public class ArticleItemAdapter implements IRefreshable {
 	
 	@Override
 	public void refreshData() {
-		mArticle = DataController.getInstance().getArticleWithContent(mArticleId).deepCopy();
+		ArticleItem a = DataController.getInstance().getArticleWithContent(mArticleId);
+		
+		if (a != null) {
+			mArticle = a.deepCopy();
+		}
+		DataController.getInstance().disableForceFullRefresh();
 	}
 	
 }

@@ -129,24 +129,18 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		if (position >= mArticles.size()) {
-			return new View(mContext);
-		}
+		if (position >= mArticles.size()) return new View(mContext);
 
 		FeedHeadlineListView sv;
+		ArticleItem a = mArticles.get(position);
 		if (convertView == null) {
-			sv = new FeedHeadlineListView(mContext, position, mArticles.get(position).getTitle(), mArticles.get(
-					position)
-					.getId(), mArticles.get(position).isUnread(), /* mArticles.get(position).getContent(), */mArticles
-					.get(position)
-					.getUpdateDate());
+			sv = new FeedHeadlineListView(mContext, position, a.getTitle(), a.getId(), a.isUnread(), a.getUpdateDate());
 		} else {
 			sv = (FeedHeadlineListView) convertView;
-			
-			sv.setIcon(mArticles.get(position).isUnread());
-			sv.setBoldTitleIfNecessary(mArticles.get(position).isUnread());
-			sv.setTitle(mArticles.get(position).getTitle());
-			sv.setUpdateDate(mContext, mArticles.get(position).getUpdateDate());
+			sv.setIcon(a.isUnread());
+			sv.setBoldTitleIfNecessary(a.isUnread());
+			sv.setTitle(a.getTitle());
+			sv.setUpdateDate(mContext, a.getUpdateDate());
 		}
 		
 		return sv;

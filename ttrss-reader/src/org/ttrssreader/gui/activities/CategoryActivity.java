@@ -56,6 +56,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	private ListView mCategoryListView;
 	private CategoryListAdapter mAdapter = null;
+	private CategoryUpdateTask asyncTask;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -74,7 +75,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		new Handler().postDelayed(new Runnable() {
 			
 			public void run() {
-				new CategoryUpdateTask().execute("");
+				asyncTask = new CategoryUpdateTask();
+				asyncTask.execute("");
 			}
 		}, Utils.WAIT);
 	}
@@ -84,6 +86,12 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		super.onResume();
 		if (mAdapter != null) mAdapter.notifyDataSetChanged();
 		doRefresh();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		asyncTask.cancel(true);
 	}
 	
 	private void doRefresh() {

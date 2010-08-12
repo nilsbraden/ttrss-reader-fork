@@ -64,6 +64,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	private ArticleItem mArticleItem = null;
 	
 	private ArticleItemAdapter mAdapter = null;
+	private ArticleUpdateTask asyncTask;
 	
 	private WebView webview;
 	private TextView webviewSwipeText;
@@ -118,7 +119,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 					prev = mArticleIds.get(indexPrev);
 				}
 				
-				new ArticleUpdateTask().execute(next, prev);
+				asyncTask = new ArticleUpdateTask();
+				asyncTask.execute(next, prev);
 			}
 		}, Utils.WAIT);
 	}
@@ -129,6 +131,12 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		doRefresh();
 	}
 	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		asyncTask.cancel(true);
+	}
+		
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
