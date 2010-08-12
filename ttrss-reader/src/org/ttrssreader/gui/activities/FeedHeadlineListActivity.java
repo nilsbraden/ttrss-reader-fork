@@ -67,6 +67,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	private ListView mFeedHeadlineListView;
 	private FeedHeadlineListAdapter mAdapter = null;
+	private FeedHeadlineUpdateTask asyncTask;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -113,16 +114,23 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 					prev = mFeedIds.get(indexPrev);
 				}
 				
-				new FeedHeadlineUpdateTask().execute(mFeedId, next, prev);
+				asyncTask = new FeedHeadlineUpdateTask();
+				asyncTask.execute(mFeedId, next, prev);
 			}
 		}, Utils.WAIT);
 	}
 	
 	@Override
 	protected void onResume() {
-		super.onResume();
 		if (mAdapter != null) mAdapter.notifyDataSetChanged();
+		super.onResume();
 		doRefresh();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		asyncTask.cancel(true);
 	}
 	
 	private void doRefresh() {

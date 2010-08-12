@@ -52,6 +52,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	
 	private ListView mFeedListView;
 	private FeedListAdapter mAdapter = null;
+	private FeedUpdateTask asyncTask;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,7 +78,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		new Handler().postDelayed(new Runnable() {
 			
 			public void run() {
-				new FeedUpdateTask().execute(mCategoryId);
+				asyncTask = new FeedUpdateTask();
+				asyncTask.execute(mCategoryId);
 			}
 		}, Utils.WAIT);
 	}
@@ -87,6 +89,12 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		doRefresh();
 		if (mAdapter != null) mAdapter.notifyDataSetChanged();
 		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		asyncTask.cancel(true);
 	}
 	
 	@Override
