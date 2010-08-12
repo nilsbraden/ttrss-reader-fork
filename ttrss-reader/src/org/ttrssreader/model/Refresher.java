@@ -15,7 +15,6 @@
 
 package org.ttrssreader.model;
 
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.IRefreshEndListener;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -34,11 +33,7 @@ public class Refresher extends AsyncTask<Void, Void, Void> {
 	private Handler handler = new Handler() {
 		
 		public void handleMessage(Message msg) {
-			if (msg.arg1 == 0) {
-				mParent.onRefreshEnd();
-			} else if (msg.arg1 == 1) {
-				mParent.onSubRefreshEnd();
-			}
+			mParent.onRefreshEnd();
 		}
 	};
 	
@@ -46,19 +41,7 @@ public class Refresher extends AsyncTask<Void, Void, Void> {
 	protected Void doInBackground(Void... params) {
 		// Refresh data oh this view
 		mRefreshable.refreshData();
-		Message m = new Message();
-		m.arg1 = 0;
-		handler.sendMessage(m);
-		
-		if (Controller.getInstance().isRefreshSubData()) {
-			// Refresh data of next view below the current one, e.g. Feeds->Headlines.
-			mRefreshable.refreshSubData();
-			handler.sendEmptyMessage(1);
-			
-			m = new Message();
-			m.arg1 = 1;
-			handler.sendMessage(m);
-		}
+		handler.sendEmptyMessage(0);
 		
 		return null;
 	}

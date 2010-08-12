@@ -194,18 +194,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	}
 	
 	@Override
-	public void onSubRefreshEnd() {
-		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
-			mAdapter.notifyDataSetChanged();
-		} else {
-			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
-		}
-		
-		setProgressBarIndeterminateVisibility(false);
-		DataController.getInstance().disableForceFullRefresh();
-	}
-	
-	@Override
 	public void onUpdateEnd() {
 		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
 			// TODO: Is that right?

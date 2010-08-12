@@ -19,6 +19,4 @@ public interface IRefreshEndListener {
 	
 	public void onRefreshEnd();
 	
-	public void onSubRefreshEnd();
-	
 }

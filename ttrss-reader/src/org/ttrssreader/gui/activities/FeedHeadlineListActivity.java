@@ -370,29 +370,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			if (mAdapter.getArticleUnreadList().isEmpty() && !mFeedId.matches("-[0-9]")) {
 				finish();
 			}
-			
-			// // Directly open Article if only one unread Article exists
-			// if (mAdapter.getArticleUnreadList().size() == 1) {
-			// Intent i = new Intent(this, ArticleActivity.class);
-			// i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(0));
-			// i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-			// i.putStringArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
-			//				
-			// startActivityForResult(i, ACTIVITY_SHOW_FEED_ITEM);
-			// }
 		}
-	}
-	
-	@Override
-	public void onSubRefreshEnd() {
-		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
-			mAdapter.notifyDataSetChanged();
-		} else {
-			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
-		}
-		
-		setProgressBarIndeterminateVisibility(false);
-		DataController.getInstance().disableForceFullRefresh();
 	}
 	
 	@Override

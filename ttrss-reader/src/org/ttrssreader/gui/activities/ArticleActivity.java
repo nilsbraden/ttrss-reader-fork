@@ -18,7 +18,6 @@ package org.ttrssreader.gui.activities;
 import java.util.ArrayList;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.ReadStateUpdater;
@@ -174,7 +173,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	private void doRefresh() {
 		setProgressBarIndeterminateVisibility(true);
 		
-		mAdapter = new ArticleItemAdapter(mArticleId);
+		if (mAdapter == null) {
+			mAdapter = new ArticleItemAdapter(mArticleId);
+		}
 		new Refresher(this, mAdapter).execute();
 	}
 	
@@ -399,8 +400,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 					this.setTitle(this.getResources().getString(R.string.ApplicationName));
 				}
 				
-				if ((mArticleItem.isUnread()) && (Controller.getInstance().isAutomaticMarkRead())) {
-					setProgressBarIndeterminateVisibility(true);
+				if (mArticleItem.isUnread() && Controller.getInstance().isAutomaticMarkRead()) {
 					new Updater(this, new ReadStateUpdater(mAdapter.getArticle(), mFeedId, 0)).execute();
 				}
 				
@@ -418,12 +418,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		}
 		
 		setProgressBarIndeterminateVisibility(false);
-	}
-	
-	@Override
-	public void onSubRefreshEnd() {
-		setProgressBarIndeterminateVisibility(false);
-		DataController.getInstance().disableForceFullRefresh();
 	}
 	
 	@Override
