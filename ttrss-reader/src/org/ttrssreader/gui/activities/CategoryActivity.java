@@ -217,16 +217,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	}
 	
 	@Override
-	public void onSubRefreshEnd() {
-		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
-			mAdapter.notifyDataSetChanged();
-		} else {
-			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
-		}
-		setProgressBarIndeterminateVisibility(false);
-	}
-	
-	@Override
 	public void onUpdateEnd() {
 		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
 			mAdapter.notifyDataSetChanged();
