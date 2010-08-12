@@ -26,6 +26,7 @@ import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.Utils;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -48,15 +49,16 @@ public class DBHelper {
 	private static final String TABLE_FEEDS = "feeds";
 	private static final String TABLE_ARTICLES = "articles";
 	
-	private static final String INSERT_CAT = "REPLACE INTO " + TABLE_CAT + "(id, title, unread) VALUES (?, ?, ?)";
+	private static final String INSERT_CAT = "REPLACE INTO " + TABLE_CAT
+			+ "(id, title, unread) VALUES (?, ?, ?)";
+	
 	private static final String INSERT_FEEDS = "REPLACE INTO " + TABLE_FEEDS
 			+ "(id, categoryId, title, url, unread) VALUES (?, ?, ?, ?, ?)";
-	private static final String INSERT_ARTICLES = "REPLACE INTO "
-			+ TABLE_ARTICLES
+	
+	private static final String INSERT_ARTICLES = "REPLACE INTO " + TABLE_ARTICLES
 			+ "(id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
 	
-	private static final String INSERT_ARTICLES_EXTERN = "REPLACE INTO "
-			+ TABLE_ARTICLES
+	private static final String INSERT_ARTICLES_EXTERN = "REPLACE INTO " + TABLE_ARTICLES
 			+ "(id, feedId, content, isUnread, updateDate) VALUES (?, ?, ?, ?, ?)";
 	
 	private static final String UPDATE_ARTICLES = "UPDATE " + TABLE_ARTICLES
@@ -67,7 +69,7 @@ public class DBHelper {
 	
 	private Context context;
 	private SQLiteDatabase db_intern;
-	private SQLiteDatabase db_sdcard;
+	private SQLiteDatabase db_extern;
 	private SQLiteStatement insertCat;
 	private SQLiteStatement insertFeed;
 	private SQLiteStatement insertArticle;
@@ -80,7 +82,7 @@ public class DBHelper {
 	public DBHelper() {
 		context = null;
 		db_intern = null;
-		db_sdcard = null;
+		db_extern = null;
 		insertCat = null;
 		insertFeed = null;
 		insertArticle = null;
@@ -97,15 +99,15 @@ public class DBHelper {
 		
 		OpenHelper openHelper = new OpenHelper(context);
 		db_intern = openHelper.getWritableDatabase();
-		db_sdcard = openDatabase();
+		db_extern = openDatabase();
 		
 		insertCat = db_intern.compileStatement(INSERT_CAT);
 		insertFeed = db_intern.compileStatement(INSERT_FEEDS);
 		insertArticle = db_intern.compileStatement(INSERT_ARTICLES);
 		updateArticle = db_intern.compileStatement(UPDATE_ARTICLES);
 		
-		insertArticle_extern = db_sdcard.compileStatement(INSERT_ARTICLES_EXTERN);
-		updateArticle_extern = db_sdcard.compileStatement(UPDATE_ARTICLES_EXTERN);
+		insertArticle_extern = db_extern.compileStatement(INSERT_ARTICLES_EXTERN);
+		updateArticle_extern = db_extern.compileStatement(UPDATE_ARTICLES_EXTERN);
 		
 	}
 	
@@ -128,7 +130,7 @@ public class DBHelper {
 	}
 	
 	public SQLiteDatabase getExternalDb() {
-		return this.db_sdcard;
+		return this.db_extern;
 	}
 	
 	private void handleDBUpdate() {
@@ -138,13 +140,13 @@ public class DBHelper {
 			
 			OpenHelper openHelper = new OpenHelper(context);
 			db_intern = openHelper.getWritableDatabase();
-			db_sdcard = openDatabase();
+			db_extern = openDatabase();
 			
 			dropInternalDB();
 			dropExternalDB();
 			
 			db_intern.close();
-			db_sdcard.close();
+			db_extern.close();
 		}
 		
 		Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
@@ -154,7 +156,7 @@ public class DBHelper {
 		db_intern.execSQL("DELETE FROM " + TABLE_CAT);
 		db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
 		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
-		db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES);
+		db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
 	}
 	
 	public void dropInternalDB() {
@@ -182,7 +184,7 @@ public class DBHelper {
 			openDatabase();
 			externalDBState = true;
 		} else {
-			db_sdcard.close();
+			db_extern.close();
 			externalDBState = false;
 		}
 	}
@@ -214,10 +216,10 @@ public class DBHelper {
 			
 			try {
 				Log.d(Utils.TAG, "Opening database: " + file.getAbsolutePath());
-				db_sdcard = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
+				db_extern = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
 				
 				// Create tables if they dont exist
-				db_sdcard.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ARTICLES + " (" +
+				db_extern.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ARTICLES + " (" +
 						"id INTEGER, " +
 						"feedId INTEGER, " +
 						"content BLOB, " +
@@ -231,9 +233,9 @@ public class DBHelper {
 			}
 		}
 		
-		externalDBState = db_sdcard.isOpen();
+		externalDBState = db_extern.isOpen();
 		
-		return db_sdcard;
+		return db_extern;
 	}
 	
 	private static class OpenHelper extends SQLiteOpenHelper {
@@ -252,8 +254,8 @@ public class DBHelper {
 			db.execSQL("CREATE TABLE " + TABLE_FEEDS + " (" +
 					"id INTEGER, " +
 					"categoryId INTEGER, " +
-					"title TEXT, "
-					+ "url TEXT, " +
+					"title TEXT, " +
+					"url TEXT, " +
 					"unread INTEGER, " +
 					"PRIMARY KEY( id, categoryId ))");
 			
@@ -281,7 +283,6 @@ public class DBHelper {
 	// *******| INSERT |*******************************************************************
 	
 	private long insertCategory(String id, String title, int unread) {
-		
 		if (id == null) return 0;
 		if (title == null) title = "";
 		
@@ -297,14 +298,12 @@ public class DBHelper {
 	}
 	
 	public void insertCategory(CategoryItem c) {
-		
 		if (c == null) return;
 		
 		insertCategory(c.getId(), c.getTitle(), c.getUnreadCount());
 	}
 	
 	public void insertCategories(List<CategoryItem> list) {
-		
 		if (list == null) return;
 		
 		for (CategoryItem c : list) {
@@ -315,29 +314,23 @@ public class DBHelper {
 		}
 	}
 	
-	private long insertFeed(String feedId, String categoryId, String title, String url, int unread) {
-		
-		if (feedId == null) return 0;
+	private void insertFeed(String feedId, String categoryId, String title, String url, int unread) {
+		if (feedId == null) return;
 		if (categoryId == null) categoryId = "";
 		if (title == null) title = "";
 		if (url == null) url = "";
-		if (title == null) title = "";
 		
-		long ret = 0;
 		synchronized (this) {
 			insertFeed.bindLong(1, new Integer(feedId).longValue());
 			insertFeed.bindLong(2, new Integer(categoryId).longValue());
 			insertFeed.bindString(3, title);
 			insertFeed.bindString(4, url);
 			insertFeed.bindLong(5, unread);
-			
-			ret = insertFeed.executeInsert();
+			insertFeed.executeInsert();
 		}
-		return ret;
 	}
 	
 	public void insertFeed(FeedItem f) {
-		
 		if (f == null || f.getCategoryId().startsWith("-")) {
 			return;
 		}
@@ -351,26 +344,34 @@ public class DBHelper {
 	}
 	
 	public void insertFeeds(List<FeedItem> list) {
-		
 		if (list == null) return;
 		
+		ContentValues valuesIntern = new ContentValues();
+		
 		for (FeedItem f : list) {
-			if (f.getCategoryId().startsWith("-")) {
-				continue;
-			}
+			String feedId = f.getId();
+			String categoryId = f.getCategoryId();
+			String title = f.getTitle();
+			String url = f.getUrl();
+			int unread = f.getUnread();
 			
-			insertFeed(
-					f.getId(),
-					f.getCategoryId(),
-					f.getTitle(),
-					f.getUrl(),
-					f.getUnread());
+			if (feedId == null) return;
+			if (categoryId == null) categoryId = "";
+			if (title == null) title = "";
+			if (url == null) url = "";
+			
+			valuesIntern.put("id", feedId);
+			valuesIntern.put("categoryId", categoryId);
+			valuesIntern.put("title", title);
+			valuesIntern.put("url", url);
+			valuesIntern.put("unread", unread);
 		}
+		
+		db_intern.insert(TABLE_FEEDS, null, valuesIntern);
 	}
 	
 	private void insertArticle(String articleId, String feedId, String title, boolean isUnread, String content,
 			String articleUrl, String articleCommentUrl, Date updateDate) {
-		
 		if (articleId == null) return;
 		if (feedId == null) feedId = "";
 		if (title == null) title = "";
@@ -394,15 +395,14 @@ public class DBHelper {
 				insertArticle_extern.bindLong(2, Long.parseLong(feedId));
 				byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
 				insertArticle_extern.bindBlob(3, contentBytes);
-				insertArticle.bindLong(4, (isUnread ? 1 : 0));
-				insertArticle.bindLong(5, updateDate.getTime());
+				insertArticle_extern.bindLong(4, (isUnread ? 1 : 0));
+				insertArticle_extern.bindLong(5, updateDate.getTime());
 				insertArticle_extern.executeInsert();
 			}
 		}
 	}
 	
 	public void insertArticle(ArticleItem a, int number) {
-		
 		if (a == null) return;
 		
 		insertArticleInternal(a);
@@ -422,28 +422,57 @@ public class DBHelper {
 	}
 	
 	public void insertArticles(List<ArticleItem> list, int number) {
-		
 		if (list == null) return;
 		
 		insertArticlesInternal(list);
 		purgeArticlesNumber(number);
 	}
 	
-	public void insertArticlesInternal(List<ArticleItem> list) {
-		
+	private void insertArticlesInternal(List<ArticleItem> list) {
 		if (list == null) return;
 		
+		ContentValues valuesIntern = new ContentValues();
+		ContentValues valuesExtern = new ContentValues();
+		
 		for (ArticleItem a : list) {
-			insertArticle(
-					a.getId(),
-					a.getFeedId(),
-					a.getTitle(),
-					a.isUnread(),
-					a.getContent(),
-					a.getArticleUrl(),
-					a.getArticleCommentUrl(),
-					a.getUpdateDate());
+			
+			String articleId = a.getId();
+			String feedId = a.getFeedId();
+			String title = a.getTitle();
+			boolean isUnread = a.isUnread();
+			String content = a.getContent();
+			String articleUrl = a.getArticleUrl();
+			String articleCommentUrl = a.getArticleCommentUrl();
+			Date updateDate = a.getUpdateDate();
+			
+			if (articleId == null) return;
+			if (feedId == null) feedId = "";
+			if (title == null) title = "";
+			if (content == null) content = "";
+			if (articleUrl == null) articleUrl = "";
+			if (articleCommentUrl == null) articleCommentUrl = "";
+			if (updateDate == null) updateDate = new Date(System.currentTimeMillis());
+			
+			valuesIntern.put("id", articleId);
+			valuesIntern.put("feedId", feedId);
+			valuesIntern.put("title", title);
+			valuesIntern.put("isUnread", isUnread);
+			valuesIntern.put("articleUrl", articleUrl);
+			valuesIntern.put("articleCommentUrl", articleCommentUrl);
+			valuesIntern.put("updateDate", updateDate.getTime());
+			
+			if (isExternalDBAvailable()) {
+				valuesIntern.put("id", articleId);
+				valuesIntern.put("feedId", feedId);
+				byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
+				valuesIntern.put("content", contentBytes);
+				valuesIntern.put("isUnread", isUnread);
+				valuesIntern.put("updateDate", updateDate.getTime());
+			}
 		}
+		
+		db_intern.insert(TABLE_ARTICLES, null, valuesIntern);
+		db_extern.insert(TABLE_ARTICLES, null, valuesExtern);
 	}
 	
 	// *******| UPDATE |*******************************************************************
@@ -466,7 +495,7 @@ public class DBHelper {
 					" SET isUnread='0' WHERE feedId='" + f.getId() + "'");
 			
 			if (isExternalDBAvailable()) {
-				db_sdcard.execSQL("UPDATE " + TABLE_ARTICLES +
+				db_extern.execSQL("UPDATE " + TABLE_ARTICLES +
 						" SET isUnread='0' WHERE feedId='" + f.getId() + "'");
 			}
 		}
@@ -479,7 +508,7 @@ public class DBHelper {
 					" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "'");
 			
 			if (isExternalDBAvailable()) {
-				db_sdcard.execSQL("UPDATE " + TABLE_ARTICLES +
+				db_extern.execSQL("UPDATE " + TABLE_ARTICLES +
 						" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "'");
 			}
 		}
@@ -526,7 +555,7 @@ public class DBHelper {
 				" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "' and feedId='" + feedId + "'");
 		
 		if (isExternalDBAvailable()) {
-			db_sdcard.execSQL("UPDATE " + TABLE_ARTICLES +
+			db_extern.execSQL("UPDATE " + TABLE_ARTICLES +
 					" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "' and feedId='" + feedId + "'");
 		}
 	}
@@ -579,7 +608,7 @@ public class DBHelper {
 		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id=" + id);
 		
 		if (isExternalDBAvailable()) {
-			db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id=" + id);
+			db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id=" + id);
 		}
 	}
 	
@@ -595,7 +624,7 @@ public class DBHelper {
 		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
 		
 		if (isExternalDBAvailable()) {
-			db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES);
+			db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
 		}
 	}
 	
@@ -605,7 +634,7 @@ public class DBHelper {
 		
 		if (isExternalDBAvailable()) {
 			// Dont rely on isUnread here, article could have been marked as read while sdcard wasnt available
-			db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE updateDate<" + olderThenThis.getTime());
+			db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE updateDate<" + olderThenThis.getTime());
 		}
 	}
 	
@@ -618,7 +647,7 @@ public class DBHelper {
 		
 		if (isExternalDBAvailable()) {
 			// Dont rely on isUnread here, article could have been marked as read while sdcard wasnt available
-			db_sdcard.execSQL("DELETE FROM " + TABLE_ARTICLES +
+			db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES +
 					" WHERE id in( select id from " + TABLE_ARTICLES +
 					" ORDER BY updateDate DESC" +
 					" LIMIT -1 OFFSET " + number + ")");
@@ -633,7 +662,7 @@ public class DBHelper {
 		Cursor c = db_intern.query(TABLE_ARTICLES, null, "id=" + id, null, null, null, null, null);
 		
 		while (!c.isAfterLast()) {
-			ret = handleArticleCursor(c);
+			ret = handleArticleCursor(c, true);
 			
 			c.move(1);
 		}
@@ -672,13 +701,13 @@ public class DBHelper {
 		return ret;
 	}
 	
-	public List<ArticleItem> getArticles(FeedItem fi) {
+	public List<ArticleItem> getArticles(FeedItem fi, boolean withContent) {
 		List<ArticleItem> ret = new ArrayList<ArticleItem>();
 		
 		Cursor c = db_intern.query(TABLE_ARTICLES, null, "feedId=" + fi.getId(), null, null, null, null, null);
 		
 		while (!c.isAfterLast()) {
-			ret.add(handleArticleCursor(c));
+			ret.add(handleArticleCursor(c, withContent));
 			
 			c.move(1);
 		}
@@ -706,7 +735,7 @@ public class DBHelper {
 	 * Returns the maxArticles newest articles, mapped in lists to their feed-id.
 	 * Returns all articles if maxArticles is 0 or lower.
 	 */
-	public Map<String, List<ArticleItem>> getArticles(int maxArticles) {
+	public Map<String, List<ArticleItem>> getArticles(int maxArticles, boolean withContent) {
 		Map<String, List<ArticleItem>> ret = new HashMap<String, List<ArticleItem>>();
 		
 		String limit = (maxArticles > 0 ? String.valueOf(maxArticles) : null);
@@ -714,7 +743,7 @@ public class DBHelper {
 		Cursor c = db_intern.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC", limit);
 		
 		while (!c.isAfterLast()) {
-			ArticleItem a = handleArticleCursor(c);
+			ArticleItem a = handleArticleCursor(c, withContent);
 			String feedId = a.getFeedId();
 			
 			List<ArticleItem> list;
@@ -825,7 +854,7 @@ public class DBHelper {
 	
 	// *******************************************
 	
-	private ArticleItem handleArticleCursor(Cursor c) {
+	private ArticleItem handleArticleCursor(Cursor c, boolean withContent) {
 		ArticleItem ret = null;
 		
 		if (c.isBeforeFirst()) {
@@ -835,12 +864,12 @@ public class DBHelper {
 		}
 		
 		String id = c.getString(0);
-		String contentStr = "";
+		String contentStr = null;
 		
-		if (isExternalDBAvailable()) {
+		if (isExternalDBAvailable() && withContent) {
 			
 			String[] column = { "content" };
-			Cursor content_cursor = db_sdcard.query(TABLE_ARTICLES, column, "id=" + id, null, null, null, null, null);
+			Cursor content_cursor = db_extern.query(TABLE_ARTICLES, column, "id=" + id, null, null, null, null, null);
 			content_cursor.moveToFirst();
 			
 			byte[] content = null;

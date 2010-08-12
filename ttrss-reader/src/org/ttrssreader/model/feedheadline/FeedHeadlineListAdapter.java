@@ -227,6 +227,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 				mArticles.add(a.deepCopy());
 			}
 		}
+		
 		DataController.getInstance().disableForceFullRefresh();
 	}
 

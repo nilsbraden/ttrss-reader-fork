@@ -23,6 +23,8 @@ import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
+import org.ttrssreader.utils.Utils;
+import android.util.Log;
 
 public class ReadStateUpdater implements IUpdatable {
 	
@@ -76,6 +78,8 @@ public class ReadStateUpdater implements IUpdatable {
 	
 	@Override
 	public void update() {
+		
+		Log.i(Utils.TAG, "Updating Article-Read-Status...");
 		
 		boolean boolState = mArticleState == 1 ? true : false;
 		int intState = mArticleState == 1 ? 1 : -1;
