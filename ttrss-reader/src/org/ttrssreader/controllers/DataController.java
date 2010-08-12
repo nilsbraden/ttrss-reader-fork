@@ -55,7 +55,7 @@ public class DataController {
 	private DataController() {
 		
 		mCounters = DBHelper.getInstance().getCounters();
-		mFeedsHeadlines = DBHelper.getInstance().getArticles(0);
+		mFeedsHeadlines = DBHelper.getInstance().getArticles(0, false);
 		mSubscribedFeeds = DBHelper.getInstance().getFeeds();
 		mVirtualCategories = DBHelper.getInstance().getVirtualCategories();
 		mCategories = DBHelper.getInstance().getCategories(false);
@@ -371,6 +371,7 @@ public class DataController {
 				
 				// Check again to make sure it has not been updated while we were waiting
 				if (result == null || needFullRefresh()) {
+					
 					String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
 					int articleLimit = Controller.getInstance().getArticleLimit();
 					result = Controller.getInstance().getTTRSSConnector()
@@ -383,10 +384,14 @@ public class DataController {
 					// Unnecessary?
 					// mFeedsHeadlines.put(feedId, result);
 					
+					long start = System.currentTimeMillis();
 					DBHelper.getInstance().insertArticles(result, articleLimit);
+					Log.w(Utils.TAG, "save to DB - Time: " + (System.currentTimeMillis()-start) + " (count: " + result.size() + ")");
 					
+					start = System.currentTimeMillis();
 					// Refresh Headlines from DB so they get reduced to articleLimit too.
-					mFeedsHeadlines = DBHelper.getInstance().getArticles(0);
+					mFeedsHeadlines = DBHelper.getInstance().getArticles(0, false);
+					Log.w(Utils.TAG, "retrieve from DB - Time: " + (System.currentTimeMillis()-start) + " (count: " + result.size() + ")");
 				}
 				
 			}
@@ -471,7 +476,7 @@ public class DataController {
 		
 		List<ArticleItem> result = null;
 		
-		result = DBHelper.getInstance().getArticles(fi);
+		result = DBHelper.getInstance().getArticles(fi, true);
 		
 		boolean needRefresh = false;
 		for (ArticleItem a : result) {
@@ -499,36 +504,13 @@ public class DataController {
 					DBHelper.getInstance().insertArticles(temp, articleLimit);
 					
 					// Refresh Headlines from DB so they get reduced to articleLimit too.
-					mFeedsHeadlines = DBHelper.getInstance().getArticles(0);
+					mFeedsHeadlines = DBHelper.getInstance().getArticles(0, false);
 				
 				}
 				
 			}
 		}
 		return result;
-	}
-	
-	// unused
-	public void updateUnread() {
-		List<ArticleItem> list = new ArrayList<ArticleItem>();
-		int limit = Controller.getInstance().getArticleLimit();
-		
-		// Update uncategorized Feeds
-		DBHelper.getInstance().markCategoryRead(new CategoryItem("0", "", 0), true);
-		list = Controller.getInstance().getTTRSSConnector()
-				.getFeedArticles(0, 1, true);
-		
-		DBHelper.getInstance().insertArticles(list, limit);
-		
-		// Update other categories
-		for (CategoryItem c : mCategories) {
-			DBHelper.getInstance().markCategoryRead(c, true);
-			list = Controller.getInstance().getTTRSSConnector()
-					.getFeedArticles(Integer.parseInt(c.getId()), 1, true);
-			
-			DBHelper.getInstance().insertArticles(list, limit);
-		}
-		mFeedsHeadlines = DBHelper.getInstance().getArticles(0);
 	}
 	
 }
