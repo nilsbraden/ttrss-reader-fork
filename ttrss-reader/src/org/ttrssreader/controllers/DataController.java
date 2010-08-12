@@ -144,6 +144,8 @@ public class DataController {
 				// Check again to make sure it has not been updated while we were waiting
 				if (mCategories.isEmpty() || needFullRefresh()) {
 					mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
+					
+					DBHelper.getInstance().deleteCategories();
 					DBHelper.getInstance().insertCategories(mCategories);
 				}
 
@@ -268,6 +270,8 @@ public class DataController {
 				// Check again to make sure it has not been updated while we were waiting
 				if (mSubscribedFeeds.isEmpty() || needFullRefresh()) {
 					mSubscribedFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
+					
+					DBHelper.getInstance().deleteFeeds();
 					for (String s : mSubscribedFeeds.keySet()) {
 						DBHelper.getInstance().insertFeeds(mSubscribedFeeds.get(s));
 					}
