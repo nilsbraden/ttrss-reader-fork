@@ -24,11 +24,11 @@ import java.util.Map;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
-import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.Utils;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -43,7 +43,7 @@ public class DBHelper {
 	
 	private static final String DATABASE_PATH = "/Android/data/org.ttrssreader/files/";
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 5;
 	
 	private static final String TABLE_CAT = "categories";
 	private static final String TABLE_FEEDS = "feeds";
@@ -81,12 +81,16 @@ public class DBHelper {
 	
 	public DBHelper() {
 		context = null;
+		
 		db_intern = null;
 		db_extern = null;
+		
 		insertCat = null;
 		insertFeed = null;
 		insertArticle = null;
 		updateArticle = null;
+		
+		insertArticle_extern = null;
 		updateArticle_extern = null;
 		
 		externalDBState = false;
@@ -100,6 +104,9 @@ public class DBHelper {
 		OpenHelper openHelper = new OpenHelper(context);
 		db_intern = openHelper.getWritableDatabase();
 		db_extern = openDatabase();
+		
+		db_intern.setLockingEnabled(false);
+		db_extern.setLockingEnabled(false);
 		
 		insertCat = db_intern.compileStatement(INSERT_CAT);
 		insertFeed = db_intern.compileStatement(INSERT_FEEDS);
@@ -222,7 +229,7 @@ public class DBHelper {
 				db_extern.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ARTICLES + " (" +
 						"id INTEGER, " +
 						"feedId INTEGER, " +
-						"content BLOB, " +
+						"content TEXT, " +
 						"isUnread INTEGER, " +
 						"updateDate INTEGER, " +
 						"PRIMARY KEY( id , feedId ))");
@@ -282,19 +289,16 @@ public class DBHelper {
 	
 	// *******| INSERT |*******************************************************************
 	
-	private long insertCategory(String id, String title, int unread) {
-		if (id == null) return 0;
+	private void insertCategory(String id, String title, int unread) {
+		if (id == null) return;
 		if (title == null) title = "";
 		
-		long ret = 0;
-		synchronized (this) {
+		synchronized (insertCat) {
 			insertCat.bindString(1, id);
 			insertCat.bindString(2, title);
 			insertCat.bindLong(3, unread);
-			
-			ret = insertCat.executeInsert();
+			insertCat.execute();
 		}
-		return ret;
 	}
 	
 	public void insertCategory(CategoryItem c) {
@@ -316,17 +320,17 @@ public class DBHelper {
 	
 	private void insertFeed(String feedId, String categoryId, String title, String url, int unread) {
 		if (feedId == null) return;
-		if (categoryId == null) categoryId = "";
+		if (categoryId == null) return;
 		if (title == null) title = "";
 		if (url == null) url = "";
 		
-		synchronized (this) {
+		synchronized (insertFeed) {
 			insertFeed.bindLong(1, new Integer(feedId).longValue());
 			insertFeed.bindLong(2, new Integer(categoryId).longValue());
 			insertFeed.bindString(3, title);
 			insertFeed.bindString(4, url);
 			insertFeed.bindLong(5, unread);
-			insertFeed.executeInsert();
+			insertFeed.execute();
 		}
 	}
 	
@@ -372,15 +376,16 @@ public class DBHelper {
 	
 	private void insertArticle(String articleId, String feedId, String title, boolean isUnread, String content,
 			String articleUrl, String articleCommentUrl, Date updateDate) {
+		
 		if (articleId == null) return;
-		if (feedId == null) feedId = "";
+		if (feedId == null) return;
 		if (title == null) title = "";
 		if (content == null) content = "";
 		if (articleUrl == null) articleUrl = "";
 		if (articleCommentUrl == null) articleCommentUrl = "";
 		if (updateDate == null) updateDate = new Date(System.currentTimeMillis());
 		
-		synchronized (this) {
+		synchronized (insertArticle) {
 			insertArticle.bindLong(1, Long.parseLong(articleId));
 			insertArticle.bindLong(2, Long.parseLong(feedId));
 			insertArticle.bindString(3, title);
@@ -389,12 +394,15 @@ public class DBHelper {
 			insertArticle.bindString(6, articleCommentUrl);
 			insertArticle.bindLong(7, updateDate.getTime());
 			insertArticle.executeInsert();
+		}
 			
-			if (isExternalDBAvailable()) {
+		if (isExternalDBAvailable() && !content.equals("")) {
+			content = DatabaseUtils.sqlEscapeString(content);
+			
+			synchronized (insertArticle_extern) {
 				insertArticle_extern.bindLong(1, Long.parseLong(articleId));
 				insertArticle_extern.bindLong(2, Long.parseLong(feedId));
-				byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
-				insertArticle_extern.bindBlob(3, contentBytes);
+				insertArticle_extern.bindString(3, content);
 				insertArticle_extern.bindLong(4, (isUnread ? 1 : 0));
 				insertArticle_extern.bindLong(5, updateDate.getTime());
 				insertArticle_extern.executeInsert();
@@ -431,48 +439,53 @@ public class DBHelper {
 	private void insertArticlesInternal(List<ArticleItem> list) {
 		if (list == null) return;
 		
-		ContentValues valuesIntern = new ContentValues();
-		ContentValues valuesExtern = new ContentValues();
-		
-		for (ArticleItem a : list) {
+		try {
+			db_intern.beginTransaction();
+			db_extern.beginTransaction();
 			
-			String articleId = a.getId();
-			String feedId = a.getFeedId();
-			String title = a.getTitle();
-			boolean isUnread = a.isUnread();
-			String content = a.getContent();
-			String articleUrl = a.getArticleUrl();
-			String articleCommentUrl = a.getArticleCommentUrl();
-			Date updateDate = a.getUpdateDate();
-			
-			if (articleId == null) return;
-			if (feedId == null) feedId = "";
-			if (title == null) title = "";
-			if (content == null) content = "";
-			if (articleUrl == null) articleUrl = "";
-			if (articleCommentUrl == null) articleCommentUrl = "";
-			if (updateDate == null) updateDate = new Date(System.currentTimeMillis());
-			
-			valuesIntern.put("id", articleId);
-			valuesIntern.put("feedId", feedId);
-			valuesIntern.put("title", title);
-			valuesIntern.put("isUnread", isUnread);
-			valuesIntern.put("articleUrl", articleUrl);
-			valuesIntern.put("articleCommentUrl", articleCommentUrl);
-			valuesIntern.put("updateDate", updateDate.getTime());
-			
-			if (isExternalDBAvailable()) {
-				valuesIntern.put("id", articleId);
-				valuesIntern.put("feedId", feedId);
-				byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
-				valuesIntern.put("content", contentBytes);
-				valuesIntern.put("isUnread", isUnread);
-				valuesIntern.put("updateDate", updateDate.getTime());
+			for (ArticleItem a : list) {
+				String articleId = a.getId();
+				String feedId = a.getFeedId();
+				String title = a.getTitle();
+				int isUnread = a.isUnread() ? 1 : 0;
+				String content = a.getContent();
+				String articleUrl = a.getArticleUrl();
+				String articleCommentUrl = a.getArticleCommentUrl();
+				Date updateDate = a.getUpdateDate();
+				
+				String query_intern = "REPLACE INTO " + TABLE_ARTICLES +
+						" VALUES" +
+						" ('?','?','?','?','?','?','?')";
+				
+				Object[] array_intern = new Object[] {
+						articleId, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate.getTime()
+						};
+				
+				db_intern.execSQL(query_intern, array_intern);
+				
+				if (isExternalDBAvailable() && !content.equals("")) {
+					synchronized (insertArticle_extern) {
+						String query_extern = "REPLACE INTO " + TABLE_ARTICLES +
+								" VALUES" +
+								" ('?','?','?','?','?')";
+						
+						Object[] array_extern = new Object[] {
+								articleId, feedId, content, isUnread, updateDate.getTime()
+								};
+						
+						db_extern.execSQL(query_extern, array_extern);
+					}
+				}
 			}
+			
+			db_intern.setTransactionSuccessful();
+			db_extern.setTransactionSuccessful();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			db_intern.endTransaction();
+			db_extern.endTransaction();
 		}
-		
-		db_intern.insert(TABLE_ARTICLES, null, valuesIntern);
-		db_extern.insert(TABLE_ARTICLES, null, valuesExtern);
 	}
 	
 	// *******| UPDATE |*******************************************************************
@@ -564,7 +577,7 @@ public class DBHelper {
 		
 		String id = result.getId();
 		String feedId = result.getFeedId();
-		String content = result.getContent();
+		String content = DatabaseUtils.sqlEscapeString(result.getContent());
 		String title = result.getTitle();
 		String articleUrl = result.getArticleUrl();
 		String articleCommentUrl = result.getArticleCommentUrl();
@@ -576,7 +589,7 @@ public class DBHelper {
 		if (articleCommentUrl == null) articleCommentUrl = "";
 		if (updateDate == null) updateDate = new Date();
 		
-		synchronized (this) {
+		synchronized (updateArticle) {
 			updateArticle.bindString(1, title);
 			updateArticle.bindString(2, articleUrl);
 			updateArticle.bindString(3, articleCommentUrl);
@@ -584,10 +597,11 @@ public class DBHelper {
 			updateArticle.bindLong(5, new Long(id));
 			updateArticle.bindLong(6, new Long(feedId));
 			updateArticle.executeInsert();
-			
-			if (isExternalDBAvailable()) {
-				byte[] contentBytes = Base64.encodeBytesToBytes(content.getBytes());
-				updateArticle_extern.bindBlob(1, contentBytes);
+		}
+		
+		if (isExternalDBAvailable()) {
+			synchronized (updateArticle_extern) {
+				updateArticle_extern.bindString(1, content);
 				updateArticle_extern.bindLong(2, updateDate.getTime());
 				updateArticle_extern.bindLong(3, new Long(id));
 				updateArticle_extern.bindLong(4, new Long(feedId));
@@ -864,29 +878,14 @@ public class DBHelper {
 		}
 		
 		String id = c.getString(0);
-		String contentStr = null;
+		String content = "";
 		
 		if (isExternalDBAvailable() && withContent) {
-			
 			String[] column = { "content" };
-			Cursor content_cursor = db_extern.query(TABLE_ARTICLES, column, "id=" + id, null, null, null, null, null);
-			content_cursor.moveToFirst();
-			
-			byte[] content = null;
-			try {
-				content = content_cursor.getBlob(0);
-			} catch (Exception e) {
-			}
-			
-			content_cursor.close();
-			
-			try {
-				if (content != null && content.length > 0) {
-					contentStr = new String(Base64.decode(content));
-				}
-			} catch (Exception e) {
-				Log.w(Utils.TAG, "Could not decode content or title. length: " + content.length);
-			}
+			Cursor cCursor = db_extern.query(TABLE_ARTICLES, column, "id=" + id, null, null, null, null, null);
+			cCursor.moveToFirst();
+			content = cCursor.getString(0);
+			cCursor.close();
 		}
 		
 		ret = new ArticleItem(
@@ -895,7 +894,7 @@ public class DBHelper {
 				c.getString(2), // title
 				(c.getInt(3) != 0 ? true : false), // isUnread
 				new Date(c.getLong(6)), // updateDate
-				contentStr, // content
+				content, // content
 				c.getString(4), // articleUrl
 				c.getString(5) // articleCommentUrl
 		);
