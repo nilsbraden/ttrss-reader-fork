@@ -383,7 +383,7 @@ public class DataController {
 					
 					long start = System.currentTimeMillis();
 					DBHelper.getInstance().insertArticles(result, articleLimit);
-					Log.i(Utils.TAG, "Inserting took " + (System.currentTimeMillis()-start) + "ms.");
+					Log.i(Utils.TAG, "Inserting took " + (System.currentTimeMillis()-start) + "ms (" + result.size() + " articles)");
 					
 					// Refresh Headlines from DB so they get reduced to articleLimit too.
 					mFeedsHeadlines = DBHelper.getInstance().getArticles(0, false);
