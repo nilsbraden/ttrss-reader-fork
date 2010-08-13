@@ -381,17 +381,12 @@ public class DataController {
 						return null;
 					}
 					
-					// Unnecessary?
-					// mFeedsHeadlines.put(feedId, result);
-					
 					long start = System.currentTimeMillis();
 					DBHelper.getInstance().insertArticles(result, articleLimit);
-					Log.w(Utils.TAG, "save to DB - Time: " + (System.currentTimeMillis()-start) + " (count: " + result.size() + ")");
+					Log.i(Utils.TAG, "Inserting took " + (System.currentTimeMillis()-start) + "ms.");
 					
-					start = System.currentTimeMillis();
 					// Refresh Headlines from DB so they get reduced to articleLimit too.
 					mFeedsHeadlines = DBHelper.getInstance().getArticles(0, false);
-					Log.w(Utils.TAG, "retrieve from DB - Time: " + (System.currentTimeMillis()-start) + " (count: " + result.size() + ")");
 				}
 				
 			}

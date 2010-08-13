@@ -84,7 +84,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (mAdapter != null) mAdapter.notifyDataSetChanged();
+//		if (mAdapter != null) mAdapter.notifyDataSetChanged();
 		doRefresh();
 	}
 	
