@@ -47,6 +47,8 @@
 <string name="UsageUseVolumeKeysSummary">Press up for the next newer article, down for older article.</string>
 <string name="UsageVibrateOnLastArticleTitle">Vibrate when reached last article</string>
 <string name="UsageVibrateOnLastArticleSummary">Vibrates once when the first or last article is reached and tried to access the next article.</string>
+<string name="UsageWorkOfflineTitle">Work offline</string>
+<string name="UsageWorkOfflineSummary">Switch online-synchronisation on and off.</string>
 
 <string name="DisplayPreferenceCategoryTitle">Display</string>
 <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>

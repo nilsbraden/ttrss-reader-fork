@@ -15,12 +15,13 @@
 
 package org.ttrssreader.model;
 
+import java.util.List;
 import org.ttrssreader.gui.IRefreshEndListener;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-public class Refresher extends AsyncTask<Void, Void, Void> {
+public class Refresher extends AsyncTask<String, Integer, List<?>> {
 	
 	private IRefreshEndListener mParent;
 	private IRefreshable mRefreshable;
@@ -38,12 +39,12 @@ public class Refresher extends AsyncTask<Void, Void, Void> {
 	};
 	
 	@Override
-	protected Void doInBackground(Void... params) {
+	protected List<?> doInBackground(String... params) {
 		// Refresh data oh this view
-		mRefreshable.refreshData();
+		List<?> ret = mRefreshable.refreshData();
 		handler.sendEmptyMessage(0);
 		
-		return null;
+		return ret;
 	}
 	
 }

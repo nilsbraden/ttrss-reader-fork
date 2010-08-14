@@ -71,14 +71,18 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		return mCategories.get(position).getUnreadCount();
 	}
 	
-	public List<CategoryItem> getCategories() {
-		return mCategories;
-	}
-	
 	public int getTotalUnread() {
 		return mUnreadCount;
 	}
 	
+	public List<CategoryItem> getCategories() {
+		return mCategories;
+	}
+	
+	public void setCategories(List<CategoryItem> categories) {
+		this.mCategories = categories;
+	}
+
 	private String formatTitle(String title, int unread) {
 		if (unread > 0) {
 			return title + " (" + unread + ")";
@@ -131,9 +135,6 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 			
 		}
 		
-		/**
-		 * Convenience method to set the title of a SpeechView
-		 */
 		public void setTitle(String title) {
 			mTitle.setText(title);
 		}
@@ -168,21 +169,23 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		private TextView mTitle;
 	}
 	
-	public void refreshData() {
+	public List<?> refreshData() {
 		boolean virtuals = Controller.getInstance().isDisplayVirtuals();
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		
-		mCategories = new ArrayList<CategoryItem>();
-		List<CategoryItem> list = DataController.getInstance().getCategories(virtuals, displayOnlyUnread);
-		
-		if (list != null) {
-			for (CategoryItem c : list) {
-				mCategories.add(c.deepCopy());
-			}
+		// Update new articles
+		if (Controller.getInstance().isUpdateUnreadOnStartup()) {
+			DataController.getInstance().getNewArticles();
 		}
 		
+		// Update Unread Count
 		mUnreadCount = DataController.getInstance().getCategoryUnreadCount("-4");
+
+		List<CategoryItem> ret = DataController.getInstance().getCategories(virtuals, displayOnlyUnread);
+		
 		DataController.getInstance().disableForceFullRefresh();
+		
+		return ret;
 	}
 	
 }

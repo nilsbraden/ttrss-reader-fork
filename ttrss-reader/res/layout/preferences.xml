@@ -39,11 +39,11 @@
 			android:summary="@string/UsageOpenUrlEmptyArticleSummary"
 			android:key="UsageOpenUrlEmptyArticlePreference" />
 
-<!--		<CheckBoxPreference
+		<CheckBoxPreference
 			android:title="@string/UsageUpdateArticlesOnStartupTitle"
 			android:defaultValue="false"
 			android:summary="@string/UsageUpdateArticlesOnStartupSummary"
-			android:key="UsageUpdateArticlesOnStartupPreference" />-->
+			android:key="UsageUpdateArticlesOnStartupPreference" />
 
 		<CheckBoxPreference
 			android:title="@string/UsageRefreshSubDataTitle"
@@ -62,6 +62,12 @@
 			android:defaultValue="true"
 			android:summary="@string/UsageVibrateOnLastArticleSummary"
 			android:key="UsageVibrateOnLastArticlePreference" />
+
+		<CheckBoxPreference
+			android:title="@string/UsageWorkOfflineTitle"
+			android:defaultValue="false"
+			android:summary="@string/UsageWorkOfflineSummary"
+			android:key="UsageWorkOfflinePreference" />
 
 	</PreferenceCategory>
 	

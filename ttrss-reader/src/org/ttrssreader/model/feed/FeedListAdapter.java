@@ -46,6 +46,10 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		mFeeds = new ArrayList<FeedItem>();
 	}
 	
+	public void setFeeds(List<FeedItem> feeds) {
+		this.mFeeds = feeds;
+	}
+
 	@Override
 	public int getCount() {
 		return mFeeds.size();
@@ -121,7 +125,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		FeedListView sv = null;
 		FeedItem f = mFeeds.get(position);
 		if (convertView == null) {
-			sv = new FeedListView(mContext, f.getTitle(), f.getId(), f.getUnread());
+			sv = new FeedListView(mContext, f.getTitle(), f.getUnread());
 		} else {
 			if (convertView instanceof FeedListView) {
 				sv = (FeedListView) convertView;
@@ -136,7 +140,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 	
 	private class FeedListView extends LinearLayout {
 		
-		public FeedListView(Context context, String title, String id, int unread) {
+		public FeedListView(Context context, String title, int unread) {
 			super(context);
 			
 			this.setOrientation(HORIZONTAL);
@@ -160,9 +164,6 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 			addView(mTitle, layoutParams);
 		}
 		
-		/**
-		 * Convenience method to set the title of a SpeechView
-		 */
 		public void setTitle(String title) {
 			mTitle.setText(title);
 		}
@@ -186,22 +187,24 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable {
 		private ImageView mIcon;
 		private TextView mTitle;
 	}
-	
+
 	@Override
-	public void refreshData() {
+	public List<?> refreshData() {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		
-		mFeeds = new ArrayList<FeedItem>(); 
+		List<FeedItem> ret = new ArrayList<FeedItem>();
 		List<FeedItem> list = DataController.getInstance().getSubscribedFeeds(mCategoryId, displayOnlyUnread);
 	
 		if (list != null) {
 			for (FeedItem f : list) {
-				mFeeds.add(f.deepCopy());
+				ret.add(f.deepCopy());
 			}
 		
-			Collections.sort(mFeeds, new FeedItemComparator());
+			Collections.sort(ret, new FeedItemComparator());
 		}
 		DataController.getInstance().disableForceFullRefresh();
+		
+		return ret;
 	}
 		
 }

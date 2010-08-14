@@ -15,27 +15,35 @@
 
 package org.ttrssreader.model.feed;
 
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DataController;
-import org.ttrssreader.utils.Utils;
+import java.util.List;
 import android.os.AsyncTask;
-import android.util.Log;
 
-public class FeedUpdateTask extends AsyncTask<String, Integer, Boolean> {
+public class FeedUpdateTask extends AsyncTask<String, Integer, List<FeedItem>> {
 	
-	protected Boolean doInBackground(String... ids) {
-		
-		Log.i(Utils.TAG, "doInBackground - getArticlesHeadlines(feedId: " + ids[0] + ")");
-		
-		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-		
-		DataController.getInstance().forceFullRefresh();
-		for (FeedItem f : DataController.getInstance().getSubscribedFeeds(ids[0], displayOnlyUnread)) {
-			DataController.getInstance().getArticlesHeadlines(f.getId(), displayOnlyUnread);
-		}
-		DataController.getInstance().disableForceFullRefresh();
-		
-		return true;
+	protected List<FeedItem> doInBackground(String... ids) {
+
+//		if (!Controller.getInstance().isRefreshSubData()) {
+//			return false;
+//		}
+//		
+//		Log.i(Utils.TAG, "doInBackground - getArticlesHeadlines(feedId: " + ids[0] + ")");
+//		
+//		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+//		
+//		if (!Controller.getInstance().isWorkOffline()) {
+//			DataController.getInstance().forceFullRefresh();
+//		}
+//		
+//		for (FeedItem f : DataController.getInstance().getSubscribedFeeds(ids[0], displayOnlyUnread)) {
+//			DataController.getInstance().getArticlesHeadlines(f.getId(), displayOnlyUnread);
+//		}
+//		
+//		if (!Controller.getInstance().isWorkOffline()) {
+//			DataController.getInstance().disableForceFullRefresh();
+//		}
+//		
+//		return true;
+		return null;
 	}
 	
 }

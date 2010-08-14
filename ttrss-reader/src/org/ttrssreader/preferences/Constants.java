@@ -27,6 +27,7 @@ public class Constants {
 	public static String USAGE_REFRESH_SUB_DATA = "UsageRefreshSubDataPreference";
 	public static String USAGE_USE_VOLUME_KEYS = "UsageUseVolumeKeysPreference";
 	public static String USAGE_VIBRATE_ON_LAST_ARTICLE = "UsageVibrateOnLastArticlePreference";
+	public static String USAGE_WORK_OFFLINE = "DisplayWorkOfflinePreference";
 	
 	public static String DISPLAY_SHOW_VIRTUAL = "DisplayShowVirtualPreference";
 	public static String DISPLAY_SHOW_VIRTUAL_UNREAD = "DisplayShowVirtualUnreadPreference";
@@ -36,4 +37,5 @@ public class Constants {
 	public static String DISPLAY_ARTICLE_LIMIT = "DisplayArticleLimitPreference";
 	
 	public static String DATABASE_VERSION = "DatabaseVersion";
+	public static String LAST_UPDATE_TIME = "LastUpdateTime";
 }

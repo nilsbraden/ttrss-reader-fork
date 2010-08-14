@@ -134,7 +134,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	@Override
 	protected void onPause() {
 		super.onPause();
-		asyncTask.cancel(true);
+		if (asyncTask != null) asyncTask.cancel(true);
 	}
 		
 	@Override
@@ -402,14 +402,13 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 				webview.loadDataWithBaseURL(null, mArticleItem.getContent(), "text/html", "utf-8", "about:blank");
 				
 				if (mArticleItem.getTitle() != null) {
-					this.setTitle(this.getResources().getString(R.string.ApplicationName) + " - "
-							+ mArticleItem.getTitle());
+					this.setTitle(this.getResources().getString(R.string.ApplicationName) + " - " + mArticleItem.getTitle());
 				} else {
 					this.setTitle(this.getResources().getString(R.string.ApplicationName));
 				}
 				
 				if (mArticleItem.isUnread() && Controller.getInstance().isAutomaticMarkRead()) {
-					new Updater(this, new ReadStateUpdater(mAdapter.getArticle(), mFeedId, 0)).execute();
+					new Updater(this, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
 				}
 				
 				if (mArticleItem.getContent().length() < 3) {
