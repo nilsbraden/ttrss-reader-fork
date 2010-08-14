@@ -394,9 +394,7 @@ public class DataController {
 						return null;
 					}
 					
-//					long start = System.currentTimeMillis();
 					DBHelper.getInstance().insertArticles(result, articleLimit);
-//					Log.i(Utils.TAG, "Inserting took " + (System.currentTimeMillis()-start) + "ms (" + result.size() + " articles)");
 					
 					// Refresh Headlines from DB so they get reduced to articleLimit too.
 					mFeedsHeadlines = DBHelper.getInstance().getArticles(0, false);
@@ -475,7 +473,7 @@ public class DataController {
 		return result;
 	}
 	
-	public List<ArticleItem> getArticlesWithContent(String feedId) {
+	public List<ArticleItem> getArticlesWithContent(String feedId, boolean displayOnlyUnread) {
 		FeedItem fi = new FeedItem();
 		if (feedId.startsWith("-")) {
 			feedId = "-1";
@@ -494,55 +492,64 @@ public class DataController {
 			}
 		}
 		
-		if (result == null || needRefresh) {
+		if (result == null || needRefresh || needFullRefresh()) {
 			synchronized (mFeedsHeadlines) {
-				
-				// Check again to make sure it has not been updated while we were waiting
-				if (result == null || needRefresh) {
 					
-					List<ArticleItem> temp = Controller.getInstance().getTTRSSConnector()
-							.getFeedArticles(Integer.parseInt(feedId), 1, false);
-					if (temp == null) {
-						return null;
-					}
-					
-					result.addAll(temp);
-					
-					int articleLimit = Controller.getInstance().getArticleLimit();
-					DBHelper.getInstance().insertArticles(temp, articleLimit);
-					
-					// Refresh Headlines from DB so they get reduced to articleLimit too.
-					mFeedsHeadlines = DBHelper.getInstance().getArticles(0, false);
-				
+				result = new ArrayList<ArticleItem>();
+				List<ArticleItem> temp = Controller.getInstance().getTTRSSConnector()
+						.getFeedArticles(Integer.parseInt(feedId), displayOnlyUnread ? 1 : 0, false);
+				if (temp == null) {
+					return null;
 				}
+				
+				result.addAll(temp);
+				
+				int articleLimit = Controller.getInstance().getArticleLimit();
+				DBHelper.getInstance().insertArticles(temp, articleLimit);
+				
+				// Refresh Headlines from DB so they get reduced to articleLimit too.
+				mFeedsHeadlines = DBHelper.getInstance().getArticles(0, false);
 			}
 		}
+		
+		if (displayOnlyUnread) {
+			List<ArticleItem> tempList = new ArrayList<ArticleItem>();
+
+			for (ArticleItem a : result) {
+				if (a.isUnread()) tempList.add(a);
+			}
+			
+			result = tempList;
+		}
+		
 		return result;
 	}
 	
 	public void getNewArticles() {
-		// Force update counters
-		mCounters = null;
-		getCategoryUnreadCount("0");
-
-		long time = Controller.getInstance().getLastUpdateTime();
-		Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
-		List<ArticleItem> list = Controller.getInstance().getTTRSSConnector().getNewArticles(1, time);
+		// TODO: Auf die aktuelle API-funktion anpassen..
 		
-		if (list != null && !list.isEmpty()) {
-			
-			int articleLimit = Controller.getInstance().getArticleLimit();
-			DBHelper.getInstance().insertArticles(list, articleLimit);
-			
-			for (ArticleItem a : list) {
-				
-				List<ArticleItem> temp = mFeedsHeadlines.get(a.getFeedId());
-				
-				if (temp == null) temp = new ArrayList<ArticleItem>();
-				temp.add(a);
-				
-			}
-		}
+		// Force update counters
+//		mCounters = null;
+//		getCategoryUnreadCount("0");
+//
+//		long time = Controller.getInstance().getLastUpdateTime();
+//		Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
+//		List<ArticleItem> list = Controller.getInstance().getTTRSSConnector().getNewArticles(1, time);
+//		
+//		if (list != null && !list.isEmpty()) {
+//			
+//			int articleLimit = Controller.getInstance().getArticleLimit();
+//			DBHelper.getInstance().insertArticles(list, articleLimit);
+//			
+//			for (ArticleItem a : list) {
+//				
+//				List<ArticleItem> temp = mFeedsHeadlines.get(a.getFeedId());
+//				
+//				if (temp == null) temp = new ArrayList<ArticleItem>();
+//				temp.add(a);
+//				
+//			}
+//		}
 	}
 	
 }

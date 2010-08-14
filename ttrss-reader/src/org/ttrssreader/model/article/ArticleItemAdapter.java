@@ -18,11 +18,11 @@ package org.ttrssreader.model.article;
 import java.util.List;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.model.IRefreshable;
+import org.ttrssreader.model.IUpdatable;
 
-public class ArticleItemAdapter implements IRefreshable {
+public class ArticleItemAdapter implements IRefreshable, IUpdatable {
 	
 	private String mArticleId;
-	
 	private ArticleItem mArticle;
 	
 	public ArticleItemAdapter(String articleId) {
@@ -42,6 +42,12 @@ public class ArticleItemAdapter implements IRefreshable {
 		}
 		DataController.getInstance().disableForceFullRefresh();
 		return null;
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

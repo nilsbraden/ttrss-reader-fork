@@ -32,6 +32,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -67,7 +68,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	private ListView mFeedHeadlineListView;
 	private FeedHeadlineListAdapter mAdapter = null;
-	private Refresher asyncTask;
+	private Refresher refresher;
+	private Updater updater;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -99,9 +101,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			mFeedNames = null;
 		}
 		
-//		new Handler().postDelayed(new Runnable() {
-//			
-//			public void run() {
+		final FeedHeadlineListActivity temp = this;
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
 //				String next = "";
 //				int indexNext = mFeedIds.indexOf(mFeedIds) + 1;
 //				if (!(indexNext < 0 || indexNext >= mFeedIds.size())) {
@@ -113,11 +115,11 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 //				if (!(indexPrev < 0 || indexPrev >= mFeedIds.size())) {
 //					prev = mFeedIds.get(indexPrev);
 //				}
-//				
-//				asyncTask = new FeedHeadlineUpdateTask();
-//				asyncTask.execute(mFeedId, next, prev);
-//			}
-//		}, Utils.WAIT);
+				
+				updater = new Updater(temp, mAdapter);
+				updater.execute(); //mFeedId, next, prev);
+			}
+		}, Utils.WAIT);
 	}
 	
 	@Override
@@ -129,7 +131,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (asyncTask != null) asyncTask.cancel(true);
+		if (refresher != null) refresher.cancel(true);
+		if (updater != null) updater.cancel(true);
 	}
 	
 	private void doRefresh() {
@@ -140,8 +143,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			mFeedHeadlineListView.setAdapter(mAdapter);
 		}
 		
-		asyncTask = new Refresher(this, mAdapter);
-		asyncTask.execute();
+		refresher = new Refresher(this, mAdapter);
+		refresher.execute();
 	}
 	
 	@Override
@@ -363,7 +366,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			
 			try {
 				List<ArticleItem> list = new ArrayList<ArticleItem>();
-				for (Object f : asyncTask.get()) {
+				for (Object f : refresher.get()) {
 					list.add((ArticleItem)f);
 				}
 				mAdapter.setArticles(list);
@@ -386,13 +389,13 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		
 		setProgressBarIndeterminateVisibility(false);
 		
-		if (Controller.getInstance().isDisplayOnlyUnread()) {
-			// Close FeedHeadlineList if no unread article exists
-			// AND: Not doing this with virtual feeds, starting with "-[0-9]"
-			if (mAdapter.getArticleUnreadList().isEmpty() && !mFeedId.matches("-[0-9]")) {
-				finish();
-			}
-		}
+//		if (Controller.getInstance().isDisplayOnlyUnread()) {
+//			// Close FeedHeadlineList if no unread article exists
+//			// AND: Not doing this with virtual feeds, starting with "-[0-9]"
+//			if (mAdapter.getArticleUnreadList().isEmpty() && !mFeedId.matches("-[0-9]")) {
+//				finish();
+//			}
+//		}
 	}
 	
 	@Override
