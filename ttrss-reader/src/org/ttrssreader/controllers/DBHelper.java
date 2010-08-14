@@ -42,7 +42,7 @@ public class DBHelper {
 	
 	private static final String DATABASE_PATH = "/Android/data/org.ttrssreader/files/";
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 6;
 	
 	private static final String TABLE_CAT = "categories";
 	private static final String TABLE_FEEDS = "feeds";
@@ -54,11 +54,8 @@ public class DBHelper {
 	private static final String INSERT_FEEDS = "REPLACE INTO " + TABLE_FEEDS
 			+ "(id, categoryId, title, url, unread) VALUES (?, ?, ?, ?, ?)";
 	
-	// private static final String INSERT_ARTICLES = "REPLACE INTO " + TABLE_ARTICLES
-	// + "(id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
-	//	
-	// private static final String INSERT_ARTICLES_EXTERN = "REPLACE INTO " + TABLE_ARTICLES
-	// + "(id, feedId, content, isUnread, updateDate) VALUES (?, ?, ?, ?, ?)";
+	 private static final String INSERT_ARTICLES = "REPLACE INTO " + TABLE_ARTICLES
+	 + "(id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String UPDATE_ARTICLES = "UPDATE " + TABLE_ARTICLES
 			+ " SET title=?, articleUrl=?, articleCommentUrl=?, updateDate=? WHERE id=? AND feedId=?";
@@ -73,8 +70,7 @@ public class DBHelper {
 	
 	private SQLiteStatement insertCat;
 	private SQLiteStatement insertFeed;
-	// private SQLiteStatement insertArticle;
-	// private SQLiteStatement insertArticle_extern;
+	private SQLiteStatement insertArticle;
 	private SQLiteStatement updateArticle;
 	private SQLiteStatement updateArticle_extern;
 	
@@ -88,8 +84,7 @@ public class DBHelper {
 		
 		insertCat = null;
 		insertFeed = null;
-		// insertArticle = null;
-		// insertArticle_extern = null;
+		 insertArticle = null;
 		updateArticle = null;
 		updateArticle_extern = null;
 		
@@ -110,8 +105,7 @@ public class DBHelper {
 		
 		insertCat = db_intern.compileStatement(INSERT_CAT);
 		insertFeed = db_intern.compileStatement(INSERT_FEEDS);
-		// insertArticle = db_intern.compileStatement(INSERT_ARTICLES);
-		// insertArticle_extern = db_extern.compileStatement(INSERT_ARTICLES_EXTERN);
+		 insertArticle = db_intern.compileStatement(INSERT_ARTICLES);
 		updateArticle = db_intern.compileStatement(UPDATE_ARTICLES);
 		updateArticle_extern = db_extern.compileStatement(UPDATE_ARTICLES_EXTERN);
 		
@@ -294,7 +288,7 @@ public class DBHelper {
 		
 		synchronized (insertCat) {
 			insertCat.bindString(1, id);
-			insertCat.bindString(2, DatabaseUtils.sqlEscapeString(title));
+			insertCat.bindString(2, title);
 			insertCat.bindLong(3, unread);
 			insertCat.execute();
 		}
@@ -326,8 +320,8 @@ public class DBHelper {
 		synchronized (insertFeed) {
 			insertFeed.bindLong(1, new Integer(feedId).longValue());
 			insertFeed.bindLong(2, new Integer(categoryId).longValue());
-			insertFeed.bindString(3, DatabaseUtils.sqlEscapeString(title));
-			insertFeed.bindString(4, DatabaseUtils.sqlEscapeString(url));
+			insertFeed.bindString(3, title);
+			insertFeed.bindString(4, url);
 			insertFeed.bindLong(5, unread);
 			insertFeed.execute();
 		}
@@ -369,10 +363,16 @@ public class DBHelper {
 		articleUrl = DatabaseUtils.sqlEscapeString(articleUrl);
 		articleCommentUrl = DatabaseUtils.sqlEscapeString(articleCommentUrl);
 		
-		db_intern.execSQL("REPLACE INTO " + TABLE_ARTICLES +
-				" (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES" +
-				" ('" + articleId + "','" + feedId + "'," + title + ",'" + isUnread + "'," + articleUrl + ","
-				+ articleCommentUrl + ",'" + updateDate.getTime() + "')");
+		synchronized (insertArticle) {
+			insertArticle.bindLong(1, Long.parseLong(articleId));
+			insertArticle.bindLong(2, Long.parseLong(feedId));
+			insertArticle.bindString(3, title);
+			insertArticle.bindLong(4, (isUnread ? 1 : 0));
+			insertArticle.bindString(5, articleUrl);
+			insertArticle.bindString(6, articleCommentUrl);
+			insertArticle.bindLong(7, updateDate.getTime());
+			insertArticle.executeInsert();
+		}
 		
 		if (isExternalDBAvailable() && !content.equals("")) {
 			content = DatabaseUtils.sqlEscapeString(content);
@@ -529,10 +529,6 @@ public class DBHelper {
 		String articleCommentUrl = a.getArticleCommentUrl();
 		Date updateDate = a.getUpdateDate();
 		
-		title = DatabaseUtils.sqlEscapeString(title);
-		articleUrl = DatabaseUtils.sqlEscapeString(articleUrl);
-		articleCommentUrl = DatabaseUtils.sqlEscapeString(articleCommentUrl);
-		
 		if (content == null) content = "";
 		if (title == null) title = "";
 		if (articleUrl == null) articleUrl = "";
@@ -552,7 +548,7 @@ public class DBHelper {
 		if (isExternalDBAvailable() && !content.equals("")) {
 			synchronized (updateArticle_extern) {
 				content = DatabaseUtils.sqlEscapeString(content);
-				updateArticle_extern.bindString(1, DatabaseUtils.sqlEscapeString(content));
+				updateArticle_extern.bindString(1, content);
 				updateArticle_extern.bindLong(2, updateDate.getTime());
 				updateArticle_extern.bindLong(3, new Long(id));
 				updateArticle_extern.bindLong(4, new Long(feedId));

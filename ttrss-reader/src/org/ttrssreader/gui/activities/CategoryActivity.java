@@ -91,6 +91,11 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		if (asyncTask != null) asyncTask.cancel(true);
 	}
 	
+	@Override
+	protected void onDestroy() {
+		unregisterReceiver(mExternalStorageReceiver);
+	}
+	
 	private synchronized void doRefresh() {
 		setProgressBarIndeterminateVisibility(true);
 		
