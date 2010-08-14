@@ -15,8 +15,10 @@
 
 package org.ttrssreader.model;
 
+import java.util.List;
+
 public interface IRefreshable {
 	
-	public void refreshData();
+	public List<?> refreshData();
 	
 }

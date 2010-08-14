@@ -25,7 +25,6 @@ import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -55,11 +54,11 @@ public class DBHelper {
 	private static final String INSERT_FEEDS = "REPLACE INTO " + TABLE_FEEDS
 			+ "(id, categoryId, title, url, unread) VALUES (?, ?, ?, ?, ?)";
 	
-//	private static final String INSERT_ARTICLES = "REPLACE INTO " + TABLE_ARTICLES
-//			+ "(id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
-//	
-//	private static final String INSERT_ARTICLES_EXTERN = "REPLACE INTO " + TABLE_ARTICLES
-//			+ "(id, feedId, content, isUnread, updateDate) VALUES (?, ?, ?, ?, ?)";
+	// private static final String INSERT_ARTICLES = "REPLACE INTO " + TABLE_ARTICLES
+	// + "(id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
+	//	
+	// private static final String INSERT_ARTICLES_EXTERN = "REPLACE INTO " + TABLE_ARTICLES
+	// + "(id, feedId, content, isUnread, updateDate) VALUES (?, ?, ?, ?, ?)";
 	
 	private static final String UPDATE_ARTICLES = "UPDATE " + TABLE_ARTICLES
 			+ " SET title=?, articleUrl=?, articleCommentUrl=?, updateDate=? WHERE id=? AND feedId=?";
@@ -74,8 +73,8 @@ public class DBHelper {
 	
 	private SQLiteStatement insertCat;
 	private SQLiteStatement insertFeed;
-//	private SQLiteStatement insertArticle;
-//	private SQLiteStatement insertArticle_extern;
+	// private SQLiteStatement insertArticle;
+	// private SQLiteStatement insertArticle_extern;
 	private SQLiteStatement updateArticle;
 	private SQLiteStatement updateArticle_extern;
 	
@@ -89,8 +88,8 @@ public class DBHelper {
 		
 		insertCat = null;
 		insertFeed = null;
-//		insertArticle = null;
-//		insertArticle_extern = null;
+		// insertArticle = null;
+		// insertArticle_extern = null;
 		updateArticle = null;
 		updateArticle_extern = null;
 		
@@ -111,8 +110,8 @@ public class DBHelper {
 		
 		insertCat = db_intern.compileStatement(INSERT_CAT);
 		insertFeed = db_intern.compileStatement(INSERT_FEEDS);
-//		insertArticle = db_intern.compileStatement(INSERT_ARTICLES);
-//		insertArticle_extern = db_extern.compileStatement(INSERT_ARTICLES_EXTERN);
+		// insertArticle = db_intern.compileStatement(INSERT_ARTICLES);
+		// insertArticle_extern = db_extern.compileStatement(INSERT_ARTICLES_EXTERN);
 		updateArticle = db_intern.compileStatement(UPDATE_ARTICLES);
 		updateArticle_extern = db_extern.compileStatement(UPDATE_ARTICLES_EXTERN);
 		
@@ -350,28 +349,9 @@ public class DBHelper {
 	public void insertFeeds(List<FeedItem> list) {
 		if (list == null) return;
 		
-		ContentValues valuesIntern = new ContentValues();
-		
 		for (FeedItem f : list) {
-			String feedId = f.getId();
-			String categoryId = f.getCategoryId();
-			String title = f.getTitle();
-			String url = f.getUrl();
-			int unread = f.getUnread();
-			
-			if (feedId == null) return;
-			if (categoryId == null) categoryId = "";
-			if (title == null) title = "";
-			if (url == null) url = "";
-			
-			valuesIntern.put("id", feedId);
-			valuesIntern.put("categoryId", categoryId);
-			valuesIntern.put("title", DatabaseUtils.sqlEscapeString(title));
-			valuesIntern.put("url", url);
-			valuesIntern.put("unread", unread);
+			insertFeed(f);
 		}
-		
-		db_intern.insert(TABLE_FEEDS, null, valuesIntern);
 	}
 	
 	private void insertArticle(String articleId, String feedId, String title, boolean isUnread, String content,
@@ -391,13 +371,15 @@ public class DBHelper {
 		
 		db_intern.execSQL("REPLACE INTO " + TABLE_ARTICLES +
 				" (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES" +
-				" ('" + articleId + "','" + feedId + "'," + title + ",'" + isUnread + "'," + articleUrl + "," + articleCommentUrl + ",'" + updateDate.getTime() + "')");
+				" ('" + articleId + "','" + feedId + "'," + title + ",'" + isUnread + "'," + articleUrl + ","
+				+ articleCommentUrl + ",'" + updateDate.getTime() + "')");
 		
 		if (isExternalDBAvailable() && !content.equals("")) {
 			content = DatabaseUtils.sqlEscapeString(content);
 			db_extern.execSQL("REPLACE INTO " + TABLE_ARTICLES +
 					" (id, feedId, content, isUnread, updateDate) VALUES" +
-					" ('" + articleId + "','" + feedId + "'," + content + ",'" + isUnread + "','" + updateDate.getTime() + "')");
+					" ('" + articleId + "','" + feedId + "'," + content + ",'" + isUnread + "','"
+					+ updateDate.getTime() + "')");
 		}
 	}
 	
@@ -427,24 +409,28 @@ public class DBHelper {
 		purgeArticlesNumber(number);
 	}
 	
-	private void insertArticlesInternal(List<ArticleItem> list) {
+	private synchronized void insertArticlesInternal(List<ArticleItem> list) {
 		if (list == null) return;
-		
-		db_intern.beginTransaction();
-		db_extern.beginTransaction();
-		
-		try {
-			for (ArticleItem a : list) {
-				insertArticleInternal(a);
-			}
 
-			db_intern.setTransactionSuccessful();
-			db_extern.setTransactionSuccessful();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			db_intern.endTransaction();
-			db_extern.endTransaction();
+		synchronized (db_intern) {
+			synchronized (db_extern) {
+				
+				db_intern.beginTransaction();
+				db_extern.beginTransaction();
+				try {
+					for (ArticleItem a : list) {
+						insertArticleInternal(a);
+					}
+					
+					db_intern.setTransactionSuccessful();
+					db_extern.setTransactionSuccessful();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				} finally {
+					db_intern.endTransaction();
+					db_extern.endTransaction();
+				}
+			}
 		}
 	}
 	
@@ -582,7 +568,7 @@ public class DBHelper {
 	public void deleteFeed(String id) {
 		db_intern.execSQL("DELETE FROM " + TABLE_FEEDS + " WHERE id=" + id);
 	}
-
+	
 	public void deleteArticle(String id) {
 		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id=" + id);
 		
@@ -591,14 +577,18 @@ public class DBHelper {
 		}
 	}
 	
-	public void deleteCategories() {
-		db_intern.execSQL("DELETE FROM " + TABLE_CAT);
+	public void deleteCategories(boolean withVirtualCategories) {
+		String wherePart = "";
+		if (!withVirtualCategories) {
+			wherePart = " WHERE id not like '-%' OR id!=0";
+		}
+		db_intern.execSQL("DELETE FROM " + TABLE_CAT + wherePart);
 	}
 	
 	public void deleteFeeds() {
 		db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
 	}
-
+	
 	public void deleteArticles() {
 		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
 		

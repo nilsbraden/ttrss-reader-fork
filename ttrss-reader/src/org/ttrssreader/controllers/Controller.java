@@ -41,6 +41,7 @@ public class Controller {
 	private boolean mRefreshSubData;
 	private boolean mUseVolumeKeys;
 	private boolean mVibrateOnLastArticle;
+	private boolean mWorkOffline;
 	
 	private boolean mDisplayVirtuals;
 	private boolean mDisplayUnreadInVirtualFeeds;
@@ -50,6 +51,7 @@ public class Controller {
 	private int mArticleLimit;
 	
 	private int mDatabaseVersion;
+	private long mLastUpdateTime;
 	
 	private Controller() {
 	}
@@ -86,6 +88,7 @@ public class Controller {
 		mRefreshSubData = prefs.getBoolean(Constants.USAGE_REFRESH_SUB_DATA, false);
 		mUseVolumeKeys = prefs.getBoolean(Constants.USAGE_USE_VOLUME_KEYS, true);
 		mVibrateOnLastArticle = prefs.getBoolean(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE, true);
+		mWorkOffline = prefs.getBoolean(Constants.USAGE_WORK_OFFLINE, false);
 		
 		// Display
 		mDisplayVirtuals = prefs.getBoolean(Constants.DISPLAY_SHOW_VIRTUAL, true);
@@ -107,6 +110,11 @@ public class Controller {
 			setDatabaseVersion(0);
 			Log.e(Utils.TAG, "DATABASE_VERSION was not an integer value");
 		}
+		try {
+			mLastUpdateTime = Long.parseLong(prefs.getString(Constants.LAST_UPDATE_TIME, "0"));
+		} catch (ClassCastException e) {
+			Log.e(Utils.TAG, "LAST_UPDATE_TIME was not a valid time value");
+		}
 		
 	}
 	
@@ -118,6 +126,7 @@ public class Controller {
 	}
 	
 	// **** Getter / Setter **********
+	// ******* USAGE-Options ****************************
 	
 	public ITTRSSConnector getTTRSSConnector() {
 		return mTTRSSConnector;
@@ -189,6 +198,19 @@ public class Controller {
 		this.mVibrateOnLastArticle = vibrateOnLastArticle;
 	}
 	
+	public boolean isWorkOffline() {
+		return mWorkOffline;
+	}
+	
+	public void setWorkOffline(boolean workOffline) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean(Constants.USAGE_WORK_OFFLINE, workOffline);
+		editor.commit();
+		this.mWorkOffline = workOffline;
+	}
+	
+	// ******* DISPLAY-Options ****************************
+	
 	public boolean isDisplayVirtuals() {
 		return mDisplayVirtuals;
 	}
@@ -253,6 +275,19 @@ public class Controller {
 		editor.putString(Constants.DISPLAY_ARTICLE_LIMIT, articleLimit+"");
 		editor.commit();
 		this.mArticleLimit = articleLimit;
+	}
+	
+	// ******* Internal Data ****************************
+	
+	public long getLastUpdateTime() {
+		return mLastUpdateTime;
+	}
+
+	public void setLastUpdateTime(long lastUpdateTime) {
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putString(Constants.LAST_UPDATE_TIME, lastUpdateTime+"");
+		editor.commit();
+		this.mLastUpdateTime = lastUpdateTime;
 	}
 	
 	public int getDatabaseVersion() {

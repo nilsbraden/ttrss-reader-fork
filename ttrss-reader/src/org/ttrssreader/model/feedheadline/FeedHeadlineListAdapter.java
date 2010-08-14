@@ -51,6 +51,10 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 		mArticles = new ArrayList<ArticleItem>();
 	}
 	
+	public void setArticles(List<ArticleItem> articles) {
+		this.mArticles = articles;
+	}
+
 	@Override
 	public int getCount() {
 		return mArticles.size();
@@ -130,11 +134,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		if (position >= mArticles.size()) return new View(mContext);
-
+		
 		FeedHeadlineListView sv;
 		ArticleItem a = mArticles.get(position);
 		if (convertView == null) {
-			sv = new FeedHeadlineListView(mContext, position, a.getTitle(), a.getId(), a.isUnread(), a.getUpdateDate());
+			sv = new FeedHeadlineListView(mContext, a.getTitle(), a.isUnread(), a.getUpdateDate());
 		} else {
 			sv = (FeedHeadlineListView) convertView;
 			sv.setIcon(a.isUnread());
@@ -148,8 +152,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	
 	private class FeedHeadlineListView extends LinearLayout {
 		
-		public FeedHeadlineListView(Context context, int position, String title, String id, boolean isUnread,
-				/* String content, */Date updatedDate) {
+		public FeedHeadlineListView(Context context, String title, boolean isUnread, Date updatedDate) {
 			super(context);
 			
 			this.setOrientation(HORIZONTAL);
@@ -183,9 +186,6 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 					LayoutParams.WRAP_CONTENT));
 		}
 		
-		/**
-		 * Convenience method to set the title of a SpeechView
-		 */
 		public void setTitle(String title) {
 			mTitle.setText(title);
 		}
@@ -214,21 +214,23 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 		private TextView mTitle;
 		private TextView mUpdateDate;
 	}
-	
+
 	@Override
-	public void refreshData() {
+	public List<?> refreshData() {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		
-		mArticles = new ArrayList<ArticleItem>(); 
+		List<ArticleItem> ret = new ArrayList<ArticleItem>();
 		List<ArticleItem> list = DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread);
 		
 		if (list != null) {
 			for (ArticleItem a : list) {
-				mArticles.add(a.deepCopy());
+				ret.add(a.deepCopy());
 			}
 		}
 		
 		DataController.getInstance().disableForceFullRefresh();
+		
+		return ret;
 	}
-
+	
 }

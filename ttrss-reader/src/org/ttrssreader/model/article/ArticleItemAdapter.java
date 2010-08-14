@@ -15,6 +15,7 @@
 
 package org.ttrssreader.model.article;
 
+import java.util.List;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.model.IRefreshable;
 
@@ -33,13 +34,14 @@ public class ArticleItemAdapter implements IRefreshable {
 	}
 	
 	@Override
-	public void refreshData() {
+	public List<Object> refreshData() {
 		ArticleItem a = DataController.getInstance().getArticleWithContent(mArticleId);
 		
 		if (a != null) {
 			mArticle = a.deepCopy();
 		}
 		DataController.getInstance().disableForceFullRefresh();
+		return null;
 	}
 	
 }

@@ -16,6 +16,7 @@
 package org.ttrssreader.gui.activities;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
@@ -24,14 +25,13 @@ import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
+import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.feedheadline.FeedHeadlineListAdapter;
-import org.ttrssreader.model.feedheadline.FeedHeadlineUpdateTask;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -67,7 +67,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	private ListView mFeedHeadlineListView;
 	private FeedHeadlineListAdapter mAdapter = null;
-	private FeedHeadlineUpdateTask asyncTask;
+	private Refresher asyncTask;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -99,38 +99,37 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			mFeedNames = null;
 		}
 		
-		new Handler().postDelayed(new Runnable() {
-			
-			public void run() {
-				String next = "";
-				int indexNext = mFeedIds.indexOf(mFeedIds) + 1;
-				if (!(indexNext < 0 || indexNext >= mFeedIds.size())) {
-					next = mFeedIds.get(indexNext);
-				}
-				
-				String prev = "";
-				int indexPrev = mFeedIds.indexOf(mFeedIds) - 1;
-				if (!(indexPrev < 0 || indexPrev >= mFeedIds.size())) {
-					prev = mFeedIds.get(indexPrev);
-				}
-				
-				asyncTask = new FeedHeadlineUpdateTask();
-				asyncTask.execute(mFeedId, next, prev);
-			}
-		}, Utils.WAIT);
+//		new Handler().postDelayed(new Runnable() {
+//			
+//			public void run() {
+//				String next = "";
+//				int indexNext = mFeedIds.indexOf(mFeedIds) + 1;
+//				if (!(indexNext < 0 || indexNext >= mFeedIds.size())) {
+//					next = mFeedIds.get(indexNext);
+//				}
+//				
+//				String prev = "";
+//				int indexPrev = mFeedIds.indexOf(mFeedIds) - 1;
+//				if (!(indexPrev < 0 || indexPrev >= mFeedIds.size())) {
+//					prev = mFeedIds.get(indexPrev);
+//				}
+//				
+//				asyncTask = new FeedHeadlineUpdateTask();
+//				asyncTask.execute(mFeedId, next, prev);
+//			}
+//		}, Utils.WAIT);
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-//		if (mAdapter != null) mAdapter.notifyDataSetChanged();
 		doRefresh();
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		asyncTask.cancel(true);
+		if (asyncTask != null) asyncTask.cancel(true);
 	}
 	
 	private void doRefresh() {
@@ -140,7 +139,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
 			mFeedHeadlineListView.setAdapter(mAdapter);
 		}
-		new Refresher(this, mAdapter).execute();
+		
+		asyncTask = new Refresher(this, mAdapter);
+		asyncTask.execute();
 	}
 	
 	@Override
@@ -194,7 +195,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	}
 	
 	private void doForceRefresh() {
-		DataController.getInstance().forceFullRefresh();
+		if (!Controller.getInstance().isWorkOffline()) {
+			DataController.getInstance().forceFullRefresh();
+		}
 		doRefresh();
 	}
 	
@@ -357,6 +360,17 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	@Override
 	public void onRefreshEnd() {
 		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+			
+			try {
+				List<ArticleItem> list = new ArrayList<ArticleItem>();
+				for (Object f : asyncTask.get()) {
+					list.add((ArticleItem)f);
+				}
+				mAdapter.setArticles(list);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 			mAdapter.notifyDataSetChanged();
 			
 			if (mFeedTitle != null) {
@@ -383,8 +397,14 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	
 	@Override
 	public void onUpdateEnd() {
-		setProgressBarIndeterminateVisibility(false);
+		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+			mAdapter.notifyDataSetChanged();
+		} else {
+			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+		}
+		
 		doRefresh();
+		setProgressBarIndeterminateVisibility(false);
 	}
 	
 }

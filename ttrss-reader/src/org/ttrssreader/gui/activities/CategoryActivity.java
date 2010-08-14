@@ -15,6 +15,7 @@
 
 package org.ttrssreader.gui.activities;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -27,7 +28,6 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryListAdapter;
-import org.ttrssreader.model.category.CategoryUpdateTask;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
@@ -36,7 +36,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,7 +55,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	private ListView mCategoryListView;
 	private CategoryListAdapter mAdapter = null;
-	private CategoryUpdateTask asyncTask;
+	private Refresher asyncTask;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -69,32 +68,30 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		startWatchingExternalStorage();
 		DataController.getInstance().checkAndInitializeController(this);
 		
-		setProgressBarIndeterminateVisibility(false);
 		mCategoryListView = getListView();
 		
-		new Handler().postDelayed(new Runnable() {
-			
-			public void run() {
-				asyncTask = new CategoryUpdateTask();
-				asyncTask.execute("");
-			}
-		}, Utils.WAIT);
+//		new Handler().postDelayed(new Runnable() {
+//			
+//			public void run() {
+//				asyncTask = new CategoryUpdateTask();
+//				asyncTask.execute("");
+//			}
+//		}, Utils.WAIT);
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-//		if (mAdapter != null) mAdapter.notifyDataSetChanged();
 		doRefresh();
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		asyncTask.cancel(true);
+		if (asyncTask != null) asyncTask.cancel(true);
 	}
 	
-	private void doRefresh() {
+	private synchronized void doRefresh() {
 		setProgressBarIndeterminateVisibility(true);
 		
 		this.setTitle(this.getResources().getString(R.string.ApplicationName));
@@ -103,7 +100,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			mAdapter = new CategoryListAdapter(this);
 			mCategoryListView.setAdapter(mAdapter);
 		}
-		new Refresher(this, mAdapter).execute();
+
+		asyncTask = new Refresher(this, mAdapter);
+		asyncTask.execute();
 	}
 	
 	@Override
@@ -177,7 +176,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	}
 	
 	private void doForceRefresh() {
-		DataController.getInstance().forceFullRefresh();
+		if (!Controller.getInstance().isWorkOffline()) {
+			DataController.getInstance().forceFullRefresh();
+		}
 		doRefresh();
 	}
 	
@@ -213,7 +214,18 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	public void onRefreshEnd() {
 		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+			
+			try {
+				List<CategoryItem> list = new ArrayList<CategoryItem>();
+				for (Object c : asyncTask.get()) {
+					list.add((CategoryItem)c);
+				}
+				mAdapter.setCategories(list);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			mAdapter.notifyDataSetChanged();
+			
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
@@ -231,8 +243,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
-		
+
 		doRefresh();
+		setProgressBarIndeterminateVisibility(false);
 	}
 	
 	

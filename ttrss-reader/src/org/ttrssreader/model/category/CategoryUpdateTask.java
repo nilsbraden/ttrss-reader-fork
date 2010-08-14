@@ -15,23 +15,15 @@
 
 package org.ttrssreader.model.category;
 
-import org.ttrssreader.controllers.DataController;
-import org.ttrssreader.utils.Utils;
+import java.util.List;
 import android.os.AsyncTask;
-import android.util.Log;
 
-public class CategoryUpdateTask extends AsyncTask<String, Integer, Boolean> {
-	
-	protected Boolean doInBackground(String... ids) {
-		
-		Log.i(Utils.TAG, "doInBackground - getSubscribedFeeds(categoryId: -4)");
-		
-		// Retreive data for all feeds
-		DataController.getInstance().forceFullRefresh();
-		DataController.getInstance().getSubscribedFeeds("-4", false);
-		DataController.getInstance().disableForceFullRefresh();
-		
-		return true;
+public class CategoryUpdateTask extends AsyncTask<Void, Integer, List<CategoryItem>> {
+
+	@Override
+	protected List<CategoryItem> doInBackground(Void... params) {
+		return null;
 	}
+	
 	
 }

@@ -15,6 +15,8 @@
 
 package org.ttrssreader.gui.activities;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
@@ -23,13 +25,11 @@ import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
+import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.model.feed.FeedListAdapter;
-import org.ttrssreader.model.feed.FeedUpdateTask;
-import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,7 +52,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	
 	private ListView mFeedListView;
 	private FeedListAdapter mAdapter = null;
-	private FeedUpdateTask asyncTask;
+	private Refresher asyncTask;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,26 +75,25 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			mCategoryTitle = null;
 		}
 		
-		new Handler().postDelayed(new Runnable() {
-			
-			public void run() {
-				asyncTask = new FeedUpdateTask();
-				asyncTask.execute(mCategoryId);
-			}
-		}, Utils.WAIT);
+//		new Handler().postDelayed(new Runnable() {
+//			
+//			public void run() {
+//				asyncTask = new FeedUpdateTask();
+//				asyncTask.execute(mCategoryId);
+//			}
+//		}, Utils.WAIT);
 	}
 	
 	@Override
 	protected void onResume() {
-		doRefresh();
-//		if (mAdapter != null) mAdapter.notifyDataSetChanged();
 		super.onResume();
+		doRefresh();
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		asyncTask.cancel(true);
+		if (asyncTask != null) asyncTask.cancel(true);
 	}
 	
 	@Override
@@ -111,7 +110,9 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			mAdapter = new FeedListAdapter(this, mCategoryId);
 			mFeedListView.setAdapter(mAdapter);
 		}
-		new Refresher(this, mAdapter).execute();
+		
+		asyncTask = new Refresher(this, mAdapter);
+		asyncTask.execute();
 	}
 	
 	@Override
@@ -161,7 +162,9 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	}
 	
 	private void doForceRefresh() {
-		DataController.getInstance().forceFullRefresh();
+		if (!Controller.getInstance().isWorkOffline()) {
+			DataController.getInstance().forceFullRefresh();
+		}
 		doRefresh();
 	}
 	
@@ -185,6 +188,16 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	public void onRefreshEnd() {
 		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+			
+			try {
+				List<FeedItem> list = new ArrayList<FeedItem>();
+				for (Object f : asyncTask.get()) {
+					list.add((FeedItem)f);
+				}
+				mAdapter.setFeeds(list);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			mAdapter.notifyDataSetChanged();
 			
 			if (mCategoryTitle != null) {
@@ -194,6 +207,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 				this.setTitle(this.getResources().getString(R.string.ApplicationName) + " ("
 						+ mAdapter.getTotalUnreadCount() + ")");
 			}
+			
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
@@ -204,13 +218,12 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	public void onUpdateEnd() {
 		if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
-			// TODO: Is that right?
-			mAdapter.refreshData();
 			mAdapter.notifyDataSetChanged();
 		} else {
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
 		
+		doRefresh();
 		setProgressBarIndeterminateVisibility(false);
 	}
 	
