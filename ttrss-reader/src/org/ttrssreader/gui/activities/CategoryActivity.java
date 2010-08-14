@@ -36,6 +36,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,7 +56,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	private ListView mCategoryListView;
 	private CategoryListAdapter mAdapter = null;
-	private Refresher asyncTask;
+	private Refresher refresher;
+	private Updater updater;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -70,13 +72,13 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		
 		mCategoryListView = getListView();
 		
-//		new Handler().postDelayed(new Runnable() {
-//			
-//			public void run() {
-//				asyncTask = new CategoryUpdateTask();
-//				asyncTask.execute("");
-//			}
-//		}, Utils.WAIT);
+		final CategoryActivity temp = this;
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				updater = new Updater(temp, mAdapter);
+				updater.execute();
+			}
+		}, Utils.WAIT);
 	}
 	
 	@Override
@@ -88,7 +90,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (asyncTask != null) asyncTask.cancel(true);
+		if (refresher != null) refresher.cancel(true);
+		if (updater != null) updater.cancel(true);
 	}
 	
 	@Override
@@ -106,8 +109,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			mCategoryListView.setAdapter(mAdapter);
 		}
 
-		asyncTask = new Refresher(this, mAdapter);
-		asyncTask.execute();
+		refresher = new Refresher(this, mAdapter);
+		refresher.execute();
 	}
 	
 	@Override
@@ -222,7 +225,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			
 			try {
 				List<CategoryItem> list = new ArrayList<CategoryItem>();
-				for (Object c : asyncTask.get()) {
+				for (Object c : refresher.get()) {
 					list.add((CategoryItem)c);
 				}
 				mAdapter.setCategories(list);

@@ -27,9 +27,11 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.model.feed.FeedListAdapter;
+import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,7 +54,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	
 	private ListView mFeedListView;
 	private FeedListAdapter mAdapter = null;
-	private Refresher asyncTask;
+	private Refresher refresher;
+	private Updater updater;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,13 +78,13 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			mCategoryTitle = null;
 		}
 		
-//		new Handler().postDelayed(new Runnable() {
-//			
-//			public void run() {
-//				asyncTask = new FeedUpdateTask();
-//				asyncTask.execute(mCategoryId);
-//			}
-//		}, Utils.WAIT);
+		final FeedListActivity temp = this;
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				updater = new Updater(temp, mAdapter);
+				updater.execute(); //mCategoryId);
+			}
+		}, Utils.WAIT);
 	}
 	
 	@Override
@@ -93,7 +96,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (asyncTask != null) asyncTask.cancel(true);
+		if (refresher != null) refresher.cancel(true);
+		if (updater != null) updater.cancel(true);
 	}
 	
 	@Override
@@ -111,8 +115,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			mFeedListView.setAdapter(mAdapter);
 		}
 		
-		asyncTask = new Refresher(this, mAdapter);
-		asyncTask.execute();
+		refresher = new Refresher(this, mAdapter);
+		refresher.execute();
 	}
 	
 	@Override
@@ -191,7 +195,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			
 			try {
 				List<FeedItem> list = new ArrayList<FeedItem>();
-				for (Object f : asyncTask.get()) {
+				for (Object f : refresher.get()) {
 					list.add((FeedItem)f);
 				}
 				mAdapter.setFeeds(list);

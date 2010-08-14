@@ -21,8 +21,11 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.model.IRefreshable;
+import org.ttrssreader.model.IUpdatable;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +34,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
+public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IUpdatable {
 	
 	private Context mContext;
 	
@@ -186,6 +189,27 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable {
 		DataController.getInstance().disableForceFullRefresh();
 		
 		return ret;
+	}
+
+	@Override
+	public void update() {
+		if (!Controller.getInstance().isRefreshSubData()) {
+			return;
+		}
+		
+		Log.i(Utils.TAG, "CategoryListAdapter - getCategories()");
+		
+		
+		if (!Controller.getInstance().isWorkOffline()) {
+			DataController.getInstance().forceFullRefresh();
+		}
+		
+		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+		DataController.getInstance().getCategories(true, displayOnlyUnread);
+		
+		if (!Controller.getInstance().isWorkOffline()) {
+			DataController.getInstance().disableForceFullRefresh();
+		}
 	}
 	
 }

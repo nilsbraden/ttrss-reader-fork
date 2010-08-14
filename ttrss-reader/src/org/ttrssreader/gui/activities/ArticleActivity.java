@@ -64,7 +64,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	private ArticleItem mArticleItem = null;
 	
 	private ArticleItemAdapter mAdapter = null;
-	private ArticleUpdateTask asyncTask;
+	private Refresher refresher;
+	private Updater updater;
 	
 	private WebView webview;
 	private TextView webviewSwipeText;
@@ -104,23 +105,22 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			mArticleIds = new ArrayList<String>();
 		}
 		
+		final ArticleActivity temp = this;
 		new Handler().postDelayed(new Runnable() {
-			
 			public void run() {
-				String next = "";
-				int indexNext = mArticleIds.indexOf(mArticleId) + 1;
-				if (!(indexNext < 0 || indexNext >= mArticleIds.size())) {
-					next = mArticleIds.get(indexNext);
-				}
-				
-				String prev = "";
-				int indexPrev = mArticleIds.indexOf(mArticleId) - 1;
-				if (!(indexPrev < 0 || indexPrev >= mArticleIds.size())) {
-					prev = mArticleIds.get(indexPrev);
-				}
-				
-				asyncTask = new ArticleUpdateTask();
-				asyncTask.execute(next, prev);
+//				String next = "";
+//				int indexNext = mArticleIds.indexOf(mArticleId) + 1;
+//				if (!(indexNext < 0 || indexNext >= mArticleIds.size())) {
+//					next = mArticleIds.get(indexNext);
+//				}
+//				
+//				String prev = "";
+//				int indexPrev = mArticleIds.indexOf(mArticleId) - 1;
+//				if (!(indexPrev < 0 || indexPrev >= mArticleIds.size())) {
+//					prev = mArticleIds.get(indexPrev);
+//				}
+			updater = new Updater(temp, mAdapter);
+			updater.execute(); //(next, prev);
 			}
 		}, Utils.WAIT);
 	}
@@ -134,7 +134,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (asyncTask != null) asyncTask.cancel(true);
+		if (refresher != null) refresher.cancel(true);
+		if (updater != null) updater.cancel(true);
 	}
 		
 	@Override

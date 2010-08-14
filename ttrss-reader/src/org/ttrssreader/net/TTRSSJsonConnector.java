@@ -570,6 +570,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	
 	@Override
 	public List<ArticleItem> getNewArticles(int articleState, long time) {
+		// To be returned: Map<CategoryItem,Map<FeedItem, List<ArticleItem>>> ret;
+		
 		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
 		
 		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
