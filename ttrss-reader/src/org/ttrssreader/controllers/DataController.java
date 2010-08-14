@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryItemComparator;
@@ -369,11 +368,10 @@ public class DataController {
 		int fId = new Integer(feedId);
 		List<ArticleItem> result = null;
 		
-		// TODO: Add check for fresh articles here?
 		if (fId == -4) {
 			result = new ArrayList<ArticleItem>();
-			for (Entry<String, List<ArticleItem>> e : mFeedsHeadlines.entrySet()) {
-				result.addAll(e.getValue());
+			for (String s : mFeedsHeadlines.keySet()) {
+				result.addAll(mFeedsHeadlines.get(s));
 			}
 		} else {
 			result = mFeedsHeadlines.get(feedId);
