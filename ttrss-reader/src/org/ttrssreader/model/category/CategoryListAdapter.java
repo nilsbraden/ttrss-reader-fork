@@ -175,40 +175,30 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
 	public List<?> refreshData() {
 		boolean virtuals = Controller.getInstance().isDisplayVirtuals();
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-		
-		// Update new articles
-		if (Controller.getInstance().isUpdateUnreadOnStartup()) {
-			DataController.getInstance().getNewArticles();
-		}
+		List<CategoryItem> ret = DataController.getInstance().getCategories(virtuals, displayOnlyUnread, false);
 		
 		// Update Unread Count
 		mUnreadCount = DataController.getInstance().getCategoryUnreadCount("-4");
-
-		List<CategoryItem> ret = DataController.getInstance().getCategories(virtuals, displayOnlyUnread);
 		
 		DataController.getInstance().disableForceFullRefresh();
-		
 		return ret;
 	}
 
 	@Override
 	public void update() {
-		if (!Controller.getInstance().isRefreshSubData()) {
-			return;
-		}
+		if (!Controller.getInstance().isRefreshSubData()) return;
 		
 		Log.i(Utils.TAG, "CategoryListAdapter - getCategories()");
 		
-		
 		if (!Controller.getInstance().isWorkOffline()) {
-			DataController.getInstance().forceFullRefresh();
-		}
-		
-		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-		DataController.getInstance().getCategories(true, displayOnlyUnread);
-		
-		if (!Controller.getInstance().isWorkOffline()) {
-			DataController.getInstance().disableForceFullRefresh();
+			// Update new articles
+			if (Controller.getInstance().isUpdateUnreadOnStartup()) {
+				DataController.getInstance().getNewArticles();
+			}
+			
+			boolean virtuals = Controller.getInstance().isDisplayVirtuals();
+			boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+			DataController.getInstance().getCategories(virtuals, displayOnlyUnread, true);
 		}
 	}
 	

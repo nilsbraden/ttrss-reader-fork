@@ -35,19 +35,13 @@ public class ArticleItemAdapter implements IRefreshable, IUpdatable {
 	
 	@Override
 	public List<Object> refreshData() {
-		ArticleItem a = DataController.getInstance().getArticleWithContent(mArticleId);
-		
-		if (a != null) {
-			mArticle = a.deepCopy();
-		}
+		mArticle = DataController.getInstance().getArticleWithContent(mArticleId);
 		DataController.getInstance().disableForceFullRefresh();
 		return null;
 	}
 
 	@Override
 	public void update() {
-		// TODO Auto-generated method stub
-		
 	}
 	
 }

@@ -35,14 +35,14 @@ public class ReadStateUpdater implements IUpdatable {
 	public ReadStateUpdater(List<CategoryItem> list, int articleState) {
 		mList = new ArrayList<ArticleItem>();
 		for (CategoryItem c : list) {
-			mList.addAll(DataController.getInstance().getArticlesHeadlines(c.getId(), false));
+			mList.addAll(DataController.getInstance().getArticlesHeadlines(c.getId(), false, false));
 		}
 		mArticleState = articleState;
 	}
 	
 	public ReadStateUpdater(CategoryItem c, String pid, int articleState) {
 		mList = new ArrayList<ArticleItem>();
-		mList.addAll(DataController.getInstance().getArticlesHeadlines(c.getId(), false));
+		mList.addAll(DataController.getInstance().getArticlesHeadlines(c.getId(), false, false));
 		mPid = pid;
 		mArticleState = articleState;
 	}
@@ -50,7 +50,7 @@ public class ReadStateUpdater implements IUpdatable {
 	public ReadStateUpdater(List<FeedItem> list, String pid, int articleState, boolean isFeedList) {
 		mList = new ArrayList<ArticleItem>();
 		for (FeedItem f : list) {
-			mList.addAll(DataController.getInstance().getArticlesHeadlines(f.getId(), false));
+			mList.addAll(DataController.getInstance().getArticlesHeadlines(f.getId(), false, false));
 		}
 		mPid = pid;
 		mArticleState = articleState;
@@ -58,7 +58,7 @@ public class ReadStateUpdater implements IUpdatable {
 	
 	public ReadStateUpdater(FeedItem f, String pid, int articleState) {
 		mList = new ArrayList<ArticleItem>();
-		mList.addAll(DataController.getInstance().getArticlesHeadlines(f.getId(), false));
+		mList.addAll(DataController.getInstance().getArticlesHeadlines(f.getId(), false, false));
 		mPid = pid;
 		mArticleState = articleState;
 	}
