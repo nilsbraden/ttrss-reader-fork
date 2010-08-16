@@ -96,6 +96,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	
 	@Override
 	protected void onDestroy() {
+		super.onDestroy();
 		unregisterReceiver(mExternalStorageReceiver);
 	}
 	

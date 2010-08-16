@@ -194,40 +194,24 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
 	@Override
 	public List<?> refreshData() {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-		
-		List<FeedItem> ret = new ArrayList<FeedItem>();
-		List<FeedItem> list = DataController.getInstance().getSubscribedFeeds(mCategoryId, displayOnlyUnread);
+		List<FeedItem> ret = DataController.getInstance().getFeeds(mCategoryId, displayOnlyUnread, false);
 	
-		if (list != null) {
-			for (FeedItem f : list) {
-				ret.add(f.deepCopy());
-			}
-		
+		if (ret != null) {
 			Collections.sort(ret, new FeedItemComparator());
 		}
 		DataController.getInstance().disableForceFullRefresh();
-		
 		return ret;
 	}
 
 	@Override
 	public void update() {
-		if (!Controller.getInstance().isRefreshSubData()) {
-			return;
-		}
+		if (!Controller.getInstance().isRefreshSubData()) return;
 		
 		Log.i(Utils.TAG, "FeedListAdapter - getSubscribedFeeds(catId: " + mCategoryId + ")");
 		
-		
 		if (!Controller.getInstance().isWorkOffline()) {
-			DataController.getInstance().forceFullRefresh();
-		}
-		
-		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-		DataController.getInstance().getSubscribedFeeds(mCategoryId, displayOnlyUnread);
-		
-		if (!Controller.getInstance().isWorkOffline()) {
-			DataController.getInstance().disableForceFullRefresh();
+			boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+			DataController.getInstance().getFeeds(mCategoryId, displayOnlyUnread, true);
 		}
 	}
 		

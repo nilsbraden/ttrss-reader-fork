@@ -22,10 +22,25 @@ import java.io.InputStreamReader;
 
 public class Utils {
 	
+	/**
+	 * The TAG for Log-Output
+	 */
 	public static final String TAG = "ttrss";
-	public static final int WAIT = 500;
+	
+	/**
+	 * Time to wait before starting the background-update from the activities
+	 */
+	public static final int WAIT = 400;
+	
+	/**
+	 * Vibrate-Time for vibration when end of list is reached 
+	 */
 	public static final long SHORT_VIBRATE = 50;
-	public static int UPDATE_TIME = 60000;
+	
+	/**
+	 * The time after which data will be fetched again from the server if asked for the data
+	 */
+	public static int UPDATE_TIME = 120000;
 	
 	public static String convertStreamToString(InputStream is) {
 		/*
@@ -48,8 +63,6 @@ public class Utils {
 			try {
 				is.close();
 			} catch (IOException e) {
-				
-				// TODO: manage exceptions
 				e.printStackTrace();
 			}
 		}

@@ -378,8 +378,7 @@ public class DBHelper {
 			content = DatabaseUtils.sqlEscapeString(content);
 			db_extern.execSQL("REPLACE INTO " + TABLE_ARTICLES +
 					" (id, feedId, content, isUnread, updateDate) VALUES" +
-					" ('" + articleId + "','" + feedId + "'," + content + ",'" + isUnread + "','"
-					+ updateDate.getTime() + "')");
+					" (" + articleId + "," + feedId + "," + content + "," + isUnread + "," + updateDate.getTime() + ")");
 		}
 	}
 	
@@ -412,26 +411,36 @@ public class DBHelper {
 	private synchronized void insertArticlesInternal(List<ArticleItem> list) {
 		if (list == null) return;
 
-		synchronized (db_intern) {
-			synchronized (db_extern) {
-				
-				db_intern.beginTransaction();
-				db_extern.beginTransaction();
-				try {
+		/*
+		 * TODO: Find a faster way to insert articles. Transactions like below should speed things up but this code
+		 * tends to crash once in a while with the following exception:
+		 * E/AndroidRuntime(  668): Caused by: android.database.sqlite.SQLiteException: cannot commit transaction - SQL statements in progress: COMMIT;
+		 * E/AndroidRuntime(  668): 	at android.database.sqlite.SQLiteDatabase.native_execSQL(Native Method)
+		 * E/AndroidRuntime(  668): 	at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:1610)
+		 * E/AndroidRuntime(  668): 	at android.database.sqlite.SQLiteDatabase.endTransaction(SQLiteDatabase.java:505)
+		 * E/AndroidRuntime(  668): 	at org.ttrssreader.controllers.DBHelper.insertArticlesInternal(DBHelper.java:430)
+		 */
+		
+//		synchronized (db_intern) {
+//			synchronized (db_extern) {
+//				
+//				db_intern.beginTransaction();
+//				db_extern.beginTransaction();
+//				try {
 					for (ArticleItem a : list) {
 						insertArticleInternal(a);
 					}
-					
-					db_intern.setTransactionSuccessful();
-					db_extern.setTransactionSuccessful();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				} finally {
-					db_intern.endTransaction();
-					db_extern.endTransaction();
-				}
-			}
-		}
+//					
+//					db_intern.setTransactionSuccessful();
+//					db_extern.setTransactionSuccessful();
+//				} catch (SQLException e) {
+//					e.printStackTrace();
+//				} finally {
+//					db_intern.endTransaction();
+//					db_extern.endTransaction();
+//				}
+//			}
+//		}
 	}
 	
 	// *******| UPDATE |*******************************************************************
@@ -451,24 +460,24 @@ public class DBHelper {
 		
 		if (recursive) {
 			db_intern.execSQL("UPDATE " + TABLE_ARTICLES +
-					" SET isUnread='0' WHERE feedId='" + f.getId() + "'");
+					" SET isUnread=0 WHERE feedId=" + f.getId());
 			
 			if (isExternalDBAvailable()) {
 				db_extern.execSQL("UPDATE " + TABLE_ARTICLES +
-						" SET isUnread='0' WHERE feedId='" + f.getId() + "'");
+						" SET isUnread=0 WHERE feedId=" + f.getId());
 			}
 		}
 	}
 	
 	public void markArticlesRead(List<String> list, int articleState) {
-		boolean isUnread = articleState == 0 ? false : true;
+//		boolean isUnread = articleState == 0 ? false : true;
 		for (String id : list) {
 			db_intern.execSQL("UPDATE " + TABLE_ARTICLES +
-					" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "'");
+					" SET isUnread=" + articleState + " " + "WHERE id=" + id);
 			
 			if (isExternalDBAvailable()) {
 				db_extern.execSQL("UPDATE " + TABLE_ARTICLES +
-						" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "'");
+						" SET isUnread=" + articleState + " " + "WHERE id=" + id);
 			}
 		}
 	}
@@ -477,7 +486,7 @@ public class DBHelper {
 		if (id == null) return;
 		
 		db_intern.execSQL("UPDATE " + TABLE_CAT +
-				" SET unread='" + count + "' " + "WHERE id='" + id + "'");
+				" SET unread=" + count + " " + "WHERE id=" + id);
 	}
 	
 	public void updateCategoryDeltaUnreadCount(String id, int delta) {
@@ -494,7 +503,7 @@ public class DBHelper {
 		if (id == null || categoryId == null) return;
 		
 		db_intern.execSQL("UPDATE " + TABLE_FEEDS +
-				" SET unread='" + count + "' " + "WHERE id='" + id + "' and categoryId='" + categoryId + "'");
+				" SET unread=" + count + " " + "WHERE id=" + id + " and categoryId=" + categoryId);
 	}
 	
 	public void updateFeedDeltaUnreadCount(String id, String categoryId, int delta) {
@@ -511,11 +520,11 @@ public class DBHelper {
 		if (id == null || feedId == null) return;
 		
 		db_intern.execSQL("UPDATE " + TABLE_ARTICLES +
-				" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "' and feedId='" + feedId + "'");
+				" SET isUnread=" + isUnread + " " + "WHERE id=" + id + " and feedId=" + feedId);
 		
 		if (isExternalDBAvailable()) {
 			db_extern.execSQL("UPDATE " + TABLE_ARTICLES +
-					" SET isUnread='" + isUnread + "' " + "WHERE id='" + id + "' and feedId='" + feedId + "'");
+					" SET isUnread=" + isUnread + " " + "WHERE id=" + id + " and feedId=" + feedId);
 		}
 	}
 	
@@ -576,7 +585,7 @@ public class DBHelper {
 	public void deleteCategories(boolean withVirtualCategories) {
 		String wherePart = "";
 		if (!withVirtualCategories) {
-			wherePart = " WHERE id not like '-%' OR id!=0";
+			wherePart = " WHERE id > 0";
 		}
 		db_intern.execSQL("DELETE FROM " + TABLE_CAT + wherePart);
 	}
@@ -757,7 +766,7 @@ public class DBHelper {
 	public List<CategoryItem> getVirtualCategories() {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
-		Cursor c = db_intern.query(TABLE_CAT, null, "id like '-%' OR id=0", null, null, null, null);
+		Cursor c = db_intern.query(TABLE_CAT, null, "id < 1", null, null, null, null);
 		
 		while (!c.isAfterLast()) {
 			CategoryItem ci = handleCategoryCursor(c);
@@ -773,7 +782,7 @@ public class DBHelper {
 	public List<CategoryItem> getCategories(boolean withVirtualCategories) {
 		List<CategoryItem> ret = new ArrayList<CategoryItem>();
 		
-		String wherePart = "id not like '-%' AND id!=0";
+		String wherePart = "id > 0";
 		if (withVirtualCategories) {
 			wherePart = null;
 		}
@@ -792,7 +801,7 @@ public class DBHelper {
 	}
 	
 	/*
-	 * Equal to the API-Call to getCounters
+	 * Equals the API-Call to getCounters
 	 */
 	public Map<CategoryItem, List<FeedItem>> getCounters() {
 		Map<CategoryItem, List<FeedItem>> ret = new HashMap<CategoryItem, List<FeedItem>>();

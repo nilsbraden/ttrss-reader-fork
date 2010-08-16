@@ -221,38 +221,20 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	@Override
 	public List<?> refreshData() {
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-		
-		List<ArticleItem> ret = new ArrayList<ArticleItem>();
-		List<ArticleItem> list = DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread);
-		
-		if (list != null) {
-			for (ArticleItem a : list) {
-				ret.add(a.deepCopy());
-			}
-		}
-		
+		List<ArticleItem> ret = DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread, false);
 		DataController.getInstance().disableForceFullRefresh();
-		
 		return ret;
 	}
 
 	@Override
 	public void update() {
-		if (!Controller.getInstance().isRefreshSubData()) {
-			return;
-		}
+		if (!Controller.getInstance().isRefreshSubData()) return;
 		
-		Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesWithContent(feedId: " + mFeedId + ")");
+		Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesHeadlines(feedId: " + mFeedId + ")");
 		
 		if (!Controller.getInstance().isWorkOffline()) {
-			DataController.getInstance().forceFullRefresh();
-		}
-		
-		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-		DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread);
-		
-		if (!Controller.getInstance().isWorkOffline()) {
-			DataController.getInstance().disableForceFullRefresh();
+			boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+			DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread, true);
 		}
 	}
 	
