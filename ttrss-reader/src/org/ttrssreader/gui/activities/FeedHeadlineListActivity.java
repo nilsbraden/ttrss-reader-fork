@@ -104,20 +104,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		final FeedHeadlineListActivity temp = this;
 		new Handler().postDelayed(new Runnable() {
 			public void run() {
-//				String next = "";
-//				int indexNext = mFeedIds.indexOf(mFeedIds) + 1;
-//				if (!(indexNext < 0 || indexNext >= mFeedIds.size())) {
-//					next = mFeedIds.get(indexNext);
-//				}
-//				
-//				String prev = "";
-//				int indexPrev = mFeedIds.indexOf(mFeedIds) - 1;
-//				if (!(indexPrev < 0 || indexPrev >= mFeedIds.size())) {
-//					prev = mFeedIds.get(indexPrev);
-//				}
-				
 				updater = new Updater(temp, mAdapter);
-				updater.execute(); //mFeedId, next, prev);
+				updater.execute();
 			}
 		}, Utils.WAIT);
 	}
@@ -388,14 +376,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		}
 		
 		setProgressBarIndeterminateVisibility(false);
-		
-//		if (Controller.getInstance().isDisplayOnlyUnread()) {
-//			// Close FeedHeadlineList if no unread article exists
-//			// AND: Not doing this with virtual feeds, starting with "-[0-9]"
-//			if (mAdapter.getArticleUnreadList().isEmpty() && !mFeedId.matches("-[0-9]")) {
-//				finish();
-//			}
-//		}
 	}
 	
 	@Override
