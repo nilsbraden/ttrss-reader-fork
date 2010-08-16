@@ -42,7 +42,7 @@ public class DBHelper {
 	
 	private static final String DATABASE_PATH = "/Android/data/org.ttrssreader/files/";
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 9;
 	
 	private static final String TABLE_CAT = "categories";
 	private static final String TABLE_FEEDS = "feeds";
@@ -141,7 +141,7 @@ public class DBHelper {
 			OpenHelper openHelper = new OpenHelper(context);
 			db_intern = openHelper.getWritableDatabase();
 			db_extern = openDatabase();
-			
+
 			dropInternalDB();
 			dropExternalDB();
 			
@@ -160,7 +160,7 @@ public class DBHelper {
 	}
 	
 	public void dropInternalDB() {
-		if (context.deleteFile(DATABASE_NAME)) {
+		if (context.getDatabasePath(DATABASE_NAME).delete()) {
 			Log.d(Utils.TAG, "dropInternalDB(): database deleted.");
 		} else {
 			Log.d(Utils.TAG, "dropInternalDB(): database NOT deleted.");
@@ -359,10 +359,6 @@ public class DBHelper {
 		if (articleCommentUrl == null) articleCommentUrl = "";
 		if (updateDate == null) updateDate = new Date(System.currentTimeMillis());
 		
-		title = DatabaseUtils.sqlEscapeString(title);
-		articleUrl = DatabaseUtils.sqlEscapeString(articleUrl);
-		articleCommentUrl = DatabaseUtils.sqlEscapeString(articleCommentUrl);
-		
 		synchronized (insertArticle) {
 			insertArticle.bindLong(1, Long.parseLong(articleId));
 			insertArticle.bindLong(2, Long.parseLong(feedId));
@@ -378,7 +374,7 @@ public class DBHelper {
 			content = DatabaseUtils.sqlEscapeString(content);
 			db_extern.execSQL("REPLACE INTO " + TABLE_ARTICLES +
 					" (id, feedId, content, isUnread, updateDate) VALUES" +
-					" (" + articleId + "," + feedId + "," + content + "," + isUnread + "," + updateDate.getTime() + ")");
+					" (" + articleId + "," + feedId + "," + content + ",'" + isUnread + "'," + updateDate.getTime() + ")");
 		}
 	}
 	
