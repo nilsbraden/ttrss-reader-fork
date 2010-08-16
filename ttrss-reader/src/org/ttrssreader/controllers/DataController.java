@@ -97,46 +97,37 @@ public class DataController {
 	private boolean needFullRefresh() {
 		if (Controller.getInstance().isWorkOffline()) {
 			return false;
-		} else if (isOnline()) {
-			return mForceFullRefresh || Controller.getInstance().isAlwaysFullRefresh();
 		} else {
-			return false;
+			return mForceFullRefresh || Controller.getInstance().isAlwaysFullRefresh();
 		}
 	}
 	
 	public boolean isOnline() {
-		if (info != null) {
-			return info.isConnected();
-		} else {
+		if (Controller.getInstance().isWorkOffline()) {
 			return false;
 		}
+		return info.isConnected();
 	}
 	
 	// ********** DATAACCESS **********
 	
-	public synchronized int getCategoryUnreadCount(String catId) {
-		if (mCounters == null || needFullRefresh()) {
-			
-			// Only update counters once in 60 seconds
-			if (mCountersUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+	public synchronized Map<CategoryItem, List<FeedItem>> getCategoryCounters(boolean needFullRefresh) {
+		if (isOnline()) {
+			if (mCounters == null || needFullRefresh() || needFullRefresh) {
 				
-				mCounters = Controller.getInstance().getTTRSSConnector().getCounters();
-				mCountersUpdated = System.currentTimeMillis();
-				DBHelper.getInstance().setCounters(mCounters);
-			}
-		}
-		
-		if (mCounters != null) {
-			for (CategoryItem c : mCounters.keySet()) {
-				if (catId.equals(c.getId())) {
-					return c.getUnreadCount();
+				// Only update counters once in 60 seconds
+				if (mCountersUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+					
+					mCounters = Controller.getInstance().getTTRSSConnector().getCounters();
+					mCountersUpdated = System.currentTimeMillis();
+					DBHelper.getInstance().setCounters(mCounters);
 				}
 			}
 		}
-		
-		return 0;
+		return mCounters;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public synchronized List<ArticleItem> getArticlesHeadlines(String feedId, boolean displayOnlyUnread, boolean needFullRefresh) {
 		int fId = new Integer(feedId);
 		List<ArticleItem> result = null;
@@ -150,32 +141,33 @@ public class DataController {
 			result = mArticles.get(feedId);
 		}
 		
-		if (result == null || result.isEmpty() || needFullRefresh() || needFullRefresh) {
-			
-			// Check time of last update for this feedId
-			Long time = mArticlesUpdated.get(feedId);
-			if (time == null) time = new Long(0);
-			
-			if (time < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+		if (isOnline()) {
+			if (result == null || result.isEmpty() || needFullRefresh() || needFullRefresh) {
 				
-				String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
-				int articleLimit = Controller.getInstance().getArticleLimit();
-				result = Controller.getInstance().getTTRSSConnector()
-						.getFeedHeadlines(new Integer(feedId), articleLimit, 0, viewMode);
+				// Check time of last update for this feedId
+				Long time = mArticlesUpdated.get(feedId);
+				if (time == null) time = new Long(0);
 				
-				if (result == null) {
-					return null;
+				if (time < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+					
+					String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
+					int articleLimit = Controller.getInstance().getArticleLimit();
+					result = Controller.getInstance().getTTRSSConnector()
+							.getFeedHeadlines(fId, articleLimit/2, 0, viewMode);
+					// Divide by two to keep the list of "All Articles" a bit smaller
+					
+					if (result == null) {
+						return null;
+					}
+					
+					new DBInsertArticlesTask(articleLimit).execute(result);
+					
+					mArticles.put(feedId, result);
+					mArticlesUpdated.put(feedId, System.currentTimeMillis());
 				}
-				
-				DBHelper.getInstance().insertArticles(result, articleLimit);
-				
-				// Refresh Headlines from DB so they get reduced to articleLimit too.
-				mArticles = DBHelper.getInstance().getArticles(0, false);
-				time = System.currentTimeMillis();
-				mArticlesUpdated.put(feedId, time);
 			}
 		}
-		
+			
 		// If option "ShowUnreadOnly" is enabled filter out all read items
 		if (displayOnlyUnread && result != null) {
 			List<ArticleItem> artList = new ArrayList<ArticleItem>();
@@ -193,17 +185,19 @@ public class DataController {
 	}
 	
 	public synchronized Map<String, List<FeedItem>> getFeeds(boolean needFullRefresh) {
-		if (mFeeds == null || needFullRefresh() || needFullRefresh) {
-			
-			// Only update counters once in 60 seconds
-			if (mFeedsUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+		if (isOnline()) {
+			if (mFeeds == null || needFullRefresh() || needFullRefresh) {
 				
-				mFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
-				mFeedsUpdated = System.currentTimeMillis();
-				
-				DBHelper.getInstance().deleteFeeds();
-				for (String s : mFeeds.keySet()) {
-					DBHelper.getInstance().insertFeeds(mFeeds.get(s));
+				// Only update counters once in 60 seconds
+				if (mFeedsUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+					
+					mFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
+					mFeedsUpdated = System.currentTimeMillis();
+					
+					DBHelper.getInstance().deleteFeeds();
+					for (String s : mFeeds.keySet()) {
+						DBHelper.getInstance().insertFeeds(mFeeds.get(s));
+					}
 				}
 			}
 		}
@@ -215,46 +209,53 @@ public class DataController {
 			return mVirtCategories;
 		}
 		
-		if (mVirtCategories == null || needFullRefresh() || needFullRefresh) {
-			
-			// Only update counters once in 60 seconds
-			if (mVirtCategoriesUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+		if (isOnline()) {
+			if (mVirtCategories == null || needFullRefresh() || needFullRefresh) {
 				
-				boolean showUnread = Controller.getInstance().isDisplayUnreadInVirtualFeeds();
+				// Only update counters once in 60 seconds
+				if (mVirtCategoriesUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+					
+					boolean showUnread = Controller.getInstance().isDisplayUnreadInVirtualFeeds();
+					
+					mVirtCategories = new ArrayList<CategoryItem>();
+					mVirtCategoriesUpdated = System.currentTimeMillis();
+					
+					// Refresh CategoryCounters
+					getCategoryCounters(needFullRefresh);
+					
+					CategoryItem catItem;
+					catItem = new CategoryItem("-1", "Starred articles", showUnread ? getCategoryUnreadCount("-1") : 0);
+					mVirtCategories.add(catItem);
+					catItem = new CategoryItem("-2", "Published articles", showUnread ? getCategoryUnreadCount("-2") : 0);
+					mVirtCategories.add(catItem);
+					catItem = new CategoryItem("-3", "Fresh articles", showUnread ? getCategoryUnreadCount("-3") : 0);
+					mVirtCategories.add(catItem);
+					catItem = new CategoryItem("-4", "All articles", showUnread ? getCategoryUnreadCount("-4") : 0);
+					mVirtCategories.add(catItem);
+					catItem = new CategoryItem("0", "Uncategorized Feeds", showUnread ? getCategoryUnreadCount("0") : 0);
+					mVirtCategories.add(catItem);
+					
+					DBHelper.getInstance().insertCategories(mVirtCategories);
+				}
 				
-				mVirtCategories = new ArrayList<CategoryItem>();
-				mVirtCategoriesUpdated = System.currentTimeMillis();
-				
-				CategoryItem catItem;
-				catItem = new CategoryItem("-1", "Starred articles", showUnread ? getCategoryUnreadCount("-1") : 0);
-				mVirtCategories.add(catItem);
-				catItem = new CategoryItem("-2", "Published articles", showUnread ? getCategoryUnreadCount("-2") : 0);
-				mVirtCategories.add(catItem);
-				catItem = new CategoryItem("-3", "Fresh articles", showUnread ? getCategoryUnreadCount("-3") : 0);
-				mVirtCategories.add(catItem);
-				catItem = new CategoryItem("-4", "All articles", showUnread ? getCategoryUnreadCount("-4") : 0);
-				mVirtCategories.add(catItem);
-				catItem = new CategoryItem("0", "Uncategorized Feeds", showUnread ? getCategoryUnreadCount("0") : 0);
-				mVirtCategories.add(catItem);
-				
-				DBHelper.getInstance().insertCategories(mVirtCategories);
 			}
-			
 		}
 		return mVirtCategories;
 	}
 	
 	private synchronized List<CategoryItem> internalGetCategories(boolean needFullRefresh) {
-		if (mCategories == null || needFullRefresh() || needFullRefresh) {
-			
-			// Only update counters once in 60 seconds
-			if (mCategoriesUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+		if (isOnline()) {
+			if (mCategories == null || needFullRefresh() || needFullRefresh) {
 				
-				mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
-				mCategoriesUpdated = System.currentTimeMillis();
-				
-				DBHelper.getInstance().deleteCategories(false);
-				DBHelper.getInstance().insertCategories(mCategories);
+				// Only update counters once in 60 seconds
+				if (mCategoriesUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+					
+					mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
+					mCategoriesUpdated = System.currentTimeMillis();
+					
+					DBHelper.getInstance().deleteCategories(false);
+					DBHelper.getInstance().insertCategories(mCategories);
+				}
 			}
 		}
 		return mCategories;
@@ -262,6 +263,20 @@ public class DataController {
 	
 	
 	// ********** META-FUNCTIONS **********
+	
+	public synchronized int getCategoryUnreadCount(String catId) {
+		Map<CategoryItem, List<FeedItem>> map = getCategoryCounters(false);
+		
+		if (map != null) {
+			for (CategoryItem c : map.keySet()) {
+				if (catId.equals(c.getId())) {
+					return c.getUnreadCount();
+				}
+			}
+		}
+		
+		return 0;
+	}
 	
 	public ArticleItem getArticleHeadline(String feedId, String articleId) {
 		for (ArticleItem a : getArticlesHeadlines(feedId, false, false)) {
@@ -294,6 +309,7 @@ public class DataController {
 		return result;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<ArticleItem> getArticlesWithContent(String feedId, boolean displayOnlyUnread, boolean needFullRefresh) {
 		if (feedId.startsWith("-")) {
 			feedId = "-1";
@@ -329,12 +345,10 @@ public class DataController {
 				}
 				
 				int articleLimit = Controller.getInstance().getArticleLimit();
-				DBHelper.getInstance().insertArticles(result, articleLimit);
+				new DBInsertArticlesTask(articleLimit).execute(result);
 				
-				// Refresh Headlines from DB so they get reduced to articleLimit too.
-				mArticles = DBHelper.getInstance().getArticles(0, false);
-				time = System.currentTimeMillis();
-				mArticlesUpdated.put(feedId, time);
+				mArticles.put(feedId, result);
+				mArticlesUpdated.put(feedId, System.currentTimeMillis());
 			}
 		}
 		
@@ -442,20 +456,20 @@ public class DataController {
 		if (displayOnlyUnread && categories != null) {
 			
 			List<CategoryItem> catList = new ArrayList<CategoryItem>();
-			
 			for (CategoryItem ci : categories) {
-				
 				// Dont filter for virtual Categories, only 0 (uncategorized feeds) are filtered
 				if (ci.getId().startsWith("-")) {
 					catList.add(ci);
 					continue;
 				}
 				
+				// Refresh CategoryCounters
+				getCategoryCounters(needFullRefresh);
+				
 				if (getCategoryUnreadCount(ci.getId()) > 0) {
 					ci.setUnreadCount(getCategoryUnreadCount(ci.getId()));
 					catList.add(ci);
 				}
-				
 			}
 			categories = catList;
 		}
@@ -478,6 +492,7 @@ public class DataController {
 		//
 		// int articleLimit = Controller.getInstance().getArticleLimit();
 		// DBHelper.getInstance().insertArticles(list, articleLimit);
+		// -> new DBInsertArticlesTask(articleLimit).execute(result);
 		//
 		// for (ArticleItem a : list) {
 		//
