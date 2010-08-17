@@ -55,16 +55,24 @@ public class PreferencesActivity extends PreferenceActivity {
 			if ((key.equals(Constants.CONNECTION_URL)) ||
 					(key.equals(Constants.CONNECTION_USERNAME)) ||
 					(key.equals(Constants.CONNECTION_PASSWORD)) ||
-
+						
 					(key.equals(Constants.USAGE_AUTOMATIC_MARK_READ)) ||
 					(key.equals(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE)) ||
-
+					(key.equals(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP)) ||
+					(key.equals(Constants.USAGE_REFRESH_SUB_DATA)) ||
+					(key.equals(Constants.USAGE_USE_VOLUME_KEYS)) ||
+					(key.equals(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE)) ||
+					(key.equals(Constants.USAGE_WORK_OFFLINE)) ||
+						
 					(key.equals(Constants.DISPLAY_SHOW_VIRTUAL)) ||
 					(key.equals(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD)) ||
 					(key.equals(Constants.DISPLAY_ALWAYS_FULL_REFRESH)) ||
 					(key.equals(Constants.DISPLAY_USE_SWIPE)) ||
 					(key.equals(Constants.DISPLAY_ONLY_UNREAD)) ||
 					(key.equals(Constants.DISPLAY_ARTICLE_LIMIT)) ||
+						
+					(key.equals(Constants.DATABASE_VERSION)) ||
+					(key.equals(Constants.LAST_UPDATE_TIME)) ||
 
 					false) {
 				updatePreferences();
@@ -102,16 +110,25 @@ public class PreferencesActivity extends PreferenceActivity {
 		editor.putString(Constants.CONNECTION_URL, "http://localhost/");
 		editor.putString(Constants.CONNECTION_USERNAME, "");
 		editor.putString(Constants.CONNECTION_PASSWORD, "");
+		
 		editor.putBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);
 		editor.putBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);
+		editor.putBoolean(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, false);
+		editor.putBoolean(Constants.USAGE_REFRESH_SUB_DATA, false);
+		editor.putBoolean(Constants.USAGE_USE_VOLUME_KEYS, true);
+		editor.putBoolean(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE, true);
+		editor.putBoolean(Constants.USAGE_WORK_OFFLINE, false);
+		
 		editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL, true);
 		editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD, false);
 		editor.putBoolean(Constants.DISPLAY_ALWAYS_FULL_REFRESH, false);
 		editor.putBoolean(Constants.DISPLAY_USE_SWIPE, true);
 		editor.putBoolean(Constants.DISPLAY_ONLY_UNREAD, false);
 		editor.putString(Constants.DISPLAY_ARTICLE_LIMIT, "100");
-		editor.putString(Constants.DATABASE_VERSION, "1");
 		
+		editor.putString(Constants.DATABASE_VERSION, "1");
+		editor.putString(Constants.LAST_UPDATE_TIME, "0");
+			
 		editor.commit();
 		super.finish();
 		this.finish();

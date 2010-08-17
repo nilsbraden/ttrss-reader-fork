@@ -230,7 +230,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 	public void update() {
 		if (!Controller.getInstance().isRefreshSubData()) return;
 		
-		Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesHeadlines(feedId: " + mFeedId + ")");
+		Log.e(Utils.TAG, "FeedHeadlineListAdapter - getArticlesHeadlines(feedId: " + mFeedId + ")");
 		
 		if (!Controller.getInstance().isWorkOffline()) {
 			boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();

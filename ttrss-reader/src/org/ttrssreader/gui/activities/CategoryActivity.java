@@ -28,22 +28,19 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryListAdapter;
+import org.ttrssreader.utils.ExternalStorageReceiver;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
+import android.os.AsyncTask.Status;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ListView;
-
 public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
 	
 	private static final int ACTIVITY_SHOW_FEEDS = 0;
@@ -58,6 +55,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private CategoryListAdapter mAdapter = null;
 	private Refresher refresher;
 	private Updater updater;
+	private ExternalStorageReceiver storageReceiver;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -67,18 +65,32 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		
 		Controller.getInstance().checkAndInitializeController(this);
 		DBHelper.getInstance().checkAndInitializeController(this);
-		startWatchingExternalStorage();
+		
+		storageReceiver = new ExternalStorageReceiver();
+		registerReceiver(storageReceiver, storageReceiver.getFilter());
+		
 		DataController.getInstance().checkAndInitializeController(this);
 		
 		mCategoryListView = getListView();
+		mAdapter = new CategoryListAdapter(this);
+		mCategoryListView.setAdapter(mAdapter);
+		updater = new Updater(this, mAdapter);
 		
-		final CategoryActivity temp = this;
-		new Handler().postDelayed(new Runnable() {
-			public void run() {
-				updater = new Updater(temp, mAdapter);
-				updater.execute();
-			}
-		}, Utils.WAIT);
+		// Check if we have a server specified
+		String url = Controller.getInstance().getUrl();
+		if (url.equals("http://localhost/" + Controller.JSON_END_URL)) {
+			Log.e(Utils.TAG, "ERROR: No Server specified");
+			openConnectionErrorDialog("No Server specified.");
+		} else {
+		
+			// Only post background-task if we have a server specified
+			new Handler().postDelayed(new Runnable() {
+				public void run() {
+					setProgressBarIndeterminateVisibility(true);
+					updater.execute();
+				}
+			}, Utils.WAIT);
+		}
 	}
 	
 	@Override
@@ -97,7 +109,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		unregisterReceiver(mExternalStorageReceiver);
+		unregisterReceiver(storageReceiver);
+		DBHelper.getInstance().closeDB();
 	}
 	
 	private synchronized void doRefresh() {
@@ -242,7 +255,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		if (mAdapter.getTotalUnread() >= 0) {
 			this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread() + ")");
 		}
-		setProgressBarIndeterminateVisibility(false);
+		
+		if (updater.getStatus().equals(Status.FINISHED)) {
+			setProgressBarIndeterminateVisibility(false);
+		}
 	}
 	
 	@Override
@@ -254,46 +270,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		}
 
 		doRefresh();
-		setProgressBarIndeterminateVisibility(false);
 	}
-	
-	
-	
-	private BroadcastReceiver mExternalStorageReceiver;
-	private boolean mExternalStorageAvailable = false;
-	private boolean mExternalStorageWriteable = false;
-	
-	private void updateExternalStorageState() {
-		String state = Environment.getExternalStorageState();
-		
-		if (Environment.MEDIA_MOUNTED.equals(state)) {
-			mExternalStorageAvailable = mExternalStorageWriteable = true;
-		} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-			mExternalStorageAvailable = true;
-			mExternalStorageWriteable = false;
-		} else {
-			mExternalStorageAvailable = mExternalStorageWriteable = false;
-		}
-		
-		handleExternalStorageState(mExternalStorageAvailable, mExternalStorageWriteable);
-	}
-	
-	private void startWatchingExternalStorage() {
-		mExternalStorageReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				Log.i("test", "Storage: " + intent.getData());
-				updateExternalStorageState();
-			}
-		};
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(Intent.ACTION_MEDIA_MOUNTED);
-		filter.addAction(Intent.ACTION_MEDIA_REMOVED);
-		registerReceiver(mExternalStorageReceiver, filter);
-		updateExternalStorageState();
-	}
-	
-	private void handleExternalStorageState(boolean storageAvailable, boolean storageWriteable) {
-		DBHelper.getInstance().setExternalDB(storageWriteable);
-	}
+
 }

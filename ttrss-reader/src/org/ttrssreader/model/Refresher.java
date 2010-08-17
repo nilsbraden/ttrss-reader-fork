@@ -17,9 +17,11 @@ package org.ttrssreader.model;
 
 import java.util.List;
 import org.ttrssreader.gui.IRefreshEndListener;
+import org.ttrssreader.utils.Utils;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 public class Refresher extends AsyncTask<String, Integer, List<?>> {
 	
@@ -40,7 +42,6 @@ public class Refresher extends AsyncTask<String, Integer, List<?>> {
 	
 	@Override
 	protected List<?> doInBackground(String... params) {
-		// Refresh data oh this view
 		List<?> ret = mRefreshable.refreshData();
 		handler.sendEmptyMessage(0);
 		

@@ -188,7 +188,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
 	public void update() {
 		if (!Controller.getInstance().isRefreshSubData()) return;
 		
-		Log.i(Utils.TAG, "CategoryListAdapter - getCategories()");
+		Log.e(Utils.TAG, "CategoryListAdapter - getCategories()");
 		
 		if (!Controller.getInstance().isWorkOffline()) {
 			// Update new articles
