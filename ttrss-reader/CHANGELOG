@@ -1,56 +1,59 @@
-TODO
-- Automatically open Article if only one unread article in list
-- https-support with own Certificates
-- only refresh feedlist if &op=getConfig returns a new number of feeds
-- Update unread-counts on startup (needs API method for getCounters on Tiny Tiny RSS)
-- Lots of work todo on performance
+#summary Changelog for all changes since the fork
 
+= Changes =
 
-Changed since 0.5.0:
-- Articles on SD-Card, small data like headlines stay in internal storage
-- Article-content stays only in memory if sdcard not available
-- DB-update if version changes, at the moment the old DB is just deleted.
-- DB_VERSION in Preferences-Storage, not settable by user
-- Adapters work with deepCopy() and get notified more often to avoid IllegalStateException
-- Better handling for synchronized-Methods in DataController, should lead to less time spent waiting for mutex.
+== Version 0.5.6 ==
+  * Fixed isOnline always returning false on device (does work in emulator though)
+  * Fixed crash on startup if no settings were specified yet
+  * Refactored Main-Activity and put StorageReceiver in seperate class 
 
+== Version 0.5.5 ==
+  * Update unread-counts on startup
+  * Articles on SD-Card, small data like headlines stay in internal storage
+  * Article-content stays only in memory if sdcard not available
+  * DB-update if version changes, at the moment the old DB is just deleted.
+  * DB_VERSION in Preferences-Storage, not settable by user
+  * Better handling for synchronized-Methods in DataController, should lead to less time spent waiting for mutex.
+  * IllegalStateException because Adapter was modified from background-thread instead of beeing changed from the activity.
 
-0.5.0
-- Added local caching in DB for Articles, Feeds and Categories.
-- HTML content is saved base64-encoded in DB to avoid syntax-problems while inserting
-- Removed Tabs, they were unneccessary since we have uncategorized feeds as a virtual category now
-- Added preference for "automatically open url for empty article".
-- Added preference for "automatically load data of categories below the current level".
-- Added preference for "use volume-keys to navigate to previous/next articles".
-- Added preference for "vibrate when first/last articles is reached".
+== Version 0.5.4 ==
+  * Disabled concurrent modifications in Refresher.java and Updater.java because of Exceptions (see comments in source)
+  * forceRefresh not disabled automatically anymore, so we can forceRefresh several Adapters in one step (neccessary for Main-Activity with Categories and FeedHeadlines, see Comment in DataController.java)
+  * Fixed articles not having set their URL and comments-URL
 
-0.4.0
-- Mark everything as read button
-- Share Article-URL via Twitter, Mail...
-- Zoom-Button for Articles
+== Version 0.5.3 ==
+  * Fixed several Exceptions
+  * Signed with real key, before it was just for debugging
+  * Fixed history of Activities. You can switch application and always return to the position you were before.
+  * Added local caching in DB for Articles, Feeds and Categories.
+  * HTML content is saved base64-encoded in DB to avoid syntax-problems while inserting
+  * Removed Tabs, they were unneccessary since we have uncategorized feeds as a virtual category now
+  * Added preference for "automatically open url for empty article".
+  * Added preference for "automatically load data of categories below the current level".
+  * Added preference for "use volume-keys to navigate to previous/next articles".
+  * Added preference for "vibrate when first/last articles is reached".
 
-0.3.0
-- Next/previous-Button in Article-View Options-menu
-- Use Swipe for Previous/Next Article
-- Preference for "Use Swipe", default on
-- Swipe only in bottom area of the Article-View, display hint if swiping elsewhere
-- Added support for virtual-category "uncategorized Feeds" (categoryId=0)
-- Added Tab on Main-Screen for uncategorized Feeds
-- Added Option "DisplayOnlyUnread" to hide read articles and feeds without unread articles
-- Added Option "DisplayOnlyUnread" to Options-Menü
-- Added Option "Toggle Display Unread" to Main-Menu, FeedList-Menu and FeedHeadlineList-Menu
-- Show attached images
-- Automatically open webpage for empty Feed-Entrys
-- Automatically leave FeedHeadlineView if there are no items (see FeedHeadlineListActivity.java:207)
-- Disabled concurrent modifications in Refresher.java and Updater.java because of Exceptions (see comments in source)
+== Version 0.4.0 ==
+  * Mark everything as read button
+  * Share Article-URL via Twitter, Mail...
+  * Zoom-Button for Articles
 
-0.2.0:
-- Switch to new TTRSS JSON-based API; XML-RPC is no longer supported (need TTRSS >= 1.4.0);
-- Articles can be marked as read when openning them (can be disabled);
-- Virtual feeds can be hide or shown;
-- Lazy vs. full refresh preference (lazy mode can have unread count error);
+== Version 0.3.0 ==
+  * Next/previous-Button in Article-View Options-menu
+  * Use Swipe for Previous/Next Article
+  * Preference for "Use Swipe", default on
+  * Swipe only in bottom area of the Article-View, display hint if swiping elsewhere
+  * Added support for virtual-category "uncategorized Feeds" (categoryId=0)
+  * Added Tab on Main-Screen for uncategorized Feeds
+  * Added Option "DisplayOnlyUnread" to hide read articles and feeds without unread articles
+  * Added Option "DisplayOnlyUnread" to Options-Menü
+  * Added Option "Toggle Display Unread" to Main-Menu, FeedList-Menu and FeedHeadlineList-Menu
+  * Show attached images
+  * Automatically open webpage for empty Feed-Entrys
+  * Automatically leave FeedHeadlineView if there are no items (see FeedHeadlineListActivity.java:207)
 
-0.1.0:
-- Initial release;
-- Read categories, feeds, feeds headlines and articles;
-- Manual read/unread state;
+= TODO =
+  * Automatically open Article if only one unread article in list
+  * https-support with own Certificates
+  * only refresh feedlist if &op=getConfig returns a new number of feeds
+  * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=9 Issue #9 (see all Feeds below their categories on main-view)]

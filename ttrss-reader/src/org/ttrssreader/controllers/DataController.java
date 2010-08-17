@@ -106,7 +106,8 @@ public class DataController {
 		if (Controller.getInstance().isWorkOffline()) {
 			return false;
 		}
-		return info.isConnected();
+		return true;
+//		return info.isConnected();
 	}
 	
 	// ********** DATAACCESS **********
@@ -221,7 +222,7 @@ public class DataController {
 					mVirtCategoriesUpdated = System.currentTimeMillis();
 					
 					// Refresh CategoryCounters
-					getCategoryCounters(needFullRefresh);
+					getCategoryCounters(true);
 					
 					CategoryItem catItem;
 					catItem = new CategoryItem("-1", "Starred articles", showUnread ? getCategoryUnreadCount("-1") : 0);

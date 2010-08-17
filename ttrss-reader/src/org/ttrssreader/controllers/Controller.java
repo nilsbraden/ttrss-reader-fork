@@ -25,11 +25,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class Controller {
-	
-	private final static String JSON_END_URL = "api/";
+
+	public final static String JSON_END_URL = "api/";
 	
 	private boolean mIsControllerInitialized = false;
 	private ITTRSSConnector mTTRSSConnector;
+	private String url = "";
 
 	private static final String mutex = "";
 	private static Controller mInstance = null;
@@ -70,7 +71,7 @@ public class Controller {
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		
 		// Login
-		String url = prefs.getString(Constants.CONNECTION_URL, "http://localhost/");
+		url = prefs.getString(Constants.CONNECTION_URL, "http://localhost/");
 		if (!url.endsWith(JSON_END_URL)) {
 			if (!url.endsWith("/")) {
 				url += "/";
@@ -127,6 +128,15 @@ public class Controller {
 	
 	// **** Getter / Setter **********
 	// ******* USAGE-Options ****************************
+	
+	public String getUrl() {
+		return url;
+	}
+
+	
+	public void setUrl(String url) {
+		this.url = url;
+	}
 	
 	public ITTRSSConnector getTTRSSConnector() {
 		return mTTRSSConnector;

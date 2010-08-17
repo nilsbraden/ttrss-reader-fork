@@ -193,6 +193,11 @@ public class DBHelper {
 		return externalDBState;
 	}
 	
+	public void closeDB() {
+		db_intern.close();
+		db_extern.close();
+	}
+	
 	/**
 	 * Opens the SDcard database. If it cannot be opened, it
 	 * creates a new instance. If a new instance cannot be created, it throws

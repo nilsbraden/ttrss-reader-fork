@@ -207,7 +207,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
 	public void update() {
 		if (!Controller.getInstance().isRefreshSubData()) return;
 		
-		Log.i(Utils.TAG, "FeedListAdapter - getSubscribedFeeds(catId: " + mCategoryId + ")");
+		Log.e(Utils.TAG, "FeedListAdapter - getSubscribedFeeds(catId: " + mCategoryId + ")");
 		
 		if (!Controller.getInstance().isWorkOffline()) {
 			boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();

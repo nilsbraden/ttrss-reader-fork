@@ -32,6 +32,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.AsyncTask.Status;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -78,11 +79,14 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			mCategoryTitle = null;
 		}
 		
-		final FeedListActivity temp = this;
+		mAdapter = new FeedListAdapter(this, mCategoryId);
+		mFeedListView.setAdapter(mAdapter);
+		updater = new Updater(this, mAdapter);
+
 		new Handler().postDelayed(new Runnable() {
 			public void run() {
-				updater = new Updater(temp, mAdapter);
-				updater.execute(); //mCategoryId);
+				setProgressBarIndeterminateVisibility(true);
+				updater.execute();
 			}
 		}, Utils.WAIT);
 	}
@@ -216,7 +220,9 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
 		
-		setProgressBarIndeterminateVisibility(false);
+		if (updater.getStatus().equals(Status.FINISHED)) {
+			setProgressBarIndeterminateVisibility(false);
+		}
 	}
 	
 	@Override
@@ -228,7 +234,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		}
 		
 		doRefresh();
-		setProgressBarIndeterminateVisibility(false);
 	}
 	
 }

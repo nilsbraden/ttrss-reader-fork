@@ -33,6 +33,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.os.AsyncTask.Status;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -104,22 +105,13 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			mArticleIds = new ArrayList<String>();
 		}
 		
-		final ArticleActivity temp = this;
+		mAdapter = new ArticleItemAdapter(mArticleId);
+		updater = new Updater(this, mAdapter);
+
 		new Handler().postDelayed(new Runnable() {
 			public void run() {
-//				String next = "";
-//				int indexNext = mArticleIds.indexOf(mArticleId) + 1;
-//				if (!(indexNext < 0 || indexNext >= mArticleIds.size())) {
-//					next = mArticleIds.get(indexNext);
-//				}
-//				
-//				String prev = "";
-//				int indexPrev = mArticleIds.indexOf(mArticleId) - 1;
-//				if (!(indexPrev < 0 || indexPrev >= mArticleIds.size())) {
-//					prev = mArticleIds.get(indexPrev);
-//				}
-			updater = new Updater(temp, mAdapter);
-			updater.execute(); //(next, prev);
+				setProgressBarIndeterminateVisibility(true);
+				updater.execute();
 			}
 		}, Utils.WAIT);
 	}
@@ -424,7 +416,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
 		
-		setProgressBarIndeterminateVisibility(false);
+		if (updater.getStatus().equals(Status.FINISHED)) {
+			setProgressBarIndeterminateVisibility(false);
+		}
 	}
 	
 	@Override
