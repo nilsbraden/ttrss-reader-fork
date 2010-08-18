@@ -30,7 +30,7 @@ public class Utils {
 	/**
 	 * Time to wait before starting the background-update from the activities
 	 */
-	public static final int WAIT = 400;
+	public static final int WAIT = 300;
 	
 	/**
 	 * Vibrate-Time for vibration when end of list is reached 

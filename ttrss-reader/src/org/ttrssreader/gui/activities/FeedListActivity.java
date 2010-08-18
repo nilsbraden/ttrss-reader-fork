@@ -100,8 +100,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (refresher != null) refresher.cancel(true);
-		if (updater != null) updater.cancel(true);
+//		if (refresher != null) refresher.cancel(true);
+//		if (updater != null) updater.cancel(true);
 	}
 	
 	@Override

@@ -265,7 +265,7 @@ public class DataController {
 	
 	// ********** META-FUNCTIONS **********
 	
-	public synchronized int getCategoryUnreadCount(String catId) {
+	public int getCategoryUnreadCount(String catId) {
 		Map<CategoryItem, List<FeedItem>> map = getCategoryCounters(false);
 		
 		if (map != null) {
@@ -439,7 +439,7 @@ public class DataController {
 		return null;
 	}
 	
-	public synchronized List<CategoryItem> getCategories(boolean withVirtuals, boolean displayOnlyUnread, boolean needFullRefresh) {
+	public List<CategoryItem> getCategories(boolean withVirtuals, boolean displayOnlyUnread, boolean needFullRefresh) {
 		List<CategoryItem> categories = new ArrayList<CategoryItem>();
 		
 		if (withVirtuals) {
