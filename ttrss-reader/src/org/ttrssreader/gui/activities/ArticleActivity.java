@@ -125,8 +125,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (refresher != null) refresher.cancel(true);
-		if (updater != null) updater.cancel(true);
+//		if (refresher != null) refresher.cancel(true);
+//		if (updater != null) updater.cancel(true);
 	}
 		
 	@Override
@@ -176,7 +176,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		if (mAdapter == null) {
 			mAdapter = new ArticleItemAdapter(mArticleId);
 		}
-		new Refresher(this, mAdapter).execute();
+		
+		refresher = new Refresher(this, mAdapter);
+		refresher.execute();
 	}
 	
 	private void markRead() {

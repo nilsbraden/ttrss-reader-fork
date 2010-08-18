@@ -123,8 +123,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (refresher != null) refresher.cancel(true);
-		if (updater != null) updater.cancel(true);
+//		if (refresher != null) refresher.cancel(true);
+//		if (updater != null) updater.cancel(true);
 	}
 	
 	private void doRefresh() {
