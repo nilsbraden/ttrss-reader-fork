@@ -35,7 +35,7 @@ public interface ITTRSSConnector {
 	
 	public List<ArticleItem> getFeedArticles(int id, int articleState, boolean isCategory);
 	
-	public List<ArticleItem> getNewArticles(int articleState, long time);
+	public Map<CategoryItem,Map<FeedItem, List<ArticleItem>>> getNewArticles(int articleState, long time);
 	
 	public void setArticleRead(List<String> articlesIds, int articleState);
 	
