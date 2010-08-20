@@ -33,6 +33,8 @@
 <string name="ConnectionUsernamePreferenceSummary">The username of your Tiny Tiny RSS account.</string>
 <string name="ConnectionPasswordPreferenceTitle">Password</string>
 <string name="ConnectionPasswordPreferenceSummary">The password of your Tiny Tiny RSS account.</string>
+<string name="ConnectionSslPreferenceTitle">SSL</string>
+<string name="ConnectionSslPreferenceSummary">Accept all SSL certificates.</string>
 
 <string name="UsagePreferenceCategoryTitle">Usage</string>
 <string name="UsageAutomaticMarkReadPreferenceTitle">Automatically mark article as read</string>

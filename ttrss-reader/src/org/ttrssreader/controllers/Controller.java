@@ -80,7 +80,8 @@ public class Controller {
 		}
 		String userName = prefs.getString(Constants.CONNECTION_USERNAME, "");
 		String password = prefs.getString(Constants.CONNECTION_PASSWORD, "");
-		mTTRSSConnector = new TTRSSJsonConnector(url, userName, password);
+		boolean trustAllSsl = prefs.getBoolean(Constants.CONNECTION_TRUST_ALL_SLL, false); 
+		mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, trustAllSsl);
 		
 		// Usage
 		mAutomaticMarkRead = prefs.getBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);

@@ -20,6 +20,7 @@ public class Constants {
 	public static String CONNECTION_URL = "ConnectionUrlPreference";
 	public static String CONNECTION_USERNAME = "ConnectionUsernamePreference";
 	public static String CONNECTION_PASSWORD = "ConnectionPasswordPreference";
+	public static String CONNECTION_TRUST_ALL_SLL = "ConnectionSLLPreference";
 	
 	public static String USAGE_AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
 	public static String USAGE_OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";

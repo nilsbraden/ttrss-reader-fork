@@ -55,6 +55,7 @@ public class PreferencesActivity extends PreferenceActivity {
 			if ((key.equals(Constants.CONNECTION_URL)) ||
 					(key.equals(Constants.CONNECTION_USERNAME)) ||
 					(key.equals(Constants.CONNECTION_PASSWORD)) ||
+					(key.equals(Constants.CONNECTION_TRUST_ALL_SLL)) ||
 						
 					(key.equals(Constants.USAGE_AUTOMATIC_MARK_READ)) ||
 					(key.equals(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE)) ||
@@ -110,6 +111,7 @@ public class PreferencesActivity extends PreferenceActivity {
 		editor.putString(Constants.CONNECTION_URL, "http://localhost/");
 		editor.putString(Constants.CONNECTION_USERNAME, "");
 		editor.putString(Constants.CONNECTION_PASSWORD, "");
+		editor.putBoolean(Constants.CONNECTION_TRUST_ALL_SLL, false);
 		
 		editor.putBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);
 		editor.putBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);
