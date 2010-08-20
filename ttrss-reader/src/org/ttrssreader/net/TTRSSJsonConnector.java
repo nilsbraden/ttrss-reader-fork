@@ -30,6 +30,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpParams;
@@ -97,9 +98,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		SchemeRegistry registry = new SchemeRegistry();
 		registry.register(new Scheme("http", new PlainSocketFactory(), 80));
-		// TODO
-//		registry.register(new Scheme("https",
-//				(mTrustAllSsl ? new FakeSocketFactory() : SSLSocketFactory.getSocketFactory()), 443));
+		registry.register(new Scheme("https",
+				(mTrustAllSsl ? new FakeSocketFactory() : SSLSocketFactory.getSocketFactory()), 443));
 		
 		HttpPost httpPost = new HttpPost(url);
 		
