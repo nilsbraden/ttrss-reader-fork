@@ -22,6 +22,11 @@
 			android:key="ConnectionPasswordPreference" 
 			android:password="true"
 			android:singleLine="true" />
+		<CheckBoxPreference
+		    android:title="@string/ConnectionSslPreferenceTitle"
+			android:defaultValue="false"
+			android:summary="@string/ConnectionSslPreferenceSummary"			
+			android:key="ConnectionSLLPreference" />
 			
 	</PreferenceCategory>
 	

@@ -27,7 +27,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,25 +76,38 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	private String mServerUrl;
 	private String mUserName;
 	private String mPassword;
+	private boolean mTrustAllSsl;
 	
 	private String mSessionId;
 	
 	private String mLastError = "";
 	private boolean mHasLastError = false;
 	
-	public TTRSSJsonConnector(String serverUrl, String userName, String password) {
+	public TTRSSJsonConnector(String serverUrl, String userName, String password, boolean trustAllSsl) {
 		mServerUrl = serverUrl;
 		mUserName = userName;
 		mPassword = password;
+		mTrustAllSsl = trustAllSsl;
 		mSessionId = null;
 	}
 	
 	private String doRequest(String url) {
+		Log.i(Utils.TAG, "TrustAllSSL-Setting: " + Boolean.valueOf(mTrustAllSsl).toString());
 		long start = System.currentTimeMillis();
 		String strResponse = null;
 		
-		HttpClient httpclient = new DefaultHttpClient();
+		SchemeRegistry registry = new SchemeRegistry();
+		registry.register(new Scheme("http", new PlainSocketFactory(), 80));
+		// TODO
+//		registry.register(new Scheme("https",
+//				(mTrustAllSsl ? new FakeSocketFactory() : SSLSocketFactory.getSocketFactory()), 443));
+		
 		HttpPost httpPost = new HttpPost(url);
+		
+		HttpParams httpParams = httpPost.getParams();;
+		HttpClient httpclient = new DefaultHttpClient(
+						new ThreadSafeClientConnManager(httpParams, registry),
+						httpParams);
 		
 		// Execute the request
 		HttpResponse response;
@@ -171,6 +190,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		TTRSSJsonResult jsonResult = getJSONResponse(url);
 		
+		if (jsonResult == null) {
+			return result;
+		}
+		
 		if (!mHasLastError) {
 			
 			int i = 0;
@@ -216,6 +239,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		String url = mServerUrl + String.format(OP_GET_CATEGORIES, mSessionId);
 		
 		JSONArray jsonResult = getJSONResponseAsArray(url);
+		
+		if (jsonResult == null) {
+			return finalResult;
+		}
 		
 		JSONObject object;
 		
@@ -276,6 +303,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		JSONObject object;
 		ArticleItem articleItem;
 		
+		if (jsonResult == null) {
+			return finalResult;
+		}
+		
 		try {
 			for (int i = 0; i < jsonResult.length(); i++) {
 				object = jsonResult.getJSONObject(i);
@@ -311,6 +342,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		TTRSSJsonResult jsonResult = getJSONResponse(url);
 		
+		if (jsonResult == null) {
+			return ret;
+		}
+		
 		if (!mHasLastError) {
 			ret = parseDataForArticle(jsonResult.getNames(), jsonResult.getValues());
 			if (ret.getId() == null || ret.getId().length() < 1) {
@@ -341,6 +376,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		String url = mServerUrl + String.format(OP_GET_FEEDS, mSessionId);
 		
 		JSONArray jsonResult = getJSONResponseAsArray(url);
+		
+		if (jsonResult == null) {
+			return finalResult;
+		}
 		
 		JSONObject object;
 		
@@ -419,6 +458,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		int result = -1;
 		int i = 0;
 		boolean stop = false;
+		
+		if (jsonResult == null) {
+			return result;
+		}
 		
 		try {
 			while ((i < jsonResult.getNames().length()) &&
@@ -500,6 +543,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		JSONObject object;
 		
+		if (jsonResult == null) {
+			return finalResult;
+		}
+		
 		try {
 			for (int i = 0; i < jsonResult.length(); i++) {
 				object = jsonResult.getJSONObject(i);
@@ -534,6 +581,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		JSONArray jsonResult = getJSONResponseAsArray(url);
 		
 		JSONObject object;
+		
+		if (jsonResult == null) {
+			return ret;
+		}
 		
 		try {
 			// Parse result-array
@@ -586,6 +637,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		JSONObject object;
 		
 		Map<CategoryItem,Map<FeedItem, List<ArticleItem>>> ret = new HashMap<CategoryItem,Map<FeedItem, List<ArticleItem>>>();
+		
+		if (jsonResult == null) {
+			return null;
+		}
 		
 		try {
 			for (int i = 0; i < jsonResult.length(); i++) {
