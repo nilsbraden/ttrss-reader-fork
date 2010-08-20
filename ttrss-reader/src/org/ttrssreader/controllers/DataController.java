@@ -478,32 +478,38 @@ public class DataController {
 		return categories;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void getNewArticles() {
-		// TODO: Auf die aktuelle API-funktion anpassen..
-		
 		// Force update counters
-		// mCounters = null;
-		// getCategoryUnreadCount("0");
-		//
-		// long time = Controller.getInstance().getLastUpdateTime();
-		// Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
-		// List<ArticleItem> list = Controller.getInstance().getTTRSSConnector().getNewArticles(1, time);
-		//
-		// if (list != null && !list.isEmpty()) {
-		//
-		// int articleLimit = Controller.getInstance().getArticleLimit();
-		// DBHelper.getInstance().insertArticles(list, articleLimit);
-		// -> new DBInsertArticlesTask(articleLimit).execute(result);
-		//
-		// for (ArticleItem a : list) {
-		//
-		// List<ArticleItem> temp = mFeedsHeadlines.get(a.getFeedId());
-		//
-		// if (temp == null) temp = new ArrayList<ArticleItem>();
-		// temp.add(a);
-		//
-		// }
-		// }
+		mCounters = null;
+		getCategoryUnreadCount("0");
+		
+		long time = Controller.getInstance().getLastUpdateTime();
+		Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
+		Map<CategoryItem,Map<FeedItem, List<ArticleItem>>> ret =
+			Controller.getInstance().getTTRSSConnector().getNewArticles(1, time);
+		
+		if (ret != null && !ret.isEmpty()) {
+			
+			int articleLimit = Controller.getInstance().getArticleLimit();
+			
+			for (CategoryItem c : ret.keySet()) {
+				Map<FeedItem, List<ArticleItem>> feeds = ret.get(c);
+				
+				for (FeedItem f : feeds.keySet()) {
+					
+					List<ArticleItem> articles = feeds.get(f);
+					new DBInsertArticlesTask(articleLimit).execute(articles);
+					
+					for (ArticleItem a : articles) {
+						List<ArticleItem> temp = mArticles.get(a.getFeedId());
+						if (temp == null) temp = new ArrayList<ArticleItem>();
+						temp.add(a);
+					}
+				}
+			}
+		}
+		
 	}
 	
 }

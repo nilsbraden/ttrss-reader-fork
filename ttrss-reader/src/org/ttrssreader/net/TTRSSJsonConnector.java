@@ -569,10 +569,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	}
 	
 	@Override
-	public List<ArticleItem> getNewArticles(int articleState, long time) {
-		// To be returned: Map<CategoryItem,Map<FeedItem, List<ArticleItem>>> ret;
-		
-		ArrayList<ArticleItem> finalResult = new ArrayList<ArticleItem>();
+	public Map<CategoryItem,Map<FeedItem, List<ArticleItem>>> getNewArticles(int articleState, long time) {
 		
 		if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
 			login();
@@ -588,21 +585,51 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		
 		JSONObject object;
 		
+		Map<CategoryItem,Map<FeedItem, List<ArticleItem>>> ret = new HashMap<CategoryItem,Map<FeedItem, List<ArticleItem>>>();
+		
 		try {
 			for (int i = 0; i < jsonResult.length(); i++) {
 				object = jsonResult.getJSONObject(i);
 				
+				Map<FeedItem, List<ArticleItem>> feedMap = new HashMap<FeedItem, List<ArticleItem>>();
+				
 				JSONArray names = object.names();
 				JSONArray values = object.toJSONArray(names);
+				JSONArray feedValues = new JSONArray();
 				
-				finalResult.add(parseDataForArticle(names, values));
+				CategoryItem c = parseDataForCategory(names, values, feedValues);
+
+				TTRSSJsonResult resultFeeds = new TTRSSJsonResult(feedValues.getString(0)); // Check!
+				JSONArray feedNames = resultFeeds.getNames();
+				feedValues = resultFeeds.getValues();
+				
+				for (int j = 0; j < feedNames.length(); j++) {
+					List<ArticleItem> articles = new ArrayList<ArticleItem>();
+					
+					JSONArray articleValues = new JSONArray();
+					FeedItem f = parseDataForFeed(names, values, articleValues);
+					
+					TTRSSJsonResult resultArts = new TTRSSJsonResult(articleValues.getString(0)); // Check!
+					JSONArray articleNames = resultArts.getNames();
+					articleValues = resultArts.getValues();
+					
+					for (int k = 0; k < articleNames.length(); k++) {
+						
+						articles.add(parseDataForArticle(articleNames, articleValues));
+					}
+					
+					feedMap.put(f, articles);
+				}
+				
+				ret.put(c, feedMap);
+				
 			}
 		} catch (JSONException e) {
 			mHasLastError = true;
 			mLastError = e.getMessage();
 		}
 		
-		return finalResult;
+		return null;
 	}
 
 	public List<FeedItem> handleFeedCounters(JSONArray array) {
@@ -651,23 +678,15 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			
 			for (int i = 0; i < names.length(); i++) {
 				
-				if (names.getString(i).equals(ID_NAME)) {
-					id = values.getString(i);
-				} else if (names.getString(i).equals(TITLE_NAME)) {
-					title = values.getString(i);
-				} else if (names.getString(i).equals(UNREAD_NAME)) {
-					isUnread = values.getBoolean(i);
-				} else if (names.getString(i).equals(UPDATED_NAME)) {
-					updated = values.getString(i);
-				} else if (names.getString(i).equals(FEED_ID_NAME)) {
-					realFeedId = values.getString(i);
-				} else if (names.getString(i).equals(CONTENT_NAME)) {
-					content = values.getString(i);
-				} else if (names.getString(i).equals(URL_NAME)) {
-					articleUrl = values.getString(i);
-				} else if (names.getString(i).equals(COMMENT_URL_NAME)) {
-					articleCommentUrl = values.getString(i);
-				} else if (names.getString(i).equals(ATTACHMENTS_NAME)) {
+				     if (names.getString(i).equals(ID_NAME))          id = values.getString(i);
+				else if (names.getString(i).equals(TITLE_NAME))       title = values.getString(i);
+				else if (names.getString(i).equals(UNREAD_NAME))      isUnread = values.getBoolean(i);
+				else if (names.getString(i).equals(UPDATED_NAME))     updated = values.getString(i);
+				else if (names.getString(i).equals(FEED_ID_NAME))     realFeedId = values.getString(i);
+				else if (names.getString(i).equals(CONTENT_NAME))     content = values.getString(i);
+				else if (names.getString(i).equals(URL_NAME))         articleUrl = values.getString(i);
+				else if (names.getString(i).equals(COMMENT_URL_NAME)) articleCommentUrl = values.getString(i);
+				else if (names.getString(i).equals(ATTACHMENTS_NAME)) {
 					Map<String, String> map = handleAttachments((JSONArray) values.get(i));
 					if (map.size() > 0) {
 						attachments += "<br>\n";
@@ -695,6 +714,73 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		}
 		
 		return articleItem;
+	}
+	
+	public FeedItem parseDataForFeed(JSONArray names, JSONArray values, JSONArray articleValues) {
+		FeedItem feedItem = new FeedItem();
+		
+		try {
+			String categoryId = null;
+			String id = null;
+			String title = null;
+			String url = null;
+			int unread = 0;
+			
+			for (int i = 0; i < names.length(); i++) {
+				
+				if (names.getString(i).equals(CAT_ID_NAME)) {
+					categoryId = values.getString(i);
+				} else if (names.getString(i).equals(ID_NAME)) {
+					id = values.getString(i);
+				} else if (names.getString(i).equals(TITLE_NAME)) {
+					title = values.getString(i);
+				} else if (names.getString(i).equals(FEED_URL_NAME)) {
+					url = values.getString(i);
+				} else if (names.getString(i).equals(UNREAD_NAME)) {
+					unread = values.getInt(i);
+				} else if (names.getString(i).equals("articles")) {
+					articleValues = (JSONArray) values.get(i);
+				}
+				
+			}
+			
+			feedItem = new FeedItem(categoryId, id, title, url, unread);
+		} catch (JSONException e) {
+			mHasLastError = true;
+			mLastError = e.getMessage();
+		}
+		
+		return feedItem;
+	}
+	
+	public CategoryItem parseDataForCategory(JSONArray names, JSONArray values, JSONArray feedValues) {
+		CategoryItem categoryItem = new CategoryItem();
+		
+		try {
+			String id = null;
+			String title = null;
+			int unreadCount = 0;
+			
+			for (int i = 0; i < names.length(); i++) {
+				
+				if (names.getString(i).equals(ID_NAME)) {
+					id = values.getString(i);
+				} else if (names.getString(i).equals(TITLE_NAME)) {
+					title = values.getString(i);
+				} else if (names.getString(i).equals(UNREAD_NAME)) {
+					unreadCount = values.getInt(i);
+				} else if (names.getString(i).equals("feeds")) {
+					feedValues = (JSONArray) values.get(i);
+				}
+			}
+			
+			categoryItem = new CategoryItem(id, title, unreadCount);
+		} catch (JSONException e) {
+			mHasLastError = true;
+			mLastError = e.getMessage();
+		}
+		
+		return categoryItem;
 	}
 	
 	public Map<String, String> handleAttachments(JSONArray array) {
