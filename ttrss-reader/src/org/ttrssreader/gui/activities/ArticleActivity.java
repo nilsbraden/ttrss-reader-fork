@@ -123,10 +123,10 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	}
 	
 	@Override
-	protected void onPause() {
-		super.onPause();
-//		if (refresher != null) refresher.cancel(true);
-//		if (updater != null) updater.cancel(true);
+	protected void onDestroy() {
+		super.onDestroy();
+		if (refresher != null) refresher.cancel(true);
+		if (updater != null) updater.cancel(true);
 	}
 		
 	@Override
