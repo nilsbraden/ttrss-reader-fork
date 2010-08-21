@@ -42,7 +42,7 @@ public class DBHelper {
 	
 	private static final String DATABASE_PATH = "/Android/data/org.ttrssreader/files/";
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 10;
 	
 	private static final String TABLE_CAT = "categories";
 	private static final String TABLE_FEEDS = "feeds";
@@ -84,7 +84,7 @@ public class DBHelper {
 		
 		insertCat = null;
 		insertFeed = null;
-		 insertArticle = null;
+		insertArticle = null;
 		updateArticle = null;
 		updateArticle_extern = null;
 		
@@ -101,13 +101,17 @@ public class DBHelper {
 		db_extern = openDatabase();
 		
 		db_intern.setLockingEnabled(false);
-		db_extern.setLockingEnabled(false);
+		if (db_extern != null) {
+			db_extern.setLockingEnabled(false);
+		}
 		
 		insertCat = db_intern.compileStatement(INSERT_CAT);
 		insertFeed = db_intern.compileStatement(INSERT_FEEDS);
-		 insertArticle = db_intern.compileStatement(INSERT_ARTICLES);
+		insertArticle = db_intern.compileStatement(INSERT_ARTICLES);
 		updateArticle = db_intern.compileStatement(UPDATE_ARTICLES);
-		updateArticle_extern = db_extern.compileStatement(UPDATE_ARTICLES_EXTERN);
+		if (isExternalDBAvailable()) {
+			updateArticle_extern = db_extern.compileStatement(UPDATE_ARTICLES_EXTERN);
+		}
 		
 	}
 	
@@ -146,7 +150,9 @@ public class DBHelper {
 			dropExternalDB();
 			
 			db_intern.close();
-			db_extern.close();
+			if (isExternalDBAvailable()) {
+				db_extern.close();
+			}
 		}
 		
 		Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
@@ -156,7 +162,9 @@ public class DBHelper {
 		db_intern.execSQL("DELETE FROM " + TABLE_CAT);
 		db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
 		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
-		db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+		if (isExternalDBAvailable()) {
+			db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+		}
 	}
 	
 	public void dropInternalDB() {
@@ -184,8 +192,10 @@ public class DBHelper {
 			openDatabase();
 			externalDBState = true;
 		} else {
-			db_extern.close();
-			externalDBState = false;
+			if (isExternalDBAvailable()) {
+				db_extern.close();
+				externalDBState = false;
+			}
 		}
 	}
 	
@@ -195,7 +205,9 @@ public class DBHelper {
 	
 	public void closeDB() {
 		db_intern.close();
-		db_extern.close();
+		if (isExternalDBAvailable()) {
+			db_extern.close();
+		}
 	}
 	
 	/**
@@ -232,13 +244,13 @@ public class DBHelper {
 						"updateDate INTEGER, " +
 						"PRIMARY KEY( id , feedId ))");
 				
+				externalDBState = db_extern.isOpen();
+				
 			} catch (SQLException e) {
 				Log.e(Utils.TAG, "failed to open" + e);
 				throw e;
 			}
 		}
-		
-		externalDBState = db_extern.isOpen();
 		
 		return db_extern;
 	}
@@ -422,26 +434,27 @@ public class DBHelper {
 		 * E/AndroidRuntime(  668): 	at org.ttrssreader.controllers.DBHelper.insertArticlesInternal(DBHelper.java:430)
 		 */
 		
-//		synchronized (db_intern) {
-//			synchronized (db_extern) {
-//				
-//				db_intern.beginTransaction();
-//				db_extern.beginTransaction();
-//				try {
+		synchronized (db_intern) {
+			synchronized (db_extern) {
+				
+				db_intern.beginTransaction();
+				db_extern.beginTransaction();
+				try {
+					
 					for (ArticleItem a : list) {
 						insertArticleInternal(a);
 					}
-//					
-//					db_intern.setTransactionSuccessful();
-//					db_extern.setTransactionSuccessful();
-//				} catch (SQLException e) {
-//					e.printStackTrace();
-//				} finally {
-//					db_intern.endTransaction();
-//					db_extern.endTransaction();
-//				}
-//			}
-//		}
+					
+					db_intern.setTransactionSuccessful();
+					db_extern.setTransactionSuccessful();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				} finally {
+					db_intern.endTransaction();
+					db_extern.endTransaction();
+				}
+			}
+		}
 	}
 	
 	// *******| UPDATE |*******************************************************************

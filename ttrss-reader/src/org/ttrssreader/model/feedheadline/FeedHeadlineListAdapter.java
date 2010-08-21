@@ -16,6 +16,7 @@
 package org.ttrssreader.model.feedheadline;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.article.ArticleItem;
+import org.ttrssreader.model.article.ArticleItemComparator;
 import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
@@ -224,6 +226,10 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 		Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesHeadlines(feedId: " + mFeedId + ")");
 		List<ArticleItem> ret = DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread, false);
 		
+		if (ret != null) {
+			Collections.sort(ret, new ArticleItemComparator());
+		}
+		
 		DataController.getInstance().disableForceFullRefresh();
 		return ret;
 	}
@@ -234,8 +240,8 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
 		
 		if (!Controller.getInstance().isWorkOffline()) {
 			boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-			DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread, true);
-//			DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread, true);
+//			DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread, true);
+			DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread, true);
 		}
 	}
 	

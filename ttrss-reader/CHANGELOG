@@ -4,7 +4,7 @@
 
 == Version 0.5.7 ==
   * SSL-Connection possible, toggle "Accept all SSL certificates" in preferences
-
+  * Added functionality to load all new articles since last update on startup, "Update articles with content on startup" in preferences
 
 == Version 0.5.6 ==
   * Fixed isOnline always returning false on device (does work in emulator though)

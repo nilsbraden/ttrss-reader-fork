@@ -44,6 +44,7 @@ import android.widget.ListView;
 public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
 	
 	private static final int ACTIVITY_SHOW_FEEDS = 0;
+	private static final int ACTIVITY_SHOW_ERROR = 1;
 	
 	private static final int MENU_REFRESH = Menu.FIRST;
 	private static final int MENU_SHOW_PREFERENCES = Menu.FIRST + 1;
@@ -56,6 +57,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private Refresher refresher;
 	private Updater updater;
 	private ExternalStorageReceiver storageReceiver;
+	
+	private boolean connected = true;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -81,6 +84,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 		if (url.equals("http://localhost/" + Controller.JSON_END_URL)) {
 			Log.e(Utils.TAG, "ERROR: No Server specified");
 			openConnectionErrorDialog("No Server specified.");
+			connected = false;
 		} else {
 		
 			// Only post background-task if we have a server specified
@@ -91,12 +95,14 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 				}
 			}, Utils.WAIT);
 		}
+		
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		doRefresh();
+		if (connected) doRefresh();
+		else connected = true; 
 	}
 	
 	@Override
@@ -225,7 +231,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	private void openConnectionErrorDialog(String errorMessage) {
 		Intent i = new Intent(this, ConnectionErrorActivity.class);
 		i.putExtra(ConnectionErrorActivity.ERROR_MESSAGE, errorMessage);
-		startActivity(i);
+		startActivityForResult(i, ACTIVITY_SHOW_ERROR);
 	}
 	
 	@Override
