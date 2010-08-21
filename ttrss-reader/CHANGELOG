@@ -2,6 +2,10 @@
 
 = Changes =
 
+== Version 0.5.7 ==
+  * SSL-Connection possible, toggle "Accept all SSL certificates" in preferences
+
+
 == Version 0.5.6 ==
   * Fixed isOnline always returning false on device (does work in emulator though)
   * Fixed crash on startup if no settings were specified yet
