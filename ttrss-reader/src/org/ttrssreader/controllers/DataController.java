@@ -27,8 +27,6 @@ import org.ttrssreader.model.category.VirtualCategoryItemComparator;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 public class DataController {
@@ -51,7 +49,7 @@ public class DataController {
 	private List<CategoryItem> mVirtCategories;
 	private List<CategoryItem> mCategories;
 	
-	private NetworkInfo info;
+//	private NetworkInfo info;
 	
 	public static DataController getInstance() {
 		synchronized (mutex) {
@@ -63,8 +61,10 @@ public class DataController {
 	}
 	
 	public synchronized void initializeController(Context context) {
-		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		info = cm.getActiveNetworkInfo();
+		if (context != null) {
+//			ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//			info = cm.getActiveNetworkInfo();
+		}
 		
 		mCounters = DBHelper.getInstance().getCounters();
 		mArticles = DBHelper.getInstance().getArticles(0, false);
@@ -480,35 +480,37 @@ public class DataController {
 	
 	@SuppressWarnings("unchecked")
 	public void getNewArticles() {
+		
+		// Only update once within UPDATE_TIME milliseconds
+		long time = Controller.getInstance().getLastUpdateTime();
+		if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+			return;
+		}
+		
 		// Force update counters
 		mCounters = null;
 		getCategoryUnreadCount("0");
-		
-		long time = Controller.getInstance().getLastUpdateTime();
-		Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
+
+		// Load new Articles
 		Map<CategoryItem,Map<FeedItem, List<ArticleItem>>> ret =
 			Controller.getInstance().getTTRSSConnector().getNewArticles(1, time);
 		
 		if (ret != null && !ret.isEmpty()) {
-			
+			Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
 			int articleLimit = Controller.getInstance().getArticleLimit();
 			
 			for (CategoryItem c : ret.keySet()) {
 				Map<FeedItem, List<ArticleItem>> feeds = ret.get(c);
 				
-				for (FeedItem f : feeds.keySet()) {
+				for (FeedItem f : ret.get(c).keySet()) {
 					
 					List<ArticleItem> articles = feeds.get(f);
 					new DBInsertArticlesTask(articleLimit).execute(articles);
-					
-					for (ArticleItem a : articles) {
-						List<ArticleItem> temp = mArticles.get(a.getFeedId());
-						if (temp == null) temp = new ArrayList<ArticleItem>();
-						temp.add(a);
-					}
 				}
 			}
 		}
+		
+		initializeController(null);
 		
 	}
 	

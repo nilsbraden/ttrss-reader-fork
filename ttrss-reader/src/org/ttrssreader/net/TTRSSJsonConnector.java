@@ -89,10 +89,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		mPassword = password;
 		mTrustAllSsl = trustAllSsl;
 		mSessionId = null;
+		Log.i(Utils.TAG, "TTRSSJsonConnector() - TrustAllSSL-Setting: " + Boolean.valueOf(mTrustAllSsl).toString());
 	}
 	
 	private String doRequest(String url) {
-		Log.i(Utils.TAG, "TrustAllSSL-Setting: " + Boolean.valueOf(mTrustAllSsl).toString());
 		long start = System.currentTimeMillis();
 		String strResponse = null;
 		
@@ -129,10 +129,12 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		} catch (ClientProtocolException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: doRequest(String url), threw ClientProtocolException";
+			e.printStackTrace();
 		} catch (IOException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: doRequest(String url), threw IOException";
+			e.printStackTrace();
 		}
 		
 		Log.d(Utils.TAG, "url: " + url.replace(mPassword, "*") + " (took " + (System.currentTimeMillis()-start) + " ms)");
@@ -153,7 +155,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				result = new JSONArray(strResponse);
 			} catch (JSONException e) {
 				mHasLastError = true;
-				mLastError = e.getMessage();
+				mLastError = e.getMessage() + ", Method: getJSONResponseAsArray(String url)";
+				e.printStackTrace();
 			}
 		}
 		
@@ -174,7 +177,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				result = new TTRSSJsonResult(strResponse);
 			} catch (JSONException e) {
 				mHasLastError = true;
-				mLastError = e.getMessage();
+				mLastError = e.getMessage() + ", Method: getJSONResponse(String url)";
+				e.printStackTrace();
 			}
 		}
 		
@@ -213,7 +217,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			} catch (JSONException e) {
 				result = false;
 				mHasLastError = true;
-				mLastError = e.getMessage();
+				mLastError = e.getMessage() + ", Method: login(String url), threw JSONException";
+				e.printStackTrace();
 			}
 			
 		} else {
@@ -277,7 +282,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: getCategories(), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return finalResult;
@@ -319,7 +325,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: getFeedHeadlines(...), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return finalResult;
@@ -430,7 +437,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: getSubsribedFeeds(), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return finalResult;
@@ -476,7 +484,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: getTotalUnread(), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return result;
@@ -557,7 +566,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: getFeedArticles(...), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return finalResult;
@@ -612,7 +622,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: getCounters(), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return ret;
@@ -652,6 +663,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				JSONArray feedValues = new JSONArray();
 				
 				CategoryItem c = parseDataForCategory(names, values, feedValues);
+				
+				if (feedValues.length() < 1) continue;
 
 				TTRSSJsonResult resultFeeds = new TTRSSJsonResult(feedValues.getString(0)); // Check!
 				JSONArray feedNames = resultFeeds.getNames();
@@ -662,6 +675,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 					
 					JSONArray articleValues = new JSONArray();
 					FeedItem f = parseDataForFeed(names, values, articleValues);
+					
+					if (articleValues.length() < 1) continue;
 					
 					TTRSSJsonResult resultArts = new TTRSSJsonResult(articleValues.getString(0)); // Check!
 					JSONArray articleNames = resultArts.getNames();
@@ -680,7 +695,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			}
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: getNewArticles(...), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return null;
@@ -764,7 +780,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 					articleCommentUrl);
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: parseDataForArticle(...), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return articleItem;
@@ -801,7 +818,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			feedItem = new FeedItem(categoryId, id, title, url, unread);
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: parseDataForFeed(...), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return feedItem;
@@ -831,7 +849,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			categoryItem = new CategoryItem(id, title, unreadCount);
 		} catch (JSONException e) {
 			mHasLastError = true;
-			mLastError = e.getMessage();
+			mLastError = e.getMessage() + ", Method: parseDataForCategory(...), threw JSONException";
+			e.printStackTrace();
 		}
 		
 		return categoryItem;
