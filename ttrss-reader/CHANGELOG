@@ -57,3 +57,4 @@
   * https-support with own Certificates
   * only refresh feedlist if &op=getConfig returns a new number of feeds
   * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=9 Issue #9 (see all Feeds below their categories on main-view)]
+  * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=10 Issue #10 Toggle Star/Unstar)]
