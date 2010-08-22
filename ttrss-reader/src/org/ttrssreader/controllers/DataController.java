@@ -280,7 +280,11 @@ public class DataController {
 	}
 	
 	public ArticleItem getArticleHeadline(String feedId, String articleId) {
-		for (ArticleItem a : getArticlesHeadlines(feedId, false, false)) {
+		List<ArticleItem> list = getArticlesHeadlines(feedId, false, false);
+		
+		if (list == null) return null;
+		
+		for (ArticleItem a : list) {
 			if (a.getId().equals(articleId)) {
 				return a;
 			}
