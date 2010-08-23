@@ -5,6 +5,9 @@
 == Version 0.5.7 ==
   * SSL-Connection possible, toggle "Accept all SSL certificates" in preferences
   * Added functionality to load all new articles since last update on startup, "Update articles with content on startup" in preferences
+  * Shouldn't crash anymore when using non-modified Tiny Tiny RSS API
+  * No more crashing when started first time, use "Refresh" from menu after changing your server-settings
+  * Fixed some NPEs
 
 == Version 0.5.6 ==
   * Fixed isOnline always returning false on device (does work in emulator though)

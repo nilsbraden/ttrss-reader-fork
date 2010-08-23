@@ -343,11 +343,9 @@ public class DataController {
 			if (time < System.currentTimeMillis() - Utils.UPDATE_TIME) {
 				
 				result = Controller.getInstance().getTTRSSConnector()
-						.getFeedArticles(Integer.parseInt(feedId), displayOnlyUnread ? 1 : 0, false);
+						.getArticles(Integer.parseInt(feedId), displayOnlyUnread ? 1 : 0, false);
 				
-				if (result == null) {
-					return null;
-				}
+				if (result == null) return null;
 				
 				int articleLimit = Controller.getInstance().getArticleLimit();
 				new DBInsertArticlesTask(articleLimit).execute(result);
