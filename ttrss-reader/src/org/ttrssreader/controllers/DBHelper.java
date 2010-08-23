@@ -129,6 +129,12 @@ public class DBHelper {
 		return mInstance;
 	}
 	
+	public void destroy() {
+		closeDB();
+		mInstance = null;
+		mIsControllerInitialized = false;
+	}
+	
 	public SQLiteDatabase getInternalDb() {
 		return this.db_intern;
 	}

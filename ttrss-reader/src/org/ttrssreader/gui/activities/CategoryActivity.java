@@ -108,10 +108,16 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if (refresher != null) refresher.cancel(true);
-		if (updater != null) updater.cancel(true);
+		if (refresher != null) {
+			refresher.cancel(true);
+			refresher = null;
+		}
+		if (updater != null) {
+			updater.cancel(true);
+			updater = null;
+		}
 		unregisterReceiver(storageReceiver);
-		DBHelper.getInstance().closeDB();
+		DBHelper.getInstance().destroy();
 	}
 	
 	private synchronized void doRefresh() {
