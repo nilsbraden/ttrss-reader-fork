@@ -2,6 +2,10 @@
 
 = Changes =
 
+== Version 0.5.9 ==
+  * Allow own SSL-certificates with own Keystore on SDCard
+  * Created new OnSharedPreferenceChangeListener
+
 == Version 0.5.8 ==
   * Bugfix-Release: Fixed Issues #14 and #15
 
