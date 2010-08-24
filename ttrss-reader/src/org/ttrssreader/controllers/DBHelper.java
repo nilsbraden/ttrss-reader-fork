@@ -40,7 +40,6 @@ public class DBHelper {
 	private static DBHelper mInstance = null;
 	private boolean mIsControllerInitialized = false;
 	
-	private static final String DATABASE_PATH = "/Android/data/org.ttrssreader/files/";
 	private static final String DATABASE_NAME = "ttrss.db";
 	private static final int DATABASE_VERSION = 10;
 	
@@ -183,7 +182,7 @@ public class DBHelper {
 	
 	public void dropExternalDB() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH).append(
+		builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH).append(
 				File.separator).append(DATABASE_NAME);
 		
 		if (new File(builder.toString()).delete()) {
@@ -231,7 +230,7 @@ public class DBHelper {
 			
 			// open or create a new directory
 			builder.setLength(0);
-			builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(DATABASE_PATH);
+			builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH);
 			
 			File dir = new File(builder.toString());
 			dir.mkdirs();

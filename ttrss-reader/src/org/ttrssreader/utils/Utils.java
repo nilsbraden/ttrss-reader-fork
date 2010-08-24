@@ -42,6 +42,11 @@ public class Utils {
 	 */
 	public static int UPDATE_TIME = 120000;
 	
+	/**
+	 * Path on sdcard to store files (DB, Certificates, ...)
+	 */
+	public static final String SDCARD_PATH = "/Android/data/org.ttrssreader/files/";
+	
 	public static String convertStreamToString(InputStream is) {
 		/*
 		 * To convert the InputStream to String we use the BufferedReader.readLine()

@@ -2,6 +2,9 @@
 
 = Changes =
 
+== Version 0.5.8 ==
+  * Bugfix-Release: Fixed Issues #14 and #15
+
 == Version 0.5.7 ==
   * SSL-Connection possible, toggle "Accept all SSL certificates" in preferences
   * Added functionality to load all new articles since last update on startup, "Update articles with content on startup" in preferences
