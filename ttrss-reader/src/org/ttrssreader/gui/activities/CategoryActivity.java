@@ -263,8 +263,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread() + ")");
 		}
 		
-		if (updater.getStatus().equals(Status.FINISHED)) {
-			setProgressBarIndeterminateVisibility(false);
+		if (updater != null) {
+			if (updater.getStatus().equals(Status.FINISHED)) {
+				setProgressBarIndeterminateVisibility(false);
+			}
 		}
 	}
 	

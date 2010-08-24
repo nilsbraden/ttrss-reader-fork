@@ -132,6 +132,7 @@ public class DataController {
 	public synchronized List<ArticleItem> getArticlesHeadlines(String feedId, boolean displayOnlyUnread, boolean needFullRefresh) {
 		int fId = new Integer(feedId);
 		List<ArticleItem> result = null;
+		if (mArticles == null) mArticles = new HashMap<String, List<ArticleItem>>();
 		
 		if (fId == -4) {
 			result = new ArrayList<ArticleItem>();
