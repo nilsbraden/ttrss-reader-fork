@@ -49,33 +49,9 @@ public class PreferencesActivity extends PreferenceActivity {
 	}
 	
 	private OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
-		
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-			if ((key.equals(Constants.CONNECTION_URL)) ||
-					(key.equals(Constants.CONNECTION_USERNAME)) ||
-					(key.equals(Constants.CONNECTION_PASSWORD)) ||
-					(key.equals(Constants.CONNECTION_TRUST_ALL_SLL)) ||
-						
-					(key.equals(Constants.USAGE_AUTOMATIC_MARK_READ)) ||
-					(key.equals(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE)) ||
-					(key.equals(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP)) ||
-					(key.equals(Constants.USAGE_REFRESH_SUB_DATA)) ||
-					(key.equals(Constants.USAGE_USE_VOLUME_KEYS)) ||
-					(key.equals(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE)) ||
-					(key.equals(Constants.USAGE_WORK_OFFLINE)) ||
-						
-					(key.equals(Constants.DISPLAY_SHOW_VIRTUAL)) ||
-					(key.equals(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD)) ||
-					(key.equals(Constants.DISPLAY_ALWAYS_FULL_REFRESH)) ||
-					(key.equals(Constants.DISPLAY_USE_SWIPE)) ||
-					(key.equals(Constants.DISPLAY_ONLY_UNREAD)) ||
-					(key.equals(Constants.DISPLAY_ARTICLE_LIMIT)) ||
-						
-					(key.equals(Constants.DATABASE_VERSION)) ||
-					(key.equals(Constants.LAST_UPDATE_TIME)) ||
-
-					false) {
+			if (Constants.getConstants().contains(key)) {
 				updatePreferences();
 			}
 		}
@@ -111,7 +87,9 @@ public class PreferencesActivity extends PreferenceActivity {
 		editor.putString(Constants.CONNECTION_URL, "http://localhost/");
 		editor.putString(Constants.CONNECTION_USERNAME, "");
 		editor.putString(Constants.CONNECTION_PASSWORD, "");
-		editor.putBoolean(Constants.CONNECTION_TRUST_ALL_SLL, false);
+		editor.putBoolean(Constants.CONNECTION_TRUST_ALL_SSL, false);
+		editor.putBoolean(Constants.CONNECTION_USE_KEYSTORE, false);
+		editor.putString(Constants.CONNECTION_KEYSTORE_PASSWORD, "");
 		
 		editor.putBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);
 		editor.putBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);

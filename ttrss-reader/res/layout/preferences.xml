@@ -1,43 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
 	<PreferenceCategory android:title="@string/ConnectionPreferenceCategoryTitle">
-	
 		<EditTextPreference
 			android:name="@string/ConnectionUrlPreferenceTitle"
 			android:summary="@string/ConnectionUrlPreferenceSummary"
 			android:defaultValue="http://localhost/"
 			android:title="@string/ConnectionUrlPreferenceTitle"
-			android:key="ConnectionUrlPreference" />
+			android:key="ConnectionUrlPreference"
+			android:singleLine="true" />
 		<EditTextPreference
 			android:name="@string/ConnectionUsernamePreferenceTitle"
 			android:summary="@string/ConnectionUsernamePreferenceSummary"
 			android:defaultValue=""
 			android:title="@string/ConnectionUsernamePreferenceTitle"
-			android:key="ConnectionUsernamePreference" />
+			android:key="ConnectionUsernamePreference"
+			android:singleLine="true" />
 		<EditTextPreference
 			android:name="@string/ConnectionPasswordPreferenceTitle"
 			android:summary="@string/ConnectionPasswordPreferenceSummary"
 			android:defaultValue=""
 			android:title="@string/ConnectionPasswordPreferenceTitle"
-			android:key="ConnectionPasswordPreference" 
+			android:key="ConnectionPasswordPreference"
 			android:password="true"
 			android:singleLine="true" />
-		<CheckBoxPreference
-		    android:title="@string/ConnectionSslPreferenceTitle"
-			android:defaultValue="false"
-			android:summary="@string/ConnectionSslPreferenceSummary"			
-			android:key="ConnectionSLLPreference" />
-			
+
+        <PreferenceScreen android:title="@string/ConnectionSslPreferenceCategoryTitle">
+	        <PreferenceCategory android:title="@string/ConnectionSslPreferenceCategoryTitle">
+	            <CheckBoxPreference
+	                android:title="@string/ConnectionSslPreferenceTitle"
+	                android:defaultValue="false"
+	                android:summary="@string/ConnectionSslPreferenceSummary"
+	                android:key="ConnectionSSLPreference"
+	                android:disableDependentsState="true" />
+
+	            <CheckBoxPreference
+                    android:title="@string/ConnectionUseKeystorePreferenceTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/ConnectionUseKeystorePreferenceSummary"
+                    android:key="ConnectionUseKeystorePreference"
+                    android:dependency="ConnectionSSLPreference"
+                    android:disableDependentsState="false" />
+
+                <EditTextPreference
+		            android:name="@string/ConnectionKeystorePasswordPreferenceTitle"
+		            android:summary="@string/ConnectionKeystorePasswordPreferenceSummary"
+		            android:defaultValue=""
+		            android:title="@string/ConnectionKeystorePasswordPreferenceTitle"
+		            android:key="ConnectionKeystorePasswordPreference"
+		            android:dependency="ConnectionUseKeystorePreference"
+		            android:password="true"
+		            android:singleLine="true" />
+	        </PreferenceCategory>
+        </PreferenceScreen>
+
 	</PreferenceCategory>
-	
+
 	<PreferenceCategory android:title="@string/UsagePreferenceCategoryTitle">
-	
 		<CheckBoxPreference
 			android:title="@string/UsageAutomaticMarkReadPreferenceTitle"
 			android:defaultValue="false"
 			android:summary="@string/UsageAutomaticMarkReadPreferenceSummary"
 			android:key="UsageAutomaticMarkReadPreference" />
-			
+
 		<CheckBoxPreference
 			android:title="@string/UsageOpenUrlEmptyArticleTitle"
 			android:defaultValue="false"
@@ -55,13 +80,13 @@
 			android:defaultValue="false"
 			android:summary="@string/UsageRefreshSubDataSummary"
 			android:key="UsageRefreshSubDataPreference" />
-			
+
 		<CheckBoxPreference
 			android:title="@string/UsageUseVolumeKeysTitle"
 			android:defaultValue="true"
 			android:summary="@string/UsageUseVolumeKeysSummary"
 			android:key="UsageUseVolumeKeysPreference" />
-			
+
 		<CheckBoxPreference
 			android:title="@string/UsageVibrateOnLastArticleTitle"
 			android:defaultValue="true"
@@ -73,11 +98,9 @@
 			android:defaultValue="false"
 			android:summary="@string/UsageWorkOfflineSummary"
 			android:key="UsageWorkOfflinePreference" />
-
 	</PreferenceCategory>
-	
+
 	<PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle">
-	
 		<CheckBoxPreference
 			android:title="@string/DisplayVirtualPreferenceTitle"
 			android:defaultValue="true"
@@ -111,7 +134,6 @@
 			android:key="DisplayArticleLimitPreference"
 			android:maxLength="5"
 			android:inputType="number" />
-			
 	</PreferenceCategory>
-	
+
 </PreferenceScreen>
