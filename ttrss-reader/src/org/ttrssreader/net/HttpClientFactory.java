@@ -57,15 +57,15 @@ public class HttpClientFactory {
 				socketFactory = SSLSocketFactory.getSocketFactory();
 				Log.d(Utils.TAG, "HttpClientFactory() - custom key store could not be opened, using default settings");
 			} else {
-				Log.d(Utils.TAG, "HttpClientFactory() - using custom key store");
+//				Log.d(Utils.TAG, "HttpClientFactory() - using custom key store");
 			}
 			
 		} else if (trustAllSslCerts) {
 			socketFactory = new FakeSocketFactory();
-			Log.d(Utils.TAG, "HttpClientFactory() - trust all ssl certificates");
+//			Log.d(Utils.TAG, "HttpClientFactory() - trust all ssl certificates");
 		} else {
 			socketFactory = SSLSocketFactory.getSocketFactory();
-			Log.d(Utils.TAG, "HttpClientFactory() - using default settings");
+//			Log.d(Utils.TAG, "HttpClientFactory() - using default settings");
 		}
 		
 		registry.register(new Scheme("https", socketFactory, 443));

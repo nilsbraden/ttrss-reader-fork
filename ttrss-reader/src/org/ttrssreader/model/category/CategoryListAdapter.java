@@ -177,7 +177,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
 		boolean virtuals = Controller.getInstance().isDisplayVirtuals();
 		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
 		
-		Log.i(Utils.TAG, "CategoryListAdapter - getCategories()");
+		Log.i(Utils.TAG, "CategoryListAdapter     - getCategories()");
 		List<CategoryItem> ret = DataController.getInstance().getCategories(virtuals, displayOnlyUnread, false);
 		
 		// Update Unread Count
@@ -189,7 +189,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
 
 	@Override
 	public void update() {
-		Log.i(Utils.TAG, "CategoryListAdapter - getCategories(forceRefresh)");
+		Log.i(Utils.TAG, "CategoryListAdapter     - getCategories(forceRefresh)");
 		
 		if (!Controller.getInstance().isWorkOffline()) {
 			// Update new articles

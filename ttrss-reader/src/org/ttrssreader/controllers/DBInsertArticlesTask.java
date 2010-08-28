@@ -43,7 +43,7 @@ public class DBInsertArticlesTask extends AsyncTask<List<ArticleItem>, Integer, 
 			List<ArticleItem> list = (ArrayList<ArticleItem>) args[0];
 			DBHelper.getInstance().insertArticles(list, mMaxArticles);
 			Log.i(Utils.TAG, "DBInsertArticlesTask with " + list.size() +
-					" articles: " + (System.currentTimeMillis() - time) + "ms");
+					" articles took " + (System.currentTimeMillis() - time) + "ms");
 		}
 		
 		return null;

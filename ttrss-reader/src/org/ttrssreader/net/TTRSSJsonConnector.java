@@ -85,6 +85,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 	}
 	
 	private String doRequest(String url) {
+	    
 		long start = System.currentTimeMillis();
 		String strResponse = null;
 		
@@ -97,7 +98,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		HttpResponse response;
 		
 		try {
-			
 			response = httpclient.execute(httpPost);
 			
 			HttpEntity entity = response.getEntity();
@@ -107,22 +107,17 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				
 				strResponse = Utils.convertStreamToString(instream);
 				
+				if (strResponse.contains(NOT_LOGGED_IN)) {
+				    Log.w(Utils.TAG, "Not logged in, retrying...");
+				    // Login and post request again 
+				    login();
+				    strResponse = doRequest(url);
+				}
+				
 				// Check returned string for error-messages
 				if (strResponse.startsWith(ERROR_NAME)) {
-				    if (strResponse.equals(NOT_LOGGED_IN)) {
-				        
-				        Log.w(Utils.TAG, "Not logged in, retrying...");
-				        
-				        // Login and post request again 
-				        login();
-				        strResponse = doRequest(url);
-				    }
-				        
-			        // Check return for errors again
-			        if (strResponse.startsWith(ERROR_NAME)) {
-    					mHasLastError = true;
-    					mLastError = strResponse;
-				    }
+					mHasLastError = true;
+					mLastError = strResponse;
 				}
 			}
 		} catch (ClientProtocolException e) {
@@ -135,7 +130,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			e.printStackTrace();
 		}
 		
-		Log.d(Utils.TAG, "url: " + url.replace(mPassword, "*") + " (took " + (System.currentTimeMillis() - start) + " ms)");
+		Log.d(Utils.TAG, "Requesting URL: " + url.replace(mPassword, "*") + " (took " + (System.currentTimeMillis() - start) + " ms)");
 		
 		return strResponse;
 	}
