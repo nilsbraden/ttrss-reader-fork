@@ -369,8 +369,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 			mAdapter.notifyDataSetChanged();
 			
 			if (mFeedTitle != null) {
-				this.setTitle(this.getResources().getString(R.string.ApplicationName) + " - " + mFeedTitle + " ("
-						+ mAdapter.getUnreadCount() + ")");
+			    this.setTitle(mFeedTitle + " (" + mAdapter.getUnreadCount() + ")");
 			} else {
 				this.setTitle(this.getResources().getString(R.string.ApplicationName) + " ("
 						+ mAdapter.getUnreadCount() + ")");

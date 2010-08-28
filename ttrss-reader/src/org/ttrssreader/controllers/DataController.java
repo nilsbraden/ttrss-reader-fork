@@ -295,13 +295,24 @@ public class DataController {
 	
 	public ArticleItem getArticleWithContent(String articleId) {
 		ArticleItem result = null;
-		if (!needFullRefresh()) {
-			result = DBHelper.getInstance().getArticle(articleId);
-		} else {
-			result = Controller.getInstance().getTTRSSConnector().getArticle(Integer.parseInt(articleId));
-			
-			int articleLimit = Controller.getInstance().getArticleLimit();
-			DBHelper.getInstance().insertArticle(result, articleLimit);
+		
+		for (String s : mArticles.keySet()) {
+		    for (ArticleItem a : mArticles.get(s)) {
+		        if (a.getId().equals(articleId)) {
+		            result = a;
+		        }
+		    }
+		}
+		
+		if (result == null) {
+    		if (!needFullRefresh()) {
+    			result = DBHelper.getInstance().getArticle(articleId);
+    		} else {
+    			result = Controller.getInstance().getTTRSSConnector().getArticle(Integer.parseInt(articleId));
+    			
+    			int articleLimit = Controller.getInstance().getArticleLimit();
+    			DBHelper.getInstance().insertArticle(result, articleLimit);
+    		}
 		}
 		
 		if (result != null && !result.isContentLoaded()) {
