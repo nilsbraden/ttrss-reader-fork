@@ -2,6 +2,11 @@
 
 = Changes =
 
+== Version 0.5.9.1 (Bugfix-release) ==
+  * Fixed Issue #20 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=20 long article titles are not readable])
+  * Fixed Issue #21 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=21 FC while open browser, because article content is empty])
+  * Fixed Issue #22 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=22 FC after starting the app])
+
 == Version 0.5.9 ==
   * Allow own SSL-certificates with own Keystore on SDCard
   * Created new OnSharedPreferenceChangeListener
@@ -70,4 +75,5 @@
   * Automatically open Article if only one unread article in list
   * only refresh feedlist if &op=getConfig returns a new number of feeds
   * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=9 Issue #9 (see all Feeds below their categories on main-view)]
-  * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=10 Issue #10 Toggle Star/Unstar)]
+  * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=10 Issue #10 (Toggle Star/Unstar)]
+  * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=18 Issue #18 (Favicon for the feedlist and the articlelist)]
