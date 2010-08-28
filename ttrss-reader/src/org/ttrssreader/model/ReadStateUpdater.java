@@ -103,9 +103,7 @@ public class ReadStateUpdater implements IUpdatable {
 			String categoryId = mFeed.getCategoryId();
 			
 			ArticleItem articleTemp = DataController.getInstance().getArticleHeadline(feedId, articleId);
-			if (articleTemp != null) {
-				articleTemp.setUnread(boolState);
-			}
+			if (articleTemp != null) articleTemp.setUnread(boolState);
 			
 			FeedItem feed = DataController.getInstance().getFeed(feedId, false);
 			if (feed != null) {
@@ -125,11 +123,11 @@ public class ReadStateUpdater implements IUpdatable {
 					("-3".equals(mPid)) ||
 					("-4".equals(mPid))) {
 				
-				DataController.getInstance()
-						.getArticleHeadline(mPid, articleId).setUnread(boolState);
+				ArticleItem a = DataController.getInstance().getArticleHeadline(mPid, articleId);
+				if (a != null) a.setUnread(boolState);
 				
-				DataController.getInstance()
-						.getVirtualCategory(mPid).setDeltaUnreadCount(intState);
+				CategoryItem c = DataController.getInstance().getVirtualCategory(mPid);
+				if (c != null) c.setDeltaUnreadCount(intState);
 			}
 		}
 		

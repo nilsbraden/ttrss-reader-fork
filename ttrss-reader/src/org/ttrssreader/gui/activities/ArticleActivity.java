@@ -396,7 +396,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 				webview.loadDataWithBaseURL(null, mArticleItem.getContent(), "text/html", "utf-8", "about:blank");
 				
 				if (mArticleItem.getTitle() != null) {
-					this.setTitle(this.getResources().getString(R.string.ApplicationName) + " - " + mArticleItem.getTitle());
+				    this.setTitle(mArticleItem.getTitle());
 				} else {
 					this.setTitle(this.getResources().getString(R.string.ApplicationName));
 				}

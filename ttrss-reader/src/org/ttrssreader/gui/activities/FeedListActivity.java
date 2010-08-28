@@ -209,8 +209,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			mAdapter.notifyDataSetChanged();
 			
 			if (mCategoryTitle != null) {
-				this.setTitle(this.getResources().getString(R.string.ApplicationName) + " - " + mCategoryTitle + " ("
-						+ mAdapter.getTotalUnreadCount() + ")");
+			    this.setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
 			} else {
 				this.setTitle(this.getResources().getString(R.string.ApplicationName) + " ("
 						+ mAdapter.getTotalUnreadCount() + ")");
