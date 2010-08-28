@@ -267,6 +267,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
 			if (updater.getStatus().equals(Status.FINISHED)) {
 				setProgressBarIndeterminateVisibility(false);
 			}
+		} else {
+		    setProgressBarIndeterminateVisibility(false);
 		}
 	}
 	

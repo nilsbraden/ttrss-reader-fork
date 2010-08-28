@@ -107,9 +107,22 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				
 				strResponse = Utils.convertStreamToString(instream);
 				
+				// Check returned string for error-messages
 				if (strResponse.startsWith(ERROR_NAME)) {
-					mHasLastError = true;
-					mLastError = strResponse;
+				    if (strResponse.equals(NOT_LOGGED_IN)) {
+				        
+				        Log.w(Utils.TAG, "Not logged in, retrying...");
+				        
+				        // Login and post request again 
+				        login();
+				        strResponse = doRequest(url);
+				    }
+				        
+			        // Check return for errors again
+			        if (strResponse.startsWith(ERROR_NAME)) {
+    					mHasLastError = true;
+    					mLastError = strResponse;
+				    }
 				}
 			}
 		} catch (ClientProtocolException e) {

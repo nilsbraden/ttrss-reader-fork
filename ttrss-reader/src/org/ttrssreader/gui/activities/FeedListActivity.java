@@ -219,9 +219,13 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 			openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
 		}
 		
-		if (updater.getStatus().equals(Status.FINISHED)) {
-			setProgressBarIndeterminateVisibility(false);
-		}
+		if (updater != null) {
+            if (updater.getStatus().equals(Status.FINISHED)) {
+                setProgressBarIndeterminateVisibility(false);
+            }
+        } else {
+            setProgressBarIndeterminateVisibility(false);
+        }
 	}
 	
 	@Override
