@@ -53,16 +53,14 @@ public class DBHelper {
 	private static final String INSERT_FEEDS = "REPLACE INTO " + TABLE_FEEDS
 			+ "(id, categoryId, title, url, unread) VALUES (?, ?, ?, ?, ?)";
 	
-	 private static final String INSERT_ARTICLES = "REPLACE INTO " + TABLE_ARTICLES
-	 + "(id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
+	private static final String INSERT_ARTICLES = "REPLACE INTO " + TABLE_ARTICLES
+	        + "(id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate) VALUES (?, ?, ?, ?, ?, ?, ?)";
 	
 	private static final String UPDATE_ARTICLES = "UPDATE " + TABLE_ARTICLES
 			+ " SET title=?, articleUrl=?, articleCommentUrl=?, updateDate=? WHERE id=? AND feedId=?";
 	
 	private static final String UPDATE_ARTICLES_EXTERN = "UPDATE " + TABLE_ARTICLES
 			+ " SET content=?, updateDate=? WHERE id=? AND feedId=?";
-	
-	private Context context;
 	
 	private SQLiteDatabase db_intern;
 	private SQLiteDatabase db_extern;
@@ -74,6 +72,7 @@ public class DBHelper {
 	private SQLiteStatement updateArticle_extern;
 	
 	boolean externalDBState;
+	private Context context;
 	
 	public DBHelper() {
 		context = null;
@@ -90,7 +89,7 @@ public class DBHelper {
 		externalDBState = false;
 	}
 	
-	public synchronized boolean initializeController() {
+	private synchronized boolean initializeController() {
 	    
 	    if (context == null) {
 	        Log.e(Utils.TAG, "Can't handle internal DB without Context-Object.");
@@ -139,14 +138,6 @@ public class DBHelper {
 		mIsControllerInitialized = false;
 	}
 	
-	public SQLiteDatabase getInternalDb() {
-		return this.db_intern;
-	}
-	
-	public SQLiteDatabase getExternalDb() {
-		return this.db_extern;
-	}
-	
 	private void handleDBUpdate() {
 		if (DATABASE_VERSION > Controller.getInstance().getDatabaseVersion()) {
 			Log.i(Utils.TAG, "Database-Version: " + Controller.getInstance().getDatabaseVersion() + "(Internal: "
@@ -168,7 +159,7 @@ public class DBHelper {
 		Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
 	}
 	
-	public void deleteAll() {
+	private void deleteAll() {
 		db_intern.execSQL("DELETE FROM " + TABLE_CAT);
 		db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
 		db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
@@ -177,7 +168,7 @@ public class DBHelper {
 		}
 	}
 	
-	public void dropInternalDB() {
+	private void dropInternalDB() {
 		if (context.getDatabasePath(DATABASE_NAME).delete()) {
 			Log.d(Utils.TAG, "dropInternalDB(): database deleted.");
 		} else {
@@ -185,7 +176,7 @@ public class DBHelper {
 		}
 	}
 	
-	public void dropExternalDB() {
+	private void dropExternalDB() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH).append(
 				File.separator).append(DATABASE_NAME);
@@ -209,8 +200,7 @@ public class DBHelper {
 		}
 	}
 	
-	// TODO: Test this.
-    public boolean isInternalDBAvailable() {
+	private boolean isInternalDBAvailable() {
         if (db_intern != null && db_intern.isOpen()) {
             return true;        
         } else {
@@ -225,7 +215,7 @@ public class DBHelper {
         }
     }
 	
-	public boolean isExternalDBAvailable() {
+	private boolean isExternalDBAvailable() {
 		return externalDBState;
 	}
 	
@@ -245,7 +235,7 @@ public class DBHelper {
 	 * @throws SQLException
 	 *             if the database is unable to be opened or created
 	 */
-	public synchronized SQLiteDatabase openDatabase() throws SQLException {
+	private synchronized SQLiteDatabase openDatabase() throws SQLException {
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 			StringBuilder builder = new StringBuilder();
 			

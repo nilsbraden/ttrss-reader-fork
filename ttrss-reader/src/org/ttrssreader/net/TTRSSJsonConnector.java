@@ -109,8 +109,12 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 				
 				if (strResponse.contains(NOT_LOGGED_IN)) {
 				    Log.w(Utils.TAG, "Not logged in, retrying...");
-				    // Login and post request again 
+				    // Login and post request again
+				    String tempSessionId = new String(mSessionId);
 				    login();
+				    if (url.contains(tempSessionId)) {
+				        url = url.replace(tempSessionId, mSessionId);
+				    }
 				    strResponse = doRequest(url);
 				}
 				

@@ -2,7 +2,11 @@
 
 = Changes =
 
-== Version 0.5.9.1 (Bugfix-release) ==
+== Version 0.5.11 (Bugfix-release) ==
+  * Fixed Issue #16 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=16 error:NOT_LOGGED_IN if the app idle some time])
+  * Fixed DB beeing closed when onDestroy called but not re-opened when app is beeing used again (leading to FC)
+
+== Version 0.5.10 (Bugfix-release) ==
   * Fixed Issue #17 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=17 FC while closing app (back button)])
   * Fixed Issue #20 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=20 long article titles are not readable])
   * Fixed Issue #21 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=21 FC while open browser, because article content is empty])
