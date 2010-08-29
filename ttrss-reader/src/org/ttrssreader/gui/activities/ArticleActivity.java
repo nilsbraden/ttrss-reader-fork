@@ -18,6 +18,7 @@ package org.ttrssreader.gui.activities;
 import java.util.ArrayList;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.ReadStateUpdater;
@@ -77,7 +78,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.articleitem);
-		
+
+        DBHelper.getInstance().checkAndInitializeController(this);
+        
 		setProgressBarIndeterminateVisibility(false);
 		
 		webview = (WebView) findViewById(R.id.webview);

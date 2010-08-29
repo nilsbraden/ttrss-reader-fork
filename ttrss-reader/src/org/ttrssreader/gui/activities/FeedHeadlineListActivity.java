@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.DataController;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
@@ -77,7 +78,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.feedheadlinelist);
-		
+
+        DBHelper.getInstance().checkAndInitializeController(this);
+        
 		setProgressBarIndeterminateVisibility(false);
 		mFeedHeadlineListView = getListView();
 		
