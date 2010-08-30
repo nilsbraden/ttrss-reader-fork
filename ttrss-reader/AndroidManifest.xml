@@ -19,7 +19,7 @@
 		<activity android:name=".gui.activities.FeedHeadlineListActivity" />
 		<activity android:name=".gui.activities.ArticleActivity" />
 		<activity android:name=".gui.activities.PreferencesActivity" />
-		<activity android:name=".gui.activities.ConnectionErrorActivity" />
+		<activity android:name=".gui.activities.ErrorActivity" />
 		<activity android:name=".gui.activities.AboutActivity"
 			android:theme="@android:style/Theme.Dialog"
 			android:label="@string/AboutActivity.Title" />
