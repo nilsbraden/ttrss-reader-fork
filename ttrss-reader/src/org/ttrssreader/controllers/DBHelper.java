@@ -140,7 +140,7 @@ public class DBHelper {
 	
 	private void handleDBUpdate() {
 		if (DATABASE_VERSION > Controller.getInstance().getDatabaseVersion()) {
-			Log.i(Utils.TAG, "Database-Version: " + Controller.getInstance().getDatabaseVersion() + "(Internal: "
+			Log.i(Utils.TAG, "Database-Version: " + Controller.getInstance().getDatabaseVersion() + " (Internal: "
 					+ DATABASE_VERSION + ")");
 			
 			OpenHelper openHelper = new OpenHelper(context);

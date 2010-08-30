@@ -100,6 +100,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 		try {
 			response = httpclient.execute(httpPost);
 			
+			Log.d(Utils.TAG, "Requesting URL: " + url.replace(mPassword, "*") + " (took " + (System.currentTimeMillis() - start) + " ms)");
+			
 			HttpEntity entity = response.getEntity();
 			
 			if (entity != null) {
@@ -133,8 +135,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
 			mLastError = e.getMessage() + ", Method: doRequest(String url), threw IOException";
 			e.printStackTrace();
 		}
-		
-		Log.d(Utils.TAG, "Requesting URL: " + url.replace(mPassword, "*") + " (took " + (System.currentTimeMillis() - start) + " ms)");
 		
 		return strResponse;
 	}
