@@ -22,29 +22,29 @@ import org.json.JSONObject;
 import org.ttrssreader.utils.Utils;
 
 public class TTRSSJsonResult {
-	
-	private JSONArray mNames;
-	private JSONArray mValues;
-	
-	public TTRSSJsonResult(InputStream is) throws JSONException {
-		this(Utils.convertStreamToString(is));
-	}
-	
-	public TTRSSJsonResult(String input) throws JSONException {
-		
-		JSONObject object = new JSONObject(input);
-		
-		mNames = object.names();
-		mValues = object.toJSONArray(mNames);
-		
-	}
-	
-	public JSONArray getNames() {
-		return mNames;
-	}
-	
-	public JSONArray getValues() {
-		return mValues;
-	}
-	
+    
+    private JSONArray mNames;
+    private JSONArray mValues;
+    
+    public TTRSSJsonResult(InputStream is) throws JSONException {
+        this(Utils.convertStreamToString(is));
+    }
+    
+    public TTRSSJsonResult(String input) throws JSONException {
+        
+        JSONObject object = new JSONObject(input);
+        
+        mNames = object.names();
+        mValues = object.toJSONArray(mNames);
+        
+    }
+    
+    public JSONArray getNames() {
+        return mNames;
+    }
+    
+    public JSONArray getValues() {
+        return mValues;
+    }
+    
 }

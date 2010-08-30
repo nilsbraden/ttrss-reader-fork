@@ -35,172 +35,173 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IUpdatable {
-	
-	private Context mContext;
-	
-	private List<CategoryItem> mCategories;
-	private int mUnreadCount;
-	
-	public CategoryListAdapter(Context context) {
-		mContext = context;
-		mCategories = new ArrayList<CategoryItem>();
-		mUnreadCount = 0;
-	}
-	
-	@Override
-	public int getCount() {
-		return mCategories.size();
-	}
-	
-	@Override
-	public Object getItem(int position) {
-		return mCategories.get(position);
-	}
-	
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
-	
-	public String getCategoryId(int position) {
-		return mCategories.get(position).getId();
-	}
-	
-	public String getCategoryTitle(int position) {
-		return mCategories.get(position).getTitle();
-	}
-	
-	public int getUnreadCount(int position) {
-		return mCategories.get(position).getUnreadCount();
-	}
-	
-	public int getTotalUnread() {
-		return mUnreadCount;
-	}
-	
-	public List<CategoryItem> getCategories() {
-		return mCategories;
-	}
-	
-	public void setCategories(List<CategoryItem> categories) {
-		this.mCategories = categories;
-	}
-
-	private String formatTitle(String title, int unread) {
-		if (unread > 0) {
-			return title + " (" + unread + ")";
-		} else {
-			return title;
-		}
-	}
-	
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		if (position >= mCategories.size()) return new View(mContext);
-
-		CategoryListView sv = null;
-		CategoryItem c = mCategories.get(position);
-		if (convertView == null) {
-			sv = new CategoryListView(mContext, c.getTitle(), c.getId(), c.getUnreadCount());
-		} else {
-			sv = (CategoryListView) convertView;
-			sv.setIcon(c.getId(), c.getUnreadCount() > 0);
-			sv.setBoldTitleIfNecessary(c.getUnreadCount() > 0);
-			sv.setTitle(formatTitle(c.getTitle(), c.getUnreadCount()));
-		}
-		
-		return sv;
-	}
-	
-	private class CategoryListView extends LinearLayout {
-		
-		public CategoryListView(Context context, String title, String id, int unreadCount) {
-			super(context);
-			
-			this.setOrientation(HORIZONTAL);
-			
-			// Here we build the child views in code. They could also have
-			// been specified in an XML file.
-			
-			mIcon = new ImageView(context);
-			setIcon(id, unreadCount > 0);
-			addView(mIcon, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
-			
-			mTitle = new TextView(context);
-			mTitle.setGravity(Gravity.CENTER_VERTICAL);
-			setBoldTitleIfNecessary(unreadCount > 0);
-			mTitle.setText(formatTitle(title, unreadCount));
-			
-			LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
-			layoutParams.setMargins(10, 0, 0, 0);
-			
-			addView(mTitle, layoutParams);
-			
-		}
-		
-		public void setTitle(String title) {
-			mTitle.setText(title);
-		}
-		
-		public void setBoldTitleIfNecessary(boolean isUnread) {
-			if (isUnread) {
-				mTitle.setTypeface(Typeface.DEFAULT_BOLD, 1);
-			} else {
-				mTitle.setTypeface(Typeface.DEFAULT, 0);
-			}
-		}
-		
-		public void setIcon(String id, boolean hasUnread) {
-			if (id.equals("-1")) {
-				mIcon.setImageResource(R.drawable.star48);
-			} else if (id.equals("-2")) {
-				mIcon.setImageResource(R.drawable.published48);
-			} else if (id.equals("-3")) {
-				mIcon.setImageResource(R.drawable.fresh48);
-			} else if (id.equals("-4")) {
-				mIcon.setImageResource(R.drawable.all48);
-			} else {
-				if (hasUnread) {
-					mIcon.setImageResource(R.drawable.categoryunread48);
-				} else {
-					mIcon.setImageResource(R.drawable.categoryread48);
-				}
-			}
-		}
-		
-		private ImageView mIcon;
-		private TextView mTitle;
-	}
-
-	@Override
-	public List<?> refreshData() {
-		boolean virtuals = Controller.getInstance().isDisplayVirtuals();
-		boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-		
-		Log.i(Utils.TAG, "CategoryListAdapter     - getCategories()");
-		List<CategoryItem> ret = DataController.getInstance().getCategories(virtuals, displayOnlyUnread, false);
-		
-		// Update Unread Count
-		mUnreadCount = DataController.getInstance().getCategoryUnreadCount("-4");
-		
-		DataController.getInstance().disableForceFullRefresh();
-		return ret;
-	}
-
-	@Override
-	public void update() {
-		Log.i(Utils.TAG, "CategoryListAdapter     - getCategories(forceRefresh)");
-		
-		if (!Controller.getInstance().isWorkOffline()) {
-			// Update new articles
-			if (Controller.getInstance().isUpdateUnreadOnStartup()) {
-				DataController.getInstance().getNewArticles();
-			}
-			
-			boolean virtuals = Controller.getInstance().isDisplayVirtuals();
-			boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-			DataController.getInstance().getCategories(virtuals, displayOnlyUnread, true);
-		}
-	}
-	
+    
+    private Context mContext;
+    
+    private List<CategoryItem> mCategories;
+    private int mUnreadCount;
+    
+    public CategoryListAdapter(Context context) {
+        mContext = context;
+        mCategories = new ArrayList<CategoryItem>();
+        mUnreadCount = 0;
+    }
+    
+    @Override
+    public int getCount() {
+        return mCategories.size();
+    }
+    
+    @Override
+    public Object getItem(int position) {
+        return mCategories.get(position);
+    }
+    
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+    
+    public String getCategoryId(int position) {
+        return mCategories.get(position).getId();
+    }
+    
+    public String getCategoryTitle(int position) {
+        return mCategories.get(position).getTitle();
+    }
+    
+    public int getUnreadCount(int position) {
+        return mCategories.get(position).getUnreadCount();
+    }
+    
+    public int getTotalUnread() {
+        return mUnreadCount;
+    }
+    
+    public List<CategoryItem> getCategories() {
+        return mCategories;
+    }
+    
+    public void setCategories(List<CategoryItem> categories) {
+        this.mCategories = categories;
+    }
+    
+    private String formatTitle(String title, int unread) {
+        if (unread > 0) {
+            return title + " (" + unread + ")";
+        } else {
+            return title;
+        }
+    }
+    
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        if (position >= mCategories.size())
+            return new View(mContext);
+        
+        CategoryListView sv = null;
+        CategoryItem c = mCategories.get(position);
+        if (convertView == null) {
+            sv = new CategoryListView(mContext, c.getTitle(), c.getId(), c.getUnreadCount());
+        } else {
+            sv = (CategoryListView) convertView;
+            sv.setIcon(c.getId(), c.getUnreadCount() > 0);
+            sv.setBoldTitleIfNecessary(c.getUnreadCount() > 0);
+            sv.setTitle(formatTitle(c.getTitle(), c.getUnreadCount()));
+        }
+        
+        return sv;
+    }
+    
+    private class CategoryListView extends LinearLayout {
+        
+        public CategoryListView(Context context, String title, String id, int unreadCount) {
+            super(context);
+            
+            this.setOrientation(HORIZONTAL);
+            
+            // Here we build the child views in code. They could also have
+            // been specified in an XML file.
+            
+            mIcon = new ImageView(context);
+            setIcon(id, unreadCount > 0);
+            addView(mIcon, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
+            
+            mTitle = new TextView(context);
+            mTitle.setGravity(Gravity.CENTER_VERTICAL);
+            setBoldTitleIfNecessary(unreadCount > 0);
+            mTitle.setText(formatTitle(title, unreadCount));
+            
+            LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
+            layoutParams.setMargins(10, 0, 0, 0);
+            
+            addView(mTitle, layoutParams);
+            
+        }
+        
+        public void setTitle(String title) {
+            mTitle.setText(title);
+        }
+        
+        public void setBoldTitleIfNecessary(boolean isUnread) {
+            if (isUnread) {
+                mTitle.setTypeface(Typeface.DEFAULT_BOLD, 1);
+            } else {
+                mTitle.setTypeface(Typeface.DEFAULT, 0);
+            }
+        }
+        
+        public void setIcon(String id, boolean hasUnread) {
+            if (id.equals("-1")) {
+                mIcon.setImageResource(R.drawable.star48);
+            } else if (id.equals("-2")) {
+                mIcon.setImageResource(R.drawable.published48);
+            } else if (id.equals("-3")) {
+                mIcon.setImageResource(R.drawable.fresh48);
+            } else if (id.equals("-4")) {
+                mIcon.setImageResource(R.drawable.all48);
+            } else {
+                if (hasUnread) {
+                    mIcon.setImageResource(R.drawable.categoryunread48);
+                } else {
+                    mIcon.setImageResource(R.drawable.categoryread48);
+                }
+            }
+        }
+        
+        private ImageView mIcon;
+        private TextView mTitle;
+    }
+    
+    @Override
+    public List<?> refreshData() {
+        boolean virtuals = Controller.getInstance().isDisplayVirtuals();
+        boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+        
+        Log.i(Utils.TAG, "CategoryListAdapter     - getCategories()");
+        List<CategoryItem> ret = DataController.getInstance().getCategories(virtuals, displayOnlyUnread, false);
+        
+        // Update Unread Count
+        mUnreadCount = DataController.getInstance().getCategoryUnreadCount("-4");
+        
+        DataController.getInstance().disableForceFullRefresh();
+        return ret;
+    }
+    
+    @Override
+    public void update() {
+        Log.i(Utils.TAG, "CategoryListAdapter     - getCategories(forceRefresh)");
+        
+        if (!Controller.getInstance().isWorkOffline()) {
+            // Update new articles
+            if (Controller.getInstance().isUpdateUnreadOnStartup()) {
+                DataController.getInstance().getNewArticles();
+            }
+            
+            boolean virtuals = Controller.getInstance().isDisplayVirtuals();
+            boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+            DataController.getInstance().getCategories(virtuals, displayOnlyUnread, true);
+        }
+    }
+    
 }

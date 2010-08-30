@@ -50,8 +50,7 @@ public final class R {
         public static final int error=0x7f030003;
         public static final int feedheadlinelist=0x7f030004;
         public static final int feedlist=0x7f030005;
-        public static final int main=0x7f030006;
-        public static final int preferences=0x7f030007;
+        public static final int preferences=0x7f030006;
     }
     public static final class string {
         public static final int AboutActivity_CloseBtn=0x7f050003;

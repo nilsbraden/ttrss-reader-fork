@@ -1,89 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="ApplicationName">Tiny Tiny RSS Reader</string>
-	<string name="ApplicationDescription">Tiny Tiny RSS Reader is an application for reading your feeds from your Tiny Tiny RSS instance.</string>
-	
-	<string name="AboutActivity.Title">About</string>
-	<string name="AboutActivity.CloseBtn">Close</string>
-	<string name="AboutActivity.VersionText">Version:</string>
-	<string name="AboutActivity.UrlTextValue">https://code.google.com/p/ttrss-reader-fork/</string>
-	<string name="AboutActivity.LicenseText">License:</string>
-	<string name="AboutActivity.LicenseTextValue">GPL v3</string>
-	
-	<string name="ArticleActivity.OpenLink">Article</string>
-	<string name="ArticleActivity.OpenCommentLink">Comments</string>
-	<string name="ArticleActivity.MarkRead">Mark as read</string>
-	<string name="ArticleActivity.MarkUnread">Mark as unread</string>
-	<string name="ArticleActivity.ShareLink">Share link</string>
-	
-	<string name="Commons.PleaseWait">Please wait...</string>
-	<string name="Commons.NothingToDisplay">Nothing to display.</string>
-	<string name="Commons.UpdateReadState">Updating read state</string>
-	<string name="Commons.DisplayOnlyUnread">Toggle display unread</string>
-	<string name="Commons.MarkAllRead">Mark everything read</string>
-	
-	<string name="FeedHeadlinesListActivity.MarkAllRead">Mark all as read</string>
-	<string name="FeedHeadlinesListActivity.MarkAllUnread">Mark all as unread</string>
-	
-	<string name="ConnectionPreferenceCategoryTitle">Connection</string>
-	<string name="ConnectionUrlPreferenceTitle">Connection URL</string>
-	<string name="ConnectionUrlPreferenceSummary">The URL to your Tiny Tiny RSS instance.</string>
-	<string name="ConnectionUsernamePreferenceTitle">Username</string>
-	<string name="ConnectionUsernamePreferenceSummary">The username of your Tiny Tiny RSS account.</string>
-	<string name="ConnectionPasswordPreferenceTitle">Password</string>
-	<string name="ConnectionPasswordPreferenceSummary">The password of your Tiny Tiny RSS account.</string>
-	<string name="ConnectionSslPreferenceCategoryTitle">SSL Settings</string>
-	<string name="ConnectionSslPreferenceTitle">SSL</string>
-	<string name="ConnectionSslPreferenceSummary">Accept all SSL certificates.</string>
-	<string name="ConnectionKeystorePasswordPreferenceTitle">Custom Keystore Password</string>
-	<string name="ConnectionKeystorePasswordPreferenceSummary">Password to unlock custom keystore</string>
-	<string name="ConnectionUseKeystorePreferenceTitle">Custom Keystore</string>
-	<string name="ConnectionUseKeystorePreferenceSummary">Use custom keystore</string>
-	
-	<string name="UsagePreferenceCategoryTitle">Usage</string>
-	<string name="UsageAutomaticMarkReadPreferenceTitle">Automatically mark article as read</string>
-	<string name="UsageAutomaticMarkReadPreferenceSummary">If checked, articles will be marked as read when openning them.</string>
-	<string name="UsageOpenUrlEmptyArticleTitle">Open URL for empty article</string>
-	<string name="UsageOpenUrlEmptyArticleSummary">Automatically visits the Website of the article in the browser if the content is empty.</string>
-	<string name="UsageUpdateArticlesOnStartupTitle">Update articles with content on startup</string>
-	<string name="UsageUpdateArticlesOnStartupSummary">Loads all new articles including their content on startup.</string>
-	<string name="UsageRefreshSubDataTitle">Refresh data of sub-categories</string>
-	<string name="UsageRefreshSubDataSummary">Loads the data for the next level of display in background when loading a view.</string>
-	<string name="UsageUseVolumeKeysTitle">Navigate through articles with volume-keys</string>
-	<string name="UsageUseVolumeKeysSummary">Press up for the next newer article, down for older article.</string>
-	<string name="UsageVibrateOnLastArticleTitle">Vibrate when reached last article</string>
-	<string name="UsageVibrateOnLastArticleSummary">Vibrates once when the first or last article is reached and tried to access the next article.</string>
-	<string name="UsageWorkOfflineTitle">Work offline</string>
-	<string name="UsageWorkOfflineSummary">Switch online-synchronisation on and off.</string>
-	
-	<string name="DisplayPreferenceCategoryTitle">Display</string>
-	<string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
-	<string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>
-	<string name="DisplayVirtualUnreadPreferenceTitle">Show unread count in virtual feeds</string>
-	<string name="DisplayVirtualUnreadPreferenceSummary">Uncheck for performances.</string>
-	<string name="DisplayAlwaysFullRefreshPreferenceTitle">Always perform a full refresh</string>
-	<string name="DisplayAlwaysFullRefreshPreferenceSummary">Check to always perform full data refresh.</string>
-	<string name="DisplayUseSwipeTitle">Use Swipe</string>
-	<string name="DisplayUseSwipeSummary">Use Left/Right-Swipe to navigate through articles.</string>
-	<string name="DisplayShowUnreadOnlyTitle">Only show unread</string>
-	<string name="DisplayShowUnreadOnlySummary">Hide Feeds and Articles that have no unread items.</string>
-	<string name="DisplayArticleLimitTitle">Store Articles limit</string>
-	<string name="DisplayArticleLimitSummary">How many Articles will be cached locally.</string>
-	
-	<string name="ErrorActivity.Title">Oups...</string>
-	<string name="ErrorActivity.UserMessage">I was unable to connect to your Tiny Tiny RSS instance, please check your connection and/or connection settings.</string>
-	<string name="ErrorActivity.ErrorTitle">Error details:</string>
-	<string name="ErrorActivity.ErrorDefault">"An unknown error occured. You may try to get more information by using aLogcat (from the market) for ADB.</string>
-	<string name="ErrorActivity.CloseBtn">Close</string>
-	<string name="ErrorActivity.ShowPreferencesBtn">Preferences</string>
-	
-	<string name="Main.ShowPreferencesMenu">Preferences</string>
-	<string name="Main.RefreshMenu">Refresh</string>
-	<string name="Main.UpdateMenu">Update</string>
-	<string name="Main.ShowAboutMenu">About</string>
-	<string name="Main.Nothing">No categories to display. Check your connection and/or your connection settings.</string>
-	
-	<string name="Preferences.Reset">Reset Preferences</string>
+    <string name="ApplicationName">Tiny Tiny RSS Reader</string>
+    <string name="ApplicationDescription">Tiny Tiny RSS Reader is an application for reading your feeds from your Tiny Tiny RSS instance.</string>
+    
+    <string name="AboutActivity.Title">About</string>
+    <string name="AboutActivity.CloseBtn">Close</string>
+    <string name="AboutActivity.VersionText">Version:</string>
+    <string name="AboutActivity.UrlTextValue">https://code.google.com/p/ttrss-reader-fork/</string>
+    <string name="AboutActivity.LicenseText">License:</string>
+    <string name="AboutActivity.LicenseTextValue">GPL v3</string>
+    
+    <string name="ArticleActivity.OpenLink">Article</string>
+    <string name="ArticleActivity.OpenCommentLink">Comments</string>
+    <string name="ArticleActivity.MarkRead">Mark as read</string>
+    <string name="ArticleActivity.MarkUnread">Mark as unread</string>
+    <string name="ArticleActivity.ShareLink">Share link</string>
+    
+    <string name="Commons.PleaseWait">Please wait...</string>
+    <string name="Commons.NothingToDisplay">Nothing to display.</string>
+    <string name="Commons.UpdateReadState">Updating read state</string>
+    <string name="Commons.DisplayOnlyUnread">Toggle display unread</string>
+    <string name="Commons.MarkAllRead">Mark everything read</string>
+    
+    <string name="FeedHeadlinesListActivity.MarkAllRead">Mark all as read</string>
+    <string name="FeedHeadlinesListActivity.MarkAllUnread">Mark all as unread</string>
+    
+    <string name="ConnectionPreferenceCategoryTitle">Connection</string>
+    <string name="ConnectionUrlPreferenceTitle">Connection URL</string>
+    <string name="ConnectionUrlPreferenceSummary">The URL to your Tiny Tiny RSS instance.</string>
+    <string name="ConnectionUsernamePreferenceTitle">Username</string>
+    <string name="ConnectionUsernamePreferenceSummary">The username of your Tiny Tiny RSS account.</string>
+    <string name="ConnectionPasswordPreferenceTitle">Password</string>
+    <string name="ConnectionPasswordPreferenceSummary">The password of your Tiny Tiny RSS account.</string>
+    <string name="ConnectionSslPreferenceCategoryTitle">SSL Settings</string>
+    <string name="ConnectionSslPreferenceTitle">SSL</string>
+    <string name="ConnectionSslPreferenceSummary">Accept all SSL certificates.</string>
+    <string name="ConnectionKeystorePasswordPreferenceTitle">Custom Keystore Password</string>
+    <string name="ConnectionKeystorePasswordPreferenceSummary">Password to unlock custom keystore</string>
+    <string name="ConnectionUseKeystorePreferenceTitle">Custom Keystore</string>
+    <string name="ConnectionUseKeystorePreferenceSummary">Use custom keystore</string>
+    
+    <string name="UsagePreferenceCategoryTitle">Usage</string>
+    <string name="UsageAutomaticMarkReadPreferenceTitle">Automatically mark article as read</string>
+    <string name="UsageAutomaticMarkReadPreferenceSummary">If checked, articles will be marked as read when openning them.</string>
+    <string name="UsageOpenUrlEmptyArticleTitle">Open URL for empty article</string>
+    <string name="UsageOpenUrlEmptyArticleSummary">Automatically visits the Website of the article in the browser if the content is empty.</string>
+    <string name="UsageUpdateArticlesOnStartupTitle">Update articles with content on startup</string>
+    <string name="UsageUpdateArticlesOnStartupSummary">Loads all new articles including their content on startup.</string>
+    <string name="UsageRefreshSubDataTitle">Refresh data of sub-categories</string>
+    <string name="UsageRefreshSubDataSummary">Loads the data for the next level of display in background when loading a view.</string>
+    <string name="UsageUseVolumeKeysTitle">Navigate through articles with volume-keys</string>
+    <string name="UsageUseVolumeKeysSummary">Press up for the next newer article, down for older article.</string>
+    <string name="UsageVibrateOnLastArticleTitle">Vibrate when reached last article</string>
+    <string name="UsageVibrateOnLastArticleSummary">Vibrates once when the first or last article is reached and tried to access the next article.</string>
+    <string name="UsageWorkOfflineTitle">Work offline</string>
+    <string name="UsageWorkOfflineSummary">Switch online-synchronisation on and off.</string>
+    
+    <string name="DisplayPreferenceCategoryTitle">Display</string>
+    <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
+    <string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>
+    <string name="DisplayVirtualUnreadPreferenceTitle">Show unread count in virtual feeds</string>
+    <string name="DisplayVirtualUnreadPreferenceSummary">Uncheck for performances.</string>
+    <string name="DisplayAlwaysFullRefreshPreferenceTitle">Always perform a full refresh</string>
+    <string name="DisplayAlwaysFullRefreshPreferenceSummary">Check to always perform full data refresh.</string>
+    <string name="DisplayUseSwipeTitle">Use Swipe</string>
+    <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe to navigate through articles.</string>
+    <string name="DisplayShowUnreadOnlyTitle">Only show unread</string>
+    <string name="DisplayShowUnreadOnlySummary">Hide Feeds and Articles that have no unread items.</string>
+    <string name="DisplayArticleLimitTitle">Store Articles limit</string>
+    <string name="DisplayArticleLimitSummary">How many Articles will be cached locally.</string>
+    
+    <string name="ErrorActivity.Title">Error</string>
+    <string name="ErrorActivity.UserMessage">I was unable to connect to your Tiny Tiny RSS instance, please check your connection and/or connection settings.</string>
+    <string name="ErrorActivity.ErrorTitle">Error details:</string>
+    <string name="ErrorActivity.ErrorDefault">"An unknown error occured. You may try to get more information by using aLogcat (from the market) for ADB.</string>
+    <string name="ErrorActivity.CloseBtn">Close</string>
+    <string name="ErrorActivity.ShowPreferencesBtn">Preferences</string>
+    
+    <string name="Main.ShowPreferencesMenu">Preferences</string>
+    <string name="Main.RefreshMenu">Refresh</string>
+    <string name="Main.UpdateMenu">Update</string>
+    <string name="Main.ShowAboutMenu">About</string>
+    <string name="Main.Nothing">No categories to display. Check your connection and/or your connection settings.</string>
+    
+    <string name="Preferences.Reset">Reset Preferences</string>
 
 </resources>

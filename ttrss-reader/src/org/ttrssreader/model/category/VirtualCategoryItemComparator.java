@@ -18,16 +18,16 @@ package org.ttrssreader.model.category;
 import java.util.Comparator;
 
 public class VirtualCategoryItemComparator implements Comparator<CategoryItem> {
-	
-	@Override
-	public int compare(CategoryItem object1, CategoryItem object2) {
-		
-		// Get Integer-Values from IDs
-		Integer a = new Integer(object2.getId());
-		Integer b = new Integer(object1.getId());
-		
-		// Invert the result by comparing the wrong way round
-		return b.compareTo(a);
-	}
-	
+    
+    @Override
+    public int compare(CategoryItem object1, CategoryItem object2) {
+        
+        // Get Integer-Values from IDs
+        Integer a = new Integer(object2.getId());
+        Integer b = new Integer(object1.getId());
+        
+        // Invert the result by comparing the wrong way round
+        return b.compareTo(a);
+    }
+    
 }

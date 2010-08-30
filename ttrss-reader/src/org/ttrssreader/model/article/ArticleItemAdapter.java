@@ -21,27 +21,27 @@ import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 
 public class ArticleItemAdapter implements IRefreshable, IUpdatable {
-	
-	private String mArticleId;
-	private ArticleItem mArticle;
-	
-	public ArticleItemAdapter(String articleId) {
-		mArticleId = articleId;
-	}
-	
-	public ArticleItem getArticle() {
-		return mArticle;
-	}
-	
-	@Override
-	public List<Object> refreshData() {
-		mArticle = DataController.getInstance().getArticleWithContent(mArticleId);
-		DataController.getInstance().disableForceFullRefresh();
-		return null;
-	}
-
-	@Override
-	public void update() {
-	}
-	
+    
+    private String mArticleId;
+    private ArticleItem mArticle;
+    
+    public ArticleItemAdapter(String articleId) {
+        mArticleId = articleId;
+    }
+    
+    public ArticleItem getArticle() {
+        return mArticle;
+    }
+    
+    @Override
+    public List<Object> refreshData() {
+        mArticle = DataController.getInstance().getArticleWithContent(mArticleId);
+        DataController.getInstance().disableForceFullRefresh();
+        return null;
+    }
+    
+    @Override
+    public void update() {
+    }
+    
 }

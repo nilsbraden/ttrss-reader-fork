@@ -18,10 +18,10 @@ package org.ttrssreader.model.feed;
 import java.util.Comparator;
 
 public class FeedItemComparator implements Comparator<FeedItem> {
-	
-	@Override
-	public int compare(FeedItem object1, FeedItem object2) {
-		return object1.getTitle().compareToIgnoreCase(object2.getTitle());
-	}
-	
+    
+    @Override
+    public int compare(FeedItem object1, FeedItem object2) {
+        return object1.getTitle().compareToIgnoreCase(object2.getTitle());
+    }
+    
 }

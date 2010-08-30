@@ -37,79 +37,78 @@ import android.util.Log;
  * Create a HttpClient object based on the user preferences.
  */
 public class HttpClientFactory {
-	
-	public static HttpClient createInstance(HttpParams httpParams) {
-		
-		boolean trustAllSslCerts = Controller.getInstance().isTrustAllSsl();
-		boolean useCustomKeyStore = Controller.getInstance().isUseKeystore();
-		
-		SchemeRegistry registry = new SchemeRegistry();
-		registry.register(new Scheme("http", new PlainSocketFactory(), 80));
-		
-		SocketFactory socketFactory = null;
-		
-		if (useCustomKeyStore) {
-			
-			String keystorePassword = Controller.getInstance().getKeystorePassword();
-			
-			socketFactory = newSslSocketFactory(keystorePassword);
-			if (socketFactory == null) {
-				socketFactory = SSLSocketFactory.getSocketFactory();
-				Log.d(Utils.TAG, "HttpClientFactory() - custom key store could not be opened, using default settings");
-			} else {
-//				Log.d(Utils.TAG, "HttpClientFactory() - using custom key store");
-			}
-			
-		} else if (trustAllSslCerts) {
-			socketFactory = new FakeSocketFactory();
-//			Log.d(Utils.TAG, "HttpClientFactory() - trust all ssl certificates");
-		} else {
-			socketFactory = SSLSocketFactory.getSocketFactory();
-//			Log.d(Utils.TAG, "HttpClientFactory() - using default settings");
-		}
-		
-		registry.register(new Scheme("https", socketFactory, 443));
-		
-		HttpClient httpInstance = new DefaultHttpClient(
-				new ThreadSafeClientConnManager(httpParams, registry),
-				httpParams);
-		
-		return httpInstance;
-	}
-	
-	/**
-	 * Create a socket factory with the custom key store
-	 * 
-	 * @param keystorePassword
-	 *            the password to unlock the custom keystore
-	 * 
-	 * @return socket factory with custom key store
-	 */
-	private static SSLSocketFactory newSslSocketFactory(String keystorePassword) {
-		try {
-			KeyStore trusted = KeyStore.getInstance("BKS");
-			
-			File file = new File(Environment.getExternalStorageDirectory()
-					+ File.separator + Utils.SDCARD_PATH + "store.bks");
-			
-			if (!file.exists()) {
-				return null;
-			}
-			
-			InputStream in = new FileInputStream(file);
-			
-			try {
-				trusted.load(in, keystorePassword.toCharArray());
-			} finally {
-				in.close();
-			}
-			
-			return new SSLSocketFactory(trusted);
-		} catch (Exception e) {
-//			throw new AssertionError(e);
-		}
-		
-		return null;
-	}
-	
+    
+    public static HttpClient createInstance(HttpParams httpParams) {
+        
+        boolean trustAllSslCerts = Controller.getInstance().isTrustAllSsl();
+        boolean useCustomKeyStore = Controller.getInstance().isUseKeystore();
+        
+        SchemeRegistry registry = new SchemeRegistry();
+        registry.register(new Scheme("http", new PlainSocketFactory(), 80));
+        
+        SocketFactory socketFactory = null;
+        
+        if (useCustomKeyStore) {
+            
+            String keystorePassword = Controller.getInstance().getKeystorePassword();
+            
+            socketFactory = newSslSocketFactory(keystorePassword);
+            if (socketFactory == null) {
+                socketFactory = SSLSocketFactory.getSocketFactory();
+                Log.d(Utils.TAG, "HttpClientFactory() - custom key store could not be opened, using default settings");
+            } else {
+                // Log.d(Utils.TAG, "HttpClientFactory() - using custom key store");
+            }
+            
+        } else if (trustAllSslCerts) {
+            socketFactory = new FakeSocketFactory();
+            // Log.d(Utils.TAG, "HttpClientFactory() - trust all ssl certificates");
+        } else {
+            socketFactory = SSLSocketFactory.getSocketFactory();
+            // Log.d(Utils.TAG, "HttpClientFactory() - using default settings");
+        }
+        
+        registry.register(new Scheme("https", socketFactory, 443));
+        
+        HttpClient httpInstance = new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry),
+                httpParams);
+        
+        return httpInstance;
+    }
+    
+    /**
+     * Create a socket factory with the custom key store
+     * 
+     * @param keystorePassword
+     *            the password to unlock the custom keystore
+     * 
+     * @return socket factory with custom key store
+     */
+    private static SSLSocketFactory newSslSocketFactory(String keystorePassword) {
+        try {
+            KeyStore trusted = KeyStore.getInstance("BKS");
+            
+            File file = new File(Environment.getExternalStorageDirectory() + File.separator + Utils.SDCARD_PATH
+                    + "store.bks");
+            
+            if (!file.exists()) {
+                return null;
+            }
+            
+            InputStream in = new FileInputStream(file);
+            
+            try {
+                trusted.load(in, keystorePassword.toCharArray());
+            } finally {
+                in.close();
+            }
+            
+            return new SSLSocketFactory(trusted);
+        } catch (Exception e) {
+            // throw new AssertionError(e);
+        }
+        
+        return null;
+    }
+    
 }

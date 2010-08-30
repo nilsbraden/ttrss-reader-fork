@@ -20,9 +20,9 @@ import java.util.Date;
 import android.content.Context;
 
 public class DateUtils {
-	
-	public static String getDisplayDate(Context context, Date date) {
-		return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date);
-	}
-	
+    
+    public static String getDisplayDate(Context context, Date date) {
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(date);
+    }
+    
 }
