@@ -18,10 +18,10 @@ package org.ttrssreader.model.category;
 import java.util.Comparator;
 
 public class CategoryItemComparator implements Comparator<CategoryItem> {
-	
-	@Override
-	public int compare(CategoryItem object1, CategoryItem object2) {
-		return object1.getTitle().compareToIgnoreCase(object2.getTitle());
-	}
-	
+    
+    @Override
+    public int compare(CategoryItem object1, CategoryItem object2) {
+        return object1.getTitle().compareToIgnoreCase(object2.getTitle());
+    }
+    
 }

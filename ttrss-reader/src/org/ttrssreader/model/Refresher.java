@@ -22,28 +22,28 @@ import android.os.Handler;
 import android.os.Message;
 
 public class Refresher extends AsyncTask<String, Integer, List<?>> {
-	
-	private IRefreshEndListener mParent;
-	private IRefreshable mRefreshable;
-	
-	public Refresher(IRefreshEndListener parent, IRefreshable refreshable) {
-		mParent = parent;
-		mRefreshable = refreshable;
-	}
-	
-	private Handler handler = new Handler() {
-		
-		public void handleMessage(Message msg) {
-			mParent.onRefreshEnd();
-		}
-	};
-	
-	@Override
-	protected List<?> doInBackground(String... params) {
-		List<?> ret = mRefreshable.refreshData();
-		handler.sendEmptyMessage(0);
-		
-		return ret;
-	}
-	
+    
+    private IRefreshEndListener mParent;
+    private IRefreshable mRefreshable;
+    
+    public Refresher(IRefreshEndListener parent, IRefreshable refreshable) {
+        mParent = parent;
+        mRefreshable = refreshable;
+    }
+    
+    private Handler handler = new Handler() {
+        
+        public void handleMessage(Message msg) {
+            mParent.onRefreshEnd();
+        }
+    };
+    
+    @Override
+    protected List<?> doInBackground(String... params) {
+        List<?> ret = mRefreshable.refreshData();
+        handler.sendEmptyMessage(0);
+        
+        return ret;
+    }
+    
 }

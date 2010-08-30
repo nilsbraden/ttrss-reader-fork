@@ -18,10 +18,10 @@ package org.ttrssreader.model.article;
 import java.util.Comparator;
 
 public class ArticleItemComparator implements Comparator<ArticleItem> {
-	
-	@Override
-	public int compare(ArticleItem object1, ArticleItem object2) {
-		return object2.getUpdateDate().compareTo(object1.getUpdateDate());
-	}
-	
+    
+    @Override
+    public int compare(ArticleItem object1, ArticleItem object2) {
+        return object2.getUpdateDate().compareTo(object1.getUpdateDate());
+    }
+    
 }
