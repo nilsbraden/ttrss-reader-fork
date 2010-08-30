@@ -79,7 +79,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.feedheadlinelist);
 
+        Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeController(this);
+        DataController.getInstance().checkAndInitializeController(this);
         
 		setProgressBarIndeterminateVisibility(false);
 		mFeedHeadlineListView = getListView();

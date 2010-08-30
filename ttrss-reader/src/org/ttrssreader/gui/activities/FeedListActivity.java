@@ -65,7 +65,9 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.feedlist);
 
+        Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeController(this);
+        DataController.getInstance().checkAndInitializeController(this);
 		
 		setProgressBarIndeterminateVisibility(false);
 		mFeedListView = getListView();
