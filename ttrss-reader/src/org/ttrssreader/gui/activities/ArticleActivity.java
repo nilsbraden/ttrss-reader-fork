@@ -388,8 +388,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
 	}
 	
 	private void openConnectionErrorDialog(String errorMessage) {
-		Intent i = new Intent(this, ConnectionErrorActivity.class);
-		i.putExtra(ConnectionErrorActivity.ERROR_MESSAGE, errorMessage);
+		Intent i = new Intent(this, ErrorActivity.class);
+		i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
 		startActivity(i);
 	}
 	
