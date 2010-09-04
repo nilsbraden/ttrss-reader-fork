@@ -416,7 +416,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
                     new Updater(this, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
                 }
                 
-                if (mArticleItem.getContent().length() < 3) {
+                if (content.length() < 3) {
                     if (Controller.getInstance().isOpenUrlEmptyArticle()) {
                         Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
                         openLink();
