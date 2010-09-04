@@ -2,6 +2,12 @@
 
 = Changes =
 
+== Version 0.5.12 (Bugfix-release) ==
+  * Resolved Issue #23 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=23 Another FC while using tt-rss-reader])
+  * Resolved Issue #24 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=24 Another FC while using tt-rss-reader])
+  * Resolved Attachments not beeing fetched properly
+  * Stability improvements.
+
 == Version 0.5.11 (Bugfix-release) ==
   * Fixed Issue #16 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=16 error:NOT_LOGGED_IN if the app idle some time])
   * Fixed DB beeing closed when onDestroy called but not re-opened when app is beeing used again (leading to FC)
