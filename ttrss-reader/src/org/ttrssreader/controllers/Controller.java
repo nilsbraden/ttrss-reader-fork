@@ -151,7 +151,7 @@ public class Controller {
         return mTrustAllSsl;
     }
     
-    public void setTrustAllSsl(Boolean trustAllSsl) {
+    public void setTrustAllSsl(boolean trustAllSsl) {
         put(Constants.CONNECTION_TRUST_ALL_SSL, trustAllSsl);
         this.mTrustAllSsl = trustAllSsl;
     }
@@ -160,7 +160,7 @@ public class Controller {
         return mUseKeystore;
     }
     
-    public void setUseKeystore(Boolean useKeystore) {
+    public void setUseKeystore(boolean useKeystore) {
         put(Constants.CONNECTION_USE_KEYSTORE, useKeystore);
         this.mUseKeystore = useKeystore;
     }
@@ -178,7 +178,7 @@ public class Controller {
         return mAutomaticMarkRead;
     }
     
-    public void setAutomaticMarkRead(Boolean automaticMarkRead) {
+    public void setAutomaticMarkRead(boolean automaticMarkRead) {
         put(Constants.USAGE_AUTOMATIC_MARK_READ, automaticMarkRead);
         this.mAutomaticMarkRead = automaticMarkRead;
     }
@@ -187,7 +187,7 @@ public class Controller {
         return mOpenUrlEmptyArticle;
     }
     
-    public void setOpenUrlEmptyArticle(Boolean openUrlEmptyArticle) {
+    public void setOpenUrlEmptyArticle(boolean openUrlEmptyArticle) {
         put(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
         this.mOpenUrlEmptyArticle = openUrlEmptyArticle;
     }
@@ -196,7 +196,7 @@ public class Controller {
         return mUpdateUnreadOnStartup;
     }
     
-    public void setUpdateUnreadOnStartup(Boolean mUpdateUnreadOnStartup) {
+    public void setUpdateUnreadOnStartup(boolean mUpdateUnreadOnStartup) {
         put(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, mUpdateUnreadOnStartup);
         this.mUpdateUnreadOnStartup = mUpdateUnreadOnStartup;
     }
@@ -205,7 +205,7 @@ public class Controller {
         return mRefreshSubData;
     }
     
-    public void setRefreshSubData(Boolean refreshSubData) {
+    public void setRefreshSubData(boolean refreshSubData) {
         put(Constants.USAGE_REFRESH_SUB_DATA, refreshSubData);
         this.mRefreshSubData = refreshSubData;
     }
@@ -214,7 +214,7 @@ public class Controller {
         return mUseVolumeKeys;
     }
     
-    public void setUseVolumeKeys(Boolean useVolumeKeys) {
+    public void setUseVolumeKeys(boolean useVolumeKeys) {
         put(Constants.USAGE_USE_VOLUME_KEYS, useVolumeKeys);
         this.mUseVolumeKeys = useVolumeKeys;
     }
@@ -223,7 +223,7 @@ public class Controller {
         return mVibrateOnLastArticle;
     }
     
-    public void setVibrateOnLastArticle(Boolean vibrateOnLastArticle) {
+    public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
         put(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE, vibrateOnLastArticle);
         this.mVibrateOnLastArticle = vibrateOnLastArticle;
     }
@@ -232,7 +232,7 @@ public class Controller {
         return mWorkOffline;
     }
     
-    public void setWorkOffline(Boolean workOffline) {
+    public void setWorkOffline(boolean workOffline) {
         put(Constants.USAGE_WORK_OFFLINE, workOffline);
         this.mWorkOffline = workOffline;
     }
@@ -243,7 +243,7 @@ public class Controller {
         return mDisplayVirtuals;
     }
     
-    public void setDisplayVirtuals(Boolean displayVirtuals) {
+    public void setDisplayVirtuals(boolean displayVirtuals) {
         put(Constants.DISPLAY_SHOW_VIRTUAL, displayVirtuals);
         this.mDisplayVirtuals = displayVirtuals;
     }
@@ -252,7 +252,7 @@ public class Controller {
         return mDisplayUnreadInVirtualFeeds;
     }
     
-    public void setDisplayUnreadInVirtualFeeds(Boolean displayUnreadInVirtualFeeds) {
+    public void setDisplayUnreadInVirtualFeeds(boolean displayUnreadInVirtualFeeds) {
         put(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD, displayUnreadInVirtualFeeds);
         this.mDisplayUnreadInVirtualFeeds = displayUnreadInVirtualFeeds;
     }
@@ -261,7 +261,7 @@ public class Controller {
         return mAlwaysFullRefresh;
     }
     
-    public void setAlwaysFullRefresh(Boolean alwaysFullRefresh) {
+    public void setAlwaysFullRefresh(boolean alwaysFullRefresh) {
         put(Constants.DISPLAY_ALWAYS_FULL_REFRESH, alwaysFullRefresh);
         this.mAlwaysFullRefresh = alwaysFullRefresh;
     }
@@ -270,7 +270,7 @@ public class Controller {
         return mUseSwipe;
     }
     
-    public void setUseSwipe(Boolean useSwipe) {
+    public void setUseSwipe(boolean useSwipe) {
         put(Constants.DISPLAY_USE_SWIPE, useSwipe);
         this.mUseSwipe = useSwipe;
     }
@@ -279,7 +279,7 @@ public class Controller {
         return mDisplayOnlyUnread;
     }
     
-    public void setDisplayOnlyUnread(Boolean displayOnlyUnread) {
+    public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
         put(Constants.DISPLAY_ONLY_UNREAD, displayOnlyUnread);
         this.mDisplayOnlyUnread = displayOnlyUnread;
     }
@@ -288,7 +288,7 @@ public class Controller {
         return mArticleLimit;
     }
     
-    public void setArticleLimit(Integer articleLimit) {
+    public void setArticleLimit(int articleLimit) {
         put(Constants.DISPLAY_ARTICLE_LIMIT, articleLimit + "");
         this.mArticleLimit = articleLimit;
     }
@@ -299,7 +299,7 @@ public class Controller {
         return mLastUpdateTime;
     }
     
-    public void setLastUpdateTime(Long lastUpdateTime) {
+    public void setLastUpdateTime(long lastUpdateTime) {
         put(Constants.LAST_UPDATE_TIME, lastUpdateTime + "");
         this.mLastUpdateTime = lastUpdateTime;
     }
@@ -308,7 +308,7 @@ public class Controller {
         return mDatabaseVersion;
     }
     
-    public void setDatabaseVersion(Integer databaseVersion) {
+    public void setDatabaseVersion(int databaseVersion) {
         put(Constants.DATABASE_VERSION, databaseVersion);
         this.mDatabaseVersion = databaseVersion;
     }
@@ -317,16 +317,12 @@ public class Controller {
      * Generic method to insert values into the preferences store
      */
     public void put(String constant, Object o) {
-        if (o == null) {
-            Log.e(Utils.TAG, "Called Controller.put with null-value...");
-            return;
-        }
         SharedPreferences.Editor editor = prefs.edit();
         if (o instanceof String) {
             String string = (String) o;
             editor.putString(constant, string);
         } else if (o instanceof Boolean) {
-            Boolean bool = (Boolean) o;
+            boolean bool = (Boolean) o;
             editor.putBoolean(constant, bool);
         }
         editor.commit();
