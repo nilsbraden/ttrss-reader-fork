@@ -27,7 +27,6 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.article.ArticleItemAdapter;
-import org.ttrssreader.utils.ExternalStorageReceiver;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
@@ -401,8 +400,11 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
             mArticleItem = mAdapter.getArticle();
             
             if (mArticleItem != null) {
+                String content = mArticleItem.getContent();
+                if (content == null) content = "";
+                
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-                webview.loadDataWithBaseURL(null, mArticleItem.getContent(), "text/html", "utf-8", "about:blank");
+                webview.loadDataWithBaseURL(null, content, "text/html", "utf-8", "about:blank");
                 
                 if (mArticleItem.getTitle() != null) {
                     this.setTitle(mArticleItem.getTitle());

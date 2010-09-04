@@ -158,14 +158,14 @@ public class DBHelper {
         Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
     }
     
-    private void deleteAll() {
-        db_intern.execSQL("DELETE FROM " + TABLE_CAT);
-        db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
-        db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
-        if (isExternalDBAvailable()) {
-            db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
-        }
-    }
+//    private void deleteAll() {
+//        db_intern.execSQL("DELETE FROM " + TABLE_CAT);
+//        db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
+//        db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+//        if (isExternalDBAvailable()) {
+//            db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+//        }
+//    }
     
     private void dropInternalDB() {
         if (context.getDatabasePath(DATABASE_NAME).delete()) {
@@ -723,14 +723,21 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return ret;
         
-        Cursor c = db_intern.query(TABLE_ARTICLES, null, "id=" + id, null, null, null, null, null);
-        
-        while (!c.isAfterLast()) {
-            ret = handleArticleCursor(c, true);
+        Cursor c = null;
+        try {
+            c = db_intern.query(TABLE_ARTICLES, null, "id=" + id, null, null, null, null, null);
             
-            c.move(1);
+            while (!c.isAfterLast()) {
+                ret = handleArticleCursor(c, true);
+                
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
         }
-        c.close();
         
         return ret;
     }
@@ -740,14 +747,21 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return ret;
         
-        Cursor c = db_intern.query(TABLE_FEEDS, null, "id=" + id, null, null, null, null, null);
-        
-        while (!c.isAfterLast()) {
-            ret = handleFeedCursor(c);
+        Cursor c = null;
+        try {
+            c = db_intern.query(TABLE_FEEDS, null, "id=" + id, null, null, null, null, null);
             
-            c.move(1);
+            while (!c.isAfterLast()) {
+                ret = handleFeedCursor(c);
+                
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
         }
-        c.close();
         
         return ret;
     }
@@ -757,14 +771,21 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return ret;
         
-        Cursor c = db_intern.query(TABLE_CAT, null, "id=" + id, null, null, null, null, null);
-        
-        while (!c.isAfterLast()) {
-            ret = handleCategoryCursor(c);
+        Cursor c = null;
+        try {
+            c = db_intern.query(TABLE_CAT, null, "id=" + id, null, null, null, null, null);
             
-            c.move(1);
+            while (!c.isAfterLast()) {
+                ret = handleCategoryCursor(c);
+                
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
         }
-        c.close();
         
         return ret;
     }
@@ -774,14 +795,21 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return ret;
         
-        Cursor c = db_intern.query(TABLE_ARTICLES, null, "feedId=" + fi.getId(), null, null, null, null, null);
-        
-        while (!c.isAfterLast()) {
-            ret.add(handleArticleCursor(c, withContent));
+        Cursor c = null;
+        try {
+            c = db_intern.query(TABLE_ARTICLES, null, "feedId=" + fi.getId(), null, null, null, null, null);
             
-            c.move(1);
+            while (!c.isAfterLast()) {
+                ret.add(handleArticleCursor(c, withContent));
+                
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
         }
-        c.close();
         
         return ret;
     }
@@ -791,14 +819,21 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return ret;
         
-        Cursor c = db_intern.query(TABLE_FEEDS, null, "categoryId=" + ci.getId(), null, null, null, null, null);
-        
-        while (!c.isAfterLast()) {
-            ret.add(handleFeedCursor(c));
+        Cursor c = null;
+        try {
+            c = db_intern.query(TABLE_FEEDS, null, "categoryId=" + ci.getId(), null, null, null, null, null);
             
-            c.move(1);
+            while (!c.isAfterLast()) {
+                ret.add(handleFeedCursor(c));
+                
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
         }
-        c.close();
         
         return ret;
     }
@@ -814,25 +849,32 @@ public class DBHelper {
         
         String limit = (maxArticles > 0 ? String.valueOf(maxArticles) : null);
         
-        Cursor c = db_intern.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC", limit);
-        
-        while (!c.isAfterLast()) {
-            ArticleItem a = handleArticleCursor(c, withContent);
-            String feedId = a.getFeedId();
+        Cursor c = null;
+        try {
+            c = db_intern.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC", limit);
             
-            List<ArticleItem> list;
-            if (ret.get(feedId) != null) {
-                list = ret.get(feedId);
-            } else {
-                list = new ArrayList<ArticleItem>();
+            while (!c.isAfterLast()) {
+                ArticleItem a = handleArticleCursor(c, withContent);
+                String feedId = a.getFeedId();
+                
+                List<ArticleItem> list;
+                if (ret.get(feedId) != null) {
+                    list = ret.get(feedId);
+                } else {
+                    list = new ArrayList<ArticleItem>();
+                }
+                
+                list.add(a);
+                ret.put(feedId, list);
+                
+                c.move(1);
             }
-            
-            list.add(a);
-            ret.put(feedId, list);
-            
-            c.move(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
         }
-        c.close();
         
         return ret;
     }
@@ -842,25 +884,32 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return ret;
         
-        Cursor c = db_intern.query(TABLE_FEEDS, null, null, null, null, null, null);
-        
-        while (!c.isAfterLast()) {
-            FeedItem fi = handleFeedCursor(c);
-            String catId = c.getString(1);
+        Cursor c = null;
+        try {
+            c = db_intern.query(TABLE_FEEDS, null, null, null, null, null, null);
             
-            List<FeedItem> list;
-            if (ret.get(catId) != null) {
-                list = ret.get(catId);
-            } else {
-                list = new ArrayList<FeedItem>();
+            while (!c.isAfterLast()) {
+                FeedItem fi = handleFeedCursor(c);
+                String catId = c.getString(1);
+                
+                List<FeedItem> list;
+                if (ret.get(catId) != null) {
+                    list = ret.get(catId);
+                } else {
+                    list = new ArrayList<FeedItem>();
+                }
+                
+                list.add(fi);
+                ret.put(catId, list);
+                
+                c.move(1);
             }
-            
-            list.add(fi);
-            ret.put(catId, list);
-            
-            c.move(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
         }
-        c.close();
         
         return ret;
     }
@@ -870,15 +919,22 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return ret;
         
-        Cursor c = db_intern.query(TABLE_CAT, null, "id < 1", null, null, null, null);
-        
-        while (!c.isAfterLast()) {
-            CategoryItem ci = handleCategoryCursor(c);
+        Cursor c = null;
+        try {
+            c = db_intern.query(TABLE_CAT, null, "id < 1", null, null, null, null);
             
-            ret.add(ci);
-            c.move(1);
+            while (!c.isAfterLast()) {
+                CategoryItem ci = handleCategoryCursor(c);
+                
+                ret.add(ci);
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
         }
-        c.close();
         
         return ret;
     }
@@ -893,19 +949,26 @@ public class DBHelper {
             wherePart = null;
         }
         
-        Cursor c = db_intern.query(TABLE_CAT, null, wherePart, null, null, null, null);
-        
-        while (!c.isAfterLast()) {
-            CategoryItem ci = handleCategoryCursor(c);
+        Cursor c = null;
+        try {
+            c = db_intern.query(TABLE_CAT, null, wherePart, null, null, null, null);
             
-            ret.add(ci);
-            c.move(1);
+            while (!c.isAfterLast()) {
+                CategoryItem ci = handleCategoryCursor(c);
+                
+                ret.add(ci);
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
         }
-        c.close();
         
         return ret;
     }
-    
+
     /*
      * Equals the API-Call to getCounters
      */
