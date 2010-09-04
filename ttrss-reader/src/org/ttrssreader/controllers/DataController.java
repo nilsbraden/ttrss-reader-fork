@@ -324,11 +324,9 @@ public class DataController {
             }
         }
         
-        if (result != null && !result.isContentLoaded()) {
+        if (result != null && result.getContent() == null) {
             Log.i(Utils.TAG, "Loading Content for Article \"" + result.getTitle() + "\"");
-            
             result = Controller.getInstance().getTTRSSConnector().getArticle(Integer.parseInt(articleId));
-            
             DBHelper.getInstance().updateArticleContent(result);
         }
         
@@ -347,7 +345,7 @@ public class DataController {
         
         boolean needRefresh = false;
         for (ArticleItem a : result) {
-            if (!a.isContentLoaded()) {
+            if (a.getContent() == null) {
                 needRefresh = true;
                 break;
             }
@@ -530,7 +528,6 @@ public class DataController {
                 Map<FeedItem, List<ArticleItem>> feeds = ret.get(c);
                 
                 for (FeedItem f : ret.get(c).keySet()) {
-                    
                     List<ArticleItem> articles = feeds.get(f);
                     new DBInsertArticlesTask(articleLimit).execute(articles);
                 }

@@ -27,7 +27,6 @@ public class ArticleItem {
     private String mArticleUrl;
     private String mArticleCommentUrl;
     private Date mUpdateDate;
-    private boolean mIsContentLoaded;
     
     public ArticleItem() {
     }
@@ -42,10 +41,9 @@ public class ArticleItem {
         mFeedId = feedId;
         mIsUnread = isUnread;
         mUpdateDate = updateDate;
-        mContent = "";
+        mContent = null;
         mArticleUrl = null;
         mArticleCommentUrl = null;
-        setIsContentLoaded(false);
     }
     
     public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate, String content,
@@ -58,11 +56,9 @@ public class ArticleItem {
         mArticleUrl = articleUrl;
         mArticleCommentUrl = articleCommentUrl;
         
-        if (content == null || (content.length() < 1 || content.equals("null"))) {
-            setIsContentLoaded(false);
-            mContent = "";
+        if (content == null || content.equals("") || content.equals("null")) {
+            mContent = null;
         } else {
-            setIsContentLoaded(true);
             mContent = content;
         }
     }
@@ -129,29 +125,5 @@ public class ArticleItem {
     
     public void setUpdateDate(Date mUpdateDate) {
         this.mUpdateDate = mUpdateDate;
-    }
-    
-    public boolean isContentLoaded() {
-        return mIsContentLoaded;
-    }
-    
-    public void setIsContentLoaded(boolean mIsContentLoaded) {
-        this.mIsContentLoaded = mIsContentLoaded;
-    }
-    
-    public ArticleItem deepCopy() {
-        ArticleItem ret = new ArticleItem();
-        
-        ret.setId(mId != null ? new String(mId) : null);
-        ret.setTitle(mTitle != null ? new String(mTitle) : null);
-        ret.setFeedId(mFeedId != null ? new String(mFeedId) : null);
-        ret.setUnread(mIsUnread);
-        ret.setContent(mContent != null ? new String(mContent) : null);
-        ret.setArticleUrl(mArticleUrl != null ? new String(mArticleUrl) : null);
-        ret.setArticleCommentUrl(mArticleCommentUrl != null ? new String(mArticleCommentUrl) : null);
-        ret.setUpdateDate(mUpdateDate != null ? new Date(mUpdateDate.getTime()) : null);
-        ret.setIsContentLoaded(mIsContentLoaded);
-        
-        return ret;
     }
 }

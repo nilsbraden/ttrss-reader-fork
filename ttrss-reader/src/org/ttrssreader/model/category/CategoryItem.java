@@ -22,7 +22,6 @@ public class CategoryItem {
     private int mUnreadCount;
     
     public CategoryItem() {
-        
     }
     
     public CategoryItem(String id, String title, int unreadCount) {
@@ -64,15 +63,4 @@ public class CategoryItem {
     public boolean isUnreadManaged() {
         return mUnreadCount >= 0;
     }
-    
-    public CategoryItem deepCopy() {
-        CategoryItem ret = new CategoryItem();
-        
-        ret.setId(mId != null ? new String(mId) : null);
-        ret.setTitle(mTitle != null ? new String(mTitle) : null);
-        ret.setUnreadCount(mUnreadCount);
-        
-        return ret;
-    }
-    
 }

@@ -43,7 +43,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String OP_GET_UNREAD = "?op=getUnread&sid=%s";
     private static final String OP_GET_CATEGORIES = "?op=getCategories&sid=%s";
     private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s";
-    private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&show_content=1&view_mode=%s";
+    private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&show_content=0&view_mode=%s";
     private static final String OP_GET_ARTICLES = "?op=getArticles&sid=%s&id=%s&unread=%s&is_category=%s";
     private static final String OP_GET_NEW_ARTICLES = "?op=getNewArticles&sid=%s&unread=%s&time=%s";
     private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
@@ -801,10 +801,12 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 }
             }
             
-            content += attachments;
+            if (!attachments.equals("")) {
+                content += attachments;
+            }
+            Date date = new Date(new Long(updated + "000").longValue());
             
-            articleItem = new ArticleItem(realFeedId, id, title, isUnread, new Date(
-                    new Long(updated + "000").longValue()), content, articleUrl, articleCommentUrl);
+            articleItem = new ArticleItem(realFeedId, id, title, isUnread, date, content, articleUrl, articleCommentUrl);
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: parseDataForArticle(...), threw JSONException";
