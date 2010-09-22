@@ -17,6 +17,7 @@ package org.ttrssreader.net;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -127,6 +128,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                     mLastError = strResponse;
                 }
             }
+        } catch (UnknownHostException e) {
+            mHasLastError = true;
+            mLastError = e.getMessage() + ", Method: doRequest(String url), threw UnknownHostException";
+            e.printStackTrace();
         } catch (ClientProtocolException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: doRequest(String url), threw ClientProtocolException";
@@ -351,14 +356,28 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (!mHasLastError) {
             ret = parseDataForArticle(jsonResult.getNames(), jsonResult.getValues());
-            if (ret.getId() == null || ret.getId().length() < 1) {
-                ret.setId(articleId + "");
+            if (ret.getId() < 1) {
+                ret.setId(articleId);
             }
         }
         
         return ret;
     }
     
+    /**
+     * Fetches the last error message and deletes it afterwards
+     */
+    @Override
+    public String pullLastError() {
+        String ret = new String(mLastError);
+        mLastError = "";
+        mHasLastError = false;
+        return ret;
+    }
+    
+    /**
+     * Returns the last error message
+     */
     @Override
     public String getLastError() {
         return mLastError;
@@ -489,10 +508,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public void setArticleRead(List<String> list, int articleState) {
+    public void setArticleRead(List<Integer> list, int articleState) {
         
         StringBuilder sb = new StringBuilder();
-        for (String s : list) {
+        for (Integer s : list) {
             sb.append(s + ",");
         }
         if (sb.length() > 0)

@@ -59,9 +59,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     private static final int MENU_OPEN_COMMENT_LINK = Menu.FIRST + 3;
     private static final int MENU_SHARE_LINK = Menu.FIRST + 6;
     
-    private String mArticleId;
+    private int mArticleId;
     private String mFeedId;
-    private ArrayList<String> mArticleIds;
+    private ArrayList<Integer> mArticleIds;
     
     private ArticleItem mArticleItem = null;
     
@@ -98,17 +98,17 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mArticleId = extras.getString(ARTICLE_ID);
+            mArticleId = extras.getInt(ARTICLE_ID);
             mFeedId = extras.getString(FEED_ID);
-            mArticleIds = extras.getStringArrayList(ARTICLE_LIST);
+            mArticleIds = extras.getIntegerArrayList(ARTICLE_LIST);
         } else if (savedInstanceState != null) {
-            mArticleId = savedInstanceState.getString(ARTICLE_ID);
+            mArticleId = savedInstanceState.getInt(ARTICLE_ID);
             mFeedId = savedInstanceState.getString(FEED_ID);
-            mArticleIds = savedInstanceState.getStringArrayList(ARTICLE_LIST);
+            mArticleIds = savedInstanceState.getIntegerArrayList(ARTICLE_LIST);
         } else {
-            mArticleId = "-1";
+            mArticleId = -1;
             mFeedId = "-1";
-            mArticleIds = new ArrayList<String>();
+            mArticleIds = new ArrayList<Integer>();
         }
         
         mAdapter = new ArticleItemAdapter(mArticleId);
@@ -248,7 +248,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         Log.i(Utils.TAG, "openPreviousArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         
         startActivityForResult(i, 0);
-        super.finish();
         this.finish();
     }
     
@@ -274,7 +273,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         Log.i(Utils.TAG, "openNextArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         
         startActivityForResult(i, 0);
-        super.finish();
         this.finish();
     }
     
@@ -391,6 +389,10 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     private void openConnectionErrorDialog(String errorMessage) {
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
+        
+        refresher.cancel(true);
+        updater.cancel(true);
+        
         startActivity(i);
     }
     
@@ -426,7 +428,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
                 }
             }
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
         }
         
         if (updater != null) {
@@ -441,7 +443,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     @Override
     public void onUpdateEnd() {
         if (Controller.getInstance().getTTRSSConnector().hasLastError()) {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
         }
         
         setProgressBarIndeterminateVisibility(false);

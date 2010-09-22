@@ -288,26 +288,26 @@ public class DataController {
         return 0;
     }
     
-    public ArticleItem getArticleHeadline(String feedId, String articleId) {
+    public ArticleItem getArticleHeadline(String feedId, int articleId) {
         List<ArticleItem> list = getArticlesHeadlines(feedId, false, false);
         
         if (list == null)
             return null;
         
         for (ArticleItem a : list) {
-            if (a.getId().equals(articleId)) {
+            if (a.getId() == articleId) {
                 return a;
             }
         }
         return null;
     }
     
-    public ArticleItem getArticleWithContent(String articleId) {
+    public ArticleItem getArticleWithContent(int articleId) {
         ArticleItem result = null;
         
         for (String s : mArticles.keySet()) {
             for (ArticleItem a : mArticles.get(s)) {
-                if (a.getId().equals(articleId)) {
+                if (a.getId() == articleId) {
                     result = a;
                 }
             }
@@ -317,7 +317,7 @@ public class DataController {
             if (!needFullRefresh()) {
                 result = DBHelper.getInstance().getArticle(articleId);
             } else {
-                result = Controller.getInstance().getTTRSSConnector().getArticle(Integer.parseInt(articleId));
+                result = Controller.getInstance().getTTRSSConnector().getArticle(articleId);
                 
                 int articleLimit = Controller.getInstance().getArticleLimit();
                 DBHelper.getInstance().insertArticle(result, articleLimit);
@@ -326,7 +326,7 @@ public class DataController {
         
         if (result != null && result.getContent() == null) {
             Log.i(Utils.TAG, "Loading Content for Article \"" + result.getTitle() + "\"");
-            result = Controller.getInstance().getTTRSSConnector().getArticle(Integer.parseInt(articleId));
+            result = Controller.getInstance().getTTRSSConnector().getArticle(articleId);
             DBHelper.getInstance().updateArticleContent(result);
         }
         

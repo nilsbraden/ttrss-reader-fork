@@ -110,8 +110,8 @@ public class PreferencesActivity extends PreferenceActivity {
         editor.putString(Constants.LAST_UPDATE_TIME, "0");
         
         editor.commit();
-        super.finish();
         this.finish();
+        
         ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
         startActivity(new Intent().setComponent(comp));
     }

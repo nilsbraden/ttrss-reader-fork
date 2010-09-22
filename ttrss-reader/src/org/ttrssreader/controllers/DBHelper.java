@@ -41,7 +41,7 @@ public class DBHelper {
     private boolean mIsControllerInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
     
     private static final String TABLE_CAT = "categories";
     private static final String TABLE_FEEDS = "feeds";
@@ -371,13 +371,13 @@ public class DBHelper {
         }
     }
     
-    private void insertArticle(String articleId, String feedId, String title, boolean isUnread, String content,
+    private void insertArticle(int articleId, String feedId, String title, boolean isUnread, String content,
             String articleUrl, String articleCommentUrl, Date updateDate) {
         
         if (!isInternalDBAvailable())
             return;
         
-        if (articleId == null)
+        if (articleId == 0)
             return;
         if (feedId == null)
             return;
@@ -393,7 +393,7 @@ public class DBHelper {
             updateDate = new Date(System.currentTimeMillis());
         
         synchronized (insertArticle) {
-            insertArticle.bindLong(1, Long.parseLong(articleId));
+            insertArticle.bindLong(1, articleId);
             insertArticle.bindLong(2, Long.parseLong(feedId));
             insertArticle.bindString(3, title);
             insertArticle.bindLong(4, (isUnread ? 1 : 0));
@@ -516,12 +516,12 @@ public class DBHelper {
         }
     }
     
-    public void markArticlesRead(List<String> list, int articleState) {
+    public void markArticlesRead(List<Integer> iDlist, int articleState) {
         if (!isInternalDBAvailable())
             return;
         
         // boolean isUnread = articleState == 0 ? false : true;
-        for (String id : list) {
+        for (Integer id : iDlist) {
             db_intern.execSQL("UPDATE " + TABLE_ARTICLES + " SET isUnread=" + articleState + " " + "WHERE id=" + id);
             
             if (isExternalDBAvailable()) {
@@ -594,7 +594,7 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return;
         
-        String id = a.getId();
+        int id = a.getId();
         String feedId = a.getFeedId();
         String content = a.getContent();
         String title = a.getTitle();
@@ -718,7 +718,7 @@ public class DBHelper {
     
     // *******| SELECT |*******************************************************************
     
-    public ArticleItem getArticle(String id) {
+    public ArticleItem getArticle(int id) {
         ArticleItem ret = null;
         if (!isInternalDBAvailable())
             return ret;
@@ -1007,7 +1007,7 @@ public class DBHelper {
             }
         }
         
-        String id = c.getString(0);
+        int id = c.getInt(0);
         String content = "";
         
         if (isExternalDBAvailable() && withContent) {
