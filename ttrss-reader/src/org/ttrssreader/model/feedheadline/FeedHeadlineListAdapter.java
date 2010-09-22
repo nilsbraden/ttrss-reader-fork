@@ -75,12 +75,12 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         return position;
     }
     
-    public String getFeedItemId(int position) {
+    public int getFeedItemId(int position) {
         return mArticles.get(position).getId();
     }
     
-    public ArrayList<String> getFeedItemIds() {
-        ArrayList<String> result = new ArrayList<String>();
+    public ArrayList<Integer> getFeedItemIds() {
+        ArrayList<Integer> result = new ArrayList<Integer>();
         
         for (ArticleItem ai : mArticles) {
             result.add(ai.getId());

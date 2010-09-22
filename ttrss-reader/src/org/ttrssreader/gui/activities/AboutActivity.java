@@ -45,7 +45,6 @@ public class AboutActivity extends Activity {
     }
     
     public void closeButtonPressed() {
-        super.finish();
         this.finish();
     }
     

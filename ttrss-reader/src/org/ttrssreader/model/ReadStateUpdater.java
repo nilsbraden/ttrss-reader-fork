@@ -84,7 +84,7 @@ public class ReadStateUpdater implements IUpdatable {
         boolean boolState = mArticleState == 1 ? true : false;
         int intState = mArticleState == 1 ? 1 : -1;
         
-        List<String> idList = new ArrayList<String>();
+        List<Integer> idList = new ArrayList<Integer>();
         mList = filterList();
         
         for (ArticleItem article : mList) {
@@ -93,7 +93,7 @@ public class ReadStateUpdater implements IUpdatable {
             article.setUnread(false);
             
             String feedId = article.getFeedId();
-            String articleId = article.getId();
+            int articleId = article.getId();
             FeedItem mFeed = DataController.getInstance().getFeed(feedId, false);
             
             if (mFeed == null) {

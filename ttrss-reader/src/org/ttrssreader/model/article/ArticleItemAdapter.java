@@ -22,10 +22,10 @@ import org.ttrssreader.model.IUpdatable;
 
 public class ArticleItemAdapter implements IRefreshable, IUpdatable {
     
-    private String mArticleId;
+    private int mArticleId;
     private ArticleItem mArticle;
     
-    public ArticleItemAdapter(String articleId) {
+    public ArticleItemAdapter(int articleId) {
         mArticleId = articleId;
     }
     

@@ -16,10 +16,12 @@
 package org.ttrssreader.model.article;
 
 import java.util.Date;
+import org.ttrssreader.utils.Utils;
+import android.util.Log;
 
 public class ArticleItem {
     
-    private String mId;
+    private int mId;
     private String mTitle;
     private String mFeedId;
     private boolean mIsUnread;
@@ -31,24 +33,11 @@ public class ArticleItem {
     public ArticleItem() {
     }
     
-    public ArticleItem(String feedId, String id) {
-        this(feedId, id, null, false, null);
-    }
-    
-    public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate) {
-        mId = id;
-        mTitle = title;
-        mFeedId = feedId;
-        mIsUnread = isUnread;
-        mUpdateDate = updateDate;
-        mContent = null;
-        mArticleUrl = null;
-        mArticleCommentUrl = null;
-    }
-    
-    public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate, String content,
+    public ArticleItem(String feedId, int id, String title, boolean isUnread, Date updateDate, String content,
             String articleUrl, String articleCommentUrl) {
-        mId = id;
+        
+        setId(id);
+        
         mTitle = title;
         mFeedId = feedId;
         mIsUnread = isUnread;
@@ -63,11 +52,49 @@ public class ArticleItem {
         }
     }
     
-    public String getId() {
+    /*
+     * Article-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
+     */
+    public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate, String content,
+            String articleUrl, String articleCommentUrl) {
+        
+        setId(id);
+        
+        mTitle = title;
+        mFeedId = feedId;
+        mIsUnread = isUnread;
+        mUpdateDate = updateDate;
+        mArticleUrl = articleUrl;
+        mArticleCommentUrl = articleCommentUrl;
+        
+        if (content == null || content.equals("") || content.equals("null")) {
+            mContent = null;
+        } else {
+            mContent = content;
+        }
+    }
+    
+    public int getId() {
         return mId;
     }
     
     public void setId(String mId) {
+        // Check if mId is a number, else set to 0
+        try {
+            if (mId == null) {
+                this.mId = 0;
+                mId = "null"; // Set to (String) "null" for log-output..
+            } else if (!mId.matches("[0-9]*")) {
+                this.mId = 0;
+            } else {
+                this.mId = Integer.parseInt(mId);
+            }
+        } catch (NumberFormatException e) {
+            Log.d(Utils.TAG, "Article-ID has to be an integer-value but was " + mId);
+        }
+    }
+    
+    public void setId(int mId) {
         this.mId = mId;
     }
     

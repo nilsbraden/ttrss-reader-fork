@@ -197,6 +197,10 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     private void openConnectionErrorDialog(String errorMessage) {
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
+        
+        refresher.cancel(true);
+        updater.cancel(true);
+        
         startActivity(i);
     }
     
@@ -223,7 +227,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             }
             
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
         }
         
         if (updater != null) {
@@ -240,7 +244,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
             mAdapter.notifyDataSetChanged();
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
         }
         
         doRefresh();

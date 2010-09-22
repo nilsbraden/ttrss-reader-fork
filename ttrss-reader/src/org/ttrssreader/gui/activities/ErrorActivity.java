@@ -59,6 +59,7 @@ public class ErrorActivity extends Activity {
     }
     
     public void closeButtonPressed() {
+        setResult(0);
         finish();
     }
     

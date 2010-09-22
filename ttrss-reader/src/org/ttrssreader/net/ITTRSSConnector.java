@@ -37,7 +37,7 @@ public interface ITTRSSConnector {
     
     public Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> getNewArticles(int articleState, long time);
     
-    public void setArticleRead(List<String> articlesIds, int articleState);
+    public void setArticleRead(List<Integer> articlesIds, int articleState);
     
     public void setRead(String id, boolean isCategory);
     
@@ -46,5 +46,7 @@ public interface ITTRSSConnector {
     public boolean hasLastError();
     
     public String getLastError();
+    
+    public String pullLastError();
     
 }

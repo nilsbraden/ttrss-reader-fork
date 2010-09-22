@@ -44,8 +44,7 @@ import android.widget.ListView;
 
 public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
     
-    private static final int ACTIVITY_SHOW_FEEDS = 0;
-    private static final int ACTIVITY_SHOW_ERROR = 1;
+    private static final int ACTIVITY_SHOW_ERROR = 0;
     
     private static final int MENU_REFRESH = Menu.FIRST;
     private static final int MENU_SHOW_PREFERENCES = Menu.FIRST + 1;
@@ -157,7 +156,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             i.putExtra(FeedListActivity.CATEGORY_TITLE, mAdapter.getCategoryTitle(position));
         }
         
-        startActivityForResult(i, ACTIVITY_SHOW_FEEDS);
+        startActivity(i);
     }
     
     @Override
@@ -238,7 +237,21 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private void openConnectionErrorDialog(String errorMessage) {
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
+        
+        refresher.cancel(true);
+        updater.cancel(true);
+        
         startActivityForResult(i, ACTIVITY_SHOW_ERROR);
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case ACTIVITY_SHOW_ERROR:
+                doRefresh();
+                break;
+            default:
+                break;
+        }
     }
     
     @Override
@@ -257,7 +270,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             mAdapter.notifyDataSetChanged();
             
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+            return;
         }
         
         if (mAdapter.getTotalUnread() >= 0) {
@@ -279,7 +293,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
             mAdapter.notifyDataSetChanged();
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+            return;
         }
         
         doRefresh();

@@ -153,7 +153,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         Intent i = new Intent(this, ArticleActivity.class);
         i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(position));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putStringArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
+        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
         
         startActivityForResult(i, ACTIVITY_SHOW_FEED_ITEM);
     }
@@ -239,7 +239,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mFeedNames);
         
         startActivityForResult(i, 0);
-        super.finish();
         this.finish();
     }
     
@@ -263,7 +262,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mFeedNames);
         
         startActivityForResult(i, 0);
-        super.finish();
         this.finish();
     }
     
@@ -356,6 +354,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     private void openConnectionErrorDialog(String errorMessage) {
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
+        
+        refresher.cancel(true);
+        updater.cancel(true);
+        
         startActivity(i);
     }
     
@@ -382,7 +384,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
                         + mAdapter.getUnreadCount() + ")");
             }
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
         }
         
         if (updater != null) {
@@ -399,7 +401,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
             mAdapter.notifyDataSetChanged();
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().getLastError());
+            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
         }
         
         doRefresh();
