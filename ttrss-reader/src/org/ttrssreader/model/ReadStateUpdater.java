@@ -29,47 +29,47 @@ import android.util.Log;
 public class ReadStateUpdater implements IUpdatable {
     
     List<ArticleItem> mList = null;
-    private String mPid = "";
+    private int mPid = 0;
     private int mArticleState;
     
     public ReadStateUpdater(List<CategoryItem> list, int articleState) {
         mList = new ArrayList<ArticleItem>();
         for (CategoryItem c : list) {
-            mList.addAll(DataController.getInstance().getArticlesHeadlines(c.getId(), false, false));
+            mList.addAll(DataController.getInstance().retrieveHeadlines(c.getId(), false, false));
         }
         mArticleState = articleState;
     }
     
-    public ReadStateUpdater(CategoryItem c, String pid, int articleState) {
+    public ReadStateUpdater(CategoryItem c, int pid, int articleState) {
         mList = new ArrayList<ArticleItem>();
-        mList.addAll(DataController.getInstance().getArticlesHeadlines(c.getId(), false, false));
+        mList.addAll(DataController.getInstance().retrieveHeadlines(c.getId(), false, false));
         mPid = pid;
         mArticleState = articleState;
     }
     
-    public ReadStateUpdater(List<FeedItem> list, String pid, int articleState, boolean isFeedList) {
+    public ReadStateUpdater(List<FeedItem> list, int pid, int articleState, boolean isFeedList) {
         mList = new ArrayList<ArticleItem>();
         for (FeedItem f : list) {
-            mList.addAll(DataController.getInstance().getArticlesHeadlines(f.getId(), false, false));
+            mList.addAll(DataController.getInstance().retrieveHeadlines(f.getId(), false, false));
         }
         mPid = pid;
         mArticleState = articleState;
     }
     
-    public ReadStateUpdater(FeedItem f, String pid, int articleState) {
+    public ReadStateUpdater(FeedItem f, int pid, int articleState) {
         mList = new ArrayList<ArticleItem>();
-        mList.addAll(DataController.getInstance().getArticlesHeadlines(f.getId(), false, false));
+        mList.addAll(DataController.getInstance().retrieveHeadlines(f.getId(), false, false));
         mPid = pid;
         mArticleState = articleState;
     }
     
-    public ReadStateUpdater(List<ArticleItem> list, String pid, int articleState) {
+    public ReadStateUpdater(List<ArticleItem> list, int pid, int articleState) {
         mList = list;
         mPid = pid;
         mArticleState = articleState;
     }
     
-    public ReadStateUpdater(ArticleItem article, String pid, int articleState) {
+    public ReadStateUpdater(ArticleItem article, int pid, int articleState) {
         mList = new ArrayList<ArticleItem>();
         mList.add(article);
         mPid = pid;
@@ -92,7 +92,7 @@ public class ReadStateUpdater implements IUpdatable {
             idList.add(article.getId());
             article.setUnread(false);
             
-            String feedId = article.getFeedId();
+            int feedId = article.getFeedId();
             int articleId = article.getId();
             FeedItem mFeed = DataController.getInstance().getFeed(feedId, false);
             
@@ -100,7 +100,7 @@ public class ReadStateUpdater implements IUpdatable {
                 continue;
             }
             
-            String categoryId = mFeed.getCategoryId();
+            int categoryId = mFeed.getCategoryId();
             
             ArticleItem articleTemp = DataController.getInstance().getArticleHeadline(feedId, articleId);
             if (articleTemp != null)
@@ -119,7 +119,7 @@ public class ReadStateUpdater implements IUpdatable {
             }
             
             // If on a virtual feeds, also update article state in it.
-            if (("-1".equals(mPid)) || ("-2".equals(mPid)) || ("-3".equals(mPid)) || ("-4".equals(mPid))) {
+            if (mPid < 0 && mPid >= -4) {
                 
                 ArticleItem a = DataController.getInstance().getArticleHeadline(mPid, articleId);
                 if (a != null)
@@ -136,7 +136,7 @@ public class ReadStateUpdater implements IUpdatable {
             DBHelper.getInstance().markArticlesRead(idList, mArticleState);
             
             int deltaUnread = mArticleState == 1 ? mList.size() : -mList.size();
-            DataController.getInstance().getVirtualCategory("-4").setDeltaUnreadCount(deltaUnread);
+            DataController.getInstance().getVirtualCategory(-4).setDeltaUnreadCount(deltaUnread);
         }
     }
     

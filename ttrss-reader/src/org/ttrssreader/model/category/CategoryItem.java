@@ -15,27 +15,52 @@
 
 package org.ttrssreader.model.category;
 
+import org.ttrssreader.utils.Utils;
+import android.util.Log;
+
 public class CategoryItem {
     
-    private String mId;
+    private int mId;
     private String mTitle;
     private int mUnreadCount;
     
     public CategoryItem() {
     }
     
-    public CategoryItem(String id, String title, int unreadCount) {
-        mId = id;
-        mTitle = title;
-        mUnreadCount = unreadCount;
+    public CategoryItem(int id, String title, int unreadCount) {
+        setId(id);
+        setTitle(title);
+        setUnreadCount(unreadCount);
     }
     
-    public String getId() {
+    public CategoryItem(String id, String title, int unreadCount) {
+        setId(id);
+        setTitle(title);
+        setUnreadCount(unreadCount);
+    }
+    
+    public int getId() {
         return mId;
     }
     
-    public void setId(String id) {
+    public void setId(int id) {
         this.mId = id;
+    }
+    
+    public void setId(String id) {
+        // Check if mId is a number, else set to 0
+        try {
+            if (id == null) {
+                this.mId = 0;
+                id = "null"; // Set to (String) "null" for log-output..
+            } else if (!id.matches("-*[0-9]+")) {
+                this.mId = 0;
+            } else {
+                this.mId = Integer.parseInt(id);
+            }
+        } catch (NumberFormatException e) {
+            Log.d(Utils.TAG, "Category-ID has to be an integer-value but was " + id);
+        }
     }
     
     public String getTitle() {

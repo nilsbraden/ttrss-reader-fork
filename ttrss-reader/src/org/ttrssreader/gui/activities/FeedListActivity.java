@@ -51,7 +51,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     public static final String CATEGORY_ID = "CATEGORY_ID";
     public static final String CATEGORY_TITLE = "CATEGORY_TITLE";
     
-    private String mCategoryId;
+    private int mCategoryId;
     private String mCategoryTitle;
     
     private ListView mFeedListView;
@@ -60,8 +60,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     private Updater updater;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle instance) {
+        super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.feedlist);
         
@@ -74,13 +74,13 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mCategoryId = extras.getString(CATEGORY_ID);
+            mCategoryId = extras.getInt(CATEGORY_ID);
             mCategoryTitle = extras.getString(CATEGORY_TITLE);
-        } else if (savedInstanceState != null) {
-            mCategoryId = savedInstanceState.getString(CATEGORY_ID);
-            mCategoryTitle = savedInstanceState.getString(CATEGORY_TITLE);
+        } else if (instance != null) {
+            mCategoryId = instance.getInt(CATEGORY_ID);
+            mCategoryTitle = instance.getString(CATEGORY_TITLE);
         } else {
-            mCategoryId = "-1";
+            mCategoryId = -1;
             mCategoryTitle = null;
         }
         
@@ -114,7 +114,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(CATEGORY_ID, mCategoryId);
+        outState.putInt(CATEGORY_ID, mCategoryId);
         outState.putString(CATEGORY_TITLE, mCategoryTitle);
     }
     
@@ -137,7 +137,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         Intent i = new Intent(this, FeedHeadlineListActivity.class);
         i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getFeedId(position));
         i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getFeedTitle(position));
-        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mAdapter.getFeedIds());
+        i.putIntegerArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mAdapter.getFeedIds());
         i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mAdapter.getFeedNames());
         
         startActivityForResult(i, ACTIVITY_SHOW_FEED_HEADLINE);
@@ -214,10 +214,9 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
                     list.add((FeedItem) f);
                 }
                 mAdapter.setFeeds(list);
+                mAdapter.notifyDataSetChanged();
             } catch (Exception e) {
-                e.printStackTrace();
             }
-            mAdapter.notifyDataSetChanged();
             
             if (mCategoryTitle != null) {
                 this.setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");

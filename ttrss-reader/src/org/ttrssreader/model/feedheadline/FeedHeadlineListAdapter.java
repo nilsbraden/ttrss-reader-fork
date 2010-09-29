@@ -45,12 +45,12 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     private Context mContext;
     
-    private String mFeedId;
+    private int mFeedId;
     
     // Renamed from mFeeds to mArticles because its an Article-List
     private List<ArticleItem> mArticles = null;
     
-    public FeedHeadlineListAdapter(Context context, String feedId) {
+    public FeedHeadlineListAdapter(Context context, int feedId) {
         mContext = context;
         mFeedId = feedId;
         mArticles = new ArrayList<ArticleItem>();
@@ -225,7 +225,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     public List<?> refreshData() {
         boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
         Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesHeadlines(feedId: " + mFeedId + ")");
-        List<ArticleItem> ret = DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread, false);
+        List<ArticleItem> ret = DataController.getInstance().retrieveHeadlines(mFeedId, displayOnlyUnread, false);
         
         if (ret != null) {
             Collections.sort(ret, new ArticleItemComparator());
@@ -242,7 +242,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         if (!Controller.getInstance().isWorkOffline()) {
             boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
             // DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread, true);
-            DataController.getInstance().getArticlesHeadlines(mFeedId, displayOnlyUnread, true);
+            DataController.getInstance().retrieveHeadlines(mFeedId, displayOnlyUnread, true);
         }
     }
     

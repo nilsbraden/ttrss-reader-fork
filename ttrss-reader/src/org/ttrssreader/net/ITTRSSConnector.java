@@ -27,7 +27,7 @@ public interface ITTRSSConnector {
     
     public List<CategoryItem> getCategories();
     
-    public Map<String, List<FeedItem>> getSubsribedFeeds();
+    public Map<Integer, List<FeedItem>> getSubsribedFeeds();
     
     public ArticleItem getArticle(int articleId);
     
@@ -39,7 +39,7 @@ public interface ITTRSSConnector {
     
     public void setArticleRead(List<Integer> articlesIds, int articleState);
     
-    public void setRead(String id, boolean isCategory);
+    public void setRead(int id, boolean isCategory);
     
     public Map<CategoryItem, List<FeedItem>> getCounters();
     

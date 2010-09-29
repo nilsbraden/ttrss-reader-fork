@@ -39,11 +39,11 @@ import android.widget.TextView;
 public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdatable {
     
     private Context mContext;
-    private String mCategoryId;
+    private int mCategoryId;
     
     private List<FeedItem> mFeeds;
     
-    public FeedListAdapter(Context context, String categoryId) {
+    public FeedListAdapter(Context context, int categoryId) {
         mContext = context;
         mCategoryId = categoryId;
         mFeeds = new ArrayList<FeedItem>();
@@ -68,7 +68,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
         return position;
     }
     
-    public String getFeedId(int position) {
+    public int getFeedId(int position) {
         return mFeeds.get(position).getId();
     }
     
@@ -84,8 +84,8 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
         return mFeeds;
     }
     
-    public ArrayList<String> getFeedIds() {
-        ArrayList<String> ret = new ArrayList<String>();
+    public ArrayList<Integer> getFeedIds() {
+        ArrayList<Integer> ret = new ArrayList<Integer>();
         
         for (FeedItem f : mFeeds) {
             ret.add(f.getId());
