@@ -140,11 +140,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         
-        String categoryId = mAdapter.getCategoryId(position);
+        int categoryId = mAdapter.getCategoryId(position);
         Intent i;
         
-        if ((categoryId.equals("-1")) || (categoryId.equals("-2")) || (categoryId.equals("-3"))
-                || (categoryId.equals("-4"))) {
+        if (categoryId < 0 && categoryId >= -4) {
             // Virtual feeds
             i = new Intent(this, FeedHeadlineListActivity.class);
             i.putExtra(FeedHeadlineListActivity.FEED_ID, categoryId);
@@ -264,10 +263,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
                     list.add((CategoryItem) c);
                 }
                 mAdapter.setCategories(list);
+                mAdapter.notifyDataSetChanged();
             } catch (Exception e) {
-                e.printStackTrace();
             }
-            mAdapter.notifyDataSetChanged();
             
         } else {
             openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());

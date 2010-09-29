@@ -25,6 +25,7 @@ import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -41,7 +42,7 @@ public class DBHelper {
     private boolean mIsControllerInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 13;
     
     private static final String TABLE_CAT = "categories";
     private static final String TABLE_FEEDS = "feeds";
@@ -158,14 +159,14 @@ public class DBHelper {
         Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
     }
     
-//    private void deleteAll() {
-//        db_intern.execSQL("DELETE FROM " + TABLE_CAT);
-//        db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
-//        db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
-//        if (isExternalDBAvailable()) {
-//            db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
-//        }
-//    }
+    // private void deleteAll() {
+    // db_intern.execSQL("DELETE FROM " + TABLE_CAT);
+    // db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
+    // db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+    // if (isExternalDBAvailable()) {
+    // db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+    // }
+    // }
     
     private void dropInternalDB() {
         if (context.getDatabasePath(DATABASE_NAME).delete()) {
@@ -252,9 +253,9 @@ public class DBHelper {
                 db_extern = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
                 
                 // Create tables if they dont exist
-                db_extern.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_ARTICLES + " (" + "id INTEGER, "
-                        + "feedId INTEGER, " + "content TEXT, " + "isUnread INTEGER, " + "updateDate INTEGER, "
-                        + "PRIMARY KEY( id , feedId ))");
+                db_extern.execSQL("CREATE TABLE IF NOT EXISTS "
+                        + TABLE_ARTICLES
+                        + " (id INTEGER PRIMARY KEY, feedId INTEGER, content TEXT, isUnread INTEGER, updateDate INTEGER)");
                 
                 externalDBState = db_extern.isOpen();
                 
@@ -275,15 +276,15 @@ public class DBHelper {
         
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + TABLE_CAT + " (" + "id INTEGER PRIMARY KEY, " + "title TEXT, "
-                    + "unread INTEGER)");
+            db.execSQL("CREATE TABLE " + TABLE_CAT + " (id INTEGER PRIMARY KEY, title TEXT, unread INTEGER)");
             
-            db.execSQL("CREATE TABLE " + TABLE_FEEDS + " (" + "id INTEGER, " + "categoryId INTEGER, " + "title TEXT, "
-                    + "url TEXT, " + "unread INTEGER, " + "PRIMARY KEY( id, categoryId ))");
+            db.execSQL("CREATE TABLE "
+                    + TABLE_FEEDS
+                    + " (id INTEGER PRIMARY KEY, categoryId INTEGER, title TEXT, url TEXT, unread INTEGER)");
             
-            db.execSQL("CREATE TABLE " + TABLE_ARTICLES + " (" + "id INTEGER, " + "feedId INTEGER, " + "title TEXT, "
-                    + "isUnread INTEGER, " + "articleUrl TEXT, " + "articleCommentUrl TEXT, " + "updateDate INTEGER, "
-                    + "PRIMARY KEY( id , feedId ))");
+            db.execSQL("CREATE TABLE "
+                    + TABLE_ARTICLES
+                    + " (id INTEGER PRIMARY KEY, feedId INTEGER, title TEXT, isUnread INTEGER, articleUrl TEXT, articleCommentUrl TEXT, updateDate INTEGER)");
         }
         
         @Override
@@ -298,17 +299,15 @@ public class DBHelper {
     
     // *******| INSERT |*******************************************************************
     
-    private void insertCategory(String id, String title, int unread) {
+    private void insertCategory(int id, String title, int unread) {
         if (!isInternalDBAvailable())
             return;
         
-        if (id == null)
-            return;
         if (title == null)
             title = "";
         
         synchronized (insertCat) {
-            insertCat.bindString(1, id);
+            insertCat.bindLong(1, id);
             insertCat.bindString(2, title);
             insertCat.bindLong(3, unread);
             insertCat.execute();
@@ -331,14 +330,10 @@ public class DBHelper {
         }
     }
     
-    private void insertFeed(String feedId, String categoryId, String title, String url, int unread) {
+    private void insertFeed(int feedId, int categoryId, String title, String url, int unread) {
         if (!isInternalDBAvailable())
             return;
         
-        if (feedId == null)
-            return;
-        if (categoryId == null)
-            return;
         if (title == null)
             title = "";
         if (url == null)
@@ -355,10 +350,9 @@ public class DBHelper {
     }
     
     public void insertFeed(FeedItem f) {
-        if (f == null || f.getCategoryId().startsWith("-")) {
+        if (f == null)
             return;
-        }
-        
+
         insertFeed(f.getId(), f.getCategoryId(), f.getTitle(), f.getUrl(), f.getUnread());
     }
     
@@ -371,16 +365,11 @@ public class DBHelper {
         }
     }
     
-    private void insertArticle(int articleId, String feedId, String title, boolean isUnread, String content,
-            String articleUrl, String articleCommentUrl, Date updateDate) {
-        
+    private void insertArticle(int articleId, int feedId, String title, boolean isUnread, String content, String articleUrl, String articleCommentUrl, Date updateDate) {
+
         if (!isInternalDBAvailable())
             return;
         
-        if (articleId == 0)
-            return;
-        if (feedId == null)
-            return;
         if (title == null)
             title = "";
         if (content == null)
@@ -394,7 +383,7 @@ public class DBHelper {
         
         synchronized (insertArticle) {
             insertArticle.bindLong(1, articleId);
-            insertArticle.bindLong(2, Long.parseLong(feedId));
+            insertArticle.bindLong(2, feedId);
             insertArticle.bindString(3, title);
             insertArticle.bindLong(4, (isUnread ? 1 : 0));
             insertArticle.bindString(5, articleUrl);
@@ -508,10 +497,12 @@ public class DBHelper {
         updateFeedUnreadCount(f.getId(), f.getCategoryId(), 0);
         
         if (recursive) {
-            db_intern.execSQL("UPDATE " + TABLE_ARTICLES + " SET isUnread=0 WHERE feedId=" + f.getId());
+            ContentValues cv = new ContentValues();
+            cv.put("isUnread", 0);
+            db_intern.update(TABLE_ARTICLES, cv, "feedId=?", new String[] {f.getId()+""});
             
             if (isExternalDBAvailable()) {
-                db_extern.execSQL("UPDATE " + TABLE_ARTICLES + " SET isUnread=0 WHERE feedId=" + f.getId());
+                db_extern.update(TABLE_ARTICLES, cv, "feedId=?", new String[] {f.getId()+""});
             }
         }
     }
@@ -520,31 +511,28 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return;
         
-        // boolean isUnread = articleState == 0 ? false : true;
+        // boolean isUnread = (articleState == 0 ? false : true);
         for (Integer id : iDlist) {
-            db_intern.execSQL("UPDATE " + TABLE_ARTICLES + " SET isUnread=" + articleState + " " + "WHERE id=" + id);
+            ContentValues cv = new ContentValues();
+            cv.put("isUnread", articleState);
+            db_intern.update(TABLE_ARTICLES, cv, "id=?", new String[] {id+""});
             
             if (isExternalDBAvailable()) {
-                db_extern
-                        .execSQL("UPDATE " + TABLE_ARTICLES + " SET isUnread=" + articleState + " " + "WHERE id=" + id);
+                db_extern.update(TABLE_ARTICLES, cv, "id=?", new String[] {id+""});
             }
         }
     }
     
-    public void updateCategoryUnreadCount(String id, int count) {
+    public void updateCategoryUnreadCount(int id, int count) {
         if (!isInternalDBAvailable())
             return;
         
-        if (id == null)
-            return;
-        
-        db_intern.execSQL("UPDATE " + TABLE_CAT + " SET unread=" + count + " " + "WHERE id=" + id);
+        ContentValues cv = new ContentValues();
+        cv.put("unread", count);
+        db_intern.update(TABLE_CAT, cv, "id=?", new String[] {id+""});
     }
     
-    public void updateCategoryDeltaUnreadCount(String id, int delta) {
-        if (id == null)
-            return;
-        
+    public void updateCategoryDeltaUnreadCount(int id, int delta) {
         CategoryItem c = getCategory(id);
         int count = c.getUnreadCount();
         count += delta;
@@ -552,21 +540,16 @@ public class DBHelper {
         updateCategoryUnreadCount(id, count);
     }
     
-    public void updateFeedUnreadCount(String id, String categoryId, int count) {
+    public void updateFeedUnreadCount(int id, int categoryId, int count) {
         if (!isInternalDBAvailable())
             return;
         
-        if (id == null || categoryId == null)
-            return;
-        
-        db_intern.execSQL("UPDATE " + TABLE_FEEDS + " SET unread=" + count + " " + "WHERE id=" + id
-                + " and categoryId=" + categoryId);
+        ContentValues cv = new ContentValues();
+        cv.put("unread", count);
+        db_intern.update(TABLE_FEEDS, cv, "id=? and categoryId=?", new String[] {id+"", categoryId+""});
     }
     
-    public void updateFeedDeltaUnreadCount(String id, String categoryId, int delta) {
-        if (id == null || categoryId == null)
-            return;
-        
+    public void updateFeedDeltaUnreadCount(int id, int categoryId, int delta) {
         FeedItem f = getFeed(id);
         int count = f.getUnread();
         count += delta;
@@ -574,19 +557,16 @@ public class DBHelper {
         updateFeedUnreadCount(id, categoryId, count);
     }
     
-    public void updateArticleUnread(String id, String feedId, boolean isUnread) {
+    public void updateArticleUnread(int id, int feedId, boolean isUnread) {
         if (!isInternalDBAvailable())
             return;
         
-        if (id == null || feedId == null)
-            return;
-        
-        db_intern.execSQL("UPDATE " + TABLE_ARTICLES + " SET isUnread=" + isUnread + " " + "WHERE id=" + id
-                + " and feedId=" + feedId);
+        ContentValues cv = new ContentValues();
+        cv.put("isUnread", isUnread);
+        db_intern.update(TABLE_ARTICLES, cv, "id=? and feedId=?", new String[] {id+"", feedId+""});
         
         if (isExternalDBAvailable()) {
-            db_extern.execSQL("UPDATE " + TABLE_ARTICLES + " SET isUnread=" + isUnread + " " + "WHERE id=" + id
-                    + " and feedId=" + feedId);
+            db_extern.update(TABLE_ARTICLES, cv, "id=? and feedId=?", new String[] {id+"", feedId+""});
         }
     }
     
@@ -595,7 +575,7 @@ public class DBHelper {
             return;
         
         int id = a.getId();
-        String feedId = a.getFeedId();
+        int feedId = a.getFeedId();
         String content = a.getContent();
         String title = a.getTitle();
         String articleUrl = a.getArticleUrl();
@@ -635,28 +615,31 @@ public class DBHelper {
         }
     }
     
-    public void deleteCategory(String id) {
+    public void deleteCategory(int id) {
         if (!isInternalDBAvailable())
             return;
         
-        db_intern.execSQL("DELETE FROM " + TABLE_CAT + " WHERE id=" + id);
+        String[] args = new String[] {id+""};
+        db_intern.delete(TABLE_CAT, "id=?", args);
     }
     
-    public void deleteFeed(String id) {
+    public void deleteFeed(int id) {
         if (!isInternalDBAvailable())
             return;
         
-        db_intern.execSQL("DELETE FROM " + TABLE_FEEDS + " WHERE id=" + id);
+        String[] args = new String[] {id+""};
+        db_intern.delete(TABLE_FEEDS, "id=?", args);
     }
     
-    public void deleteArticle(String id) {
+    public void deleteArticle(int id) {
         if (!isInternalDBAvailable())
             return;
         
-        db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id=" + id);
+        String[] args = new String[] {id+""};
+        db_intern.delete(TABLE_ARTICLES, "id=?", args);
         
         if (isExternalDBAvailable()) {
-            db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id=" + id);
+            db_extern.delete(TABLE_ARTICLES, "id=?", args);
         }
     }
     
@@ -666,26 +649,26 @@ public class DBHelper {
         
         String wherePart = "";
         if (!withVirtualCategories) {
-            wherePart = " WHERE id > 0";
+            wherePart = "id > 0";
         }
-        db_intern.execSQL("DELETE FROM " + TABLE_CAT + wherePart);
+        db_intern.delete(TABLE_CAT, wherePart, null);
     }
     
     public void deleteFeeds() {
         if (!isInternalDBAvailable())
             return;
         
-        db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
+        db_intern.delete(TABLE_FEEDS, null, null);
     }
     
     public void deleteArticles() {
         if (!isInternalDBAvailable())
             return;
         
-        db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+        db_intern.delete(TABLE_ARTICLES, null, null);
         
         if (isExternalDBAvailable()) {
-            db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
+            db_extern.delete(TABLE_ARTICLES, null, null);
         }
     }
     
@@ -693,12 +676,12 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return;
         
-        db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE isUnread=0 AND updateDate<"
-                + olderThenThis.getTime());
+        String[] args = new String[] {olderThenThis.getTime()+""};
+        
+        db_intern.delete(TABLE_ARTICLES, "updateDate<?", args);
         
         if (isExternalDBAvailable()) {
-            // Dont rely on isUnread here, article could have been marked as read while sdcard wasnt available
-            db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE updateDate<" + olderThenThis.getTime());
+            db_extern.delete(TABLE_ARTICLES, "isUnread=0 AND updateDate<?", args);
         }
     }
     
@@ -706,13 +689,12 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return;
         
-        db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id in( select id from " + TABLE_ARTICLES
-                + " WHERE isUnread=0" + " ORDER BY updateDate DESC" + " LIMIT -1 OFFSET " + number + ")");
+        String[] args = new String[] {"select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number};
+        
+        db_intern.delete(TABLE_ARTICLES, "id in(?)", args);
         
         if (isExternalDBAvailable()) {
-            // Dont rely on isUnread here, article could have been marked as read while sdcard wasnt available
-            db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES + " WHERE id in( select id from " + TABLE_ARTICLES
-                    + " ORDER BY updateDate DESC" + " LIMIT -1 OFFSET " + number + ")");
+            db_extern.delete(TABLE_ARTICLES, "id in(?)", args);
         }
     }
     
@@ -742,7 +724,7 @@ public class DBHelper {
         return ret;
     }
     
-    public FeedItem getFeed(String id) {
+    public FeedItem getFeed(int id) {
         FeedItem ret = new FeedItem();
         if (!isInternalDBAvailable())
             return ret;
@@ -766,7 +748,7 @@ public class DBHelper {
         return ret;
     }
     
-    public CategoryItem getCategory(String id) {
+    public CategoryItem getCategory(int id) {
         CategoryItem ret = new CategoryItem();
         if (!isInternalDBAvailable())
             return ret;
@@ -842,8 +824,8 @@ public class DBHelper {
      * Returns the maxArticles newest articles, mapped in lists to their feed-id.
      * Returns all articles if maxArticles is 0 or lower.
      */
-    public Map<String, List<ArticleItem>> getArticles(int maxArticles, boolean withContent) {
-        Map<String, List<ArticleItem>> ret = new HashMap<String, List<ArticleItem>>();
+    public Map<Integer, List<ArticleItem>> getArticles(int maxArticles, boolean withContent) {
+        Map<Integer, List<ArticleItem>> ret = new HashMap<Integer, List<ArticleItem>>();
         if (!isInternalDBAvailable())
             return ret;
         
@@ -855,7 +837,7 @@ public class DBHelper {
             
             while (!c.isAfterLast()) {
                 ArticleItem a = handleArticleCursor(c, withContent);
-                String feedId = a.getFeedId();
+                int feedId = a.getFeedId();
                 
                 List<ArticleItem> list;
                 if (ret.get(feedId) != null) {
@@ -879,8 +861,8 @@ public class DBHelper {
         return ret;
     }
     
-    public Map<String, List<FeedItem>> getFeeds() {
-        Map<String, List<FeedItem>> ret = new HashMap<String, List<FeedItem>>();
+    public Map<Integer, List<FeedItem>> getFeeds() {
+        Map<Integer, List<FeedItem>> ret = new HashMap<Integer, List<FeedItem>>();
         if (!isInternalDBAvailable())
             return ret;
         
@@ -890,7 +872,7 @@ public class DBHelper {
             
             while (!c.isAfterLast()) {
                 FeedItem fi = handleFeedCursor(c);
-                String catId = c.getString(1);
+                int catId = c.getInt(1);
                 
                 List<FeedItem> list;
                 if (ret.get(catId) != null) {
@@ -968,7 +950,7 @@ public class DBHelper {
         
         return ret;
     }
-
+    
     /*
      * Equals the API-Call to getCounters
      */
@@ -1021,7 +1003,7 @@ public class DBHelper {
             content_cursor.close();
         }
         
-        ret = new ArticleItem(c.getString(1), // feedId
+        ret = new ArticleItem(c.getInt(1), // feedId
                 id, // id
                 c.getString(2), // title
                 (c.getInt(3) != 0 ? true : false), // isUnread
@@ -1043,8 +1025,8 @@ public class DBHelper {
             }
         }
         
-        ret = new FeedItem(c.getString(1), // categoryId
-                c.getString(0), // id
+        ret = new FeedItem(c.getInt(1), // categoryId
+                c.getInt(0), // id
                 c.getString(2), // title
                 c.getString(3), // url
                 c.getInt(4)); // unread
@@ -1061,7 +1043,7 @@ public class DBHelper {
             }
         }
         
-        ret = new CategoryItem(c.getString(0), // id
+        ret = new CategoryItem(c.getInt(0), // id
                 c.getString(1), // title
                 c.getInt(2)); // unread
         

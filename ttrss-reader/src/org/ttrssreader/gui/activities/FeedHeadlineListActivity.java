@@ -61,9 +61,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     public static final String FEED_LIST = "FEED_LIST";
     public static final String FEED_LIST_NAMES = "FEED_LIST_NAMES";
     
-    private String mFeedId;
+    private int mFeedId;
     private String mFeedTitle;
-    private ArrayList<String> mFeedIds;
+    private ArrayList<Integer> mFeedIds;
     private ArrayList<String> mFeedNames;
     private boolean useSwipe;
     private GestureDetector mGestureDetector;
@@ -74,8 +74,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     private Updater updater;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle instance) {
+        super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.feedheadlinelist);
         
@@ -91,17 +91,17 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mFeedId = extras.getString(FEED_ID);
+            mFeedId = extras.getInt(FEED_ID);
             mFeedTitle = extras.getString(FEED_TITLE);
-            mFeedIds = extras.getStringArrayList(FEED_LIST);
+            mFeedIds = extras.getIntegerArrayList(FEED_LIST);
             mFeedNames = extras.getStringArrayList(FEED_LIST_NAMES);
-        } else if (savedInstanceState != null) {
-            mFeedId = savedInstanceState.getString(FEED_ID);
-            mFeedTitle = savedInstanceState.getString(FEED_TITLE);
-            mFeedIds = savedInstanceState.getStringArrayList(FEED_LIST);
-            mFeedNames = savedInstanceState.getStringArrayList(FEED_LIST_NAMES);
+        } else if (instance != null) {
+            mFeedId = instance.getInt(FEED_ID);
+            mFeedTitle = instance.getString(FEED_TITLE);
+            mFeedIds = instance.getIntegerArrayList(FEED_LIST);
+            mFeedNames = instance.getStringArrayList(FEED_LIST_NAMES);
         } else {
-            mFeedId = "-1";
+            mFeedId = -1;
             mFeedTitle = null;
             mFeedIds = null;
             mFeedNames = null;
@@ -232,11 +232,11 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             return;
         }
         
-        Intent i = new Intent(this, FeedHeadlineListActivity.class);
-        i.putExtra(FeedHeadlineListActivity.FEED_ID, mFeedIds.get(index));
-        i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mFeedNames.get(index));
-        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mFeedIds);
-        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mFeedNames);
+        Intent i = new Intent(this, this.getClass());
+        i.putExtra(FEED_ID, mFeedIds.get(index));
+        i.putExtra(FEED_TITLE, mFeedNames.get(index));
+        i.putIntegerArrayListExtra(FEED_LIST, mFeedIds);
+        i.putStringArrayListExtra(FEED_LIST_NAMES, mFeedNames);
         
         startActivityForResult(i, 0);
         this.finish();
@@ -255,11 +255,11 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             return;
         }
         
-        Intent i = new Intent(this, FeedHeadlineListActivity.class);
-        i.putExtra(FeedHeadlineListActivity.FEED_ID, mFeedIds.get(index));
-        i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mFeedNames.get(index));
-        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mFeedIds);
-        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mFeedNames);
+        Intent i = new Intent(this, this.getClass());
+        i.putExtra(FEED_ID, mFeedIds.get(index));
+        i.putExtra(FEED_TITLE, mFeedNames.get(index));
+        i.putIntegerArrayListExtra(FEED_LIST, mFeedIds);
+        i.putStringArrayListExtra(FEED_LIST_NAMES, mFeedNames);
         
         startActivityForResult(i, 0);
         this.finish();
@@ -371,11 +371,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
                     list.add((ArticleItem) f);
                 }
                 mAdapter.setArticles(list);
+                mAdapter.notifyDataSetChanged();
             } catch (Exception e) {
-                e.printStackTrace();
             }
-            
-            mAdapter.notifyDataSetChanged();
             
             if (mFeedTitle != null) {
                 this.setTitle(mFeedTitle + " (" + mAdapter.getUnreadCount() + ")");

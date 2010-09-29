@@ -27,6 +27,8 @@ import org.ttrssreader.model.category.VirtualCategoryItemComparator;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 public class DataController {
@@ -38,18 +40,18 @@ public class DataController {
     private boolean mForceFullRefresh = false;
     
     private long mCountersUpdated = 0;
-    private Map<String, Long> mArticlesUpdated = new HashMap<String, Long>();
+    private Map<Integer, Long> mArticlesUpdated = new HashMap<Integer, Long>();
     private long mFeedsUpdated = 0;
     private long mVirtCategoriesUpdated = 0;
     private long mCategoriesUpdated = 0;
     
     private Map<CategoryItem, List<FeedItem>> mCounters;
-    private Map<String, List<ArticleItem>> mArticles;
-    private Map<String, List<FeedItem>> mFeeds;
+    private Map<Integer, List<ArticleItem>> mArticles;
+    private Map<Integer, List<FeedItem>> mFeeds;
     private List<CategoryItem> mVirtCategories;
     private List<CategoryItem> mCategories;
     
-    // private NetworkInfo info;
+     private ConnectivityManager cm;
     
     public static DataController getInstance() {
         synchronized (mutex) {
@@ -62,8 +64,7 @@ public class DataController {
     
     public synchronized void initializeController(Context context) {
         if (context != null) {
-            // ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            // info = cm.getActiveNetworkInfo();
+            cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         }
         
         mCounters = DBHelper.getInstance().getCounters();
@@ -75,7 +76,7 @@ public class DataController {
         if (mCounters.isEmpty())
             mCounters = null;
         if (mArticles.isEmpty())
-            mArticles = new HashMap<String, List<ArticleItem>>();
+            mArticles = new HashMap<Integer, List<ArticleItem>>();
         if (mFeeds.isEmpty())
             mFeeds = null;
         if (mVirtCategories.isEmpty())
@@ -107,43 +108,67 @@ public class DataController {
         }
     }
     
-    public boolean isOnline() {
+    private boolean isOnline() {
         if (Controller.getInstance().isWorkOffline()) {
+            Log.i(Utils.TAG, "isOnline: Config has isWorkOffline activated...");
             return false;
         }
-        return true;
-        // return info.isConnected();
+        
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        
+        if (info == null) {
+            Log.i(Utils.TAG, "isOnline: No network available...");
+            return false;
+        }
+        
+        synchronized (this) {
+            int wait = 0;
+            while (info.isConnectedOrConnecting() && !info.isConnected()) {
+                try {
+                    Log.d(Utils.TAG, "isOnline: Waiting for " + wait + " seconds...");
+                    wait+=100;
+                    wait(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                
+                if (wait > 2000) break;
+            }
+        }
+        
+        Log.i(Utils.TAG, "isOnline: Network available, State: " + info.isConnected());
+        return info.isConnected();
     }
     
     // ********** DATAACCESS **********
     
-    public synchronized Map<CategoryItem, List<FeedItem>> getCategoryCounters(boolean needFullRefresh) {
-        if (isOnline()) {
-            if (mCounters == null || needFullRefresh() || needFullRefresh) {
+    private synchronized Map<CategoryItem, List<FeedItem>> retrieveCategoryCounters(boolean needFullRefresh) {
+        // Only update counters once in 60 seconds
+        if (mCountersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+            if (mCounters != null) {
+                return mCounters;
+            }
+        } else if (mCounters == null || needFullRefresh() || needFullRefresh) {
+            if (isOnline()) {
                 
-                // Only update counters once in 60 seconds
-                if (mCountersUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
-                    
-                    mCounters = Controller.getInstance().getTTRSSConnector().getCounters();
-                    mCountersUpdated = System.currentTimeMillis();
-                    DBHelper.getInstance().setCounters(mCounters);
-                }
+                mCounters = Controller.getInstance().getTTRSSConnector().getCounters();
+                mCountersUpdated = System.currentTimeMillis();
+                DBHelper.getInstance().setCounters(mCounters);
             }
         }
         return mCounters;
     }
     
     @SuppressWarnings("unchecked")
-    public synchronized List<ArticleItem> getArticlesHeadlines(String feedId, boolean displayOnlyUnread,
+    public synchronized List<ArticleItem> retrieveHeadlines(int feedId, boolean displayOnlyUnread,
             boolean needFullRefresh) {
-        int fId = new Integer(feedId);
         List<ArticleItem> result = null;
         if (mArticles == null)
-            mArticles = new HashMap<String, List<ArticleItem>>();
+            mArticles = new HashMap<Integer, List<ArticleItem>>();
         
-        if (fId == -4) {
+        if (feedId == -4) {
             result = new ArrayList<ArticleItem>();
-            for (String s : mArticles.keySet()) {
+            for (Integer s : mArticles.keySet()) {
                 result.addAll(mArticles.get(s));
             }
         } else {
@@ -163,7 +188,7 @@ public class DataController {
                     String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
                     int articleLimit = Controller.getInstance().getArticleLimit();
                     result = Controller.getInstance().getTTRSSConnector()
-                            .getFeedHeadlines(fId, articleLimit / 2, 0, viewMode);
+                            .getFeedHeadlines(feedId, articleLimit / 2, 0, viewMode);
                     // Divide by two to keep the list of "All Articles" a bit smaller
                     
                     if (result == null) {
@@ -194,79 +219,74 @@ public class DataController {
         return result;
     }
     
-    public synchronized Map<String, List<FeedItem>> getFeeds(boolean needFullRefresh) {
-        if (isOnline()) {
-            if (mFeeds == null || needFullRefresh() || needFullRefresh) {
+    private synchronized Map<Integer, List<FeedItem>> retrieveFeeds(boolean needFullRefresh) {
+        // Only update counters once in 60 seconds
+        if (mFeedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+            if (mFeeds != null) {
+                return mFeeds;
+            }
+        } else if (mFeeds == null || needFullRefresh() || needFullRefresh) {
+            if (isOnline()) {
                 
-                // Only update counters once in 60 seconds
-                if (mFeedsUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
-                    
-                    mFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
-                    mFeedsUpdated = System.currentTimeMillis();
-                    
-                    DBHelper.getInstance().deleteFeeds();
-                    for (String s : mFeeds.keySet()) {
-                        DBHelper.getInstance().insertFeeds(mFeeds.get(s));
-                    }
+                mFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
+                mFeedsUpdated = System.currentTimeMillis();
+                
+                DBHelper.getInstance().deleteFeeds();
+                for (Integer s : mFeeds.keySet()) {
+                    DBHelper.getInstance().insertFeeds(mFeeds.get(s));
                 }
             }
         }
         return mFeeds;
     }
     
-    private synchronized List<CategoryItem> internalGetVirtualCategories(boolean needFullRefresh) {
+    private synchronized List<CategoryItem> retrieveVirtualCategories(boolean needFullRefresh) {
         if (mVirtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            return mVirtCategories;
-        }
-        
-        if (isOnline()) {
-            if (mVirtCategories == null || needFullRefresh() || needFullRefresh) {
+            if (mVirtCategories != null) {
+                return mVirtCategories;
+            }
+        } else if (mVirtCategories == null || needFullRefresh() || needFullRefresh) {
+            
+            if (isOnline()) {
+                boolean showUnread = Controller.getInstance().isDisplayUnreadInVirtualFeeds();
                 
-                // Only update counters once in 60 seconds
-                if (mVirtCategoriesUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
-                    
-                    boolean showUnread = Controller.getInstance().isDisplayUnreadInVirtualFeeds();
-                    
-                    mVirtCategories = new ArrayList<CategoryItem>();
-                    mVirtCategoriesUpdated = System.currentTimeMillis();
-                    
-                    // Refresh CategoryCounters
-                    getCategoryCounters(true);
-                    
-                    CategoryItem catItem;
-                    catItem = new CategoryItem("-1", "Starred articles", showUnread ? getCategoryUnreadCount("-1") : 0);
-                    mVirtCategories.add(catItem);
-                    catItem = new CategoryItem("-2", "Published articles", showUnread ? getCategoryUnreadCount("-2")
-                            : 0);
-                    mVirtCategories.add(catItem);
-                    catItem = new CategoryItem("-3", "Fresh articles", showUnread ? getCategoryUnreadCount("-3") : 0);
-                    mVirtCategories.add(catItem);
-                    catItem = new CategoryItem("-4", "All articles", showUnread ? getCategoryUnreadCount("-4") : 0);
-                    mVirtCategories.add(catItem);
-                    catItem = new CategoryItem("0", "Uncategorized Feeds", showUnread ? getCategoryUnreadCount("0") : 0);
-                    mVirtCategories.add(catItem);
-                    
-                    DBHelper.getInstance().insertCategories(mVirtCategories);
-                }
+                mVirtCategories = new ArrayList<CategoryItem>();
+                mVirtCategoriesUpdated = System.currentTimeMillis();
                 
+                // Refresh CategoryCounters
+                retrieveCategoryCounters(true);
+                
+                CategoryItem catItem;
+                catItem = new CategoryItem(-1, "Starred articles", showUnread ? getCategoryUnreadCount(-1) : 0);
+                mVirtCategories.add(catItem);
+                catItem = new CategoryItem(-2, "Published articles", showUnread ? getCategoryUnreadCount(-2) : 0);
+                mVirtCategories.add(catItem);
+                catItem = new CategoryItem(-3, "Fresh articles", showUnread ? getCategoryUnreadCount(-3) : 0);
+                mVirtCategories.add(catItem);
+                catItem = new CategoryItem(-4, "All articles", showUnread ? getCategoryUnreadCount(-4) : 0);
+                mVirtCategories.add(catItem);
+                catItem = new CategoryItem(0, "Uncategorized Feeds", showUnread ? getCategoryUnreadCount(0) : 0);
+                mVirtCategories.add(catItem);
+                
+                DBHelper.getInstance().insertCategories(mVirtCategories);
             }
         }
         return mVirtCategories;
     }
     
-    private synchronized List<CategoryItem> internalGetCategories(boolean needFullRefresh) {
-        if (isOnline()) {
-            if (mCategories == null || needFullRefresh() || needFullRefresh) {
+    private synchronized List<CategoryItem> retrieveCategories(boolean needFullRefresh) {
+        // Only update counters once in 60 seconds
+        if (mCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+            if (mCategories != null) {
+                return mCategories;
+            }
+        } else if (mCategories == null || needFullRefresh() || needFullRefresh) {
+            if (isOnline()) {
+                mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
+                mCategoriesUpdated = System.currentTimeMillis();
                 
-                // Only update counters once in 60 seconds
-                if (mCategoriesUpdated < System.currentTimeMillis() - Utils.UPDATE_TIME) {
-                    
-                    mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
-                    mCategoriesUpdated = System.currentTimeMillis();
-                    
-                    DBHelper.getInstance().deleteCategories(false);
-                    DBHelper.getInstance().insertCategories(mCategories);
-                }
+                DBHelper.getInstance().deleteCategories(false);
+                DBHelper.getInstance().insertCategories(mCategories);
             }
         }
         return mCategories;
@@ -274,12 +294,12 @@ public class DataController {
     
     // ********** META-FUNCTIONS **********
     
-    public int getCategoryUnreadCount(String catId) {
-        Map<CategoryItem, List<FeedItem>> map = getCategoryCounters(false);
+    public int getCategoryUnreadCount(int catId) {
+        Map<CategoryItem, List<FeedItem>> map = retrieveCategoryCounters(false);
         
         if (map != null) {
             for (CategoryItem c : map.keySet()) {
-                if (catId.equals(c.getId())) {
+                if (catId == c.getId()) {
                     return c.getUnreadCount();
                 }
             }
@@ -288,8 +308,8 @@ public class DataController {
         return 0;
     }
     
-    public ArticleItem getArticleHeadline(String feedId, int articleId) {
-        List<ArticleItem> list = getArticlesHeadlines(feedId, false, false);
+    public ArticleItem getArticleHeadline(int feedId, int articleId) {
+        List<ArticleItem> list = retrieveHeadlines(feedId, false, false);
         
         if (list == null)
             return null;
@@ -305,7 +325,7 @@ public class DataController {
     public ArticleItem getArticleWithContent(int articleId) {
         ArticleItem result = null;
         
-        for (String s : mArticles.keySet()) {
+        for (Integer s : mArticles.keySet()) {
             for (ArticleItem a : mArticles.get(s)) {
                 if (a.getId() == articleId) {
                     result = a;
@@ -334,9 +354,9 @@ public class DataController {
     }
     
     @SuppressWarnings("unchecked")
-    public List<ArticleItem> getArticlesWithContent(String feedId, boolean displayOnlyUnread, boolean needFullRefresh) {
-        if (feedId.startsWith("-")) {
-            feedId = "-1";
+    public List<ArticleItem> getArticlesWithContent(int feedId, boolean displayOnlyUnread, boolean needFullRefresh) {
+        if (feedId < 0) {
+            feedId = -1;
         }
         FeedItem fi = new FeedItem();
         fi.setId(feedId);
@@ -364,7 +384,7 @@ public class DataController {
             if (time < System.currentTimeMillis() - Utils.UPDATE_TIME) {
                 
                 result = Controller.getInstance().getTTRSSConnector()
-                        .getArticles(Integer.parseInt(feedId), displayOnlyUnread ? 1 : 0, false);
+                        .getArticles(feedId, displayOnlyUnread ? 1 : 0, false);
                 
                 if (result == null)
                     return null;
@@ -391,16 +411,16 @@ public class DataController {
         return result;
     }
     
-    public FeedItem getFeed(String feedId, boolean displayOnlyUnread) {
-        Map<String, List<FeedItem>> map = getFeeds(false);
+    public FeedItem getFeed(int feedId, boolean displayOnlyUnread) {
+        Map<Integer, List<FeedItem>> map = retrieveFeeds(false);
         
         if (map == null) {
             return null;
         }
         
-        for (String s : map.keySet()) {
+        for (Integer s : map.keySet()) {
             for (FeedItem f : map.get(s)) {
-                if (f.getId().equals(feedId) && f.getUnread() > 0) {
+                if (f.getId() == feedId && f.getUnread() > 0) {
                     return f;
                 }
             }
@@ -408,8 +428,8 @@ public class DataController {
         return null;
     }
     
-    public List<FeedItem> getFeeds(String categoryId, boolean displayOnlyUnread, boolean needFullRefresh) {
-        Map<String, List<FeedItem>> map = getFeeds(needFullRefresh);
+    public List<FeedItem> getFeeds(int categoryId, boolean displayOnlyUnread, boolean needFullRefresh) {
+        Map<Integer, List<FeedItem>> map = retrieveFeeds(needFullRefresh);
         
         if (map == null) {
             return null;
@@ -433,31 +453,31 @@ public class DataController {
         return result;
     }
     
-    public CategoryItem getVirtualCategory(String categoryId) {
-        for (CategoryItem c : internalGetVirtualCategories(false)) {
-            if (c.getId().equals(categoryId)) {
+    public CategoryItem getVirtualCategory(int categoryId) {
+        for (CategoryItem c : retrieveVirtualCategories(false)) {
+            if (c.getId() == categoryId) {
                 return c;
             }
         }
         return null;
     }
     
-    public CategoryItem getCategory(String categoryId, boolean withVirtuals) {
+    public CategoryItem getCategory(int categoryId, boolean withVirtuals) {
         List<CategoryItem> categories = new ArrayList<CategoryItem>();
         
         if (withVirtuals) {
-            categories.addAll(internalGetVirtualCategories(false));
+            categories.addAll(retrieveVirtualCategories(false));
             Collections.sort(categories, new VirtualCategoryItemComparator());
         }
         
-        List<CategoryItem> list = internalGetCategories(false);
+        List<CategoryItem> list = retrieveCategories(false);
         if (list == null) {
             return null;
         }
         categories.addAll(list);
         
         for (CategoryItem c : categories) {
-            if (c.getId().equals(categoryId)) {
+            if (c.getId() == categoryId) {
                 return c;
             }
         }
@@ -468,11 +488,11 @@ public class DataController {
         List<CategoryItem> categories = new ArrayList<CategoryItem>();
         
         if (withVirtuals) {
-            categories.addAll(internalGetVirtualCategories(needFullRefresh));
+            categories.addAll(retrieveVirtualCategories(needFullRefresh));
             Collections.sort(categories, new VirtualCategoryItemComparator());
         }
         
-        List<CategoryItem> categoryList = internalGetCategories(needFullRefresh);
+        List<CategoryItem> categoryList = retrieveCategories(needFullRefresh);
         if (categoryList != null) {
             Collections.sort(categoryList, new CategoryItemComparator());
             categories.addAll(categoryList);
@@ -483,14 +503,14 @@ public class DataController {
             
             List<CategoryItem> catList = new ArrayList<CategoryItem>();
             for (CategoryItem ci : categories) {
-                // Dont filter for virtual Categories, only 0 (uncategorized feeds) are filtered
-                if (ci.getId().startsWith("-")) {
+                // Dont filter for virtual Categories
+                if (ci.getId() < 0) {
                     catList.add(ci);
                     continue;
                 }
                 
                 // Refresh CategoryCounters
-                getCategoryCounters(needFullRefresh);
+                retrieveCategoryCounters(needFullRefresh);
                 
                 if (getCategoryUnreadCount(ci.getId()) > 0) {
                     ci.setUnreadCount(getCategoryUnreadCount(ci.getId()));
@@ -514,7 +534,7 @@ public class DataController {
         
         // Force update counters
         mCounters = null;
-        getCategoryUnreadCount("0");
+        getCategoryUnreadCount(0);
         
         // Load new Articles
         Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> ret = Controller.getInstance().getTTRSSConnector()

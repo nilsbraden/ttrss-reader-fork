@@ -60,7 +60,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     private static final int MENU_SHARE_LINK = Menu.FIRST + 6;
     
     private int mArticleId;
-    private String mFeedId;
+    private int mFeedId;
     private ArrayList<Integer> mArticleIds;
     
     private ArticleItem mArticleItem = null;
@@ -75,8 +75,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     private boolean useSwipe;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle instance) {
+        super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.articleitem);
         
@@ -99,15 +99,15 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             mArticleId = extras.getInt(ARTICLE_ID);
-            mFeedId = extras.getString(FEED_ID);
+            mFeedId = extras.getInt(FEED_ID);
             mArticleIds = extras.getIntegerArrayList(ARTICLE_LIST);
-        } else if (savedInstanceState != null) {
-            mArticleId = savedInstanceState.getInt(ARTICLE_ID);
-            mFeedId = savedInstanceState.getString(FEED_ID);
-            mArticleIds = savedInstanceState.getIntegerArrayList(ARTICLE_LIST);
+        } else if (instance != null) {
+            mArticleId = instance.getInt(ARTICLE_ID);
+            mFeedId = instance.getInt(FEED_ID);
+            mArticleIds = instance.getIntegerArrayList(ARTICLE_LIST);
         } else {
             mArticleId = -1;
-            mFeedId = "-1";
+            mFeedId = -1;
             mArticleIds = new ArrayList<Integer>();
         }
         
@@ -243,7 +243,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         
         i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putExtra(ArticleActivity.ARTICLE_LIST, mArticleIds);
+        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mArticleIds);
         
         Log.i(Utils.TAG, "openPreviousArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         
@@ -268,7 +268,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         
         i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putExtra(ArticleActivity.ARTICLE_LIST, mArticleIds);
+        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mArticleIds);
         
         Log.i(Utils.TAG, "openNextArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         

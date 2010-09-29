@@ -23,7 +23,7 @@ public class ArticleItem {
     
     private int mId;
     private String mTitle;
-    private String mFeedId;
+    private int mFeedId;
     private boolean mIsUnread;
     private String mContent;
     private String mArticleUrl;
@@ -33,69 +33,57 @@ public class ArticleItem {
     public ArticleItem() {
     }
     
-    public ArticleItem(String feedId, int id, String title, boolean isUnread, Date updateDate, String content,
+    public ArticleItem(int feedId, int id, String title, boolean isUnread, Date updateDate, String content,
             String articleUrl, String articleCommentUrl) {
         
         setId(id);
-        
-        mTitle = title;
-        mFeedId = feedId;
-        mIsUnread = isUnread;
-        mUpdateDate = updateDate;
-        mArticleUrl = articleUrl;
-        mArticleCommentUrl = articleCommentUrl;
-        
-        if (content == null || content.equals("") || content.equals("null")) {
-            mContent = null;
-        } else {
-            mContent = content;
-        }
+        setTitle(title);
+        setFeedId(feedId);
+        setUnread(isUnread);
+        setUpdateDate(updateDate);
+        setArticleUrl(articleUrl);
+        setArticleCommentUrl(articleCommentUrl);
+        setContent(content);
     }
     
     /*
-     * Article-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
+     * Article-ID and Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
      */
     public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate, String content,
             String articleUrl, String articleCommentUrl) {
         
         setId(id);
-        
-        mTitle = title;
-        mFeedId = feedId;
-        mIsUnread = isUnread;
-        mUpdateDate = updateDate;
-        mArticleUrl = articleUrl;
-        mArticleCommentUrl = articleCommentUrl;
-        
-        if (content == null || content.equals("") || content.equals("null")) {
-            mContent = null;
-        } else {
-            mContent = content;
-        }
+        setTitle(title);
+        setFeedId(feedId);
+        setUnread(isUnread);
+        setUpdateDate(updateDate);
+        setArticleUrl(articleUrl);
+        setArticleCommentUrl(articleCommentUrl);
+        setContent(content);
     }
     
     public int getId() {
         return mId;
     }
     
-    public void setId(String mId) {
-        // Check if mId is a number, else set to 0
-        try {
-            if (mId == null) {
-                this.mId = 0;
-                mId = "null"; // Set to (String) "null" for log-output..
-            } else if (!mId.matches("[0-9]*")) {
-                this.mId = 0;
-            } else {
-                this.mId = Integer.parseInt(mId);
-            }
-        } catch (NumberFormatException e) {
-            Log.d(Utils.TAG, "Article-ID has to be an integer-value but was " + mId);
-        }
+    public void setId(int id) {
+        this.mId = id;
     }
     
-    public void setId(int mId) {
-        this.mId = mId;
+    public void setId(String id) {
+        // Check if mId is a number, else set to 0
+        try {
+            if (id == null) {
+                this.mId = 0;
+                id = "null"; // Set to (String) "null" for log-output..
+            } else if (!id.matches("[0-9]+")) {
+                this.mId = 0;
+            } else {
+                this.mId = Integer.parseInt(id);
+            }
+        } catch (NumberFormatException e) {
+            Log.d(Utils.TAG, "Article-ID has to be an integer-value but was " + id);
+        }
     }
     
     public String getTitle() {
@@ -106,12 +94,28 @@ public class ArticleItem {
         this.mTitle = mTitle;
     }
     
-    public String getFeedId() {
+    public int getFeedId() {
         return mFeedId;
     }
     
-    public void setFeedId(String mFeedId) {
-        this.mFeedId = mFeedId;
+    public void setFeedId(int feedId) {
+        this.mFeedId = feedId;
+    }
+    
+    public void setFeedId(String feedId) {
+        // Check if mId is a number, else set to 0
+        try {
+            if (feedId == null) {
+                this.mFeedId = 0;
+                feedId = "null"; // Set to (String) "null" for log-output..
+            } else if (!feedId.matches("-*[0-9]+")) {
+                this.mFeedId = 0;
+            } else {
+                this.mFeedId = Integer.parseInt(feedId);
+            }
+        } catch (NumberFormatException e) {
+            Log.d(Utils.TAG, "Feed-ID has to be an integer-value but was " + feedId);
+        }
     }
     
     public boolean isUnread() {
@@ -127,7 +131,11 @@ public class ArticleItem {
     }
     
     public void setContent(String mContent) {
-        this.mContent = mContent;
+        if (mContent == null || mContent.equals("") || mContent.equals("null")) {
+            this.mContent = null;
+        } else {
+            this.mContent = mContent;
+        }
     }
     
     public String getArticleUrl() {

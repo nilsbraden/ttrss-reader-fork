@@ -15,10 +15,13 @@
 
 package org.ttrssreader.model.feed;
 
+import org.ttrssreader.utils.Utils;
+import android.util.Log;
+
 public class FeedItem {
     
-    private String mId;
-    private String mCategoryId;
+    private int mId;
+    private int mCategoryId;
     private String mTitle;
     private String mUrl;
     private int mUnread;
@@ -26,32 +29,75 @@ public class FeedItem {
     public FeedItem() {
     }
     
+    public FeedItem(int categoryId, int id, String title, String url, int unread) {
+        setId(id);
+        setCategoryId(categoryId);
+        setTitle(title);
+        setUrl(url);
+        setUnread(unread);
+    }
+    
+    /*
+     * Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
+     */
     public FeedItem(String categoryId, String id, String title, String url, int unread) {
-        mCategoryId = categoryId;
-        mId = id;
-        mTitle = title;
-        mUrl = url;
-        mUnread = unread;
+        setId(id);
+        setCategoryId(categoryId);
+        setTitle(title);
+        setUrl(url);
+        setUnread(unread);
     }
     
     public void setDeltaUnreadCount(int value) {
         mUnread += value;
     }
     
-    public String getId() {
+    public int getId() {
         return mId;
     }
     
-    public void setId(String mId) {
-        this.mId = mId;
+    public void setId(int id) {
+        this.mId = id;
     }
     
-    public String getCategoryId() {
+    public void setId(String id) {
+        // Check if mId is a number, else set to 0
+        try {
+            if (id == null) {
+                this.mId = 0;
+                id = "null"; // Set to (String) "null" for log-output..
+            } else if (!id.matches("-*[0-9]+")) {
+                this.mId = 0;
+            } else {
+                this.mId = Integer.parseInt(id);
+            }
+        } catch (NumberFormatException e) {
+            Log.d(Utils.TAG, "Feed-ID has to be an integer-value but was " + id);
+        }
+    }
+    
+    public int getCategoryId() {
         return mCategoryId;
     }
     
-    public void setCategoryId(String mCategoryId) {
-        this.mCategoryId = mCategoryId;
+    public void setCategoryId(int categoryId) {
+        this.mCategoryId = categoryId;
+    }
+    
+    public void setCategoryId(String categoryId) {
+        // Check if mId is a number, else set to 0
+        try {
+            if (categoryId == null) {
+                this.mCategoryId = 0;
+                categoryId = "null"; // Set to (String) "null" for log-output..
+            } else if (!categoryId.matches("-*[0-9]+")) {
+                this.mCategoryId = 0;
+            } else {
+                this.mCategoryId = Integer.parseInt(categoryId);
+            }
+        } catch (NumberFormatException e) {
+            Log.d(Utils.TAG, "Feed-ID has to be an integer-value but was " + mId);
+        }
     }
     
     public String getTitle() {

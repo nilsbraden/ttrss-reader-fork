@@ -62,7 +62,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
         return position;
     }
     
-    public String getCategoryId(int position) {
+    public int getCategoryId(int position) {
         return mCategories.get(position).getId();
     }
     
@@ -115,7 +115,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     private class CategoryListView extends LinearLayout {
         
-        public CategoryListView(Context context, String title, String id, int unreadCount) {
+        public CategoryListView(Context context, String title, int id, int unreadCount) {
             super(context);
             
             this.setOrientation(HORIZONTAL);
@@ -151,14 +151,14 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
             }
         }
         
-        public void setIcon(String id, boolean hasUnread) {
-            if (id.equals("-1")) {
+        public void setIcon(int id, boolean hasUnread) {
+            if (id == -1) {
                 mIcon.setImageResource(R.drawable.star48);
-            } else if (id.equals("-2")) {
+            } else if (id == -2) {
                 mIcon.setImageResource(R.drawable.published48);
-            } else if (id.equals("-3")) {
+            } else if (id == -3) {
                 mIcon.setImageResource(R.drawable.fresh48);
-            } else if (id.equals("-4")) {
+            } else if (id == -4) {
                 mIcon.setImageResource(R.drawable.all48);
             } else {
                 if (hasUnread) {
@@ -182,7 +182,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
         List<CategoryItem> ret = DataController.getInstance().getCategories(virtuals, displayOnlyUnread, false);
         
         // Update Unread Count
-        mUnreadCount = DataController.getInstance().getCategoryUnreadCount("-4");
+        mUnreadCount = DataController.getInstance().getCategoryUnreadCount(-4);
         
         DataController.getInstance().disableForceFullRefresh();
         return ret;
