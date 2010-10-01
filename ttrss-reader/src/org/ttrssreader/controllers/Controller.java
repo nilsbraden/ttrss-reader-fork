@@ -321,6 +321,9 @@ public class Controller {
         if (o instanceof String) {
             String string = (String) o;
             editor.putString(constant, string);
+        } else if (o instanceof Integer) {
+            int integer = (Integer) o;
+            editor.putString(constant, integer+"");
         } else if (o instanceof Boolean) {
             boolean bool = (Boolean) o;
             editor.putBoolean(constant, bool);

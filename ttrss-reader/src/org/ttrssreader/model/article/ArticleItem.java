@@ -16,6 +16,7 @@
 package org.ttrssreader.model.article;
 
 import java.util.Date;
+import java.util.Set;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
@@ -29,13 +30,13 @@ public class ArticleItem {
     private String mArticleUrl;
     private String mArticleCommentUrl;
     private Date mUpdateDate;
+    private Set<String> attachments;
     
     public ArticleItem() {
     }
     
     public ArticleItem(int feedId, int id, String title, boolean isUnread, Date updateDate, String content,
-            String articleUrl, String articleCommentUrl) {
-        
+            String articleUrl, String articleCommentUrl, Set<String> attachments) {
         setId(id);
         setTitle(title);
         setFeedId(feedId);
@@ -44,14 +45,14 @@ public class ArticleItem {
         setArticleUrl(articleUrl);
         setArticleCommentUrl(articleCommentUrl);
         setContent(content);
+        setAttachments(attachments);
     }
     
     /*
      * Article-ID and Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
      */
     public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate, String content,
-            String articleUrl, String articleCommentUrl) {
-        
+            String articleUrl, String articleCommentUrl, Set<String> attachments) {
         setId(id);
         setTitle(title);
         setFeedId(feedId);
@@ -60,6 +61,7 @@ public class ArticleItem {
         setArticleUrl(articleUrl);
         setArticleCommentUrl(articleCommentUrl);
         setContent(content);
+        setAttachments(attachments);
     }
     
     public int getId() {
@@ -160,5 +162,13 @@ public class ArticleItem {
     
     public void setUpdateDate(Date mUpdateDate) {
         this.mUpdateDate = mUpdateDate;
+    }
+
+    public Set<String> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Set<String> attachments) {
+        this.attachments = attachments;
     }
 }
