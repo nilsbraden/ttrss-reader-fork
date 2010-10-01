@@ -21,8 +21,10 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -726,7 +728,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             String content = "";
             String articleUrl = null;
             String articleCommentUrl = null;
-            String attachments = "";
+            Set<String> attachments = new HashSet<String>();
             
             for (int i = 0; i < names.length(); i++) {
                 
@@ -747,22 +749,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 else if (names.getString(i).equals(COMMENT_URL_NAME))
                     articleCommentUrl = values.getString(i);
                 else if (names.getString(i).equals(ATTACHMENTS_NAME)) {
-                    Map<String, String> map = handleAttachments((JSONArray) values.get(i));
-                    if (map.size() > 0) {
-                        attachments += "<br>\n";
-                        for (String s : map.keySet()) {
-                            attachments += "Attachment " + s + ": <br><img src=\"" + map.get(s) + "\" /><br>\n";
-                        }
-                    }
+                    attachments = handleAttachments((JSONArray) values.get(i));
                 }
             }
             
-            if (!attachments.equals("")) {
-                content += attachments;
-            }
             Date date = new Date(new Long(updated + "000").longValue());
             
-            articleItem = new ArticleItem(realFeedId, id, title, isUnread, date, content, articleUrl, articleCommentUrl);
+            articleItem = new ArticleItem(realFeedId, id, title, isUnread, date, content, articleUrl, articleCommentUrl, attachments);
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: parseDataForArticle(...), threw JSONException";
@@ -841,8 +834,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         return categoryItem;
     }
     
-    public Map<String, String> handleAttachments(JSONArray array) {
-        Map<String, String> ret = new HashMap<String, String>();
+    public Set<String> handleAttachments(JSONArray array) {
+        Set<String> ret = new HashSet<String>();
         
         try {
             for (int j = 0; j < array.length(); j++) {
@@ -865,7 +858,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 
                 // Add only if both, id and url, are found
                 if (attId.length() > 0 && attUrl.length() > 0) {
-                    ret.put("attachment_" + attId, attUrl);
+                    ret.add(attUrl);
                 }
             }
         } catch (JSONException je) {

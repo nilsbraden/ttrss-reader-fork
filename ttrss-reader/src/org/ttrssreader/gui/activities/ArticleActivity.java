@@ -16,6 +16,7 @@
 package org.ttrssreader.gui.activities;
 
 import java.util.ArrayList;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -405,6 +406,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
                 String content = mArticleItem.getContent();
                 if (content == null) content = "";
                 
+                // Inject the specific code for attachments, <img> for images, http-link for Videos
+                content = injectAttachments(content, mArticleItem.getAttachments());
+                
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
                 webview.loadDataWithBaseURL(null, content, "text/html", "utf-8", "about:blank");
                 
@@ -426,6 +430,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
                         Log.i(Utils.TAG, "Article-Content is empty");
                     }
                 }
+                
             }
         } else {
             openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
@@ -438,6 +443,27 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         } else {
             setProgressBarIndeterminateVisibility(false);
         }
+    }
+    
+    private String injectAttachments(String content, Set<String> attachments) {
+        StringBuilder ret = new StringBuilder(content);
+        
+        for (String url : attachments) {
+            ret.append("<br>\n");
+            
+            String urlLowerCase = url.toLowerCase();
+            if (urlLowerCase.endsWith("mp4") || urlLowerCase.endsWith("3gp")) {
+                ret.append("<a href=\"");
+                ret.append(url);
+                ret.append("\">Play attached Video</a>");
+            } else {
+                ret.append("<img src=\"");
+                ret.append(url);
+                ret.append("\" /><br>\n");
+            }
+        }
+        
+        return ret.toString();
     }
     
     @Override

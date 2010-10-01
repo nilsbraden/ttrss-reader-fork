@@ -2,6 +2,13 @@
 
 = Changes =
 
+== Version 0.6 ==
+  * No more String-identifiers, everything migrated to int
+  * Most DB-Querys are no raw-querys anymore
+  * isOnline works but is not always handled correctly
+  * We can now display attached Videos in the built-in mediaplayer
+  * Minor bugs fixed
+
 == Version 0.5.12 (Bugfix-release) ==
   * Resolved Issue #23 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=23 Another FC while using tt-rss-reader])
   * Resolved Issue #24 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=24 Another FC while using tt-rss-reader])
