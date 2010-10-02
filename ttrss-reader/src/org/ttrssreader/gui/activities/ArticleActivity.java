@@ -451,11 +451,20 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         for (String url : attachments) {
             ret.append("<br>\n");
             
-            String urlLowerCase = url.toLowerCase();
-            if (urlLowerCase.endsWith("mp4") || urlLowerCase.endsWith("3gp")) {
+            String urlLow = url.toLowerCase();
+            
+            boolean media = false;
+            if (urlLow.endsWith("3gp")) media = true;
+            if (urlLow.endsWith("mp4")) media = true;
+            if (urlLow.endsWith("wav")) media = true;
+            if (urlLow.endsWith("mp3")) media = true;
+            if (urlLow.endsWith("ogg")) media = true;
+            if (urlLow.endsWith("m4a")) media = true;
+            
+            if (media) {
                 ret.append("<a href=\"");
                 ret.append(url);
-                ret.append("\">Play attached Video</a>");
+                ret.append("\">Play attached Media-File</a>");
             } else {
                 ret.append("<img src=\"");
                 ret.append(url);

@@ -24,6 +24,12 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+/**
+ * 
+ * Not entirely sure why this is called the "Controller", actually, in terms of MVC it isn't the controller. There isn't
+ * one in here. But it's called like that and I don't have a better name so we stay with it.
+ * 
+ */
 public class Controller {
     
     public final static String JSON_END_URL = "api/";
@@ -323,7 +329,7 @@ public class Controller {
             editor.putString(constant, string);
         } else if (o instanceof Integer) {
             int integer = (Integer) o;
-            editor.putString(constant, integer+"");
+            editor.putString(constant, integer + "");
         } else if (o instanceof Boolean) {
             boolean bool = (Boolean) o;
             editor.putBoolean(constant, bool);
