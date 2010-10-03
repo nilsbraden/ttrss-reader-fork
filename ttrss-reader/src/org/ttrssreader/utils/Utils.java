@@ -21,6 +21,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class Utils {
+
+    /**
+     * Supported extensions of multimedia files, only audio/video, no images.
+     */
+    public static final String[] MEDIA_EXTENSIONS = {"3gp", "mp4", "wav", "mp3", "ogg", "m4a"};
     
     /**
      * The TAG for Log-Output

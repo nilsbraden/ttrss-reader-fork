@@ -231,6 +231,8 @@ public class DataController {
                 mFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
                 mFeedsUpdated = System.currentTimeMillis();
                 
+                if (mFeeds == null) return null;
+                
                 DBHelper.getInstance().deleteFeeds();
                 for (Integer s : mFeeds.keySet()) {
                     DBHelper.getInstance().insertFeeds(mFeeds.get(s));
