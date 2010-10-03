@@ -90,6 +90,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         webview = (WebView) findViewById(R.id.webview);
         webview.getSettings().setJavaScriptEnabled(true);
         webview.getSettings().setBuiltInZoomControls(true);
+        webview.setWebViewClient(new MyWebViewClient());
         mGestureDetector = new GestureDetector(onGestureListener);
         findViewById(R.layout.articleitem);
         
@@ -454,12 +455,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
             String urlLow = url.toLowerCase();
             
             boolean media = false;
-            if (urlLow.endsWith("3gp")) media = true;
-            if (urlLow.endsWith("mp4")) media = true;
-            if (urlLow.endsWith("wav")) media = true;
-            if (urlLow.endsWith("mp3")) media = true;
-            if (urlLow.endsWith("ogg")) media = true;
-            if (urlLow.endsWith("m4a")) media = true;
+            for (String s : Utils.MEDIA_EXTENSIONS) {
+                if (urlLow.contains(s)) media = true;
+            }
             
             if (media) {
                 ret.append("<a href=\"");

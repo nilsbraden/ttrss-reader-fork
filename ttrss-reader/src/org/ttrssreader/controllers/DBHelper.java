@@ -1064,6 +1064,7 @@ public class DBHelper {
     
     private Set<String> parseAttachments(String att) {
         Set<String> ret = new HashSet<String>();
+        if (att == null) return ret;
         
         for (String s : att.split(";")) {
             ret.add(s);
@@ -1073,6 +1074,7 @@ public class DBHelper {
     }
     
     private String parseAttachmentSet(Set<String> att) {
+        if (att == null) return "";
         StringBuilder ret = new StringBuilder();
         
         for (String s : att) {
