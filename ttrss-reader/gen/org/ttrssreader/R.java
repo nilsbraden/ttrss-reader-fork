@@ -40,6 +40,7 @@ public final class R {
         public static final int ErrorActivity_ErrorDefault=0x7f060007;
         public static final int ErrorActivity_ErrorMessage=0x7f060006;
         public static final int ErrorActivity_ShowPreferencesBtn=0x7f060008;
+        public static final int MediaView=0x7f06000a;
         public static final int webview=0x7f060004;
         public static final int webview_swipe_text=0x7f060005;
     }
@@ -50,7 +51,8 @@ public final class R {
         public static final int error=0x7f030003;
         public static final int feedheadlinelist=0x7f030004;
         public static final int feedlist=0x7f030005;
-        public static final int preferences=0x7f030006;
+        public static final int media=0x7f030006;
+        public static final int preferences=0x7f030007;
     }
     public static final class string {
         public static final int AboutActivity_CloseBtn=0x7f050003;

@@ -15,14 +15,21 @@
 
 package org.ttrssreader.gui.activities;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.ttrssreader.utils.AsyncDownloader;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -45,22 +52,26 @@ public class MyWebViewClient extends WebViewClient {
         }
         
         if (media) {
-            
             final CharSequence[] items = {"Display in Mediaplayer", "Download"};
 
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("What shall we do?");
             builder.setItems(items, new DialogInterface.OnClickListener() {
+                
                 public void onClick(DialogInterface dialog, int item) {
+                    Intent i = new Intent(context, MediaPlayerActivity.class);
+                    i.putExtra(MediaPlayerActivity.URL, url);
+
                     switch (item) {
                         case 0:
                             Log.e(Utils.TAG, "Displaying file in mediaplayer: " + url);
-                            displayFile(url);
+                            context.startActivity(i);
                             break;
+                            
                         case 1:
-                            Log.e(Utils.TAG, "Downloading not yet implemented...");
                             downloadFile(url);
                             break;
+                            
                         default:
                             Log.e(Utils.TAG, "Doing nothing, but why is that?? Item: " + item);
                             break;
@@ -69,37 +80,36 @@ public class MyWebViewClient extends WebViewClient {
             });
             AlertDialog alert = builder.create();
             alert.show();
-
         } else {
-            
             Uri uri = Uri.parse(url);
             context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
-            
         }
         
         return true;
     }
     
-    private void displayFile(String url) {
+    private void downloadFile(String url) {
         
-        // TODO: MediaPlayer in new Intent? is in background atm...
-        MediaPlayer mp = new MediaPlayer();
+        if (!externalStorageState()) {
+            Log.e(Utils.TAG, "External Storage not available, skipping download...");
+            return;
+        }
+        
         try {
-            mp.setDataSource(url);
-            mp.prepare();
-            mp.start();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+            new AsyncDownloader().execute(new URL(url));
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+        
     }
-
-    private void downloadFile(String url) {
-        // TODO: implement
+    
+    private boolean externalStorageState() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        } else {
+            return false;
+        }
     }
+    
 }
