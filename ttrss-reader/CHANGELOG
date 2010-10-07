@@ -2,6 +2,10 @@
 
 = Changes =
 
+== Version 0.6.1 ==
+  * Passwords are now allowed to contain special characters
+  * Attached Audio/Video files can now be downloaded or directly played
+
 == Version 0.6 ==
   * No more String-identifiers, everything migrated to int
   * Most DB-Querys are no raw-querys anymore

@@ -1,43 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.ttrssreader"
-	android:versionName="0.6" android:versionCode="600">
-	
-	<application android:icon="@drawable/icon"
-		android:label="@string/ApplicationName"
-		android:description="@string/ApplicationDescription">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.ttrssreader"
+    android:versionName="0.6.1"
+    android:versionCode="601">
 
-		<activity android:name=".gui.activities.CategoryActivity"
-			android:label="@string/ApplicationName">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-		</activity>
+    <application
+        android:icon="@drawable/icon"
+        android:label="@string/ApplicationName"
+        android:description="@string/ApplicationDescription">
 
-		<activity android:name=".gui.activities.FeedListActivity" />
-		<activity android:name=".gui.activities.FeedHeadlineListActivity" />
-		<activity android:name=".gui.activities.ArticleActivity" />
-		<activity android:name=".gui.activities.PreferencesActivity" />
-        <activity android:name=".gui.activities.MediaPlayerActivity" />
-		<activity android:name=".gui.activities.ErrorActivity" />
-		<activity android:name=".gui.activities.AboutActivity"
-			android:theme="@android:style/Theme.Dialog"
-			android:label="@string/AboutActivity.Title" />
-	</application>
+        <activity
+            android:name=".gui.activities.CategoryActivity"
+            android:label="@string/ApplicationName">
+            <intent-filter>
+                <action
+                    android:name="android.intent.action.MAIN" />
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
-	<uses-sdk android:minSdkVersion="3" />
-	
-	<!-- Check connectivity -->
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	
-	<!-- Download -->	
-	<uses-permission android:name="android.permission.INTERNET" />
+        <activity
+            android:name=".gui.activities.FeedListActivity" />
+        <activity
+            android:name=".gui.activities.FeedHeadlineListActivity" />
+        <activity
+            android:name=".gui.activities.ArticleActivity" />
+        <activity
+            android:name=".gui.activities.PreferencesActivity" />
+        <activity
+            android:name=".gui.activities.MediaPlayerActivity" />
+        <activity
+            android:name=".gui.activities.ErrorActivity" />
+        <activity
+            android:name=".gui.activities.AboutActivity"
+            android:theme="@android:style/Theme.Dialog"
+            android:label="@string/AboutActivity.Title" />
+    </application>
 
-	<!-- Save articles to SDCard -->	
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	
-	<!-- Vibrate on last article/feed -->
-	<uses-permission android:name="android.permission.VIBRATE" />
+    <uses-sdk
+        android:minSdkVersion="3" />
+
+    <!-- Check connectivity -->
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Download -->
+    <uses-permission
+        android:name="android.permission.INTERNET" />
+
+    <!-- Save articles to SDCard -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Vibrate on last article/feed -->
+    <uses-permission
+        android:name="android.permission.VIBRATE" />
 
 </manifest> 
