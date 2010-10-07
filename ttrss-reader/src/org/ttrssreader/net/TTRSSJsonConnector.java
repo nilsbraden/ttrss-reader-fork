@@ -37,6 +37,7 @@ import org.json.JSONObject;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
+import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
@@ -103,7 +104,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         try {
             response = httpclient.execute(httpPost);
             
-            Log.d(Utils.TAG, "Requesting URL: " + url.replace(mPassword, "*") + " (took "
+            Log.d(Utils.TAG, "Requesting URL: " + url /*url.replace(mPassword, "*")*/ + " (took "
                     + (System.currentTimeMillis() - start) + " ms)");
             
             HttpEntity entity = response.getEntity();
@@ -195,7 +196,56 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         mSessionId = null;
         
         String url = mServerUrl + String.format(OP_LOGIN, mUserName, mPassword);
+        TTRSSJsonResult jsonResult = getJSONResponse(url);
         
+        if (jsonResult == null) {
+            return result;
+        }
+        
+        if (!mHasLastError) {
+            
+            int i = 0;
+            boolean stop = false;
+            
+            try {
+                while ((i < jsonResult.getNames().length()) && (!stop)) {
+                    
+                    if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
+                        stop = true;
+                        mSessionId = jsonResult.getValues().getString(i);
+                    } else {
+                        i++;
+                    }
+                    
+                }
+            } catch (JSONException e) {
+                result = false;
+                mHasLastError = true;
+                mLastError = e.getMessage() + ", Method: login(String url), threw JSONException";
+                e.printStackTrace();
+            }
+            
+        } else {
+            result = false;
+        }
+        
+        if (result == false) {
+            mHasLastError = false;
+            mLastError = "";
+            result = loginBase64();
+        }
+        
+        return result;
+    }
+    
+    private boolean loginBase64() {
+        boolean result = true;
+        mSessionId = null;
+        
+        byte[] bytes = mPassword.getBytes();
+        String mPasswordEncoded = Base64.encodeBytes(bytes);
+        
+        String url = mServerUrl + String.format(OP_LOGIN, mUserName, mPasswordEncoded);
         TTRSSJsonResult jsonResult = getJSONResponse(url);
         
         if (jsonResult == null) {
@@ -550,10 +600,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         }
         
         String url = mServerUrl + String.format(OP_GET_COUNTERS, mSessionId);
-        
         JSONArray jsonResult = getJSONResponseAsArray(url);
-        
-        JSONObject object;
         
         if (jsonResult == null) {
             return ret;
@@ -562,7 +609,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         try {
             // Parse result-array
             for (int i = 0; i < jsonResult.length(); i++) {
-                object = jsonResult.getJSONObject(i);
+                JSONObject object = jsonResult.getJSONObject(i);
                 
                 JSONArray names = object.names();
                 JSONArray values = object.toJSONArray(names);
