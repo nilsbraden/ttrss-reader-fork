@@ -198,11 +198,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         String url = mServerUrl + String.format(OP_LOGIN, mUserName, mPassword);
         TTRSSJsonResult jsonResult = getJSONResponse(url);
         
-        if (jsonResult == null) {
-            return result;
-        }
-        
-        if (!mHasLastError) {
+        if (!mHasLastError || jsonResult != null) {
             
             int i = 0;
             boolean stop = false;
@@ -229,7 +225,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             result = false;
         }
         
-        if (result == false) {
+        if (!result) {
             mHasLastError = false;
             mLastError = "";
             result = loginBase64();
