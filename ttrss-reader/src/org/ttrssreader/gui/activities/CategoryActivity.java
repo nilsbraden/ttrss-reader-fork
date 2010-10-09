@@ -237,8 +237,14 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         
-        refresher.cancel(true);
-        updater.cancel(true);
+        if (refresher != null) {
+            refresher.cancel(true);
+            refresher = null;
+        }
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
         
         startActivityForResult(i, ACTIVITY_SHOW_ERROR);
     }
@@ -273,8 +279,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         }
         
         if (mAdapter.getTotalUnread() >= 0) {
-            this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread()
-                    + ")");
+            this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread() + ")");
         }
         
         if (updater != null) {
