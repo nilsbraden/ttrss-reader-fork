@@ -4,6 +4,8 @@
 
 == Version 0.6.2 (Bugfix-release) ==
   * Fixed NPE in CategoryActivity
+  * Added Update-Check in main-menu
+  * Resolved Licensing issues
 
 == Version 0.6.1 ==
   * Passwords are now allowed to contain special characters
@@ -20,6 +22,7 @@
   * Resolved Issue #23 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=23 Another FC while using tt-rss-reader])
   * Resolved Issue #24 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=24 Another FC while using tt-rss-reader])
   * Resolved Attachments not beeing fetched properly
+  * Resolved FC with empty articles
   * Stability improvements.
 
 == Version 0.5.11 (Bugfix-release) ==
