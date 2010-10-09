@@ -1,7 +1,7 @@
 /*
  * Tiny Tiny RSS Reader for Android
  * 
- * Copyright (C) 2009 J. Devauchelle and contributors.
+ * Copyright (C) 2010 N. Braden and contributors.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,13 +19,25 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.params.HttpParams;
+import org.ttrssreader.gui.activities.AboutActivity;
+import org.ttrssreader.net.HttpClientFactory;
+import android.app.Activity;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.util.Log;
 
 public class Utils {
-
+    
     /**
      * Supported extensions of multimedia files, only audio/video, no images.
      */
-    public static final String[] MEDIA_EXTENSIONS = {"3gp", "mp4", "wav", "mp3", "ogg", "m4a"};
+    public static final String[] MEDIA_EXTENSIONS = { "3gp", "mp4", "wav", "mp3", "ogg", "m4a" };
     
     /**
      * The TAG for Log-Output
@@ -52,6 +64,9 @@ public class Utils {
      */
     public static final String SDCARD_PATH = "/Android/data/org.ttrssreader/files/";
     
+    private static final String UPDATE_MATCH = "Current Version: <strong>";
+    private static final String UPDATE_MATCH_END = "</strong>";
+    
     public static String convertStreamToString(InputStream is) {
         /*
          * To convert the InputStream to String we use the BufferedReader.readLine()
@@ -77,6 +92,63 @@ public class Utils {
             }
         }
         return sb.toString();
+    }
+    
+    /**
+     * Checks the project-page for a version string not matching the current version. Doesn't check if the version is
+     * older or newer, just looks for the difference.
+     * 
+     * @param a - The Activity to retrieve the current version
+     * @return true if there is an update available
+     */
+    public static boolean newVersionAvailable(Activity a) {
+        String thisVersion = getVersion(a);
+        String remoteVersion = "";
+        
+        String html = "";
+        String url = "https://code.google.com/p/ttrss-reader-fork/";
+        HttpPost httpPost = new HttpPost(url);
+        HttpParams httpParams = httpPost.getParams();
+        HttpClient httpclient = HttpClientFactory.createInstance(httpParams);
+        try {
+            HttpResponse response = httpclient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                InputStream instream = entity.getContent();
+                html = Utils.convertStreamToString(instream);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        int start = html.indexOf(UPDATE_MATCH) + UPDATE_MATCH.length();
+        int end = html.indexOf(UPDATE_MATCH_END, start);
+        
+        remoteVersion = html.substring(start, end);
+        
+        Log.d(TAG, "Local Version: " + thisVersion + " // Remote Version: " + remoteVersion);
+        Log.d(TAG, (thisVersion.equals(remoteVersion) ? " (no Update)" : " (Updatable)"));
+        
+        return !(thisVersion.equals(remoteVersion));
+    }
+    
+    /**
+     * Retrieves the packaged version of the application
+     * 
+     * @param a - The Activity to retrieve the current version
+     * @return the version-string
+     */
+    public static String getVersion(Activity a) {
+        String result = "";
+        try {
+            PackageManager manager = a.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(a.getPackageName(), 0);
+            result = info.versionName;
+        } catch (NameNotFoundException e) {
+            Log.w(AboutActivity.class.toString(), "Unable to get application version: " + e.getMessage());
+            result = "";
+        }
+        return result;
     }
     
 }

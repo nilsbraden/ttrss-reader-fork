@@ -1,7 +1,7 @@
 /*
  * Tiny Tiny RSS Reader for Android
  * 
- * Copyright (C) 2009 J. Devauchelle and contributors.
+ * Copyright (C) 2010 N. Braden and contributors.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,6 +32,7 @@ import org.ttrssreader.utils.ExternalStorageReceiver;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.AsyncTask.Status;
@@ -41,6 +42,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
     
@@ -51,6 +53,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private static final int MENU_SHOW_ABOUT = Menu.FIRST + 2;
     private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
     private static final int MENU_MARK_ALL_READ = Menu.FIRST + 4;
+    private static final int MENU_GET_UPDATE = Menu.FIRST + 5;
     
     private ListView mCategoryListView;
     private CategoryListAdapter mAdapter = null;
@@ -177,6 +180,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         item = menu.add(0, MENU_SHOW_ABOUT, 0, R.string.Main_ShowAboutMenu);
         item.setIcon(R.drawable.about32);
         
+        item = menu.add(0, MENU_GET_UPDATE, 0, "Get Update!");
+        
         return true;
     }
     
@@ -197,6 +202,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
                 return true;
             case MENU_SHOW_ABOUT:
                 openAboutDialog();
+                return true;
+            case MENU_GET_UPDATE:
+                checkForNewVersion();
                 return true;
         }
         
@@ -219,6 +227,17 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private void openAboutDialog() {
         Intent i = new Intent(this, AboutActivity.class);
         startActivity(i);
+    }
+    
+    private void checkForNewVersion() {
+        boolean update = Utils.newVersionAvailable(this);
+        if (update) {
+            Uri uri = Uri.parse("https://code.google.com/p/ttrss-reader-fork/downloads/list");
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
+        } else {
+            Toast toast = Toast.makeText(this, "No Update available. Sry.", Toast.LENGTH_SHORT);
+            toast.show();
+        }
     }
     
     private void displayOnlyUnreadSwitch() {
