@@ -24,33 +24,58 @@ import android.util.Log;
 public class Constants {
     
     // Connection
-    public static String CONNECTION_URL = "ConnectionUrlPreference";
-    public static String CONNECTION_USERNAME = "ConnectionUsernamePreference";
-    public static String CONNECTION_PASSWORD = "ConnectionPasswordPreference";
-    public static String CONNECTION_TRUST_ALL_SSL = "ConnectionSSLPreference";
-    public static String CONNECTION_USE_KEYSTORE = "ConnectionUseKeystorePreference";
-    public static String CONNECTION_KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
+    public static String URL = "ConnectionUrlPreference";
+    public static String USERNAME = "ConnectionUsernamePreference";
+    public static String PASSWORD = "ConnectionPasswordPreference";
+    public static String TRUST_ALL_SSL = "ConnectionSSLPreference";
+    public static String USE_KEYSTORE = "ConnectionUseKeystorePreference";
+    public static String KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
+    // Connection Default Values
+    public static String URL_DEFAULT = "http://localhost/";
+    public static String USERNAME_DEFAULT = "";
+    public static String PASSWORD_DEFAULT = "";
+    public static boolean TRUST_ALL_SSL_DEFAULT = false;
+    public static boolean USE_KEYSTORE_DEFAULT = false;
+    public static String KEYSTORE_PASSWORD_DEFAULT = "";
     
     // Usage
-    public static String USAGE_AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
-    public static String USAGE_OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
-    public static String USAGE_UPDATE_UNREAD_ON_STARTUP = "UsageUpdateArticlesOnStartupPreference";
-    public static String USAGE_REFRESH_SUB_DATA = "UsageRefreshSubDataPreference";
-    public static String USAGE_USE_VOLUME_KEYS = "UsageUseVolumeKeysPreference";
-    public static String USAGE_VIBRATE_ON_LAST_ARTICLE = "UsageVibrateOnLastArticlePreference";
-    public static String USAGE_WORK_OFFLINE = "DisplayWorkOfflinePreference";
+    public static String AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
+    public static String OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
+    public static String UPDATE_UNREAD_ON_STARTUP = "UsageUpdateArticlesOnStartupPreference";
+    public static String REFRESH_SUB_DATA = "UsageRefreshSubDataPreference";
+    public static String USE_VOLUME_KEYS = "UsageUseVolumeKeysPreference";
+    public static String VIBRATE_ON_LAST_ARTICLE = "UsageVibrateOnLastArticlePreference";
+    public static String WORK_OFFLINE = "DisplayWorkOfflinePreference";
+    // Usage Default Values
+    public static boolean AUTOMATIC_MARK_READ_DEFAULT = false;
+    public static boolean OPEN_URL_EMPTY_ARTICLE_DEFAULT = false;
+    public static boolean UPDATE_UNREAD_ON_STARTUP_DEFAULT = false;
+    public static boolean REFRESH_SUB_DATA_DEFAULT = false;
+    public static boolean USE_VOLUME_KEYS_DEFAULT = false;
+    public static boolean VIBRATE_ON_LAST_ARTICLE_DEFAULT = false;
+    public static boolean WORK_OFFLINE_DEFAULT = false;
     
     // Display
-    public static String DISPLAY_SHOW_VIRTUAL = "DisplayShowVirtualPreference";
-    public static String DISPLAY_SHOW_VIRTUAL_UNREAD = "DisplayShowVirtualUnreadPreference";
-    public static String DISPLAY_ALWAYS_FULL_REFRESH = "DisplayAlwaysFullRefreshPreference";
-    public static String DISPLAY_USE_SWIPE = "DisplayUseSwipePreference";
-    public static String DISPLAY_ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
-    public static String DISPLAY_ARTICLE_LIMIT = "DisplayArticleLimitPreference";
+    public static String SHOW_VIRTUAL = "DisplayShowVirtualPreference";
+    public static String SHOW_VIRTUAL_UNREAD = "DisplayShowVirtualUnreadPreference";
+    public static String ALWAYS_FULL_REFRESH = "DisplayAlwaysFullRefreshPreference";
+    public static String USE_SWIPE = "DisplayUseSwipePreference";
+    public static String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
+    public static String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
+    // Display Default Values
+    public static boolean SHOW_VIRTUAL_DEFAULT = true;
+    public static boolean SHOW_VIRTUAL_UNREAD_DEFAULT = false;
+    public static boolean ALWAYS_FULL_REFRESH_DEFAULT = false;
+    public static boolean USE_SWIPE_DEFAULT = true;
+    public static boolean ONLY_UNREAD_DEFAULT = false;
+    public static String ARTICLE_LIMIT_DEFAULT = "100";
     
     // Internal
     public static String DATABASE_VERSION = "DatabaseVersion";
     public static String LAST_UPDATE_TIME = "LastUpdateTime";
+    // Internal Default Values
+    public static String DATABASE_VERSION_DEFAULT = "1";
+    public static String LAST_UPDATE_TIME_DEFAULT = "1";
     
     /*
      * Returns a list of the values of all constants in this class. Allows for easier watching the changes in the

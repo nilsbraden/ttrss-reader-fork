@@ -13,10 +13,11 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.gui.activities;
+package org.ttrssreader.model.article;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.ttrssreader.gui.activities.MediaPlayerActivity;
 import org.ttrssreader.utils.AsyncDownloader;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
@@ -34,7 +35,7 @@ public class MyWebViewClient extends WebViewClient {
     private Context context;
     
     public boolean shouldOverrideUrlLoading(WebView view, final String url) {
-
+        
         Log.e(Utils.TAG, "Link clicked: " + url);
         context = view.getContext();
         boolean media = false;
@@ -47,8 +48,8 @@ public class MyWebViewClient extends WebViewClient {
         }
         
         if (media) {
-            final CharSequence[] items = {"Display in Mediaplayer", "Download"};
-
+            final CharSequence[] items = { "Display in Mediaplayer", "Download" };
+            
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("What shall we do?");
             builder.setItems(items, new DialogInterface.OnClickListener() {
@@ -56,17 +57,17 @@ public class MyWebViewClient extends WebViewClient {
                 public void onClick(DialogInterface dialog, int item) {
                     Intent i = new Intent(context, MediaPlayerActivity.class);
                     i.putExtra(MediaPlayerActivity.URL, url);
-
+                    
                     switch (item) {
                         case 0:
                             Log.e(Utils.TAG, "Displaying file in mediaplayer: " + url);
                             context.startActivity(i);
                             break;
-                            
+                        
                         case 1:
                             downloadFile(url);
                             break;
-                            
+                        
                         default:
                             Log.e(Utils.TAG, "Doing nothing, but why is that?? Item: " + item);
                             break;

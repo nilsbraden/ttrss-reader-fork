@@ -51,7 +51,7 @@ public class DataController {
     private List<CategoryItem> mVirtCategories;
     private List<CategoryItem> mCategories;
     
-     private ConnectivityManager cm;
+    private ConnectivityManager cm;
     
     public static DataController getInstance() {
         synchronized (mutex) {
@@ -126,13 +126,14 @@ public class DataController {
             while (info.isConnectedOrConnecting() && !info.isConnected()) {
                 try {
                     Log.d(Utils.TAG, "isOnline: Waiting for " + wait + " seconds...");
-                    wait+=100;
+                    wait += 100;
                     wait(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 
-                if (wait > 2000) break;
+                if (wait > 2000)
+                    break;
             }
         }
         
@@ -160,8 +161,7 @@ public class DataController {
     }
     
     @SuppressWarnings("unchecked")
-    public synchronized List<ArticleItem> retrieveHeadlines(int feedId, boolean displayOnlyUnread,
-            boolean needFullRefresh) {
+    public synchronized List<ArticleItem> retrieveHeadlines(int feedId, boolean displayOnlyUnread, boolean needFullRefresh) {
         List<ArticleItem> result = null;
         if (mArticles == null)
             mArticles = new HashMap<Integer, List<ArticleItem>>();
@@ -231,7 +231,8 @@ public class DataController {
                 mFeeds = Controller.getInstance().getTTRSSConnector().getSubsribedFeeds();
                 mFeedsUpdated = System.currentTimeMillis();
                 
-                if (mFeeds == null) return null;
+                if (mFeeds == null)
+                    return null;
                 
                 DBHelper.getInstance().deleteFeeds();
                 for (Integer s : mFeeds.keySet()) {
