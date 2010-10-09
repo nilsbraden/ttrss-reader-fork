@@ -2,6 +2,10 @@
 
 = Changes =
 
+== Version 0.6.3 ==
+  * Refactored the settings-code
+  * Don't request Headlines and Content of Articles seperated, just fetching the full article now
+
 == Version 0.6.2 (Bugfix-release) ==
   * Fixed NPE in CategoryActivity
   * Added Update-Check in main-menu
@@ -100,8 +104,9 @@
   * Automatically leave FeedHeadlineView if there are no items (see FeedHeadlineListActivity.java:207)
 
 = TODO =
-  * Automatically open Article if only one unread article in list
   * only refresh feedlist if &op=getConfig returns a new number of feeds
   * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=9 Issue #9 (see all Feeds below their categories on main-view)]
   * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=10 Issue #10 (Toggle Star/Unstar)]
   * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=18 Issue #18 (Favicon for the feedlist and the articlelist)]
+  * Note to self: Paralleles Abrufen der selben Information von Updater und Refresher behandeln.
+  * Note to self: Mehr offline erlauben, Reader stürzt zu oft ab wenn die Verbindung weg ist.

@@ -110,14 +110,14 @@ public class DataController {
     
     private boolean isOnline() {
         if (Controller.getInstance().isWorkOffline()) {
-            Log.i(Utils.TAG, "isOnline: Config has isWorkOffline activated...");
+//            Log.i(Utils.TAG, "isOnline: Config has isWorkOffline activated...");
             return false;
         }
         
         NetworkInfo info = cm.getActiveNetworkInfo();
         
         if (info == null) {
-            Log.i(Utils.TAG, "isOnline: No network available...");
+//            Log.i(Utils.TAG, "isOnline: No network available...");
             return false;
         }
         
@@ -125,7 +125,7 @@ public class DataController {
             int wait = 0;
             while (info.isConnectedOrConnecting() && !info.isConnected()) {
                 try {
-                    Log.d(Utils.TAG, "isOnline: Waiting for " + wait + " seconds...");
+//                    Log.d(Utils.TAG, "isOnline: Waiting for " + wait + " seconds...");
                     wait += 100;
                     wait(100);
                 } catch (InterruptedException e) {
@@ -137,7 +137,7 @@ public class DataController {
             }
         }
         
-        Log.i(Utils.TAG, "isOnline: Network available, State: " + info.isConnected());
+//        Log.i(Utils.TAG, "isOnline: Network available, State: " + info.isConnected());
         return info.isConnected();
     }
     
