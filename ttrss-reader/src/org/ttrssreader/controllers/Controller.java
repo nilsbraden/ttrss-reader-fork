@@ -77,38 +77,38 @@ public class Controller {
         
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         
-        // Connection
-        url = prefs.getString(Constants.CONNECTION_URL, "http://localhost/");
+        // Connection @formatter:off
+        url = prefs.getString(Constants.URL, "http://localhost/");
         if (!url.endsWith(JSON_END_URL)) {
             if (!url.endsWith("/")) {
                 url += "/";
             }
             url += JSON_END_URL;
         }
-        String userName = prefs.getString(Constants.CONNECTION_USERNAME, "");
-        String password = prefs.getString(Constants.CONNECTION_PASSWORD, "");
-        mTrustAllSsl = prefs.getBoolean(Constants.CONNECTION_TRUST_ALL_SSL, false);
-        mUseKeystore = prefs.getBoolean(Constants.CONNECTION_USE_KEYSTORE, false);
-        mKeystorePassword = prefs.getString(Constants.CONNECTION_KEYSTORE_PASSWORD, "");
+        String userName = prefs.getString(Constants.USERNAME, Constants.USERNAME_DEFAULT);
+        String password = prefs.getString(Constants.PASSWORD, Constants.PASSWORD_DEFAULT);
+        mTrustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
+        mUseKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
+        mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.KEYSTORE_PASSWORD_DEFAULT);
         mTTRSSConnector = new TTRSSJsonConnector(url, userName, password);
         
         // Usage
-        mAutomaticMarkRead = prefs.getBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);
-        mOpenUrlEmptyArticle = prefs.getBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);
-        mUpdateUnreadOnStartup = prefs.getBoolean(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, false);
-        mRefreshSubData = prefs.getBoolean(Constants.USAGE_REFRESH_SUB_DATA, false);
-        mUseVolumeKeys = prefs.getBoolean(Constants.USAGE_USE_VOLUME_KEYS, true);
-        mVibrateOnLastArticle = prefs.getBoolean(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE, true);
-        mWorkOffline = prefs.getBoolean(Constants.USAGE_WORK_OFFLINE, false);
+        mAutomaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
+        mOpenUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE, Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
+        mUpdateUnreadOnStartup = prefs.getBoolean(Constants.UPDATE_UNREAD_ON_STARTUP, Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
+        mRefreshSubData = prefs.getBoolean(Constants.REFRESH_SUB_DATA, Constants.REFRESH_SUB_DATA_DEFAULT);
+        mUseVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
+        mVibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE, Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
+        mWorkOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
         
         // Display
-        mDisplayVirtuals = prefs.getBoolean(Constants.DISPLAY_SHOW_VIRTUAL, true);
-        mDisplayUnreadInVirtualFeeds = prefs.getBoolean(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD, false);
-        mAlwaysFullRefresh = prefs.getBoolean(Constants.DISPLAY_ALWAYS_FULL_REFRESH, false);
-        mUseSwipe = prefs.getBoolean(Constants.DISPLAY_USE_SWIPE, true);
-        mDisplayOnlyUnread = prefs.getBoolean(Constants.DISPLAY_ONLY_UNREAD, false);
+        mDisplayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
+        mDisplayUnreadInVirtualFeeds = prefs.getBoolean(Constants.SHOW_VIRTUAL_UNREAD, Constants.SHOW_VIRTUAL_UNREAD_DEFAULT);
+        mAlwaysFullRefresh = prefs.getBoolean(Constants.ALWAYS_FULL_REFRESH, Constants.ALWAYS_FULL_REFRESH_DEFAULT);
+        mUseSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
+        mDisplayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
         try {
-            mArticleLimit = Integer.parseInt(prefs.getString(Constants.DISPLAY_ARTICLE_LIMIT, "100"));
+            mArticleLimit = Integer.parseInt(prefs.getString(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT));
         } catch (ClassCastException e) {
             setArticleLimit(100);
             Log.e(Utils.TAG, "DISPLAY_ARTICLE_LIMIT was not an integer value, using default value: " + mArticleLimit);
@@ -116,17 +116,18 @@ public class Controller {
         
         // Internal Data
         try {
-            mDatabaseVersion = Integer.parseInt(prefs.getString(Constants.DATABASE_VERSION, "0"));
+            mDatabaseVersion = Integer.parseInt(prefs.getString(Constants.DATABASE_VERSION, Constants.DATABASE_VERSION_DEFAULT));
         } catch (ClassCastException e) {
             setDatabaseVersion(0);
             Log.e(Utils.TAG, "DATABASE_VERSION was not an integer value");
         }
         try {
-            mLastUpdateTime = Long.parseLong(prefs.getString(Constants.LAST_UPDATE_TIME, "0"));
+            mLastUpdateTime = Long.parseLong(prefs.getString(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT));
         } catch (ClassCastException e) {
             setLastUpdateTime(new Long(0));
             Log.e(Utils.TAG, "LAST_UPDATE_TIME was not a valid time value");
         }
+        // @formatter:on
         
     }
     
@@ -158,7 +159,7 @@ public class Controller {
     }
     
     public void setTrustAllSsl(boolean trustAllSsl) {
-        put(Constants.CONNECTION_TRUST_ALL_SSL, trustAllSsl);
+        put(Constants.TRUST_ALL_SSL, trustAllSsl);
         this.mTrustAllSsl = trustAllSsl;
     }
     
@@ -167,7 +168,7 @@ public class Controller {
     }
     
     public void setUseKeystore(boolean useKeystore) {
-        put(Constants.CONNECTION_USE_KEYSTORE, useKeystore);
+        put(Constants.USE_KEYSTORE, useKeystore);
         this.mUseKeystore = useKeystore;
     }
     
@@ -176,7 +177,7 @@ public class Controller {
     }
     
     public void setKeystorePassword(String keystorePassword) {
-        put(Constants.CONNECTION_KEYSTORE_PASSWORD, keystorePassword);
+        put(Constants.KEYSTORE_PASSWORD, keystorePassword);
         this.mKeystorePassword = keystorePassword;
     }
     
@@ -185,7 +186,7 @@ public class Controller {
     }
     
     public void setAutomaticMarkRead(boolean automaticMarkRead) {
-        put(Constants.USAGE_AUTOMATIC_MARK_READ, automaticMarkRead);
+        put(Constants.AUTOMATIC_MARK_READ, automaticMarkRead);
         this.mAutomaticMarkRead = automaticMarkRead;
     }
     
@@ -194,7 +195,7 @@ public class Controller {
     }
     
     public void setOpenUrlEmptyArticle(boolean openUrlEmptyArticle) {
-        put(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
+        put(Constants.OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
         this.mOpenUrlEmptyArticle = openUrlEmptyArticle;
     }
     
@@ -203,7 +204,7 @@ public class Controller {
     }
     
     public void setUpdateUnreadOnStartup(boolean mUpdateUnreadOnStartup) {
-        put(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, mUpdateUnreadOnStartup);
+        put(Constants.UPDATE_UNREAD_ON_STARTUP, mUpdateUnreadOnStartup);
         this.mUpdateUnreadOnStartup = mUpdateUnreadOnStartup;
     }
     
@@ -212,7 +213,7 @@ public class Controller {
     }
     
     public void setRefreshSubData(boolean refreshSubData) {
-        put(Constants.USAGE_REFRESH_SUB_DATA, refreshSubData);
+        put(Constants.REFRESH_SUB_DATA, refreshSubData);
         this.mRefreshSubData = refreshSubData;
     }
     
@@ -221,7 +222,7 @@ public class Controller {
     }
     
     public void setUseVolumeKeys(boolean useVolumeKeys) {
-        put(Constants.USAGE_USE_VOLUME_KEYS, useVolumeKeys);
+        put(Constants.USE_VOLUME_KEYS, useVolumeKeys);
         this.mUseVolumeKeys = useVolumeKeys;
     }
     
@@ -230,7 +231,7 @@ public class Controller {
     }
     
     public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
-        put(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE, vibrateOnLastArticle);
+        put(Constants.VIBRATE_ON_LAST_ARTICLE, vibrateOnLastArticle);
         this.mVibrateOnLastArticle = vibrateOnLastArticle;
     }
     
@@ -239,7 +240,7 @@ public class Controller {
     }
     
     public void setWorkOffline(boolean workOffline) {
-        put(Constants.USAGE_WORK_OFFLINE, workOffline);
+        put(Constants.WORK_OFFLINE, workOffline);
         this.mWorkOffline = workOffline;
     }
     
@@ -250,7 +251,7 @@ public class Controller {
     }
     
     public void setDisplayVirtuals(boolean displayVirtuals) {
-        put(Constants.DISPLAY_SHOW_VIRTUAL, displayVirtuals);
+        put(Constants.SHOW_VIRTUAL, displayVirtuals);
         this.mDisplayVirtuals = displayVirtuals;
     }
     
@@ -259,7 +260,7 @@ public class Controller {
     }
     
     public void setDisplayUnreadInVirtualFeeds(boolean displayUnreadInVirtualFeeds) {
-        put(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD, displayUnreadInVirtualFeeds);
+        put(Constants.SHOW_VIRTUAL_UNREAD, displayUnreadInVirtualFeeds);
         this.mDisplayUnreadInVirtualFeeds = displayUnreadInVirtualFeeds;
     }
     
@@ -268,7 +269,7 @@ public class Controller {
     }
     
     public void setAlwaysFullRefresh(boolean alwaysFullRefresh) {
-        put(Constants.DISPLAY_ALWAYS_FULL_REFRESH, alwaysFullRefresh);
+        put(Constants.ALWAYS_FULL_REFRESH, alwaysFullRefresh);
         this.mAlwaysFullRefresh = alwaysFullRefresh;
     }
     
@@ -277,7 +278,7 @@ public class Controller {
     }
     
     public void setUseSwipe(boolean useSwipe) {
-        put(Constants.DISPLAY_USE_SWIPE, useSwipe);
+        put(Constants.USE_SWIPE, useSwipe);
         this.mUseSwipe = useSwipe;
     }
     
@@ -286,7 +287,7 @@ public class Controller {
     }
     
     public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
-        put(Constants.DISPLAY_ONLY_UNREAD, displayOnlyUnread);
+        put(Constants.ONLY_UNREAD, displayOnlyUnread);
         this.mDisplayOnlyUnread = displayOnlyUnread;
     }
     
@@ -295,7 +296,7 @@ public class Controller {
     }
     
     public void setArticleLimit(int articleLimit) {
-        put(Constants.DISPLAY_ARTICLE_LIMIT, articleLimit + "");
+        put(Constants.ARTICLE_LIMIT, articleLimit + "");
         this.mArticleLimit = articleLimit;
     }
     

@@ -84,30 +84,30 @@ public class PreferencesActivity extends PreferenceActivity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = prefs.edit();
         
-        editor.putString(Constants.CONNECTION_URL, "http://localhost/");
-        editor.putString(Constants.CONNECTION_USERNAME, "");
-        editor.putString(Constants.CONNECTION_PASSWORD, "");
-        editor.putBoolean(Constants.CONNECTION_TRUST_ALL_SSL, false);
-        editor.putBoolean(Constants.CONNECTION_USE_KEYSTORE, false);
-        editor.putString(Constants.CONNECTION_KEYSTORE_PASSWORD, "");
+        editor.putString(Constants.URL, Constants.URL_DEFAULT);
+        editor.putString(Constants.USERNAME, Constants.USERNAME_DEFAULT);
+        editor.putString(Constants.PASSWORD, Constants.PASSWORD_DEFAULT);
+        editor.putBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
+        editor.putBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
+        editor.putString(Constants.KEYSTORE_PASSWORD, Constants.KEYSTORE_PASSWORD_DEFAULT);
         
-        editor.putBoolean(Constants.USAGE_AUTOMATIC_MARK_READ, true);
-        editor.putBoolean(Constants.USAGE_OPEN_URL_EMPTY_ARTICLE, false);
-        editor.putBoolean(Constants.USAGE_UPDATE_UNREAD_ON_STARTUP, false);
-        editor.putBoolean(Constants.USAGE_REFRESH_SUB_DATA, false);
-        editor.putBoolean(Constants.USAGE_USE_VOLUME_KEYS, true);
-        editor.putBoolean(Constants.USAGE_VIBRATE_ON_LAST_ARTICLE, true);
-        editor.putBoolean(Constants.USAGE_WORK_OFFLINE, false);
+        editor.putBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
+        editor.putBoolean(Constants.OPEN_URL_EMPTY_ARTICLE, Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
+        editor.putBoolean(Constants.UPDATE_UNREAD_ON_STARTUP, Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
+        editor.putBoolean(Constants.REFRESH_SUB_DATA, Constants.REFRESH_SUB_DATA_DEFAULT);
+        editor.putBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
+        editor.putBoolean(Constants.VIBRATE_ON_LAST_ARTICLE, Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
+        editor.putBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
         
-        editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL, true);
-        editor.putBoolean(Constants.DISPLAY_SHOW_VIRTUAL_UNREAD, false);
-        editor.putBoolean(Constants.DISPLAY_ALWAYS_FULL_REFRESH, false);
-        editor.putBoolean(Constants.DISPLAY_USE_SWIPE, true);
-        editor.putBoolean(Constants.DISPLAY_ONLY_UNREAD, false);
-        editor.putString(Constants.DISPLAY_ARTICLE_LIMIT, "100");
+        editor.putBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
+        editor.putBoolean(Constants.SHOW_VIRTUAL_UNREAD, Constants.SHOW_VIRTUAL_UNREAD_DEFAULT);
+        editor.putBoolean(Constants.ALWAYS_FULL_REFRESH, Constants.ALWAYS_FULL_REFRESH_DEFAULT);
+        editor.putBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
+        editor.putBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
+        editor.putString(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
         
-        editor.putString(Constants.DATABASE_VERSION, "1");
-        editor.putString(Constants.LAST_UPDATE_TIME, "0");
+        editor.putString(Constants.DATABASE_VERSION, Constants.DATABASE_VERSION_DEFAULT);
+        editor.putString(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
         
         editor.commit();
         this.finish();

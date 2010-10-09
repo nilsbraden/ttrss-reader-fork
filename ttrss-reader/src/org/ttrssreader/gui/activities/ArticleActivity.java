@@ -28,6 +28,7 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.article.ArticleItemAdapter;
+import org.ttrssreader.model.article.MyWebViewClient;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
