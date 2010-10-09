@@ -224,8 +224,10 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     @Override
     public List<?> refreshData() {
         boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-        Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesHeadlines(feedId: " + mFeedId + ")");
-        List<ArticleItem> ret = DataController.getInstance().retrieveHeadlines(mFeedId, displayOnlyUnread, false);
+        Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesWithContent(feedId: " + mFeedId + ")");
+//        List<ArticleItem> ret = DataController.getInstance().retrieveHeadlines(mFeedId, displayOnlyUnread, false);
+        // Fetch content at once so we dont have to ask twice. Size does not matter in this magnitude i think.
+        List<ArticleItem> ret = DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread, false);
         
         if (ret != null) {
             Collections.sort(ret, new ArticleItemComparator());
@@ -237,12 +239,12 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     @Override
     public void update() {
-        Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesHeadlines(feedId: " + mFeedId + ", forceRefresh)");
+        Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesWithContent(feedId: " + mFeedId + ", forceRefresh)");
         
         if (!Controller.getInstance().isWorkOffline()) {
             boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-            // DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread, true);
-            DataController.getInstance().retrieveHeadlines(mFeedId, displayOnlyUnread, true);
+//            DataController.getInstance().retrieveHeadlines(mFeedId, displayOnlyUnread, true);
+            DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread, true);
         }
     }
     
