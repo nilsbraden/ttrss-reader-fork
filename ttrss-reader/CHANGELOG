@@ -2,6 +2,9 @@
 
 = Changes =
 
+== Version 0.6.2 (Bugfix-release) ==
+  * Fixed NPE in CategoryActivity
+
 == Version 0.6.1 ==
   * Passwords are now allowed to contain special characters
   * Attached Audio/Video files can now be downloaded or directly played
