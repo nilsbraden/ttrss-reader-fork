@@ -1,12 +1,24 @@
+/*
+ * Tiny Tiny RSS Reader for Android
+ * 
+ * Copyright (C) 2010 N. Braden and contributors.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 3 as published by the Free Software Foundation.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
 package org.ttrssreader.gui.activities;
 
 import org.ttrssreader.R;
+import org.ttrssreader.utils.Utils;
 import android.app.Activity;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -26,7 +38,7 @@ public class AboutActivity extends Activity {
         w.setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, android.R.drawable.ic_dialog_info);
         
         TextView versionText = (TextView) this.findViewById(R.id.AboutActivity_VersionText);
-        versionText.setText(this.getString(R.string.AboutActivity_VersionText) + " " + getVersion());
+        versionText.setText(this.getString(R.string.AboutActivity_VersionText) + " " + Utils.getVersion(this));
         
         TextView licenseText = (TextView) this.findViewById(R.id.AboutActivity_LicenseText);
         licenseText.setText(this.getString(R.string.AboutActivity_LicenseText) + " "
@@ -46,23 +58,6 @@ public class AboutActivity extends Activity {
     
     public void closeButtonPressed() {
         this.finish();
-    }
-    
-    private String getVersion() {
-        String result = "";
-        try {
-            
-            PackageManager manager = this.getPackageManager();
-            PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
-            
-            result = info.versionName;
-            
-        } catch (NameNotFoundException e) {
-            Log.w(AboutActivity.class.toString(), "Unable to get application version: " + e.getMessage());
-            result = "Unable to get application version.";
-        }
-        
-        return result;
     }
     
 }
