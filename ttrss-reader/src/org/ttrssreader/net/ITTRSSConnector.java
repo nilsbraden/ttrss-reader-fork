@@ -33,7 +33,7 @@ public interface ITTRSSConnector {
     
     public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode);
     
-    public List<ArticleItem> getArticles(int id, int articleState, boolean isCategory);
+    public List<ArticleItem> getArticles(int id, boolean displayOnlyUnread, boolean isCategory);
     
     public Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> getNewArticles(int articleState, long time);
     

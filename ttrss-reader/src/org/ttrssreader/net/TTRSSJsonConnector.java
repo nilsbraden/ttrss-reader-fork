@@ -531,7 +531,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public List<ArticleItem> getArticles(int id, int articleState, boolean isCategory) {
+    public List<ArticleItem> getArticles(int id, boolean displayOnlyUnread, boolean isCategory) {
         /*
          * Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt
          */
@@ -545,9 +545,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             }
         }
         
+        int unread = displayOnlyUnread ? 1 : 0;
         int cat = isCategory ? 1 : 0;
         
-        String url = mServerUrl + String.format(OP_GET_ARTICLES, mSessionId, id, articleState, cat);
+        String url = mServerUrl + String.format(OP_GET_ARTICLES, mSessionId, id, unread, cat);
         
         JSONArray jsonResult = getJSONResponseAsArray(url);
         if (jsonResult == null) {
@@ -657,10 +658,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         }
         
         String url = mServerUrl + String.format(OP_GET_NEW_ARTICLES, mSessionId, articleState, time);
-        
         JSONArray jsonResult = getJSONResponseAsArray(url);
-        
-        JSONObject object;
         
         Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, List<ArticleItem>>>();
         
@@ -670,7 +668,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         try {
             for (int i = 0; i < jsonResult.length(); i++) {
-                object = jsonResult.getJSONObject(i);
+                JSONObject object = jsonResult.getJSONObject(i);
                 
                 Map<FeedItem, List<ArticleItem>> feedMap = new HashMap<FeedItem, List<ArticleItem>>();
                 

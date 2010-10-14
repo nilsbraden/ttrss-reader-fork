@@ -34,16 +34,17 @@ public class DBInsertArticlesTask extends AsyncTask<List<ArticleItem>, Integer, 
     
     @Override
     protected Void doInBackground(List<ArticleItem>... args) {
-        if (args[0] == null) {
-            return null;
-        }
-        
-        if (args[0] instanceof ArrayList<?>) {
+        if (args[0] != null && args[0] instanceof ArrayList<?>) {
+            
             List<ArticleItem> list = (ArrayList<ArticleItem>) args[0];
-            DBHelper.getInstance().insertArticles(list, mMaxArticles);
-            Log.i(Utils.TAG,
-                    "DBInsertArticlesTask with " + list.size() + " articles took "
-                            + (System.currentTimeMillis() - time) + "ms");
+            
+            if (list.size() > 0) {
+                Log.i(Utils.TAG, "DBInsertArticlesTask BEGIN: " + list.size());
+                DBHelper.getInstance().insertArticles(list, mMaxArticles);
+                Log.i(Utils.TAG,
+                        "DBInsertArticlesTask END: " + list.size() + " article(s) took "
+                                + (System.currentTimeMillis() - time) + "ms");
+            }
         }
         
         return null;

@@ -44,25 +44,56 @@ public class DBHelper {
     private boolean mIsControllerInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 20;
     
     private static final String TABLE_CAT = "categories";
     private static final String TABLE_FEEDS = "feeds";
     private static final String TABLE_ARTICLES = "articles";
     
-    private static final String INSERT_CAT = "REPLACE INTO " + TABLE_CAT + "(id, title, unread) VALUES (?, ?, ?)";
+    // @formatter:off
+    private static final String INSERT_CAT = 
+        "REPLACE INTO "
+        + TABLE_CAT
+        + " (id, title, unread)"
+        + " VALUES (?, ?, ?)";
     
-    private static final String INSERT_FEEDS = "REPLACE INTO " + TABLE_FEEDS
-            + "(id, categoryId, title, url, unread) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_FEEDS = 
+        "REPLACE INTO "
+        + TABLE_FEEDS
+        + " (id, categoryId, title, url, unread)"
+        + " VALUES (?, ?, ?, ?, ?)";
     
-    private static final String INSERT_ARTICLES = "REPLACE INTO " + TABLE_ARTICLES
-            + "(id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_ARTICLES = 
+        "REPLACE INTO "
+        + TABLE_ARTICLES
+        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate)" 
+        + " VALUES (?, ?, ?, ?, ?, ?, ?)";
     
-    private static final String UPDATE_ARTICLES = "UPDATE " + TABLE_ARTICLES
-            + " SET title=?, articleUrl=?, articleCommentUrl=?, updateDate=? WHERE id=? AND feedId=? AND attachments=?";
+    private static final String INSERT_ARTICLES_EXTERN =
+        "REPLACE INTO "
+        + TABLE_ARTICLES 
+        + " (id, feedId, content, isUnread, updateDate, attachments)"
+        + " VALUES (?, ?, ?, ?, ?, ?)";
     
-    private static final String UPDATE_ARTICLES_EXTERN = "UPDATE " + TABLE_ARTICLES
-            + " SET content=?, updateDate=?, attachments=? WHERE id=? AND feedId=?";
+    private static final String UPDATE_ARTICLES =
+        "UPDATE "
+        + TABLE_ARTICLES
+        + " SET title=?,"
+        + "  articleUrl=?,"
+        + "  articleCommentUrl=?,"
+        + "  updateDate=?"
+        + " WHERE id=?"
+        + " AND feedId=?";
+    
+    private static final String UPDATE_ARTICLES_EXTERN = 
+        "UPDATE "
+        + TABLE_ARTICLES
+        + " SET content=?,"
+        + "  updateDate=?,"
+        + "  attachments=?"
+        + " WHERE id=?"
+        + " AND feedId=?";
+    // @formatter:on
     
     private SQLiteDatabase db_intern;
     private SQLiteDatabase db_extern;
@@ -70,6 +101,7 @@ public class DBHelper {
     private SQLiteStatement insertCat;
     private SQLiteStatement insertFeed;
     private SQLiteStatement insertArticle;
+    private SQLiteStatement insertArticle_extern;
     private SQLiteStatement updateArticle;
     private SQLiteStatement updateArticle_extern;
     
@@ -114,6 +146,7 @@ public class DBHelper {
         insertArticle = db_intern.compileStatement(INSERT_ARTICLES);
         updateArticle = db_intern.compileStatement(UPDATE_ARTICLES);
         if (isExternalDBAvailable()) {
+            insertArticle_extern = db_extern.compileStatement(INSERT_ARTICLES_EXTERN);
             updateArticle_extern = db_extern.compileStatement(UPDATE_ARTICLES_EXTERN);
         }
         return true;
@@ -160,15 +193,6 @@ public class DBHelper {
         
         Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
     }
-    
-    // private void deleteAll() {
-    // db_intern.execSQL("DELETE FROM " + TABLE_CAT);
-    // db_intern.execSQL("DELETE FROM " + TABLE_FEEDS);
-    // db_intern.execSQL("DELETE FROM " + TABLE_ARTICLES);
-    // if (isExternalDBAvailable()) {
-    // db_extern.execSQL("DELETE FROM " + TABLE_ARTICLES);
-    // }
-    // }
     
     private void dropInternalDB() {
         if (context.getDatabasePath(DATABASE_NAME).delete()) {
@@ -255,9 +279,17 @@ public class DBHelper {
                 db_extern = SQLiteDatabase.openOrCreateDatabase(file.getAbsolutePath(), null);
                 
                 // Create tables if they dont exist
-                db_extern.execSQL("CREATE TABLE IF NOT EXISTS "
+                // @formatter:off
+                db_extern.execSQL(
+                        "CREATE TABLE IF NOT EXISTS "
                         + TABLE_ARTICLES
-                        + " (id INTEGER PRIMARY KEY, feedId INTEGER, content TEXT, isUnread INTEGER, updateDate INTEGER, attachments TEXT)");
+                        + " (id INTEGER PRIMARY KEY," 
+                        + " feedId INTEGER," 
+                        + " content TEXT," 
+                        + " isUnread INTEGER," 
+                        + " updateDate INTEGER," 
+                        + " attachments TEXT)");
+                // @formatter:on
                 
                 externalDBState = db_extern.isOpen();
                 
@@ -278,15 +310,34 @@ public class DBHelper {
         
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + TABLE_CAT + " (id INTEGER PRIMARY KEY, title TEXT, unread INTEGER)");
+            // @formatter:off
+            db.execSQL(
+                    "CREATE TABLE "
+                    + TABLE_CAT 
+                    + " (id INTEGER PRIMARY KEY," 
+                    + " title TEXT," 
+                    + " unread INTEGER)");
             
-            db.execSQL("CREATE TABLE "
+            db.execSQL(
+                    "CREATE TABLE "
                     + TABLE_FEEDS
-                    + " (id INTEGER PRIMARY KEY, categoryId INTEGER, title TEXT, url TEXT, unread INTEGER)");
+                    + " (id INTEGER PRIMARY KEY," 
+                    + " categoryId INTEGER," 
+                    + " title TEXT," 
+                    + " url TEXT," 
+                    + " unread INTEGER)");
             
-            db.execSQL("CREATE TABLE "
+            db.execSQL(
+                    "CREATE TABLE "
                     + TABLE_ARTICLES
-                    + " (id INTEGER PRIMARY KEY, feedId INTEGER, title TEXT, isUnread INTEGER, articleUrl TEXT, articleCommentUrl TEXT, updateDate INTEGER, attachments TEXT)");
+                    + " (id INTEGER PRIMARY KEY," 
+                    + " feedId INTEGER," 
+                    + " title TEXT," 
+                    + " isUnread INTEGER," 
+                    + " articleUrl TEXT," 
+                    + " articleCommentUrl TEXT," 
+                    + " updateDate INTEGER)");
+            // @formatter:on
         }
         
         @Override
@@ -320,7 +371,10 @@ public class DBHelper {
         if (c == null)
             return;
         
-        insertCategory(c.getId(), c.getTitle(), c.getUnreadCount());
+        insertCategory(
+                c.getId(),
+                c.getTitle(), 
+                c.getUnreadCount());
     }
     
     public void insertCategories(List<CategoryItem> list) {
@@ -328,7 +382,10 @@ public class DBHelper {
             return;
         
         for (CategoryItem c : list) {
-            insertCategory(c.getId(), c.getTitle(), c.getUnreadCount());
+            insertCategory(
+                    c.getId(), 
+                    c.getTitle(),
+                    c.getUnreadCount());
         }
     }
     
@@ -354,8 +411,13 @@ public class DBHelper {
     public void insertFeed(FeedItem f) {
         if (f == null)
             return;
-
-        insertFeed(f.getId(), f.getCategoryId(), f.getTitle(), f.getUrl(), f.getUnread());
+        
+        insertFeed(
+                f.getId(),
+                f.getCategoryId(),
+                f.getTitle(), 
+                f.getUrl(), 
+                f.getUnread());
     }
     
     public void insertFeeds(List<FeedItem> list) {
@@ -368,7 +430,7 @@ public class DBHelper {
     }
     
     private void insertArticle(int articleId, int feedId, String title, boolean isUnread, String content, String articleUrl, String articleCommentUrl, Date updateDate, Set<String> attachments) {
-
+        
         if (!isInternalDBAvailable())
             return;
         
@@ -395,15 +457,20 @@ public class DBHelper {
             insertArticle.bindString(5, articleUrl);
             insertArticle.bindString(6, articleCommentUrl);
             insertArticle.bindLong(7, updateDate.getTime());
-            insertArticle.bindString(8, att);
             insertArticle.executeInsert();
         }
         
         if (isExternalDBAvailable() && !content.equals("")) {
             content = DatabaseUtils.sqlEscapeString(content);
-            db_extern.execSQL("REPLACE INTO " + TABLE_ARTICLES + " (id, feedId, content, isUnread, updateDate) VALUES"
-                    + " (" + articleId + "," + feedId + "," + content + ",'" + isUnread + "'," + updateDate.getTime()  + "'," + att
-                    + ")");
+            synchronized (insertArticle_extern) {
+                insertArticle_extern.bindLong(1, articleId);
+                insertArticle_extern.bindLong(2, feedId);
+                insertArticle_extern.bindString(3, content);
+                insertArticle_extern.bindLong(4, (isUnread ? 1 : 0));
+                insertArticle_extern.bindLong(5, updateDate.getTime());
+                insertArticle_extern.bindString(6, att);
+                insertArticle_extern.executeInsert();
+            }
         }
     }
     
@@ -416,8 +483,16 @@ public class DBHelper {
     }
     
     private void insertArticleInternal(ArticleItem a) {
-        insertArticle(a.getId(), a.getFeedId(), a.getTitle(), a.isUnread(), a.getContent(), a.getArticleUrl(),
-                a.getArticleCommentUrl(), a.getUpdateDate(), a.getAttachments());
+        insertArticle(
+                a.getId(),
+                a.getFeedId(),
+                a.getTitle(),
+                a.isUnread(), 
+                a.getContent(),
+                a.getArticleUrl(),
+                a.getArticleCommentUrl(),
+                a.getUpdateDate(), 
+                a.getAttachments());
     }
     
     public void insertArticles(List<ArticleItem> list, int number) {
@@ -445,46 +520,38 @@ public class DBHelper {
          * E/AndroidRuntime( 668): at org.ttrssreader.controllers.DBHelper.insertArticlesInternal(DBHelper.java:430)
          */
 
-        if (!isExternalDBAvailable()) {
-            // Only lock internal db-object to avoid NPE
-            synchronized (db_intern) {
-                db_intern.beginTransaction();
+        synchronized (db_intern) {
+            db_intern.beginTransaction();
+            try {
+                for (ArticleItem a : list) {
+                    insertArticleInternal(a);
+                }
+                db_intern.setTransactionSuccessful();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                db_intern.endTransaction();
+            }
+        }
+        
+        if (isExternalDBAvailable()) {
+            synchronized (db_extern) {
+                db_extern.beginTransaction();
                 try {
                     for (ArticleItem a : list) {
                         insertArticleInternal(a);
                     }
-                    db_intern.setTransactionSuccessful();
+                    db_extern.setTransactionSuccessful();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } finally {
-                    db_intern.endTransaction();
-                }
-            }
-            
-        } else {
-            
-            synchronized (db_intern) {
-                synchronized (db_extern) {
-                    db_intern.beginTransaction();
-                    db_extern.beginTransaction();
-                    try {
-                        for (ArticleItem a : list) {
-                            insertArticleInternal(a);
-                        }
-                        db_intern.setTransactionSuccessful();
-                        db_extern.setTransactionSuccessful();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    } finally {
-                        db_intern.endTransaction();
-                        db_extern.endTransaction();
-                    }
+                    db_extern.endTransaction();
                 }
             }
             
         }
     }
-    
+
     // *******| UPDATE |*******************************************************************
     
     public void markCategoryRead(CategoryItem c, boolean recursive) {
@@ -506,10 +573,10 @@ public class DBHelper {
         if (recursive) {
             ContentValues cv = new ContentValues();
             cv.put("isUnread", 0);
-            db_intern.update(TABLE_ARTICLES, cv, "feedId=?", new String[] {f.getId()+""});
+            db_intern.update(TABLE_ARTICLES, cv, "feedId=?", new String[] { f.getId() + "" });
             
             if (isExternalDBAvailable()) {
-                db_extern.update(TABLE_ARTICLES, cv, "feedId=?", new String[] {f.getId()+""});
+                db_extern.update(TABLE_ARTICLES, cv, "feedId=?", new String[] { f.getId() + "" });
             }
         }
     }
@@ -522,10 +589,10 @@ public class DBHelper {
         for (Integer id : iDlist) {
             ContentValues cv = new ContentValues();
             cv.put("isUnread", articleState);
-            db_intern.update(TABLE_ARTICLES, cv, "id=?", new String[] {id+""});
+            db_intern.update(TABLE_ARTICLES, cv, "id=?", new String[] { id + "" });
             
             if (isExternalDBAvailable()) {
-                db_extern.update(TABLE_ARTICLES, cv, "id=?", new String[] {id+""});
+                db_extern.update(TABLE_ARTICLES, cv, "id=?", new String[] { id + "" });
             }
         }
     }
@@ -536,7 +603,7 @@ public class DBHelper {
         
         ContentValues cv = new ContentValues();
         cv.put("unread", count);
-        db_intern.update(TABLE_CAT, cv, "id=?", new String[] {id+""});
+        db_intern.update(TABLE_CAT, cv, "id=?", new String[] { id + "" });
     }
     
     public void updateCategoryDeltaUnreadCount(int id, int delta) {
@@ -553,7 +620,7 @@ public class DBHelper {
         
         ContentValues cv = new ContentValues();
         cv.put("unread", count);
-        db_intern.update(TABLE_FEEDS, cv, "id=? and categoryId=?", new String[] {id+"", categoryId+""});
+        db_intern.update(TABLE_FEEDS, cv, "id=? and categoryId=?", new String[] { id + "", categoryId + "" });
     }
     
     public void updateFeedDeltaUnreadCount(int id, int categoryId, int delta) {
@@ -570,10 +637,10 @@ public class DBHelper {
         
         ContentValues cv = new ContentValues();
         cv.put("isUnread", isUnread);
-        db_intern.update(TABLE_ARTICLES, cv, "id=? and feedId=?", new String[] {id+"", feedId+""});
+        db_intern.update(TABLE_ARTICLES, cv, "id=? and feedId=?", new String[] { id + "", feedId + "" });
         
         if (isExternalDBAvailable()) {
-            db_extern.update(TABLE_ARTICLES, cv, "id=? and feedId=?", new String[] {id+"", feedId+""});
+            db_extern.update(TABLE_ARTICLES, cv, "id=? and feedId=?", new String[] { id + "", feedId + "" });
         }
     }
     
@@ -609,7 +676,6 @@ public class DBHelper {
             updateArticle.bindLong(4, updateDate.getTime());
             updateArticle.bindLong(5, new Long(id));
             updateArticle.bindLong(6, new Long(feedId));
-            updateArticle.bindString(7, att);
             updateArticle.execute();
         }
         
@@ -630,7 +696,7 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return;
         
-        String[] args = new String[] {id+""};
+        String[] args = new String[] { id + "" };
         db_intern.delete(TABLE_CAT, "id=?", args);
     }
     
@@ -638,7 +704,7 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return;
         
-        String[] args = new String[] {id+""};
+        String[] args = new String[] { id + "" };
         db_intern.delete(TABLE_FEEDS, "id=?", args);
     }
     
@@ -646,7 +712,7 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return;
         
-        String[] args = new String[] {id+""};
+        String[] args = new String[] { id + "" };
         db_intern.delete(TABLE_ARTICLES, "id=?", args);
         
         if (isExternalDBAvailable()) {
@@ -687,7 +753,7 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return;
         
-        String[] args = new String[] {olderThenThis.getTime()+""};
+        String[] args = new String[] { olderThenThis.getTime() + "" };
         
         db_intern.delete(TABLE_ARTICLES, "updateDate<?", args);
         
@@ -700,7 +766,8 @@ public class DBHelper {
         if (!isInternalDBAvailable())
             return;
         
-        String[] args = new String[] {"select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number};
+        String[] args = new String[] { "select id from " + TABLE_ARTICLES
+                + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number };
         
         db_intern.delete(TABLE_ARTICLES, "id in(?)", args);
         
@@ -1014,16 +1081,18 @@ public class DBHelper {
             content_cursor.close();
         }
         
-        ret = new ArticleItem(c.getInt(1), // feedId
-                id, // id
-                c.getString(2), // title
-                (c.getInt(3) != 0 ? true : false), // isUnread
-                new Date(c.getLong(6)), // updateDate
-                content, // content
-                c.getString(4), // articleUrl
-                c.getString(5), // articleCommentUrl
+        // @formatter:off
+        ret = new ArticleItem(c.getInt(1),          // feedId
+                id,                                 // id
+                c.getString(2),                     // title
+                (c.getInt(3) != 0 ? true : false),  // isUnread
+                new Date(c.getLong(6)),             // updateDate
+                content,                            // content
+                c.getString(4),                     // articleUrl
+                c.getString(5),                     // articleCommentUrl
                 parseAttachments(c.getString(6))
         );
+        // @formatter:on
         
         return ret;
     }
@@ -1037,11 +1106,13 @@ public class DBHelper {
             }
         }
         
+        // @formatter:off
         ret = new FeedItem(c.getInt(1), // categoryId
-                c.getInt(0), // id
-                c.getString(2), // title
-                c.getString(3), // url
-                c.getInt(4)); // unread
+                c.getInt(0),            // id
+                c.getString(2),         // title
+                c.getString(3),         // url
+                c.getInt(4));           // unread
+        // @formatter:on
         
         return ret;
     }
@@ -1055,16 +1126,19 @@ public class DBHelper {
             }
         }
         
+        // @formatter:off
         ret = new CategoryItem(c.getInt(0), // id
-                c.getString(1), // title
-                c.getInt(2)); // unread
+                c.getString(1),             // title
+                c.getInt(2));               // unread
+        // @formatter:on
         
         return ret;
     }
     
     private Set<String> parseAttachments(String att) {
         Set<String> ret = new HashSet<String>();
-        if (att == null) return ret;
+        if (att == null)
+            return ret;
         
         for (String s : att.split(";")) {
             ret.add(s);
@@ -1074,11 +1148,15 @@ public class DBHelper {
     }
     
     private String parseAttachmentSet(Set<String> att) {
-        if (att == null) return "";
+        if (att == null)
+            return "";
         StringBuilder ret = new StringBuilder();
         
         for (String s : att) {
-            ret.append(s);
+            ret.append(s + ";");
+        }
+        if (att.size() > 0) {
+            ret.deleteCharAt(ret.length()-1);
         }
         
         return DatabaseUtils.sqlEscapeString(ret.toString());
