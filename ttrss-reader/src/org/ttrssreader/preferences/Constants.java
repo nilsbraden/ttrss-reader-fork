@@ -85,7 +85,9 @@ public class Constants {
         List<String> ret = new ArrayList<String>();
         for (Field f : Constants.class.getFields()) {
             try {
-                ret.add((String) f.get(null));
+                if (f.get(null) instanceof String) {
+                    ret.add((String) f.get(null));
+                }
             } catch (IllegalArgumentException e) {
                 Log.e(Utils.TAG, "IllegalArgumentException");
             } catch (IllegalAccessException e) {

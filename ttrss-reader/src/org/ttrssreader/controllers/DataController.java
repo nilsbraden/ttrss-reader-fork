@@ -44,6 +44,7 @@ public class DataController {
     private long mFeedsUpdated = 0;
     private long mVirtCategoriesUpdated = 0;
     private long mCategoriesUpdated = 0;
+    private long mGetNewArticlesUpdated = 0;
     
     private Map<CategoryItem, List<FeedItem>> mCounters;
     private Map<Integer, List<ArticleItem>> mArticles;
@@ -73,16 +74,42 @@ public class DataController {
         mVirtCategories = DBHelper.getInstance().getVirtualCategories();
         mCategories = DBHelper.getInstance().getCategories(false);
         
-        if (mCounters.isEmpty())
+        // Check for empty collections and set new update-time if necessary
+        if (mCounters.isEmpty()) {
             mCounters = null;
-        if (mArticles.isEmpty())
+        } else if (mCountersUpdated < mGetNewArticlesUpdated) {
+            mCountersUpdated = mGetNewArticlesUpdated;
+        }
+        
+        if (mArticles.isEmpty()) {
             mArticles = new HashMap<Integer, List<ArticleItem>>();
-        if (mFeeds.isEmpty())
+        } else {
+            for (int article : mArticlesUpdated.keySet()) {
+                
+                if (mArticlesUpdated.get(article) < mGetNewArticlesUpdated) {
+                    mArticlesUpdated.put(article, mGetNewArticlesUpdated);
+                }
+                
+            }
+        }
+        
+        if (mFeeds.isEmpty()) {
             mFeeds = null;
-        if (mVirtCategories.isEmpty())
+        } else if (mFeedsUpdated < mGetNewArticlesUpdated) {
+            mFeedsUpdated = mGetNewArticlesUpdated;
+        }
+        
+        if (mVirtCategories.isEmpty()) {
             mVirtCategories = null;
-        if (mCategories.isEmpty())
+        } else if (mVirtCategoriesUpdated< mGetNewArticlesUpdated) {
+            mVirtCategoriesUpdated = mGetNewArticlesUpdated;
+        }
+        
+        if (mCategories.isEmpty()) {
             mCategories = null;
+        } else if (mCategoriesUpdated < mGetNewArticlesUpdated) {
+            mCategoriesUpdated = mGetNewArticlesUpdated;
+        }
     }
     
     public synchronized void checkAndInitializeController(final Context context) {
@@ -110,14 +137,14 @@ public class DataController {
     
     private boolean isOnline() {
         if (Controller.getInstance().isWorkOffline()) {
-//            Log.i(Utils.TAG, "isOnline: Config has isWorkOffline activated...");
+            // Log.i(Utils.TAG, "isOnline: Config has isWorkOffline activated...");
             return false;
         }
         
         NetworkInfo info = cm.getActiveNetworkInfo();
         
         if (info == null) {
-//            Log.i(Utils.TAG, "isOnline: No network available...");
+            // Log.i(Utils.TAG, "isOnline: No network available...");
             return false;
         }
         
@@ -125,7 +152,7 @@ public class DataController {
             int wait = 0;
             while (info.isConnectedOrConnecting() && !info.isConnected()) {
                 try {
-//                    Log.d(Utils.TAG, "isOnline: Waiting for " + wait + " seconds...");
+                    // Log.d(Utils.TAG, "isOnline: Waiting for " + wait + " seconds...");
                     wait += 100;
                     wait(100);
                 } catch (InterruptedException e) {
@@ -137,7 +164,7 @@ public class DataController {
             }
         }
         
-//        Log.i(Utils.TAG, "isOnline: Network available, State: " + info.isConnected());
+        // Log.i(Utils.TAG, "isOnline: Network available, State: " + info.isConnected());
         return info.isConnected();
     }
     
@@ -274,6 +301,10 @@ public class DataController {
                 DBHelper.getInstance().insertCategories(mVirtCategories);
             }
         }
+        
+        if (mVirtCategories == null)
+            mVirtCategories = new ArrayList<CategoryItem>();
+        
         return mVirtCategories;
     }
     
@@ -358,45 +389,43 @@ public class DataController {
     
     @SuppressWarnings("unchecked")
     public List<ArticleItem> getArticlesWithContent(int feedId, boolean displayOnlyUnread, boolean needFullRefresh) {
-        if (feedId < 0) {
-            feedId = -1;
-        }
-        FeedItem fi = new FeedItem();
-        fi.setId(feedId);
+
+         List<ArticleItem> result = mArticles.get(feedId);
         
-        List<ArticleItem> result = DBHelper.getInstance().getArticles(fi, true);
-        
+        // Check if every articles has its content
         boolean needRefresh = false;
-        for (ArticleItem a : result) {
-            if (a.getContent() == null) {
-                needRefresh = true;
-                break;
+        if (result != null) {
+            for (ArticleItem a : result) {
+                if (a.getContent() == null) {
+                    needRefresh = true;
+                    break;
+                }
             }
         }
-        
-        // Also do update if needFullRefresh given and not working offline
-        if (needFullRefresh && !Controller.getInstance().isWorkOffline())
-            needRefresh = true;
-        
-        if (result == null || needRefresh) {
-            // Check time of last update for this feedId
-            Long time = mArticlesUpdated.get(feedId);
-            if (time == null)
-                time = new Long(0);
-            
-            if (time < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+
+        if (isOnline()) {
+            if (result == null || result.isEmpty() || needFullRefresh() || needFullRefresh || needRefresh) {
                 
-                result = Controller.getInstance().getTTRSSConnector()
-                        .getArticles(feedId, displayOnlyUnread ? 1 : 0, false);
+                // Check time of last update for this feedId
+                Long time = mArticlesUpdated.get(feedId);
+                if (time == null)
+                    time = new Long(0);
                 
-                if (result == null)
-                    return null;
+                if (time < System.currentTimeMillis() - Utils.UPDATE_TIME) {
+                    
+                    result = Controller.getInstance().getTTRSSConnector().getArticles(feedId, true, false);
+                    // TODO: Anzahl an Artikeln deutlich reduzieren, 1.5MB sind zu viel!
+                    
+                    if (result == null)
+                        return new ArrayList<ArticleItem>();
+                    
+                    int articleLimit = Controller.getInstance().getArticleLimit();
+                    new DBInsertArticlesTask(articleLimit).execute(result);
+                    
+                    mArticles.put(feedId, result);
+                    mArticlesUpdated.put(feedId, System.currentTimeMillis());
+                }
                 
-                int articleLimit = Controller.getInstance().getArticleLimit();
-                new DBInsertArticlesTask(articleLimit).execute(result);
-                
-                mArticles.put(feedId, result);
-                mArticlesUpdated.put(feedId, System.currentTimeMillis());
             }
         }
         
@@ -530,8 +559,8 @@ public class DataController {
     public void getNewArticles() {
         
         // Only update once within UPDATE_TIME milliseconds
-        long time = Controller.getInstance().getLastUpdateTime();
-        if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        mGetNewArticlesUpdated = Controller.getInstance().getLastUpdateTime();
+        if (mGetNewArticlesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         }
         
@@ -541,9 +570,10 @@ public class DataController {
         
         // Load new Articles
         Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> ret = Controller.getInstance().getTTRSSConnector()
-                .getNewArticles(1, time);
-        
+                .getNewArticles(1, mGetNewArticlesUpdated);
+
         if (ret != null && !ret.isEmpty()) {
+            Log.d(Utils.TAG, "getNewArticles: Actually doing stuff!!!");
             Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
             int articleLimit = Controller.getInstance().getArticleLimit();
             
@@ -558,7 +588,6 @@ public class DataController {
         }
         
         initializeController(null);
-        
     }
     
 }
