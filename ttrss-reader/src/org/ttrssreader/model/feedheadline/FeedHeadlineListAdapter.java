@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DataController;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.article.ArticleItem;
@@ -224,27 +224,37 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     @Override
     public List<?> refreshData() {
         boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-        Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesWithContent(feedId: " + mFeedId + ")");
-//        List<ArticleItem> ret = DataController.getInstance().retrieveHeadlines(mFeedId, displayOnlyUnread, false);
+        
         // Fetch content at once so we dont have to ask twice. Size does not matter in this magnitude i think.
-        List<ArticleItem> ret = DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread, false);
+        Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticles(feedId: " + mFeedId + ")");
+        List<ArticleItem> ret = Data.getInstance().getArticles(mFeedId);
         
         if (ret != null) {
             Collections.sort(ret, new ArticleItemComparator());
+            
+            if (displayOnlyUnread) {
+                List<ArticleItem> temp = new ArrayList<ArticleItem>();
+                
+                for (ArticleItem ai : ret) {
+                    if (ai.isUnread()) {
+                        temp.add(ai);
+                    }
+                }
+                
+                ret = temp;
+            }
         }
         
-        DataController.getInstance().disableForceFullRefresh();
         return ret;
     }
     
     @Override
     public void update() {
-        Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticlesWithContent(feedId: " + mFeedId + ", forceRefresh)");
+        Log.i(Utils.TAG, "FeedHeadlineListAdapter - updateArticles(feedId: " + mFeedId + ")");
         
         if (!Controller.getInstance().isWorkOffline()) {
             boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-//            DataController.getInstance().retrieveHeadlines(mFeedId, displayOnlyUnread, true);
-            DataController.getInstance().getArticlesWithContent(mFeedId, displayOnlyUnread, true);
+            Data.getInstance().updateArticles(mFeedId, displayOnlyUnread);
         }
     }
     

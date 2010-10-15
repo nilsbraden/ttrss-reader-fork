@@ -20,7 +20,7 @@ import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.DataController;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.ReadStateUpdater;
@@ -28,6 +28,7 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryListAdapter;
+import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.ExternalStorageReceiver;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
@@ -75,22 +76,21 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         storageReceiver = new ExternalStorageReceiver();
         registerReceiver(storageReceiver, storageReceiver.getFilter());
         
-        DataController.getInstance().checkAndInitializeController(this);
+        Data.getInstance().checkAndInitializeController(this);
         
         mCategoryListView = getListView();
         mAdapter = new CategoryListAdapter(this);
         mCategoryListView.setAdapter(mAdapter);
-        updater = new Updater(this, mAdapter);
         
         // Check if we have a server specified
         String url = Controller.getInstance().getUrl();
-        if (url.equals("http://localhost/" + Controller.JSON_END_URL)) {
+        if (url.equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
             Log.e(Utils.TAG, "ERROR: No Server specified");
             openConnectionErrorDialog("No Server specified.");
             connected = false;
         } else {
-            
             // Only post background-task if we have a server specified
+            updater = new Updater(this, mAdapter);
             new Handler().postDelayed(new Runnable() {
                 public void run() {
                     setProgressBarIndeterminateVisibility(true);
@@ -212,9 +212,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     }
     
     private void doForceRefresh() {
-        if (!Controller.getInstance().isWorkOffline()) {
-            DataController.getInstance().forceFullRefresh();
-        }
+        Data.getInstance().resetCategoriesTime();
         doRefresh();
     }
     

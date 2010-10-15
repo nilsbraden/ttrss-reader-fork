@@ -16,7 +16,7 @@
 package org.ttrssreader.model.article;
 
 import java.util.List;
-import org.ttrssreader.controllers.DataController;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 
@@ -35,8 +35,7 @@ public class ArticleItemAdapter implements IRefreshable, IUpdatable {
     
     @Override
     public List<Object> refreshData() {
-        mArticle = DataController.getInstance().getArticleWithContent(mArticleId);
-        DataController.getInstance().disableForceFullRefresh();
+        mArticle = Data.getInstance().getArticle(mArticleId);
         return null;
     }
     
