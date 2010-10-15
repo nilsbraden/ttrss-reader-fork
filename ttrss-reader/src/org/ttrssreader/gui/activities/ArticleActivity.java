@@ -20,7 +20,7 @@ import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.DataController;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.ReadStateUpdater;
@@ -84,7 +84,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         
         Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeController(this);
-        DataController.getInstance().checkAndInitializeController(this);
+        Data.getInstance().checkAndInitializeController(this);
         
         setProgressBarIndeterminateVisibility(false);
         
@@ -406,7 +406,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
             
             if (mArticleItem != null) {
                 String content = mArticleItem.getContent();
-                if (content == null) content = "";
+                if (content == null)
+                    content = "";
                 
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
                 content = injectAttachments(content, mArticleItem.getAttachments());
@@ -457,7 +458,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
             
             boolean media = false;
             for (String s : Utils.MEDIA_EXTENSIONS) {
-                if (urlLow.contains(s)) media = true;
+                if (urlLow.contains(s))
+                    media = true;
             }
             
             if (media) {

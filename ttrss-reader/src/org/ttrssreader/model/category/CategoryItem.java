@@ -22,21 +22,21 @@ public class CategoryItem {
     
     private int mId;
     private String mTitle;
-    private int mUnreadCount;
+    private int mUnread;
     
     public CategoryItem() {
     }
     
-    public CategoryItem(int id, String title, int unreadCount) {
+    public CategoryItem(int id, String title, int unread) {
         setId(id);
         setTitle(title);
-        setUnreadCount(unreadCount);
+        setUnread(unread);
     }
     
-    public CategoryItem(String id, String title, int unreadCount) {
+    public CategoryItem(String id, String title, int unread) {
         setId(id);
         setTitle(title);
-        setUnreadCount(unreadCount);
+        setUnread(unread);
     }
     
     public int getId() {
@@ -71,21 +71,21 @@ public class CategoryItem {
         this.mTitle = title;
     }
     
-    public int getUnreadCount() {
-        return mUnreadCount;
+    public int getUnread() {
+        return mUnread;
     }
     
-    public void setUnreadCount(int unreadCount) {
-        this.mUnreadCount = unreadCount;
+    public void setUnread(int unreadCount) {
+        this.mUnread = unreadCount;
     }
     
     public void setDeltaUnreadCount(int value) {
         if (isUnreadManaged()) {
-            mUnreadCount += value;
+            mUnread += value;
         }
     }
     
     public boolean isUnreadManaged() {
-        return mUnreadCount >= 0;
+        return mUnread >= 0;
     }
 }

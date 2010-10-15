@@ -27,13 +27,13 @@ public interface ITTRSSConnector {
     
     public List<CategoryItem> getCategories();
     
-    public Map<Integer, List<FeedItem>> getSubsribedFeeds();
+    public Map<Integer, List<FeedItem>> getFeeds();
+    
+    public List<ArticleItem> getArticles(int id, boolean displayOnlyUnread, boolean isCategory);
     
     public ArticleItem getArticle(int articleId);
     
     public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode);
-    
-    public List<ArticleItem> getArticles(int id, boolean displayOnlyUnread, boolean isCategory);
     
     public Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> getNewArticles(int articleState, long time);
     

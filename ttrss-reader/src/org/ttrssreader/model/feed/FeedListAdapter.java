@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DataController;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.utils.Utils;
@@ -193,25 +193,31 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     
     @Override
     public List<?> refreshData() {
-        boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-        Log.i(Utils.TAG, "FeedListAdapter         - getSubscribedFeeds(catId: " + mCategoryId + ")");
-        List<FeedItem> ret = DataController.getInstance().getFeeds(mCategoryId, displayOnlyUnread, false);
+        Log.i(Utils.TAG, "FeedListAdapter         - getFeeds(catId: " + mCategoryId + ")");
+        List<FeedItem> ret = Data.getInstance().getFeeds(mCategoryId);
         
         if (ret != null) {
             Collections.sort(ret, new FeedItemComparator());
+            
+            if (Controller.getInstance().isDisplayOnlyUnread()) {
+                List<FeedItem> temp = new ArrayList<FeedItem>();
+                
+                for (FeedItem fi : ret) {
+                    if (fi.getUnread() > 0) {
+                        temp.add(fi);
+                    }
+                }
+                
+                ret = temp;
+            }
         }
-        DataController.getInstance().disableForceFullRefresh();
         return ret;
     }
     
     @Override
     public void update() {
-        Log.i(Utils.TAG, "FeedListAdapter         - getSubscribedFeeds(catId: " + mCategoryId + ", forceRefresh)");
-        
-        if (!Controller.getInstance().isWorkOffline()) {
-            boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-            DataController.getInstance().getFeeds(mCategoryId, displayOnlyUnread, true);
-        }
+        Log.i(Utils.TAG, "FeedListAdapter         - updateFeeds(catId: " + mCategoryId + ")");
+        Data.getInstance().updateFeeds(mCategoryId);
     }
     
 }

@@ -48,7 +48,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String OP_GET_CATEGORIES = "?op=getCategories&sid=%s";
     private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s";
     private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&show_content=0&view_mode=%s";
-    private static final String OP_GET_ARTICLES = "?op=getArticles&sid=%s&id=%s&unread=%s&is_category=%s";
+    private static final String OP_GET_ARTICLES = "?op=getArticles&sid=%s&id=%s&unread=%s&is_category=%s&limit=%s";
     private static final String OP_GET_NEW_ARTICLES = "?op=getNewArticles&sid=%s&unread=%s&time=%s";
     private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
     private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
@@ -104,7 +104,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         try {
             response = httpclient.execute(httpPost);
             
-            Log.d(Utils.TAG, "Requesting URL: " + url /*url.replace(mPassword, "*")*/ + " (took "
+            Log.d(Utils.TAG, "Requesting URL: " + url.replace(mPassword, "*") + " (took "
                     + (System.currentTimeMillis() - start) + " ms)");
             
             HttpEntity entity = response.getEntity();
@@ -413,7 +413,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public Map<Integer, List<FeedItem>> getSubsribedFeeds() {
+    public Map<Integer, List<FeedItem>> getFeeds() {
         Map<Integer, List<FeedItem>> finalResult = new HashMap<Integer, List<FeedItem>>();;
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
@@ -548,7 +548,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         int unread = displayOnlyUnread ? 1 : 0;
         int cat = isCategory ? 1 : 0;
         
-        String url = mServerUrl + String.format(OP_GET_ARTICLES, mSessionId, id, unread, cat);
+        String url = mServerUrl + String.format(OP_GET_ARTICLES, mSessionId, id, unread, cat, 25);
         
         JSONArray jsonResult = getJSONResponseAsArray(url);
         if (jsonResult == null) {
@@ -660,12 +660,12 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         String url = mServerUrl + String.format(OP_GET_NEW_ARTICLES, mSessionId, articleState, time);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
-        Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, List<ArticleItem>>>();
         
         if (jsonResult == null) {
             return null;
         }
         
+        Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, List<ArticleItem>>>();
         try {
             for (int i = 0; i < jsonResult.length(); i++) {
                 JSONObject object = jsonResult.getJSONObject(i);

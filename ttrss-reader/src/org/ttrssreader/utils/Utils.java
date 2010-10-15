@@ -24,12 +24,15 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.params.HttpParams;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.activities.AboutActivity;
 import org.ttrssreader.net.HttpClientFactory;
 import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 public class Utils {
@@ -47,7 +50,7 @@ public class Utils {
     /**
      * Time to wait before starting the background-update from the activities
      */
-    public static final int WAIT = 300;
+    public static final int WAIT = 400;
     
     /**
      * Vibrate-Time for vibration when end of list is reached
@@ -151,4 +154,38 @@ public class Utils {
         return result;
     }
     
+    public static boolean isOnline(ConnectivityManager cm) {
+        if (Controller.getInstance().isWorkOffline()) {
+            // Log.i(Utils.TAG, "isOnline: Config has isWorkOffline activated...");
+            return false;
+        } else if (cm == null) {
+            return false;
+        }
+        
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        
+        if (info == null) {
+            // Log.i(Utils.TAG, "isOnline: No network available...");
+            return false;
+        }
+        
+        synchronized (Utils.class) {
+            int wait = 0;
+            while (info.isConnectedOrConnecting() && !info.isConnected()) {
+                try {
+                    // Log.d(Utils.TAG, "isOnline: Waiting for " + wait + " seconds...");
+                    wait += 100;
+                    Utils.class.wait(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                
+                if (wait > 2000)
+                    break;
+            }
+        }
+        
+        // Log.i(Utils.TAG, "isOnline: Network available, State: " + info.isConnected());
+        return info.isConnected();
+    }
 }

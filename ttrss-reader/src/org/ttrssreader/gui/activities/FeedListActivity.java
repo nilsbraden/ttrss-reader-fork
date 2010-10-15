@@ -20,7 +20,7 @@ import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.DataController;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.ReadStateUpdater;
@@ -67,7 +67,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         
         Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeController(this);
-        DataController.getInstance().checkAndInitializeController(this);
+        Data.getInstance().checkAndInitializeController(this);
         
         setProgressBarIndeterminateVisibility(false);
         mFeedListView = getListView();
@@ -177,9 +177,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     }
     
     private void doForceRefresh() {
-        if (!Controller.getInstance().isWorkOffline()) {
-            DataController.getInstance().forceFullRefresh();
-        }
+        Data.getInstance().resetFeedTime();
         doRefresh();
     }
     

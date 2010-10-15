@@ -374,7 +374,7 @@ public class DBHelper {
         insertCategory(
                 c.getId(),
                 c.getTitle(), 
-                c.getUnreadCount());
+                c.getUnread());
     }
     
     public void insertCategories(List<CategoryItem> list) {
@@ -385,7 +385,7 @@ public class DBHelper {
             insertCategory(
                     c.getId(), 
                     c.getTitle(),
-                    c.getUnreadCount());
+                    c.getUnread());
         }
     }
     
@@ -608,7 +608,7 @@ public class DBHelper {
     
     public void updateCategoryDeltaUnreadCount(int id, int delta) {
         CategoryItem c = getCategory(id);
-        int count = c.getUnreadCount();
+        int count = c.getUnread();
         count += delta;
         
         updateCategoryUnreadCount(id, count);
@@ -1044,7 +1044,7 @@ public class DBHelper {
     
     public void setCounters(Map<CategoryItem, List<FeedItem>> map) {
         for (CategoryItem c : map.keySet()) {
-            updateCategoryUnreadCount(c.getId(), c.getUnreadCount());
+            updateCategoryUnreadCount(c.getId(), c.getUnread());
             
             List<FeedItem> list = map.get(c);
             if (list == null)

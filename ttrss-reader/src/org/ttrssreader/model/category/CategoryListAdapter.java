@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DataController;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.utils.Utils;
@@ -71,7 +71,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     }
     
     public int getUnreadCount(int position) {
-        return mCategories.get(position).getUnreadCount();
+        return mCategories.get(position).getUnread();
     }
     
     public int getTotalUnread() {
@@ -102,12 +102,12 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
         CategoryListView sv = null;
         CategoryItem c = mCategories.get(position);
         if (convertView == null) {
-            sv = new CategoryListView(mContext, c.getTitle(), c.getId(), c.getUnreadCount());
+            sv = new CategoryListView(mContext, c.getTitle(), c.getId(), c.getUnread());
         } else {
             sv = (CategoryListView) convertView;
-            sv.setIcon(c.getId(), c.getUnreadCount() > 0);
-            sv.setBoldTitleIfNecessary(c.getUnreadCount() > 0);
-            sv.setTitle(formatTitle(c.getTitle(), c.getUnreadCount()));
+            sv.setIcon(c.getId(), c.getUnread() > 0);
+            sv.setBoldTitleIfNecessary(c.getUnread() > 0);
+            sv.setTitle(formatTitle(c.getTitle(), c.getUnread()));
         }
         
         return sv;
@@ -175,33 +175,39 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     @Override
     public List<?> refreshData() {
-        boolean virtuals = Controller.getInstance().isDisplayVirtuals();
-        boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-        
         Log.i(Utils.TAG, "CategoryListAdapter     - getCategories()");
-        List<CategoryItem> ret = DataController.getInstance().getCategories(virtuals, displayOnlyUnread, false);
+        List<CategoryItem> ret = Data.getInstance().getCategories(Controller.getInstance().isDisplayVirtuals());
+        
+        if (Controller.getInstance().isDisplayOnlyUnread()) {
+            List<CategoryItem> temp = new ArrayList<CategoryItem>();
+            
+            for (CategoryItem ci : ret) {
+                if (ci.getId() < 0) {
+                    continue; // Virtual Category
+                } else if (ci.getUnread() > 0) {
+                    temp.add(ci);
+                }
+            }
+            
+            ret = temp;
+        }
         
         // Update Unread Count
-        mUnreadCount = DataController.getInstance().getCategoryUnreadCount(-4);
+        mUnreadCount = Data.getInstance().getCategoryUnreadCount(-4);
         
-        DataController.getInstance().disableForceFullRefresh();
         return ret;
     }
     
     @Override
     public void update() {
-        Log.i(Utils.TAG, "CategoryListAdapter     - getCategories(forceRefresh)");
+        Log.i(Utils.TAG, "CategoryListAdapter     - updateCategories()");
         
-        if (!Controller.getInstance().isWorkOffline()) {
-            // Update new articles
-            if (Controller.getInstance().isUpdateUnreadOnStartup()) {
-                DataController.getInstance().getNewArticles();
-            }
-            
-            boolean virtuals = Controller.getInstance().isDisplayVirtuals();
-            boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-            DataController.getInstance().getCategories(virtuals, displayOnlyUnread, true);
+        if (Controller.getInstance().isUpdateUnreadOnStartup()) {
+            Data.getInstance().updateUnreadArticles();
         }
+        
+        Data.getInstance().updateCategories();
+        Data.getInstance().updateVirtualCategories();
     }
     
 }
