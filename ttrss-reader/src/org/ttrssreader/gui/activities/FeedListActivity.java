@@ -179,6 +179,11 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     
     private void doForceRefresh() {
         Data.getInstance().resetFeedTime();
+        
+        updater = new Updater(this, mAdapter);
+        setProgressBarIndeterminateVisibility(true);
+        updater.execute();
+        
         doRefresh();
     }
     
@@ -205,7 +210,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     
     @Override
     public void onRefreshEnd() {
-        if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+        if (!Controller.getInstance().getConnector().hasLastError()) {
             
             try {
                 List<FeedItem> list = new ArrayList<FeedItem>();
@@ -225,7 +230,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             }
             
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         }
         
         if (updater != null) {
@@ -239,10 +244,10 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     
     @Override
     public void onUpdateEnd() {
-        if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+        if (!Controller.getInstance().getConnector().hasLastError()) {
             mAdapter.notifyDataSetChanged();
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         }
         
         doRefresh();

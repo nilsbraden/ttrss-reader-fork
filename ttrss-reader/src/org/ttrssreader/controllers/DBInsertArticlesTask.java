@@ -23,7 +23,7 @@ import org.ttrssreader.utils.Utils;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class DBInsertArticlesTask extends AsyncTask<List<ArticleItem>, Integer, Void> {
+public class DBInsertArticlesTask extends AsyncTask<List<ArticleItem>, Void, Void> {
     
     private int mMaxArticles;
     long time;
@@ -47,7 +47,6 @@ public class DBInsertArticlesTask extends AsyncTask<List<ArticleItem>, Integer, 
                                 + (System.currentTimeMillis() - time) + "ms");
             }
         }
-        
         return null;
     }
     

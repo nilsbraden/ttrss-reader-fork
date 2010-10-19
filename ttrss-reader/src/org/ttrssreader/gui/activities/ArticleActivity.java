@@ -402,7 +402,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     
     @Override
     public void onRefreshEnd() {
-        if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+        if (!Controller.getInstance().getConnector().hasLastError()) {
             mArticleItem = mAdapter.getArticle();
             
             if (mArticleItem != null) {
@@ -437,7 +437,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
                 
             }
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         }
         
         if (updater != null) {
@@ -479,8 +479,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     
     @Override
     public void onUpdateEnd() {
-        if (Controller.getInstance().getTTRSSConnector().hasLastError()) {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+        if (Controller.getInstance().getConnector().hasLastError()) {
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         }
         
         setProgressBarIndeterminateVisibility(false);
