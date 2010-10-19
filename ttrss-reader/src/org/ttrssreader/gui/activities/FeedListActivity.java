@@ -18,6 +18,7 @@ package org.ttrssreader.gui.activities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -208,15 +209,14 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         startActivity(i);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public void onRefreshEnd() {
         if (!Controller.getInstance().getConnector().hasLastError()) {
             
             try {
                 List<FeedItem> list = new ArrayList<FeedItem>();
-                for (Object f : refresher.get()) {
-                    list.add((FeedItem) f);
-                }
+                list.addAll((Set<FeedItem>) refresher.get());
                 mAdapter.setFeeds(list);
                 mAdapter.notifyDataSetChanged();
             } catch (Exception e) {

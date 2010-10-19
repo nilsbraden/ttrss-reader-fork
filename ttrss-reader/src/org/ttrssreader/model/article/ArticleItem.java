@@ -21,7 +21,7 @@ import java.util.Set;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
-public class ArticleItem {
+public class ArticleItem implements Comparable<ArticleItem>{
     
     private int mId;
     private String mTitle;
@@ -172,4 +172,25 @@ public class ArticleItem {
     public void setAttachments(Set<String> attachments) {
         this.attachments = attachments;
     }
+
+    @Override
+    public int compareTo(ArticleItem ai) {
+        return this.getUpdateDate().compareTo(ai.getUpdateDate());
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ArticleItem) {
+            ArticleItem other = (ArticleItem) o;
+            return (this.getId() == other.getId());
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
+    public int hashCode() {
+        return this.getId()+"".hashCode();
+    }
+    
 }

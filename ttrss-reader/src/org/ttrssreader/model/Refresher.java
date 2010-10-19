@@ -16,13 +16,13 @@
 
 package org.ttrssreader.model;
 
-import java.util.List;
+import java.util.Set;
 import org.ttrssreader.gui.IRefreshEndListener;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-public class Refresher extends AsyncTask<String, Integer, List<?>> {
+public class Refresher extends AsyncTask<String, Integer, Set<?>> {
     
     private IRefreshEndListener mParent;
     private IRefreshable mRefreshable;
@@ -40,8 +40,8 @@ public class Refresher extends AsyncTask<String, Integer, List<?>> {
     };
     
     @Override
-    protected List<?> doInBackground(String... params) {
-        List<?> ret = mRefreshable.refreshData();
+    protected Set<?> doInBackground(String... params) {
+        Set<?> ret = mRefreshable.refreshData();
         handler.sendEmptyMessage(0);
         
         return ret;

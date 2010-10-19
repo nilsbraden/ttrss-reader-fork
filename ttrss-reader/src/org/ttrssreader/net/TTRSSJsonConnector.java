@@ -18,11 +18,9 @@ package org.ttrssreader.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.http.HttpEntity;
@@ -264,8 +262,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     
     // ***************** Helper-Methods **************************************************
     
-    public List<FeedItem> handleFeedCounters(JSONArray array) {
-        List<FeedItem> ret = new ArrayList<FeedItem>();
+    public Set<FeedItem> handleFeedCounters(JSONArray array) {
+        Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
         
         try {
             for (int j = 0; j < array.length(); j++) {
@@ -306,7 +304,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             String content = "";
             String articleUrl = "";
             String articleCommentUrl = "";
-            Set<String> attachments = new HashSet<String>();
+            Set<String> attachments = new LinkedHashSet<String>();
             
             for (int i = 0; i < names.length(); i++) {
                 if (names.getString(i).equals(ID))
@@ -410,7 +408,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     public Set<String> parseDataForAttachments(JSONArray array) {
-        Set<String> ret = new HashSet<String>();
+        Set<String> ret = new LinkedHashSet<String>();
         
         try {
             for (int j = 0; j < array.length(); j++) {
@@ -478,9 +476,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public Map<CategoryItem, List<FeedItem>> getCounters() {
+    public Map<CategoryItem, Set<FeedItem>> getCounters() {
         /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
-        Map<CategoryItem, List<FeedItem>> ret = new HashMap<CategoryItem, List<FeedItem>>();
+        Map<CategoryItem, Set<FeedItem>> ret = new HashMap<CategoryItem, Set<FeedItem>>();
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
@@ -510,7 +508,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 
                 String cat_id = "";
                 int unread = 0;
-                List<FeedItem> feeds = null;
+                Set<FeedItem> feeds = null;
                 
                 for (int j = 0; j < names.length(); j++) {
                     if (names.getString(j).equals(CAT_ID)) {
@@ -534,8 +532,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public List<CategoryItem> getCategories() {
-        List<CategoryItem> ret = new ArrayList<CategoryItem>();
+    public Set<CategoryItem> getCategories() {
+        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
@@ -569,8 +567,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public Map<Integer, List<FeedItem>> getFeeds() {
-        Map<Integer, List<FeedItem>> ret = new HashMap<Integer, List<FeedItem>>();;
+    public Map<Integer, Set<FeedItem>> getFeeds() {
+        Map<Integer, Set<FeedItem>> ret = new HashMap<Integer, Set<FeedItem>>();;
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
@@ -594,12 +592,12 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 
                 FeedItem f = parseDataForFeed(names, values, null);
                 
-                List<FeedItem> feedItemList = ret.get(f.getCategoryId());
-                if (feedItemList == null) {
-                    feedItemList = new ArrayList<FeedItem>();
-                    ret.put(f.getCategoryId(), feedItemList);
+                Set<FeedItem> feedItems = ret.get(f.getCategoryId());
+                if (feedItems == null) {
+                    feedItems = new LinkedHashSet<FeedItem>();
+                    ret.put(f.getCategoryId(), feedItems);
                 }
-                feedItemList.add(f);
+                feedItems.add(f);
             }
         } catch (JSONException e) {
             mHasLastError = true;
@@ -611,9 +609,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public List<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory) {
+    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory) {
         /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
-        ArrayList<ArticleItem> ret = new ArrayList<ArticleItem>();
+        Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
@@ -682,8 +680,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public List<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode) {
-        ArrayList<ArticleItem> ret = new ArrayList<ArticleItem>();
+    public Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode) {
+        Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
@@ -716,8 +714,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> getNewArticles(int articleState, long time) {
-        Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, List<ArticleItem>>>();
+    public Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time) {
+        Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, Set<ArticleItem>>>();
         
         /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
@@ -743,7 +741,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             for (int i = 0; i < jsonResult.length(); i++) {
                 JSONObject object = jsonResult.getJSONObject(i);
                 
-                Map<FeedItem, List<ArticleItem>> feedMap = new HashMap<FeedItem, List<ArticleItem>>();
+                Map<FeedItem, Set<ArticleItem>> feedMap = new HashMap<FeedItem, Set<ArticleItem>>();
                 
                 JSONArray names = object.names();
                 JSONArray values = object.toJSONArray(names);
@@ -759,7 +757,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 feedValues = resultFeeds.getValues();
                 
                 for (int j = 0; j < feedNames.length(); j++) {
-                    List<ArticleItem> articles = new ArrayList<ArticleItem>();
+                    Set<ArticleItem> articles = new LinkedHashSet<ArticleItem>();
                     
                     JSONArray articleValues = new JSONArray();
                     FeedItem f = parseDataForFeed(names, values, articleValues);
@@ -790,7 +788,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public void setArticleRead(List<Integer> articlesIds, int articleState) {
+    public void setArticleRead(Set<Integer> articlesIds, int articleState) {
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
             if (mHasLastError)

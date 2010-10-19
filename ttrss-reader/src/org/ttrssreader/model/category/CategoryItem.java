@@ -19,7 +19,7 @@ package org.ttrssreader.model.category;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
-public class CategoryItem {
+public class CategoryItem implements Comparable<CategoryItem> {
     
     private int mId;
     private String mTitle;
@@ -89,4 +89,25 @@ public class CategoryItem {
     public boolean isUnreadManaged() {
         return mUnread >= 0;
     }
+    
+    @Override
+    public int compareTo(CategoryItem ci) {
+        return this.getTitle().compareToIgnoreCase(ci.getTitle());
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof CategoryItem) {
+            CategoryItem other = (CategoryItem) o;
+            return (this.getId() == other.getId());
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
+    public int hashCode() {
+        return this.getId()+"".hashCode();
+    }
+    
 }

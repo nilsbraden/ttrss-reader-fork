@@ -17,7 +17,9 @@
 package org.ttrssreader.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
@@ -89,12 +91,12 @@ public class ReadStateUpdater implements IUpdatable {
         boolean boolState = mArticleState == 1 ? true : false;
         int intState = mArticleState == 1 ? 1 : -1;
         
-        List<Integer> idList = new ArrayList<Integer>();
+        Set<Integer> ids = new HashSet<Integer>();
         mList = filterList();
         
         for (ArticleItem article : mList) {
             // Build a list of article ids to update.
-            idList.add(article.getId());
+            ids.add(article.getId());
             article.setUnread(false);
             
             int feedId = article.getFeedId();
@@ -136,9 +138,9 @@ public class ReadStateUpdater implements IUpdatable {
             }
         }
         
-        if (idList.size() > 0) {
-            Controller.getInstance().getConnector().setArticleRead(idList, mArticleState);
-            DBHelper.getInstance().markArticlesRead(idList, mArticleState);
+        if (ids.size() > 0) {
+            Controller.getInstance().getConnector().setArticleRead(ids, mArticleState);
+            DBHelper.getInstance().markArticlesRead(ids, mArticleState);
             
             int deltaUnread = mArticleState == 1 ? mList.size() : -mList.size();
             Data.getInstance().getCategory(-4).setDeltaUnreadCount(deltaUnread);

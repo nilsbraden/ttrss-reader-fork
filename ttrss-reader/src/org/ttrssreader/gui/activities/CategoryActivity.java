@@ -18,6 +18,7 @@ package org.ttrssreader.gui.activities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -282,15 +283,14 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         }
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public void onRefreshEnd() {
         if (!Controller.getInstance().getConnector().hasLastError()) {
             
             try {
                 List<CategoryItem> list = new ArrayList<CategoryItem>();
-                for (Object c : refresher.get()) {
-                    list.add((CategoryItem) c);
-                }
+                list.addAll((Set<CategoryItem>) refresher.get());
                 mAdapter.setCategories(list);
                 mAdapter.notifyDataSetChanged();
             } catch (Exception e) {

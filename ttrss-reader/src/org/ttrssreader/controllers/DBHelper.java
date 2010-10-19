@@ -17,11 +17,9 @@
 package org.ttrssreader.controllers;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.model.article.ArticleItem;
@@ -47,7 +45,7 @@ public class DBHelper {
     private boolean mIsControllerInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 20;
+    private static final int DATABASE_VERSION = 21;
     
     private static final String TABLE_CAT = "categories";
     private static final String TABLE_FEEDS = "feeds";
@@ -380,11 +378,11 @@ public class DBHelper {
                 c.getUnread());
     }
     
-    public void insertCategories(List<CategoryItem> list) {
-        if (list == null)
+    public void insertCategories(Set<CategoryItem> set) {
+        if (set == null)
             return;
         
-        for (CategoryItem c : list) {
+        for (CategoryItem c : set) {
             insertCategory(
                     c.getId(), 
                     c.getTitle(),
@@ -423,11 +421,11 @@ public class DBHelper {
                 f.getUnread());
     }
     
-    public void insertFeeds(List<FeedItem> list) {
-        if (list == null)
+    public void insertFeeds(Set<FeedItem> set) {
+        if (set == null)
             return;
         
-        for (FeedItem f : list) {
+        for (FeedItem f : set) {
             insertFeed(f);
         }
     }
@@ -448,7 +446,7 @@ public class DBHelper {
         if (updateDate == null)
             updateDate = new Date(System.currentTimeMillis());
         if (attachments == null)
-            attachments = new HashSet<String>();
+            attachments = new LinkedHashSet<String>();
         
         String att = parseAttachmentSet(attachments);
         
@@ -498,7 +496,7 @@ public class DBHelper {
                 a.getAttachments());
     }
     
-    public void insertArticles(List<ArticleItem> list, int number) {
+    public void insertArticles(Set<ArticleItem> list, int number) {
         if (list == null)
             return;
         
@@ -506,10 +504,10 @@ public class DBHelper {
         purgeArticlesNumber(number);
     }
     
-    private void insertArticlesInternal(List<ArticleItem> list) {
+    private void insertArticlesInternal(Set<ArticleItem> set) {
         if (!isInternalDBAvailable())
             return;
-        if (list == null)
+        if (set == null)
             return;
         
         /*
@@ -526,7 +524,7 @@ public class DBHelper {
         synchronized (db_intern) {
             db_intern.beginTransaction();
             try {
-                for (ArticleItem a : list) {
+                for (ArticleItem a : set) {
                     insertArticleInternal(a);
                 }
                 db_intern.setTransactionSuccessful();
@@ -541,7 +539,7 @@ public class DBHelper {
             synchronized (db_extern) {
                 db_extern.beginTransaction();
                 try {
-                    for (ArticleItem a : list) {
+                    for (ArticleItem a : set) {
                         insertArticleInternal(a);
                     }
                     db_extern.setTransactionSuccessful();
@@ -584,7 +582,7 @@ public class DBHelper {
         }
     }
     
-    public void markArticlesRead(List<Integer> iDlist, int articleState) {
+    public void markArticlesRead(Set<Integer> iDlist, int articleState) {
         if (!isInternalDBAvailable())
             return;
         
@@ -853,8 +851,8 @@ public class DBHelper {
         return ret;
     }
     
-    public List<ArticleItem> getArticles(FeedItem fi, boolean withContent) {
-        List<ArticleItem> ret = new ArrayList<ArticleItem>();
+    public Set<ArticleItem> getArticles(FeedItem fi, boolean withContent) {
+        Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
         if (!isInternalDBAvailable())
             return ret;
         
@@ -877,8 +875,8 @@ public class DBHelper {
         return ret;
     }
     
-    public List<FeedItem> getFeeds(CategoryItem ci) {
-        List<FeedItem> ret = new ArrayList<FeedItem>();
+    public Set<FeedItem> getFeeds(CategoryItem ci) {
+        Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
         if (!isInternalDBAvailable())
             return ret;
         
@@ -905,8 +903,8 @@ public class DBHelper {
      * Returns the maxArticles newest articles, mapped in lists to their feed-id.
      * Returns all articles if maxArticles is 0 or lower.
      */
-    public Map<Integer, List<ArticleItem>> getArticles(int maxArticles, boolean withContent) {
-        Map<Integer, List<ArticleItem>> ret = new HashMap<Integer, List<ArticleItem>>();
+    public Map<Integer, Set<ArticleItem>> getArticles(int maxArticles, boolean withContent) {
+        Map<Integer, Set<ArticleItem>> ret = new HashMap<Integer, Set<ArticleItem>>();
         if (!isInternalDBAvailable())
             return ret;
         
@@ -920,15 +918,15 @@ public class DBHelper {
                 ArticleItem a = handleArticleCursor(c, withContent);
                 int feedId = a.getFeedId();
                 
-                List<ArticleItem> list;
+                Set<ArticleItem> set;
                 if (ret.get(feedId) != null) {
-                    list = ret.get(feedId);
+                    set = ret.get(feedId);
                 } else {
-                    list = new ArrayList<ArticleItem>();
+                    set = new LinkedHashSet<ArticleItem>();
                 }
                 
-                list.add(a);
-                ret.put(feedId, list);
+                set.add(a);
+                ret.put(feedId, set);
                 
                 c.move(1);
             }
@@ -942,8 +940,8 @@ public class DBHelper {
         return ret;
     }
     
-    public Map<Integer, List<FeedItem>> getFeeds() {
-        Map<Integer, List<FeedItem>> ret = new HashMap<Integer, List<FeedItem>>();
+    public Map<Integer, Set<FeedItem>> getFeeds() {
+        Map<Integer, Set<FeedItem>> ret = new HashMap<Integer, Set<FeedItem>>();
         if (!isInternalDBAvailable())
             return ret;
         
@@ -955,15 +953,15 @@ public class DBHelper {
                 FeedItem fi = handleFeedCursor(c);
                 int catId = c.getInt(1);
                 
-                List<FeedItem> list;
+                Set<FeedItem> set;
                 if (ret.get(catId) != null) {
-                    list = ret.get(catId);
+                    set = ret.get(catId);
                 } else {
-                    list = new ArrayList<FeedItem>();
+                    set = new LinkedHashSet<FeedItem>();
                 }
                 
-                list.add(fi);
-                ret.put(catId, list);
+                set.add(fi);
+                ret.put(catId, set);
                 
                 c.move(1);
             }
@@ -977,8 +975,8 @@ public class DBHelper {
         return ret;
     }
     
-    public List<CategoryItem> getVirtualCategories() {
-        List<CategoryItem> ret = new ArrayList<CategoryItem>();
+    public Set<CategoryItem> getVirtualCategories() {
+        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
         if (!isInternalDBAvailable())
             return ret;
         
@@ -1002,8 +1000,8 @@ public class DBHelper {
         return ret;
     }
     
-    public List<CategoryItem> getCategories(boolean withVirtualCategories) {
-        List<CategoryItem> ret = new ArrayList<CategoryItem>();
+    public Set<CategoryItem> getCategories(boolean withVirtualCategories) {
+        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
         if (!isInternalDBAvailable())
             return ret;
         
@@ -1035,8 +1033,8 @@ public class DBHelper {
     /*
      * Equals the API-Call to getCounters
      */
-    public Map<CategoryItem, List<FeedItem>> getCounters() {
-        Map<CategoryItem, List<FeedItem>> ret = new HashMap<CategoryItem, List<FeedItem>>();
+    public Map<CategoryItem, Set<FeedItem>> getCounters() {
+        Map<CategoryItem, Set<FeedItem>> ret = new HashMap<CategoryItem, Set<FeedItem>>();
         
         for (CategoryItem c : getCategories(true)) {
             ret.put(c, getFeeds(c));
@@ -1045,15 +1043,15 @@ public class DBHelper {
         return ret;
     }
     
-    public void setCounters(Map<CategoryItem, List<FeedItem>> map) {
+    public void setCounters(Map<CategoryItem, Set<FeedItem>> map) {
         for (CategoryItem c : map.keySet()) {
             updateCategoryUnreadCount(c.getId(), c.getUnread());
             
-            List<FeedItem> list = map.get(c);
-            if (list == null)
+            Set<FeedItem> set = map.get(c);
+            if (set == null)
                 continue;
             
-            for (FeedItem f : list) {
+            for (FeedItem f : set) {
                 updateFeedUnreadCount(f.getId(), c.getId(), f.getUnread());
             }
         }
@@ -1139,7 +1137,7 @@ public class DBHelper {
     }
     
     private Set<String> parseAttachments(String att) {
-        Set<String> ret = new HashSet<String>();
+        Set<String> ret = new LinkedHashSet<String>();
         if (att == null)
             return ret;
         

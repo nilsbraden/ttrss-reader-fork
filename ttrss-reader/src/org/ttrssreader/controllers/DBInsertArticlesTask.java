@@ -17,13 +17,14 @@
 package org.ttrssreader.controllers;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.utils.Utils;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class DBInsertArticlesTask extends AsyncTask<List<ArticleItem>, Void, Void> {
+public class DBInsertArticlesTask extends AsyncTask<Set<ArticleItem>, Void, Void> {
     
     private int mMaxArticles;
     long time;
@@ -34,16 +35,16 @@ public class DBInsertArticlesTask extends AsyncTask<List<ArticleItem>, Void, Voi
     }
     
     @Override
-    protected Void doInBackground(List<ArticleItem>... args) {
+    protected Void doInBackground(Set<ArticleItem>... args) {
         if (args[0] != null && args[0] instanceof ArrayList<?>) {
             
-            List<ArticleItem> list = (ArrayList<ArticleItem>) args[0];
+            Set<ArticleItem> set = (HashSet<ArticleItem>) args[0];
             
-            if (list.size() > 0) {
-                Log.i(Utils.TAG, "DBInsertArticlesTask BEGIN: " + list.size());
-                DBHelper.getInstance().insertArticles(list, mMaxArticles);
+            if (set.size() > 0) {
+                Log.i(Utils.TAG, "DBInsertArticlesTask BEGIN: " + set.size());
+                DBHelper.getInstance().insertArticles(set, mMaxArticles);
                 Log.i(Utils.TAG,
-                        "DBInsertArticlesTask END: " + list.size() + " article(s) took "
+                        "DBInsertArticlesTask END: " + set.size() + " article(s) took "
                                 + (System.currentTimeMillis() - time) + "ms");
             }
         }
