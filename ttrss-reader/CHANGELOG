@@ -7,6 +7,11 @@
   * Refactored the JsonConnector and its interface
   * Rewrote DataController (now: Data) from scratch
   * Don't request Headlines and Content of Articles seperated, just fetching the full article now
+  * Fixed: Fling in virtual category causing NPE
+  * Fixed: getArticles is now working, even with with virtual categories
+  * Using Sets instead of Lists in backend to avoid having to deal with duplicates. Refactored all occurrences.
+  * Avoiding synchronisation-issues and parallel access in DBHelper
+  * Better Fling-recognition
 
 == Version 0.6.2 (Bugfix-release) ==
   * Fixed NPE in CategoryActivity
