@@ -84,8 +84,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         setContentView(R.layout.articleitem);
         
         Controller.getInstance().checkAndInitializeController(this);
-        DBHelper.getInstance().checkAndInitializeController(this);
-        Data.getInstance().checkAndInitializeController(this);
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        Data.getInstance().checkAndInitializeData(this);
         
         setProgressBarIndeterminateVisibility(false);
         
@@ -129,7 +129,14 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     @Override
     protected void onResume() {
         super.onResume();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         doRefresh();
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
     }
     
     @Override
@@ -305,7 +312,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
             
             if (Math.abs(dy) > 60) {
                 // Too much Y-Movement or
-                return false;
+                return true;
             } else if (e1.getY() < SWIPE_BOTTOM || e2.getY() < SWIPE_BOTTOM) {
                 
                 // Only accept swipe in SWIPE_AREA so we can use scrolling as usual
@@ -336,9 +343,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
             return false;
         }
         
-        // I need this to set the text invisible after some time
         private Runnable timerTask = new Runnable() {
-            
+            // Need this to set the text invisible after some time
             public void run() {
                 webviewSwipeText.setVisibility(TextView.INVISIBLE);
             }

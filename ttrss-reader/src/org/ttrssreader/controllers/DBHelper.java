@@ -42,7 +42,7 @@ public class DBHelper {
     // TODO: Check if article/feed/category is already in DB instead of just using UPDATE.
     
     private static DBHelper mInstance = null;
-    private boolean mIsControllerInitialized = false;
+    private boolean mIsDBInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
     private static final int DATABASE_VERSION = 21;
@@ -154,10 +154,13 @@ public class DBHelper {
         
     }
     
-    public synchronized void checkAndInitializeController(Context context) {
-        if (!mIsControllerInitialized) {
-            this.context = context;
-            mIsControllerInitialized = initializeController();
+    public synchronized void checkAndInitializeDB(Context context) {
+        this.context = context;
+        
+        if (!mIsDBInitialized) {
+            mIsDBInitialized = initializeController();
+        } else if(db_intern == null || !db_intern.isOpen()) {
+            mIsDBInitialized = initializeController();
         }
     }
     
@@ -171,7 +174,7 @@ public class DBHelper {
     public void destroy() {
         closeDB();
         mInstance = null;
-        mIsControllerInitialized = false;
+        mIsDBInitialized = false;
     }
     
     private void handleDBUpdate() {
@@ -231,15 +234,9 @@ public class DBHelper {
         if (db_intern != null && db_intern.isOpen()) {
             return true;
         } else {
-            if (mIsControllerInitialized) {
-                Log.w(Utils.TAG,
-                        "Controller initialized BUT internal DB is null? Trying to initialize Controller again...");
-                mIsControllerInitialized = initializeController();
-            } else {
-                Log.w(Utils.TAG, "Controller not initialized, trying to do that now...");
-                mIsControllerInitialized = initializeController();
-            }
-            return mIsControllerInitialized;
+            Log.w(Utils.TAG, "Controller not initialized, trying to do that now...");
+            mIsDBInitialized = initializeController();
+            return mIsDBInitialized;
         }
     }
     

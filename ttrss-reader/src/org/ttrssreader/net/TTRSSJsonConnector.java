@@ -609,7 +609,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory) {
+    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit) {
         /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
         
@@ -623,7 +623,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         int cat = isCategory ? 1 : 0;
         
         // TODO: Find a better way of handling the limit 25
-        String url = mServerUrl + String.format(OP_GET_ARTICLES, mSessionId, parentId, unread, cat, 25);
+        String url = mServerUrl + String.format(OP_GET_ARTICLES, mSessionId, parentId, unread, cat, limit);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
