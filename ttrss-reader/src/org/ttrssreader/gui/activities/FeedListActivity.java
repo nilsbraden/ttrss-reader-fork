@@ -68,8 +68,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         setContentView(R.layout.feedlist);
         
         Controller.getInstance().checkAndInitializeController(this);
-        DBHelper.getInstance().checkAndInitializeController(this);
-        Data.getInstance().checkAndInitializeController(this);
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        Data.getInstance().checkAndInitializeData(this);
         
         setProgressBarIndeterminateVisibility(false);
         mFeedListView = getListView();
@@ -101,7 +101,14 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     @Override
     protected void onResume() {
         super.onResume();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         doRefresh();
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
     }
     
     @Override

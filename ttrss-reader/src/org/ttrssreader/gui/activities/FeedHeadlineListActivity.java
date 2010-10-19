@@ -82,8 +82,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         setContentView(R.layout.feedheadlinelist);
         
         Controller.getInstance().checkAndInitializeController(this);
-        DBHelper.getInstance().checkAndInitializeController(this);
-        Data.getInstance().checkAndInitializeController(this);
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        Data.getInstance().checkAndInitializeData(this);
         
         setProgressBarIndeterminateVisibility(false);
         mFeedHeadlineListView = getListView();
@@ -124,7 +124,14 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     @Override
     protected void onResume() {
         super.onResume();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         doRefresh();
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
     }
     
     @Override
@@ -225,6 +232,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     }
     
     private void openNextFeed() {
+        if (mFeedId < 0)
+            return;
+        
         int index = mFeedIds.indexOf(mFeedId) + 1;
         
         // No more feeds in this direction
@@ -248,6 +258,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     }
     
     private void openPreviousFeed() {
+        if (mFeedId < 0)
+            return;
+        
         int index = mFeedIds.indexOf(mFeedId) - 1;
         
         // No more feeds in this direction

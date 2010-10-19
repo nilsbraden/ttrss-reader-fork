@@ -73,12 +73,12 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         setContentView(R.layout.category);
         
         Controller.getInstance().checkAndInitializeController(this);
-        DBHelper.getInstance().checkAndInitializeController(this);
+        DBHelper.getInstance().checkAndInitializeDB(this);
         
         storageReceiver = new ExternalStorageReceiver();
         registerReceiver(storageReceiver, storageReceiver.getFilter());
         
-        Data.getInstance().checkAndInitializeController(this);
+        Data.getInstance().checkAndInitializeData(this);
         
         mCategoryListView = getListView();
         mAdapter = new CategoryListAdapter(this);
@@ -106,10 +106,18 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     @Override
     protected void onResume() {
         super.onResume();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
+        
         if (connected)
             doRefresh();
         else
             connected = true;
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
     }
     
     @Override
@@ -124,7 +132,12 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             updater = null;
         }
         unregisterReceiver(storageReceiver);
-        DBHelper.getInstance().destroy();
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+//        DBHelper.getInstance().destroy();
     }
     
     private synchronized void doRefresh() {

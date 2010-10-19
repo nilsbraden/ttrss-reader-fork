@@ -84,7 +84,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     public List<CategoryItem> getCategories() {
         return mCategories;
     }
-    
+
     public void setCategories(List<CategoryItem> categories) {
         this.mCategories = categories;
     }

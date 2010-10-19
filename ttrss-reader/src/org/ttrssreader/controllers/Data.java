@@ -31,7 +31,7 @@ public class Data {
     
     private static final String mutex = "";
     private static Data mInstance = null;
-    private static boolean mIsControllerInitialized = false;
+    private static boolean mIsDataInitialized = false;
     
     private long mCountersUpdated = 0;
     private Map<Integer, Long> mArticlesUpdated = new HashMap<Integer, Long>();
@@ -56,7 +56,7 @@ public class Data {
         }
     }
     
-    public synchronized void initializeController(Context context) {
+    public synchronized void initializeData(Context context) {
         if (context != null)
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         
@@ -85,10 +85,10 @@ public class Data {
             mCategoriesUpdated = mNewArticlesUpdated;
     }
     
-    public synchronized void checkAndInitializeController(final Context context) {
-        if (!mIsControllerInitialized) {
-            initializeController(context);
-            mIsControllerInitialized = true;
+    public synchronized void checkAndInitializeData(final Context context) {
+        if (!mIsDataInitialized) {
+            initializeData(context);
+            mIsDataInitialized = true;
         }
     }
     
@@ -129,10 +129,7 @@ public class Data {
                 return;
             }
         } else if (Utils.isOnline(cm)) {
-            Map<CategoryItem, Set<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
-            if (counters != null)
-                mCounters = counters;
-            
+            mCounters = Controller.getInstance().getConnector().getCounters();
             mCountersUpdated = System.currentTimeMillis();
             DBHelper.getInstance().setCounters(mCounters);
         }
@@ -171,11 +168,22 @@ public class Data {
                 return;
             }
         } else if (Utils.isOnline(cm)) {
-            // TODO: Anzahl an Artikeln deutlich reduzieren, 1.5MB sind zu viel!
+            
+            FeedItem f = getFeed(feedId);
+            int limit = 30;
+            if (f != null) {
+                int l = getFeed(feedId).getUnread();
+                limit = (l > limit ? l : 30);
+            }
+            
+            boolean isCategory = false;
+            if (feedId < 0 && feedId > -10) {
+                isCategory = true;
+                limit = getCategoryUnreadCount(feedId);
+            }
+            
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
-                    .getArticles(feedId, displayOnlyUnread, false);
-            if (articles == null)
-                return;
+                    .getArticles(feedId, displayOnlyUnread, isCategory, limit);
             
             mArticles.put(feedId, articles);
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
@@ -198,7 +206,6 @@ public class Data {
         
         Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = null;
         if (Utils.isOnline(cm)) {
-            // TODO: Verify behaviour: 1 == only unread articles are fetched?
             ret = Controller.getInstance().getConnector().getNewArticles(1, mNewArticlesUpdated);
         } else {
             return;
@@ -212,16 +219,20 @@ public class Data {
             
             for (FeedItem f : feeds.keySet()) {
                 Set<ArticleItem> a = feeds.get(f);
-                if (a != null)
+                if (a != null) {
+                    
+                    Set<ArticleItem> set = mArticles.get(f.getId());
+                    if (set == null)
+                        continue;
+                    
+                    set.addAll(a);
                     articles.addAll(a);
+                }
             }
         }
         
         DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
         task.execute(articles);
-        
-        // TODO
-        // initializeController(null);
     }
     
     // *** FEEDS ************************************************************************
@@ -253,9 +264,6 @@ public class Data {
             }
         } else if (Utils.isOnline(cm)) {
             mFeeds = Controller.getInstance().getConnector().getFeeds();
-            if (mFeeds == null)
-                return;
-            
             mFeedsUpdated = System.currentTimeMillis();
             
             DBHelper.getInstance().deleteFeeds();
@@ -330,8 +338,6 @@ public class Data {
             }
         } else if (Utils.isOnline(cm)) {
             mCategories = Controller.getInstance().getConnector().getCategories();
-            if (mCategories == null)
-                return;
             
             mCategoriesUpdated = System.currentTimeMillis();
             

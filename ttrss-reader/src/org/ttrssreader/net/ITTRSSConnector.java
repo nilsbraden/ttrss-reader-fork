@@ -55,12 +55,13 @@ public interface ITTRSSConnector {
     /**
      * Retrieves the articles for the given feed or category, depending on boolean isCategory. Already read articles can be filtered.
      * 
-     * @param id the id of the feed or category
-     * @param displayOnlyUnread whether we are to filter out read articles
-     * @param isCategory indicates if the id refers to a category or a feed
-     * @return a list of articles
+     * @param id the id of the feed or category.
+     * @param displayOnlyUnread whether we are to filter out read articles.
+     * @param isCategory indicates if the id refers to a category or a feed.
+     * @param limit sets a limit of articles that are read.
+     * @return a list of articles.
      */
-    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory);
+    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit);
     
     /**
      * Retrieves the specified article.
