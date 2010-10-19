@@ -4,6 +4,8 @@
 
 == Version 0.6.3 ==
   * Refactored the settings-code
+  * Refactored the JsonConnector and its interface
+  * Rewrote DataController (now: Data) from scratch
   * Don't request Headlines and Content of Articles seperated, just fetching the full article now
 
 == Version 0.6.2 (Bugfix-release) ==
