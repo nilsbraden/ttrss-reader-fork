@@ -229,7 +229,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         // Fetch content at once so we dont have to ask twice. Size does not matter in this magnitude i think.
         Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticles(feedId: " + mFeedId + ")");
         List<ArticleItem> ret = Data.getInstance().getArticles(mFeedId);
-        
+
         if (ret != null) {
             Collections.sort(ret, new ArticleItemComparator());
             
@@ -251,10 +251,9 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     @Override
     public void update() {
-        Log.i(Utils.TAG, "FeedHeadlineListAdapter - updateArticles(feedId: " + mFeedId + ")");
-        
         if (!Controller.getInstance().isWorkOffline()) {
             boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+            Log.i(Utils.TAG, "FeedHeadlineListAdapter - updateArticles(feedId: " + mFeedId + ")");
             Data.getInstance().updateArticles(mFeedId, displayOnlyUnread);
         }
     }

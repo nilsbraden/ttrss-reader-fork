@@ -41,6 +41,8 @@ import android.util.Log;
 
 public class DBHelper {
     
+    // TODO: Check if article/feed/category is already in DB instead of just using UPDATE.
+    
     private static DBHelper mInstance = null;
     private boolean mIsControllerInitialized = false;
     
@@ -360,7 +362,7 @@ public class DBHelper {
         if (title == null)
             title = "";
         
-        synchronized (insertCat) {
+        synchronized (db_intern) {
             insertCat.bindLong(1, id);
             insertCat.bindString(2, title);
             insertCat.bindLong(3, unread);
@@ -399,7 +401,7 @@ public class DBHelper {
         if (url == null)
             url = "";
         
-        synchronized (insertFeed) {
+        synchronized (db_intern) {
             insertFeed.bindLong(1, new Integer(feedId).longValue());
             insertFeed.bindLong(2, new Integer(categoryId).longValue());
             insertFeed.bindString(3, title);
@@ -450,7 +452,7 @@ public class DBHelper {
         
         String att = parseAttachmentSet(attachments);
         
-        synchronized (insertArticle) {
+        synchronized (db_intern) {
             insertArticle.bindLong(1, articleId);
             insertArticle.bindLong(2, feedId);
             insertArticle.bindString(3, title);
@@ -463,7 +465,7 @@ public class DBHelper {
         
         if (isExternalDBAvailable() && !content.equals("")) {
             content = DatabaseUtils.sqlEscapeString(content);
-            synchronized (insertArticle_extern) {
+            synchronized (db_extern) {
                 insertArticle_extern.bindLong(1, articleId);
                 insertArticle_extern.bindLong(2, feedId);
                 insertArticle_extern.bindString(3, content);
@@ -504,7 +506,7 @@ public class DBHelper {
         purgeArticlesNumber(number);
     }
     
-    private synchronized void insertArticlesInternal(List<ArticleItem> list) {
+    private void insertArticlesInternal(List<ArticleItem> list) {
         if (!isInternalDBAvailable())
             return;
         if (list == null)
@@ -670,7 +672,7 @@ public class DBHelper {
         
         String att = parseAttachmentSet(a.getAttachments());
         
-        synchronized (updateArticle) {
+        synchronized (db_intern) {
             updateArticle.bindString(1, title);
             updateArticle.bindString(2, articleUrl);
             updateArticle.bindString(3, articleCommentUrl);
@@ -681,7 +683,7 @@ public class DBHelper {
         }
         
         if (isExternalDBAvailable() && !content.equals("")) {
-            synchronized (updateArticle_extern) {
+            synchronized (db_extern) {
                 content = DatabaseUtils.sqlEscapeString(content);
                 updateArticle_extern.bindString(1, content);
                 updateArticle_extern.bindLong(2, updateDate.getTime());

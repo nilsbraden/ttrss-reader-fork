@@ -137,7 +137,7 @@ public class ReadStateUpdater implements IUpdatable {
         }
         
         if (idList.size() > 0) {
-            Controller.getInstance().getTTRSSConnector().setArticleRead(idList, mArticleState);
+            Controller.getInstance().getConnector().setArticleRead(idList, mArticleState);
             DBHelper.getInstance().markArticlesRead(idList, mArticleState);
             
             int deltaUnread = mArticleState == 1 ? mList.size() : -mList.size();

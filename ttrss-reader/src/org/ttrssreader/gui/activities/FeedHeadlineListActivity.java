@@ -199,6 +199,11 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     private void doForceRefresh() {
         Data.getInstance().resetArticlesTime(mFeedId);
+        
+        updater = new Updater(this, mAdapter);
+        setProgressBarIndeterminateVisibility(true);
+        updater.execute();
+        
         doRefresh();
     }
     
@@ -362,7 +367,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     @Override
     public void onRefreshEnd() {
-        if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+        if (!Controller.getInstance().getConnector().hasLastError()) {
             
             try {
                 List<ArticleItem> list = new ArrayList<ArticleItem>();
@@ -381,7 +386,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
                         + mAdapter.getUnreadCount() + ")");
             }
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         }
         
         if (updater != null) {
@@ -395,10 +400,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     @Override
     public void onUpdateEnd() {
-        if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+        if (!Controller.getInstance().getConnector().hasLastError()) {
             mAdapter.notifyDataSetChanged();
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         }
         
         doRefresh();

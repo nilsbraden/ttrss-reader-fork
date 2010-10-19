@@ -151,7 +151,7 @@ public class Controller {
         this.url = url;
     }
     
-    public ITTRSSConnector getTTRSSConnector() {
+    public ITTRSSConnector getConnector() {
         return mTTRSSConnector;
     }
     

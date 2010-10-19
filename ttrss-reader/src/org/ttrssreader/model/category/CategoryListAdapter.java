@@ -201,13 +201,15 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     @Override
     public void update() {
-        Log.i(Utils.TAG, "CategoryListAdapter     - updateCategories()");
         
         if (Controller.getInstance().isUpdateUnreadOnStartup()) {
+            Log.i(Utils.TAG, "CategoryListAdapter     - updateUnreadArticles()");
             Data.getInstance().updateUnreadArticles();
         }
         
+        Log.i(Utils.TAG, "CategoryListAdapter     - updateCategories()");
         Data.getInstance().updateCategories();
+        Log.i(Utils.TAG, "CategoryListAdapter     - updateVirtualCategories()");
         Data.getInstance().updateVirtualCategories();
     }
     

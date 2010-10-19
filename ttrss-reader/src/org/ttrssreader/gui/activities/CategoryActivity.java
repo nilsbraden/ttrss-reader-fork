@@ -214,6 +214,11 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     
     private void doForceRefresh() {
         Data.getInstance().resetCategoriesTime();
+        
+        updater = new Updater(this, mAdapter);
+        setProgressBarIndeterminateVisibility(true);
+        updater.execute();
+        
         doRefresh();
     }
     
@@ -279,7 +284,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     
     @Override
     public void onRefreshEnd() {
-        if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+        if (!Controller.getInstance().getConnector().hasLastError()) {
             
             try {
                 List<CategoryItem> list = new ArrayList<CategoryItem>();
@@ -292,7 +297,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             }
             
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
             return;
         }
         
@@ -311,10 +316,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     
     @Override
     public void onUpdateEnd() {
-        if (!Controller.getInstance().getTTRSSConnector().hasLastError()) {
+        if (!Controller.getInstance().getConnector().hasLastError()) {
             mAdapter.notifyDataSetChanged();
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getTTRSSConnector().pullLastError());
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
             return;
         }
         

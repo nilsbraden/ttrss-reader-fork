@@ -52,17 +52,15 @@ public class Data {
     
     public static Data getInstance() {
         synchronized (mutex) {
-            if (mInstance == null) {
+            if (mInstance == null)
                 mInstance = new Data();
-            }
             return mInstance;
         }
     }
     
     public synchronized void initializeController(Context context) {
-        if (context != null) {
+        if (context != null)
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        }
         
         mCounters = DBHelper.getInstance().getCounters();
         mArticles = DBHelper.getInstance().getArticles(0, false);
@@ -71,27 +69,22 @@ public class Data {
         mCategories = DBHelper.getInstance().getCategories(false);
         
         // Set new update-time if necessary
-        if (mCountersUpdated < mNewArticlesUpdated) {
+        if (mCountersUpdated < mNewArticlesUpdated)
             mCountersUpdated = mNewArticlesUpdated;
-        }
         
         for (int article : mArticlesUpdated.keySet()) {
-            if (mArticlesUpdated.get(article) < mNewArticlesUpdated) {
+            if (mArticlesUpdated.get(article) < mNewArticlesUpdated)
                 mArticlesUpdated.put(article, mNewArticlesUpdated);
-            }
         }
         
-        if (mFeedsUpdated < mNewArticlesUpdated) {
+        if (mFeedsUpdated < mNewArticlesUpdated)
             mFeedsUpdated = mNewArticlesUpdated;
-        }
         
-        if (mVirtCategoriesUpdated < mNewArticlesUpdated) {
+        if (mVirtCategoriesUpdated < mNewArticlesUpdated)
             mVirtCategoriesUpdated = mNewArticlesUpdated;
-        }
         
-        if (mCategoriesUpdated < mNewArticlesUpdated) {
+        if (mCategoriesUpdated < mNewArticlesUpdated)
             mCategoriesUpdated = mNewArticlesUpdated;
-        }
     }
     
     public synchronized void checkAndInitializeController(final Context context) {
@@ -138,10 +131,9 @@ public class Data {
                 return;
             }
         } else if (Utils.isOnline(cm)) {
-            Map<CategoryItem, List<FeedItem>> counters = Controller.getInstance().getTTRSSConnector().getCounters();
-            if (counters != null) {
+            Map<CategoryItem, List<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
+            if (counters != null)
                 mCounters = counters;
-            }
             
             mCountersUpdated = System.currentTimeMillis();
             DBHelper.getInstance().setCounters(mCounters);
@@ -182,7 +174,7 @@ public class Data {
             }
         } else if (Utils.isOnline(cm)) {
             // TODO: Anzahl an Artikeln deutlich reduzieren, 1.5MB sind zu viel!
-            List<ArticleItem> articles = Controller.getInstance().getTTRSSConnector()
+            List<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getArticles(feedId, displayOnlyUnread, false);
             if (articles == null)
                 return;
@@ -190,10 +182,8 @@ public class Data {
             mArticles.put(feedId, articles);
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
             
-            int articleLimit = Controller.getInstance().getArticleLimit();
-            new DBInsertArticlesTask(articleLimit).execute(articles);
-            
-            mArticles.put(feedId, articles);
+            DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
+            task.execute(articles);
         }
     }
     
@@ -210,7 +200,7 @@ public class Data {
         
         Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> ret = null;
         if (Utils.isOnline(cm)) {
-            ret = Controller.getInstance().getTTRSSConnector().getNewArticles(1, mNewArticlesUpdated);
+            ret = Controller.getInstance().getConnector().getNewArticles(1, mNewArticlesUpdated);
             // TODO: Verify behaviour: 1 == only unread articles are fetched?
         }
         
@@ -219,7 +209,6 @@ public class Data {
         }
         
         Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
-        int articleLimit = Controller.getInstance().getArticleLimit();
         List<ArticleItem> articleList = new ArrayList<ArticleItem>();
         
         for (CategoryItem c : ret.keySet()) {
@@ -234,8 +223,11 @@ public class Data {
             }
         }
         
-        new DBInsertArticlesTask(articleLimit).execute(articleList);
-        initializeController(null);
+        DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
+        task.execute(articleList);
+        
+        // TODO
+//        initializeController(null);
     }
     
     // *** FEEDS ************************************************************************
@@ -266,7 +258,7 @@ public class Data {
                 return;
             }
         } else if (Utils.isOnline(cm)) {
-            mFeeds = Controller.getInstance().getTTRSSConnector().getFeeds();
+            mFeeds = Controller.getInstance().getConnector().getFeeds();
             if (mFeeds == null)
                 return;
             
@@ -343,7 +335,7 @@ public class Data {
                 return;
             }
         } else if (Utils.isOnline(cm)) {
-            mCategories = Controller.getInstance().getTTRSSConnector().getCategories();
+            mCategories = Controller.getInstance().getConnector().getCategories();
             if (mCategories == null)
                 return;
             
