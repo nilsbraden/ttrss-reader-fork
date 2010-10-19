@@ -16,14 +16,12 @@
 
 package org.ttrssreader.controllers;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
-import org.ttrssreader.model.category.CategoryItemComparator;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
@@ -42,11 +40,11 @@ public class Data {
     private long mCategoriesUpdated = 0;
     private long mNewArticlesUpdated = 0;
     
-    private Map<CategoryItem, List<FeedItem>> mCounters;
-    private Map<Integer, List<ArticleItem>> mArticles;
-    private Map<Integer, List<FeedItem>> mFeeds;
-    private List<CategoryItem> mVirtCategories;
-    private List<CategoryItem> mCategories;
+    private Map<CategoryItem, Set<FeedItem>> mCounters;
+    private Map<Integer, Set<ArticleItem>> mArticles;
+    private Map<Integer, Set<FeedItem>> mFeeds;
+    private Set<CategoryItem> mVirtCategories;
+    private Set<CategoryItem> mCategories;
     
     private ConnectivityManager cm;
     
@@ -131,7 +129,7 @@ public class Data {
                 return;
             }
         } else if (Utils.isOnline(cm)) {
-            Map<CategoryItem, List<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
+            Map<CategoryItem, Set<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
             if (counters != null)
                 mCounters = counters;
             
@@ -142,7 +140,7 @@ public class Data {
     
     // *** ARTICLES *********************************************************************
     
-    public List<ArticleItem> getArticles(int feedId) {
+    public Set<ArticleItem> getArticles(int feedId) {
         for (int i : mArticles.keySet()) {
             if (i == feedId) {
                 return mArticles.get(i);
@@ -174,7 +172,7 @@ public class Data {
             }
         } else if (Utils.isOnline(cm)) {
             // TODO: Anzahl an Artikeln deutlich reduzieren, 1.5MB sind zu viel!
-            List<ArticleItem> articles = Controller.getInstance().getConnector()
+            Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getArticles(feedId, displayOnlyUnread, false);
             if (articles == null)
                 return;
@@ -198,41 +196,37 @@ public class Data {
         resetCounterTime();
         getCategoryUnreadCount(0);
         
-        Map<CategoryItem, Map<FeedItem, List<ArticleItem>>> ret = null;
+        Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = null;
         if (Utils.isOnline(cm)) {
-            ret = Controller.getInstance().getConnector().getNewArticles(1, mNewArticlesUpdated);
             // TODO: Verify behaviour: 1 == only unread articles are fetched?
-        }
-        
-        if (ret == null) {
+            ret = Controller.getInstance().getConnector().getNewArticles(1, mNewArticlesUpdated);
+        } else {
             return;
         }
         
         Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
-        List<ArticleItem> articleList = new ArrayList<ArticleItem>();
+        Set<ArticleItem> articles = new LinkedHashSet<ArticleItem>();
         
         for (CategoryItem c : ret.keySet()) {
-            Map<FeedItem, List<ArticleItem>> feeds = ret.get(c);
+            Map<FeedItem, Set<ArticleItem>> feeds = ret.get(c);
             
             for (FeedItem f : feeds.keySet()) {
-                List<ArticleItem> articles = feeds.get(f);
-                if (articles == null) {
-                    continue;
-                }
-                articleList.addAll(articles);
+                Set<ArticleItem> a = feeds.get(f);
+                if (a != null)
+                    articles.addAll(a);
             }
         }
         
         DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
-        task.execute(articleList);
+        task.execute(articles);
         
         // TODO
-//        initializeController(null);
+        // initializeController(null);
     }
     
     // *** FEEDS ************************************************************************
     
-    public List<FeedItem> getFeeds(int categoryId) {
+    public Set<FeedItem> getFeeds(int categoryId) {
         for (int i : mFeeds.keySet()) {
             if (i == categoryId) {
                 return mFeeds.get(i);
@@ -273,12 +267,12 @@ public class Data {
     
     // *** CATEGORIES *******************************************************************
     
-    public List<CategoryItem> getCategories(boolean virtuals) {
+    public Set<CategoryItem> getCategories(boolean virtuals) {
         if (!virtuals) {
             return mCategories;
         }
         
-        List<CategoryItem> ret = new ArrayList<CategoryItem>();
+        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
         ret.addAll(mVirtCategories);
         ret.addAll(mCategories);
         return ret;
@@ -304,7 +298,7 @@ public class Data {
         } else if (Utils.isOnline(cm)) {
             boolean displayCount = Controller.getInstance().isDisplayUnreadInVirtualFeeds();
             
-            mVirtCategories = new ArrayList<CategoryItem>();
+            mVirtCategories = new LinkedHashSet<CategoryItem>();
             mVirtCategoriesUpdated = System.currentTimeMillis();
             
             // Refresh CategoryCounters
@@ -326,7 +320,7 @@ public class Data {
         }
         
         if (mVirtCategories == null)
-            mVirtCategories = new ArrayList<CategoryItem>();
+            mVirtCategories = new LinkedHashSet<CategoryItem>();
     }
     
     public void updateCategories() {
@@ -339,7 +333,6 @@ public class Data {
             if (mCategories == null)
                 return;
             
-            Collections.sort(mCategories, new CategoryItemComparator());
             mCategoriesUpdated = System.currentTimeMillis();
             
             DBHelper.getInstance().deleteCategories(false);

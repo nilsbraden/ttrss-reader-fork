@@ -17,17 +17,17 @@
 package org.ttrssreader.model.feedheadline;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.article.ArticleItem;
-import org.ttrssreader.model.article.ArticleItemComparator;
 import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
@@ -223,18 +223,16 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     }
     
     @Override
-    public List<?> refreshData() {
+    public Set<?> refreshData() {
         boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
         
         // Fetch content at once so we dont have to ask twice. Size does not matter in this magnitude i think.
         Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticles(feedId: " + mFeedId + ")");
-        List<ArticleItem> ret = Data.getInstance().getArticles(mFeedId);
+        Set<ArticleItem> ret = Data.getInstance().getArticles(mFeedId);
 
         if (ret != null) {
-            Collections.sort(ret, new ArticleItemComparator());
-            
             if (displayOnlyUnread) {
-                List<ArticleItem> temp = new ArrayList<ArticleItem>();
+                Set<ArticleItem> temp = new LinkedHashSet<ArticleItem>();
                 
                 for (ArticleItem ai : ret) {
                     if (ai.isUnread()) {

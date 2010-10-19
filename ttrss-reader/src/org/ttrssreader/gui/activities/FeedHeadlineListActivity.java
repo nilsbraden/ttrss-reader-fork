@@ -18,6 +18,7 @@ package org.ttrssreader.gui.activities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -279,7 +280,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            
+            // TODO: Don't use absolute values for pixel, check "density".
             if (!useSwipe) {
                 // Swiping is disabled in preferences
                 return false;
@@ -290,7 +291,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             
             if (Math.abs(dy) > 60) {
                 // Too much Y-Movement
-                return false;
+                return true;
             }
             
             // don't accept the fling if it's too short as it may conflict with a button push
@@ -365,15 +366,14 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         startActivity(i);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public void onRefreshEnd() {
         if (!Controller.getInstance().getConnector().hasLastError()) {
             
             try {
                 List<ArticleItem> list = new ArrayList<ArticleItem>();
-                for (Object f : refresher.get()) {
-                    list.add((ArticleItem) f);
-                }
+                list.addAll((Set<ArticleItem>) refresher.get());
                 mAdapter.setArticles(list);
                 mAdapter.notifyDataSetChanged();
             } catch (Exception e) {

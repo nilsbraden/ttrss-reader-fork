@@ -19,7 +19,7 @@ package org.ttrssreader.model.feed;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
-public class FeedItem {
+public class FeedItem implements Comparable<FeedItem> {
     
     private int mId;
     private int mCategoryId;
@@ -124,4 +124,25 @@ public class FeedItem {
     public void setUnread(int mUnread) {
         this.mUnread = mUnread;
     }
+    
+    @Override
+    public int compareTo(FeedItem fi) {
+        return this.getTitle().compareToIgnoreCase(fi.getTitle());
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof FeedItem) {
+            FeedItem other = (FeedItem) o;
+            return (this.getId() == other.getId());
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
+    public int hashCode() {
+        return this.getId()+"".hashCode();
+    }
+    
 }

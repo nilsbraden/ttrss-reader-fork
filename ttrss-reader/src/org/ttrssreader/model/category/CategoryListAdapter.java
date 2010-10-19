@@ -17,7 +17,9 @@
 package org.ttrssreader.model.category;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
@@ -175,12 +177,12 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     }
     
     @Override
-    public List<?> refreshData() {
+    public Set<?> refreshData() {
         Log.i(Utils.TAG, "CategoryListAdapter     - getCategories()");
-        List<CategoryItem> ret = Data.getInstance().getCategories(Controller.getInstance().isDisplayVirtuals());
+        Set<CategoryItem> ret = Data.getInstance().getCategories(Controller.getInstance().isDisplayVirtuals());
         
         if (Controller.getInstance().isDisplayOnlyUnread()) {
-            List<CategoryItem> temp = new ArrayList<CategoryItem>();
+            Set<CategoryItem> temp = new LinkedHashSet<CategoryItem>();
             
             for (CategoryItem ci : ret) {
                 if (ci.getId() < 0) {
