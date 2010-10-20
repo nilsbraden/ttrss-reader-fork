@@ -40,12 +40,6 @@ public class Data {
     private long mCategoriesUpdated = 0;
     private long mNewArticlesUpdated = 0;
     
-    private Map<CategoryItem, Set<FeedItem>> mCounters;
-    private Map<Integer, Set<ArticleItem>> mArticles;
-    private Map<Integer, Set<FeedItem>> mFeeds;
-    private Set<CategoryItem> mVirtCategories;
-    private Set<CategoryItem> mCategories;
-    
     private ConnectivityManager cm;
     
     public static Data getInstance() {
@@ -59,12 +53,6 @@ public class Data {
     public synchronized void initializeData(Context context) {
         if (context != null)
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        
-        mCounters = DBHelper.getInstance().getCounters();
-        mArticles = DBHelper.getInstance().getArticles(0, false);
-        mFeeds = DBHelper.getInstance().getFeeds();
-        mVirtCategories = DBHelper.getInstance().getVirtualCategories();
-        mCategories = DBHelper.getInstance().getCategories(false);
         
         // Set new update-time if necessary
         if (mCountersUpdated < mNewArticlesUpdated)
@@ -114,7 +102,9 @@ public class Data {
     public int getCategoryUnreadCount(int catId) {
         updateCounters();
         
-        for (CategoryItem c : mCounters.keySet()) {
+        Set<CategoryItem> set = DBHelper.getInstance().getCategoryCounters();
+        
+        for (CategoryItem c : set) {
             if (catId == c.getId()) {
                 return c.getUnread();
             }
@@ -125,36 +115,22 @@ public class Data {
     
     public void updateCounters() {
         if (mCountersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            if (mCounters != null) {
-                return;
-            }
+            return;
         } else if (Utils.isOnline(cm)) {
-            mCounters = Controller.getInstance().getConnector().getCounters();
+            Map<CategoryItem, Set<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
             mCountersUpdated = System.currentTimeMillis();
-            DBHelper.getInstance().setCounters(mCounters);
+            DBHelper.getInstance().setCounters(counters);
         }
     }
     
     // *** ARTICLES *********************************************************************
     
     public Set<ArticleItem> getArticles(int feedId) {
-        for (int i : mArticles.keySet()) {
-            if (i == feedId) {
-                return mArticles.get(i);
-            }
-        }
-        return null;
+        return DBHelper.getInstance().getArticles(feedId, true);
     }
     
     public ArticleItem getArticle(int articleId) {
-        for (int i : mArticles.keySet()) {
-            for (ArticleItem ai : mArticles.get(i)) {
-                if (ai.getId() == articleId) {
-                    return ai;
-                }
-            }
-        }
-        return null;
+        return DBHelper.getInstance().getArticle(articleId);
     }
     
     @SuppressWarnings("unchecked")
@@ -164,9 +140,7 @@ public class Data {
             time = new Long(0);
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            if (mArticles.get(feedId) != null) {
-                return;
-            }
+            return;
         } else if (Utils.isOnline(cm)) {
             
             FeedItem f = getFeed(feedId);
@@ -185,11 +159,6 @@ public class Data {
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getArticles(feedId, displayOnlyUnread, isCategory, limit);
             
-            Set<ArticleItem> set = mArticles.get(feedId);
-            if (set != null) {
-                articles.addAll(set);
-            }
-            mArticles.put(feedId, articles);
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
             
             DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
@@ -224,12 +193,6 @@ public class Data {
             for (FeedItem f : feeds.keySet()) {
                 Set<ArticleItem> a = feeds.get(f);
                 if (a != null) {
-                    
-                    Set<ArticleItem> set = mArticles.get(f.getId());
-                    if (set == null)
-                        continue;
-                    
-                    set.addAll(a);
                     articles.addAll(a);
                 }
             }
@@ -242,37 +205,23 @@ public class Data {
     // *** FEEDS ************************************************************************
     
     public Set<FeedItem> getFeeds(int categoryId) {
-        for (int i : mFeeds.keySet()) {
-            if (i == categoryId) {
-                return mFeeds.get(i);
-            }
-        }
-        return null;
+        return DBHelper.getInstance().getFeeds(categoryId);
     }
     
     public FeedItem getFeed(int feedId) {
-        for (int i : mFeeds.keySet()) {
-            for (FeedItem fi : mFeeds.get(i)) {
-                if (fi.getId() == feedId) {
-                    return fi;
-                }
-            }
-        }
-        return null;
+        return DBHelper.getInstance().getFeed(feedId);
     }
     
     public void updateFeeds(int categoryId) {
         if (mFeedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            if (mFeeds != null) {
-                return;
-            }
+            return;
         } else if (Utils.isOnline(cm)) {
-            mFeeds = Controller.getInstance().getConnector().getFeeds();
+            Map<Integer, Set<FeedItem>> feeds = Controller.getInstance().getConnector().getFeeds();
             mFeedsUpdated = System.currentTimeMillis();
             
             DBHelper.getInstance().deleteFeeds();
-            for (Integer s : mFeeds.keySet()) {
-                DBHelper.getInstance().insertFeeds(mFeeds.get(s));
+            for (Integer s : feeds.keySet()) {
+                DBHelper.getInstance().insertFeeds(feeds.get(s));
             }
         }
     }
@@ -280,37 +229,20 @@ public class Data {
     // *** CATEGORIES *******************************************************************
     
     public Set<CategoryItem> getCategories(boolean virtuals) {
-        if (!virtuals) {
-            return mCategories;
-        }
-        
-        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
-        ret.addAll(mVirtCategories);
-        ret.addAll(mCategories);
-        return ret;
+        return DBHelper.getInstance().getCategories(virtuals);
     }
     
     public CategoryItem getCategory(int categoryId) {
-        for (CategoryItem ci : mCategories) {
-            if (ci.getId() == categoryId) {
-                return ci;
-            }
-        }
-        for (CategoryItem ci : mVirtCategories) {
-            if (ci.getId() == categoryId) {
-                return ci;
-            }
-        }
-        return null;
+        return DBHelper.getInstance().getCategory(categoryId);
     }
     
     public void updateVirtualCategories() {
         if (mVirtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            
+            return;
         } else if (Utils.isOnline(cm)) {
             boolean displayCount = Controller.getInstance().isDisplayUnreadInVirtualFeeds();
             
-            mVirtCategories = new LinkedHashSet<CategoryItem>();
+            Set<CategoryItem> virtCategories = new LinkedHashSet<CategoryItem>();
             mVirtCategoriesUpdated = System.currentTimeMillis();
             
             // Refresh CategoryCounters
@@ -318,35 +250,30 @@ public class Data {
             
             CategoryItem catItem;
             catItem = new CategoryItem(-4, "All articles", displayCount ? getCategoryUnreadCount(-4) : 0);
-            mVirtCategories.add(catItem);
+            virtCategories.add(catItem);
             catItem = new CategoryItem(-3, "Fresh articles", displayCount ? getCategoryUnreadCount(-3) : 0);
-            mVirtCategories.add(catItem);
+            virtCategories.add(catItem);
             catItem = new CategoryItem(-2, "Published articles", displayCount ? getCategoryUnreadCount(-2) : 0);
-            mVirtCategories.add(catItem);
+            virtCategories.add(catItem);
             catItem = new CategoryItem(-1, "Starred articles", displayCount ? getCategoryUnreadCount(-1) : 0);
-            mVirtCategories.add(catItem);
+            virtCategories.add(catItem);
             catItem = new CategoryItem(0, "Uncategorized Feeds", displayCount ? getCategoryUnreadCount(0) : 0);
-            mVirtCategories.add(catItem);
+            virtCategories.add(catItem);
             
-            DBHelper.getInstance().insertCategories(mVirtCategories);
+            DBHelper.getInstance().insertCategories(virtCategories);
         }
-        
-        if (mVirtCategories == null)
-            mVirtCategories = new LinkedHashSet<CategoryItem>();
     }
     
     public void updateCategories() {
         if (mCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            if (mCategories != null) {
-                return;
-            }
+            return;
         } else if (Utils.isOnline(cm)) {
-            mCategories = Controller.getInstance().getConnector().getCategories();
+            Set<CategoryItem> categories = Controller.getInstance().getConnector().getCategories();
             
             mCategoriesUpdated = System.currentTimeMillis();
             
             DBHelper.getInstance().deleteCategories(false);
-            DBHelper.getInstance().insertCategories(mCategories);
+            DBHelper.getInstance().insertCategories(categories);
         }
     }
     
