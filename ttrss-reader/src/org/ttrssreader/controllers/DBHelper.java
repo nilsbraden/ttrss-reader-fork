@@ -506,17 +506,6 @@ public class DBHelper {
             return;
         if (set == null)
             return;
-        
-        /*
-         * TODO: Find a faster way to insert articles. Transactions like below should speed things up but this code
-         * tends to crash once in a while with the following exception:
-         * E/AndroidRuntime( 668): Caused by: android.database.sqlite.SQLiteException: cannot commit transaction - SQL
-         * statements in progress: COMMIT;
-         * E/AndroidRuntime( 668): at android.database.sqlite.SQLiteDatabase.native_execSQL(Native Method)
-         * E/AndroidRuntime( 668): at android.database.sqlite.SQLiteDatabase.execSQL(SQLiteDatabase.java:1610)
-         * E/AndroidRuntime( 668): at android.database.sqlite.SQLiteDatabase.endTransaction(SQLiteDatabase.java:505)
-         * E/AndroidRuntime( 668): at org.ttrssreader.controllers.DBHelper.insertArticlesInternal(DBHelper.java:430)
-         */
 
         synchronized (db_intern) {
             db_intern.beginTransaction();

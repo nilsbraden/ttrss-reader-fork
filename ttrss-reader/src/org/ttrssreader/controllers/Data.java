@@ -185,6 +185,10 @@ public class Data {
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getArticles(feedId, displayOnlyUnread, isCategory, limit);
             
+            Set<ArticleItem> set = mArticles.get(feedId);
+            if (set != null) {
+                articles.addAll(set);
+            }
             mArticles.put(feedId, articles);
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
             
