@@ -63,6 +63,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     public static final String FEED_LIST = "FEED_LIST";
     public static final String FEED_LIST_NAMES = "FEED_LIST_NAMES";
     
+    public boolean flingDetected = false;
+    
     private int mFeedId;
     private String mFeedTitle;
     private ArrayList<Integer> mFeedIds;
@@ -115,8 +117,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                setProgressBarIndeterminateVisibility(true);
-                updater.execute();
+                if (updater != null) { 
+                	setProgressBarIndeterminateVisibility(true);
+                	updater.execute();
+                }
             }
         }, Utils.WAIT);
     }
@@ -157,14 +161,16 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        
-        Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(position));
-        i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
-        
-        startActivityForResult(i, ACTIVITY_SHOW_FEED_ITEM);
+        if (!flingDetected) {
+            super.onListItemClick(l, v, position, id);
+            
+            Intent i = new Intent(this, ArticleActivity.class);
+            i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(position));
+            i.putExtra(ArticleActivity.FEED_ID, mFeedId);
+            i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
+            
+            startActivityForResult(i, ACTIVITY_SHOW_FEED_ITEM);
+        }
     }
     
     @Override
@@ -293,9 +299,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            // TODO: Don't use absolute values for pixel, check "density".
-            if (!useSwipe) {
-                // Swiping is disabled in preferences
+            if (!useSwipe) { // Swiping is disabled in preferences
                 return false;
             }
             
@@ -304,14 +308,16 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             
             if (Math.abs(dy) > 60) {
                 // Too much Y-Movement
+                flingDetected = true;
                 return true;
             }
             
             // don't accept the fling if it's too short as it may conflict with a button push
             if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
-                
                 Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
                         + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
+
+                flingDetected = true;
                 
                 if (velocityX > 0) {
                     openPreviousFeed();
@@ -320,11 +326,14 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
                 }
                 return true;
             }
+
             return false;
         }
         
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if (distanceX > distanceY)
+                return true;
             return false;
         }
         

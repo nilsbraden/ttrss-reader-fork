@@ -622,7 +622,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         int unread = displayOnlyUnread ? 1 : 0;
         int cat = isCategory ? 1 : 0;
         
-        // TODO: Find a better way of handling the limit 25
         String url = mServerUrl + String.format(OP_GET_ARTICLES, mSessionId, parentId, unread, cat, limit);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         

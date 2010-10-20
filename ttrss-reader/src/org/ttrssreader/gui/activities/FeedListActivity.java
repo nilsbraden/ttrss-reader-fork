@@ -92,8 +92,10 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         
         new Handler().postDelayed(new Runnable() {
             public void run() {
-                setProgressBarIndeterminateVisibility(true);
-                updater.execute();
+                if (updater != null) { 
+                	setProgressBarIndeterminateVisibility(true);
+                	updater.execute();
+                }
             }
         }, Utils.WAIT);
     }

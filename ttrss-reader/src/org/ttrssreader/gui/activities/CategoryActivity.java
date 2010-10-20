@@ -95,8 +95,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             updater = new Updater(this, mAdapter);
             new Handler().postDelayed(new Runnable() {
                 public void run() {
-                    setProgressBarIndeterminateVisibility(true);
-                    updater.execute();
+                    if (updater != null) { 
+                    	setProgressBarIndeterminateVisibility(true);
+                    	updater.execute();
+                    }
                 }
             }, Utils.WAIT);
         }
