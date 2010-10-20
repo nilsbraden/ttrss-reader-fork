@@ -258,7 +258,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         i.putExtra(FEED_TITLE, mFeedNames.get(index));
         i.putIntegerArrayListExtra(FEED_LIST, mFeedIds);
         i.putStringArrayListExtra(FEED_LIST_NAMES, mFeedNames);
-        
+
+        flingDetected = false;
         startActivityForResult(i, 0);
         this.finish();
     }
@@ -285,6 +286,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         i.putIntegerArrayListExtra(FEED_LIST, mFeedIds);
         i.putStringArrayListExtra(FEED_LIST_NAMES, mFeedNames);
         
+        flingDetected = false;
         startActivityForResult(i, 0);
         this.finish();
     }

@@ -545,7 +545,7 @@ public class DBHelper {
         updateCategoryUnreadCount(c.getId(), 0);
         
         if (recursive) {
-            for (FeedItem f : getFeeds(c)) {
+            for (FeedItem f : getFeeds(c.getId())) {
                 markFeedRead(f, recursive);
             }
         }
@@ -837,14 +837,15 @@ public class DBHelper {
         return ret;
     }
     
-    public Set<ArticleItem> getArticles(FeedItem fi, boolean withContent) {
+    public Set<ArticleItem> getArticles(int feedId, boolean withContent) {
+
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
         if (!isInternalDBAvailable())
             return ret;
         
         Cursor c = null;
         try {
-            c = db_intern.query(TABLE_ARTICLES, null, "feedId=" + fi.getId(), null, null, null, null, null);
+            c = db_intern.query(TABLE_ARTICLES, null, "feedId=" + feedId, null, null, null, null, null);
             
             while (!c.isAfterLast()) {
                 ret.add(handleArticleCursor(c, withContent));
@@ -857,18 +858,18 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
         return ret;
     }
     
-    public Set<FeedItem> getFeeds(CategoryItem ci) {
+    public Set<FeedItem> getFeeds(int categoryId) {
         Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
         if (!isInternalDBAvailable())
             return ret;
         
         Cursor c = null;
         try {
-            c = db_intern.query(TABLE_FEEDS, null, "categoryId=" + ci.getId(), null, null, null, null, null);
+            c = db_intern.query(TABLE_FEEDS, null, "categoryId=" + categoryId, null, null, null, null, null);
             
             while (!c.isAfterLast()) {
                 ret.add(handleFeedCursor(c));
@@ -889,7 +890,7 @@ public class DBHelper {
      * Returns the maxArticles newest articles, mapped in lists to their feed-id.
      * Returns all articles if maxArticles is 0 or lower.
      */
-    public Map<Integer, Set<ArticleItem>> getArticles(int maxArticles, boolean withContent) {
+    public Map<Integer, Set<ArticleItem>> getArticles(boolean withContent, int maxArticles) {
         Map<Integer, Set<ArticleItem>> ret = new HashMap<Integer, Set<ArticleItem>>();
         if (!isInternalDBAvailable())
             return ret;
@@ -1016,14 +1017,17 @@ public class DBHelper {
         return ret;
     }
     
-    /*
-     * Equals the API-Call to getCounters
-     */
-    public Map<CategoryItem, Set<FeedItem>> getCounters() {
-        Map<CategoryItem, Set<FeedItem>> ret = new HashMap<CategoryItem, Set<FeedItem>>();
+    public Set<CategoryItem> getCategoryCounters() {
+        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
+        ret.addAll(getCategories(true));
+        return ret;
+    }
+
+    public Set<FeedItem> getFeedCounters() {
+        Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
         
         for (CategoryItem c : getCategories(true)) {
-            ret.put(c, getFeeds(c));
+            ret.addAll(getFeeds(c.getId()));
         }
         
         return ret;

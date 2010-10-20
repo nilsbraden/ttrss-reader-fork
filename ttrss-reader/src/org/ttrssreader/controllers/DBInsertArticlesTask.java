@@ -35,16 +35,15 @@ public class DBInsertArticlesTask extends AsyncTask<Set<ArticleItem>, Void, Void
     
     @Override
     protected Void doInBackground(Set<ArticleItem>... args) {
-        Log.e(Utils.TAG, "=== doInBackground gestartet");
         if (args[0] != null && args[0] instanceof LinkedHashSet<?>) {
             
             Set<ArticleItem> set = (LinkedHashSet<ArticleItem>) args[0];
             
             if (set.size() > 0) {
-                Log.i(Utils.TAG, "== DBInsertArticlesTask BEGIN: " + set.size());
+                Log.i(Utils.TAG, "// DBInsertArticlesTask BEGIN: " + set.size());
                 DBHelper.getInstance().insertArticles(set, mMaxArticles);
                 Log.i(Utils.TAG,
-                        "== DBInsertArticlesTask END: " + set.size() + " article(s) took "
+                        "\\\\ DBInsertArticlesTask END: " + set.size() + " article(s) took "
                                 + (System.currentTimeMillis() - time) + "ms");
             }
         }
