@@ -330,7 +330,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             
             Date date = new Date(new Long(updated + "000").longValue());
             
-            ret = new ArticleItem(realFeedId, id, title, isUnread, date, content, articleUrl, articleCommentUrl,
+            ret = new ArticleItem(id, realFeedId, title, isUnread, articleUrl, articleCommentUrl, date, content,
                     attachments);
         } catch (JSONException e) {
             mHasLastError = true;

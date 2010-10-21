@@ -163,6 +163,8 @@ public class Data {
             
             DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
             task.execute(articles);
+            
+            Utils.waitForTask(task);
         }
     }
     
@@ -200,6 +202,8 @@ public class Data {
         
         DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
         task.execute(articles);
+        
+        Utils.waitForTask(task);
     }
     
     // *** FEEDS ************************************************************************
@@ -229,7 +233,14 @@ public class Data {
     // *** CATEGORIES *******************************************************************
     
     public Set<CategoryItem> getCategories(boolean virtuals) {
-        return DBHelper.getInstance().getCategories(virtuals);
+        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
+        
+        if (virtuals) {
+            ret.addAll(DBHelper.getInstance().getVirtualCategories());
+        }
+        ret.addAll(DBHelper.getInstance().getCategories());
+        
+        return ret;
     }
     
     public CategoryItem getCategory(int categoryId) {
@@ -269,7 +280,6 @@ public class Data {
             return;
         } else if (Utils.isOnline(cm)) {
             Set<CategoryItem> categories = Controller.getInstance().getConnector().getCategories();
-            
             mCategoriesUpdated = System.currentTimeMillis();
             
             DBHelper.getInstance().deleteCategories(false);
