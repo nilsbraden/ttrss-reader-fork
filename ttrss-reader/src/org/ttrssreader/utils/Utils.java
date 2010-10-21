@@ -26,6 +26,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.params.HttpParams;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBInsertArticlesTask;
 import org.ttrssreader.gui.activities.AboutActivity;
 import org.ttrssreader.net.HttpClientFactory;
 import android.app.Activity;
@@ -34,6 +35,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.util.Log;
 
 public class Utils {
@@ -102,7 +104,8 @@ public class Utils {
      * Checks the project-page for a version string not matching the current version. Doesn't check if the version is
      * older or newer, just looks for the difference.
      * 
-     * @param a - The Activity to retrieve the current version
+     * @param a
+     *            - The Activity to retrieve the current version
      * @return true if there is an update available
      */
     public static boolean newVersionAvailable(Activity a) {
@@ -139,7 +142,8 @@ public class Utils {
     /**
      * Retrieves the packaged version of the application
      * 
-     * @param a - The Activity to retrieve the current version
+     * @param a
+     *            - The Activity to retrieve the current version
      * @return the version-string
      */
     public static String getVersion(Activity a) {
@@ -188,5 +192,24 @@ public class Utils {
         
         // Log.i(Utils.TAG, "isOnline: Network available, State: " + info.isConnected());
         return info.isConnected();
+    }
+    
+    public static void waitForTask(DBInsertArticlesTask task) {
+        synchronized (task) {
+            int count = 0;
+            while (true) {
+                try {
+                    count += 300;
+                    task.wait(300);
+                } catch (InterruptedException e) {
+                }
+                if (task.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                    return;
+                }
+                if (count > 2999) {
+                    break;
+                }
+            }
+        }
     }
 }

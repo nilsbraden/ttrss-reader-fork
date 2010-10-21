@@ -27,17 +27,17 @@ public class ArticleItem implements Comparable<ArticleItem>{
     private String mTitle;
     private int mFeedId;
     private boolean mIsUnread;
-    private String mContent;
     private String mArticleUrl;
     private String mArticleCommentUrl;
     private Date mUpdateDate;
+    private String mContent;
     private Set<String> attachments;
     
     public ArticleItem() {
     }
     
-    public ArticleItem(int feedId, int id, String title, boolean isUnread, Date updateDate, String content,
-            String articleUrl, String articleCommentUrl, Set<String> attachments) {
+    public ArticleItem(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
+            Date updateDate, String content, Set<String> attachments) {
         setId(id);
         setTitle(title);
         setFeedId(feedId);
@@ -52,8 +52,8 @@ public class ArticleItem implements Comparable<ArticleItem>{
     /*
      * Article-ID and Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
      */
-    public ArticleItem(String feedId, String id, String title, boolean isUnread, Date updateDate, String content,
-            String articleUrl, String articleCommentUrl, Set<String> attachments) {
+    public ArticleItem(String id, String feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
+            Date updateDate, String content, Set<String> attachments) {
         setId(id);
         setTitle(title);
         setFeedId(feedId);
@@ -129,18 +129,6 @@ public class ArticleItem implements Comparable<ArticleItem>{
         this.mIsUnread = mIsUnread;
     }
     
-    public String getContent() {
-        return mContent;
-    }
-    
-    public void setContent(String mContent) {
-        if (mContent == null || mContent.equals("") || mContent.equals("null")) {
-            this.mContent = null;
-        } else {
-            this.mContent = mContent;
-        }
-    }
-    
     public String getArticleUrl() {
         return mArticleUrl;
     }
@@ -159,6 +147,18 @@ public class ArticleItem implements Comparable<ArticleItem>{
     
     public Date getUpdateDate() {
         return mUpdateDate;
+    }
+    
+    public String getContent() {
+        return mContent;
+    }
+    
+    public void setContent(String mContent) {
+        if (mContent == null || mContent.equals("") || mContent.equals("null")) {
+            this.mContent = null;
+        } else {
+            this.mContent = mContent;
+        }
     }
     
     public void setUpdateDate(Date mUpdateDate) {

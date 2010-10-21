@@ -31,7 +31,6 @@ import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryListAdapter;
 import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.ExternalStorageReceiver;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
@@ -62,7 +61,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private CategoryListAdapter mAdapter = null;
     private Refresher refresher;
     private Updater updater;
-    private ExternalStorageReceiver storageReceiver;
     
     private boolean connected = true;
     
@@ -74,9 +72,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         
         Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
-        
-        storageReceiver = new ExternalStorageReceiver();
-        registerReceiver(storageReceiver, storageReceiver.getFilter());
         
         Data.getInstance().checkAndInitializeData(this);
         
@@ -133,7 +128,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             updater.cancel(true);
             updater = null;
         }
-        unregisterReceiver(storageReceiver);
     }
     
     @Override
