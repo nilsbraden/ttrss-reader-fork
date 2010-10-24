@@ -12,6 +12,7 @@
             android:title="@string/ConnectionUrlPreferenceTitle"
             android:key="ConnectionUrlPreference"
             android:singleLine="true" />
+
         <EditTextPreference
             android:name="@string/ConnectionUsernamePreferenceTitle"
             android:summary="@string/ConnectionUsernamePreferenceSummary"
@@ -19,6 +20,7 @@
             android:title="@string/ConnectionUsernamePreferenceTitle"
             android:key="ConnectionUsernamePreference"
             android:singleLine="true" />
+
         <EditTextPreference
             android:name="@string/ConnectionPasswordPreferenceTitle"
             android:summary="@string/ConnectionPasswordPreferenceSummary"
@@ -111,36 +113,42 @@
 
     <PreferenceCategory
         android:title="@string/DisplayPreferenceCategoryTitle">
+        
         <CheckBoxPreference
             android:title="@string/DisplayVirtualPreferenceTitle"
             android:defaultValue="true"
             android:summary="@string/DisplayVirtualPreferenceSummary"
             android:key="DisplayShowVirtualPreference" />
+            
         <CheckBoxPreference
             android:title="@string/DisplayVirtualUnreadPreferenceTitle"
             android:defaultValue="false"
             android:summary="@string/DisplayVirtualUnreadPreferenceSummary"
             android:key="DisplayShowVirtualUnreadPreference" />
+            
         <CheckBoxPreference
             android:title="@string/DisplayAlwaysFullRefreshPreferenceTitle"
             android:defaultValue="false"
             android:summary="@string/DisplayAlwaysFullRefreshPreferenceSummary"
             android:key="DisplayAlwaysFullRefreshPreference" />
+            
         <CheckBoxPreference
             android:title="@string/DisplayUseSwipeTitle"
             android:defaultValue="true"
             android:summary="@string/DisplayUseSwipeSummary"
             android:key="DisplayUseSwipePreference" />
+            
         <CheckBoxPreference
             android:title="@string/DisplayShowUnreadOnlyTitle"
             android:defaultValue="false"
             android:summary="@string/DisplayShowUnreadOnlySummary"
             android:key="DisplayShowUnreadOnlyPreference" />
-        <EditTextPreference
+            
+        <org.ttrssreader.utils.EditIntegerPreference
             android:name="@string/DisplayArticleLimitTitle"
             android:title="@string/DisplayArticleLimitTitle"
             android:summary="@string/DisplayArticleLimitSummary"
-            android:defaultValue="100"
+            android:defaultValue="200"
             android:key="DisplayArticleLimitPreference"
             android:maxLength="5"
             android:inputType="number" />

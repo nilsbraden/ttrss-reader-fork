@@ -78,7 +78,7 @@ public class Controller {
     public synchronized void initializeController(Context context) {
         try {
             prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            
+
             url = prefs.getString(Constants.URL, "http://localhost/");
             if (!url.endsWith(JSON_END_URL)) {
                 if (!url.endsWith("/")) {
@@ -119,10 +119,10 @@ public class Controller {
             mLastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         } catch (ClassCastException e) {
             Log.e(Utils.TAG, "Error reading preferences, resetting prefs with changed datatypes: ArticleLimit, DatabaseVersion, LastUpdateTime, LastVersionRun");
-            setArticleLimit(1);
-            setDatabaseVersion(1);
-            setLastUpdateTime(1);
-            setLastVersionRun("");
+            setArticleLimit(new Integer(1));
+            setDatabaseVersion(new Integer(1));
+            setLastUpdateTime(new Long(1));
+            setLastVersionRun(new String(""));
         }
     }
     
@@ -330,17 +330,13 @@ public class Controller {
     public void put(String constant, Object o) {
         SharedPreferences.Editor editor = prefs.edit();
         if (o instanceof String) {
-            String string = (String) o;
-            editor.putString(constant, string);
+            editor.putString(constant, (String) o);
         } else if (o instanceof Integer) {
-            int integer = (Integer) o;
-            editor.putInt(constant, integer);
+            editor.putInt(constant, (Integer) o);
         } else if (o instanceof Long) {
-            long myLong = (Long) o;
-            editor.putLong(constant, myLong);
+            editor.putLong(constant, (Long) o);
         } else if (o instanceof Boolean) {
-            boolean bool = (Boolean) o;
-            editor.putBoolean(constant, bool);
+            editor.putBoolean(constant, (Boolean) o);
         }
         editor.commit();
     }
