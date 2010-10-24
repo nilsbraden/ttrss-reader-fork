@@ -284,7 +284,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         builder.setTitle(getResources().getString(R.string.Changelog_Title));
         final String[] changes = getResources().getStringArray(R.array.updates);
         final StringBuilder buf = new StringBuilder();
-        for (int i = 1; i < changes.length; i++) {
+        for (int i = 0; i < changes.length; i++) {
             buf.append("\n\n");
             buf.append(changes[i]);
         }
