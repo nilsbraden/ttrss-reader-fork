@@ -41,7 +41,7 @@ public class DBHelper {
     private boolean mIsDBInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 26;
+    private static final int DATABASE_VERSION = 27;
     
     private static final String TABLE_CATEGORIES = "categories";
     private static final String TABLE_FEEDS = "feeds";
@@ -311,7 +311,6 @@ public class DBHelper {
         if (attachments == null)
             attachments = new LinkedHashSet<String>();
         
-        content = DatabaseUtils.sqlEscapeString(content);
         String att = parseAttachmentSet(attachments);
         
         synchronized (TABLE_ARTICLES) {
@@ -488,7 +487,6 @@ public class DBHelper {
         if (updateDate == null)
             updateDate = new Date();
         
-        content = DatabaseUtils.sqlEscapeString(content);
         String att = parseAttachmentSet(a.getAttachments());
         
         synchronized (TABLE_ARTICLES) {
