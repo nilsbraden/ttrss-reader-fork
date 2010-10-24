@@ -69,14 +69,16 @@ public class Constants {
     public static boolean ALWAYS_FULL_REFRESH_DEFAULT = false;
     public static boolean USE_SWIPE_DEFAULT = true;
     public static boolean ONLY_UNREAD_DEFAULT = false;
-    public static String ARTICLE_LIMIT_DEFAULT = "100";
+    public static int ARTICLE_LIMIT_DEFAULT = 200;
     
     // Internal
     public static String DATABASE_VERSION = "DatabaseVersion";
     public static String LAST_UPDATE_TIME = "LastUpdateTime";
+    public static String LAST_VERSION_RUN = "LastVersionRun";
     // Internal Default Values
-    public static String DATABASE_VERSION_DEFAULT = "1";
-    public static String LAST_UPDATE_TIME_DEFAULT = "1";
+    public static int DATABASE_VERSION_DEFAULT = 1;
+    public static long LAST_UPDATE_TIME_DEFAULT = 1;
+    public static String LAST_VERSION_RUN_DEFAULT = "1";
     
     /*
      * Returns a list of the values of all constants in this class. Allows for easier watching the changes in the

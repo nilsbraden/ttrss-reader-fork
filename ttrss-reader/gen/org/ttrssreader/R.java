@@ -8,6 +8,9 @@
 package org.ttrssreader;
 
 public final class R {
+    public static final class array {
+        public static final int updates=0x7f060000;
+    }
     public static final class attr {
     }
     public static final class color {
@@ -32,17 +35,17 @@ public final class R {
         public static final int star48=0x7f02000f;
     }
     public static final class id {
-        public static final int AboutActivity_CloseBtn=0x7f060003;
-        public static final int AboutActivity_LicenseText=0x7f060001;
-        public static final int AboutActivity_UrlText=0x7f060002;
-        public static final int AboutActivity_VersionText=0x7f060000;
-        public static final int ErrorActivity_CloseBtn=0x7f060009;
-        public static final int ErrorActivity_ErrorDefault=0x7f060007;
-        public static final int ErrorActivity_ErrorMessage=0x7f060006;
-        public static final int ErrorActivity_ShowPreferencesBtn=0x7f060008;
-        public static final int MediaView=0x7f06000a;
-        public static final int webview=0x7f060004;
-        public static final int webview_swipe_text=0x7f060005;
+        public static final int AboutActivity_CloseBtn=0x7f070003;
+        public static final int AboutActivity_LicenseText=0x7f070001;
+        public static final int AboutActivity_UrlText=0x7f070002;
+        public static final int AboutActivity_VersionText=0x7f070000;
+        public static final int ErrorActivity_CloseBtn=0x7f070009;
+        public static final int ErrorActivity_ErrorDefault=0x7f070007;
+        public static final int ErrorActivity_ErrorMessage=0x7f070006;
+        public static final int ErrorActivity_ShowPreferencesBtn=0x7f070008;
+        public static final int MediaView=0x7f07000a;
+        public static final int webview=0x7f070004;
+        public static final int webview_swipe_text=0x7f070005;
     }
     public static final class layout {
         public static final int about=0x7f030000;
@@ -68,6 +71,8 @@ public final class R {
         public static final int ArticleActivity_OpenCommentLink=0x7f050009;
         public static final int ArticleActivity_OpenLink=0x7f050008;
         public static final int ArticleActivity_ShareLink=0x7f05000c;
+        public static final int Changelog_DonateUrl=0x7f05004b;
+        public static final int Changelog_Title=0x7f05004a;
         public static final int Commons_DisplayOnlyUnread=0x7f050010;
         public static final int Commons_MarkAllRead=0x7f050011;
         public static final int Commons_NothingToDisplay=0x7f05000e;
