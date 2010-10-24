@@ -2,6 +2,15 @@
 
 = Changes =
 
+== Version 0.6.4 ==
+  * Added Changelog with button for the Donations-wikipage
+  * Fixed some concurrent-access-issues with database
+  * No more data on sdcard
+  * Performance boost by removing in-memory-storage of articles
+  * Reduced memory-footprint by reading from DB when needed, not in advance.
+  * Minor fixes and major refactoring
+  * Fixed fling-detection
+
 == Version 0.6.3 ==
   * Refactored the settings-code
   * Refactored the JsonConnector and its interface
@@ -111,9 +120,6 @@
   * Automatically leave FeedHeadlineView if there are no items (see FeedHeadlineListActivity.java:207)
 
 = TODO =
-  * only refresh feedlist if &op=getConfig returns a new number of feeds
   * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=9 Issue #9 (see all Feeds below their categories on main-view)]
   * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=10 Issue #10 (Toggle Star/Unstar)]
   * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=18 Issue #18 (Favicon for the feedlist and the articlelist)]
-  * Note to self: Paralleles Abrufen der selben Information von Updater und Refresher behandeln.
-  * Note to self: Mehr offline erlauben, Reader stürzt zu oft ab wenn die Verbindung weg ist.

@@ -20,15 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.params.HttpParams;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBInsertArticlesTask;
 import org.ttrssreader.gui.activities.AboutActivity;
-import org.ttrssreader.net.HttpClientFactory;
 import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -70,8 +64,8 @@ public class Utils {
      */
     public static final String SDCARD_PATH = "/Android/data/org.ttrssreader/files/";
     
-    private static final String UPDATE_MATCH = "Current Version: <strong>";
-    private static final String UPDATE_MATCH_END = "</strong>";
+//    private static final String UPDATE_MATCH = "Current Version: <strong>";
+//    private static final String UPDATE_MATCH_END = "</strong>";
     
     public static String convertStreamToString(InputStream is) {
         /*
@@ -100,6 +94,18 @@ public class Utils {
         return sb.toString();
     }
     
+    public static boolean newVersionInstalled(Activity a) {
+        String thisVersion = getVersion(a);
+        String lastVersionRun = Controller.getInstance().getLastVersionRun();
+        Controller.getInstance().setLastVersionRun(thisVersion);
+        
+        if (thisVersion.equals(lastVersionRun)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
     /**
      * Checks the project-page for a version string not matching the current version. Doesn't check if the version is
      * older or newer, just looks for the difference.
@@ -108,36 +114,36 @@ public class Utils {
      *            - The Activity to retrieve the current version
      * @return true if there is an update available
      */
-    public static boolean newVersionAvailable(Activity a) {
-        String thisVersion = getVersion(a);
-        String remoteVersion = "";
-        
-        String html = "";
-        String url = "https://code.google.com/p/ttrss-reader-fork/";
-        HttpPost httpPost = new HttpPost(url);
-        HttpParams httpParams = httpPost.getParams();
-        HttpClient httpclient = HttpClientFactory.createInstance(httpParams);
-        try {
-            HttpResponse response = httpclient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                InputStream instream = entity.getContent();
-                html = Utils.convertStreamToString(instream);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        
-        int start = html.indexOf(UPDATE_MATCH) + UPDATE_MATCH.length();
-        int end = html.indexOf(UPDATE_MATCH_END, start);
-        
-        remoteVersion = html.substring(start, end);
-        
-        Log.d(TAG, "Local Version: " + thisVersion + " // Remote Version: " + remoteVersion);
-        Log.d(TAG, (thisVersion.equals(remoteVersion) ? " (no Update)" : " (Updatable)"));
-        
-        return !(thisVersion.equals(remoteVersion));
-    }
+//    public static boolean newVersionAvailable(Activity a) {
+//        String thisVersion = getVersion(a);
+//        String remoteVersion = "";
+//        
+//        String html = "";
+//        String url = "https://code.google.com/p/ttrss-reader-fork/";
+//        HttpPost httpPost = new HttpPost(url);
+//        HttpParams httpParams = httpPost.getParams();
+//        HttpClient httpclient = HttpClientFactory.createInstance(httpParams);
+//        try {
+//            HttpResponse response = httpclient.execute(httpPost);
+//            HttpEntity entity = response.getEntity();
+//            if (entity != null) {
+//                InputStream instream = entity.getContent();
+//                html = Utils.convertStreamToString(instream);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        
+//        int start = html.indexOf(UPDATE_MATCH) + UPDATE_MATCH.length();
+//        int end = html.indexOf(UPDATE_MATCH_END, start);
+//        
+//        remoteVersion = html.substring(start, end);
+//        
+//        Log.d(TAG, "Local Version: " + thisVersion + " // Remote Version: " + remoteVersion);
+//        Log.d(TAG, (thisVersion.equals(remoteVersion) ? " (no Update)" : " (Updatable)"));
+//        
+//        return !(thisVersion.equals(remoteVersion));
+//    }
     
     /**
      * Retrieves the packaged version of the application

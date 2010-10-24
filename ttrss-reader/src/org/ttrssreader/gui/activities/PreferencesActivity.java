@@ -105,10 +105,11 @@ public class PreferencesActivity extends PreferenceActivity {
         editor.putBoolean(Constants.ALWAYS_FULL_REFRESH, Constants.ALWAYS_FULL_REFRESH_DEFAULT);
         editor.putBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
         editor.putBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
-        editor.putString(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
+        editor.putInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
         
-        editor.putString(Constants.DATABASE_VERSION, Constants.DATABASE_VERSION_DEFAULT);
-        editor.putString(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
+        editor.putInt(Constants.DATABASE_VERSION, Constants.DATABASE_VERSION_DEFAULT);
+        editor.putLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
+        editor.putString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         
         editor.commit();
         this.finish();

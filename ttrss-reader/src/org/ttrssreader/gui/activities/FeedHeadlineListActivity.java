@@ -310,7 +310,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             
             if (Math.abs(dy) > 60) {
                 // Too much Y-Movement
-                flingDetected = true;
                 return true;
             }
             

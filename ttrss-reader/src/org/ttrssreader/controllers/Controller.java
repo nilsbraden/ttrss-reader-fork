@@ -64,6 +64,7 @@ public class Controller {
     
     private int mDatabaseVersion;
     private long mLastUpdateTime;
+    private String mLastVersionRun;
     
     public static Controller getInstance() {
         synchronized (mutex) {
@@ -75,61 +76,54 @@ public class Controller {
     }
     
     public synchronized void initializeController(Context context) {
-        
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        
-        // Connection @formatter:off
-        url = prefs.getString(Constants.URL, "http://localhost/");
-        if (!url.endsWith(JSON_END_URL)) {
-            if (!url.endsWith("/")) {
-                url += "/";
+        try {
+            prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            
+            url = prefs.getString(Constants.URL, "http://localhost/");
+            if (!url.endsWith(JSON_END_URL)) {
+                if (!url.endsWith("/")) {
+                    url += "/";
+                }
+                url += JSON_END_URL;
             }
-            url += JSON_END_URL;
-        }
-        String userName = prefs.getString(Constants.USERNAME, Constants.USERNAME_DEFAULT);
-        String password = prefs.getString(Constants.PASSWORD, Constants.PASSWORD_DEFAULT);
-        mTrustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
-        mUseKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
-        mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.KEYSTORE_PASSWORD_DEFAULT);
-        mTTRSSConnector = new TTRSSJsonConnector(url, userName, password);
-        
-        // Usage
-        mAutomaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
-        mOpenUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE, Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
-        mUpdateUnreadOnStartup = prefs.getBoolean(Constants.UPDATE_UNREAD_ON_STARTUP, Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
-        mRefreshSubData = prefs.getBoolean(Constants.REFRESH_SUB_DATA, Constants.REFRESH_SUB_DATA_DEFAULT);
-        mUseVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
-        mVibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE, Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
-        mWorkOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
-        
-        // Display
-        mDisplayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
-        mDisplayUnreadInVirtualFeeds = prefs.getBoolean(Constants.SHOW_VIRTUAL_UNREAD, Constants.SHOW_VIRTUAL_UNREAD_DEFAULT);
-        mAlwaysFullRefresh = prefs.getBoolean(Constants.ALWAYS_FULL_REFRESH, Constants.ALWAYS_FULL_REFRESH_DEFAULT);
-        mUseSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
-        mDisplayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
-        try {
-            mArticleLimit = Integer.parseInt(prefs.getString(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT));
+            String userName = prefs.getString(Constants.USERNAME, Constants.USERNAME_DEFAULT);
+            String password = prefs.getString(Constants.PASSWORD, Constants.PASSWORD_DEFAULT);
+            mTrustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
+            mUseKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
+            mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.KEYSTORE_PASSWORD_DEFAULT);
+            mTTRSSConnector = new TTRSSJsonConnector(url, userName, password);
+            
+            // Usage
+            mAutomaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
+            mOpenUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
+                    Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
+            mUpdateUnreadOnStartup = prefs.getBoolean(Constants.UPDATE_UNREAD_ON_STARTUP,
+                    Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
+            mRefreshSubData = prefs.getBoolean(Constants.REFRESH_SUB_DATA, Constants.REFRESH_SUB_DATA_DEFAULT);
+            mUseVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
+            mVibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
+                    Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
+            mWorkOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
+            
+            // Display
+            mDisplayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
+            mDisplayUnreadInVirtualFeeds = prefs.getBoolean(Constants.SHOW_VIRTUAL_UNREAD,
+                    Constants.SHOW_VIRTUAL_UNREAD_DEFAULT);
+            mAlwaysFullRefresh = prefs.getBoolean(Constants.ALWAYS_FULL_REFRESH, Constants.ALWAYS_FULL_REFRESH_DEFAULT);
+            mUseSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
+            mDisplayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
+            mArticleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
+            
+            mDatabaseVersion = prefs.getInt(Constants.DATABASE_VERSION, Constants.DATABASE_VERSION_DEFAULT);
+            mLastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
+            mLastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         } catch (ClassCastException e) {
-            setArticleLimit(100);
-            Log.e(Utils.TAG, "DISPLAY_ARTICLE_LIMIT was not an integer value, using default value: " + mArticleLimit);
+            Log.e(Utils.TAG, "Error reading preferences, resetting prefs with changed datatypes: ArticleLimit, DatabaseVersion, LastUpdateTime, LastVersionRun");
+            setArticleLimit(1);
+            setDatabaseVersion(1);
+            setLastUpdateTime(1);
+            setLastVersionRun("");
         }
-        
-        // Internal Data
-        try {
-            mDatabaseVersion = Integer.parseInt(prefs.getString(Constants.DATABASE_VERSION, Constants.DATABASE_VERSION_DEFAULT));
-        } catch (ClassCastException e) {
-            setDatabaseVersion(0);
-            Log.e(Utils.TAG, "DATABASE_VERSION was not an integer value");
-        }
-        try {
-            mLastUpdateTime = Long.parseLong(prefs.getString(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT));
-        } catch (ClassCastException e) {
-            setLastUpdateTime(new Long(0));
-            Log.e(Utils.TAG, "LAST_UPDATE_TIME was not a valid time value");
-        }
-        // @formatter:on
-        
     }
     
     public synchronized void checkAndInitializeController(final Context context) {
@@ -297,20 +291,11 @@ public class Controller {
     }
     
     public void setArticleLimit(int articleLimit) {
-        put(Constants.ARTICLE_LIMIT, articleLimit + "");
+        put(Constants.ARTICLE_LIMIT, articleLimit);
         this.mArticleLimit = articleLimit;
     }
     
     // ******* Internal Data ****************************
-    
-    public long getLastUpdateTime() {
-        return mLastUpdateTime;
-    }
-    
-    public void setLastUpdateTime(long lastUpdateTime) {
-        put(Constants.LAST_UPDATE_TIME, lastUpdateTime + "");
-        this.mLastUpdateTime = lastUpdateTime;
-    }
     
     public int getDatabaseVersion() {
         return mDatabaseVersion;
@@ -319,6 +304,24 @@ public class Controller {
     public void setDatabaseVersion(int databaseVersion) {
         put(Constants.DATABASE_VERSION, databaseVersion);
         this.mDatabaseVersion = databaseVersion;
+    }
+    
+    public long getLastUpdateTime() {
+        return mLastUpdateTime;
+    }
+    
+    public void setLastUpdateTime(long lastUpdateTime) {
+        put(Constants.LAST_UPDATE_TIME, lastUpdateTime);
+        this.mLastUpdateTime = lastUpdateTime;
+    }
+    
+    public String getLastVersionRun() {
+        return mLastVersionRun;
+    }
+    
+    public void setLastVersionRun(String lastVersionRun) {
+        put(Constants.LAST_VERSION_RUN, lastVersionRun);
+        this.mLastVersionRun = lastVersionRun;
     }
     
     /*
@@ -331,7 +334,10 @@ public class Controller {
             editor.putString(constant, string);
         } else if (o instanceof Integer) {
             int integer = (Integer) o;
-            editor.putString(constant, integer + "");
+            editor.putInt(constant, integer);
+        } else if (o instanceof Long) {
+            long myLong = (Long) o;
+            editor.putLong(constant, myLong);
         } else if (o instanceof Boolean) {
             boolean bool = (Boolean) o;
             editor.putBoolean(constant, bool);
