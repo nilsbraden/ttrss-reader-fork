@@ -47,7 +47,7 @@ public class Utils {
     /**
      * Time to wait before starting the background-update from the activities
      */
-    public static final int WAIT = 400;
+    public static final int WAIT = 600;
     
     /**
      * Vibrate-Time for vibration when end of list is reached
@@ -63,9 +63,6 @@ public class Utils {
      * Path on sdcard to store files (DB, Certificates, ...)
      */
     public static final String SDCARD_PATH = "/Android/data/org.ttrssreader/files/";
-    
-//    private static final String UPDATE_MATCH = "Current Version: <strong>";
-//    private static final String UPDATE_MATCH_END = "</strong>";
     
     public static String convertStreamToString(InputStream is) {
         /*
@@ -105,45 +102,6 @@ public class Utils {
             return true;
         }
     }
-    
-    /**
-     * Checks the project-page for a version string not matching the current version. Doesn't check if the version is
-     * older or newer, just looks for the difference.
-     * 
-     * @param a
-     *            - The Activity to retrieve the current version
-     * @return true if there is an update available
-     */
-//    public static boolean newVersionAvailable(Activity a) {
-//        String thisVersion = getVersion(a);
-//        String remoteVersion = "";
-//        
-//        String html = "";
-//        String url = "https://code.google.com/p/ttrss-reader-fork/";
-//        HttpPost httpPost = new HttpPost(url);
-//        HttpParams httpParams = httpPost.getParams();
-//        HttpClient httpclient = HttpClientFactory.createInstance(httpParams);
-//        try {
-//            HttpResponse response = httpclient.execute(httpPost);
-//            HttpEntity entity = response.getEntity();
-//            if (entity != null) {
-//                InputStream instream = entity.getContent();
-//                html = Utils.convertStreamToString(instream);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        
-//        int start = html.indexOf(UPDATE_MATCH) + UPDATE_MATCH.length();
-//        int end = html.indexOf(UPDATE_MATCH_END, start);
-//        
-//        remoteVersion = html.substring(start, end);
-//        
-//        Log.d(TAG, "Local Version: " + thisVersion + " // Remote Version: " + remoteVersion);
-//        Log.d(TAG, (thisVersion.equals(remoteVersion) ? " (no Update)" : " (Updatable)"));
-//        
-//        return !(thisVersion.equals(remoteVersion));
-//    }
     
     /**
      * Retrieves the packaged version of the application

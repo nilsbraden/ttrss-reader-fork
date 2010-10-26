@@ -28,7 +28,6 @@ import org.ttrssreader.utils.Utils;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -41,7 +40,7 @@ public class DBHelper {
     private boolean mIsDBInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 27;
+    private static final int DATABASE_VERSION = 28;
     
     private static final String TABLE_CATEGORIES = "categories";
     private static final String TABLE_FEEDS = "feeds";
@@ -956,7 +955,7 @@ public class DBHelper {
             ret.deleteCharAt(ret.length() - 1);
         }
         
-        return DatabaseUtils.sqlEscapeString(ret.toString());
+        return ret.toString();
     }
     
 }
