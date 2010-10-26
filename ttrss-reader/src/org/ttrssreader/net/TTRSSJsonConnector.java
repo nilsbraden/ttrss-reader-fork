@@ -140,12 +140,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         String strResponse = doRequest(url);
         
         if (!mHasLastError) {
-            try {
-                result = new JSONArray(strResponse);
-            } catch (JSONException e) {
-                mHasLastError = true;
-                mLastError = e.getMessage() + ", Method: getJSONResponseAsArray(String url)";
-                e.printStackTrace();
+            if (strResponse != null && strResponse.length() > 0) {
+                try {
+                    result = new JSONArray(strResponse);
+                } catch (JSONException e) {
+                    mHasLastError = true;
+                    mLastError = e.getMessage() + ", Method: getJSONResponseAsArray(String url)";
+                }
             }
         }
         
@@ -166,11 +167,39 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             } catch (JSONException e) {
                 mHasLastError = true;
                 mLastError = e.getMessage() + ", Method: getJSONResponse(String url)";
-                e.printStackTrace();
             }
         }
         
         return result;
+    }
+    
+    private Object getJSONResponse(String url, boolean checkForArray) {
+        mHasLastError = false;
+        mLastError = "";
+        
+        String strResponse = doRequest(url);
+        if (strResponse == null || strResponse.length() == 0) {
+            return null;
+        }
+        
+        if (!mHasLastError) {
+            try {
+                
+                if (checkForArray && strResponse.contains("}{")) {
+                    Log.d(Utils.TAG, "--ARRAY-- checkForArray: " + checkForArray);
+                    return strResponse;
+                } else {
+                    Log.d(Utils.TAG, "--KEIN ARRAY--: checkForArray: " + checkForArray);
+                    return new TTRSSJsonResult(strResponse);
+                }
+                
+            } catch (JSONException e) {
+                mHasLastError = true;
+                mLastError = e.getMessage() + ", Method: getJSONResponse(String url, boolean checkForArray)";
+            }
+        }
+        
+        return null;
     }
     
     private boolean login() {
@@ -491,7 +520,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (jsonResult == null) {
             return ret;
-        } else if (mHasLastError && mLastError.startsWith(ERROR)) {
+        } else if (mHasLastError && mLastError.contains(ERROR)) {
             // Catch unknown-method error, see comment above
             if (mLastError.contains(UNKNOWN_METHOD)) {
                 mLastError = "";
@@ -627,7 +656,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (jsonResult == null) {
             return ret;
-        } else if (mHasLastError && mLastError.startsWith(ERROR)) {
+        } else if (mHasLastError && mLastError.contains(ERROR)) {
             // Catch unknown-method error, see comment above
             if (mLastError.contains(UNKNOWN_METHOD)) {
                 mLastError = "";
@@ -654,25 +683,59 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public ArticleItem getArticle(int articleId) {
-        ArticleItem ret = new ArticleItem();
+    public Set<ArticleItem> getArticle(Set<Integer> articleIds) {
+        Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
+        StringBuilder sb = new StringBuilder();
+        for (Integer i : articleIds) {
+            sb.append(i);
+            sb.append(",");
+        }
+        if (sb.charAt(sb.length() - 1) == ',') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
             if (mHasLastError)
                 return ret;
         }
+
+        String url = mServerUrl + String.format(OP_GET_ARTICLE, mSessionId, sb.toString());
+        boolean arrayCheck = (articleIds.size() > 1 ? true : false);
+        Object res = getJSONResponse(url, arrayCheck);
         
-        String url = mServerUrl + String.format(OP_GET_ARTICLE, mSessionId, articleId);
-        TTRSSJsonResult jsonResult = getJSONResponse(url);
-        
-        if (jsonResult == null)
+        if (res == null)
             return ret;
         
         if (!mHasLastError) {
-            ret = parseDataForArticle(jsonResult.getNames(), jsonResult.getValues());
-            if (ret.getId() < 1)
-                ret.setId(articleId);
+            if (res instanceof String) {
+                
+                String arrayString = (String) res;
+                for (String s : arrayString.split("\\}\\{")) {
+                    try {
+                        String t = new String(s);
+                        if (!t.startsWith("{")) {
+                            t = "{" + t;
+                        }
+                        if (!t.endsWith("}")) {
+                            t = t + "}";
+                        }
+                        
+                        TTRSSJsonResult jsonResult = new TTRSSJsonResult(t);
+                        ret.add(parseDataForArticle(jsonResult.getNames(), jsonResult.getValues()));
+                    } catch (JSONException e) {
+                        mHasLastError = true;
+                        mLastError = e.getMessage() + ", Method: getArticle(...), threw JSONException";
+                        e.printStackTrace();
+                    }
+                }
+                
+            } else if (res instanceof TTRSSJsonResult) {
+                
+                TTRSSJsonResult jsonResult = (TTRSSJsonResult) res;
+                ret.add(parseDataForArticle(jsonResult.getNames(), jsonResult.getValues()));
+                
+            }
         }
         
         return ret;
@@ -728,7 +791,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (jsonResult == null) {
             return ret;
-        } else if (mHasLastError && mLastError.startsWith(ERROR)) {
+        } else if (mHasLastError && mLastError.contains(ERROR)) {
             // Catch unknown-method error, see comment above
             if (mLastError.contains(UNKNOWN_METHOD)) {
                 mLastError = "";

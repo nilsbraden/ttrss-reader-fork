@@ -64,12 +64,12 @@ public interface ITTRSSConnector {
     public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit);
     
     /**
-     * Retrieves the specified article.
+     * Retrieves the specified articles.
      * 
-     * @param articleId the id of the article.
-     * @return the article.
+     * @param articleIds the ids of the articles.
+     * @return the articles.
      */
-    public ArticleItem getArticle(int articleId);
+    public Set<ArticleItem> getArticle(Set<Integer> articleIds);
     
     /**
      * Retrieves all articles for a given feed with their headlines to avoid too much traffic for the content.
@@ -80,7 +80,6 @@ public interface ITTRSSConnector {
      * @param viewMode
      * @return
      */
-    @Deprecated
     public Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode);
     
     /**

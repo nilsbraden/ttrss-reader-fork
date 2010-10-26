@@ -159,6 +159,19 @@ public class Data {
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getArticles(feedId, displayOnlyUnread, isCategory, limit);
             
+            if (articles.size() == 0) {
+                // getArticles not working, fetch headlines and articles manually
+                String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
+                articles = Controller.getInstance().getConnector().getFeedHeadlines(feedId, limit, 0, viewMode);
+                
+                Set<Integer> set = new LinkedHashSet<Integer>();
+                for (ArticleItem a : articles) {
+                    set.add(a.getId());
+                }
+                
+                articles = Controller.getInstance().getConnector().getArticle(set);
+            }
+            
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
             
             DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
