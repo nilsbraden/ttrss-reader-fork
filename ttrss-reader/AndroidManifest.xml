@@ -8,7 +8,7 @@
     <application
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName"
-        android:description="@string/ApplicationDescription">
+        android:description="@string/ApplicationDescription" android:debuggable="false">
 
         <activity
             android:name=".gui.activities.CategoryActivity"

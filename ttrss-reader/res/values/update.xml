@@ -17,6 +17,7 @@
     -->
 <resources>
     <string-array name="updates">
+        <item>v0.6.5: Fixed problem with attached images, Changed update-behaviour</item>
         <item>v0.6.4: Fix for concurrent DB-Access, SDCard not used anymore, smaller memory-footprint, added Changelog</item>
         <item>v0.6.3: Refactored a lot, fixed some synchronisation issues, better Fling-Recognition</item>
         <item>v0.6.2: Added the license to all files, added Update-Check</item>
