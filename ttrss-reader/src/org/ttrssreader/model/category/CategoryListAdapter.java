@@ -186,7 +186,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
             
             for (CategoryItem ci : ret) {
                 if (ci.getId() < 0) {
-                    continue; // Virtual Category
+                    temp.add(ci); // Virtual Category
                 } else if (ci.getUnread() > 0) {
                     temp.add(ci);
                 }

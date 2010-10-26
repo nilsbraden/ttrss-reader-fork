@@ -399,6 +399,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
                 list.addAll((Set<ArticleItem>) refresher.get());
                 mAdapter.setArticles(list);
                 mAdapter.notifyDataSetChanged();
+                Log.d(Utils.TAG, "DEBUG - onRefreshEnd(feedId: " + mFeedId + ") -> ListSize: " + list.size());
             } catch (Exception e) {
             }
             

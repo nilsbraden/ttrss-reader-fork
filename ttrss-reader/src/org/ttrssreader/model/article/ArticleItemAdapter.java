@@ -17,6 +17,7 @@
 package org.ttrssreader.model.article;
 
 import java.util.Set;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;

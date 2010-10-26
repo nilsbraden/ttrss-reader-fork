@@ -2,6 +2,10 @@
 
 = Changes =
 
+== Version 0.6.6 ==
+  * Fixed no articles beeing fetched if API doesn't support getArticles
+  * Fixed problem with VirtualCategories not beeing displayed
+
 == Version 0.6.5 ==
   * Fixed problem with attached images
   * Changed update-behaviour

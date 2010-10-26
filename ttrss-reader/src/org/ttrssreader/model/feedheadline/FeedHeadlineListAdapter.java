@@ -230,7 +230,9 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticles(feedId: " + mFeedId + ")");
         Set<ArticleItem> ret = Data.getInstance().getArticles(mFeedId);
 
+
         if (ret != null) {
+            Log.d(Utils.TAG, "DEBUG - getArticles(feedId: " + mFeedId + ") -> ListSize: " + ret.size());
             if (displayOnlyUnread) {
                 Set<ArticleItem> temp = new LinkedHashSet<ArticleItem>();
                 
@@ -241,7 +243,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
                 }
                 
                 ret = temp;
+
+                Log.d(Utils.TAG, "DEBUG - getArticles(feedId: " + mFeedId + ") -> ListSize 2: " + ret.size());
             }
+        } else {
+            Log.d(Utils.TAG, "DEBUG - getArticles(feedId: " + mFeedId + ") -> ListSize is NULL");
         }
         
         return ret;
