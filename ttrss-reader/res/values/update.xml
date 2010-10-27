@@ -17,7 +17,7 @@
     -->
 <resources>
     <string-array name="updates">
-        <item>v0.6.7: Fixed only one article beeing displayed</item>
+        <item>v0.6.7: Fixed only one article beeing displayed, Notification for finished downloads of attachments</item>
         <item>v0.6.6: Fixed no articles beeing fetched with getArticles and problem with VirtualCategories</item>
         <item>v0.6.5: Fixed problem with attached images, Changed update-behaviour</item>
         <item>v0.6.4: Fix for concurrent DB-Access, SDCard not used anymore, smaller memory-footprint, added Changelog</item>
