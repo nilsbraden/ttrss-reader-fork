@@ -2,7 +2,6 @@
  * ttrss-reader-fork for Android
  * 
  * Copyright (C) 2010 N. Braden.
- * Copyright (C) 2009-2010 J. Devauchelle.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,23 +21,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
-public class AsyncDownloader extends AsyncTask<URL, Void, Void> {
+public class AsyncDownloader extends AsyncTask<URL, Void, String> {
     
-    protected Void doInBackground(URL... urls) {
-        for (int i = 0; i < urls.length; i++) {
-            
-            downloadFile(urls[i]);
-            
-        }
-        return null;
+    Context context;
+    
+    public AsyncDownloader(Context context) {
+        this.context = context;
     }
     
+    protected String doInBackground(URL... urls) {
+        if (urls.length > 0) {
+            return downloadFile(urls[0]);
+        } else {
+            return null;
+        }
+    }
     
-    private void downloadFile(URL url) {
+    private String downloadFile(URL url) {
         try {
             // Build name as "download_123801230712", then try to extract a proper name from URL
             String name = "download_" + System.currentTimeMillis();
@@ -52,10 +56,6 @@ public class AsyncDownloader extends AsyncTask<URL, Void, Void> {
             sb.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH)
                     .append(File.separator).append(name);
             File file = new File(sb.toString());
-            
-            long startTime = System.currentTimeMillis();
-            Log.d(Utils.TAG, "Download URL:" + url);
-            Log.d(Utils.TAG, "Downloaded file name: " + name + "\n  (Path: " + sb.toString() + ")");
             
             HttpURLConnection c = (HttpURLConnection) url.openConnection();
             c.setRequestMethod("GET");
@@ -72,10 +72,13 @@ public class AsyncDownloader extends AsyncTask<URL, Void, Void> {
             }
             f.close();
             
-            Log.d(Utils.TAG, "Downloading took" + ((System.currentTimeMillis() - startTime) / 1000) + " sec");
+            return file.getAbsolutePath();
             
         } catch (IOException e) {
             Log.d(Utils.TAG, "Error while downloading: " + e);
         }
+        
+        return "";
     }
+    
 }
