@@ -3,6 +3,7 @@
 = Changes =
 == Version 0.6.7 ==
   * Fixed: https://code.google.com/p/ttrss-reader-fork/issues/detail?id=30 (Only one article when using old API)
+  * Added notification for finished attachment-downloads.
 
 == Version 0.6.6 ==
   * Fixed no articles beeing fetched if API doesn't support getArticles

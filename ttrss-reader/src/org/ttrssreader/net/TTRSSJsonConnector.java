@@ -683,12 +683,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     @Override
     public Set<ArticleItem> getArticle(Set<Integer> articleIds) {
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
+        
         StringBuilder sb = new StringBuilder();
         for (Integer i : articleIds) {
             sb.append(i);
             sb.append(",");
         }
-        if (sb.charAt(sb.length() - 1) == ',') {
+        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') {
             sb.deleteCharAt(sb.length() - 1);
         }
         

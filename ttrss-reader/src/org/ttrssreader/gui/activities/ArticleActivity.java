@@ -465,7 +465,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
             
             boolean media = false;
             for (String s : Utils.MEDIA_EXTENSIONS) {
-                if (urlLow.contains(s))
+                if (urlLow.endsWith(s))
                     media = true;
             }
             
