@@ -159,7 +159,7 @@ public class Data {
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getArticles(feedId, displayOnlyUnread, isCategory, limit);
             
-            if (articles.size() == 0) {
+            if (articles.size() == 0 || true) {
                 // getArticles not working, fetch headlines and articles manually
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
                 articles = Controller.getInstance().getConnector().getFeedHeadlines(feedId, limit, 0, viewMode);
@@ -169,7 +169,11 @@ public class Data {
                     set.add(a.getId());
                 }
                 
-                articles = Controller.getInstance().getConnector().getArticle(set);
+                Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(set);
+                
+                if (temp.size() != articles.size()) {
+                    articles = temp;
+                }
             }
             
             mArticlesUpdated.put(feedId, System.currentTimeMillis());

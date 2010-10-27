@@ -88,7 +88,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     
     private String doRequest(String url) {
         long start = System.currentTimeMillis();
-        String strResponse = null;
+        String strResponse = "";
         
         HttpPost httpPost = new HttpPost(url);
         
@@ -186,10 +186,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             try {
                 
                 if (checkForArray && strResponse.contains("}{")) {
-                    Log.d(Utils.TAG, "--ARRAY-- checkForArray: " + checkForArray);
                     return strResponse;
                 } else {
-                    Log.d(Utils.TAG, "--KEIN ARRAY--: checkForArray: " + checkForArray);
                     return new TTRSSJsonResult(strResponse);
                 }
                 

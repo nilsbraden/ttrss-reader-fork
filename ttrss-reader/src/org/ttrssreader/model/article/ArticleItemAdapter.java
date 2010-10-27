@@ -16,6 +16,7 @@
 
 package org.ttrssreader.model.article;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
@@ -38,6 +39,20 @@ public class ArticleItemAdapter implements IRefreshable, IUpdatable {
     @Override
     public Set<Object> refreshData() {
         mArticle = Data.getInstance().getArticle(mArticleId);
+        
+        // BUGFIX: Fetch article-content if not done yet.
+        if (mArticle.getContent() == null) {
+            Set<Integer> articleIds = new LinkedHashSet<Integer>();
+            articleIds.add(mArticleId);
+            Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(articleIds);
+            for (ArticleItem a : temp) {
+                if (a.getId() == mArticleId) {
+                    mArticle = a;
+                    break;
+                }
+            }
+        }
+        
         return null;
     }
     
