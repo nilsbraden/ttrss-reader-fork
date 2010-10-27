@@ -37,6 +37,16 @@
             android:name=".gui.activities.AboutActivity"
             android:theme="@android:style/Theme.Dialog"
             android:label="@string/AboutActivity.Title" />
+            
+        <service
+            android:name=".utils.AsyncDownloaderService"
+            android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="" />
+            </intent-filter>
+        </service>
+            
     </application>
 
     <uses-sdk

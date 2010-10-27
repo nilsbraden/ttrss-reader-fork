@@ -2,7 +2,6 @@
  * ttrss-reader-fork for Android
  * 
  * Copyright (C) 2010 N. Braden.
- * Copyright (C) 2009-2010 J. Devauchelle.
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,10 +15,8 @@
 
 package org.ttrssreader.model.article;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import org.ttrssreader.gui.activities.MediaPlayerActivity;
-import org.ttrssreader.utils.AsyncDownloader;
+import org.ttrssreader.utils.AsyncDownloaderService;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -27,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.sax.StartElementListener;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -92,12 +90,9 @@ public class MyWebViewClient extends WebViewClient {
             return;
         }
         
-        try {
-            new AsyncDownloader().execute(new URL(url));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        
+        Intent service = new Intent(context, ); // TODO: IntentFIlter festlegen
+        service.putExtra("url", url);
+        context.startService(service);
     }
     
     private boolean externalStorageState() {
