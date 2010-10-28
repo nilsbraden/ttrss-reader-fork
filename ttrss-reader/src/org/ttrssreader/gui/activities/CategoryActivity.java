@@ -51,7 +51,7 @@ import android.widget.ListView;
 
 public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
     
-    private static final int ACTIVITY_SHOW_ERROR = 0;
+    public static final int ACTIVITY_SHOW_ERROR = 0;
     
     private static final int MENU_REFRESH = Menu.FIRST;
     private static final int MENU_SHOW_PREFERENCES = Menu.FIRST + 1;
@@ -221,7 +221,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
                 openAboutDialog();
                 return true;
         }
-        
         return super.onMenuItemSelected(featureId, item);
     }
     
@@ -259,9 +258,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
-        Intent i = new Intent(this, ErrorActivity.class);
-        i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
-        
         if (refresher != null) {
             refresher.cancel(true);
             refresher = null;
@@ -271,6 +267,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             updater = null;
         }
         
+        Intent i = new Intent(this, ErrorActivity.class);
+        i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ACTIVITY_SHOW_ERROR);
     }
     

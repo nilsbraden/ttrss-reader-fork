@@ -60,7 +60,7 @@ public class ErrorActivity extends Activity {
     }
     
     public void closeButtonPressed() {
-        setResult(0);
+        setResult(CategoryActivity.ACTIVITY_SHOW_ERROR);
         finish();
     }
     
