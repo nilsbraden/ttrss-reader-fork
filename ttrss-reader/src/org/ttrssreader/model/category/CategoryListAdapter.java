@@ -41,8 +41,10 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     private Context mContext;
     
-    private List<CategoryItem> mCategories;
     private int mUnreadCount;
+
+    private List<CategoryItem> mCategories;
+    private Set<CategoryItem> mCategoriesTemp;
     
     public CategoryListAdapter(Context context) {
         mContext = context;
@@ -179,7 +181,16 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     @Override
     public Set<?> refreshData() {
         Log.i(Utils.TAG, "CategoryListAdapter     - getCategories()");
-        Set<CategoryItem> ret = Data.getInstance().getCategories(Controller.getInstance().isDisplayVirtuals());
+        
+        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
+        if (mCategoriesTemp != null) {
+            Log.d(Utils.TAG, "CategoryListAdapter     - Using Categories from Update...");
+            ret.addAll(mCategoriesTemp);
+            mCategoriesTemp = null;
+        } else {
+            Log.d(Utils.TAG, "CategoryListAdapter     - Fetching Categories from DB...");
+            ret.addAll(Data.getInstance().getCategories(Controller.getInstance().isDisplayVirtuals()));
+        }
         
         if (Controller.getInstance().isDisplayOnlyUnread()) {
             Set<CategoryItem> temp = new LinkedHashSet<CategoryItem>();
@@ -209,10 +220,11 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
             Data.getInstance().updateUnreadArticles();
         }
         
+        mCategoriesTemp = new LinkedHashSet<CategoryItem>();
         Log.i(Utils.TAG, "CategoryListAdapter     - updateCategories()");
-        Data.getInstance().updateCategories();
+        mCategoriesTemp.addAll(Data.getInstance().updateCategories());
         Log.i(Utils.TAG, "CategoryListAdapter     - updateVirtualCategories()");
-        Data.getInstance().updateVirtualCategories();
+        mCategoriesTemp.addAll(Data.getInstance().updateVirtualCategories());
     }
     
 }

@@ -1,7 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 0.6.7 ==
+== Version 0.6.9 ==
+  * Improved updating of locally stored information
+
+== Version 0.6.8 ==
   * Fixed: https://code.google.com/p/ttrss-reader-fork/issues/detail?id=30 (Only one article when using old API)
   * Added notification for finished attachment-downloads.
 

@@ -44,6 +44,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     private int mCategoryId;
     
     private List<FeedItem> mFeeds;
+    private Set<FeedItem> mFeedsTemp;
     
     public FeedListAdapter(Context context, int categoryId) {
         mContext = context;
@@ -196,7 +197,16 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     @Override
     public Set<?> refreshData() {
         Log.i(Utils.TAG, "FeedListAdapter         - getFeeds(catId: " + mCategoryId + ")");
-        Set<FeedItem> ret = Data.getInstance().getFeeds(mCategoryId);
+        
+        Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
+        if (mFeedsTemp != null) {
+            Log.d(Utils.TAG, "FeedListAdapter         - Using Feeds from Update...");
+            ret.addAll(mFeedsTemp);
+            mFeedsTemp = null;
+        } else {
+            Log.d(Utils.TAG, "FeedListAdapter         - Fetching Feeds from DB...");
+            ret.addAll(Data.getInstance().getFeeds(mCategoryId));
+        }
         
         if (ret != null) {
             if (Controller.getInstance().isDisplayOnlyUnread()) {
@@ -218,7 +228,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     @Override
     public void update() {
         Log.i(Utils.TAG, "FeedListAdapter         - updateFeeds(catId: " + mCategoryId + ")");
-        Data.getInstance().updateFeeds(mCategoryId);
+        mFeedsTemp = Data.getInstance().updateFeeds(mCategoryId);
     }
     
 }

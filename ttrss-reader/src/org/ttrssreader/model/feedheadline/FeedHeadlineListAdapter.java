@@ -50,6 +50,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     // Renamed from mFeeds to mArticles because its an Article-List
     private List<ArticleItem> mArticles = null;
+    private Set<ArticleItem> mArticlesTemp = null;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
         mContext = context;
@@ -228,7 +229,16 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         
         // Fetch content at once so we dont have to ask twice. Size does not matter in this magnitude i think.
         Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticles(feedId: " + mFeedId + ")");
-        Set<ArticleItem> ret = Data.getInstance().getArticles(mFeedId);
+        
+        Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
+        if (mArticlesTemp != null) {
+            Log.d(Utils.TAG, "FeedHeadlineListAdapter - Using Articles from Update...");
+            ret.addAll(mArticlesTemp);
+            mArticlesTemp = null;
+        } else {
+            Log.d(Utils.TAG, "FeedHeadlineListAdapter - Fetching Articles from DB...");
+            ret.addAll(Data.getInstance().getArticles(mFeedId));
+        }
 
         if (ret != null) {
             if (displayOnlyUnread) {
@@ -239,13 +249,8 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
                         temp.add(ai);
                     }
                 }
-                
                 ret = temp;
-
-                Log.d(Utils.TAG, "DEBUG - getArticles(feedId: " + mFeedId + ") -> ListSize 2: " + ret.size());
             }
-        } else {
-            Log.d(Utils.TAG, "DEBUG - getArticles(feedId: " + mFeedId + ") -> ListSize is NULL");
         }
         
         return ret;
@@ -256,7 +261,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         if (!Controller.getInstance().isWorkOffline()) {
             boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
             Log.i(Utils.TAG, "FeedHeadlineListAdapter - updateArticles(feedId: " + mFeedId + ")");
-            Data.getInstance().updateArticles(mFeedId, displayOnlyUnread);
+            mArticlesTemp = Data.getInstance().updateArticles(mFeedId, displayOnlyUnread);
         }
     }
     
