@@ -33,7 +33,7 @@ public class MediaPlayerActivity extends Activity {
     private MediaPlayer mMp;
     
     @Override
-    public void onCreate(Bundle instance) {
+    protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         
         setContentView(R.layout.media);

@@ -42,7 +42,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     private Context mContext;
     
     private int mUnreadCount;
-
+    
     private List<CategoryItem> mCategories;
     private Set<CategoryItem> mCategoriesTemp;
     
@@ -86,7 +86,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     public List<CategoryItem> getCategories() {
         return mCategories;
     }
-
+    
     public void setCategories(List<CategoryItem> categories) {
         this.mCategories = categories;
     }
@@ -180,15 +180,12 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     @Override
     public Set<?> refreshData() {
-        Log.i(Utils.TAG, "CategoryListAdapter     - getCategories()");
-        
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
-        if (mCategoriesTemp != null) {
-            Log.d(Utils.TAG, "CategoryListAdapter     - Using Categories from Update...");
+        
+        if (mCategoriesTemp != null && mCategoriesTemp.size() > 0) {
             ret.addAll(mCategoriesTemp);
             mCategoriesTemp = null;
         } else {
-            Log.d(Utils.TAG, "CategoryListAdapter     - Fetching Categories from DB...");
             ret.addAll(Data.getInstance().getCategories(Controller.getInstance().isDisplayVirtuals()));
         }
         
@@ -216,15 +213,19 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     public void update() {
         
         if (Controller.getInstance().isUpdateUnreadOnStartup()) {
-            Log.i(Utils.TAG, "CategoryListAdapter     - updateUnreadArticles()");
+            Log.i(Utils.TAG, "CategoryListAdapter - updateUnreadArticles()");
             Data.getInstance().updateUnreadArticles();
         }
         
-        mCategoriesTemp = new LinkedHashSet<CategoryItem>();
-        Log.i(Utils.TAG, "CategoryListAdapter     - updateCategories()");
-        mCategoriesTemp.addAll(Data.getInstance().updateCategories());
-        Log.i(Utils.TAG, "CategoryListAdapter     - updateVirtualCategories()");
-        mCategoriesTemp.addAll(Data.getInstance().updateVirtualCategories());
+        if (!Controller.getInstance().isWorkOffline()) {
+            mCategoriesTemp = new LinkedHashSet<CategoryItem>();
+            
+            Log.i(Utils.TAG, "CategoryListAdapter - updateCategories()");
+            mCategoriesTemp.addAll(Data.getInstance().updateCategories());
+            
+            Log.i(Utils.TAG, "CategoryListAdapter - updateVirtualCategories()");
+            mCategoriesTemp.addAll(Data.getInstance().updateVirtualCategories());
+        }
     }
     
 }

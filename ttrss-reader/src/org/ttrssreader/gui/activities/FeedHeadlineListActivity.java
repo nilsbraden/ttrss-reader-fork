@@ -34,6 +34,7 @@ import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -78,7 +79,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     private Updater updater;
     
     @Override
-    public void onCreate(Bundle instance) {
+    protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.feedheadlinelist);
@@ -114,15 +115,13 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
         mFeedHeadlineListView.setAdapter(mAdapter);
         updater = new Updater(this, mAdapter);
-        
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                if (updater != null) { 
-                	setProgressBarIndeterminateVisibility(true);
-                	updater.execute();
-                }
-            }
-        }, Utils.WAIT);
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
+        doUpdate();
     }
     
     @Override
@@ -133,18 +132,16 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     }
     
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
-    }
-    
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (refresher != null)
+        if (refresher != null) {
             refresher.cancel(true);
-        if (updater != null)
+            refresher = null;
+        }
+        if (updater != null) {
             updater.cancel(true);
+            updater = null;
+        }
     }
     
     private void doRefresh() {
@@ -157,6 +154,30 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         refresher = new Refresher(this, mAdapter);
         refresher.execute();
+    }
+    
+    private synchronized void doUpdate() {
+        // Only update if no updater already running
+        if (updater != null && updater.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            return;
+        }
+        
+        if (mAdapter == null) {
+            mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
+            mFeedHeadlineListView.setAdapter(mAdapter);
+        }
+        
+        setProgressBarIndeterminateVisibility(true);
+        
+        updater = new Updater(this, mAdapter);
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                if (updater != null) {
+                    setProgressBarIndeterminateVisibility(true);
+                    updater.execute();
+                }
+            }
+        }, Utils.WAIT);
     }
     
     @Override
@@ -258,7 +279,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         i.putExtra(FEED_TITLE, mFeedNames.get(index));
         i.putIntegerArrayListExtra(FEED_LIST, mFeedIds);
         i.putStringArrayListExtra(FEED_LIST_NAMES, mFeedNames);
-
+        
         flingDetected = false;
         startActivityForResult(i, 0);
         this.finish();
@@ -317,7 +338,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
                 Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
                         + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
-
+                
                 flingDetected = true;
                 
                 if (velocityX > 0) {
@@ -327,7 +348,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
                 }
                 return true;
             }
-
+            
             return false;
         }
         
@@ -380,13 +401,25 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
+        if (refresher != null) {
+            refresher.cancel(true);
+            refresher = null;
+        }
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
-        
-        refresher.cancel(true);
-        updater.cancel(true);
-        
-        startActivity(i);
+        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
+            doUpdate();
+            doRefresh();
+        }
     }
     
     @SuppressWarnings("unchecked")
