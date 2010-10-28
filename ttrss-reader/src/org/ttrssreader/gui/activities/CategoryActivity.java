@@ -39,6 +39,7 @@ import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.AsyncTask.Status;
@@ -50,8 +51,6 @@ import android.view.Window;
 import android.widget.ListView;
 
 public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
-    
-    public static final int ACTIVITY_SHOW_ERROR = 0;
     
     private static final int MENU_REFRESH = Menu.FIRST;
     private static final int MENU_SHOW_PREFERENCES = Menu.FIRST + 1;
@@ -69,7 +68,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private boolean connected = true;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.category);
@@ -89,24 +88,26 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         }
         
         // Check if we have a server specified
+        connected = checkConfig();
+    }
+    
+    private boolean checkConfig() {
         String url = Controller.getInstance().getUrl();
         if (url.equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
             Log.e(Utils.TAG, "ERROR: No Server specified");
             openConnectionErrorDialog("No Server specified.");
-            connected = false;
-        } else {
-            // Only post background-task if we have a server specified
-            updater = new Updater(this, mAdapter);
-            new Handler().postDelayed(new Runnable() {
-                public void run() {
-                    if (updater != null) {
-                        setProgressBarIndeterminateVisibility(true);
-                        updater.execute();
-                    }
-                }
-            }, Utils.WAIT);
+            return false;
         }
+        return true;
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         
+        if (connected)
+            doUpdate();
     }
     
     @Override
@@ -116,14 +117,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         
         if (connected)
             doRefresh();
-        else
-            connected = true;
-    }
-    
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
     }
     
     @Override
@@ -139,11 +132,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         }
     }
     
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-    
     private synchronized void doRefresh() {
         setProgressBarIndeterminateVisibility(true);
         
@@ -156,6 +144,30 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         
         refresher = new Refresher(this, mAdapter);
         refresher.execute();
+    }
+    
+    private synchronized void doUpdate() {
+        // Only update if no updater already running
+        if (updater != null && updater.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            return;
+        }
+        
+        setProgressBarIndeterminateVisibility(true);
+        
+        if (mAdapter == null) {
+            mAdapter = new CategoryListAdapter(this);
+            mCategoryListView.setAdapter(mAdapter);
+        }
+        
+        updater = new Updater(this, mAdapter);
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                if (updater != null) {
+                    setProgressBarIndeterminateVisibility(true);
+                    updater.execute();
+                }
+            }
+        }, Utils.WAIT);
     }
     
     @Override
@@ -269,7 +281,16 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
-        startActivityForResult(i, ACTIVITY_SHOW_ERROR);
+        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
+            if (connected) {
+                doUpdate();
+                doRefresh();
+            }
+        }
     }
     
     /**
@@ -298,16 +319,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             }
         });
         return builder.create();
-    }
-    
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case ACTIVITY_SHOW_ERROR:
-                doRefresh();
-                break;
-            default:
-                break;
-        }
     }
     
     @SuppressWarnings("unchecked")

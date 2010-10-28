@@ -22,11 +22,14 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
+import org.ttrssreader.utils.Utils;
+import android.util.Log;
 
 public class ArticleItemAdapter implements IRefreshable, IUpdatable {
     
     private int mArticleId;
     private ArticleItem mArticle;
+    private ArticleItem mArticleTemp;
     
     public ArticleItemAdapter(int articleId) {
         mArticleId = articleId;
@@ -38,19 +41,13 @@ public class ArticleItemAdapter implements IRefreshable, IUpdatable {
     
     @Override
     public Set<Object> refreshData() {
-        mArticle = Data.getInstance().getArticle(mArticleId);
-        
-        // BUGFIX: Fetch article-content if not done yet.
-        if (mArticle.getContent() == null) {
-            Set<Integer> articleIds = new LinkedHashSet<Integer>();
-            articleIds.add(mArticleId);
-            Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(articleIds);
-            for (ArticleItem a : temp) {
-                if (a.getId() == mArticleId) {
-                    mArticle = a;
-                    break;
-                }
-            }
+        if (mArticleTemp != null) {
+            Log.d(Utils.TAG, "Using Article from Update...");
+            mArticle = mArticleTemp;
+            mArticleTemp = null;
+        } else {
+            Log.d(Utils.TAG, "Fetching Article from DB...");
+            mArticle = Data.getInstance().getArticle(mArticleId);
         }
         
         return null;
@@ -58,6 +55,25 @@ public class ArticleItemAdapter implements IRefreshable, IUpdatable {
     
     @Override
     public void update() {
+
+        if (!Controller.getInstance().isWorkOffline()) {
+            mArticleTemp = Data.getInstance().getArticle(mArticleId);
+            
+            // BUGFIX: Fetch article-content if not done yet.
+            if (mArticleTemp.getContent() == null) {
+                Log.i(Utils.TAG, "getArticle() for content");
+                Set<Integer> articleIds = new LinkedHashSet<Integer>();
+                articleIds.add(mArticleId);
+                Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(articleIds);
+                for (ArticleItem a : temp) {
+                    if (a.getId() == mArticleId) {
+                        mArticleTemp = a;
+                        break;
+                    }
+                }
+            }
+        }
+        
     }
     
 }

@@ -34,7 +34,9 @@ import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -78,7 +80,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     private boolean useSwipe;
     
     @Override
-    public void onCreate(Bundle instance) {
+    protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.articleitem);
@@ -116,14 +118,13 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         }
         
         mAdapter = new ArticleItemAdapter(mArticleId);
-        updater = new Updater(this, mAdapter);
-        
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                setProgressBarIndeterminateVisibility(true);
-                updater.execute();
-            }
-        }, Utils.WAIT);
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
+        doUpdate();
     }
     
     @Override
@@ -134,18 +135,16 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     }
     
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
-    }
-    
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (refresher != null)
+        if (refresher != null) {
             refresher.cancel(true);
-        if (updater != null)
+            refresher = null;
+        }
+        if (updater != null) {
             updater.cancel(true);
+            updater = null;
+        }
     }
     
     @Override
@@ -198,6 +197,25 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         
         refresher = new Refresher(this, mAdapter);
         refresher.execute();
+    }
+    
+    private synchronized void doUpdate() {
+        // Only update if no updater already running
+        if (updater != null && updater.getStatus().equals(AsyncTask.Status.RUNNING)) {
+            return;
+        }
+
+        setProgressBarIndeterminateVisibility(true);
+        
+        updater = new Updater(this, mAdapter);
+        new Handler().postDelayed(new Runnable() {
+            public void run() {
+                if (updater != null) {
+                    setProgressBarIndeterminateVisibility(true);
+                    updater.execute();
+                }
+            }
+        }, Utils.WAIT);
     }
     
     private void markRead() {
@@ -397,13 +415,25 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
+        if (refresher != null) {
+            refresher.cancel(true);
+            refresher = null;
+        }
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
-        
-        refresher.cancel(true);
-        updater.cancel(true);
-        
-        startActivity(i);
+        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
+            doUpdate();
+            doRefresh();
+        }
     }
     
     @Override
@@ -436,8 +466,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
                     if (Controller.getInstance().isOpenUrlEmptyArticle()) {
                         Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
                         openLink();
-                    } else {
-                        Log.i(Utils.TAG, "Article-Content is empty");
                     }
                 }
                 
@@ -461,11 +489,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         for (String url : attachments) {
             ret.append("<br>\n");
             
-            String urlLow = url.toLowerCase();
-            
             boolean media = false;
             for (String s : Utils.MEDIA_EXTENSIONS) {
-                if (urlLow.endsWith(s))
+                if (url.toLowerCase().endsWith(s))
                     media = true;
             }
             
@@ -492,4 +518,10 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         setProgressBarIndeterminateVisibility(false);
     }
     
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        // TODO: Add configuration-change-listener
+        super.onConfigurationChanged(newConfig);
+    }
+
 }

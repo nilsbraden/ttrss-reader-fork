@@ -42,11 +42,14 @@ public class Data {
     private ConnectivityManager cm;
     
     public static Data getInstance() {
-        synchronized (mutex) {
-            if (mInstance == null)
-                mInstance = new Data();
-            return mInstance;
+        if (mInstance == null) {
+            synchronized (mutex) {
+                if (mInstance == null) {
+                    mInstance = new Data();
+                }
+            }
         }
+        return mInstance;
     }
     
     public synchronized void initializeData(Context context) {

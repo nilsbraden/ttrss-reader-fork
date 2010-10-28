@@ -225,23 +225,19 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     @Override
     public Set<?> refreshData() {
-        boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-        
-        // Fetch content at once so we dont have to ask twice. Size does not matter in this magnitude i think.
-        Log.i(Utils.TAG, "FeedHeadlineListAdapter - getArticles(feedId: " + mFeedId + ")");
-        
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
-        if (mArticlesTemp != null) {
-            Log.d(Utils.TAG, "FeedHeadlineListAdapter - Using Articles from Update...");
+        
+        if (mArticlesTemp != null && mArticlesTemp.size() > 0) {
+            Log.d(Utils.TAG, "Using Articles from Update...");
             ret.addAll(mArticlesTemp);
             mArticlesTemp = null;
         } else {
-            Log.d(Utils.TAG, "FeedHeadlineListAdapter - Fetching Articles from DB...");
+            Log.d(Utils.TAG, "Fetching Articles from DB...");
             ret.addAll(Data.getInstance().getArticles(mFeedId));
         }
 
         if (ret != null) {
-            if (displayOnlyUnread) {
+            if (Controller.getInstance().isDisplayOnlyUnread()) {
                 Set<ArticleItem> temp = new LinkedHashSet<ArticleItem>();
                 
                 for (ArticleItem ai : ret) {
@@ -260,7 +256,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     public void update() {
         if (!Controller.getInstance().isWorkOffline()) {
             boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-            Log.i(Utils.TAG, "FeedHeadlineListAdapter - updateArticles(feedId: " + mFeedId + ")");
+            Log.i(Utils.TAG, "updateArticles(feedId: " + mFeedId + ")");
             mArticlesTemp = Data.getInstance().updateArticles(mFeedId, displayOnlyUnread);
         }
     }
