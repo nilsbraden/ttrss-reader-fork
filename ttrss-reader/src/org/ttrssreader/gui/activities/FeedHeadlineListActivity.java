@@ -52,8 +52,6 @@ import android.widget.ListView;
 
 public class FeedHeadlineListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
     
-    private static final int ACTIVITY_SHOW_FEED_ITEM = 0;
-    
     private static final int MENU_REFRESH = Menu.FIRST;
     private static final int MENU_MARK_ALL_READ = Menu.FIRST + 1;
     private static final int MENU_MARK_ALL_UNREAD = Menu.FIRST + 2;
@@ -70,7 +68,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     private String mFeedTitle;
     private ArrayList<Integer> mFeedIds;
     private ArrayList<String> mFeedNames;
-    private boolean useSwipe;
     private GestureDetector mGestureDetector;
     
     private ListView mFeedHeadlineListView;
@@ -91,7 +88,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         setProgressBarIndeterminateVisibility(false);
         mFeedHeadlineListView = getListView();
         
-        useSwipe = Controller.getInstance().isUseSwipe();
         mGestureDetector = new GestureDetector(onGestureListener);
         
         Bundle extras = getIntent().getExtras();
@@ -158,8 +154,12 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     private synchronized void doUpdate() {
         // Only update if no updater already running
-        if (updater != null && updater.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            return;
+        if (updater != null) {
+            if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
+                return;
+            } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                return;
+            }
         }
         
         if (mAdapter == null) {
@@ -182,15 +182,15 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        
+        Intent i = new Intent(this, ArticleActivity.class);
+        i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(position));
+        i.putExtra(ArticleActivity.FEED_ID, mFeedId);
+        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
+        
         if (!flingDetected) {
-            super.onListItemClick(l, v, position, id);
-            
-            Intent i = new Intent(this, ArticleActivity.class);
-            i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(position));
-            i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-            i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
-            
-            startActivityForResult(i, ACTIVITY_SHOW_FEED_ITEM);
+            startActivity(i);
         }
     }
     
@@ -322,7 +322,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (!useSwipe) { // Swiping is disabled in preferences
+            if (!Controller.getInstance().isUseSwipe()) { // Swiping is disabled in preferences
                 return false;
             }
             

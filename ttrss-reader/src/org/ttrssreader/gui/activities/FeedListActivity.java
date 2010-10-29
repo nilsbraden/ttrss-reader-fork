@@ -45,8 +45,6 @@ import android.widget.ListView;
 
 public class FeedListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
     
-    private static final int ACTIVITY_SHOW_FEED_HEADLINE = 0;
-    
     private static final int MENU_REFRESH = Menu.FIRST;
     private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 1;
     private static final int MENU_MARK_ALL_READ = Menu.FIRST + 2;
@@ -124,6 +122,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         super.onSaveInstanceState(outState);
         outState.putInt(CATEGORY_ID, mCategoryId);
         outState.putString(CATEGORY_TITLE, mCategoryTitle);
+        // TODO
+//        outState.putParcelableArrayList(key, value)
     }
     
     private void doRefresh() {
@@ -140,8 +140,12 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     
     private synchronized void doUpdate() {
         // Only update if no updater already running
-        if (updater != null && updater.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            return;
+        if (updater != null) {
+            if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
+                return;
+            } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                return;
+            }
         }
 
         if (mAdapter == null) {
@@ -172,7 +176,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         i.putIntegerArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mAdapter.getFeedIds());
         i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mAdapter.getFeedNames());
         
-        startActivityForResult(i, ACTIVITY_SHOW_FEED_HEADLINE);
+        startActivity(i);
     }
     
     @Override
