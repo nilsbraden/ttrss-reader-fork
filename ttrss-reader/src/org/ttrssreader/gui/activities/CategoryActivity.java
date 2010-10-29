@@ -148,8 +148,12 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     
     private synchronized void doUpdate() {
         // Only update if no updater already running
-        if (updater != null && updater.getStatus().equals(AsyncTask.Status.RUNNING)) {
-            return;
+        if (updater != null) {
+            if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
+                return;
+            } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                return;
+            }
         }
         
         setProgressBarIndeterminateVisibility(true);
