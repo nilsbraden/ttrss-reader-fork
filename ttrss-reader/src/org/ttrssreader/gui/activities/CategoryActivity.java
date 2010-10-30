@@ -331,7 +331,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             @Override
             public void onClick(final DialogInterface d, final int which) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
-                        R.string.Changelog_DonateUrl))));
+                        R.string.DonateUrl))));
             }
         });
         return builder.create();

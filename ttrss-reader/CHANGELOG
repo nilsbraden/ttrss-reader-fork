@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+
+== Version 0.1 ==
+  * Added donate-button to about-dialog
+
 == Version 0.7 ==
   * Improved updating of locally stored information
   * Faster startup

@@ -5,19 +5,18 @@
     android:layout_height="fill_parent"
     android:padding="15dip"
     android:background="@color/about_background">
-    
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical"
         android:isScrollContainer="true"
         android:scrollbars="vertical">
-        
+
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
-            
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
@@ -33,7 +32,7 @@
                     android:layout_height="fill_parent"
                     android:orientation="vertical"></LinearLayout>
             </LinearLayout>
-            
+
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
@@ -71,19 +70,37 @@
                     android:layout_marginTop="8dp"
                     android:autoLink="web" />
             </LinearLayout>
-            
         </LinearLayout>
         
-        <Button
-            android:text="@string/AboutActivity.CloseBtn"
-            android:id="@+id/AboutActivity.CloseBtn"
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="30dip"
-            android:layout_marginRight="30dip"
-            android:layout_marginTop="30dip"/>
-            
+            android:layout_height="fill_parent"
+            android:orientation="horizontal"
+            android:gravity="center" >
+
+            <Button
+                android:text="@string/AboutActivity.CloseBtn"
+                android:id="@+id/AboutActivity.CloseBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+            android:gravity="center"
+                android:layout_marginLeft="20dip"
+                android:layout_marginRight="20dip"
+                android:layout_marginTop="20dip"
+                android:layout_marginBottom="20dip" />
+
+            <Button
+                android:text="@string/AboutActivity.DonateBtn"
+                android:id="@+id/AboutActivity.DonateBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+            android:gravity="center"
+                android:layout_marginLeft="20dip"
+                android:layout_marginRight="20dip"
+                android:layout_marginTop="20dip"
+                android:layout_marginBottom="20dip" />
+        </LinearLayout>
+
     </LinearLayout>
-    
+
 </ScrollView>
