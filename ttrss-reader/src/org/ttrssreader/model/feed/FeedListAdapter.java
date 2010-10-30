@@ -216,7 +216,6 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
                         temp.add(fi);
                     }
                 }
-                
                 ret = temp;
             }
         }

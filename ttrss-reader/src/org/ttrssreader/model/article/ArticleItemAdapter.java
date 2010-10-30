@@ -60,7 +60,7 @@ public class ArticleItemAdapter implements IRefreshable, IUpdatable {
             mArticleTemp = Data.getInstance().getArticle(mArticleId);
             
             // BUGFIX: Fetch article-content if not done yet.
-            if (mArticleTemp.getContent() == null) {
+            if (mArticleTemp != null && mArticleTemp.getContent() == null) {
                 Log.i(Utils.TAG, "getArticle() for content");
                 Set<Integer> articleIds = new LinkedHashSet<Integer>();
                 articleIds.add(mArticleId);

@@ -202,8 +202,8 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
             
             ret = temp;
         }
-        
-        // Update Unread Count
+
+        // Fetch new overall Unread-Count
         mUnreadCount = Data.getInstance().getCategoryUnreadCount(-4);
         
         return ret;
@@ -211,6 +211,9 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     @Override
     public void update() {
+        
+        // Update counters
+        Data.getInstance().updateCounters();
         
         if (Controller.getInstance().isUpdateUnreadOnStartup()) {
             Log.i(Utils.TAG, "CategoryListAdapter - updateUnreadArticles()");
@@ -221,10 +224,14 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
             mCategoriesTemp = new LinkedHashSet<CategoryItem>();
             
             Log.i(Utils.TAG, "CategoryListAdapter - updateCategories()");
-            mCategoriesTemp.addAll(Data.getInstance().updateCategories());
+            Set<CategoryItem> cats = Data.getInstance().updateCategories();
+            if (cats != null)
+                mCategoriesTemp.addAll(cats);
             
             Log.i(Utils.TAG, "CategoryListAdapter - updateVirtualCategories()");
-            mCategoriesTemp.addAll(Data.getInstance().updateVirtualCategories());
+            Set<CategoryItem> vCats = Data.getInstance().updateVirtualCategories();
+            if (vCats != null)
+                mCategoriesTemp.addAll(vCats);
         }
     }
     

@@ -75,6 +75,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private String mPassword;
     
     private String mSessionId;
+    private String loginLock = "";
     
     private String mLastError = "";
     private boolean mHasLastError = false;
@@ -201,46 +202,51 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     private boolean login() {
-        boolean result = true;
-        mSessionId = null;
+        // Just login once, check if already logged in after acquiring the lock on mSessionId
+        synchronized (loginLock) {
+            if (mSessionId != null && !(mLastError.equals(NOT_LOGGED_IN))) {
+                return true;
+            }
         
-        String url = mServerUrl + String.format(OP_LOGIN, mUserName, mPassword);
-        TTRSSJsonResult jsonResult = getJSONResponse(url);
-        
-        if (!mHasLastError || jsonResult != null) {
+            boolean result = true;
+            mSessionId = null;
             
-            int i = 0;
-            boolean stop = false;
+            String url = mServerUrl + String.format(OP_LOGIN, mUserName, mPassword);
+            TTRSSJsonResult jsonResult = getJSONResponse(url);
             
-            try {
-                while ((i < jsonResult.getNames().length()) && (!stop)) {
+            if (!mHasLastError || jsonResult != null) {
+                
+                int i = 0;
+                try {
                     
-                    if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
-                        stop = true;
-                        mSessionId = jsonResult.getValues().getString(i);
-                    } else {
+                    while ((i < jsonResult.getNames().length())) {
+                        if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
+                            mSessionId = jsonResult.getValues().getString(i);
+                            break;
+                        }
                         i++;
                     }
-                    
+                } catch (JSONException e) {
+                    result = false;
+                    mHasLastError = true;
+                    mLastError = e.getMessage() + ", Method: login(String url), threw JSONException";
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
+                
+            } else {
                 result = false;
-                mHasLastError = true;
-                mLastError = e.getMessage() + ", Method: login(String url), threw JSONException";
-                e.printStackTrace();
             }
             
-        } else {
-            result = false;
+            if (!result) {
+                mHasLastError = false;
+                mLastError = "";
+                
+                // Try again with base64-encoded passphrase
+                result = loginBase64();
+            }
+            
+            return result;
         }
-        
-        if (!result) {
-            mHasLastError = false;
-            mLastError = "";
-            result = loginBase64();
-        }
-        
-        return result;
     }
     
     private boolean loginBase64() {
