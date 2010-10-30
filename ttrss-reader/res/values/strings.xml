@@ -3,9 +3,11 @@
 
     <string name="ApplicationName">Tiny Tiny RSS Reader</string>
     <string name="ApplicationDescription">Tiny Tiny RSS Reader is an application for reading your feeds from your Tiny Tiny RSS instance.</string>
+    <string name="DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>
     
     <string name="AboutActivity.Title">About</string>
-    <string name="AboutActivity.CloseBtn">Close</string>
+    <string name="AboutActivity.CloseBtn"> Close </string>
+    <string name="AboutActivity.DonateBtn"> Want to Donate? </string>
     <string name="AboutActivity.VersionText">Version:</string>
     <string name="AboutActivity.UrlTextValue">https://code.google.com/p/ttrss-reader-fork/</string>
     <string name="AboutActivity.LicenseText">License:</string>
@@ -87,6 +89,5 @@
     <string name="Preferences.Reset">Reset Preferences</string>
     
     <string name="Changelog.Title">Changelog</string>
-    <string name="Changelog.DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>
 
 </resources>

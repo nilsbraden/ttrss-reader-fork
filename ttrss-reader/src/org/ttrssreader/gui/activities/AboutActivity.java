@@ -19,6 +19,8 @@ package org.ttrssreader.gui.activities;
 import org.ttrssreader.R;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -55,10 +57,22 @@ public class AboutActivity extends Activity {
                 closeButtonPressed();
             }
         });
+        
+        Button donateBtn = (Button) this.findViewById(R.id.AboutActivity_DonateBtn);
+        donateBtn.setOnClickListener(new View.OnClickListener() {
+            
+            public void onClick(View view) {
+                donateButtonPressed();
+            }
+        });
     }
     
     public void closeButtonPressed() {
         this.finish();
     }
     
+    public void donateButtonPressed() {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.DonateUrl))));
+        this.finish();
+    }
 }
