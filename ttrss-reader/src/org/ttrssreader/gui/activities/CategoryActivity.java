@@ -65,7 +65,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private Refresher refresher;
     private Updater updater;
     
-    private boolean connected = true;
+    private boolean configChecked = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,16 +88,18 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         }
         
         // Check if we have a server specified
-        connected = checkConfig();
+        if (!checkConfig()) {
+            openConnectionErrorDialog("No Server specified.");
+        }
     }
     
     private boolean checkConfig() {
         String url = Controller.getInstance().getUrl();
         if (url.equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
-            Log.e(Utils.TAG, "ERROR: No Server specified");
-            openConnectionErrorDialog("No Server specified.");
             return false;
         }
+        
+        configChecked = true;
         return true;
     }
     
@@ -106,7 +108,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         super.onStart();
         DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         
-        if (connected)
+        if (configChecked || checkConfig())
             doUpdate();
     }
     
@@ -115,7 +117,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         super.onResume();
         DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         
-        if (connected)
+        if (configChecked || checkConfig())
             doRefresh();
     }
     
@@ -132,16 +134,30 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         }
     }
     
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+    
     private synchronized void doRefresh() {
-        setProgressBarIndeterminateVisibility(true);
-        
-        this.setTitle(this.getResources().getString(R.string.ApplicationName));
+        // Only update if no refresher already running
+        if (refresher != null) {
+            if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
+                return;
+            } else if (refresher.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                refresher = null;
+                return;
+            }
+        }
         
         if (mAdapter == null) {
             mAdapter = new CategoryListAdapter(this);
             mCategoryListView.setAdapter(mAdapter);
         }
         
+        this.setTitle(this.getResources().getString(R.string.ApplicationName));
+        
+        setProgressBarIndeterminateVisibility(true);
         refresher = new Refresher(this, mAdapter);
         refresher.execute();
     }
@@ -152,6 +168,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
                 return;
             } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                updater = null;
                 return;
             }
         }
@@ -242,11 +259,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     
     private void doForceRefresh() {
         Data.getInstance().resetCategoriesTime();
-        
-        updater = new Updater(this, mAdapter);
-        setProgressBarIndeterminateVisibility(true);
-        updater.execute();
-        
+        doUpdate();
         doRefresh();
     }
     
@@ -268,7 +281,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     }
     
     private void markAllRead() {
-        setProgressBarIndeterminateVisibility(true);
         List<CategoryItem> list = mAdapter.getCategories();
         new Updater(this, new ReadStateUpdater(list, 0)).execute();
     }
@@ -290,7 +302,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-            if (connected) {
+            if (configChecked || checkConfig()) {
                 doUpdate();
                 doRefresh();
             }
@@ -333,6 +345,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             try {
                 List<CategoryItem> list = new ArrayList<CategoryItem>();
                 list.addAll((Set<CategoryItem>) refresher.get());
+                refresher = null;
                 mAdapter.setCategories(list);
                 mAdapter.notifyDataSetChanged();
             } catch (Exception e) {
@@ -359,13 +372,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     
     @Override
     public void onUpdateEnd() {
-        if (!Controller.getInstance().getConnector().hasLastError()) {
-            mAdapter.notifyDataSetChanged();
-        } else {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-            return;
-        }
-        
+        updater = null;
         doRefresh();
     }
     

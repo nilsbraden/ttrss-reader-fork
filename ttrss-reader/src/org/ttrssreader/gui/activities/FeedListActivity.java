@@ -70,7 +70,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        setProgressBarIndeterminateVisibility(false);
         mFeedListView = getListView();
         
         Bundle extras = getIntent().getExtras();
@@ -87,7 +86,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         
         mAdapter = new FeedListAdapter(this, mCategoryId);
         mFeedListView.setAdapter(mAdapter);
-        updater = new Updater(this, mAdapter);
     }
     
     @Override
@@ -122,18 +120,27 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         super.onSaveInstanceState(outState);
         outState.putInt(CATEGORY_ID, mCategoryId);
         outState.putString(CATEGORY_TITLE, mCategoryTitle);
-        // TODO
-//        outState.putParcelableArrayList(key, value)
+        // TODO Perhaps we can save the data from the adapter too so we dont have to read from DB?
     }
     
     private void doRefresh() {
-        setProgressBarIndeterminateVisibility(true);
+
+        // Only update if no refresher already running
+        if (refresher != null) {
+            if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
+                return;
+            } else if (refresher.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                refresher = null;
+                return;
+            }
+        }
         
         if (mAdapter == null) {
             mAdapter = new FeedListAdapter(this, mCategoryId);
             mFeedListView.setAdapter(mAdapter);
         }
-        
+
+        setProgressBarIndeterminateVisibility(true);
         refresher = new Refresher(this, mAdapter);
         refresher.execute();
     }
@@ -144,6 +151,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
                 return;
             } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                updater = null;
                 return;
             }
         }
@@ -153,8 +161,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             mFeedListView.setAdapter(mAdapter);
         }
 
-        setProgressBarIndeterminateVisibility(true);
-        
         updater = new Updater(this, mAdapter);
         new Handler().postDelayed(new Runnable() {
             public void run() {
@@ -173,8 +179,8 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         Intent i = new Intent(this, FeedHeadlineListActivity.class);
         i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getFeedId(position));
         i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getFeedTitle(position));
-        i.putIntegerArrayListExtra(FeedHeadlineListActivity.FEED_LIST, mAdapter.getFeedIds());
-        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAMES, mAdapter.getFeedNames());
+        i.putIntegerArrayListExtra(FeedHeadlineListActivity.FEED_LIST_ID, mAdapter.getFeedIds());
+        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAME, mAdapter.getFeedNames());
         
         startActivity(i);
     }
@@ -214,11 +220,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     
     private void doForceRefresh() {
         Data.getInstance().resetFeedTime();
-        
-        updater = new Updater(this, mAdapter);
-        setProgressBarIndeterminateVisibility(true);
-        updater.execute();
-        
+        doUpdate();
         doRefresh();
     }
     
@@ -229,7 +231,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     }
     
     private void markAllRead() {
-        setProgressBarIndeterminateVisibility(true);
         new Updater(this, new ReadStateUpdater(mAdapter.getFeeds(), mCategoryId, 0, false)).execute();
     }
     
@@ -263,6 +264,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             try {
                 List<FeedItem> list = new ArrayList<FeedItem>();
                 list.addAll((Set<FeedItem>) refresher.get());
+                refresher = null;
                 mAdapter.setFeeds(list);
                 mAdapter.notifyDataSetChanged();
             } catch (Exception e) {
@@ -290,6 +292,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     
     @Override
     public void onUpdateEnd() {
+        updater = null;
         doRefresh();
     }
     

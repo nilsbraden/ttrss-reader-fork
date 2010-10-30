@@ -1,11 +1,16 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 0.6.9 ==
+== Version 0.7 ==
   * Improved updating of locally stored information
+  * Faster startup
+  * Better restarting of activities
+  * Fixed sorting-issues of feeds
+  * Fixed double-login
+  * Fixed progress-indicator
 
 == Version 0.6.8 ==
-  * Fixed: https://code.google.com/p/ttrss-reader-fork/issues/detail?id=30 (Only one article when using old API)
+  * Fixed: https://code.google.com/p/ttrss-reader-fork/issues/detail?id=30 (Only one article shown when using old API)
   * Added notification for finished attachment-downloads.
 
 == Version 0.6.6 ==

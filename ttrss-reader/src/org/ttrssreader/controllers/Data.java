@@ -101,12 +101,14 @@ public class Data {
     
     // *** COUNTERS *********************************************************************
     
+    private Set<CategoryItem> categoryCounters = null;
+    
     public int getCategoryUnreadCount(int catId) {
-        updateCounters();
+        if (categoryCounters == null) {
+            categoryCounters = DBHelper.getInstance().getCategoryCounters();
+        }
         
-        Set<CategoryItem> set = DBHelper.getInstance().getCategoryCounters();
-        
-        for (CategoryItem c : set) {
+        for (CategoryItem c : categoryCounters) {
             if (catId == c.getId()) {
                 return c.getUnread();
             }
@@ -142,7 +144,7 @@ public class Data {
             time = new Long(0);
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            return new LinkedHashSet<ArticleItem>();
+            return null;
         } else if (Utils.isOnline(cm)) {
             FeedItem f = getFeed(feedId);
             int limit = 30;
@@ -185,7 +187,7 @@ public class Data {
 //            Utils.waitForTask(task);
             return articles;
         }
-        return new LinkedHashSet<ArticleItem>();
+        return null;
     }
     
     @SuppressWarnings({ "unchecked" })
@@ -238,7 +240,7 @@ public class Data {
     
     public Set<FeedItem> updateFeeds(int categoryId) {
         if (mFeedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            return new LinkedHashSet<FeedItem>();
+            return null;
         } else if (Utils.isOnline(cm)) {
             Map<Integer, Set<FeedItem>> feeds = Controller.getInstance().getConnector().getFeeds();
             mFeedsUpdated = System.currentTimeMillis();
@@ -258,7 +260,7 @@ public class Data {
             
             return ret;
         }
-        return new LinkedHashSet<FeedItem>();
+        return null;
     }
     
     // *** CATEGORIES *******************************************************************
@@ -280,37 +282,26 @@ public class Data {
     
     public Set<CategoryItem> updateVirtualCategories() {
         if (mVirtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            return new LinkedHashSet<CategoryItem>();
+            return null;
         } else if (Utils.isOnline(cm)) {
-            boolean displayCount = Controller.getInstance().isDisplayUnreadInVirtualFeeds();
-            
-            Set<CategoryItem> virtCategories = new LinkedHashSet<CategoryItem>();
             mVirtCategoriesUpdated = System.currentTimeMillis();
             
-            // Refresh CategoryCounters
-            // retrieveCategoryCounters(true);
-            
-            CategoryItem catItem;
-            catItem = new CategoryItem(-4, "All articles", displayCount ? getCategoryUnreadCount(-4) : 0);
-            virtCategories.add(catItem);
-            catItem = new CategoryItem(-3, "Fresh articles", displayCount ? getCategoryUnreadCount(-3) : 0);
-            virtCategories.add(catItem);
-            catItem = new CategoryItem(-2, "Published articles", displayCount ? getCategoryUnreadCount(-2) : 0);
-            virtCategories.add(catItem);
-            catItem = new CategoryItem(-1, "Starred articles", displayCount ? getCategoryUnreadCount(-1) : 0);
-            virtCategories.add(catItem);
-            catItem = new CategoryItem(0, "Uncategorized Feeds", displayCount ? getCategoryUnreadCount(0) : 0);
-            virtCategories.add(catItem);
+            Set<CategoryItem> virtCategories = new LinkedHashSet<CategoryItem>();
+            for (CategoryItem c : categoryCounters) {
+                if (c.getId() < 1) {
+                    virtCategories.add(c);
+                }
+            }
             
             DBHelper.getInstance().insertCategories(virtCategories);
             return virtCategories;
         }
-        return new LinkedHashSet<CategoryItem>();
+        return null;
     }
     
     public Set<CategoryItem> updateCategories() {
         if (mCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            return new LinkedHashSet<CategoryItem>();
+            return null;
         } else if (Utils.isOnline(cm)) {
             Set<CategoryItem> categories = Controller.getInstance().getConnector().getCategories();
             mCategoriesUpdated = System.currentTimeMillis();
@@ -323,7 +314,7 @@ public class Data {
             DBHelper.getInstance().insertCategories(categories);
             return categories;
         }
-        return new LinkedHashSet<CategoryItem>();
+        return null;
     }
     
     // **********************************************************************************

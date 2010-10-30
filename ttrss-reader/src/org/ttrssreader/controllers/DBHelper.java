@@ -694,7 +694,7 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_FEEDS, null, "categoryId=" + categoryId, null, null, null, "title ASC");
+            c = db.query(TABLE_FEEDS, null, "categoryId=" + categoryId, null, null, null, "upper(title) ASC");
             
             while (!c.isAfterLast()) {
                 ret.add(handleFeedCursor(c));
@@ -753,7 +753,7 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_FEEDS, null, null, null, null, null, "title ASC");
+            c = db.query(TABLE_FEEDS, null, null, null, null, null, "upper(title) ASC");
             
             while (!c.isAfterLast()) {
                 FeedItem fi = handleFeedCursor(c);
@@ -813,7 +813,7 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_CATEGORIES, null, "id > 0", null, null, null, "title DESC");
+            c = db.query(TABLE_CATEGORIES, null, "id > 0", null, null, null, "upper(title) DESC");
             
             while (!c.isAfterLast()) {
                 CategoryItem ci = handleCategoryCursor(c);

@@ -60,7 +60,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
     public static final String FEED_LIST = "FEED_LIST";
-    public static final String FEED_LIST_NAMES = "FEED_LIST_NAMES";
+    public static final String FEED_LIST_ID = "FEED_LIST_ID";
+    public static final String FEED_LIST_NAME = "FEED_LIST_NAME";
     
     public boolean flingDetected = false;
     
@@ -85,22 +86,20 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        setProgressBarIndeterminateVisibility(false);
         mFeedHeadlineListView = getListView();
-        
         mGestureDetector = new GestureDetector(onGestureListener);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             mFeedId = extras.getInt(FEED_ID);
             mFeedTitle = extras.getString(FEED_TITLE);
-            mFeedIds = extras.getIntegerArrayList(FEED_LIST);
-            mFeedNames = extras.getStringArrayList(FEED_LIST_NAMES);
+            mFeedIds = extras.getIntegerArrayList(FEED_LIST_ID);
+            mFeedNames = extras.getStringArrayList(FEED_LIST_NAME);
         } else if (instance != null) {
             mFeedId = instance.getInt(FEED_ID);
             mFeedTitle = instance.getString(FEED_TITLE);
-            mFeedIds = instance.getIntegerArrayList(FEED_LIST);
-            mFeedNames = instance.getStringArrayList(FEED_LIST_NAMES);
+            mFeedIds = instance.getIntegerArrayList(FEED_LIST_ID);
+            mFeedNames = instance.getStringArrayList(FEED_LIST_NAME);
         } else {
             mFeedId = -1;
             mFeedTitle = null;
@@ -110,7 +109,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
         mFeedHeadlineListView.setAdapter(mAdapter);
-        updater = new Updater(this, mAdapter);
     }
     
     @Override
@@ -140,14 +138,32 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         }
     }
     
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(FEED_ID, mFeedId);
+        outState.putString(FEED_TITLE, mFeedTitle);
+        outState.putIntegerArrayList(FEED_LIST_ID, mFeedIds);
+        outState.putStringArrayList(FEED_LIST_NAME, mFeedNames);
+    }
+    
     private void doRefresh() {
-        setProgressBarIndeterminateVisibility(true);
+        // Only update if no refresher already running
+        if (refresher != null) {
+            if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
+                return;
+            } else if (refresher.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                refresher = null;
+                return;
+            }
+        }
         
         if (mAdapter == null) {
             mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
             mFeedHeadlineListView.setAdapter(mAdapter);
         }
-        
+
+        setProgressBarIndeterminateVisibility(true);
         refresher = new Refresher(this, mAdapter);
         refresher.execute();
     }
@@ -158,6 +174,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
                 return;
             } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                updater = null;
                 return;
             }
         }
@@ -166,8 +183,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
             mFeedHeadlineListView.setAdapter(mAdapter);
         }
-        
-        setProgressBarIndeterminateVisibility(true);
         
         updater = new Updater(this, mAdapter);
         new Handler().postDelayed(new Runnable() {
@@ -187,7 +202,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         Intent i = new Intent(this, ArticleActivity.class);
         i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(position));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mAdapter.getFeedItemIds());
+        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mAdapter.getFeedItemIds());
         
         if (!flingDetected) {
             startActivity(i);
@@ -234,21 +249,15 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     private void doForceRefresh() {
         Data.getInstance().resetArticlesTime(mFeedId);
-        
-        updater = new Updater(this, mAdapter);
-        setProgressBarIndeterminateVisibility(true);
-        updater.execute();
-        
+        doUpdate();
         doRefresh();
     }
     
     private void setReadState() {
-        setProgressBarIndeterminateVisibility(true);
         new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 0)).execute();
     }
     
     private void setUnreadState() {
-        setProgressBarIndeterminateVisibility(true);
         new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 1)).execute();
     }
     
@@ -277,8 +286,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         Intent i = new Intent(this, this.getClass());
         i.putExtra(FEED_ID, mFeedIds.get(index));
         i.putExtra(FEED_TITLE, mFeedNames.get(index));
-        i.putIntegerArrayListExtra(FEED_LIST, mFeedIds);
-        i.putStringArrayListExtra(FEED_LIST_NAMES, mFeedNames);
+        i.putIntegerArrayListExtra(FEED_LIST_ID, mFeedIds);
+        i.putStringArrayListExtra(FEED_LIST_NAME, mFeedNames);
         
         flingDetected = false;
         startActivityForResult(i, 0);
@@ -304,8 +313,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         Intent i = new Intent(this, this.getClass());
         i.putExtra(FEED_ID, mFeedIds.get(index));
         i.putExtra(FEED_TITLE, mFeedNames.get(index));
-        i.putIntegerArrayListExtra(FEED_LIST, mFeedIds);
-        i.putStringArrayListExtra(FEED_LIST_NAMES, mFeedNames);
+        i.putIntegerArrayListExtra(FEED_LIST_ID, mFeedIds);
+        i.putStringArrayListExtra(FEED_LIST_NAME, mFeedNames);
         
         flingDetected = false;
         startActivityForResult(i, 0);
@@ -430,6 +439,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             try {
                 List<ArticleItem> list = new ArrayList<ArticleItem>();
                 list.addAll((Set<ArticleItem>) refresher.get());
+                refresher= null;
                 mAdapter.setArticles(list);
                 mAdapter.notifyDataSetChanged();
             } catch (Exception e) {
@@ -456,12 +466,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     @Override
     public void onUpdateEnd() {
-        if (!Controller.getInstance().getConnector().hasLastError()) {
-            mAdapter.notifyDataSetChanged();
-        } else {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-        }
-        
+        updater = null;
         doRefresh();
     }
     

@@ -56,7 +56,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_ID = "FEED_ID";
-    public static final String ARTICLE_LIST = "ARTICLE_LIST";
+    public static final String ARTICLE_LIST_ID = "ARTICLE_LIST_ID";
     
     private static final int MENU_MARK_READ = Menu.FIRST;
     private static final int MENU_MARK_UNREAD = Menu.FIRST + 1;
@@ -89,8 +89,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        setProgressBarIndeterminateVisibility(false);
-        
         webview = (WebView) findViewById(R.id.webview);
         webview.getSettings().setJavaScriptEnabled(true);
         webview.getSettings().setBuiltInZoomControls(true);
@@ -106,11 +104,11 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         if (extras != null) {
             mArticleId = extras.getInt(ARTICLE_ID);
             mFeedId = extras.getInt(FEED_ID);
-            mArticleIds = extras.getIntegerArrayList(ARTICLE_LIST);
+            mArticleIds = extras.getIntegerArrayList(ARTICLE_LIST_ID);
         } else if (instance != null) {
             mArticleId = instance.getInt(ARTICLE_ID);
             mFeedId = instance.getInt(FEED_ID);
-            mArticleIds = instance.getIntegerArrayList(ARTICLE_LIST);
+            mArticleIds = instance.getIntegerArrayList(ARTICLE_LIST_ID);
         } else {
             mArticleId = -1;
             mFeedId = -1;
@@ -145,6 +143,14 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
             updater.cancel(true);
             updater = null;
         }
+    }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(ARTICLE_ID, mArticleId);
+        outState.putInt(FEED_ID, mFeedId);
+        outState.putIntegerArrayList(ARTICLE_LIST_ID, mArticleIds);
     }
     
     @Override
@@ -189,12 +195,21 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     }
     
     private void doRefresh() {
-        setProgressBarIndeterminateVisibility(true);
+        // Only update if no refresher already running
+        if (refresher != null) {
+            if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
+                return;
+            } else if (refresher.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                refresher = null;
+                return;
+            }
+        }
         
         if (mAdapter == null) {
             mAdapter = new ArticleItemAdapter(mArticleId);
         }
-        
+
+        setProgressBarIndeterminateVisibility(true);
         refresher = new Refresher(this, mAdapter);
         refresher.execute();
     }
@@ -208,8 +223,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
                 return;
             }
         }
-
-        setProgressBarIndeterminateVisibility(true);
         
         updater = new Updater(this, mAdapter);
         new Handler().postDelayed(new Runnable() {
@@ -223,7 +236,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     }
     
     private void markRead() {
-        setProgressBarIndeterminateVisibility(true);
         new Updater(this, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
     }
     
@@ -276,7 +288,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         
         i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mArticleIds);
+        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mArticleIds);
         
         Log.i(Utils.TAG, "openPreviousArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         
@@ -301,7 +313,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         
         i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST, mArticleIds);
+        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mArticleIds);
         
         Log.i(Utils.TAG, "openNextArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         
@@ -515,11 +527,8 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     
     @Override
     public void onUpdateEnd() {
-        if (Controller.getInstance().getConnector().hasLastError()) {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-        }
-        
-        setProgressBarIndeterminateVisibility(false);
+        updater = null;
+        doRefresh();
     }
     
     @Override
