@@ -30,7 +30,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class PreferencesActivity extends PreferenceActivity {
-    
+
+    public static final int ACTIVITY_SHOW_PREFERENCES = 43;
     private static final int MENU_RESET_PREFERENCES = Menu.FIRST;
     
     @Override
@@ -39,6 +40,7 @@ public class PreferencesActivity extends PreferenceActivity {
         addPreferencesFromResource(R.layout.preferences);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(mListener);
+        setResult(ACTIVITY_SHOW_PREFERENCES);
     }
     
     private void updatePreferences() {

@@ -2,8 +2,10 @@
 
 = Changes =
 
-== Version 0.1 ==
+== Version 0.7.1 ==
   * Added donate-button to about-dialog
+  * Fixed two unhandled Exceptions
+  * Fixed no virtual Categories beeing displayed on first start
 
 == Version 0.7 ==
   * Improved updating of locally stored information

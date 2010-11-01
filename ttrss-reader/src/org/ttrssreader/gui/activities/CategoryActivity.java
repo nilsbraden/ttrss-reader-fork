@@ -91,6 +91,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         if (!checkConfig()) {
             openConnectionErrorDialog("No Server specified.");
         }
+        
+        if (configChecked || checkConfig())
+            doUpdate();
     }
     
     private boolean checkConfig() {
@@ -101,15 +104,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         
         configChecked = true;
         return true;
-    }
-    
-    @Override
-    protected void onStart() {
-        super.onStart();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
-        
-        if (configChecked || checkConfig())
-            doUpdate();
     }
     
     @Override
@@ -266,7 +260,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private void openPreferences() {
         Intent i = new Intent(this, PreferencesActivity.class);
         Log.e(Utils.TAG, "Starting PreferencesActivity");
-        startActivity(i);
+        startActivityForResult(i, PreferencesActivity.ACTIVITY_SHOW_PREFERENCES);
     }
     
     private void openAboutDialog() {
@@ -301,7 +295,13 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
+        Log.d(Utils.TAG, "onActivityResult. requestCode: " + requestCode + " resultCode: " + resultCode);
+        if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
+            if (configChecked || checkConfig()) {
+                doUpdate();
+                doRefresh();
+            }
+        } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
             if (configChecked || checkConfig()) {
                 doUpdate();
                 doRefresh();

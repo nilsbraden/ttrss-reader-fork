@@ -116,12 +116,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         }
         
         mAdapter = new ArticleItemAdapter(mArticleId);
-    }
-    
-    @Override
-    protected void onStart() {
-        super.onStart();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         doUpdate();
     }
     

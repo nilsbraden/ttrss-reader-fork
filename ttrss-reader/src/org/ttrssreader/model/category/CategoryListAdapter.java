@@ -182,7 +182,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     public Set<?> refreshData() {
         Set<CategoryItem> ret;
         
-        if (mCategoriesTemp != null && mCategoriesTemp.size() > 0) {
+        if (mCategoriesTemp != null) {
             ret = new LinkedHashSet<CategoryItem>(mCategoriesTemp);
             mCategoriesTemp = null;
         } else {
@@ -221,15 +221,23 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
         }
         
         if (!Controller.getInstance().isWorkOffline()) {
-            Log.i(Utils.TAG, "CategoryListAdapter - updateCategories()");
-            Set<CategoryItem> cats = Data.getInstance().updateCategories();
-            if (cats != null && cats.size() > 0)
-                mCategoriesTemp = new LinkedHashSet<CategoryItem>(cats);
-            
-            Log.i(Utils.TAG, "CategoryListAdapter - updateVirtualCategories()");
-            Set<CategoryItem> vCats = Data.getInstance().updateVirtualCategories();
-            if (vCats != null && vCats.size() > 0 && mCategoriesTemp != null)
-                mCategoriesTemp.addAll(vCats);
+            if (mCategoriesTemp == null) {
+                // Triple-check for NPE...
+                mCategoriesTemp = new LinkedHashSet<CategoryItem>();
+                
+                Log.i(Utils.TAG, "CategoryListAdapter - updateCategories()");
+                Set<CategoryItem> cats = Data.getInstance().updateCategories();
+                if (cats != null && cats.size() > 0 && mCategoriesTemp != null)
+                    mCategoriesTemp.addAll(cats);
+                
+                Log.i(Utils.TAG, "CategoryListAdapter - updateVirtualCategories()");
+                Set<CategoryItem> vCats = Data.getInstance().updateVirtualCategories();
+                if (vCats != null && vCats.size() > 0 && mCategoriesTemp != null)
+                    mCategoriesTemp.addAll(vCats);
+                
+                if (mCategoriesTemp != null && mCategoriesTemp.isEmpty())
+                    mCategoriesTemp = null;
+            }
         }
     }
     

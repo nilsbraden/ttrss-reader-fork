@@ -109,12 +109,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
         mFeedHeadlineListView.setAdapter(mAdapter);
-    }
-    
-    @Override
-    protected void onStart() {
-        super.onStart();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         doUpdate();
     }
     

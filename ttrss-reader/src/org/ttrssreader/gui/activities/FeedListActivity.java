@@ -86,12 +86,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         
         mAdapter = new FeedListAdapter(this, mCategoryId);
         mFeedListView.setAdapter(mAdapter);
-    }
-    
-    @Override
-    protected void onStart() {
-        super.onStart();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         doUpdate();
     }
     

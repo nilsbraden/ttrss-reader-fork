@@ -39,6 +39,8 @@ public class Data {
     private long mCategoriesUpdated = 0;
     private long mNewArticlesUpdated = 0;
     
+    private Set<CategoryItem> categoryCounters = null;
+    
     private ConnectivityManager cm;
     
     public static Data getInstance() {
@@ -101,8 +103,6 @@ public class Data {
     
     // *** COUNTERS *********************************************************************
     
-    private Set<CategoryItem> categoryCounters = null;
-    
     public int getCategoryUnreadCount(int catId) {
         if (categoryCounters == null) {
             categoryCounters = DBHelper.getInstance().getCategoryCounters();
@@ -113,8 +113,7 @@ public class Data {
                 return c.getUnread();
             }
         }
-        
-        return 0;
+        return -1;
     }
     
     public void updateCounters() {
@@ -162,7 +161,7 @@ public class Data {
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getArticles(feedId, displayOnlyUnread, isCategory, limit);
             
-            if (articles.size() == 0) {
+            if (articles.isEmpty()) {
                 // getArticles not working, fetch headlines and articles manually
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
                 articles = Controller.getInstance().getConnector().getFeedHeadlines(feedId, limit, 0, viewMode);
@@ -184,7 +183,7 @@ public class Data {
             DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
             task.execute(articles);
             
-//            Utils.waitForTask(task);
+            // Utils.waitForTask(task);
             return articles;
         }
         return null;
@@ -245,7 +244,7 @@ public class Data {
             Map<Integer, Set<FeedItem>> feeds = Controller.getInstance().getConnector().getFeeds();
             mFeedsUpdated = System.currentTimeMillis();
             
-            if (feeds.size() > 0) {
+            if (!feeds.isEmpty()) {
                 // Only delete feeds if we got new feeds...
                 DBHelper.getInstance().deleteFeeds();
             }
@@ -293,6 +292,31 @@ public class Data {
                 }
             }
             
+            boolean needUpdate = false;
+            for (CategoryItem c : virtCategories) {
+                if (c.getUnread() == -1) {
+                    needUpdate = true;
+                    break;
+                }
+            }
+            
+            if (needUpdate || virtCategories.isEmpty()) {
+
+                virtCategories = new LinkedHashSet<CategoryItem>();
+                virtCategories.add(new CategoryItem(-4, "All articles", 0));
+                virtCategories.add(new CategoryItem(-3, "Fresh articles", 0));
+                virtCategories.add(new CategoryItem(-2, "Published articles", 0));
+                virtCategories.add(new CategoryItem(-1, "Starred articles", 0));
+                virtCategories.add(new CategoryItem(0, "Uncategorized Feeds", 0));
+                DBHelper.getInstance().insertCategories(virtCategories);
+                
+                resetCounterTime();
+                updateCounters();
+                categoryCounters = null;
+                
+                return(DBHelper.getInstance().getVirtualCategories());
+            }
+
             DBHelper.getInstance().insertCategories(virtCategories);
             return virtCategories;
         }
@@ -306,7 +330,7 @@ public class Data {
             Set<CategoryItem> categories = Controller.getInstance().getConnector().getCategories();
             mCategoriesUpdated = System.currentTimeMillis();
             
-            if (categories.size() > 0) {
+            if (!categories.isEmpty()) {
                 // Only delete categories if we got new categories...
                 DBHelper.getInstance().deleteCategories(false);
             }
