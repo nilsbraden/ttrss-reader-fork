@@ -4,7 +4,7 @@
 
 == Version 0.7.2 ==
   * Fixed wrong calculation of unrad-counts
-  * 
+  * Added welcome-dialog for the first-run
 
 == Version 0.7.1 ==
   * Added donate-button to about-dialog
