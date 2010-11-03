@@ -22,13 +22,9 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.IRefreshEndListener;
-import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.ReadStateUpdater;
-import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
-import org.ttrssreader.model.article.ArticleItemAdapter;
 import org.ttrssreader.model.article.MyWebViewClient;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
@@ -36,11 +32,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
-import android.os.AsyncTask.Status;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -52,7 +46,7 @@ import android.view.GestureDetector.OnGestureListener;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-public class ArticleActivity extends Activity implements IRefreshEndListener, IUpdateEndListener {
+public class ArticleActivity extends Activity {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_ID = "FEED_ID";
@@ -69,10 +63,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     private ArrayList<Integer> mArticleIds;
     
     private ArticleItem mArticleItem = null;
-    
-    private ArticleItemAdapter mAdapter = null;
-    private Refresher refresher;
-    private Updater updater;
     
     private WebView webview;
     private TextView webviewSwipeText;
@@ -94,7 +84,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
         webview.getSettings().setBuiltInZoomControls(true);
         webview.setWebViewClient(new MyWebViewClient());
         mGestureDetector = new GestureDetector(onGestureListener);
-        findViewById(R.layout.articleitem);
         
         webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
         webviewSwipeText.setVisibility(TextView.INVISIBLE);
@@ -114,9 +103,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
             mFeedId = -1;
             mArticleIds = new ArrayList<Integer>();
         }
-        
-        mAdapter = new ArticleItemAdapter(mArticleId);
-        doUpdate();
     }
     
     @Override
@@ -129,14 +115,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (refresher != null) {
-            refresher.cancel(true);
-            refresher = null;
-        }
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
     }
     
     @Override
@@ -189,44 +167,50 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     }
     
     private void doRefresh() {
-        // Only update if no refresher already running
-        if (refresher != null) {
-            if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
-                return;
-            } else if (refresher.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                refresher = null;
-                return;
-            }
-        }
-        
-        if (mAdapter == null) {
-            mAdapter = new ArticleItemAdapter(mArticleId);
-        }
-
         setProgressBarIndeterminateVisibility(true);
-        refresher = new Refresher(this, mAdapter);
-        refresher.execute();
-    }
-    
-    private synchronized void doUpdate() {
-        // Only update if no updater already running
-        if (updater != null) {
-            if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
-                return;
-            } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                return;
-            }
-        }
         
-        updater = new Updater(this, mAdapter);
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                if (updater != null) {
-                    setProgressBarIndeterminateVisibility(true);
-                    updater.execute();
+        if (!Controller.getInstance().getConnector().hasLastError()) {
+            mArticleItem = Data.getInstance().getArticle(mArticleId);
+            
+            // TODO: DONT READ THIS. ITS NOT IMPORTANT: JUST SKIP THE NEXT EIGHT LINES AND READ ON!
+            // Check if articleItem and content are null, if it is so do update the article again  
+            if (mArticleItem == null || mArticleItem.getContent() == null) {
+                ArticleItem temp = Data.getInstance().updateArticle(mArticleId);
+                if (temp != null && temp.getContent() != null) {
+                    mArticleItem = temp;
                 }
             }
-        }, Utils.WAIT);
+            
+            if (mArticleItem != null && mArticleItem.getContent() != null) {
+                // Inject the specific code for attachments, <img> for images, http-link for Videos
+                String content = injectAttachments(mArticleItem.getContent(), mArticleItem.getAttachments());
+                
+                // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
+                webview.loadDataWithBaseURL(null, content, "text/html", "utf-8", "about:blank");
+                
+                if (mArticleItem.getTitle() != null) {
+                    this.setTitle(mArticleItem.getTitle());
+                } else {
+                    this.setTitle(this.getResources().getString(R.string.ApplicationName));
+                }
+                
+                if (mArticleItem.isUnread() && Controller.getInstance().isAutomaticMarkRead()) {
+                    new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
+                }
+                
+                if (content.length() < 3) {
+                    if (Controller.getInstance().isOpenUrlEmptyArticle()) {
+                        Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+                        openLink();
+                    }
+                }
+                
+            }
+        } else {
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+        }
+        
+        setProgressBarIndeterminateVisibility(false);
     }
     
     private void markRead() {
@@ -425,15 +409,6 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
-        if (refresher != null) {
-            refresher.cancel(true);
-            refresher = null;
-        }
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
@@ -441,55 +416,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-            doUpdate();
             doRefresh();
-        }
-    }
-    
-    @Override
-    public void onRefreshEnd() {
-        if (!Controller.getInstance().getConnector().hasLastError()) {
-            mArticleItem = mAdapter.getArticle();
-            
-            if (mArticleItem != null) {
-                String content = mArticleItem.getContent();
-                if (content == null)
-                    content = "";
-                
-                // Inject the specific code for attachments, <img> for images, http-link for Videos
-                content = injectAttachments(content, mArticleItem.getAttachments());
-                
-                // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-                webview.loadDataWithBaseURL(null, content, "text/html", "utf-8", "about:blank");
-                
-                if (mArticleItem.getTitle() != null) {
-                    this.setTitle(mArticleItem.getTitle());
-                } else {
-                    this.setTitle(this.getResources().getString(R.string.ApplicationName));
-                }
-                
-                if (mArticleItem.isUnread() && Controller.getInstance().isAutomaticMarkRead()) {
-                    new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
-                }
-                
-                if (content.length() < 3) {
-                    if (Controller.getInstance().isOpenUrlEmptyArticle()) {
-                        Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
-                        openLink();
-                    }
-                }
-                
-            }
-        } else {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-        }
-        
-        if (updater != null) {
-            if (updater.getStatus().equals(Status.FINISHED)) {
-                setProgressBarIndeterminateVisibility(false);
-            }
-        } else {
-            setProgressBarIndeterminateVisibility(false);
         }
     }
     
@@ -520,15 +447,9 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     }
     
     @Override
-    public void onUpdateEnd() {
-        updater = null;
-        doRefresh();
-    }
-    
-    @Override
-    public void onConfigurationChanged(Configuration newConfig){
+    public void onConfigurationChanged(Configuration newConfig) {
         // TODO: Add configuration-change-listener
         super.onConfigurationChanged(newConfig);
     }
-
+    
 }

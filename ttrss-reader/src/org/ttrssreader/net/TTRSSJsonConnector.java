@@ -744,8 +744,20 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 
             } else if (res instanceof TTRSSJsonResult) {
                 
+                // TODO: Remove this some day because it is ugly.
+                // Workaround for old API-Method getArticle which is not supplying an ID...
+                int articleId = 0;
+                for (int i : articleIds) {
+                    // We can safely assume that there is only one id OR the fetched article is the first in the set as
+                    // it is a LinkedHashSet which preservers the sort-order.
+                    articleId = i;
+                    break;
+                }
+                
                 TTRSSJsonResult jsonResult = (TTRSSJsonResult) res;
-                ret.add(parseDataForArticle(jsonResult.getNames(), jsonResult.getValues()));
+                ArticleItem temp = parseDataForArticle(jsonResult.getNames(), jsonResult.getValues());
+                temp.setId(articleId);
+                ret.add(temp);
                 
             }
         }
@@ -801,14 +813,15 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         String url = mServerUrl + String.format(OP_GET_NEW_ARTICLES, mSessionId, articleState, time);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
-        if (jsonResult == null) {
-            return ret;
-        } else if (mHasLastError && mLastError.contains(ERROR)) {
+        if (mHasLastError && mLastError.contains(ERROR)) {
             // Catch unknown-method error, see comment above
             if (mLastError.contains(UNKNOWN_METHOD)) {
                 mLastError = "";
                 mHasLastError = false;
             }
+            return ret;
+        } else if (jsonResult == null) {
+            return ret;
         }
         
         try {
