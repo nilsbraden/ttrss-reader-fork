@@ -39,8 +39,6 @@ public class Data {
     private long mCategoriesUpdated = 0;
     private long mNewArticlesUpdated = 0;
     
-    private Set<CategoryItem> categoryCounters = null;
-    
     private ConnectivityManager cm;
     
     public static Data getInstance() {
@@ -103,12 +101,12 @@ public class Data {
     
     // *** COUNTERS *********************************************************************
     
+    public Set<CategoryItem> getCategoryCounters() {
+        return DBHelper.getInstance().getCategoryCounters();
+    }
+    
     public int getCategoryUnreadCount(int catId) {
-        if (categoryCounters == null) {
-            categoryCounters = DBHelper.getInstance().getCategoryCounters();
-        }
-        
-        for (CategoryItem c : categoryCounters) {
+        for (CategoryItem c : getCategoryCounters()) {
             if (catId == c.getId()) {
                 return c.getUnread();
             }
@@ -286,7 +284,7 @@ public class Data {
             mVirtCategoriesUpdated = System.currentTimeMillis();
             
             Set<CategoryItem> virtCategories = new LinkedHashSet<CategoryItem>();
-            for (CategoryItem c : categoryCounters) {
+            for (CategoryItem c : getCategoryCounters()) {
                 if (c.getId() < 1) {
                     virtCategories.add(c);
                 }
@@ -312,7 +310,6 @@ public class Data {
                 
                 resetCounterTime();
                 updateCounters();
-                categoryCounters = null;
                 
                 return(DBHelper.getInstance().getVirtualCategories());
             }

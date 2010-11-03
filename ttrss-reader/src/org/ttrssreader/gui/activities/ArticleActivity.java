@@ -230,7 +230,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
     }
     
     private void markRead() {
-        new Updater(this, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
+        new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
     }
     
     private void openUrl(String url) {
@@ -469,7 +469,7 @@ public class ArticleActivity extends Activity implements IRefreshEndListener, IU
                 }
                 
                 if (mArticleItem.isUnread() && Controller.getInstance().isAutomaticMarkRead()) {
-                    new Updater(this, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
+                    new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
                 }
                 
                 if (content.length() < 3) {
