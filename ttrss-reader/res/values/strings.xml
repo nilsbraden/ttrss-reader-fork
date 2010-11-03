@@ -90,6 +90,6 @@
     
     <string name="Changelog.Title">Changelog</string>
     <string name="Welcome.Title">Welcome</string>
-    <string name="Welcome.Message">Welcome to TTRSS-Reader!\n\nPlease note that this Reader does not work with Google-Reader or other server-side RSS-Readers, it is only for the API of \"Tiny Tiny RSS\"\n\nIf this is the first time you started this you may want to set some of the Settings, press Preferences to proceed.</string>
+    <string name="Welcome.Message">Welcome to TTRSS-Reader!\n\nPlease note that this Reader only works with a \"Tiny Tiny RSS\" Server.\n\nIf this is the first time you started TTRSS-Reader you should set your Serverlocation and User-Settings. Press "Preferences" to proceed.</string>
 
 </resources>

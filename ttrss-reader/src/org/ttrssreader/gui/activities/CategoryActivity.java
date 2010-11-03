@@ -89,10 +89,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             this.showDialog(DIALOG_WELCOME);
         } else if (Utils.newVersionInstalled(this)) {
             this.showDialog(DIALOG_UPDATE);
-        }
-        
-        // Check if we have a server specified
-        if (!checkConfig()) {
+        } else if (!checkConfig()) {
+            // Check if we have a server specified
             openConnectionErrorDialog("No Server specified.");
         }
         
