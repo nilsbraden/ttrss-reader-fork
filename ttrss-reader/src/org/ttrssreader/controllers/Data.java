@@ -25,6 +25,7 @@ import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 public class Data {
     
@@ -134,6 +135,24 @@ public class Data {
         return DBHelper.getInstance().getArticle(articleId);
     }
     
+    public ArticleItem updateArticle(int articleId) {
+        // TODO: Hopefully someday we don't need to fetch the content seperately and can remove this method.
+        // Don't check last update time here
+        if (Utils.isOnline(cm)) {
+            Set<Integer> set = new LinkedHashSet<Integer>();
+            set.add(articleId);
+            
+            for (ArticleItem a : Controller.getInstance().getConnector().getArticle(set)) {
+                if (a.getId() == articleId) {
+                    Log.d(Utils.TAG, "Found article: " + articleId);
+                    return a;
+                }
+            }
+        }
+        Log.d(Utils.TAG, "Couldn't find article: " + articleId);
+        return null;
+    }
+    
     @SuppressWarnings("unchecked")
     public Set<ArticleItem> updateArticles(int feedId, boolean displayOnlyUnread) {
         Long time = mArticlesUpdated.get(feedId);
@@ -171,7 +190,7 @@ public class Data {
                 
                 Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(set);
                 
-                if (temp.size() != articles.size()) {
+                if (temp.size() == articles.size()) {
                     articles = temp;
                 }
             }
