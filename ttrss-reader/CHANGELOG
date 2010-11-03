@@ -3,7 +3,7 @@
 = Changes =
 
 == Version 0.7.2 ==
-  * Fixed wrong calculation of unrad-counts
+  * Fixed wrong calculation of unread-counts
   * Added welcome-dialog for the first-run
 
 == Version 0.7.1 ==
