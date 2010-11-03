@@ -36,6 +36,7 @@ import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -58,7 +59,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
     private static final int MENU_MARK_ALL_READ = Menu.FIRST + 4;
     
-    private static final int DIALOG_UPDATE = 1;
+    private static final int DIALOG_WELCOME = 1;
+    private static final int DIALOG_UPDATE = 2;
     
     private ListView mCategoryListView;
     private CategoryListAdapter mAdapter = null;
@@ -82,8 +84,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         mAdapter = new CategoryListAdapter(this);
         mCategoryListView.setAdapter(mAdapter);
         
-        // Check if ChangeLog should be displayed
-        if (Utils.newVersionInstalled(this)) {
+        // Check for update or new installation
+        if (Controller.getInstance().isNewInstallation()) {
+            this.showDialog(DIALOG_WELCOME);
+        } else if (Utils.newVersionInstalled(this)) {
             this.showDialog(DIALOG_UPDATE);
         }
         
@@ -316,24 +320,42 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     protected final Dialog onCreateDialog(final int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setIcon(android.R.drawable.ic_dialog_info);
-        builder.setTitle(getResources().getString(R.string.Changelog_Title));
-        final String[] changes = getResources().getStringArray(R.array.updates);
-        final StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < changes.length; i++) {
-            buf.append("\n\n");
-            buf.append(changes[i]);
-        }
-        builder.setIcon(android.R.drawable.ic_menu_info_details);
-        builder.setMessage(buf.toString().trim());
         builder.setCancelable(true);
         builder.setPositiveButton(android.R.string.ok, null);
-        builder.setNeutralButton("want to Donate?", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface d, final int which) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
-                        R.string.DonateUrl))));
-            }
-        });
+        
+        final Context context = this;
+
+        switch (id) {
+            case DIALOG_WELCOME:
+                builder.setTitle(getResources().getString(R.string.Welcome_Title));
+                builder.setMessage(getResources().getString(R.string.Welcome_Message));
+                builder.setNeutralButton("Preferences", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface d, final int which) {
+                        Intent i = new Intent(context, PreferencesActivity.class);
+                        Log.e(Utils.TAG, "Starting PreferencesActivity");
+                        startActivity(i);
+                    }
+                });
+                break;
+            case DIALOG_UPDATE:
+                builder.setTitle(getResources().getString(R.string.Changelog_Title));
+                final String[] changes = getResources().getStringArray(R.array.updates);
+                final StringBuilder buf = new StringBuilder();
+                for (int i = 0; i < changes.length; i++) {
+                    buf.append("\n\n");
+                    buf.append(changes[i]);
+                }
+                builder.setMessage(buf.toString().trim());
+                builder.setNeutralButton("want to Donate?", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface d, final int which) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
+                                R.string.DonateUrl))));
+                    }
+                });
+                break;
+        }
         return builder.create();
     }
     

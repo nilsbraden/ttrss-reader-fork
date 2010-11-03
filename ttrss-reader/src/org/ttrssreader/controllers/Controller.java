@@ -65,6 +65,7 @@ public class Controller {
     private int mDatabaseVersion;
     private long mLastUpdateTime;
     private String mLastVersionRun;
+    private boolean isNewInstallation = false;
     
     public static Controller getInstance() {
         synchronized (mutex) {
@@ -78,6 +79,11 @@ public class Controller {
     public synchronized void initializeController(Context context) {
         try {
             prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            
+            // Check for new installation
+            if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
+                isNewInstallation = true;
+            }
 
             url = prefs.getString(Constants.URL, "http://localhost/");
             if (!url.endsWith(JSON_END_URL)) {
@@ -322,6 +328,10 @@ public class Controller {
     public void setLastVersionRun(String lastVersionRun) {
         put(Constants.LAST_VERSION_RUN, lastVersionRun);
         this.mLastVersionRun = lastVersionRun;
+    }
+    
+    public boolean isNewInstallation() {
+        return isNewInstallation;
     }
     
     /*
