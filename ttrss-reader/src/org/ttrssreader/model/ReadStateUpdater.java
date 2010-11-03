@@ -17,6 +17,7 @@
 package org.ttrssreader.model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,27 +46,11 @@ public class ReadStateUpdater implements IUpdatable {
         mArticleState = articleState;
     }
     
-    public ReadStateUpdater(CategoryItem c, int pid, int articleState) {
-        mList = new ArrayList<ArticleItem>();
-        for (FeedItem fi : Data.getInstance().getFeeds(c.getId())) {
-            mList.addAll(Data.getInstance().getArticles(fi.getId()));
-        }
-        mPid = pid;
-        mArticleState = articleState;
-    }
-    
     public ReadStateUpdater(List<FeedItem> list, int pid, int articleState, boolean isFeedList) {
         mList = new ArrayList<ArticleItem>();
         for (FeedItem fi : list) {
             mList.addAll(Data.getInstance().getArticles(fi.getId()));
         }
-        mPid = pid;
-        mArticleState = articleState;
-    }
-    
-    public ReadStateUpdater(FeedItem f, int pid, int articleState) {
-        mList = new ArrayList<ArticleItem>();
-        mList.addAll(Data.getInstance().getArticles(f.getId()));
         mPid = pid;
         mArticleState = articleState;
     }
@@ -85,11 +70,11 @@ public class ReadStateUpdater implements IUpdatable {
     
     @Override
     public void update() {
-        
         Log.i(Utils.TAG, "Updating Article-Read-Status...");
         
         boolean boolState = mArticleState == 1 ? true : false;
-        int intState = mArticleState == 1 ? 1 : -1;
+        int delta = mArticleState == 1 ? 1 : -1;
+        int deltaUnread = mArticleState == 1 ? mList.size() : -mList.size();
         
         Set<Integer> ids = new HashSet<Integer>();
         mList = filterList();
@@ -97,44 +82,25 @@ public class ReadStateUpdater implements IUpdatable {
         for (ArticleItem article : mList) {
             // Build a list of article ids to update.
             ids.add(article.getId());
-            article.setUnread(false);
+            
+            // Set ArticleItem-State directly because the Activity uses this object
+            article.setUnread(boolState);
             
             int feedId = article.getFeedId();
-            int articleId = article.getId();
             FeedItem mFeed = Data.getInstance().getFeed(feedId);
-            
-            if (mFeed == null) {
+            if (mFeed == null)
                 continue;
-            }
             
             int categoryId = mFeed.getCategoryId();
             
-            ArticleItem articleTemp = Data.getInstance().getArticle(articleId);
-            if (articleTemp != null)
-                articleTemp.setUnread(boolState);
+            DBHelper.getInstance().updateFeedDeltaUnreadCount(feedId, delta);
+            DBHelper.getInstance().updateCategoryDeltaUnreadCount(categoryId, delta);
             
-            FeedItem feed = Data.getInstance().getFeed(feedId);
-            if (feed != null) {
-                feed.setDeltaUnreadCount(intState);
-                DBHelper.getInstance().updateFeedDeltaUnreadCount(feedId, categoryId, intState);
-            }
-            
-            CategoryItem category = Data.getInstance().getCategory(categoryId);
-            if (category != null) {
-                category.setDeltaUnreadCount(intState);
-                DBHelper.getInstance().updateCategoryDeltaUnreadCount(categoryId, intState);
-            }
-            
-            // If on a virtual feeds, also update article state in it.
-            if (mPid < 0 && mPid >= -4) {
-                
-                ArticleItem a = Data.getInstance().getArticle(articleId);
-                if (a != null)
-                    a.setUnread(boolState);
-                
-                CategoryItem c = Data.getInstance().getCategory(mPid);
-                if (c != null)
-                    c.setDeltaUnreadCount(intState);
+            // Check if its a fresh article to modify that count too
+            long ms = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+            Date d = new Date(ms);
+            if (article.getUpdateDate().after(d)) {
+                DBHelper.getInstance().updateCategoryDeltaUnreadCount(-3, deltaUnread);
             }
         }
         
@@ -142,8 +108,13 @@ public class ReadStateUpdater implements IUpdatable {
             Controller.getInstance().getConnector().setArticleRead(ids, mArticleState);
             DBHelper.getInstance().markArticlesRead(ids, mArticleState);
             
-            int deltaUnread = mArticleState == 1 ? mList.size() : -mList.size();
-            Data.getInstance().getCategory(-4).setDeltaUnreadCount(deltaUnread);
+            // If on a virtual category also update article state in it.
+            if (mPid < 0 && mPid > -4) {
+                Log.d(Utils.TAG, "Delta-Unread: " + deltaUnread + " Virtual-Category: " + mPid);
+                DBHelper.getInstance().updateCategoryDeltaUnreadCount(mPid, deltaUnread);
+            }
+            Log.d(Utils.TAG, "Delta-Unread: " + deltaUnread + " mPid: " + mPid);
+            DBHelper.getInstance().updateCategoryDeltaUnreadCount(-4, deltaUnread);
         }
     }
     

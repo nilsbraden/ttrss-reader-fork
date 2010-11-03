@@ -2,6 +2,10 @@
 
 = Changes =
 
+== Version 0.7.2 ==
+  * Fixed wrong calculation of unrad-counts
+  * 
+
 == Version 0.7.1 ==
   * Added donate-button to about-dialog
   * Fixed two unhandled Exceptions

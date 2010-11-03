@@ -2,7 +2,7 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
-    android:versionName="0.7.1" android:versionCode="701">
+    android:versionName="0.7.2" android:versionCode="702">
 
     <application
         android:icon="@drawable/icon"

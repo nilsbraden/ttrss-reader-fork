@@ -26,7 +26,7 @@ public class ArticleItem implements Comparable<ArticleItem>{
     private int mId;
     private String mTitle;
     private int mFeedId;
-    private boolean mIsUnread;
+    private volatile boolean mIsUnread;
     private String mArticleUrl;
     private String mArticleCommentUrl;
     private Date mUpdateDate;

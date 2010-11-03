@@ -39,7 +39,7 @@ public class DBHelper {
     private boolean mIsDBInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 36;
+    private static final int DATABASE_VERSION = 37;
     
     private static final String TABLE_CATEGORIES = "categories";
     private static final String TABLE_FEEDS = "feeds";
@@ -384,7 +384,7 @@ public class DBHelper {
         if (!isDBAvailable())
             return;
         
-        updateFeedUnreadCount(f.getId(), f.getCategoryId(), 0);
+        updateFeedUnreadCount(f.getId(), 0);
         
         if (recursive) {
             ContentValues cv = new ContentValues();
@@ -401,24 +401,24 @@ public class DBHelper {
             return;
         
         for (Integer id : iDlist) {
-            ContentValues cv = new ContentValues();
-            cv.put("isUnread", articleState);
-            
-            synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "id=?", new String[] { id + "" });
-            }
+            boolean isUnread = articleState == 1 ? true : false;
+            updateArticleUnread(id, isUnread);
         }
     }
     
     public void updateCategoryUnreadCount(int id, int count) {
         if (!isDBAvailable())
             return;
+        if (count < 0)
+            return;
         
         ContentValues cv = new ContentValues();
         cv.put("unread", count);
         
-        synchronized (TABLE_CATEGORIES) {
-            db.update(TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+        if (count > 0) {
+            synchronized (TABLE_CATEGORIES) {
+                db.update(TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+            }
         }
     }
     
@@ -430,27 +430,29 @@ public class DBHelper {
         updateCategoryUnreadCount(id, count);
     }
     
-    public void updateFeedUnreadCount(int id, int categoryId, int count) {
+    public void updateFeedUnreadCount(int id, int count) {
         if (!isDBAvailable())
+            return;
+        if (count < 0)
             return;
         
         ContentValues cv = new ContentValues();
         cv.put("unread", count);
         
         synchronized (TABLE_FEEDS) {
-            db.update(TABLE_FEEDS, cv, "id=? and categoryId=?", new String[] { id + "", categoryId + "" });
+            db.update(TABLE_FEEDS, cv, "id=" + id, null);
         }
     }
     
-    public void updateFeedDeltaUnreadCount(int id, int categoryId, int delta) {
+    public void updateFeedDeltaUnreadCount(int id, int delta) {
         FeedItem f = getFeed(id);
         int count = f.getUnread();
         count += delta;
         
-        updateFeedUnreadCount(id, categoryId, count);
+        updateFeedUnreadCount(id, count);
     }
     
-    public void updateArticleUnread(int id, int feedId, boolean isUnread) {
+    public void updateArticleUnread(int id, boolean isUnread) {
         if (!isDBAvailable())
             return;
         
@@ -458,7 +460,7 @@ public class DBHelper {
         cv.put("isUnread", isUnread);
         
         synchronized (TABLE_ARTICLES) {
-            db.update(TABLE_ARTICLES, cv, "id=? and feedId=?", new String[] { id + "", feedId + "" });
+            db.update(TABLE_ARTICLES, cv, "id=" + id, null);
         }
     }
     
@@ -857,7 +859,7 @@ public class DBHelper {
                 continue;
             
             for (FeedItem f : set) {
-                updateFeedUnreadCount(f.getId(), c.getId(), f.getUnread());
+                updateFeedUnreadCount(f.getId(), f.getUnread());
             }
         }
     }
