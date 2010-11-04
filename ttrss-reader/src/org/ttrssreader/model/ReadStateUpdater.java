@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -35,7 +36,24 @@ public class ReadStateUpdater implements IUpdatable {
     List<ArticleItem> mList = null;
     private int mPid = 0;
     private int mArticleState;
+
+    /**
+     * Marks everything as read.
+     */
+    public ReadStateUpdater() {
+        mList = new ArrayList<ArticleItem>();
+        Map<Integer, Set<ArticleItem>> map = DBHelper.getInstance().getArticles(false);
+        for (Integer i : map.keySet()) {
+            mList.addAll(map.get(i));
+        }
+        mArticleState = 0;
+    }
     
+    /**
+     * Marks all articles in the given Categories depending on articleState (0 = mark as read, 1 = mark as unread).
+     * @param list
+     * @param articleState
+     */
     public ReadStateUpdater(List<CategoryItem> list, int articleState) {
         mList = new ArrayList<ArticleItem>();
         for (CategoryItem ci : list) {
@@ -46,21 +64,39 @@ public class ReadStateUpdater implements IUpdatable {
         mArticleState = articleState;
     }
     
-    public ReadStateUpdater(List<FeedItem> list, int pid, int articleState, boolean isFeedList) {
+    /**
+     * Marks all articles in this category depending on articleState (0 = mark as read, 1 = mark as unread).
+     * @param category
+     * @param pid
+     * @param articleState
+     */
+    public ReadStateUpdater(int categoryId, int articleState) {
         mList = new ArrayList<ArticleItem>();
-        for (FeedItem fi : list) {
+        for (FeedItem fi : DBHelper.getInstance().getFeeds(categoryId)) {
             mList.addAll(Data.getInstance().getArticles(fi.getId()));
         }
-        mPid = pid;
+        mPid = categoryId;
         mArticleState = articleState;
     }
     
+    /**
+     * Marks the given list of articles depending on articleState (0 = mark as read, 1 = mark as unread).
+     * @param list
+     * @param pid
+     * @param articleState
+     */
     public ReadStateUpdater(List<ArticleItem> list, int pid, int articleState) {
         mList = list;
         mPid = pid;
         mArticleState = articleState;
     }
     
+    /**
+     * Marks the given articles depending on articleState (0 = mark as read, 1 = mark as unread).
+     * @param article
+     * @param pid
+     * @param articleState
+     */
     public ReadStateUpdater(ArticleItem article, int pid, int articleState) {
         mList = new ArrayList<ArticleItem>();
         mList.add(article);
@@ -77,9 +113,22 @@ public class ReadStateUpdater implements IUpdatable {
         int deltaUnread = mArticleState == 1 ? mList.size() : -mList.size();
         
         Set<Integer> ids = new HashSet<Integer>();
-        mList = filterList();
+        
+//        List<ArticleItem> temp = new ArrayList<ArticleItem>();
+//        for (ArticleItem a : mList) {
+//            if (mArticleState == 0 && a.isUnread()) {
+//                temp.add(a);
+//            } else if (mArticleState != 0 && !a.isUnread()) {
+//                temp.add(a);
+//            }
+//        }
+//        mList = temp;
         
         for (ArticleItem article : mList) {
+            if (mArticleState != 0 && article.isUnread()) {
+                continue;
+            }
+            
             // Build a list of article ids to update.
             ids.add(article.getId());
             
@@ -88,9 +137,10 @@ public class ReadStateUpdater implements IUpdatable {
             
             int feedId = article.getFeedId();
             FeedItem mFeed = Data.getInstance().getFeed(feedId);
-            if (mFeed == null)
+            if (mFeed == null) {
+                Log.d(Utils.TAG, "Should never happen but this feed could not be found: " + feedId);
                 continue;
-            
+            }
             int categoryId = mFeed.getCategoryId();
             
             DBHelper.getInstance().updateFeedDeltaUnreadCount(feedId, delta);
@@ -116,20 +166,6 @@ public class ReadStateUpdater implements IUpdatable {
             Log.d(Utils.TAG, "Delta-Unread: " + deltaUnread + " mPid: " + mPid);
             DBHelper.getInstance().updateCategoryDeltaUnreadCount(-4, deltaUnread);
         }
-    }
-    
-    public List<ArticleItem> filterList() {
-        List<ArticleItem> ret = new ArrayList<ArticleItem>();
-        
-        for (ArticleItem a : mList) {
-            if (mArticleState == 0 && a.isUnread()) {
-                ret.add(a);
-            } else if (mArticleState != 0 && !a.isUnread()) {
-                ret.add(a);
-            }
-        }
-        
-        return ret;
     }
     
 }

@@ -130,19 +130,13 @@ public class ArticleActivity extends Activity {
         super.onCreateOptionsMenu(menu);
         
         MenuItem item;
-        
         item = menu.add(0, MENU_MARK_READ, 0, R.string.ArticleActivity_MarkRead);
-        
         item = menu.add(0, MENU_MARK_UNREAD, 0, R.string.ArticleActivity_MarkUnread);
-        
         item = menu.add(0, MENU_OPEN_LINK, 0, R.string.ArticleActivity_OpenLink);
         item.setIcon(R.drawable.link32);
-        
         item = menu.add(0, MENU_OPEN_COMMENT_LINK, 0, R.string.ArticleActivity_OpenCommentLink);
         item.setIcon(R.drawable.commentlink32);
-        
         item = menu.add(0, MENU_SHARE_LINK, 0, R.string.ArticleActivity_ShareLink);
-        
         return true;
     }
     
@@ -150,20 +144,42 @@ public class ArticleActivity extends Activity {
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
             case MENU_MARK_READ:
-                markRead();
+                new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
                 return true;
             case MENU_OPEN_LINK:
                 openLink();
                 return true;
             case MENU_OPEN_COMMENT_LINK:
-                openCommentLink();
+                if (mArticleItem != null) {
+                    String url = mArticleItem.getArticleCommentUrl();
+                    if ((url != null) && (url.length() > 0)) {
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(url));
+                        startActivity(i);
+                    }
+                }
                 return true;
             case MENU_SHARE_LINK:
-                shareLink();
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_SUBJECT, "Link from ttrss-reader");
+                i.putExtra(Intent.EXTRA_TEXT, mArticleItem.getArticleUrl());
+                this.startActivity(Intent.createChooser(i, "Send link..."));
                 return true;
         }
         
         return super.onMenuItemSelected(featureId, item);
+    }
+    
+    private void openLink() {
+        if (mArticleItem != null) {
+            String url = mArticleItem.getArticleUrl();
+            if ((url != null) && (url.length() > 0)) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+            }
+        }
     }
     
     private void doRefresh() {
@@ -173,7 +189,7 @@ public class ArticleActivity extends Activity {
             mArticleItem = Data.getInstance().getArticle(mArticleId);
             
             // TODO: DONT READ THIS. ITS NOT IMPORTANT: JUST SKIP THE NEXT EIGHT LINES AND READ ON!
-            // Check if articleItem and content are null, if it is so do update the article again  
+            // Check if articleItem and content are null, if it is so do update the article again
             if (mArticleItem == null || mArticleItem.getContent() == null) {
                 ArticleItem temp = Data.getInstance().updateArticle(mArticleId);
                 if (temp != null && temp.getContent() != null) {
@@ -213,46 +229,9 @@ public class ArticleActivity extends Activity {
         setProgressBarIndeterminateVisibility(false);
     }
     
-    private void markRead() {
-        new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
-    }
-    
-    private void openUrl(String url) {
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        startActivity(i);
-    }
-    
-    private void openLink() {
-        if (mArticleItem != null) {
-            String url = mArticleItem.getArticleUrl();
-            if ((url != null) && (url.length() > 0)) {
-                openUrl(url);
-            }
-        }
-    }
-    
-    private void openCommentLink() {
-        if (mArticleItem != null) {
-            String url = mArticleItem.getArticleCommentUrl();
-            if ((url != null) && (url.length() > 0)) {
-                openUrl(url);
-            }
-        }
-    }
-    
-    private void shareLink() {
-        Intent i = new Intent(Intent.ACTION_SEND);
-        i.setType("text/plain");
-        i.putExtra(Intent.EXTRA_SUBJECT, "Link from ttrss-reader");
-        i.putExtra(Intent.EXTRA_TEXT, mArticleItem.getArticleUrl());
-        this.startActivity(Intent.createChooser(i, "Send link..."));
-    }
-    
-    private void openNextNewerArticle() {
-        Intent i = new Intent(this, ArticleActivity.class);
+    private void openNextArticle(int direction) {
         
-        int index = mArticleIds.indexOf(mArticleId) + 1;
+        int index = mArticleIds.indexOf(mArticleId) + direction;
         
         // No more articles in this direction
         if (index < 0 || index >= mArticleIds.size()) {
@@ -264,36 +243,12 @@ public class ArticleActivity extends Activity {
             return;
         }
         
-        i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
-        i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mArticleIds);
-        
-        Log.i(Utils.TAG, "openPreviousArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
-        
-        startActivityForResult(i, 0);
-        this.finish();
-    }
-    
-    private void openNextOlderArticle() {
         Intent i = new Intent(this, ArticleActivity.class);
-        
-        int index = mArticleIds.indexOf(mArticleId) - 1;
-        
-        // No more articles in this direction
-        if (index < 0 || index >= mArticleIds.size()) {
-            if (Controller.getInstance().isVibrateOnLastArticle()) {
-                Log.i(Utils.TAG, "No more articles, vibrate..");
-                Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                v.vibrate(Utils.SHORT_VIBRATE);
-            }
-            return;
-        }
-        
         i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
         i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mArticleIds);
         
-        Log.i(Utils.TAG, "openNextArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
+        Log.i(Utils.TAG, "openArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         
         startActivityForResult(i, 0);
         this.finish();
@@ -310,11 +265,6 @@ public class ArticleActivity extends Activity {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             
-            if (!useSwipe) {
-                // Swiping is disabled in preferences
-                return false;
-            }
-            
             // Define SWIPE_AREA to be in the bottom and have a height of 80px
             int SWIPE_HEIGHT = 80;
             int SWIPE_BOTTOM = webview.getHeight() - SWIPE_HEIGHT;
@@ -324,7 +274,7 @@ public class ArticleActivity extends Activity {
             
             if (Math.abs(dy) > 60) {
                 // Too much Y-Movement or
-                return true;
+                return false;
             } else if (e1.getY() < SWIPE_BOTTOM || e2.getY() < SWIPE_BOTTOM) {
                 
                 // Only accept swipe in SWIPE_AREA so we can use scrolling as usual
@@ -335,20 +285,22 @@ public class ArticleActivity extends Activity {
                     new Handler().postDelayed(timerTask, 1000);
                 }
                 return false;
+            } else if (!useSwipe) {
+                return false;
             }
             
             // don't accept the fling if it's too short as it may conflict with a button push
             if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
                 
-                Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
-                        + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
+//                Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
+//                        + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
                 
                 if (velocityX > 0) {
                     Log.d(Utils.TAG, "Fling right");
-                    openNextOlderArticle();
+                    openNextArticle(-1);
                 } else {
                     Log.d(Utils.TAG, "Fling left");
-                    openNextNewerArticle();
+                    openNextArticle(1);
                 }
                 return true;
             }
@@ -388,11 +340,11 @@ public class ArticleActivity extends Activity {
     
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (Controller.getInstance().isUseVolumeKeys()) {
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                openNextNewerArticle();
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                openNextArticle(-1);
                 return true;
-            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                openNextOlderArticle();
+            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                openNextArticle(1);
                 return true;
             }
         }

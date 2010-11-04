@@ -169,8 +169,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             }
         }
         
-        setProgressBarIndeterminateVisibility(true);
-        
         if (mAdapter == null) {
             mAdapter = new CategoryListAdapter(this);
             mCategoryListView.setAdapter(mAdapter);
@@ -214,20 +212,14 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         super.onCreateOptionsMenu(menu);
         
         MenuItem item;
-        
         item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
         item.setIcon(R.drawable.refresh32);
-        
         item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
-        
         item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
-        
         item = menu.add(0, MENU_SHOW_PREFERENCES, 0, R.string.Main_ShowPreferencesMenu);
         item.setIcon(R.drawable.preferences32);
-        
         item = menu.add(0, MENU_SHOW_ABOUT, 0, R.string.Main_ShowAboutMenu);
         item.setIcon(R.drawable.about32);
-        
         return true;
     }
     
@@ -235,50 +227,27 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
             case MENU_REFRESH:
-                doForceRefresh();
+                Data.getInstance().resetCategoriesTime();
+                doUpdate();
+                doRefresh();
                 return true;
             case MENU_DISPLAY_ONLY_UNREAD:
-                displayOnlyUnreadSwitch();
+                boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+                Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
+                doRefresh();
                 return true;
             case MENU_MARK_ALL_READ:
-                markAllRead();
+                new Updater(this, new ReadStateUpdater(mAdapter.getCategories(), 0)).execute();
                 return true;
             case MENU_SHOW_PREFERENCES:
-                openPreferences();
+                startActivityForResult(new Intent(this, PreferencesActivity.class),
+                        PreferencesActivity.ACTIVITY_SHOW_PREFERENCES);
                 return true;
             case MENU_SHOW_ABOUT:
-                openAboutDialog();
+                startActivity(new Intent(this, AboutActivity.class));
                 return true;
         }
         return super.onMenuItemSelected(featureId, item);
-    }
-    
-    private void doForceRefresh() {
-        Data.getInstance().resetCategoriesTime();
-        doUpdate();
-        doRefresh();
-    }
-    
-    private void openPreferences() {
-        Intent i = new Intent(this, PreferencesActivity.class);
-        Log.e(Utils.TAG, "Starting PreferencesActivity");
-        startActivityForResult(i, PreferencesActivity.ACTIVITY_SHOW_PREFERENCES);
-    }
-    
-    private void openAboutDialog() {
-        Intent i = new Intent(this, AboutActivity.class);
-        startActivity(i);
-    }
-    
-    private void displayOnlyUnreadSwitch() {
-        boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-        Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
-        doRefresh();
-    }
-    
-    private void markAllRead() {
-        List<CategoryItem> list = mAdapter.getCategories();
-        new Updater(this, new ReadStateUpdater(list, 0)).execute();
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
@@ -322,7 +291,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         builder.setPositiveButton(android.R.string.ok, null);
         
         final Context context = this;
-
+        
         switch (id) {
             case DIALOG_WELCOME:
                 builder.setTitle(getResources().getString(R.string.Welcome_Title));

@@ -666,13 +666,14 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
-            return ret;
+            return null;
         } else if (mHasLastError && mLastError.contains(ERROR)) {
             // Catch unknown-method error, see comment above
             if (mLastError.contains(UNKNOWN_METHOD)) {
                 mLastError = "";
                 mHasLastError = false;
             }
+            return null;
         }
         
         try {

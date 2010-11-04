@@ -59,7 +59,7 @@ public interface ITTRSSConnector {
      * @param displayOnlyUnread whether we are to filter out read articles.
      * @param isCategory indicates if the id refers to a category or a feed.
      * @param limit sets a limit of articles that are read.
-     * @return a list of articles.
+     * @return a list of articles or null on error.
      */
     public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit);
     

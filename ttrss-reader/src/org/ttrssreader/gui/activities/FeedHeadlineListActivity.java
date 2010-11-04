@@ -142,6 +142,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     }
     
     private void doRefresh() {
+        // reset fling-status
+        flingDetected = false;
+        
         // Only update if no refresher already running
         if (refresher != null) {
             if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
@@ -208,16 +211,11 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         super.onCreateOptionsMenu(menu);
         
         MenuItem item;
-        
         item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
         item.setIcon(R.drawable.refresh32);
-        
         item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.FeedHeadlinesListActivity_MarkAllRead);
-        
         item = menu.add(0, MENU_MARK_ALL_UNREAD, 0, R.string.FeedHeadlinesListActivity_MarkAllUnread);
-        
         item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
-        
         return true;
     }
     
@@ -225,47 +223,31 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
             case MENU_REFRESH:
-                doForceRefresh();
+                Data.getInstance().resetArticlesTime(mFeedId);
+                doUpdate();
+                doRefresh();
                 return true;
             case MENU_MARK_ALL_READ:
-                setReadState();
+                new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 0)).execute();
                 return true;
             case MENU_MARK_ALL_UNREAD:
-                setUnreadState();
+                new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 1)).execute();
                 return true;
             case MENU_DISPLAY_ONLY_UNREAD:
-                displayOnlyUnreadSwitch();
+                boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+                Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
+                doRefresh();
                 return true;
         }
         
         return super.onMenuItemSelected(featureId, item);
     }
-    
-    private void doForceRefresh() {
-        Data.getInstance().resetArticlesTime(mFeedId);
-        doUpdate();
-        doRefresh();
-    }
-    
-    private void setReadState() {
-        new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 0)).execute();
-    }
-    
-    private void setUnreadState() {
-        new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 1)).execute();
-    }
-    
-    private void displayOnlyUnreadSwitch() {
-        boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-        Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
-        doRefresh();
-    }
-    
-    private void openNextFeed() {
+
+    private void openNextFeed(int direction) {
         if (mFeedId < 0)
             return;
         
-        int index = mFeedIds.indexOf(mFeedId) + 1;
+        int index = mFeedIds.indexOf(mFeedId) + direction;
         
         // No more feeds in this direction
         if (index < 0 || index >= mFeedIds.size()) {
@@ -283,34 +265,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         i.putIntegerArrayListExtra(FEED_LIST_ID, mFeedIds);
         i.putStringArrayListExtra(FEED_LIST_NAME, mFeedNames);
         
-        flingDetected = false;
-        startActivityForResult(i, 0);
-        this.finish();
-    }
-    
-    private void openPreviousFeed() {
-        if (mFeedId < 0)
-            return;
-        
-        int index = mFeedIds.indexOf(mFeedId) - 1;
-        
-        // No more feeds in this direction
-        if (index < 0 || index >= mFeedIds.size()) {
-            if (Controller.getInstance().isVibrateOnLastArticle()) {
-                Log.i(Utils.TAG, "No more feeds, vibrate..");
-                Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                v.vibrate(Utils.SHORT_VIBRATE);
-            }
-            return;
-        }
-        
-        Intent i = new Intent(this, this.getClass());
-        i.putExtra(FEED_ID, mFeedIds.get(index));
-        i.putExtra(FEED_TITLE, mFeedNames.get(index));
-        i.putIntegerArrayListExtra(FEED_LIST_ID, mFeedIds);
-        i.putStringArrayListExtra(FEED_LIST_NAME, mFeedNames);
-        
-        flingDetected = false;
         startActivityForResult(i, 0);
         this.finish();
     }
@@ -325,29 +279,28 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (!Controller.getInstance().isUseSwipe()) { // Swiping is disabled in preferences
-                return false;
-            }
             
             int dx = (int) (e2.getX() - e1.getX());
             int dy = (int) (e2.getY() - e1.getY());
             
             if (Math.abs(dy) > 60) {
                 // Too much Y-Movement
-                return true;
+                return false;
+            } else if (!Controller.getInstance().isUseSwipe()) {
+                return false;
             }
             
             // don't accept the fling if it's too short as it may conflict with a button push
             if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
-                Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
-                        + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
-                
                 flingDetected = true;
                 
+//                Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
+//                        + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
+                
                 if (velocityX > 0) {
-                    openPreviousFeed();
+                    openNextFeed(-1);
                 } else {
-                    openNextFeed();
+                    openNextFeed(1);
                 }
                 return true;
             }
@@ -357,8 +310,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (distanceX > distanceY)
-                return true;
+//            if (distanceX > distanceY)
+//                return true;
             return false;
         }
         
@@ -383,11 +336,11 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (Controller.getInstance().isUseVolumeKeys()) {
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-                openNextFeed();
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+                openNextFeed(-1);
                 return true;
-            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-                openPreviousFeed();
+            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                openNextFeed(1);
                 return true;
             }
         }

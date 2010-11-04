@@ -184,14 +184,10 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         super.onCreateOptionsMenu(menu);
         
         MenuItem item;
-        
         item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
         item.setIcon(R.drawable.refresh32);
-        
         item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
-        
         item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
-        
         return true;
     }
     
@@ -199,33 +195,21 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
             case MENU_REFRESH:
-                doForceRefresh();
+                Data.getInstance().resetFeedTime();
+                doUpdate();
+                doRefresh();
                 return true;
             case MENU_DISPLAY_ONLY_UNREAD:
-                displayOnlyUnreadSwitch();
+                boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+                Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
+                doRefresh();
                 return true;
             case MENU_MARK_ALL_READ:
-                markAllRead();
+                new Updater(this, new ReadStateUpdater(mCategoryId, 0)).execute();
                 return true;
         }
         
         return super.onMenuItemSelected(featureId, item);
-    }
-    
-    private void doForceRefresh() {
-        Data.getInstance().resetFeedTime();
-        doUpdate();
-        doRefresh();
-    }
-    
-    private void displayOnlyUnreadSwitch() {
-        boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-        Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
-        doRefresh();
-    }
-    
-    private void markAllRead() {
-        new Updater(this, new ReadStateUpdater(mAdapter.getFeeds(), mCategoryId, 0, false)).execute();
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
