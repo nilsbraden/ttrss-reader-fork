@@ -178,7 +178,7 @@ public class Data {
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getArticles(feedId, displayOnlyUnread, isCategory, limit);
             
-            if (articles.isEmpty()) {
+            if (articles == null) {
                 // getArticles not working, fetch headlines and articles manually
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
                 articles = Controller.getInstance().getConnector().getFeedHeadlines(feedId, limit, 0, viewMode);
