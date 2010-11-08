@@ -1,12 +1,12 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-
-== Version 0.7.3 ==
+== Version 0.7.4 ==
   * Minor bugs fixed
   * Better fling-support for headline-list and articles
   * No recommendation when typing URL
   * Fixed Bug with unread-counts
+  * Implemented new API-methods from tt-rss.org to avoid the manual hacking
   
 == Version 0.7.3 ==
   * Problems with API from 1.4.3.1 are (hopefully) resolved. Please mail me if i am wrong :)

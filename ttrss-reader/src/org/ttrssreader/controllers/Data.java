@@ -119,9 +119,9 @@ public class Data {
         if (mCountersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isOnline(cm)) {
-            Map<CategoryItem, Set<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
+//            Map<CategoryItem, Set<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
             mCountersUpdated = System.currentTimeMillis();
-            DBHelper.getInstance().setCounters(counters);
+//            DBHelper.getInstance().setCounters(counters);
         }
     }
     
@@ -169,31 +169,32 @@ public class Data {
                 limit = (l > limit ? l : 30);
             }
             
-            boolean isCategory = false;
+//            boolean isCategory = false;
             if (feedId < 0 && feedId > -10) {
-                isCategory = true;
+//                isCategory = true;
                 limit = getCategoryUnreadCount(feedId);
             }
             
+            // Set<ArticleItem> articles = Controller.getInstance().getConnector()
+            // .getArticles(feedId, displayOnlyUnread, isCategory, limit);
+            //
+            // if (articles == null) {
+            // getArticles not working, fetch headlines and articles manually
+            String viewMode = "unread"; //(displayOnlyUnread ? "unread" : "all_articles");
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
-                    .getArticles(feedId, displayOnlyUnread, isCategory, limit);
+                    .getFeedHeadlines(feedId, limit, 0, viewMode);
             
-            if (articles == null) {
-                // getArticles not working, fetch headlines and articles manually
-                String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
-                articles = Controller.getInstance().getConnector().getFeedHeadlines(feedId, limit, 0, viewMode);
-                
-                Set<Integer> set = new LinkedHashSet<Integer>();
-                for (ArticleItem a : articles) {
-                    set.add(a.getId());
-                }
-                
-                Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(set);
-                
-                if (temp.size() == articles.size()) {
-                    articles = temp;
-                }
+            Set<Integer> set = new LinkedHashSet<Integer>();
+            for (ArticleItem a : articles) {
+                set.add(a.getId());
             }
+            
+            Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(set);
+            
+            if (temp.size() == articles.size()) {
+                articles = temp;
+            }
+            // }
             
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
             
@@ -318,7 +319,7 @@ public class Data {
             }
             
             if (needUpdate || virtCategories.isEmpty()) {
-
+                
                 virtCategories = new LinkedHashSet<CategoryItem>();
                 virtCategories.add(new CategoryItem(-4, "All articles", 0));
                 virtCategories.add(new CategoryItem(-3, "Fresh articles", 0));
@@ -330,9 +331,9 @@ public class Data {
                 resetCounterTime();
                 updateCounters();
                 
-                return(DBHelper.getInstance().getVirtualCategories());
+                return (DBHelper.getInstance().getVirtualCategories());
             }
-
+            
             DBHelper.getInstance().insertCategories(virtCategories);
             return virtCategories;
         }
