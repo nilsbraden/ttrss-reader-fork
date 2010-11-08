@@ -36,7 +36,7 @@ public interface ITTRSSConnector {
      * 
      * @return map of feeds mapped to categories. 
      */
-    public Map<CategoryItem, Set<FeedItem>> getCounters();
+    public void getCounters();
     
     /**
      * Retrieves all categories.
@@ -61,7 +61,7 @@ public interface ITTRSSConnector {
      * @param limit sets a limit of articles that are read.
      * @return a list of articles or null on error.
      */
-    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit);
+//    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit);
     
     /**
      * Retrieves the specified articles.

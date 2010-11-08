@@ -43,9 +43,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String OP_LOGIN = "?op=login&user=%s&password=%s";
     private static final String OP_GET_UNREAD = "?op=getUnread&sid=%s";
     private static final String OP_GET_CATEGORIES = "?op=getCategories&sid=%s";
-    private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s";
-    private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&show_content=0&view_mode=%s";
-    private static final String OP_GET_ARTICLES = "?op=getArticles&sid=%s&id=%s&unread=%s&is_category=%s&limit=%s";
+    private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s&cat_id=%s";
+    private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&view_mode=%s";
+//    private static final String OP_GET_ARTICLES = "?op=getArticles&sid=%s&id=%s&unread=%s&is_category=%s&limit=%s";
     private static final String OP_GET_NEW_ARTICLES = "?op=getNewArticles&sid=%s&unread=%s&time=%s";
     private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
     private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
@@ -60,13 +60,14 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String ID = "id";
     private static final String TITLE = "title";
     private static final String UNREAD = "unread";
+    private static final String COUNTER = "counter";
     private static final String CAT_ID = "cat_id";
+    private static final String FEEDS = "feeds";
     private static final String FEED_ID = "feed_id";
     private static final String UPDATED = "updated";
     private static final String CONTENT = "content";
     private static final String URL = "link";
     private static final String FEED_URL = "feed_url";
-    private static final String FEEDS = "feeds";
     private static final String COMMENT_URL = "comments";
     private static final String ATTACHMENTS = "attachments";
     
@@ -302,36 +303,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     
     // ***************** Helper-Methods **************************************************
     
-    public Set<FeedItem> handleFeedCounters(JSONArray array) {
-        Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
-        
-        try {
-            for (int j = 0; j < array.length(); j++) {
-                
-                TTRSSJsonResult att = new TTRSSJsonResult(array.getString(j));
-                JSONArray names = att.getNames();
-                JSONArray values = att.getValues();
-                
-                FeedItem f = new FeedItem();
-                
-                // Filter for feed_id and unread-count
-                for (int k = 0; k < names.length(); k++) {
-                    if (names.getString(k).equals("feed_id")) {
-                        f.setId(values.getString(k));
-                    } else if (names.getString(k).equals("unread")) {
-                        f.setUnread(values.getInt(k));
-                    }
-                }
-                ret.add(f);
-                
-            }
-        } catch (JSONException je) {
-            je.printStackTrace();
-        }
-        
-        return ret;
-    }
-    
     public ArticleItem parseDataForArticle(JSONArray names, JSONArray values) {
         ArticleItem ret = null;
         
@@ -516,21 +487,20 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public Map<CategoryItem, Set<FeedItem>> getCounters() {
+    public void getCounters() {
         /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
-        Map<CategoryItem, Set<FeedItem>> ret = new HashMap<CategoryItem, Set<FeedItem>>();
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
             if (mHasLastError)
-                return ret;
+                return;
         }
         
         String url = mServerUrl + String.format(OP_GET_COUNTERS, mSessionId);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
-            return ret;
+            return;
         } else if (mHasLastError && mLastError.contains(ERROR)) {
             // Catch unknown-method error, see comment above
             if (mLastError.contains(UNKNOWN_METHOD)) {
@@ -546,21 +516,34 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 JSONArray names = object.names();
                 JSONArray values = object.toJSONArray(names);
                 
-                String cat_id = "";
-                int unread = 0;
-                Set<FeedItem> feeds = null;
+                // Ignore "updated", we don't need it...
+                boolean isCat = false;
+                int id = Integer.MIN_VALUE;
+                int counter = 0;
+                String description = "";
                 
                 for (int j = 0; j < names.length(); j++) {
-                    if (names.getString(j).equals(CAT_ID)) {
-                        cat_id = values.getString(j);
-                    } else if (names.getString(j).equals(UNREAD)) {
-                        unread = values.getInt(j);
-                    } else if (names.getString(j).equals(FEEDS)) {
-                        feeds = handleFeedCounters((JSONArray) values.get(j));
+                    if (names.getString(j).equals("cat")) {
+                        isCat = values.getBoolean(j);
+                    } else if (names.getString(j).equals(ID)) {
+                        // Check if id is a string, then it would be a global counter 
+                        if (values.getString(j).equals("global-unread") || values.getString(j).equals("subscribed-feeds")) {
+                            continue;
+                        } else {
+                            id = values.getInt(j);
+                        }
+                    } else if (names.getString(j).equals(COUNTER)) {
+                        counter = values.getInt(j);
+                    } else if (names.getString(j).equals("description")) {
+                        description = values.getString(j);
                     }
                 }
                 
-                ret.put(new CategoryItem(cat_id, "", unread), feeds);
+                // Only add entrys with integer-ID
+                if (id != Integer.MIN_VALUE) {
+                    // TODO: Find a suitable data-structure for the return-value
+                }
+                
             }
         } catch (JSONException e) {
             mHasLastError = true;
@@ -568,7 +551,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             e.printStackTrace();
         }
         
-        return ret;
+        return;
     }
     
     @Override
@@ -616,7 +599,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 return ret;
         }
         
-        String url = mServerUrl + String.format(OP_GET_FEEDS, mSessionId);
+        // TODO: Hardcoded -4 fetches all feeds. See http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
+        String url = mServerUrl + String.format(OP_GET_FEEDS, mSessionId, "-4");
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
@@ -649,8 +633,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit) {
-        /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
+    public Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode) {
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
@@ -659,22 +642,11 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 return ret;
         }
         
-        int unread = displayOnlyUnread ? 1 : 0;
-        int cat = isCategory ? 1 : 0;
-        
-        String url = mServerUrl + String.format(OP_GET_ARTICLES, mSessionId, parentId, unread, cat, limit);
+        String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, mSessionId, feedId, limit, viewMode);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
-        if (jsonResult == null) {
-            return null;
-        } else if (mHasLastError && mLastError.contains(ERROR)) {
-            // Catch unknown-method error, see comment above
-            if (mLastError.contains(UNKNOWN_METHOD)) {
-                mLastError = "";
-                mHasLastError = false;
-            }
-            return null;
-        }
+        if (jsonResult == null)
+            return ret;
         
         try {
             for (int i = 0; i < jsonResult.length(); i++) {
@@ -687,13 +659,59 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             }
         } catch (JSONException e) {
             mHasLastError = true;
-            mLastError = e.getMessage() + ", Method: getFeedArticles(...), threw JSONException";
+            mLastError = e.getMessage() + ", Method: getFeedHeadlines(...), threw JSONException";
             e.printStackTrace();
         }
         
         return ret;
     }
     
+//    @Override
+//    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit) {
+//        /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
+//        Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
+//        
+//        if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
+//            login();
+//            if (mHasLastError)
+//                return ret;
+//        }
+//        
+//        int unread = displayOnlyUnread ? 1 : 0;
+//        int cat = isCategory ? 1 : 0;
+//        
+//        String url = mServerUrl + String.format(OP_GET_ARTICLES, mSessionId, parentId, unread, cat, limit);
+//        JSONArray jsonResult = getJSONResponseAsArray(url);
+//        
+//        if (jsonResult == null) {
+//            return null;
+//        } else if (mHasLastError && mLastError.contains(ERROR)) {
+//            // Catch unknown-method error, see comment above
+//            if (mLastError.contains(UNKNOWN_METHOD)) {
+//                mLastError = "";
+//                mHasLastError = false;
+//            }
+//            return null;
+//        }
+//        
+//        try {
+//            for (int i = 0; i < jsonResult.length(); i++) {
+//                JSONObject object = jsonResult.getJSONObject(i);
+//                
+//                JSONArray names = object.names();
+//                JSONArray values = object.toJSONArray(names);
+//                
+//                ret.add(parseDataForArticle(names, values));
+//            }
+//        } catch (JSONException e) {
+//            mHasLastError = true;
+//            mLastError = e.getMessage() + ", Method: getFeedArticles(...), threw JSONException";
+//            e.printStackTrace();
+//        }
+//        
+//        return ret;
+//    }
+//    
     @Override
     public Set<ArticleItem> getArticle(Set<Integer> articleIds) {
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
@@ -761,40 +779,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 ret.add(temp);
                 
             }
-        }
-        
-        return ret;
-    }
-    
-    @Override
-    public Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode) {
-        Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
-        
-        if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
-            login();
-            if (mHasLastError)
-                return ret;
-        }
-        
-        String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, mSessionId, feedId, limit, viewMode);
-        JSONArray jsonResult = getJSONResponseAsArray(url);
-        
-        if (jsonResult == null)
-            return ret;
-        
-        try {
-            for (int i = 0; i < jsonResult.length(); i++) {
-                JSONObject object = jsonResult.getJSONObject(i);
-                
-                JSONArray names = object.names();
-                JSONArray values = object.toJSONArray(names);
-                
-                ret.add(parseDataForArticle(names, values));
-            }
-        } catch (JSONException e) {
-            mHasLastError = true;
-            mLastError = e.getMessage() + ", Method: getFeedHeadlines(...), threw JSONException";
-            e.printStackTrace();
         }
         
         return ret;

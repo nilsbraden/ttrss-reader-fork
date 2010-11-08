@@ -67,8 +67,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     private int mFeedId;
     private String mFeedTitle;
-    private ArrayList<Integer> mFeedIds;
-    private ArrayList<String> mFeedNames;
+    private ArrayList<Integer> mFeedListIds;
+    private ArrayList<String> mFeedListNames;
     private GestureDetector mGestureDetector;
     
     private ListView mFeedHeadlineListView;
@@ -93,18 +93,18 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         if (extras != null) {
             mFeedId = extras.getInt(FEED_ID);
             mFeedTitle = extras.getString(FEED_TITLE);
-            mFeedIds = extras.getIntegerArrayList(FEED_LIST_ID);
-            mFeedNames = extras.getStringArrayList(FEED_LIST_NAME);
+            mFeedListIds = extras.getIntegerArrayList(FEED_LIST_ID);
+            mFeedListNames = extras.getStringArrayList(FEED_LIST_NAME);
         } else if (instance != null) {
             mFeedId = instance.getInt(FEED_ID);
             mFeedTitle = instance.getString(FEED_TITLE);
-            mFeedIds = instance.getIntegerArrayList(FEED_LIST_ID);
-            mFeedNames = instance.getStringArrayList(FEED_LIST_NAME);
+            mFeedListIds = instance.getIntegerArrayList(FEED_LIST_ID);
+            mFeedListNames = instance.getStringArrayList(FEED_LIST_NAME);
         } else {
             mFeedId = -1;
             mFeedTitle = null;
-            mFeedIds = null;
-            mFeedNames = null;
+            mFeedListIds = null;
+            mFeedListNames = null;
         }
         
         mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
@@ -137,8 +137,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         super.onSaveInstanceState(outState);
         outState.putInt(FEED_ID, mFeedId);
         outState.putString(FEED_TITLE, mFeedTitle);
-        outState.putIntegerArrayList(FEED_LIST_ID, mFeedIds);
-        outState.putStringArrayList(FEED_LIST_NAME, mFeedNames);
+        outState.putIntegerArrayList(FEED_LIST_ID, mFeedListIds);
+        outState.putStringArrayList(FEED_LIST_NAME, mFeedListNames);
     }
     
     private void doRefresh() {
@@ -247,10 +247,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         if (mFeedId < 0)
             return;
         
-        int index = mFeedIds.indexOf(mFeedId) + direction;
+        int index = mFeedListIds.indexOf(mFeedId) + direction;
         
         // No more feeds in this direction
-        if (index < 0 || index >= mFeedIds.size()) {
+        if (index < 0 || index >= mFeedListIds.size()) {
             if (Controller.getInstance().isVibrateOnLastArticle()) {
                 Log.i(Utils.TAG, "No more feeds, vibrate..");
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -260,10 +260,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         }
         
         Intent i = new Intent(this, this.getClass());
-        i.putExtra(FEED_ID, mFeedIds.get(index));
-        i.putExtra(FEED_TITLE, mFeedNames.get(index));
-        i.putIntegerArrayListExtra(FEED_LIST_ID, mFeedIds);
-        i.putStringArrayListExtra(FEED_LIST_NAME, mFeedNames);
+        i.putExtra(FEED_ID, mFeedListIds.get(index));
+        i.putExtra(FEED_TITLE, mFeedListNames.get(index));
+        i.putIntegerArrayListExtra(FEED_LIST_ID, mFeedListIds);
+        i.putStringArrayListExtra(FEED_LIST_NAME, mFeedListNames);
         
         startActivityForResult(i, 0);
         this.finish();

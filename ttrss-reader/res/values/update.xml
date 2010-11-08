@@ -17,7 +17,7 @@
     -->
 <resources>
     <string-array name="updates">
-        <item>v0.7.4: Minor bugs fixed, Better fling-support for headline-list and articles, no recommendation when typing URL</item>
+        <item>v0.7.4: Minor bugs fixed, Better fling-support for headline-list and articles, no recommendation when typing URL, Implemented new API-methods from http://tt-rss.org to avoid the manual hacking</item>
         <item>v0.7.3: Problems with API from 1.4.3.1 are (hopefully) resolved. Please mail me if i am wrong :)</item>
         <item>v0.7.2: Fixed wrong calculation of unread-counts, Added welcome-dialog for the first-run</item>
         <item>v0.7.1: Fixed no virtual Categories beeing displayed on first start, fixed two unhandled Exceptions</item>
