@@ -44,7 +44,7 @@ public class ErrorActivity extends Activity {
         TextView errorText = (TextView) this.findViewById(R.id.ErrorActivity_ErrorMessage);
         errorText.setText(mErrorMessage);
         
-        Button prefBtn = (Button) this.findViewById(R.id.ErrorActivity_ShowPreferencesBtn);
+        Button prefBtn = (Button) this.findViewById(R.id.Preferences_Btn);
         prefBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 finish();

@@ -55,8 +55,8 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/ErrorActivity.ShowPreferencesBtn"
-                android:text="@string/ErrorActivity.ShowPreferencesBtn"
+                android:id="@+id/Preferences.Btn"
+                android:text="@string/Preferences.Btn"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
                 android:layout_weight="0.5" />

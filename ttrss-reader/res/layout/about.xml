@@ -71,19 +71,19 @@
                     android:autoLink="web" />
             </LinearLayout>
         </LinearLayout>
-        
+
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="horizontal"
-            android:gravity="center" >
+            android:gravity="center">
 
             <Button
                 android:text="@string/AboutActivity.CloseBtn"
                 android:id="@+id/AboutActivity.CloseBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-            android:gravity="center"
+                android:gravity="center"
                 android:layout_marginLeft="20dip"
                 android:layout_marginRight="20dip"
                 android:layout_marginTop="20dip"
@@ -94,7 +94,7 @@
                 android:id="@+id/AboutActivity.DonateBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-            android:gravity="center"
+                android:gravity="center"
                 android:layout_marginLeft="20dip"
                 android:layout_marginRight="20dip"
                 android:layout_marginTop="20dip"

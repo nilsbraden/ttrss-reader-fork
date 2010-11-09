@@ -85,12 +85,6 @@
             android:key="UsageUpdateArticlesOnStartupPreference" />
 
         <CheckBoxPreference
-            android:title="@string/UsageRefreshSubDataTitle"
-            android:defaultValue="false"
-            android:summary="@string/UsageRefreshSubDataSummary"
-            android:key="UsageRefreshSubDataPreference" />
-
-        <CheckBoxPreference
             android:title="@string/UsageUseVolumeKeysTitle"
             android:defaultValue="true"
             android:summary="@string/UsageUseVolumeKeysSummary"
@@ -117,18 +111,6 @@
             android:defaultValue="true"
             android:summary="@string/DisplayVirtualPreferenceSummary"
             android:key="DisplayShowVirtualPreference" />
-
-        <CheckBoxPreference
-            android:title="@string/DisplayVirtualUnreadPreferenceTitle"
-            android:defaultValue="false"
-            android:summary="@string/DisplayVirtualUnreadPreferenceSummary"
-            android:key="DisplayShowVirtualUnreadPreference" />
-
-        <CheckBoxPreference
-            android:title="@string/DisplayAlwaysFullRefreshPreferenceTitle"
-            android:defaultValue="false"
-            android:summary="@string/DisplayAlwaysFullRefreshPreferenceSummary"
-            android:key="DisplayAlwaysFullRefreshPreference" />
 
         <CheckBoxPreference
             android:title="@string/DisplayUseSwipeTitle"

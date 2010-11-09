@@ -57,7 +57,11 @@ public class MyWebViewClient extends WebViewClient {
         }
         
         if (media) {
-            final CharSequence[] items = { "Display in Mediaplayer", "Download" };
+            // @formatter:off
+            final CharSequence[] items = {
+                    (String) context.getText(R.string.WebViewClientActivity_Display),
+                    (String) context.getText(R.string.WebViewClientActivity_Download) };
+            // @formatter:on
             
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("What shall we do?");
@@ -92,11 +96,6 @@ public class MyWebViewClient extends WebViewClient {
     }
     
     private void downloadFile(String url) {
-        if (!externalStorageState()) {
-            Log.e(Utils.TAG, "External Storage not available, skipping download...");
-            return;
-        }
-        
         try {
             new AsyncDownloader().execute(new URL(url));
         } catch (MalformedURLException e) {
@@ -115,7 +114,13 @@ public class MyWebViewClient extends WebViewClient {
     
     private class AsyncDownloader extends AsyncTask<URL, Void, Void> {
         protected Void doInBackground(URL... urls) {
+            
             if (urls.length < 1) {
+                showNotification((String) context.getText(R.string.WebViewClientActivity_DownloadError), 0, false);
+                return null;
+            } else if (!externalStorageState()) {
+                Log.e(Utils.TAG, "External Storage not available, skipping download...");
+                showNotification((String) context.getText(R.string.WebViewClientActivity_DownloadError), 0, false);
                 return null;
             }
             
@@ -154,7 +159,7 @@ public class MyWebViewClient extends WebViewClient {
                 
                 int time = (int) (System.currentTimeMillis() - start) / 1000;
                 Log.d(Utils.TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s.");
-                showNotification(file.getAbsolutePath(), time);
+                showNotification(file.getAbsolutePath(), time, false);
                 
             } catch (IOException e) {
                 Log.d(Utils.TAG, "Error while downloading: " + e);
@@ -164,18 +169,27 @@ public class MyWebViewClient extends WebViewClient {
         }
     }
     
-    public void showNotification(String path, int time) {
+    public void showNotification(String path, int time, boolean error) {
         if (path == null)
             return;
+        
+        CharSequence ticker = "";
+        CharSequence title = "";
+        
+        if (error) {
+            ticker = (String) context.getText(R.string.WebViewClientActivity_DownloadError);
+            title = (String) context.getText(R.string.WebViewClientActivity_DownloadErrorMessage);
+        } else {
+            ticker = (String) context.getText(R.string.WebViewClientActivity_DownloadFinished);
+            title = String.format((String) context.getText(R.string.WebViewClientActivity_DownloadFinished), time);
+        }
         
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager mNotMan = (NotificationManager) context.getSystemService(ns);
         
-        int icon = R.drawable.icon;
-        CharSequence ticker = "Download finished.";
         long when = System.currentTimeMillis();
-        CharSequence title = "Download finished in " + time + "s.";
-
+        int icon = R.drawable.icon;
+        
         PendingIntent intent = PendingIntent.getActivity(context, 0, new Intent(), 0);
         Notification n = new Notification(icon, ticker, when);
         n.flags |= Notification.FLAG_AUTO_CANCEL;

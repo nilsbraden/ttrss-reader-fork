@@ -91,7 +91,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             this.showDialog(DIALOG_UPDATE);
         } else if (!checkConfig()) {
             // Check if we have a server specified
-            openConnectionErrorDialog("No Server specified.");
+            openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
         
         if (configChecked || checkConfig())
@@ -296,14 +296,15 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             case DIALOG_WELCOME:
                 builder.setTitle(getResources().getString(R.string.Welcome_Title));
                 builder.setMessage(getResources().getString(R.string.Welcome_Message));
-                builder.setNeutralButton("Preferences", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface d, final int which) {
-                        Intent i = new Intent(context, PreferencesActivity.class);
-                        Log.e(Utils.TAG, "Starting PreferencesActivity");
-                        startActivity(i);
-                    }
-                });
+                builder.setNeutralButton((String) getText(R.string.Preferences_Btn),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface d, final int which) {
+                                Intent i = new Intent(context, PreferencesActivity.class);
+                                Log.e(Utils.TAG, "Starting PreferencesActivity");
+                                startActivity(i);
+                            }
+                        });
                 break;
             case DIALOG_UPDATE:
                 builder.setTitle(getResources().getString(R.string.Changelog_Title));
@@ -314,13 +315,14 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
                     buf.append(changes[i]);
                 }
                 builder.setMessage(buf.toString().trim());
-                builder.setNeutralButton("want to Donate?", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface d, final int which) {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
-                                R.string.DonateUrl))));
-                    }
-                });
+                builder.setNeutralButton((String) getText(R.string.CategoryActivity_Donate),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface d, final int which) {
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
+                                        R.string.DonateUrl))));
+                            }
+                        });
                 break;
         }
         return builder.create();

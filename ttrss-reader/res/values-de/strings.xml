@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="ApplicationName">Tiny Tiny RSS Reader</string>
+    <string name="ApplicationDescription">Tiny Tiny RSS Reader ist eine Anwendung um RSS-Feeds aus einer Tiny Tiny RSS-Installation zu lesen.</string>
+    
+    <string name="Main.ShowPreferencesMenu">Einstellungen</string>
+    <string name="Main.RefreshMenu">Aktualisieren</string>
+    <string name="Main.UpdateMenu">Update</string>
+    <string name="Main.ShowAboutMenu">About</string>
+    <string name="Main.Nothing">Keine Kategorien. Bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
+    
+    <string name="Preferences.Reset">Einstellungen zurücksetzen</string>
+    <string name="Preferences.Btn">Einstellungen</string>
+    
+    <string name="Changelog.Title">Changelog</string>
+    <string name="DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>
+    <string name="Welcome.Title">Willkommen</string>
+    <string name="Welcome.Message">Willkommen zum TTRSS-Reader!\n\nBitte beachten Sie, dass dieser Reader nur mit einem \"Tiny Tiny RSS\" Server arbeiten kann.\n\nWenn dies der erste Start dieser Anwendung ist sollten Sie Ihre Server- und Benutzer-Einstellungen setzen. Drücken Sie \"Einstellungen\" um fortzufahren.</string>
+    
+    <string name="AboutActivity.Title">About</string>
+    <string name="AboutActivity.CloseBtn">Schließen</string>
+    <string name="AboutActivity.DonateBtn">Möchten Sie spenden?</string>
+    <string name="AboutActivity.VersionText">Version:</string>
+    <string name="AboutActivity.UrlTextValue">https://code.google.com/p/ttrss-reader-fork/</string>
+    <string name="AboutActivity.LicenseText">Lizenz:</string>
+    <string name="AboutActivity.LicenseTextValue">GPL v3</string>
+    
+    <string name="ArticleActivity.OpenLink">Artikel</string>
+    <string name="ArticleActivity.OpenCommentLink">Kommentare</string>
+    <string name="ArticleActivity.MarkRead">Als gelesen markieren</string>
+    <string name="ArticleActivity.MarkUnread">Als ungelesen markieren</string>
+    <string name="ArticleActivity.ShareLink">Link senden</string>
+    <string name="ArticleActivity.ShareSubject">Link aus TTRSS-Reader</string>
+    <string name="ArticleActivity.ShareTitle">Link senden...</string>
+    <string name="ArticleActivity.MediaPlay">Mediendatei aus dem Anhang abspielen</string>
+    <string name="ArticleActivity.SwipeNotification">Wischen (swipe) für nächsten/vorherigen Artikel</string>
+    
+    <string name="Commons.PleaseWait">Bitte warten...</string>
+    <string name="Commons.NothingToDisplay">Nichts anzuzeigen.</string>
+    <string name="Commons.UpdateReadState">Aktualisiere Status</string>
+    <string name="Commons.DisplayOnlyUnread">\"Ungelesene anzeigen\" umschalten</string>
+    <string name="Commons.MarkAllRead">Alles als gelesen markieren</string>
+    
+    <string name="VCategory.AllArticles">Alle Artikel</string>
+    <string name="VCategory.FreshArticles">Neue Artikel</string>
+    <string name="VCategory.PublishedArticles">Veröffentlichte Artikel</string>
+    <string name="VCategory.StarredArticles">Favorisierte Artikel</string>
+    <string name="Feed.UncategorizedFeeds">Unkategorisierte Feeds</string>
+    <string name="CategoryActivity.NoServer">Kein Server angegeben.</string>
+    <string name="CategoryActivity.Donate">Möchten Sie spenden?</string>
+    
+    <string name="FeedHeadlinesListActivity.MarkAllRead">Alle als gelesen markieren</string>
+    <string name="FeedHeadlinesListActivity.MarkAllUnread">Alle als ungelesen markieren</string>
+    
+    <string name="ConnectionPreferenceCategoryTitle">Verbindung</string>
+    <string name="ConnectionUrlPreferenceTitle">Server-URL</string>
+    <string name="ConnectionUrlPreferenceSummary">Die Adresse Ihrer Tiny Tiny RSS-Installation.</string>
+    <string name="ConnectionUsernamePreferenceTitle">Benutzername</string>
+    <string name="ConnectionUsernamePreferenceSummary">Der Benutzername für Ihren Tiny Tiny RSS-Account.</string>
+    <string name="ConnectionPasswordPreferenceTitle">Passwort</string>
+    <string name="ConnectionPasswordPreferenceSummary">Das Passwort für Ihren Tiny Tiny RSS-Account.</string>
+    <string name="ConnectionSslPreferenceCategoryTitle">SSL Einstellungen</string>
+    <string name="ConnectionSslPreferenceTitle">SSL</string>
+    <string name="ConnectionSslPreferenceSummary">Alle SSL-Zertifikate akzeptieren.</string>
+    <string name="ConnectionKeystorePasswordPreferenceTitle">Keystore-Passwort</string>
+    <string name="ConnectionKeystorePasswordPreferenceSummary">Das Passwort für den eigenen Keystore</string>
+    <string name="ConnectionUseKeystorePreferenceTitle">Eigener Keystore</string>
+    <string name="ConnectionUseKeystorePreferenceSummary">Soll ein eigener Keystore verwendet werden?</string>
+    
+    <string name="UsagePreferenceCategoryTitle">Verwendung</string>
+    <string name="UsageAutomaticMarkReadPreferenceTitle">Artikel automatisch als gelesen markieren</string>
+    <string name="UsageAutomaticMarkReadPreferenceSummary">Artikel werden beim Anzeigen automatisch als gelesen markiert.</string>
+    <string name="UsageOpenUrlEmptyArticleTitle">URL für leeren Artikel öffnen</string>
+    <string name="UsageOpenUrlEmptyArticleSummary">Öffnet automatisch die Webseite des Artikels, wenn der Inhalt leer ist.</string>
+    <string name="UsageUpdateArticlesOnStartupTitle">Alle Artikel beim Start aktualisieren</string>
+    <string name="UsageUpdateArticlesOnStartupSummary">Lädt alle Artikel inklusive Inhalt beim Start.</string>
+    <string name="UsageUseVolumeKeysTitle">Lautstärke-Knopf zum Navigieren verwenden</string>
+    <string name="UsageUseVolumeKeysSummary">(+) für nächsten Artikel, (-) für vorherigen.</string>
+    <string name="UsageVibrateOnLastArticleTitle">Beim letzten Artikel vibrieren</string>
+    <string name="UsageVibrateOnLastArticleSummary">Vibriert kurz wenn der letzte Artikel (Feed) in der Liste erreicht wurde.</string>
+    <string name="UsageWorkOfflineTitle">Offline arbeiten</string>
+    <string name="UsageWorkOfflineSummary">Schaltet die Online-Synchronisierung aus.</string>
+    
+    <string name="DisplayPreferenceCategoryTitle">Anzeige</string>
+    <string name="DisplayVirtualPreferenceTitle">Virtuelle Feeds anzeigen</string>
+    <string name="DisplayVirtualPreferenceSummary">Aktiviert die Anzeige virtueller Feeds wie \"Alle Artikel\".</string>
+    <string name="DisplayUseSwipeTitle">Wischen (swipe) benutzen</string>
+    <string name="DisplayUseSwipeSummary">Ermöglicht den Wechsel zum nächsten/vorherigen Artikel durch Wisch-Bewegungen.</string>
+    <string name="DisplayShowUnreadOnlyTitle">Nur ungelesenes anzeigen</string>
+    <string name="DisplayShowUnreadOnlySummary">Versteckt bereits gelesene Inhalte.</string>
+    <string name="DisplayArticleLimitTitle">Speicherlimit für Artikel</string>
+    <string name="DisplayArticleLimitSummary">Gibt an wieviele Artikel lokal gespeichert werden.</string>
+    
+    <string name="ErrorActivity.Title">Fehler</string>
+    <string name="ErrorActivity.UserMessage">Konnte nicht zu Ihrer Tiny Tiny RSS-Installation verbinden, bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
+    <string name="ErrorActivity.ErrorTitle">Weitere Informationen:</string>
+    <string name="ErrorActivity.ErrorDefault">Ein unbekannter Fehler ist aufgetreten. Sie können versuchen mehr Informationen mittels \"adb logcat\" von einem PC aus (sofern das Android-SDK installiert ist) oder über das Programm aLogcat aus dem Market zu bekommen.</string>
+    <string name="ErrorActivity.CloseBtn">Schließen</string>
+    
+    <string name="WebViewClientActivity.DownloadError">Ein Fehler ist aufgetreten.</string>
+    <string name="WebViewClientActivity.DownloadErrorMessage">Ein Fehler ist aufgetreten, der Download konnte nicht abgeschlossen werden.</string>
+    <string name="WebViewClientActivity.DownloadFinished">Download abgeschlossen.</string>
+    <string name="WebViewClientActivity.DownloadFinishedTime">Download in %s Sekunden abgeschlossen.</string>
+    <string name="WebViewClientActivity.Download">Download</string>
+    <string name="WebViewClientActivity.Display">Im Mediaplayer anzeigen</string>
+    
+</resources>

@@ -43,7 +43,6 @@ public class Constants {
     public static String AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
     public static String OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
     public static String UPDATE_UNREAD_ON_STARTUP = "UsageUpdateArticlesOnStartupPreference";
-    public static String REFRESH_SUB_DATA = "UsageRefreshSubDataPreference";
     public static String USE_VOLUME_KEYS = "UsageUseVolumeKeysPreference";
     public static String VIBRATE_ON_LAST_ARTICLE = "UsageVibrateOnLastArticlePreference";
     public static String WORK_OFFLINE = "DisplayWorkOfflinePreference";
@@ -51,22 +50,17 @@ public class Constants {
     public static boolean AUTOMATIC_MARK_READ_DEFAULT = false;
     public static boolean OPEN_URL_EMPTY_ARTICLE_DEFAULT = false;
     public static boolean UPDATE_UNREAD_ON_STARTUP_DEFAULT = false;
-    public static boolean REFRESH_SUB_DATA_DEFAULT = false;
     public static boolean USE_VOLUME_KEYS_DEFAULT = false;
     public static boolean VIBRATE_ON_LAST_ARTICLE_DEFAULT = false;
     public static boolean WORK_OFFLINE_DEFAULT = false;
     
     // Display
     public static String SHOW_VIRTUAL = "DisplayShowVirtualPreference";
-    public static String SHOW_VIRTUAL_UNREAD = "DisplayShowVirtualUnreadPreference";
-    public static String ALWAYS_FULL_REFRESH = "DisplayAlwaysFullRefreshPreference";
     public static String USE_SWIPE = "DisplayUseSwipePreference";
     public static String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
     public static String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
     // Display Default Values
     public static boolean SHOW_VIRTUAL_DEFAULT = true;
-    public static boolean SHOW_VIRTUAL_UNREAD_DEFAULT = false;
-    public static boolean ALWAYS_FULL_REFRESH_DEFAULT = false;
     public static boolean USE_SWIPE_DEFAULT = true;
     public static boolean ONLY_UNREAD_DEFAULT = false;
     public static int ARTICLE_LIMIT_DEFAULT = 200;

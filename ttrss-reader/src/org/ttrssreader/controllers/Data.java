@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import org.ttrssreader.R;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
@@ -32,6 +33,12 @@ public class Data {
     private static final String mutex = "";
     private static Data mInstance = null;
     private static boolean mIsDataInitialized = false;
+    
+    private String vCategoryAllArticles;
+    private String vCategoryFreshArticles;
+    private String vCategoryPublishedArticles;
+    private String vCategoryStarredArticles;
+    private String feedUncategorizedFeeds;
     
     private long mCountersUpdated = 0;
     private Map<Integer, Long> mArticlesUpdated = new HashMap<Integer, Long>();
@@ -74,6 +81,12 @@ public class Data {
         
         if (mCategoriesUpdated < mNewArticlesUpdated)
             mCategoriesUpdated = mNewArticlesUpdated;
+        
+        vCategoryAllArticles = (String) context.getText(R.string.VCategory_AllArticles);
+        vCategoryFreshArticles = (String) context.getText(R.string.VCategory_FreshArticles);
+        vCategoryPublishedArticles = (String) context.getText(R.string.VCategory_PublishedArticles);
+        vCategoryStarredArticles = (String) context.getText(R.string.VCategory_StarredArticles);
+        feedUncategorizedFeeds = (String) context.getText(R.string.Feed_UncategorizedFeeds);
     }
     
     public synchronized void checkAndInitializeData(final Context context) {
@@ -120,9 +133,9 @@ public class Data {
             return;
         } else if (Utils.isOnline(cm)) {
             // TODO
-//            Map<CategoryItem, Set<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
+            // Map<CategoryItem, Set<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
             mCountersUpdated = System.currentTimeMillis();
-//            DBHelper.getInstance().setCounters(counters);
+            // DBHelper.getInstance().setCounters(counters);
         }
     }
     
@@ -170,9 +183,9 @@ public class Data {
                 limit = (l > limit ? l : 30);
             }
             
-//            boolean isCategory = false;
+            // boolean isCategory = false;
             if (feedId < 0 && feedId > -10) {
-//                isCategory = true;
+                // isCategory = true;
                 limit = getCategoryUnreadCount(feedId);
             }
             
@@ -181,7 +194,7 @@ public class Data {
             //
             // if (articles == null) {
             // getArticles not working, fetch headlines and articles manually
-            String viewMode = "unread"; //(displayOnlyUnread ? "unread" : "all_articles");
+            String viewMode = "unread"; // (displayOnlyUnread ? "unread" : "all_articles");
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getFeedHeadlines(feedId, limit, 0, viewMode);
             
@@ -301,42 +314,22 @@ public class Data {
     public Set<CategoryItem> updateVirtualCategories() {
         if (mVirtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
-        } else if (Utils.isOnline(cm)) {
+        }
+        
+        Set<CategoryItem> virtCategories = new LinkedHashSet<CategoryItem>();
+        virtCategories.add(new CategoryItem(-4, vCategoryAllArticles, 0));
+        virtCategories.add(new CategoryItem(-3, vCategoryFreshArticles, 0));
+        virtCategories.add(new CategoryItem(-2, vCategoryPublishedArticles, 0));
+        virtCategories.add(new CategoryItem(-1, vCategoryStarredArticles, 0));
+        virtCategories.add(new CategoryItem(0, feedUncategorizedFeeds, 0));
+        DBHelper.getInstance().insertCategories(virtCategories);
+
+        if (Utils.isOnline(cm)) {
+            resetCounterTime();
+            updateCounters();
+            
             mVirtCategoriesUpdated = System.currentTimeMillis();
-            
-            Set<CategoryItem> virtCategories = new LinkedHashSet<CategoryItem>();
-            for (CategoryItem c : getCategoryCounters()) {
-                if (c.getId() < 1) {
-                    virtCategories.add(c);
-                }
-            }
-            
-            boolean needUpdate = false;
-            for (CategoryItem c : virtCategories) {
-                if (c.getUnread() == -1) {
-                    needUpdate = true;
-                    break;
-                }
-            }
-            
-            if (needUpdate || virtCategories.isEmpty()) {
-                
-                virtCategories = new LinkedHashSet<CategoryItem>();
-                virtCategories.add(new CategoryItem(-4, "All articles", 0));
-                virtCategories.add(new CategoryItem(-3, "Fresh articles", 0));
-                virtCategories.add(new CategoryItem(-2, "Published articles", 0));
-                virtCategories.add(new CategoryItem(-1, "Starred articles", 0));
-                virtCategories.add(new CategoryItem(0, "Uncategorized Feeds", 0));
-                DBHelper.getInstance().insertCategories(virtCategories);
-                
-                resetCounterTime();
-                updateCounters();
-                
-                return (DBHelper.getInstance().getVirtualCategories());
-            }
-            
-            DBHelper.getInstance().insertCategories(virtCategories);
-            return virtCategories;
+            return (DBHelper.getInstance().getVirtualCategories());
         }
         return null;
     }

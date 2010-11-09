@@ -162,9 +162,9 @@ public class ArticleActivity extends Activity {
             case MENU_SHARE_LINK:
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_SUBJECT, "Link from ttrss-reader");
+                i.putExtra(Intent.EXTRA_SUBJECT, (String) getText(R.string.ArticleActivity_ShareSubject));
                 i.putExtra(Intent.EXTRA_TEXT, mArticleItem.getArticleUrl());
-                this.startActivity(Intent.createChooser(i, "Send link..."));
+                this.startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
         }
         
@@ -387,7 +387,7 @@ public class ArticleActivity extends Activity {
             if (media) {
                 ret.append("<a href=\"");
                 ret.append(url);
-                ret.append("\">Play attached Media-File</a>");
+                ret.append("\">" + (String) getText(R.string.ArticleActivity_MediaPlay) + "</a>");
             } else {
                 ret.append("<img src=\"");
                 ret.append(url);

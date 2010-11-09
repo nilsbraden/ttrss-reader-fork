@@ -50,14 +50,11 @@ public class Controller {
     private boolean mAutomaticMarkRead;
     private boolean mOpenUrlEmptyArticle;
     private boolean mUpdateUnreadOnStartup;
-    private boolean mRefreshSubData;
     private boolean mUseVolumeKeys;
     private boolean mVibrateOnLastArticle;
     private boolean mWorkOffline;
     
     private boolean mDisplayVirtuals;
-    private boolean mDisplayUnreadInVirtualFeeds;
-    private boolean mAlwaysFullRefresh;
     private boolean mUseSwipe;
     private boolean mDisplayOnlyUnread;
     private int mArticleLimit;
@@ -105,7 +102,6 @@ public class Controller {
                     Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
             mUpdateUnreadOnStartup = prefs.getBoolean(Constants.UPDATE_UNREAD_ON_STARTUP,
                     Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
-            mRefreshSubData = prefs.getBoolean(Constants.REFRESH_SUB_DATA, Constants.REFRESH_SUB_DATA_DEFAULT);
             mUseVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
             mVibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
                     Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
@@ -113,9 +109,6 @@ public class Controller {
             
             // Display
             mDisplayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
-            mDisplayUnreadInVirtualFeeds = prefs.getBoolean(Constants.SHOW_VIRTUAL_UNREAD,
-                    Constants.SHOW_VIRTUAL_UNREAD_DEFAULT);
-            mAlwaysFullRefresh = prefs.getBoolean(Constants.ALWAYS_FULL_REFRESH, Constants.ALWAYS_FULL_REFRESH_DEFAULT);
             mUseSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
             mDisplayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
             mArticleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
@@ -209,15 +202,6 @@ public class Controller {
         this.mUpdateUnreadOnStartup = mUpdateUnreadOnStartup;
     }
     
-    public boolean isRefreshSubData() {
-        return mRefreshSubData;
-    }
-    
-    public void setRefreshSubData(boolean refreshSubData) {
-        put(Constants.REFRESH_SUB_DATA, refreshSubData);
-        this.mRefreshSubData = refreshSubData;
-    }
-    
     public boolean isUseVolumeKeys() {
         return mUseVolumeKeys;
     }
@@ -254,24 +238,6 @@ public class Controller {
     public void setDisplayVirtuals(boolean displayVirtuals) {
         put(Constants.SHOW_VIRTUAL, displayVirtuals);
         this.mDisplayVirtuals = displayVirtuals;
-    }
-    
-    public boolean isDisplayUnreadInVirtualFeeds() {
-        return mDisplayUnreadInVirtualFeeds;
-    }
-    
-    public void setDisplayUnreadInVirtualFeeds(boolean displayUnreadInVirtualFeeds) {
-        put(Constants.SHOW_VIRTUAL_UNREAD, displayUnreadInVirtualFeeds);
-        this.mDisplayUnreadInVirtualFeeds = displayUnreadInVirtualFeeds;
-    }
-    
-    public boolean isAlwaysFullRefresh() {
-        return mAlwaysFullRefresh;
-    }
-    
-    public void setAlwaysFullRefresh(boolean alwaysFullRefresh) {
-        put(Constants.ALWAYS_FULL_REFRESH, alwaysFullRefresh);
-        this.mAlwaysFullRefresh = alwaysFullRefresh;
     }
     
     public boolean isUseSwipe() {
