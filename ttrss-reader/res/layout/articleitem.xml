@@ -16,6 +16,6 @@
         android:padding="12dip"
         android:background="#AA000000"
         android:textColor="#ffffffff"
-        android:text="For Next / Previous Article Swipe here" />
+        android:text="@string/ArticleActivity.SwipeNotification" />
 
 </merge>

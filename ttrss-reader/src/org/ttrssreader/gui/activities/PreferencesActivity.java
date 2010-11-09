@@ -93,14 +93,11 @@ public class PreferencesActivity extends PreferenceActivity {
         editor.putBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
         editor.putBoolean(Constants.OPEN_URL_EMPTY_ARTICLE, Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
         editor.putBoolean(Constants.UPDATE_UNREAD_ON_STARTUP, Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
-        editor.putBoolean(Constants.REFRESH_SUB_DATA, Constants.REFRESH_SUB_DATA_DEFAULT);
         editor.putBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
         editor.putBoolean(Constants.VIBRATE_ON_LAST_ARTICLE, Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
         editor.putBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
         
         editor.putBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
-        editor.putBoolean(Constants.SHOW_VIRTUAL_UNREAD, Constants.SHOW_VIRTUAL_UNREAD_DEFAULT);
-        editor.putBoolean(Constants.ALWAYS_FULL_REFRESH, Constants.ALWAYS_FULL_REFRESH_DEFAULT);
         editor.putBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
         editor.putBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
         editor.putInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
