@@ -119,6 +119,7 @@ public class Data {
         if (mCountersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isOnline(cm)) {
+            // TODO
 //            Map<CategoryItem, Set<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
             mCountersUpdated = System.currentTimeMillis();
 //            DBHelper.getInstance().setCounters(counters);
