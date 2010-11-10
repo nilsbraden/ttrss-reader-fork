@@ -46,7 +46,7 @@ public class MediaPlayerActivity extends Activity {
         } else {
             mUrl = "";
         }
-
+        
         Log.e(Utils.TAG, "Displaying video...");
         VideoView videoView = (VideoView) findViewById(R.id.MediaView);
         MediaController mediaController = new MediaController(this);

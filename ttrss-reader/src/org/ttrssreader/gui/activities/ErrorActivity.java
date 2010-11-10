@@ -22,7 +22,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class ErrorActivity extends Activity {
-
+    
     public static final int ACTIVITY_SHOW_ERROR = 42;
     public static final String ERROR_MESSAGE = "ERROR_MESSAGE";
     

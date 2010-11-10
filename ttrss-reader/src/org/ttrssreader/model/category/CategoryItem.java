@@ -110,7 +110,7 @@ public class CategoryItem implements Comparable<CategoryItem> {
     
     @Override
     public int hashCode() {
-        return this.getId()+"".hashCode();
+        return this.getId() + "".hashCode();
     }
     
 }

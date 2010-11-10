@@ -147,7 +147,7 @@ public class FeedItem implements Comparable<FeedItem> {
     
     @Override
     public int hashCode() {
-        return this.getId()+"".hashCode();
+        return this.getId() + "".hashCode();
     }
     
 }

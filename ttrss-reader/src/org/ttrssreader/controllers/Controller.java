@@ -81,7 +81,7 @@ public class Controller {
             if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
                 isNewInstallation = true;
             }
-
+            
             url = prefs.getString(Constants.URL, "http://localhost/");
             if (!url.endsWith(JSON_END_URL)) {
                 if (!url.endsWith("/")) {
@@ -117,7 +117,8 @@ public class Controller {
             mLastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
             mLastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         } catch (ClassCastException e) {
-            Log.e(Utils.TAG, "Error reading preferences, resetting prefs with changed datatypes: ArticleLimit, DatabaseVersion, LastUpdateTime, LastVersionRun");
+            Log.e(Utils.TAG,
+                    "Error reading preferences, resetting prefs with changed datatypes: ArticleLimit, DatabaseVersion, LastUpdateTime, LastVersionRun");
             setArticleLimit(new Integer(1));
             setDatabaseVersion(new Integer(1));
             setLastUpdateTime(new Long(1));

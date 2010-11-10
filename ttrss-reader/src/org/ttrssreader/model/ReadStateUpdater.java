@@ -36,7 +36,7 @@ public class ReadStateUpdater implements IUpdatable {
     List<ArticleItem> mList = null;
     private int mPid = 0;
     private int mArticleState;
-
+    
     /**
      * Marks everything as read.
      */
@@ -51,6 +51,7 @@ public class ReadStateUpdater implements IUpdatable {
     
     /**
      * Marks all articles in the given Categories depending on articleState (0 = mark as read, 1 = mark as unread).
+     * 
      * @param list
      * @param articleState
      */
@@ -66,6 +67,7 @@ public class ReadStateUpdater implements IUpdatable {
     
     /**
      * Marks all articles in this category depending on articleState (0 = mark as read, 1 = mark as unread).
+     * 
      * @param category
      * @param pid
      * @param articleState
@@ -81,6 +83,7 @@ public class ReadStateUpdater implements IUpdatable {
     
     /**
      * Marks the given list of articles depending on articleState (0 = mark as read, 1 = mark as unread).
+     * 
      * @param list
      * @param pid
      * @param articleState
@@ -93,6 +96,7 @@ public class ReadStateUpdater implements IUpdatable {
     
     /**
      * Marks the given articles depending on articleState (0 = mark as read, 1 = mark as unread).
+     * 
      * @param article
      * @param pid
      * @param articleState
@@ -114,15 +118,15 @@ public class ReadStateUpdater implements IUpdatable {
         
         Set<Integer> ids = new HashSet<Integer>();
         
-//        List<ArticleItem> temp = new ArrayList<ArticleItem>();
-//        for (ArticleItem a : mList) {
-//            if (mArticleState == 0 && a.isUnread()) {
-//                temp.add(a);
-//            } else if (mArticleState != 0 && !a.isUnread()) {
-//                temp.add(a);
-//            }
-//        }
-//        mList = temp;
+        // List<ArticleItem> temp = new ArrayList<ArticleItem>();
+        // for (ArticleItem a : mList) {
+        // if (mArticleState == 0 && a.isUnread()) {
+        // temp.add(a);
+        // } else if (mArticleState != 0 && !a.isUnread()) {
+        // temp.add(a);
+        // }
+        // }
+        // mList = temp;
         
         for (ArticleItem article : mList) {
             if (mArticleState != 0 && article.isUnread()) {

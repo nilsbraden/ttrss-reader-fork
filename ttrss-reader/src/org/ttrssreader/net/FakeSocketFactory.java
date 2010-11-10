@@ -50,8 +50,7 @@ public class FakeSocketFactory implements SocketFactory, LayeredSocketFactory {
     }
     
     @Override
-    public Socket connectSocket(Socket sock, String host, int port, InetAddress localAddress, int localPort,
-            HttpParams params) throws IOException, UnknownHostException, ConnectTimeoutException {
+    public Socket connectSocket(Socket sock, String host, int port, InetAddress localAddress, int localPort, HttpParams params) throws IOException, UnknownHostException, ConnectTimeoutException {
         int connTimeout = HttpConnectionParams.getConnectionTimeout(params);
         int soTimeout = HttpConnectionParams.getSoTimeout(params);
         
@@ -83,8 +82,7 @@ public class FakeSocketFactory implements SocketFactory, LayeredSocketFactory {
     }
     
     @Override
-    public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException,
-            UnknownHostException {
+    public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException {
         return getSSLContext().getSocketFactory().createSocket(socket, host, port, autoClose);
     }
     
