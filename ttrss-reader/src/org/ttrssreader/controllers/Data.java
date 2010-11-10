@@ -131,9 +131,10 @@ public class Data {
     }
     
     public void updateCounters() {
-        if (mCountersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            return;
-        } else if (Utils.isOnline(cm)) {
+        // if (mCountersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        // return;
+        // } else
+        if (Utils.isOnline(cm)) {
             Set<Map<String, Object>> counters = Controller.getInstance().getConnector().getCounters();
             mCountersUpdated = System.currentTimeMillis();
             
