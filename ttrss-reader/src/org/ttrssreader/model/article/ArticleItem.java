@@ -184,7 +184,7 @@ public class ArticleItem implements Comparable<ArticleItem>{
 
     @Override
     public int compareTo(ArticleItem ai) {
-        return this.getUpdateDate().compareTo(ai.getUpdateDate());
+        return ai.getUpdateDate().compareTo(this.getUpdateDate());
     }
     
     @Override

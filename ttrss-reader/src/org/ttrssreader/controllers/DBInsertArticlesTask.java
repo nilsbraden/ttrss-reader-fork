@@ -18,9 +18,7 @@ package org.ttrssreader.controllers;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.ttrssreader.model.article.ArticleItem;
-import org.ttrssreader.utils.Utils;
 import android.os.AsyncTask;
-import android.util.Log;
 
 public class DBInsertArticlesTask extends AsyncTask<Set<ArticleItem>, Void, Void> {
     
@@ -39,11 +37,11 @@ public class DBInsertArticlesTask extends AsyncTask<Set<ArticleItem>, Void, Void
             Set<ArticleItem> set = (LinkedHashSet<ArticleItem>) args[0];
             
             if (set.size() > 0) {
-                Log.i(Utils.TAG, "// DBInsertArticlesTask BEGIN: " + set.size());
+//                Log.i(Utils.TAG, "// DBInsertArticlesTask BEGIN: " + set.size());
                 DBHelper.getInstance().insertArticles(set, mMaxArticles);
-                Log.i(Utils.TAG,
-                        "\\\\ DBInsertArticlesTask END: " + set.size() + " article(s) took "
-                                + (System.currentTimeMillis() - time) + "ms");
+//                Log.i(Utils.TAG,
+//                        "\\\\ DBInsertArticlesTask END: " + set.size() + " article(s) took "
+//                                + (System.currentTimeMillis() - time) + "ms");
             }
         }
         return null;
