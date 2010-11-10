@@ -41,7 +41,6 @@ import android.util.Log;
 public class TTRSSJsonConnector implements ITTRSSConnector {
     
     private static final String OP_LOGIN = "?op=login&user=%s&password=%s";
-    // private static final String OP_GET_UNREAD = "?op=getUnread&sid=%s";
     private static final String OP_GET_CATEGORIES = "?op=getCategories&sid=%s";
     private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s&cat_id=%s";
     private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&view_mode=%s";
@@ -494,7 +493,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 JSONArray names = object.names();
                 JSONArray values = object.toJSONArray(names);
                 
-                // Ignore "updated", we don't need it...
+                // Ignore "updated" and "description", we don't need it...
                 Boolean cat = false;
                 Integer id = Integer.MIN_VALUE;
                 Integer counter = 0;
@@ -517,10 +516,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 
                 // Only add entrys with integer-ID
                 if (id != Integer.MIN_VALUE) {
-                    
-                    if (id < 0) 
-                        cat = true;
-                    
                     m = new HashMap<String, Object>();
                     m.put(COUNTER_CAT, cat);
                     m.put(COUNTER_ID, id);
@@ -695,7 +690,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     
     @Override
     public Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time) {
-        /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
+        /* Not integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
         Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, Set<ArticleItem>>>();
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {

@@ -97,6 +97,8 @@ public class Data {
         }
     }
     
+    // *** COUNTERS *********************************************************************
+    
     public void resetCounterTime() {
         mCountersUpdated = 0;
     }
@@ -114,8 +116,6 @@ public class Data {
         mCategoriesUpdated = 0;
     }
     
-    // *** COUNTERS *********************************************************************
-    
     public int getCategoryUnreadCount(int catId) {
         CategoryItem c = DBHelper.getInstance().getCategory(catId);
         if (c != null) {
@@ -131,19 +131,17 @@ public class Data {
             Set<Map<String, Object>> counters = Controller.getInstance().getConnector().getCounters();
             mCountersUpdated = System.currentTimeMillis();
             
-            boolean cat = false;
-            int id = Integer.MIN_VALUE;
-            int counter = 0;
-            
             for (Map<String, Object> m : counters) {
-                cat = (Boolean) m.get(TTRSSJsonConnector.COUNTER_CAT);
-                id = (Integer) m.get(TTRSSJsonConnector.COUNTER_ID);
-                counter = (Integer) m.get(TTRSSJsonConnector.COUNTER_COUNTER);
+                boolean cat = (Boolean) m.get(TTRSSJsonConnector.COUNTER_CAT);
+                int id = (Integer) m.get(TTRSSJsonConnector.COUNTER_ID);
+                int counter = (Integer) m.get(TTRSSJsonConnector.COUNTER_COUNTER);
                 
-                if (cat) {
+                if (cat && id >= 0) { // Category
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
-                } else {
+                } else if (!cat && id > 0) { // Feed
                     DBHelper.getInstance().updateFeedUnreadCount(id, counter);
+                } else if (!cat && id <= 0) { // Virtual Category
+                    DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 }
                 
             }
@@ -194,11 +192,8 @@ public class Data {
                 limit = (l > limit ? l : 30);
             }
             
-            // boolean isCategory = false;
-            if (feedId < 0 && feedId > -10) {
-                // isCategory = true;
+            if (feedId < 0 && feedId > -10)
                 limit = getCategoryUnreadCount(feedId);
-            }
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
@@ -211,9 +206,8 @@ public class Data {
             
             Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(set);
             
-            if (temp.size() == articles.size()) {
+            if (temp.size() == articles.size())
                 articles = temp;
-            }
             
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
             
@@ -233,16 +227,15 @@ public class Data {
             return;
         }
         
-        // Try to force-update counters
+        // Force-update counters
         resetCounterTime();
-        getCategoryUnreadCount(0);
+        updateCounters();
         
-        Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = null;
-        if (Utils.isOnline(cm)) {
-            ret = Controller.getInstance().getConnector().getNewArticles(1, mNewArticlesUpdated);
-        } else {
+        if (!Utils.isOnline(cm))
             return;
-        }
+        
+        Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = Controller.getInstance().getConnector()
+                .getNewArticles(1, mNewArticlesUpdated);
         
         Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
         Set<ArticleItem> articles = new LinkedHashSet<ArticleItem>();
@@ -261,7 +254,8 @@ public class Data {
         DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
         task.execute(articles);
         
-        Utils.waitForTask(task);
+        // Why were we waiting here?
+        // Utils.waitForTask(task);
     }
     
     // *** FEEDS ************************************************************************

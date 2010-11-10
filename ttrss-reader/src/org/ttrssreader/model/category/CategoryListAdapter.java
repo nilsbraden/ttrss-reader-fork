@@ -214,6 +214,8 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     @Override
     public void update() {
+        if (Controller.getInstance().isWorkOffline())
+            return;
         
         // Update counters
         Data.getInstance().updateCounters();
@@ -223,24 +225,21 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
             Data.getInstance().updateUnreadArticles();
         }
         
-        if (!Controller.getInstance().isWorkOffline()) {
-            if (mCategoriesTemp == null) {
-                // Triple-check for NPE...
-                mCategoriesTemp = new LinkedHashSet<CategoryItem>();
-                
-                Log.i(Utils.TAG, "CategoryListAdapter - updateCategories()");
-                Set<CategoryItem> cats = Data.getInstance().updateCategories();
-                if (cats != null && cats.size() > 0 && mCategoriesTemp != null)
-                    mCategoriesTemp.addAll(cats);
-                
-                Log.i(Utils.TAG, "CategoryListAdapter - updateVirtualCategories()");
-                Set<CategoryItem> vCats = Data.getInstance().updateVirtualCategories();
-                if (vCats != null && vCats.size() > 0 && mCategoriesTemp != null)
-                    mCategoriesTemp.addAll(vCats);
-                
-                if (mCategoriesTemp != null && mCategoriesTemp.isEmpty())
-                    mCategoriesTemp = null;
-            }
+        if (mCategoriesTemp == null) {
+            mCategoriesTemp = new LinkedHashSet<CategoryItem>();
+            
+            Log.i(Utils.TAG, "CategoryListAdapter - updateCategories()");
+            Set<CategoryItem> cats = Data.getInstance().updateCategories();
+            if (cats != null && cats.size() > 0 && mCategoriesTemp != null)
+                mCategoriesTemp.addAll(cats);
+            
+            Log.i(Utils.TAG, "CategoryListAdapter - updateVirtualCategories()");
+            Set<CategoryItem> vCats = Data.getInstance().updateVirtualCategories();
+            if (vCats != null && vCats.size() > 0 && mCategoriesTemp != null)
+                mCategoriesTemp.addAll(vCats);
+            
+            if (mCategoriesTemp != null && mCategoriesTemp.isEmpty())
+                mCategoriesTemp = null;
         }
     }
     
