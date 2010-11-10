@@ -28,6 +28,11 @@ public class FeedItem implements Comparable<FeedItem> {
     private int mUnread;
     
     public FeedItem() {
+        setId(0);
+        setCategoryId(0);
+        setTitle("");
+        setUrl("");
+        setUnread(0);
     }
     
     public FeedItem(int categoryId, int id, String title, String url, int unread) {
