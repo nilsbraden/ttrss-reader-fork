@@ -23,6 +23,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
+import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -115,26 +116,37 @@ public class Data {
     
     // *** COUNTERS *********************************************************************
     
-//    public Set<CategoryItem> getCategoryCounters() {
-//        return DBHelper.getInstance().getCategoryCounters();
-//    }
-//    
-//    public int getCategoryUnreadCount(int catId) {
-//        for (CategoryItem c : getCategoryCounters()) {
-//            if (catId == c.getId()) {
-//                return c.getUnread();
-//            }
-//        }
-//        return -1;
-//    }
+    public int getCategoryUnreadCount(int catId) {
+        CategoryItem c = DBHelper.getInstance().getCategory(catId);
+        if (c != null) {
+            return c.getUnread();
+        }
+        return -1;
+    }
     
     public void updateCounters() {
         if (mCountersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isOnline(cm)) {
-            // TODO
             Set<Map<String, Object>> counters = Controller.getInstance().getConnector().getCounters();
             mCountersUpdated = System.currentTimeMillis();
+            
+            boolean cat = false;
+            int id = Integer.MIN_VALUE;
+            int counter = 0;
+            
+            for (Map<String, Object> m : counters) {
+                cat = (Boolean) m.get(TTRSSJsonConnector.COUNTER_CAT);
+                id = (Integer) m.get(TTRSSJsonConnector.COUNTER_ID);
+                counter = (Integer) m.get(TTRSSJsonConnector.COUNTER_COUNTER);
+                
+                if (cat) {
+                    DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
+                } else {
+                    DBHelper.getInstance().updateFeedUnreadCount(id, counter);
+                }
+                
+            }
         }
     }
     
@@ -149,7 +161,7 @@ public class Data {
     }
     
     public ArticleItem updateArticle(int articleId) {
-        // TODO: Hopefully someday we don't need to fetch the content seperately and can remove this method.
+        // Hopefully someday we don't need to fetch the content seperately and can remove this method.
         // Don't check last update time here
         if (Utils.isOnline(cm)) {
             Set<Integer> set = new LinkedHashSet<Integer>();
@@ -188,12 +200,7 @@ public class Data {
                 limit = getCategoryUnreadCount(feedId);
             }
             
-            // Set<ArticleItem> articles = Controller.getInstance().getConnector()
-            // .getArticles(feedId, displayOnlyUnread, isCategory, limit);
-            //
-            // if (articles == null) {
-            // getArticles not working, fetch headlines and articles manually
-            String viewMode = "unread"; // (displayOnlyUnread ? "unread" : "all_articles");
+            String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getFeedHeadlines(feedId, limit, 0, viewMode);
             
@@ -207,7 +214,6 @@ public class Data {
             if (temp.size() == articles.size()) {
                 articles = temp;
             }
-            // }
             
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
             
@@ -322,7 +328,7 @@ public class Data {
         virtCategories.add(new CategoryItem(-1, vCategoryStarredArticles, 0));
         virtCategories.add(new CategoryItem(0, feedUncategorizedFeeds, 0));
         DBHelper.getInstance().insertCategories(virtCategories);
-
+        
         if (Utils.isOnline(cm)) {
             resetCounterTime();
             updateCounters();

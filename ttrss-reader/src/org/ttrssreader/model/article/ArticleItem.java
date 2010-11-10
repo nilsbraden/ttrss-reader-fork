@@ -34,6 +34,15 @@ public class ArticleItem implements Comparable<ArticleItem>{
     private Set<String> attachments;
     
     public ArticleItem() {
+        setId(0);
+        setTitle("");
+        setFeedId(0);
+        setUnread(false);
+        setUpdateDate(new Date());
+        setArticleUrl("");
+        setArticleCommentUrl("");
+        setContent("");
+        setAttachments(null);
     }
     
     public ArticleItem(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
