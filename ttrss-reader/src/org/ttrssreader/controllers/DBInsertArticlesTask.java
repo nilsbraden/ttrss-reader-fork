@@ -34,7 +34,7 @@ public class DBInsertArticlesTask extends AsyncTask<Set<ArticleItem>, Void, Void
     protected Void doInBackground(Set<ArticleItem>... args) {
         if (args[0] != null && args[0] instanceof LinkedHashSet<?>) {
             
-            Set<ArticleItem> set = (LinkedHashSet<ArticleItem>) args[0];
+            Set<ArticleItem> set = args[0];
             
             if (set.size() > 0) {
                 // Log.i(Utils.TAG, "// DBInsertArticlesTask BEGIN: " + set.size());

@@ -2,7 +2,8 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
-    android:versionName="0.7.4" android:versionCode="740">
+    android:versionName="0.7.4"
+    android:versionCode="740">
 
     <application
         android:icon="@drawable/icon"
@@ -20,7 +21,6 @@
                     android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".gui.activities.FeedListActivity" />
         <activity
@@ -37,7 +37,6 @@
             android:name=".gui.activities.AboutActivity"
             android:theme="@android:style/Theme.Dialog"
             android:label="@string/AboutActivity.Title" />
-            
     </application>
 
     <uses-sdk

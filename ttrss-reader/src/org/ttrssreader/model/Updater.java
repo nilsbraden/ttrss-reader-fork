@@ -33,9 +33,11 @@ public class Updater extends AsyncTask<Void, Void, Void> {
     
     private Handler handler = new Handler() {
         
+        @Override
         public void handleMessage(Message msg) {
-            if (mParent != null)
+            if (mParent != null) {
                 mParent.onUpdateEnd();
+            }
         }
     };
     

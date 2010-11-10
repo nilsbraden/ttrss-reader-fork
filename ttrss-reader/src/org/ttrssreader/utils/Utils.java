@@ -147,8 +147,9 @@ public class Utils {
                     e.printStackTrace();
                 }
                 
-                if (wait > 2000)
+                if (wait > 2000) {
                     break;
+                }
             }
         }
         

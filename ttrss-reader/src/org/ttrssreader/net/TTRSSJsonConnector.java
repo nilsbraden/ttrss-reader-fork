@@ -290,8 +290,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 }
             }
             
-            if (result == null)
+            if (result == null) {
                 return "";
+            }
             
             int i = 0;
             while ((i < result.getNames().length())) {
@@ -326,23 +327,23 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             Set<String> attachments = new LinkedHashSet<String>();
             
             for (int i = 0; i < names.length(); i++) {
-                if (names.getString(i).equals(ID))
+                if (names.getString(i).equals(ID)) {
                     id = values.getString(i);
-                else if (names.getString(i).equals(TITLE))
+                } else if (names.getString(i).equals(TITLE)) {
                     title = values.getString(i);
-                else if (names.getString(i).equals(UNREAD))
+                } else if (names.getString(i).equals(UNREAD)) {
                     isUnread = values.getBoolean(i);
-                else if (names.getString(i).equals(UPDATED))
+                } else if (names.getString(i).equals(UPDATED)) {
                     updated = values.getString(i);
-                else if (names.getString(i).equals(FEED_ID))
+                } else if (names.getString(i).equals(FEED_ID)) {
                     realFeedId = values.getString(i);
-                else if (names.getString(i).equals(CONTENT))
+                } else if (names.getString(i).equals(CONTENT)) {
                     content = values.getString(i);
-                else if (names.getString(i).equals(URL))
+                } else if (names.getString(i).equals(URL)) {
                     articleUrl = values.getString(i);
-                else if (names.getString(i).equals(COMMENT_URL))
+                } else if (names.getString(i).equals(COMMENT_URL)) {
                     articleCommentUrl = values.getString(i);
-                else if (names.getString(i).equals(ATTACHMENTS)) {
+                } else if (names.getString(i).equals(ATTACHMENTS)) {
                     attachments = parseDataForAttachments((JSONArray) values.get(i));
                 }
             }
@@ -469,8 +470,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
-            if (mHasLastError)
+            if (mHasLastError) {
                 return ret;
+            }
         }
         
         String url = mServerUrl + String.format(OP_GET_COUNTERS, mSessionId);
@@ -539,15 +541,17 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
-            if (mHasLastError)
+            if (mHasLastError) {
                 return ret;
+            }
         }
         
         String url = mServerUrl + String.format(OP_GET_CATEGORIES, mSessionId);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
-        if (jsonResult == null)
+        if (jsonResult == null) {
             return ret;
+        }
         
         try {
             for (int i = 0; i < jsonResult.length(); i++) {
@@ -574,8 +578,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
-            if (mHasLastError)
+            if (mHasLastError) {
                 return ret;
+            }
         }
         
         // TODO: Hardcoded -4 fetches all feeds. See http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
@@ -617,15 +622,17 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
-            if (mHasLastError)
+            if (mHasLastError) {
                 return ret;
+            }
         }
         
         String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, mSessionId, feedId, limit, viewMode);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
-        if (jsonResult == null)
+        if (jsonResult == null) {
             return ret;
+        }
         
         try {
             for (int i = 0; i < jsonResult.length(); i++) {
@@ -660,15 +667,17 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
-            if (mHasLastError)
+            if (mHasLastError) {
                 return ret;
+            }
         }
         
         String url = mServerUrl + String.format(OP_GET_ARTICLE, mSessionId, sb.toString());
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
-        if (jsonResult == null)
+        if (jsonResult == null) {
             return ret;
+        }
         
         try {
             for (int i = 0; i < jsonResult.length(); i++) {
@@ -695,8 +704,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
-            if (mHasLastError)
+            if (mHasLastError) {
                 return ret;
+            }
         }
         
         String url = mServerUrl + String.format(OP_GET_NEW_ARTICLES, mSessionId, articleState, time);
@@ -725,8 +735,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 
                 CategoryItem c = parseDataForCategory(names, values, feedValues);
                 
-                if (feedValues.length() < 1)
+                if (feedValues.length() < 1) {
                     continue;
+                }
                 
                 TTRSSJsonResult resultFeeds = new TTRSSJsonResult(feedValues.getString(0));
                 JSONArray feedNames = resultFeeds.getNames();
@@ -738,8 +749,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                     JSONArray articleValues = new JSONArray();
                     FeedItem f = parseDataForFeed(names, values, articleValues);
                     
-                    if (articleValues.length() < 1)
+                    if (articleValues.length() < 1) {
                         continue;
+                    }
                     
                     TTRSSJsonResult resultArts = new TTRSSJsonResult(articleValues.getString(0));
                     JSONArray articleNames = resultArts.getNames();
@@ -767,16 +779,18 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     public void setArticleRead(Set<Integer> articlesIds, int articleState) {
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
-            if (mHasLastError)
+            if (mHasLastError) {
                 return;
+            }
         }
         
         StringBuilder sb = new StringBuilder();
         for (Integer s : articlesIds) {
             sb.append(s + ",");
         }
-        if (sb.length() > 0)
+        if (sb.length() > 0) {
             sb.deleteCharAt(sb.length() - 1);
+        }
         
         String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, mSessionId, sb, articleState, 2);
         doRequest(url);
@@ -786,8 +800,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     public void setRead(int id, boolean isCategory) {
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
-            if (mHasLastError)
+            if (mHasLastError) {
                 return;
+            }
         }
         
         String url = mServerUrl + String.format(OP_CATCHUP, mSessionId, id, isCategory);

@@ -15,5 +15,5 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:text="@string/Commons.NothingToDisplay" />
-        
+
 </LinearLayout>
