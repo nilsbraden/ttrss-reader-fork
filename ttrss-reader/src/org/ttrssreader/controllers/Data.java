@@ -105,10 +105,6 @@ public class Data {
     
     // *** COUNTERS *********************************************************************
     
-    public void resetCounterTime() {
-        mCountersUpdated = 0;
-    }
-    
     public void resetArticlesTime(int feedId) {
         mArticlesUpdated.put(feedId, new Long(0));
     }
@@ -131,12 +127,8 @@ public class Data {
     }
     
     public void updateCounters() {
-        // if (mCountersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-        // return;
-        // } else
         if (Utils.isOnline(cm)) {
             Set<Map<String, Object>> counters = Controller.getInstance().getConnector().getCounters();
-            mCountersUpdated = System.currentTimeMillis();
             
             for (Map<String, Object> m : counters) {
                 boolean cat = (Boolean) m.get(TTRSSJsonConnector.COUNTER_CAT);
@@ -144,10 +136,13 @@ public class Data {
                 int counter = (Integer) m.get(TTRSSJsonConnector.COUNTER_COUNTER);
                 
                 if (cat && id >= 0) { // Category
+                    Log.v(Utils.TAG, String.format("Category, id: %s | cat: %s | count: %s", id, cat, counter));
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 } else if (!cat && id > 0) { // Feed
+                    Log.v(Utils.TAG, String.format("Feed, id: %s | cat: %s | count: %s", id, cat, counter));
                     DBHelper.getInstance().updateFeedUnreadCount(id, counter);
-                } else if (!cat && id <= 0) { // Virtual Category
+                } else if (!cat && id < 0) { // Virtual Category
+                    Log.v(Utils.TAG, String.format("Virtual Category, id: %s | cat: %s | count: %s", id, cat, counter));
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 }
                 
@@ -174,12 +169,12 @@ public class Data {
             
             for (ArticleItem a : Controller.getInstance().getConnector().getArticle(set)) {
                 if (a.getId() == articleId) {
-                    Log.d(Utils.TAG, "Found article: " + articleId);
+                    Log.v(Utils.TAG, "Found article: " + articleId);
                     return a;
                 }
             }
         }
-        Log.d(Utils.TAG, "Couldn't find article: " + articleId);
+        Log.v(Utils.TAG, "Couldn't find article: " + articleId);
         return null;
     }
     
@@ -328,13 +323,11 @@ public class Data {
         virtCategories.add(new CategoryItem(-2, vCategoryPublishedArticles, getCategoryUnreadCount(-2)));
         virtCategories.add(new CategoryItem(-1, vCategoryStarredArticles, getCategoryUnreadCount(-1)));
         virtCategories.add(new CategoryItem(0, feedUncategorizedFeeds, getCategoryUnreadCount(0)));
-        DBHelper.getInstance().insertCategories(virtCategories);
         
-        if (Utils.isOnline(cm)) {
-            mVirtCategoriesUpdated = System.currentTimeMillis();
-            return (DBHelper.getInstance().getVirtualCategories());
-        }
-        return null;
+        DBHelper.getInstance().insertCategories(virtCategories);
+        mVirtCategoriesUpdated = System.currentTimeMillis();
+        
+        return virtCategories;
     }
     
     public Set<CategoryItem> updateCategories() {
