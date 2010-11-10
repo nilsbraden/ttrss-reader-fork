@@ -115,27 +115,26 @@ public class Data {
     
     // *** COUNTERS *********************************************************************
     
-    public Set<CategoryItem> getCategoryCounters() {
-        return DBHelper.getInstance().getCategoryCounters();
-    }
-    
-    public int getCategoryUnreadCount(int catId) {
-        for (CategoryItem c : getCategoryCounters()) {
-            if (catId == c.getId()) {
-                return c.getUnread();
-            }
-        }
-        return -1;
-    }
+//    public Set<CategoryItem> getCategoryCounters() {
+//        return DBHelper.getInstance().getCategoryCounters();
+//    }
+//    
+//    public int getCategoryUnreadCount(int catId) {
+//        for (CategoryItem c : getCategoryCounters()) {
+//            if (catId == c.getId()) {
+//                return c.getUnread();
+//            }
+//        }
+//        return -1;
+//    }
     
     public void updateCounters() {
         if (mCountersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isOnline(cm)) {
             // TODO
-            // Map<CategoryItem, Set<FeedItem>> counters = Controller.getInstance().getConnector().getCounters();
+            Set<Map<String, Object>> counters = Controller.getInstance().getConnector().getCounters();
             mCountersUpdated = System.currentTimeMillis();
-            // DBHelper.getInstance().setCounters(counters);
         }
     }
     

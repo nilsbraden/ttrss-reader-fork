@@ -45,7 +45,6 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String OP_GET_CATEGORIES = "?op=getCategories&sid=%s";
     private static final String OP_GET_FEEDS = "?op=getFeeds&sid=%s&cat_id=%s";
     private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&sid=%s&feed_id=%s&limit=%s&view_mode=%s";
-//    private static final String OP_GET_ARTICLES = "?op=getArticles&sid=%s&id=%s&unread=%s&is_category=%s&limit=%s";
     private static final String OP_GET_NEW_ARTICLES = "?op=getNewArticles&sid=%s&unread=%s&time=%s";
     private static final String OP_GET_ARTICLE = "?op=getArticle&sid=%s&article_id=%s";
     private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
@@ -60,9 +59,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String ID = "id";
     private static final String TITLE = "title";
     private static final String UNREAD = "unread";
-    private static final String COUNTER = "counter";
     private static final String CAT_ID = "cat_id";
-    private static final String FEEDS = "feeds";
     private static final String FEED_ID = "feed_id";
     private static final String UPDATED = "updated";
     private static final String CONTENT = "content";
@@ -70,6 +67,11 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String FEED_URL = "feed_url";
     private static final String COMMENT_URL = "comments";
     private static final String ATTACHMENTS = "attachments";
+    
+    private static final String COUNTER_CAT = "cat";
+    private static final String COUNTER_ID = "id";
+    private static final String COUNTER_COUNTER = "counter";
+    private static final String COUNTER_DESCRIPTION = "description";
     
     private String mServerUrl;
     private String mUserName;
@@ -98,7 +100,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         } catch (IllegalArgumentException e) {
             Log.e(Utils.TAG, "Error creating HTTP-Connection: " + e.getMessage());
             e.printStackTrace();
-            return strResponse;
+            return "";
         }
         
         HttpParams httpParams = httpPost.getParams();
@@ -115,7 +117,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 InputStream instream = entity.getContent();
                 strResponse = Utils.convertStreamToString(instream);
                 
-                if (strResponse.contains(NOT_LOGGED_IN)) {
+                if (strResponse.contains(ERROR + NOT_LOGGED_IN)) {
                     Log.w(Utils.TAG, "Not logged in, retrying...");
                     // Login and post request again
                     String tempSessionId = new String(mSessionId);
@@ -487,20 +489,21 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     @Override
-    public void getCounters() {
-        /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
+    public Set<Map<String, Object>> getCounters() {
+        Set<Map<String, Object>> ret = new LinkedHashSet<Map<String, Object>>();
+        Map<String, Object> m;
         
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
             if (mHasLastError)
-                return;
+                return ret;
         }
         
         String url = mServerUrl + String.format(OP_GET_COUNTERS, mSessionId);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
-            return;
+            return ret;
         } else if (mHasLastError && mLastError.contains(ERROR)) {
             // Catch unknown-method error, see comment above
             if (mLastError.contains(UNKNOWN_METHOD)) {
@@ -517,24 +520,24 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 JSONArray values = object.toJSONArray(names);
                 
                 // Ignore "updated", we don't need it...
-                boolean isCat = false;
+                boolean cat = false;
                 int id = Integer.MIN_VALUE;
                 int counter = 0;
                 String description = "";
                 
                 for (int j = 0; j < names.length(); j++) {
-                    if (names.getString(j).equals("cat")) {
-                        isCat = values.getBoolean(j);
-                    } else if (names.getString(j).equals(ID)) {
+                    if (names.getString(j).equals(COUNTER_CAT)) {
+                        cat = values.getBoolean(j);
+                    } else if (names.getString(j).equals(COUNTER_ID)) {
                         // Check if id is a string, then it would be a global counter 
                         if (values.getString(j).equals("global-unread") || values.getString(j).equals("subscribed-feeds")) {
                             continue;
                         } else {
                             id = values.getInt(j);
                         }
-                    } else if (names.getString(j).equals(COUNTER)) {
+                    } else if (names.getString(j).equals(COUNTER_COUNTER)) {
                         counter = values.getInt(j);
-                    } else if (names.getString(j).equals("description")) {
+                    } else if (names.getString(j).equals(COUNTER_DESCRIPTION)) {
                         description = values.getString(j);
                     }
                 }
@@ -542,6 +545,12 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 // Only add entrys with integer-ID
                 if (id != Integer.MIN_VALUE) {
                     // TODO: Find a suitable data-structure for the return-value
+                    m = new HashMap<String, Object>();
+                    m.put(COUNTER_CAT, cat);
+                    m.put(COUNTER_ID, id);
+                    m.put(COUNTER_COUNTER, counter);
+                    m.put(COUNTER_DESCRIPTION, description);
+                    ret.add(m);
                 }
                 
             }
@@ -551,7 +560,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             e.printStackTrace();
         }
         
-        return;
+        return ret;
     }
     
     @Override

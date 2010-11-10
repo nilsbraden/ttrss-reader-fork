@@ -32,11 +32,12 @@ public interface ITTRSSConnector {
     public int getTotalUnread();
     
     /**
-     * Retrieves a map of feeds mapped to categories, each with only their ID and the unread-count set.
+     * Retrieves a Set of Maps which map Strings to the information, e.g. "id" -> 42, containing the counters for every
+     * category and feed.
      * 
-     * @return map of feeds mapped to categories. 
+     * @return set of Name-Value-Pairs stored in maps
      */
-    public void getCounters();
+    public Set<Map<String, Object>> getCounters();
     
     /**
      * Retrieves all categories.
@@ -53,20 +54,26 @@ public interface ITTRSSConnector {
     public Map<Integer, Set<FeedItem>> getFeeds();
     
     /**
-     * Retrieves the articles for the given feed or category, depending on boolean isCategory. Already read articles can be filtered.
+     * Retrieves the articles for the given feed or category, depending on boolean isCategory. Already read articles can
+     * be filtered.
      * 
-     * @param id the id of the feed or category.
-     * @param displayOnlyUnread whether we are to filter out read articles.
-     * @param isCategory indicates if the id refers to a category or a feed.
-     * @param limit sets a limit of articles that are read.
+     * @param id
+     *            the id of the feed or category.
+     * @param displayOnlyUnread
+     *            whether we are to filter out read articles.
+     * @param isCategory
+     *            indicates if the id refers to a category or a feed.
+     * @param limit
+     *            sets a limit of articles that are read.
      * @return a list of articles or null on error.
      */
-//    public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit);
+    // public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit);
     
     /**
      * Retrieves the specified articles.
      * 
-     * @param articleIds the ids of the articles.
+     * @param articleIds
+     *            the ids of the articles.
      * @return the articles.
      */
     public Set<ArticleItem> getArticle(Set<Integer> articleIds);
@@ -83,10 +90,12 @@ public interface ITTRSSConnector {
     public Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode);
     
     /**
-     * Retrieves all new articles since the given time. ArticleState can be given to only retrieve unread articles. 
+     * Retrieves all new articles since the given time. ArticleState can be given to only retrieve unread articles.
      * 
-     * @param articleState int indicating whetether we are to fetch unread articles only (1) or all articles (0).
-     * @param time the time in ms since 1970, specifying the time of the last update.
+     * @param articleState
+     *            int indicating whetether we are to fetch unread articles only (1) or all articles (0).
+     * @param time
+     *            the time in ms since 1970, specifying the time of the last update.
      * @return a map of List<ArticleItem> mapped to their feeds, mapped to their articles.
      */
     public Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time /* ago */);
@@ -94,16 +103,20 @@ public interface ITTRSSConnector {
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
      * 
-     * @param articlesIds the list of ids.
-     * @param articleState the new state of the article (0 -> mark as read; 1 -> mark as unread).
+     * @param articlesIds
+     *            the list of ids.
+     * @param articleState
+     *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
      */
     public void setArticleRead(Set<Integer> articlesIds, int articleState);
     
     /**
      * Marks a feed or a category with all its feeds as read.
      * 
-     * @param id the feed-id/category-id.
-     * @param isCategory indicates whether id refers to a feed or a category.
+     * @param id
+     *            the feed-id/category-id.
+     * @param isCategory
+     *            indicates whether id refers to a feed or a category.
      */
     public void setRead(int id, boolean isCategory);
     
