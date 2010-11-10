@@ -157,8 +157,3 @@
   * Show attached images
   * Automatically open webpage for empty Feed-Entrys
   * Automatically leave FeedHeadlineView if there are no items (see FeedHeadlineListActivity.java:207)
-
-= TODO =
-  * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=9 Issue #9 (see all Feeds below their categories on main-view)]
-  * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=10 Issue #10 (Toggle Star/Unstar)]
-  * [https://code.google.com/p/ttrss-reader-fork/issues/detail?id=18 Issue #18 (Favicon for the feedlist and the articlelist)]
