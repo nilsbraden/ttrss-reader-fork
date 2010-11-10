@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBInsertArticlesTask;
 import org.ttrssreader.gui.activities.AboutActivity;
 import android.app.Activity;
 import android.content.pm.PackageInfo;
@@ -29,7 +28,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.util.Log;
 
 public class Utils {
@@ -158,22 +156,22 @@ public class Utils {
         return info.isConnected();
     }
     
-    public static void waitForTask(DBInsertArticlesTask task) {
-        synchronized (task) {
-            int count = 0;
-            while (true) {
-                try {
-                    count += 300;
-                    task.wait(300);
-                } catch (InterruptedException e) {
-                }
-                if (task.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                    return;
-                }
-                if (count > 2999) {
-                    break;
-                }
-            }
-        }
-    }
+    // public static void waitForTask(DBInsertArticlesTask task) {
+    // synchronized (task) {
+    // int count = 0;
+    // while (true) {
+    // try {
+    // count += 300;
+    // task.wait(300);
+    // } catch (InterruptedException e) {
+    // }
+    // if (task.getStatus().equals(AsyncTask.Status.FINISHED)) {
+    // return;
+    // }
+    // if (count > 2999) {
+    // break;
+    // }
+    // }
+    // }
+    // }
 }
