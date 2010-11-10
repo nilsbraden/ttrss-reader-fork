@@ -238,7 +238,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
             Log.d(Utils.TAG, "Fetching Articles from DB...");
             ret = new LinkedHashSet<ArticleItem>(Data.getInstance().getArticles(mFeedId));
         }
-
+        
         if (ret != null) {
             if (Controller.getInstance().isDisplayOnlyUnread()) {
                 Set<ArticleItem> temp = new LinkedHashSet<ArticleItem>();

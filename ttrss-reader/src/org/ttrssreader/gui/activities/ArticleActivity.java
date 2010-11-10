@@ -292,8 +292,8 @@ public class ArticleActivity extends Activity {
             // don't accept the fling if it's too short as it may conflict with a button push
             if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
                 
-//                Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
-//                        + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
+                // Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
+                // + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
                 
                 if (velocityX > 0) {
                     Log.d(Utils.TAG, "Fling right");

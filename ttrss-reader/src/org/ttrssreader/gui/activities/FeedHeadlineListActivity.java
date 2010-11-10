@@ -159,7 +159,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
             mFeedHeadlineListView.setAdapter(mAdapter);
         }
-
+        
         setProgressBarIndeterminateVisibility(true);
         refresher = new Refresher(this, mAdapter);
         refresher.execute();
@@ -242,7 +242,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         return super.onMenuItemSelected(featureId, item);
     }
-
+    
     private void openNextFeed(int direction) {
         if (mFeedId < 0)
             return;
@@ -294,8 +294,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
                 flingDetected = true;
                 
-//                Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
-//                        + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
+                // Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
+                // + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
                 
                 if (velocityX > 0) {
                     openNextFeed(-1);
@@ -310,8 +310,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-//            if (distanceX > distanceY)
-//                return true;
+            // if (distanceX > distanceY)
+            // return true;
             return false;
         }
         
@@ -386,7 +386,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             try {
                 List<ArticleItem> list = new ArrayList<ArticleItem>();
                 list.addAll((Set<ArticleItem>) refresher.get());
-                refresher= null;
+                refresher = null;
                 mAdapter.setArticles(list);
                 mAdapter.notifyDataSetChanged();
             } catch (Exception e) {

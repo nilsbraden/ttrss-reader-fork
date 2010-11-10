@@ -833,37 +833,6 @@ public class DBHelper {
         return ret;
     }
     
-//    public Set<CategoryItem> getCategoryCounters() {
-//        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
-//        ret.addAll(getVirtualCategories());
-//        ret.addAll(getCategories());
-//        return ret;
-//    }
-//    
-//    public Set<FeedItem> getFeedCounters() {
-//        Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
-//        
-//        for (CategoryItem c : getCategories()) {
-//            ret.addAll(getFeeds(c.getId()));
-//        }
-//        
-//        return ret;
-//    }
-//    
-//    public void setCounters(Map<CategoryItem, Set<FeedItem>> map) {
-//        for (CategoryItem c : map.keySet()) {
-//            updateCategoryUnreadCount(c.getId(), c.getUnread());
-//            
-//            Set<FeedItem> set = map.get(c);
-//            if (set == null)
-//                continue;
-//            
-//            for (FeedItem f : set) {
-//                updateFeedUnreadCount(f.getId(), f.getUnread());
-//            }
-//        }
-//    }
-    
     // *******************************************
     
     private ArticleItem handleArticleCursor(Cursor c) {

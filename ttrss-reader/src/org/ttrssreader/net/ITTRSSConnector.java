@@ -29,7 +29,7 @@ public interface ITTRSSConnector {
      * 
      * @return the number of unread articles.
      */
-//    public int getTotalUnread();
+    // public int getTotalUnread();
     
     /**
      * Retrieves a Set of Maps which map Strings to the information, e.g. "id" -> 42, containing the counters for every

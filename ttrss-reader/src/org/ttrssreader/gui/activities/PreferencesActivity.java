@@ -30,7 +30,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class PreferencesActivity extends PreferenceActivity {
-
+    
     public static final int ACTIVITY_SHOW_PREFERENCES = 43;
     private static final int MENU_RESET_PREFERENCES = Menu.FIRST;
     

@@ -118,7 +118,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     }
     
     private void doRefresh() {
-
+        
         // Only update if no refresher already running
         if (refresher != null) {
             if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
@@ -133,7 +133,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             mAdapter = new FeedListAdapter(this, mCategoryId);
             mFeedListView.setAdapter(mAdapter);
         }
-
+        
         setProgressBarIndeterminateVisibility(true);
         refresher = new Refresher(this, mAdapter);
         refresher.execute();
@@ -149,12 +149,12 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
                 return;
             }
         }
-
+        
         if (mAdapter == null) {
             mAdapter = new FeedListAdapter(this, mCategoryId);
             mFeedListView.setAdapter(mAdapter);
         }
-
+        
         updater = new Updater(this, mAdapter);
         new Handler().postDelayed(new Runnable() {
             public void run() {

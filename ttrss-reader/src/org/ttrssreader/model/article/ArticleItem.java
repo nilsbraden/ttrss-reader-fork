@@ -21,7 +21,7 @@ import java.util.Set;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
-public class ArticleItem implements Comparable<ArticleItem>{
+public class ArticleItem implements Comparable<ArticleItem> {
     
     private int mId;
     private String mTitle;
@@ -61,8 +61,8 @@ public class ArticleItem implements Comparable<ArticleItem>{
     /*
      * Article-ID and Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
      */
-    public ArticleItem(String id, String feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
-            Date updateDate, String content, Set<String> attachments) {
+    public ArticleItem(String id, String feedId, String title, boolean isUnread, String articleUrl,
+            String articleCommentUrl, Date updateDate, String content, Set<String> attachments) {
         setId(id);
         setTitle(title);
         setFeedId(feedId);
@@ -173,15 +173,15 @@ public class ArticleItem implements Comparable<ArticleItem>{
     public void setUpdateDate(Date mUpdateDate) {
         this.mUpdateDate = mUpdateDate;
     }
-
+    
     public Set<String> getAttachments() {
         return attachments;
     }
-
+    
     public void setAttachments(Set<String> attachments) {
         this.attachments = attachments;
     }
-
+    
     @Override
     public int compareTo(ArticleItem ai) {
         return ai.getUpdateDate().compareTo(this.getUpdateDate());
@@ -199,7 +199,7 @@ public class ArticleItem implements Comparable<ArticleItem>{
     
     @Override
     public int hashCode() {
-        return this.getId()+"".hashCode();
+        return this.getId() + "".hashCode();
     }
     
 }
