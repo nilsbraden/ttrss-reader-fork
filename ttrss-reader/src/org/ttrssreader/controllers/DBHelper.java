@@ -412,7 +412,7 @@ public class DBHelper {
             cv.put("isUnread", 0);
             
             synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "feedId=?", new String[] { f.getId() + "" });
+                db.update(TABLE_ARTICLES, cv, "feedId=" + f.getId(), null);
             }
         }
     }
@@ -441,7 +441,7 @@ public class DBHelper {
         
         if (count > 0) {
             synchronized (TABLE_CATEGORIES) {
-                db.update(TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+                db.update(TABLE_CATEGORIES, cv, "id=" + id, null);
             }
         }
     }
@@ -540,10 +540,8 @@ public class DBHelper {
             return;
         }
         
-        String[] args = new String[] { id + "" };
-        
         synchronized (TABLE_CATEGORIES) {
-            db.delete(TABLE_CATEGORIES, "id=?", args);
+            db.delete(TABLE_CATEGORIES, "id=" + id, null);
         }
     }
     
@@ -552,10 +550,8 @@ public class DBHelper {
             return;
         }
         
-        String[] args = new String[] { id + "" };
-        
         synchronized (TABLE_FEEDS) {
-            db.delete(TABLE_FEEDS, "id=?", args);
+            db.delete(TABLE_FEEDS, "id=" + id, null);
         }
     }
     
@@ -564,10 +560,8 @@ public class DBHelper {
             return;
         }
         
-        String[] args = new String[] { id + "" };
-        
         synchronized (TABLE_ARTICLES) {
-            db.delete(TABLE_ARTICLES, "id=?", args);
+            db.delete(TABLE_ARTICLES, "id=" + id, null);
         }
     }
     
@@ -611,10 +605,8 @@ public class DBHelper {
             return;
         }
         
-        String[] args = new String[] { olderThenThis.getTime() + "" };
-        
         synchronized (TABLE_ARTICLES) {
-            db.delete(TABLE_ARTICLES, "updateDate<?", args);
+            db.delete(TABLE_ARTICLES, "updateDate<" + olderThenThis.getTime(), null);
         }
     }
     
@@ -623,11 +615,10 @@ public class DBHelper {
             return;
         }
         
-        String[] args = new String[] { "select id from " + TABLE_ARTICLES
-                + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number };
+        String idList = "select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
         
         synchronized (TABLE_ARTICLES) {
-            db.delete(TABLE_ARTICLES, "id in(?)", args);
+            db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
         }
     }
     
@@ -846,7 +837,7 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_CATEGORIES, null, "id < 1", null, null, null, "id ASC");
+            c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
             
             while (!c.isAfterLast()) {
                 CategoryItem ci = handleCategoryCursor(c);
@@ -873,7 +864,7 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_CATEGORIES, null, "id > 0", null, null, null, "upper(title) DESC");
+            c = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) DESC");
             
             while (!c.isAfterLast()) {
                 CategoryItem ci = handleCategoryCursor(c);

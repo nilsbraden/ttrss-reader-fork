@@ -94,16 +94,18 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         String strResponse = "";
         
         HttpPost httpPost;
+        HttpParams httpParams;
+        HttpClient httpclient;
         try {
             httpPost = new HttpPost(url);
-        } catch (IllegalArgumentException e) {
+            httpParams = httpPost.getParams();
+            httpclient = HttpClientFactory.createInstance(httpParams);
+        } catch (Exception e) {
             Log.e(Utils.TAG, "Error creating HTTP-Connection: " + e.getMessage());
-            e.printStackTrace();
+            mHasLastError = true;
+            mLastError = "Error creating HTTP-Connection: " + e.getMessage();
             return "";
         }
-        
-        HttpParams httpParams = httpPost.getParams();
-        HttpClient httpclient = HttpClientFactory.createInstance(httpParams);
         
         try {
             HttpResponse response = httpclient.execute(httpPost);
