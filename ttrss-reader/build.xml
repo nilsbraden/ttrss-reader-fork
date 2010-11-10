@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ttrss-reader-fork" default="help">
 
-    <!-- The local.properties file is created and updated by the 'android' tool.
+	<!-- The local.properties file is created and updated by the 'android' tool.
          It contains the path to the SDK. It should *NOT* be checked in in Version
          Control Systems. -->
-    <property file="local.properties" />
+	<property file="local.properties" />
 
-    <!-- The build.properties file can be created by you and is never touched
+	<!-- The build.properties file can be created by you and is never touched
          by the 'android' tool. This is the place to change some of the default property values
          used by the Ant rules.
          Here are some properties you may want to change/update:
@@ -26,29 +26,27 @@
          should be checked in in Version Control Systems.
 
          -->
-    <property file="build.properties" />
+	<property file="build.properties" />
 
-    <!-- The default.properties file is created and updated by the 'android' tool, as well
+	<!-- The default.properties file is created and updated by the 'android' tool, as well
          as ADT.
          This file is an integral part of the build system for your application and
          should be checked in in Version Control Systems. -->
-    <property file="default.properties" />
+	<property file="default.properties" />
 
-    <!-- Custom Android task to deal with the project target, and import the proper rules.
+	<!-- Custom Android task to deal with the project target, and import the proper rules.
          This requires ant 1.6.0 or above. -->
-    <path id="android.antlibs">
-        <pathelement path="${sdk.dir}/tools/lib/anttasks.jar" />
-        <pathelement path="${sdk.dir}/tools/lib/sdklib.jar" />
-        <pathelement path="${sdk.dir}/tools/lib/androidprefs.jar" />
-        <pathelement path="${sdk.dir}/tools/lib/apkbuilder.jar" />
-        <pathelement path="${sdk.dir}/tools/lib/jarutils.jar" />
-    </path>
+	<path id="android.antlibs">
+		<pathelement path="${sdk.dir}/tools/lib/anttasks.jar" />
+		<pathelement path="${sdk.dir}/tools/lib/sdklib.jar" />
+		<pathelement path="${sdk.dir}/tools/lib/androidprefs.jar" />
+		<pathelement path="${sdk.dir}/tools/lib/apkbuilder.jar" />
+		<pathelement path="${sdk.dir}/tools/lib/jarutils.jar" />
+	</path>
 
-    <taskdef name="setup"
-        classname="com.android.ant.SetupTask"
-        classpathref="android.antlibs" />
+	<taskdef name="setup" classname="com.android.ant.SetupTask" classpathref="android.antlibs" />
 
-    <!-- Execute the Android Setup task that will setup some properties specific to the target,
+	<!-- Execute the Android Setup task that will setup some properties specific to the target,
          and import the build rules files.
 
          The rules file is imported from
@@ -62,10 +60,10 @@
          This will ensure that the properties are setup correctly but that your customized
          build steps are used.
     -->
-    <setup />
-	
+	<setup />
+
 	<!-- Added to avoid eclipse-error stating the "Default target help does not exist in this project" -->
-	<target name="help" >
+	<target name="help">
 	</target>
 
 

@@ -34,6 +34,7 @@ public class Refresher extends AsyncTask<String, Integer, Set<?>> {
     
     private Handler handler = new Handler() {
         
+        @Override
         public void handleMessage(Message msg) {
             mParent.onRefreshEnd();
         }

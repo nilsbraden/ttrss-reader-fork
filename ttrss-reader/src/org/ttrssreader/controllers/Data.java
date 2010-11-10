@@ -62,26 +62,32 @@ public class Data {
     }
     
     public synchronized void initializeData(Context context) {
-        if (context != null)
+        if (context != null) {
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        
-        // Set new update-time if necessary
-        if (mCountersUpdated < mNewArticlesUpdated)
-            mCountersUpdated = mNewArticlesUpdated;
-        
-        for (int article : mArticlesUpdated.keySet()) {
-            if (mArticlesUpdated.get(article) < mNewArticlesUpdated)
-                mArticlesUpdated.put(article, mNewArticlesUpdated);
         }
         
-        if (mFeedsUpdated < mNewArticlesUpdated)
+        // Set new update-time if necessary
+        if (mCountersUpdated < mNewArticlesUpdated) {
+            mCountersUpdated = mNewArticlesUpdated;
+        }
+        
+        for (int article : mArticlesUpdated.keySet()) {
+            if (mArticlesUpdated.get(article) < mNewArticlesUpdated) {
+                mArticlesUpdated.put(article, mNewArticlesUpdated);
+            }
+        }
+        
+        if (mFeedsUpdated < mNewArticlesUpdated) {
             mFeedsUpdated = mNewArticlesUpdated;
+        }
         
-        if (mVirtCategoriesUpdated < mNewArticlesUpdated)
+        if (mVirtCategoriesUpdated < mNewArticlesUpdated) {
             mVirtCategoriesUpdated = mNewArticlesUpdated;
+        }
         
-        if (mCategoriesUpdated < mNewArticlesUpdated)
+        if (mCategoriesUpdated < mNewArticlesUpdated) {
             mCategoriesUpdated = mNewArticlesUpdated;
+        }
         
         vCategoryAllArticles = (String) context.getText(R.string.VCategory_AllArticles);
         vCategoryFreshArticles = (String) context.getText(R.string.VCategory_FreshArticles);
@@ -179,8 +185,9 @@ public class Data {
     @SuppressWarnings("unchecked")
     public Set<ArticleItem> updateArticles(int feedId, boolean displayOnlyUnread) {
         Long time = mArticlesUpdated.get(feedId);
-        if (time == null)
+        if (time == null) {
             time = new Long(0);
+        }
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
@@ -192,8 +199,9 @@ public class Data {
                 limit = (l > limit ? l : 30);
             }
             
-            if (feedId < 0 && feedId > -10)
+            if (feedId < 0 && feedId > -10) {
                 limit = getCategoryUnreadCount(feedId);
+            }
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
@@ -206,8 +214,9 @@ public class Data {
             
             Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(set);
             
-            if (temp.size() == articles.size())
+            if (temp.size() == articles.size()) {
                 articles = temp;
+            }
             
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
             
@@ -231,8 +240,9 @@ public class Data {
         resetCounterTime();
         updateCounters();
         
-        if (!Utils.isOnline(cm))
+        if (!Utils.isOnline(cm)) {
             return;
+        }
         
         Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = Controller.getInstance().getConnector()
                 .getNewArticles(1, mNewArticlesUpdated);
