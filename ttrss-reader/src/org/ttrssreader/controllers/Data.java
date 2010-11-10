@@ -236,10 +236,6 @@ public class Data {
             return;
         }
         
-        // Force-update counters
-        resetCounterTime();
-        updateCounters();
-        
         if (!Utils.isOnline(cm)) {
             return;
         }
@@ -334,9 +330,6 @@ public class Data {
         DBHelper.getInstance().insertCategories(virtCategories);
         
         if (Utils.isOnline(cm)) {
-            resetCounterTime();
-            updateCounters();
-            
             mVirtCategoriesUpdated = System.currentTimeMillis();
             return (DBHelper.getInstance().getVirtualCategories());
         }
