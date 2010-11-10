@@ -136,13 +136,13 @@ public class Data {
                 int counter = (Integer) m.get(TTRSSJsonConnector.COUNTER_COUNTER);
                 
                 if (cat && id >= 0) { // Category
-                    Log.v(Utils.TAG, String.format("Category, id: %s | cat: %s | count: %s", id, cat, counter));
+                // Log.v(Utils.TAG, String.format("Category, id: %s | cat: %s | count: %s", id, cat, counter));
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 } else if (!cat && id > 0) { // Feed
-                    Log.v(Utils.TAG, String.format("Feed, id: %s | cat: %s | count: %s", id, cat, counter));
+                // Log.v(Utils.TAG, String.format("Feed, id: %s | cat: %s | count: %s", id, cat, counter));
                     DBHelper.getInstance().updateFeedUnreadCount(id, counter);
                 } else if (!cat && id < 0) { // Virtual Category
-                    Log.v(Utils.TAG, String.format("Virtual Category, id: %s | cat: %s | count: %s", id, cat, counter));
+                // Log.v(Utils.TAG, String.format("Virtual Category, id: %s | cat: %s | count: %s", id, cat, counter));
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 }
                 
@@ -169,12 +169,12 @@ public class Data {
             
             for (ArticleItem a : Controller.getInstance().getConnector().getArticle(set)) {
                 if (a.getId() == articleId) {
-                    Log.v(Utils.TAG, "Found article: " + articleId);
+                    Log.d(Utils.TAG, "Found article: " + articleId);
                     return a;
                 }
             }
         }
-        Log.v(Utils.TAG, "Couldn't find article: " + articleId);
+        Log.d(Utils.TAG, "Couldn't find article: " + articleId);
         return null;
     }
     
