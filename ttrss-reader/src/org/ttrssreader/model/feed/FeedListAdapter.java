@@ -17,6 +17,7 @@
 package org.ttrssreader.model.feed;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -196,15 +197,17 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     
     @Override
     public Set<?> refreshData() {
-        Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
+        Set<FeedItem> ret;
         
         if (mFeedsTemp != null && mFeedsTemp.size() > 0) {
-            Log.d(Utils.TAG, "Using Feeds from Update...");
+            List<FeedItem> feeds = new ArrayList<FeedItem>(mFeedsTemp);
+            Collections.sort(feeds);
+            ret = new LinkedHashSet<FeedItem>(feeds);
             ret.addAll(mFeedsTemp);
             mFeedsTemp = null;
         } else {
             Log.d(Utils.TAG, "Fetching Feeds from DB...");
-            ret.addAll(Data.getInstance().getFeeds(mCategoryId));
+            ret = new LinkedHashSet<FeedItem>(Data.getInstance().getFeeds(mCategoryId));
         }
         
         if (ret != null) {

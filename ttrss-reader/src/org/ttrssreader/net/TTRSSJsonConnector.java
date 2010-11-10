@@ -68,6 +68,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String COMMENT_URL = "comments";
     private static final String ATTACHMENTS = "attachments";
     
+    public static final String COUNTER_KIND = "kind";
     public static final String COUNTER_CAT = "cat";
     public static final String COUNTER_ID = "id";
     public static final String COUNTER_COUNTER = "counter";
@@ -499,8 +500,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 Integer counter = 0;
                 
                 for (int j = 0; j < names.length(); j++) {
-                    if (names.getString(j).equals(COUNTER_CAT)) {
-                        cat = values.getBoolean(j);
+                    if (names.getString(j).equals(COUNTER_KIND)) {
+                        cat = values.getString(j).equals(COUNTER_CAT);
                     } else if (names.getString(j).equals(COUNTER_ID)) {
                         // Check if id is a string, then it would be a global counter
                         if (values.getString(j).equals("global-unread")
@@ -516,7 +517,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 
                 // Only add entrys with integer-ID
                 if (id != Integer.MIN_VALUE) {
-                    // TODO: Find a suitable data-structure for the return-value
+                    
+                    if (id < 0) 
+                        cat = true;
+                    
                     m = new HashMap<String, Object>();
                     m.put(COUNTER_CAT, cat);
                     m.put(COUNTER_ID, id);
@@ -691,9 +695,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     
     @Override
     public Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time) {
+        /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
         Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, Set<ArticleItem>>>();
         
-        /* Not yet integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
             login();
             if (mHasLastError)

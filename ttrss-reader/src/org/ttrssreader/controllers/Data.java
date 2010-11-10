@@ -322,11 +322,11 @@ public class Data {
         }
         
         Set<CategoryItem> virtCategories = new LinkedHashSet<CategoryItem>();
-        virtCategories.add(new CategoryItem(-4, vCategoryAllArticles, 0));
-        virtCategories.add(new CategoryItem(-3, vCategoryFreshArticles, 0));
-        virtCategories.add(new CategoryItem(-2, vCategoryPublishedArticles, 0));
-        virtCategories.add(new CategoryItem(-1, vCategoryStarredArticles, 0));
-        virtCategories.add(new CategoryItem(0, feedUncategorizedFeeds, 0));
+        virtCategories.add(new CategoryItem(-4, vCategoryAllArticles, getCategoryUnreadCount(-4)));
+        virtCategories.add(new CategoryItem(-3, vCategoryFreshArticles, getCategoryUnreadCount(-3)));
+        virtCategories.add(new CategoryItem(-2, vCategoryPublishedArticles, getCategoryUnreadCount(-2)));
+        virtCategories.add(new CategoryItem(-1, vCategoryStarredArticles, getCategoryUnreadCount(-1)));
+        virtCategories.add(new CategoryItem(0, feedUncategorizedFeeds, getCategoryUnreadCount(0)));
         DBHelper.getInstance().insertCategories(virtCategories);
         
         if (Utils.isOnline(cm)) {

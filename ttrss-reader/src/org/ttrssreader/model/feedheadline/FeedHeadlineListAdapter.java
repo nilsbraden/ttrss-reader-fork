@@ -17,6 +17,7 @@
 package org.ttrssreader.model.feedheadline;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -225,15 +226,17 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     @Override
     public Set<?> refreshData() {
-        Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
+        Set<ArticleItem> ret;
         
         if (mArticlesTemp != null && mArticlesTemp.size() > 0) {
-            Log.d(Utils.TAG, "Using Articles from Update...");
+            List<ArticleItem> articles = new ArrayList<ArticleItem>(mArticlesTemp);
+            Collections.sort(articles);
+            ret = new LinkedHashSet<ArticleItem>(articles);
             ret.addAll(mArticlesTemp);
             mArticlesTemp = null;
         } else {
             Log.d(Utils.TAG, "Fetching Articles from DB...");
-            ret.addAll(Data.getInstance().getArticles(mFeedId));
+            ret = new LinkedHashSet<ArticleItem>(Data.getInstance().getArticles(mFeedId));
         }
 
         if (ret != null) {
