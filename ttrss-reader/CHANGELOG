@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.7.5 ==
+  * Fixed sorting of categories
+  * Enhanced mediafile-download and notification
+
 == Version 0.7.4 ==
   * Minor bugs fixed
   * Better fling-support for headline-list and articles

@@ -121,9 +121,15 @@ public class Utils {
         return result;
     }
     
+    /**
+     * Checks if the option to work offline is set or if the data-connection isn't established, else returns true. If we
+     * are about to connect it waits for maximum 2 seconds and then returns the network state without waiting anymore.
+     * 
+     * @param cm
+     * @return
+     */
     public static boolean isOnline(ConnectivityManager cm) {
         if (Controller.getInstance().isWorkOffline()) {
-            // Log.i(Utils.TAG, "isOnline: Config has isWorkOffline activated...");
             return false;
         } else if (cm == null) {
             return false;
@@ -132,7 +138,6 @@ public class Utils {
         NetworkInfo info = cm.getActiveNetworkInfo();
         
         if (info == null) {
-            // Log.i(Utils.TAG, "isOnline: No network available...");
             return false;
         }
         
@@ -140,7 +145,6 @@ public class Utils {
             int wait = 0;
             while (info.isConnectedOrConnecting() && !info.isConnected()) {
                 try {
-                    // Log.d(Utils.TAG, "isOnline: Waiting for " + wait + " seconds...");
                     wait += 100;
                     Utils.class.wait(100);
                 } catch (InterruptedException e) {
@@ -153,26 +157,7 @@ public class Utils {
             }
         }
         
-        // Log.i(Utils.TAG, "isOnline: Network available, State: " + info.isConnected());
         return info.isConnected();
     }
     
-    // public static void waitForTask(DBInsertArticlesTask task) {
-    // synchronized (task) {
-    // int count = 0;
-    // while (true) {
-    // try {
-    // count += 300;
-    // task.wait(300);
-    // } catch (InterruptedException e) {
-    // }
-    // if (task.getStatus().equals(AsyncTask.Status.FINISHED)) {
-    // return;
-    // }
-    // if (count > 2999) {
-    // break;
-    // }
-    // }
-    // }
-    // }
 }

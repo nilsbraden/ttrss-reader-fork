@@ -136,13 +136,14 @@ public class Data {
                 int counter = (Integer) m.get(TTRSSJsonConnector.COUNTER_COUNTER);
                 
                 if (cat && id >= 0) { // Category
-                // Log.v(Utils.TAG, String.format("Category, id: %s | cat: %s | count: %s", id, cat, counter));
+                    // Log.v(Utils.TAG, String.format("Category, id: %s | cat: %s | count: %s", id, cat, counter));
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 } else if (!cat && id > 0) { // Feed
-                // Log.v(Utils.TAG, String.format("Feed, id: %s | cat: %s | count: %s", id, cat, counter));
+                    // Log.v(Utils.TAG, String.format("Feed, id: %s | cat: %s | count: %s", id, cat, counter));
                     DBHelper.getInstance().updateFeedUnreadCount(id, counter);
                 } else if (!cat && id < 0) { // Virtual Category
-                // Log.v(Utils.TAG, String.format("Virtual Category, id: %s | cat: %s | count: %s", id, cat, counter));
+                    // Log.v(Utils.TAG, String.format("Virtual Category, id: %s | cat: %s | count: %s", id, cat,
+                    // counter));
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 }
                 
@@ -219,7 +220,6 @@ public class Data {
             DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
             task.execute(articles);
             
-            // Utils.waitForTask(task);
             return articles;
         }
         return null;
@@ -255,9 +255,6 @@ public class Data {
         
         DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
         task.execute(articles);
-        
-        // Why were we waiting here?
-        // Utils.waitForTask(task);
     }
     
     // *** FEEDS ************************************************************************

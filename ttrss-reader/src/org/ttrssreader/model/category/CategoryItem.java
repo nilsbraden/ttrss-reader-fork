@@ -95,6 +95,12 @@ public class CategoryItem implements Comparable<CategoryItem> {
     
     @Override
     public int compareTo(CategoryItem ci) {
+        // Sort by Id if Id is 0 or smaller, else sort by Title
+        if (this.getId() <= 0 || ci.getId() <= 0) {
+            Integer thisInt = this.getId();
+            Integer thatInt = ci.getId();
+            return thisInt.compareTo(thatInt);
+        }
         return this.getTitle().compareToIgnoreCase(ci.getTitle());
     }
     
