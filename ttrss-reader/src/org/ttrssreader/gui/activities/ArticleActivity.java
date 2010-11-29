@@ -37,12 +37,12 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
-import android.view.GestureDetector.OnGestureListener;
 import android.webkit.WebView;
 import android.widget.TextView;
 
@@ -378,20 +378,20 @@ public class ArticleActivity extends Activity {
         for (String url : attachments) {
             ret.append("<br>\n");
             
-            boolean media = false;
-            for (String s : Utils.MEDIA_EXTENSIONS) {
+            boolean image = false;
+            for (String s : Utils.IMAGE_EXTENSIONS) {
                 if (url.toLowerCase().endsWith(s))
-                    media = true;
+                    image = true;
             }
             
-            if (media) {
-                ret.append("<a href=\"");
-                ret.append(url);
-                ret.append("\">" + (String) getText(R.string.ArticleActivity_MediaPlay) + "</a>");
-            } else {
+            if (image) {
                 ret.append("<img src=\"");
                 ret.append(url);
                 ret.append("\" /><br>\n");
+            } else {
+                ret.append("<a href=\"");
+                ret.append(url);
+                ret.append("\">" + (String) getText(R.string.ArticleActivity_MediaPlay) + "</a>");
             }
         }
         

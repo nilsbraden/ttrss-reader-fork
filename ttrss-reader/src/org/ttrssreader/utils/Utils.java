@@ -33,9 +33,9 @@ import android.util.Log;
 public class Utils {
     
     /**
-     * Supported extensions of multimedia files, only audio/video, no images.
+     * Supported extensions of imagefiles, see http://developer.android.com/guide/appendix/media-formats.html
      */
-    public static final String[] MEDIA_EXTENSIONS = { "3gp", "mp4", "wav", "mp3", "ogg", "m4a" };
+    public static final String[] IMAGE_EXTENSIONS = { "jpeg", "jpg", "gif", "png", "bmp" };
     
     /**
      * The TAG for Log-Output
