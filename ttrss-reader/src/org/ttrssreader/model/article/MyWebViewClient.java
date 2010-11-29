@@ -16,9 +16,9 @@
 package org.ttrssreader.model.article;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,16 +47,16 @@ public class MyWebViewClient extends WebViewClient {
         
         Log.e(Utils.TAG, "Link clicked: " + url);
         context = view.getContext();
-        boolean media = false;
         
-        for (String s : Utils.MEDIA_EXTENSIONS) {
+        boolean image = false;
+        for (String s : Utils.IMAGE_EXTENSIONS) {
             if (url.toLowerCase().contains(s)) {
-                media = true;
+                image = true;
                 break;
             }
         }
         
-        if (media) {
+        if (!image) {
             // @formatter:off
             final CharSequence[] items = {
                     (String) context.getText(R.string.WebViewClientActivity_Display),
@@ -130,36 +130,51 @@ public class MyWebViewClient extends WebViewClient {
             // Build name as "download_123801230712", then try to extract a proper name from URL
             String name = "download_" + System.currentTimeMillis();
             if (!url.getFile().equals("")) {
-                int pos = url.getFile().lastIndexOf("/");
-                if (pos > 0)
-                    name = url.getFile().substring(pos + 1);
+                String n = url.getFile();
+                name = n.substring(1).replaceAll("[^A-Za-z0-9_.]", "");
+                
+                if (name.contains(".") && name.length() > name.indexOf(".") + 4) {
+                    // Try to guess the position of the extension..
+                    name = name.substring(0, name.indexOf(".") + 4);
+                } else if (name.length() == 0) {
+                    // just to make sure..
+                    name = "download_" + System.currentTimeMillis();
+                }
             }
             
             // Path: /sdcard/Android/data/org.ttrssreader/files/
             StringBuilder sb = new StringBuilder();
-            sb.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH)
-                    .append(File.separator).append(name);
-            File file = new File(sb.toString());
             
+            sb.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH);
+            File folder = new File(sb.toString());
+            
+            if (!folder.exists())
+                folder.mkdirs();
+            
+            RandomAccessFile file = null;
             try {
+                file = new RandomAccessFile(new File(folder, name), "rw");
+                file.seek(file.length()); // try to resume downloads
+                
                 HttpURLConnection c = (HttpURLConnection) url.openConnection();
                 c.setRequestMethod("GET");
                 c.setDoOutput(true);
+                c.setRequestProperty("Range", "bytes=" + file.length() + "-"); // try to resume downloads
                 c.connect();
                 
-                FileOutputStream f = new FileOutputStream(file);
                 InputStream in = c.getInputStream();
-                
                 byte[] buffer = new byte[1024];
                 int len1 = 0;
                 while ((len1 = in.read(buffer)) != -1) {
-                    f.write(buffer, 0, len1);
+                    file.write(buffer, 0, len1);
                 }
-                f.close();
+                file.close();
                 
                 int time = (int) (System.currentTimeMillis() - start) / 1000;
-                Log.d(Utils.TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s.");
-                showNotification(file.getAbsolutePath(), time, false);
+                String path = folder + File.separator + name;
+                
+                Log.d(Utils.TAG, "Finished. Path: " + path + " Time: " + time + "s.");
+                showNotification(path, time, false);
                 
             } catch (IOException e) {
                 Log.d(Utils.TAG, "Error while downloading: " + e);
@@ -195,7 +210,8 @@ public class MyWebViewClient extends WebViewClient {
         n.flags |= Notification.FLAG_AUTO_CANCEL;
         n.setLatestEventInfo(context, title, path, intent);
         
-        mNotMan.notify(0, n);
+        // TODO replace with proper ID like articleID or something
+        mNotMan.notify(time - 1290000000, n);
     }
     
 }
