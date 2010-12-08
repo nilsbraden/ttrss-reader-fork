@@ -147,10 +147,10 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         FeedHeadlineListView sv;
         ArticleItem a = mArticles.get(position);
         if (convertView == null) {
-            sv = new FeedHeadlineListView(mContext, a.getTitle(), a.isUnread(), a.getUpdateDate());
+            sv = new FeedHeadlineListView(mContext, a.getTitle(), a.isUnread(), a.getUpdateDate(), a.isStarred());
         } else {
             sv = (FeedHeadlineListView) convertView;
-            sv.setIcon(a.isUnread());
+            sv.setIcon(a.isUnread(), a.isStarred());
             sv.setBoldTitleIfNecessary(a.isUnread());
             sv.setTitle(a.getTitle());
             sv.setUpdateDate(mContext, a.getUpdateDate());
@@ -161,7 +161,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     private class FeedHeadlineListView extends LinearLayout {
         
-        public FeedHeadlineListView(Context context, String title, boolean isUnread, Date updatedDate) {
+        public FeedHeadlineListView(Context context, String title, boolean isUnread, Date updatedDate, boolean isStarred) {
             super(context);
             
             this.setOrientation(HORIZONTAL);
@@ -170,8 +170,8 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
             // been specified in an XML file.
             
             mIcon = new ImageView(context);
-            setIcon(isUnread);
-            addView(mIcon, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
+            setIcon(isUnread, isStarred);
+            addView(mIcon, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
             
             LinearLayout textLayout = new LinearLayout(context);
             textLayout.setOrientation(VERTICAL);
@@ -207,11 +207,21 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
             }
         }
         
-        public void setIcon(boolean isUnread) {
+        public void setIcon(boolean isUnread, boolean isStarred) {
             if (isUnread) {
-                mIcon.setImageResource(R.drawable.articleunread48);
+                mIcon.setBackgroundResource(R.drawable.articleunread48);
             } else {
-                mIcon.setImageResource(R.drawable.articleread48);
+                mIcon.setBackgroundResource(R.drawable.articleread48);
+            }
+            
+            if (isStarred) {
+                mIcon.setImageResource(R.drawable.star_yellow48);
+            } else {
+                if (isUnread) {
+                    mIcon.setImageResource(R.drawable.articleunread48);
+                } else {
+                    mIcon.setImageResource(R.drawable.articleread48);
+                }
             }
         }
         

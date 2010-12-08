@@ -32,6 +32,7 @@ public class ArticleItem implements Comparable<ArticleItem> {
     private Date mUpdateDate;
     private String mContent;
     private Set<String> attachments;
+    private boolean mIsStarred;
     
     public ArticleItem() {
         setId(0);
@@ -43,10 +44,11 @@ public class ArticleItem implements Comparable<ArticleItem> {
         setArticleCommentUrl("");
         setContent("");
         setAttachments(null);
+        setStarred(false);
     }
     
     public ArticleItem(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
-            Date updateDate, String content, Set<String> attachments) {
+            Date updateDate, String content, Set<String> attachments, boolean isStarred) {
         setId(id);
         setTitle(title);
         setFeedId(feedId);
@@ -56,13 +58,14 @@ public class ArticleItem implements Comparable<ArticleItem> {
         setArticleCommentUrl(articleCommentUrl);
         setContent(content);
         setAttachments(attachments);
+        setStarred(isStarred);
     }
     
     /*
      * Article-ID and Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
      */
     public ArticleItem(String id, String feedId, String title, boolean isUnread, String articleUrl,
-            String articleCommentUrl, Date updateDate, String content, Set<String> attachments) {
+            String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred) {
         setId(id);
         setTitle(title);
         setFeedId(feedId);
@@ -72,6 +75,7 @@ public class ArticleItem implements Comparable<ArticleItem> {
         setArticleCommentUrl(articleCommentUrl);
         setContent(content);
         setAttachments(attachments);
+        setStarred(isStarred);
     }
     
     public int getId() {
@@ -180,6 +184,14 @@ public class ArticleItem implements Comparable<ArticleItem> {
     
     public void setAttachments(Set<String> attachments) {
         this.attachments = attachments;
+    }
+    
+    public boolean isStarred() {
+        return mIsStarred;
+    }
+    
+    public void setStarred(boolean mIsStarred) {
+        this.mIsStarred = mIsStarred;
     }
     
     @Override

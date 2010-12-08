@@ -39,7 +39,7 @@ public class DBHelper {
     private boolean mIsDBInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 37;
+    private static final int DATABASE_VERSION = 41;
     
     private static final String TABLE_CATEGORIES = "categories";
     private static final String TABLE_FEEDS = "feeds";
@@ -61,8 +61,8 @@ public class DBHelper {
     private static final String INSERT_ARTICLES = 
         "REPLACE INTO "
         + TABLE_ARTICLES
-        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments)" 
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred)" 
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     private static final String UPDATE_ARTICLES =
         "UPDATE "
@@ -103,7 +103,7 @@ public class DBHelper {
             return false;
         }
         
-        handleDBUpdate();
+        // handleDBUpdate();
         
         OpenHelper openHelper = new OpenHelper(context);
         db = openHelper.getWritableDatabase();
@@ -137,30 +137,6 @@ public class DBHelper {
         db.close();
         mInstance = null;
         mIsDBInitialized = false;
-    }
-    
-    private void handleDBUpdate() {
-        if (DATABASE_VERSION > Controller.getInstance().getDatabaseVersion()) {
-            Log.i(Utils.TAG, "Database-Version: " + Controller.getInstance().getDatabaseVersion() + " (Internal: "
-                    + DATABASE_VERSION + ")");
-            
-            OpenHelper openHelper = new OpenHelper(context);
-            db = openHelper.getWritableDatabase();
-            
-            dropDB();
-            
-            db.close();
-        }
-        
-        Controller.getInstance().setDatabaseVersion(DATABASE_VERSION);
-    }
-    
-    private void dropDB() {
-        if (context.getDatabasePath(DATABASE_NAME).delete()) {
-            Log.d(Utils.TAG, "dropDB(): database deleted.");
-        } else {
-            Log.d(Utils.TAG, "dropDB(): database NOT deleted.");
-        }
     }
     
     private boolean isDBAvailable() {
@@ -209,17 +185,23 @@ public class DBHelper {
                     + " articleCommentUrl TEXT," 
                     + " updateDate INTEGER, "
                     + " content TEXT, "
-                    + " attachments TEXT)");
+                    + " attachments TEXT, "
+                    + " isStarred INTEGER)");
             // @formatter:on
         }
         
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w("Example", "Upgrading database, this will drop tables and recreate.");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
-            onCreate(db);
+            if (oldVersion < 40) {
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to %s.", oldVersion, newVersion));
+                db.execSQL("ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isStarred INTEGER");
+            } else {
+                Log.w(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
+                onCreate(db);
+            }
         }
     }
     
@@ -300,7 +282,7 @@ public class DBHelper {
         }
     }
     
-    private void insertArticle(int articleId, int feedId, String title, boolean isUnread, String content, String articleUrl, String articleCommentUrl, Date updateDate, Set<String> attachments) {
+    private void insertArticle(int articleId, int feedId, String title, boolean isUnread, String content, String articleUrl, String articleCommentUrl, Date updateDate, Set<String> attachments, boolean isStarred) {
         
         if (!isDBAvailable()) {
             return;
@@ -337,6 +319,7 @@ public class DBHelper {
             insertArticle.bindLong(7, updateDate.getTime());
             insertArticle.bindString(8, content);
             insertArticle.bindString(9, att);
+            insertArticle.bindLong(10, (isStarred ? 1 : 0));
             insertArticle.executeInsert();
         }
         
@@ -353,7 +336,7 @@ public class DBHelper {
     
     private void insertArticleInternal(ArticleItem a) {
         insertArticle(a.getId(), a.getFeedId(), a.getTitle(), a.isUnread(), a.getContent(), a.getArticleUrl(),
-                a.getArticleCommentUrl(), a.getUpdateDate(), a.getAttachments());
+                a.getArticleCommentUrl(), a.getUpdateDate(), a.getAttachments(), a.isStarred());
     }
     
     public void insertArticles(Set<ArticleItem> list, int number) {
@@ -491,6 +474,25 @@ public class DBHelper {
         }
     }
     
+    public void updateArticleStarred(int id, boolean isStarred) {
+        if (!isDBAvailable()) {
+            return;
+        }
+        
+        ContentValues cv = new ContentValues();
+        cv.put("isStarred", isStarred);
+        
+        synchronized (TABLE_ARTICLES) {
+            db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+        }
+    }
+    
+    /**
+     * Apparently not used anymore so I marked it as deprecated
+     * 
+     * @param a
+     */
+    @Deprecated
     public void updateArticleContent(ArticleItem a) {
         if (!isDBAvailable()) {
             return;
@@ -905,7 +907,8 @@ public class DBHelper {
                     c.getString(5),                     // content
                     new Date(c.getLong(6)),             // articleUrl
                     c.getString(7),                     // articleCommentUrl
-                    parseAttachments(c.getString(8))    // attachments
+                    parseAttachments(c.getString(8)),   // attachments
+                    (c.getInt(9) != 0 ? true : false)   // isStarred
             );
             // @formatter:on
         }

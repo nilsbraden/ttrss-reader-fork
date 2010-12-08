@@ -66,6 +66,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String FEED_URL = "feed_url";
     private static final String COMMENT_URL = "comments";
     private static final String ATTACHMENTS = "attachments";
+    private static final String STARRED = "marked";
     
     public static final String COUNTER_KIND = "kind";
     public static final String COUNTER_CAT = "cat";
@@ -327,33 +328,37 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             String articleUrl = "";
             String articleCommentUrl = "";
             Set<String> attachments = new LinkedHashSet<String>();
+            boolean isStarred = false;
             
             for (int i = 0; i < names.length(); i++) {
-                if (names.getString(i).equals(ID)) {
+                String s = names.getString(i);
+                if (s.equals(ID)) {
                     id = values.getString(i);
-                } else if (names.getString(i).equals(TITLE)) {
+                } else if (s.equals(TITLE)) {
                     title = values.getString(i);
-                } else if (names.getString(i).equals(UNREAD)) {
+                } else if (s.equals(UNREAD)) {
                     isUnread = values.getBoolean(i);
-                } else if (names.getString(i).equals(UPDATED)) {
+                } else if (s.equals(UPDATED)) {
                     updated = values.getString(i);
-                } else if (names.getString(i).equals(FEED_ID)) {
+                } else if (s.equals(FEED_ID)) {
                     realFeedId = values.getString(i);
-                } else if (names.getString(i).equals(CONTENT)) {
+                } else if (s.equals(CONTENT)) {
                     content = values.getString(i);
-                } else if (names.getString(i).equals(URL)) {
+                } else if (s.equals(URL)) {
                     articleUrl = values.getString(i);
-                } else if (names.getString(i).equals(COMMENT_URL)) {
+                } else if (s.equals(COMMENT_URL)) {
                     articleCommentUrl = values.getString(i);
-                } else if (names.getString(i).equals(ATTACHMENTS)) {
+                } else if (s.equals(ATTACHMENTS)) {
                     attachments = parseDataForAttachments((JSONArray) values.get(i));
+                } else if (s.equals(STARRED)) {
+                    isStarred = values.getBoolean(i);
                 }
             }
             
             Date date = new Date(new Long(updated + "000").longValue());
             
             ret = new ArticleItem(id, realFeedId, title, isUnread, articleUrl, articleCommentUrl, date, content,
-                    attachments);
+                    attachments, isStarred);
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: parseDataForArticle(...), threw JSONException";
@@ -795,6 +800,19 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         }
         
         String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, mSessionId, sb, articleState, 2);
+        doRequest(url);
+    }
+    
+    @Override
+    public void setArticleStarred(int articlesId, int articleState) {
+        if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
+            login();
+            if (mHasLastError) {
+                return;
+            }
+        }
+        
+        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, mSessionId, articlesId, articleState, 0);
         doRequest(url);
     }
     
