@@ -111,6 +111,16 @@ public interface ITTRSSConnector {
     public void setArticleRead(Set<Integer> articlesIds, int articleState);
     
     /**
+     * Marks the given Article as "starred"/"not starred" depending on int articleState.
+     * 
+     * @param articlesId
+     *            the article.
+     * @param articleState
+     *            the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
+     */
+    public void setArticleStarred(int articlesId, int articleState);
+    
+    /**
      * Marks a feed or a category with all its feeds as read.
      * 
      * @param id

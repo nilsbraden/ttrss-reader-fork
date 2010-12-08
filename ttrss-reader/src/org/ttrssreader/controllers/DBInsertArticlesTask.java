@@ -37,11 +37,7 @@ public class DBInsertArticlesTask extends AsyncTask<Set<ArticleItem>, Void, Void
             Set<ArticleItem> set = args[0];
             
             if (set.size() > 0) {
-                // Log.i(Utils.TAG, "// DBInsertArticlesTask BEGIN: " + set.size());
                 DBHelper.getInstance().insertArticles(set, mMaxArticles);
-                // Log.i(Utils.TAG,
-                // "\\\\ DBInsertArticlesTask END: " + set.size() + " article(s) took "
-                // + (System.currentTimeMillis() - time) + "ms");
             }
         }
         return null;

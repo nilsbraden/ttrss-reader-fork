@@ -376,6 +376,10 @@ public class ArticleActivity extends Activity {
         StringBuilder ret = new StringBuilder(content);
         
         for (String url : attachments) {
+            if (url.length() == 0) {
+                continue;
+            }
+            
             ret.append("<br>\n");
             
             boolean image = false;

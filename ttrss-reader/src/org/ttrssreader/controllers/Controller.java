@@ -59,7 +59,6 @@ public class Controller {
     private boolean mDisplayOnlyUnread;
     private int mArticleLimit;
     
-    private int mDatabaseVersion;
     private long mLastUpdateTime;
     private String mLastVersionRun;
     private boolean isNewInstallation = false;
@@ -113,14 +112,12 @@ public class Controller {
             mDisplayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
             mArticleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
             
-            mDatabaseVersion = prefs.getInt(Constants.DATABASE_VERSION, Constants.DATABASE_VERSION_DEFAULT);
             mLastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
             mLastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         } catch (ClassCastException e) {
             Log.e(Utils.TAG,
                     "Error reading preferences, resetting prefs with changed datatypes: ArticleLimit, DatabaseVersion, LastUpdateTime, LastVersionRun");
             setArticleLimit(new Integer(1));
-            setDatabaseVersion(new Integer(1));
             setLastUpdateTime(new Long(1));
             setLastVersionRun(new String(""));
         }
@@ -269,15 +266,6 @@ public class Controller {
     }
     
     // ******* Internal Data ****************************
-    
-    public int getDatabaseVersion() {
-        return mDatabaseVersion;
-    }
-    
-    public void setDatabaseVersion(int databaseVersion) {
-        put(Constants.DATABASE_VERSION, databaseVersion);
-        this.mDatabaseVersion = databaseVersion;
-    }
     
     public long getLastUpdateTime() {
         return mLastUpdateTime;

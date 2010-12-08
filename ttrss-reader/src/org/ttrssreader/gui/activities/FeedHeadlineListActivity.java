@@ -27,6 +27,7 @@ import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
+import org.ttrssreader.model.StarredStateUpdater;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.feedheadline.FeedHeadlineListAdapter;
@@ -35,19 +36,21 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
-import android.os.AsyncTask.Status;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.GestureDetector.OnGestureListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class FeedHeadlineListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
@@ -87,6 +90,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         Data.getInstance().checkAndInitializeData(this);
         
         mFeedHeadlineListView = getListView();
+        registerForContextMenu(mFeedHeadlineListView);
         mGestureDetector = new GestureDetector(onGestureListener);
         
         Bundle extras = getIntent().getExtras();
@@ -207,6 +211,12 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     }
     
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add("Toggle \"starred\" status");
+    }
+    
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         
@@ -217,6 +227,18 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         item = menu.add(0, MENU_MARK_ALL_UNREAD, 0, R.string.FeedHeadlinesListActivity_MarkAllUnread);
         item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
         return true;
+    }
+    
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
+        ArticleItem a = (ArticleItem) mAdapter.getItem(cmi.position);
+        
+        if (a != null) {
+            new Updater(this, new StarredStateUpdater(a)).execute();
+            return true;
+        }
+        return false;
     }
     
     @Override
@@ -334,6 +356,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         }
     };
     
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (Controller.getInstance().isUseVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
