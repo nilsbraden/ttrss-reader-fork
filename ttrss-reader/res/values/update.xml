@@ -17,7 +17,7 @@
 -->
 <resources>
     <string-array name="updates">
-        <item>v0.7.6: Added support for the star/unstar feature, new Icon</item>
+        <item>v0.7.6: Added support for the star/unstar feature, Added support for the published-feature, New Application-Icon and Overlay-icons for star/publish </item>
         <item>v0.7.5: Fixed sorting of categories, enhanced mediafile download and notification</item>
         <item>v0.7.4: Minor bugs fixed, Better fling-support for headline-list and articles, no recommendation when typing URL, Implemented new API-methods from http://tt-rss.org to avoid the manual hacking, added german localisation</item>
         <item>v0.7.3: Problems with API from 1.4.3.1 are (hopefully) resolved. Please mail me if i am wrong :)</item>

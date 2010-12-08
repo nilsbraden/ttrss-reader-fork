@@ -4,7 +4,8 @@
 
 == Version 0.7.6 ==
   * Added support for the star/unstar feature
-  * New Icon
+  * Added support for the published-feature
+  * New Application-Icon and Overlay-icons for star/publish 
 
 == Version 0.7.5 ==
   * Fixed sorting of categories

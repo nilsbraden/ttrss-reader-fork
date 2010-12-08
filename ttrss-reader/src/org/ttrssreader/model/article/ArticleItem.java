@@ -33,6 +33,7 @@ public class ArticleItem implements Comparable<ArticleItem> {
     private String mContent;
     private Set<String> attachments;
     private boolean mIsStarred;
+    private boolean mIsPublished;
     
     public ArticleItem() {
         setId(0);
@@ -45,10 +46,11 @@ public class ArticleItem implements Comparable<ArticleItem> {
         setContent("");
         setAttachments(null);
         setStarred(false);
+        setPublished(false);
     }
     
     public ArticleItem(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
-            Date updateDate, String content, Set<String> attachments, boolean isStarred) {
+            Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished) {
         setId(id);
         setTitle(title);
         setFeedId(feedId);
@@ -59,13 +61,15 @@ public class ArticleItem implements Comparable<ArticleItem> {
         setContent(content);
         setAttachments(attachments);
         setStarred(isStarred);
+        setPublished(isPublished);
     }
     
     /*
      * Article-ID and Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
      */
     public ArticleItem(String id, String feedId, String title, boolean isUnread, String articleUrl,
-            String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred) {
+            String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred,
+            boolean isPublished) {
         setId(id);
         setTitle(title);
         setFeedId(feedId);
@@ -76,6 +80,7 @@ public class ArticleItem implements Comparable<ArticleItem> {
         setContent(content);
         setAttachments(attachments);
         setStarred(isStarred);
+        setPublished(isPublished);
     }
     
     public int getId() {
@@ -190,8 +195,16 @@ public class ArticleItem implements Comparable<ArticleItem> {
         return mIsStarred;
     }
     
-    public void setStarred(boolean mIsStarred) {
-        this.mIsStarred = mIsStarred;
+    public void setStarred(boolean isStarred) {
+        this.mIsStarred = isStarred;
+    }
+    
+    public boolean isPublished() {
+        return mIsPublished;
+    }
+    
+    public void setPublished(boolean isPublished) {
+        this.mIsPublished = isPublished;
     }
     
     @Override

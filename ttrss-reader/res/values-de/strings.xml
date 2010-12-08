@@ -50,8 +50,10 @@
     <string name="CategoryActivity.NoServer">Kein Server angegeben.</string>
     <string name="CategoryActivity.Donate">Möchten Sie spenden?</string>
     
-    <string name="FeedHeadlinesListActivity.MarkAllRead">Alle als gelesen markieren</string>
-    <string name="FeedHeadlinesListActivity.MarkAllUnread">Alle als ungelesen markieren</string>
+    <string name="FeedHeadlineListActivity.MarkAllRead">Alle als gelesen markieren</string>
+    <string name="FeedHeadlineListActivity.MarkAllUnread">Alle als ungelesen markieren</string>
+    <string name="FeedHeadlineListActivity.ToggleStarred">\"starred\"-Status des Artikels umschalten</string>
+    <string name="FeedHeadlineListActivity.TogglePublished">\"published\"-Status des Artikels umschalten</string>
     
     <string name="ConnectionPreferenceCategoryTitle">Verbindung</string>
     <string name="ConnectionUrlPreferenceTitle">Server-URL</string>

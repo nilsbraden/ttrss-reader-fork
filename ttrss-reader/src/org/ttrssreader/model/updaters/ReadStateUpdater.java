@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model;
+package org.ttrssreader.model.updaters;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,6 +25,7 @@ import java.util.Set;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;

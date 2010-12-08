@@ -13,35 +13,36 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model;
+package org.ttrssreader.model.updaters;
 
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
-public class StarredStateUpdater implements IUpdatable {
+public class PublishedStateUpdater implements IUpdatable {
     
     private ArticleItem mArticle;
     
     /**
-     * Toggles the articles' Starred-Status.
+     * Toggles the articles' Published-Status.
      */
-    public StarredStateUpdater(ArticleItem article) {
+    public PublishedStateUpdater(ArticleItem article) {
         mArticle = article;
     }
     
     @Override
     public void update() {
-        Log.i(Utils.TAG, "Updating Article-Starred-Status...");
+        Log.i(Utils.TAG, "Updating Article-Published-Status...");
         
+        Controller.getInstance().getConnector().setArticlePublished(mArticle.getId(), mArticle.isPublished() ? 0 : 1);
+        
+        DBHelper.getInstance().updateArticlePublished(mArticle.getId(), !mArticle.isPublished());
         // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
-        int newIntState = mArticle.isStarred() ? 0 : 1;
         
-        mArticle.setStarred(!mArticle.isStarred());
-        DBHelper.getInstance().updateArticleStarred(mArticle.getId(), !mArticle.isStarred());
-        Controller.getInstance().getConnector().setArticleStarred(mArticle.getId(), newIntState);
+        mArticle.setPublished(!mArticle.isPublished());
     }
     
 }

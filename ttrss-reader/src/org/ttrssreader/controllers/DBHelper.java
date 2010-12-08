@@ -39,7 +39,7 @@ public class DBHelper {
     private boolean mIsDBInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 41;
+    private static final int DATABASE_VERSION = 42;
     
     private static final String TABLE_CATEGORIES = "categories";
     private static final String TABLE_FEEDS = "feeds";
@@ -61,8 +61,8 @@ public class DBHelper {
     private static final String INSERT_ARTICLES = 
         "REPLACE INTO "
         + TABLE_ARTICLES
-        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred)" 
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished)" 
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     private static final String UPDATE_ARTICLES =
         "UPDATE "
@@ -186,22 +186,35 @@ public class DBHelper {
                     + " updateDate INTEGER, "
                     + " content TEXT, "
                     + " attachments TEXT, "
-                    + " isStarred INTEGER)");
+                    + " isStarred INTEGER, "
+                    + " isPublished INTEGER)");
             // @formatter:on
         }
         
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            boolean didUpgrade = false;
+            
             if (oldVersion < 40) {
                 Log.w(Utils.TAG, String.format("Upgrading database from %s to %s.", oldVersion, newVersion));
                 db.execSQL("ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isStarred INTEGER");
-            } else {
+                didUpgrade = true;
+            }
+            
+            if (oldVersion < 42) {
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to %s.", oldVersion, newVersion));
+                db.execSQL("ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isPublished INTEGER");
+                didUpgrade = true;
+            }
+            
+            if (didUpgrade == false) {
                 Log.w(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
                 onCreate(db);
             }
+            
         }
     }
     
@@ -282,7 +295,7 @@ public class DBHelper {
         }
     }
     
-    private void insertArticle(int articleId, int feedId, String title, boolean isUnread, String content, String articleUrl, String articleCommentUrl, Date updateDate, Set<String> attachments, boolean isStarred) {
+    private void insertArticle(int articleId, int feedId, String title, boolean isUnread, String content, String articleUrl, String articleCommentUrl, Date updateDate, Set<String> attachments, boolean isStarred, boolean isPublished) {
         
         if (!isDBAvailable()) {
             return;
@@ -320,6 +333,7 @@ public class DBHelper {
             insertArticle.bindString(8, content);
             insertArticle.bindString(9, att);
             insertArticle.bindLong(10, (isStarred ? 1 : 0));
+            insertArticle.bindLong(11, (isPublished ? 1 : 0));
             insertArticle.executeInsert();
         }
         
@@ -336,7 +350,7 @@ public class DBHelper {
     
     private void insertArticleInternal(ArticleItem a) {
         insertArticle(a.getId(), a.getFeedId(), a.getTitle(), a.isUnread(), a.getContent(), a.getArticleUrl(),
-                a.getArticleCommentUrl(), a.getUpdateDate(), a.getAttachments(), a.isStarred());
+                a.getArticleCommentUrl(), a.getUpdateDate(), a.getAttachments(), a.isStarred(), a.isPublished());
     }
     
     public void insertArticles(Set<ArticleItem> list, int number) {
@@ -481,6 +495,19 @@ public class DBHelper {
         
         ContentValues cv = new ContentValues();
         cv.put("isStarred", isStarred);
+        
+        synchronized (TABLE_ARTICLES) {
+            db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+        }
+    }
+    
+    public void updateArticlePublished(int id, boolean isPublished) {
+        if (!isDBAvailable()) {
+            return;
+        }
+        
+        ContentValues cv = new ContentValues();
+        cv.put("isPublished", isPublished);
         
         synchronized (TABLE_ARTICLES) {
             db.update(TABLE_ARTICLES, cv, "id=" + id, null);
@@ -908,7 +935,8 @@ public class DBHelper {
                     new Date(c.getLong(6)),             // articleUrl
                     c.getString(7),                     // articleCommentUrl
                     parseAttachments(c.getString(8)),   // attachments
-                    (c.getInt(9) != 0 ? true : false)   // isStarred
+                    (c.getInt(9) != 0 ? true : false),  // isStarred
+                    (c.getInt(10) != 0 ? true : false)  // isPublished
             );
             // @formatter:on
         }
