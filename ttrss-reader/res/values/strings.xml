@@ -52,8 +52,10 @@
     
     <string name="FeedHeadlineListActivity.MarkAllRead">Mark all as read</string>
     <string name="FeedHeadlineListActivity.MarkAllUnread">Mark all as unread</string>
-    <string name="FeedHeadlineListActivity.ToggleStarred">Toggle \"starred\" status</string>
-    <string name="FeedHeadlineListActivity.TogglePublished">Toggle \"published\" status</string>
+    <string name="FeedHeadlineListActivity.ToggleStarred">Toggle \"starred\" state</string>
+    <string name="FeedHeadlineListActivity.TogglePublished">Toggle \"published\" state</string>
+    <string name="FeedHeadlineListActivity.MarkRead">Mark as \"read\"</string>
+    <string name="FeedHeadlineListActivity.MarkUnread">Mark as \"unread\"</string>
     
     <string name="ConnectionPreferenceCategoryTitle">Connection</string>
     <string name="ConnectionUrlPreferenceTitle">Connection URL</string>

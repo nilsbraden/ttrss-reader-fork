@@ -51,6 +51,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
@@ -64,6 +65,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     private static final int MARK_GROUP = 42;
     private static final int MARK_STAR = MARK_GROUP + 1;
     private static final int MARK_PUBLISH = MARK_GROUP + 2;
+    private static final int MARK_READ = MARK_GROUP + 3;
+    private static final int MARK_UNREAD = MARK_GROUP + 4;
     
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
@@ -218,8 +221,42 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
+
+        // Get selected Article
+        AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+        ArticleItem a = (ArticleItem) mAdapter.getItem(info.position);
+        
         menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.FeedHeadlineListActivity_ToggleStarred);
         menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.FeedHeadlineListActivity_TogglePublished);
+        if (a.isUnread()) {
+            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.FeedHeadlineListActivity_MarkRead);
+        } else {
+            menu.add(MARK_GROUP, MARK_UNREAD, Menu.NONE, R.string.FeedHeadlineListActivity_MarkUnread);
+        }
+    }
+    
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
+        ArticleItem a = (ArticleItem) mAdapter.getItem(cmi.position);
+        
+        if (a != null) {
+            switch (item.getItemId()) {
+                case MARK_STAR:
+                    new Updater(this, new StarredStateUpdater(a)).execute();
+                    return true;
+                case MARK_PUBLISH:
+                    new Updater(this, new PublishedStateUpdater(a)).execute();
+                    return true;
+                case MARK_READ:
+                    new Updater(this, new ReadStateUpdater(a, mFeedId, 0)).execute();
+                    return true;
+                case MARK_UNREAD:
+                    new Updater(this, new ReadStateUpdater(a, mFeedId, 1)).execute();
+                    return true;
+            }
+        }
+        return false;
     }
     
     @Override
@@ -233,27 +270,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         item = menu.add(0, MENU_MARK_ALL_UNREAD, 0, R.string.FeedHeadlineListActivity_MarkAllUnread);
         item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
         return true;
-    }
-    
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        ArticleItem a = (ArticleItem) mAdapter.getItem(cmi.position);
-        
-        if (a != null) {
-            switch (item.getItemId()) {
-                case MARK_STAR:
-                    new Updater(this, new StarredStateUpdater(a)).execute();
-                    break;
-                case MARK_PUBLISH:
-                    new Updater(this, new PublishedStateUpdater(a)).execute();
-                    break;
-                default:
-
-            }
-            return true;
-        }
-        return false;
     }
     
     @Override
