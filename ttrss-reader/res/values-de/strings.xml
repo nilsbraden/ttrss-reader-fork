@@ -54,6 +54,8 @@
     <string name="FeedHeadlineListActivity.MarkAllUnread">Alle als ungelesen markieren</string>
     <string name="FeedHeadlineListActivity.ToggleStarred">\"starred\"-Status des Artikels umschalten</string>
     <string name="FeedHeadlineListActivity.TogglePublished">\"published\"-Status des Artikels umschalten</string>
+    <string name="FeedHeadlineListActivity.MarkRead">Als \"gelesen\" markieren</string>
+    <string name="FeedHeadlineListActivity.MarkUnread">Als \"ungelesen\" markieren</string>
     
     <string name="ConnectionPreferenceCategoryTitle">Verbindung</string>
     <string name="ConnectionUrlPreferenceTitle">Server-URL</string>

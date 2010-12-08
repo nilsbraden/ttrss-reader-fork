@@ -27,6 +27,7 @@ import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
 import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
+import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.model.feed.FeedListAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
@@ -37,17 +38,23 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.AsyncTask.Status;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ListView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class FeedListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
     
     private static final int MENU_REFRESH = Menu.FIRST;
     private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 1;
     private static final int MENU_MARK_ALL_READ = Menu.FIRST + 2;
+    
+    private static final int MARK_GROUP = 42;
+    private static final int MARK_READ = MARK_GROUP + 1;
+    private static final int MARK_UNREAD = MARK_GROUP + 2;
     
     public static final String CATEGORY_ID = "CATEGORY_ID";
     public static final String CATEGORY_TITLE = "CATEGORY_TITLE";
@@ -71,6 +78,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         Data.getInstance().checkAndInitializeData(this);
         
         mFeedListView = getListView();
+        registerForContextMenu(mFeedListView);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -164,6 +172,36 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
                 }
             }
         }, Utils.WAIT);
+    }
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        
+        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.FeedHeadlineListActivity_MarkRead);
+        menu.add(MARK_GROUP, MARK_UNREAD, Menu.NONE, R.string.FeedHeadlineListActivity_MarkUnread);
+    }
+    
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
+        FeedItem f = (FeedItem) mAdapter.getItem(cmi.position);
+        
+        if (f == null) {
+            return false;
+        }
+        
+        Set<ArticleItem> articles = Data.getInstance().getArticles(f.getId());
+        
+        switch (item.getItemId()) {
+            case MARK_READ:
+                new Updater(this, new ReadStateUpdater(articles, f.getId(), 0)).execute();
+                return true;
+            case MARK_UNREAD:
+                new Updater(this, new ReadStateUpdater(articles, f.getId(), 1)).execute();
+                return true;
+        }
+        return false;
     }
     
     @Override

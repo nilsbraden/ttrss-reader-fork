@@ -17,9 +17,9 @@
 package org.ttrssreader.model.updaters;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.controllers.Controller;
@@ -34,7 +34,7 @@ import android.util.Log;
 
 public class ReadStateUpdater implements IUpdatable {
     
-    List<ArticleItem> mList = null;
+    Collection<ArticleItem> mArticles = null;
     private int mPid = 0;
     private int mArticleState;
     
@@ -42,10 +42,10 @@ public class ReadStateUpdater implements IUpdatable {
      * Marks everything as read.
      */
     public ReadStateUpdater() {
-        mList = new ArrayList<ArticleItem>();
+        mArticles = new ArrayList<ArticleItem>();
         Map<Integer, Set<ArticleItem>> map = DBHelper.getInstance().getArticles(false);
         for (Integer i : map.keySet()) {
-            mList.addAll(map.get(i));
+            mArticles.addAll(map.get(i));
         }
         mArticleState = 0;
     }
@@ -56,11 +56,11 @@ public class ReadStateUpdater implements IUpdatable {
      * @param list
      * @param articleState
      */
-    public ReadStateUpdater(List<CategoryItem> list, int articleState) {
-        mList = new ArrayList<ArticleItem>();
-        for (CategoryItem ci : list) {
+    public ReadStateUpdater(Collection<CategoryItem> collection, int articleState) {
+        mArticles = new ArrayList<ArticleItem>();
+        for (CategoryItem ci : collection) {
             for (FeedItem fi : Data.getInstance().getFeeds(ci.getId())) {
-                mList.addAll(Data.getInstance().getArticles(fi.getId()));
+                mArticles.addAll(Data.getInstance().getArticles(fi.getId()));
             }
         }
         mArticleState = articleState;
@@ -74,9 +74,9 @@ public class ReadStateUpdater implements IUpdatable {
      * @param articleState
      */
     public ReadStateUpdater(int categoryId, int articleState) {
-        mList = new ArrayList<ArticleItem>();
+        mArticles = new ArrayList<ArticleItem>();
         for (FeedItem fi : DBHelper.getInstance().getFeeds(categoryId)) {
-            mList.addAll(Data.getInstance().getArticles(fi.getId()));
+            mArticles.addAll(Data.getInstance().getArticles(fi.getId()));
         }
         mPid = categoryId;
         mArticleState = articleState;
@@ -89,8 +89,8 @@ public class ReadStateUpdater implements IUpdatable {
      * @param pid
      * @param articleState
      */
-    public ReadStateUpdater(List<ArticleItem> list, int pid, int articleState) {
-        mList = list;
+    public ReadStateUpdater(Collection<ArticleItem> collection, int pid, int articleState) {
+        mArticles = collection;
         mPid = pid;
         mArticleState = articleState;
     }
@@ -103,8 +103,8 @@ public class ReadStateUpdater implements IUpdatable {
      * @param articleState
      */
     public ReadStateUpdater(ArticleItem article, int pid, int articleState) {
-        mList = new ArrayList<ArticleItem>();
-        mList.add(article);
+        mArticles = new ArrayList<ArticleItem>();
+        mArticles.add(article);
         mPid = pid;
         mArticleState = articleState;
     }
@@ -115,7 +115,7 @@ public class ReadStateUpdater implements IUpdatable {
         
         boolean boolState = mArticleState == 1 ? true : false;
         int delta = mArticleState == 1 ? 1 : -1;
-        int deltaUnread = mArticleState == 1 ? mList.size() : -mList.size();
+        int deltaUnread = mArticleState == 1 ? mArticles.size() : -mArticles.size();
         
         Set<Integer> ids = new HashSet<Integer>();
         
@@ -129,8 +129,10 @@ public class ReadStateUpdater implements IUpdatable {
         // }
         // mList = temp;
         
-        for (ArticleItem article : mList) {
+        for (ArticleItem article : mArticles) {
             if (mArticleState != 0 && article.isUnread()) {
+                continue;
+            } else if (mArticleState == 0 && !article.isUnread()) {
                 continue;
             }
             

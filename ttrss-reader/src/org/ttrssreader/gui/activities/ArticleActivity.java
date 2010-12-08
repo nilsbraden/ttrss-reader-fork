@@ -146,17 +146,18 @@ public class ArticleActivity extends Activity {
             case MENU_MARK_READ:
                 new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
                 return true;
+            case MENU_MARK_UNREAD:
+                new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 1)).execute();
+                return true;
             case MENU_OPEN_LINK:
                 openLink();
                 return true;
             case MENU_OPEN_COMMENT_LINK:
-                if (mArticleItem != null) {
-                    String url = mArticleItem.getArticleCommentUrl();
-                    if ((url != null) && (url.length() > 0)) {
-                        Intent i = new Intent(Intent.ACTION_VIEW);
-                        i.setData(Uri.parse(url));
-                        startActivity(i);
-                    }
+                String url = mArticleItem.getArticleCommentUrl();
+                if ((url != null) && (url.length() > 0)) {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
                 }
                 return true;
             case MENU_SHARE_LINK:
