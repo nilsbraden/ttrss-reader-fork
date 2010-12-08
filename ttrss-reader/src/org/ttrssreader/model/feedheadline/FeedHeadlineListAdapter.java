@@ -147,10 +147,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         FeedHeadlineListView sv;
         ArticleItem a = mArticles.get(position);
         if (convertView == null) {
-            sv = new FeedHeadlineListView(mContext, a.getTitle(), a.isUnread(), a.getUpdateDate(), a.isStarred());
+            sv = new FeedHeadlineListView(mContext, a.getTitle(), a.isUnread(), a.getUpdateDate(), a.isStarred(),
+                    a.isPublished());
         } else {
             sv = (FeedHeadlineListView) convertView;
-            sv.setIcon(a.isUnread(), a.isStarred());
+            sv.setIcon(a.isUnread(), a.isStarred(), a.isPublished());
             sv.setBoldTitleIfNecessary(a.isUnread());
             sv.setTitle(a.getTitle());
             sv.setUpdateDate(mContext, a.getUpdateDate());
@@ -161,7 +162,8 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     private class FeedHeadlineListView extends LinearLayout {
         
-        public FeedHeadlineListView(Context context, String title, boolean isUnread, Date updatedDate, boolean isStarred) {
+        public FeedHeadlineListView(Context context, String title, boolean isUnread, Date updatedDate,
+                boolean isStarred, boolean isPublished) {
             super(context);
             
             this.setOrientation(HORIZONTAL);
@@ -170,7 +172,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
             // been specified in an XML file.
             
             mIcon = new ImageView(context);
-            setIcon(isUnread, isStarred);
+            setIcon(isUnread, isStarred, isPublished);
             addView(mIcon, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
             
             LinearLayout textLayout = new LinearLayout(context);
@@ -207,16 +209,22 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
             }
         }
         
-        public void setIcon(boolean isUnread, boolean isStarred) {
+        public void setIcon(boolean isUnread, boolean isStarred, boolean isPublished) {
+            // TODO: Find a way to overlay more than 2 images
             if (isUnread) {
                 mIcon.setBackgroundResource(R.drawable.articleunread48);
             } else {
                 mIcon.setBackgroundResource(R.drawable.articleread48);
             }
             
-            if (isStarred) {
+            if (isStarred && isPublished) {
+                mIcon.setImageResource(R.drawable.published_and_starred48);
+            } else if (isStarred) {
                 mIcon.setImageResource(R.drawable.star_yellow48);
+            } else if (isPublished) {
+                mIcon.setImageResource(R.drawable.published_blue48);
             } else {
+                mIcon.setBackgroundDrawable(null);
                 if (isUnread) {
                     mIcon.setImageResource(R.drawable.articleunread48);
                 } else {

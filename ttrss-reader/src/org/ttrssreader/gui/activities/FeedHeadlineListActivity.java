@@ -25,12 +25,13 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
-import org.ttrssreader.model.ReadStateUpdater;
 import org.ttrssreader.model.Refresher;
-import org.ttrssreader.model.StarredStateUpdater;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.feedheadline.FeedHeadlineListAdapter;
+import org.ttrssreader.model.updaters.PublishedStateUpdater;
+import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Context;
@@ -59,6 +60,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     private static final int MENU_MARK_ALL_READ = Menu.FIRST + 1;
     private static final int MENU_MARK_ALL_UNREAD = Menu.FIRST + 2;
     private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
+    
+    private static final int MARK_GROUP = 42;
+    private static final int MARK_STAR = MARK_GROUP + 1;
+    private static final int MARK_PUBLISH = MARK_GROUP + 2;
     
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
@@ -213,7 +218,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add("Toggle \"starred\" status");
+        menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.FeedHeadlineListActivity_ToggleStarred);
+        menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.FeedHeadlineListActivity_TogglePublished);
     }
     
     @Override
@@ -223,8 +229,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         MenuItem item;
         item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
         item.setIcon(R.drawable.refresh32);
-        item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.FeedHeadlinesListActivity_MarkAllRead);
-        item = menu.add(0, MENU_MARK_ALL_UNREAD, 0, R.string.FeedHeadlinesListActivity_MarkAllUnread);
+        item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.FeedHeadlineListActivity_MarkAllRead);
+        item = menu.add(0, MENU_MARK_ALL_UNREAD, 0, R.string.FeedHeadlineListActivity_MarkAllUnread);
         item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
         return true;
     }
@@ -235,7 +241,16 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         ArticleItem a = (ArticleItem) mAdapter.getItem(cmi.position);
         
         if (a != null) {
-            new Updater(this, new StarredStateUpdater(a)).execute();
+            switch (item.getItemId()) {
+                case MARK_STAR:
+                    new Updater(this, new StarredStateUpdater(a)).execute();
+                    break;
+                case MARK_PUBLISH:
+                    new Updater(this, new PublishedStateUpdater(a)).execute();
+                    break;
+                default:
+
+            }
             return true;
         }
         return false;
