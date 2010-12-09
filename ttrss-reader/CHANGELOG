@@ -3,9 +3,12 @@
 = Changes =
 
 == Version 0.7.6 ==
+  * New Application-Icon and Overlay-icons for star/publish 
   * Added support for the star/unstar feature
   * Added support for the published-feature
-  * New Application-Icon and Overlay-icons for star/publish 
+  * Fixed display of fresh/starred/published articles in the virtual feeds
+  * Fixed handling of URLs in Article-View
+  * Fixed problems with marking articles as read/unread
 
 == Version 0.7.5 ==
   * Fixed sorting of categories

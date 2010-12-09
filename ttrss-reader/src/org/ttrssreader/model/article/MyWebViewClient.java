@@ -48,15 +48,15 @@ public class MyWebViewClient extends WebViewClient {
         Log.e(Utils.TAG, "Link clicked: " + url);
         context = view.getContext();
         
-        boolean image = false;
-        for (String s : Utils.IMAGE_EXTENSIONS) {
+        boolean audioOrVideo = false;
+        for (String s : Utils.MEDIA_EXTENSIONS) {
             if (url.toLowerCase().contains(s)) {
-                image = true;
+                audioOrVideo = true;
                 break;
             }
         }
         
-        if (!image) {
+        if (audioOrVideo) {
             // @formatter:off
             final CharSequence[] items = {
                     (String) context.getText(R.string.WebViewClientActivity_Display),
