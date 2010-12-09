@@ -38,6 +38,12 @@ public class Utils {
     public static final String[] IMAGE_EXTENSIONS = { "jpeg", "jpg", "gif", "png", "bmp" };
     
     /**
+     * Supported extensions of mediafiles, see http://developer.android.com/guide/appendix/media-formats.html
+     */
+    public static final String[] MEDIA_EXTENSIONS = { "3gp", "mp4", "m4a", "aac", "mp3", "mid", "xmf", "mxmf", "rtttl",
+            "rtx", "ota", "imy", "ogg", "wav" };
+    
+    /**
      * The TAG for Log-Output
      */
     public static final String TAG = "ttrss";

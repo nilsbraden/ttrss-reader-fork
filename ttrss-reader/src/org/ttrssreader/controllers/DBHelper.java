@@ -740,7 +740,18 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_ARTICLES, null, "feedId=" + feedId, null, null, null, "updateDate DESC");
+            
+            if (feedId == -1) {
+                c = db.query(TABLE_ARTICLES, null, "isStarred=1", null, null, null, "updateDate DESC");
+            } else if (feedId == -2) {
+                c = db.query(TABLE_ARTICLES, null, "isPublished=1", null, null, null, "updateDate DESC");
+            } else if (feedId == -3) {
+                // TODO: use get_pref from API and fetch the setting for "FRESH_ARTICLE_MAX_AGE", currently i use 24 h
+                long time = (System.currentTimeMillis() - (1000 * 60 * 60 * 24));
+                c = db.query(TABLE_ARTICLES, null, "updateDate>" + time, null, null, null, "updateDate DESC");
+            } else {
+                c = db.query(TABLE_ARTICLES, null, "feedId=" + feedId, null, null, null, "updateDate DESC");
+            }
             
             while (!c.isAfterLast()) {
                 ret.add(handleArticleCursor(c));

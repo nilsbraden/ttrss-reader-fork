@@ -196,7 +196,8 @@ public class Data {
                 limit = (l > limit ? l : 30);
             }
             
-            if (feedId < 0 && feedId > -10) {
+            // "smaller than -3" because we want all articles for starred (-1) and published (-2)
+            if (feedId < -3 && feedId > -10) {
                 limit = getCategoryUnreadCount(feedId);
             }
             

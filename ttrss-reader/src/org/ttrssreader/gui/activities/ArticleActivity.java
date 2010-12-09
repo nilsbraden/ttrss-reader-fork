@@ -381,22 +381,35 @@ public class ArticleActivity extends Activity {
                 continue;
             }
             
-            ret.append("<br>\n");
-            
             boolean image = false;
             for (String s : Utils.IMAGE_EXTENSIONS) {
-                if (url.toLowerCase().endsWith(s))
+                if (url.toLowerCase().contains(s)) {
                     image = true;
+                    break;
+                }
             }
             
+            boolean audioOrVideo = false;
+            for (String s : Utils.MEDIA_EXTENSIONS) {
+                if (url.toLowerCase().contains(s)) {
+                    audioOrVideo = true;
+                    break;
+                }
+            }
+            
+            ret.append("<br>\n");
             if (image) {
                 ret.append("<img src=\"");
                 ret.append(url);
                 ret.append("\" /><br>\n");
-            } else {
+            } else if (audioOrVideo) {
                 ret.append("<a href=\"");
                 ret.append(url);
                 ret.append("\">" + (String) getText(R.string.ArticleActivity_MediaPlay) + "</a>");
+            } else {
+                ret.append("<a href=\"");
+                ret.append(url);
+                ret.append("\">" + (String) getText(R.string.ArticleActivity_MediaDisplayLink) + "</a>");
             }
         }
         
