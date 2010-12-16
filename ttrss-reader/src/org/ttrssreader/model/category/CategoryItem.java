@@ -83,16 +83,6 @@ public class CategoryItem implements Comparable<CategoryItem> {
         this.mUnread = unreadCount;
     }
     
-    public void setDeltaUnreadCount(int value) {
-        if (isUnreadManaged()) {
-            mUnread += value;
-        }
-    }
-    
-    public boolean isUnreadManaged() {
-        return mUnread >= 0;
-    }
-    
     @Override
     public int compareTo(CategoryItem ci) {
         // Sort by Id if Id is 0 or smaller, else sort by Title

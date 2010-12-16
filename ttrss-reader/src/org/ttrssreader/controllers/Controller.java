@@ -62,6 +62,7 @@ public class Controller {
     private long mLastUpdateTime;
     private String mLastVersionRun;
     private boolean isNewInstallation = false;
+    private String freshArticleMaxAge;
     
     public static Controller getInstance() {
         synchronized (mutex) {
@@ -287,6 +288,16 @@ public class Controller {
     
     public boolean isNewInstallation() {
         return isNewInstallation;
+    }
+    
+    public long getFreshArticleMaxAge() {
+        if (freshArticleMaxAge == null) {
+            return 1;
+        } else if (freshArticleMaxAge.equals("")) {
+            freshArticleMaxAge = getConnector().getPref("FRESH_ARTICLE_MAX_AGE");
+        }
+        
+        return Integer.parseInt(freshArticleMaxAge) * 60 * 60 * 1000;
     }
     
     /*

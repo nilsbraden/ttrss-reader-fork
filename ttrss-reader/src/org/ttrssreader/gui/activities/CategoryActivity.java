@@ -41,14 +41,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.AsyncTask.Status;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
@@ -58,6 +60,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private static final int MENU_SHOW_ABOUT = Menu.FIRST + 2;
     private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
     private static final int MENU_MARK_ALL_READ = Menu.FIRST + 4;
+    
+    private static final int MARK_GROUP = 42;
+    private static final int MARK_READ = MARK_GROUP + 1;
     
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
@@ -81,6 +86,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         Data.getInstance().checkAndInitializeData(this);
         
         mCategoryListView = getListView();
+        registerForContextMenu(mCategoryListView);
         mAdapter = new CategoryListAdapter(this);
         mCategoryListView.setAdapter(mAdapter);
         
@@ -186,6 +192,30 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     }
     
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        
+        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.CategoryActivity_MarkRead);
+    }
+    
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
+        CategoryItem c = (CategoryItem) mAdapter.getItem(cmi.position);
+        
+        if (c == null) {
+            return false;
+        }
+        
+        switch (item.getItemId()) {
+            case MARK_READ:
+                new Updater(this, new ReadStateUpdater(c.getId())).execute();
+                return true;
+        }
+        return false;
+    }
+    
+    @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         
@@ -237,7 +267,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
                 doRefresh();
                 return true;
             case MENU_MARK_ALL_READ:
-                new Updater(this, new ReadStateUpdater(mAdapter.getCategories(), 0)).execute();
+                new Updater(this, new ReadStateUpdater(mAdapter.getCategories())).execute();
                 return true;
             case MENU_SHOW_PREFERENCES:
                 startActivityForResult(new Intent(this, PreferencesActivity.class),
