@@ -904,7 +904,7 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) DESC");
+            c = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) ASC");
             
             while (!c.isAfterLast()) {
                 CategoryItem ci = handleCategoryCursor(c);

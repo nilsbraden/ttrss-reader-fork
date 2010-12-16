@@ -63,8 +63,12 @@
     <string name="VCategory.PublishedArticles">Published Articles</string>
     <string name="VCategory.StarredArticles">Starred Articles</string>
     <string name="Feed.UncategorizedFeeds">Uncategorized Feeds</string>
+    
     <string name="CategoryActivity.NoServer">No Server specified.</string>
     <string name="CategoryActivity.Donate">Want to Donate?</string>
+    <string name="CategoryActivity.MarkRead">Mark as \"read\"</string>
+    
+    <string name="FeedListActivity.MarkRead">Mark as \"read\"</string>
     
     <string name="FeedHeadlineListActivity.MarkAllRead">Mark all as read</string>
     <string name="FeedHeadlineListActivity.MarkAllUnread">Mark all as unread</string>

@@ -126,6 +126,7 @@ public class Data {
         return -1;
     }
     
+    // takes about 2.5 seconds on wifi
     public void updateCounters() {
         if (Utils.isOnline(cm)) {
             Set<Map<String, Object>> counters = Controller.getInstance().getConnector().getCounters();
@@ -135,19 +136,17 @@ public class Data {
                 int id = (Integer) m.get(TTRSSJsonConnector.COUNTER_ID);
                 int counter = (Integer) m.get(TTRSSJsonConnector.COUNTER_COUNTER);
                 
-                if (cat && id >= 0) { // Category
-                    // Log.v(Utils.TAG, String.format("Category, id: %s | cat: %s | count: %s", id, cat, counter));
+                // @formatter:off
+                if        (cat && id >= 0) { // Category
+                    DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
+                } else if (!cat && id < 0) { // Virtual Category
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 } else if (!cat && id > 0) { // Feed
-                    // Log.v(Utils.TAG, String.format("Feed, id: %s | cat: %s | count: %s", id, cat, counter));
                     DBHelper.getInstance().updateFeedUnreadCount(id, counter);
-                } else if (!cat && id < 0) { // Virtual Category
-                    // Log.v(Utils.TAG, String.format("Virtual Category, id: %s | cat: %s | count: %s", id, cat,
-                    // counter));
-                    DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 }
-                
+                // @formatter:on
             }
+            
         }
     }
     

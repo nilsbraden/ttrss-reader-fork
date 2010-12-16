@@ -141,6 +141,15 @@ public interface ITTRSSConnector {
     public void setRead(int id, boolean isCategory);
     
     /**
+     * Returns the value for the given preference-name as a string.
+     * 
+     * @param pref
+     *            the preferences name
+     * @return the value of the preference or null if it ist not set or unknown
+     */
+    public String getPref(String pref);
+    
+    /**
      * Returns true if there was an error.
      * 
      * @return true if there was an error.

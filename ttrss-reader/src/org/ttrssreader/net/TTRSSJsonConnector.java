@@ -49,6 +49,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&sid=%s&article_ids=%s&mode=%s&field=%s";
     private static final String OP_CATCHUP = "?op=catchupFeed&sid=%s&feed_id=%s&is_cat=%s";
     private static final String OP_GET_COUNTERS = "?op=getCounters&sid=%s";
+    private static final String OP_GET_PREF = "?op=getPref&sid=%s&pref_name=%s";
     
     private static final String ERROR = "{\"error\":";
     private static final String NOT_LOGGED_IN = ERROR + "\"NOT_LOGGED_IN\"}";
@@ -68,6 +69,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String ATTACHMENTS = "attachments";
     private static final String STARRED = "marked";
     private static final String PUBLISHED = "published";
+    private static final String VALUE = "value";
     
     public static final String COUNTER_KIND = "kind";
     public static final String COUNTER_CAT = "cat";
@@ -144,7 +146,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         }
         
         // Parse new start with sequence-number and status-codes
-        strResponse = parseMetadata(strResponse);
+        if (strResponse.startsWith("{\"seq\":")) {
+            strResponse = parseMetadata(strResponse);
+        }
         
         return strResponse;
     }
@@ -283,6 +287,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     }
     
     private String parseMetadata(String str) {
+        // TODO: Perhaps add seq-nr-check some day?
         String ret = "";
         
         TTRSSJsonResult result = null;
@@ -851,6 +856,48 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         String url = mServerUrl + String.format(OP_CATCHUP, mSessionId, id, isCategory);
         doRequest(url);
+    }
+    
+    @Override
+    public String getPref(String pref) {
+        if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
+            login();
+            if (mHasLastError) {
+                return null;
+            }
+        }
+        
+        String ret = null;
+        String url = mServerUrl + String.format(OP_GET_PREF, mSessionId, pref);
+        JSONArray jsonResult = getJSONResponseAsArray(url);
+        
+        if (jsonResult == null) {
+            return ret;
+        }
+        
+        try {
+            for (int i = 0; i < jsonResult.length(); i++) {
+                JSONObject object = jsonResult.getJSONObject(i);
+                
+                JSONArray names = object.names();
+                JSONArray values = object.toJSONArray(names);
+                
+                for (int j = 0; j < names.length(); j++) {
+                    
+                    String s = names.getString(j);
+                    if (s.equals(VALUE)) {
+                        ret = values.getString(j);
+                    }
+                }
+                
+            }
+        } catch (JSONException e) {
+            mHasLastError = true;
+            mLastError = e.getMessage() + ", Method: getPref(), threw JSONException";
+            e.printStackTrace();
+        }
+        
+        return ret;
     }
     
     @Override
