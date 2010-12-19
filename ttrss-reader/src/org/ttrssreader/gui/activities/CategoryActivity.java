@@ -195,7 +195,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         
-        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.CategoryActivity_MarkRead);
+        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
     }
     
     @Override

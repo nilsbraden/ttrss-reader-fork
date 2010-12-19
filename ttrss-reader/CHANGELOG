@@ -2,16 +2,17 @@
 
 = Changes =
 
-== Version 0.7.6 ==
-  * New Application-Icon and Overlay-icons for star/publish 
-  * Added support for the star/unstar feature. Resolves Issue #23 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=10 Toggle star/unstar of an article])
-  * Added support for the published-feature
-  * Fixed display of fresh/starred/published articles in the virtual feeds
-  * Fixed handling of URLs in Article-View
-  * Fixed problems with marking articles as read/unread
+== Version 0.7.7 ==
   * Now using server-side method for marking feeds/categories as read
   * Fixed sorting of categories
   * Tried to add compatibility-mode for old (pre 1.5) servers
+
+== Version 0.7.6 ==
+  * New Application-Icon and Overlay-icons for star/publish 
+  * Added support for the star- and publish-feature. Resolves Issue #23 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=10 Toggle star/unstar of an article])
+  * Fixed display of fresh/starred/published articles in the virtual feeds
+  * Fixed handling of URLs in Article-View
+  * Fixed problems with marking articles as read/unread
 
 == Version 0.7.5 ==
   * Fixed sorting of categories

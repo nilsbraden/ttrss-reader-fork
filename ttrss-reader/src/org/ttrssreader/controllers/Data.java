@@ -123,6 +123,7 @@ public class Data {
         if (c != null) {
             return c.getUnread();
         }
+        
         return -1;
     }
     
@@ -203,6 +204,9 @@ public class Data {
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
             Set<ArticleItem> articles = Controller.getInstance().getConnector()
                     .getFeedHeadlines(feedId, limit, 0, viewMode);
+            
+            if (articles.size() == 0)
+                return articles;
             
             Set<Integer> set = new LinkedHashSet<Integer>();
             for (ArticleItem a : articles) {

@@ -25,7 +25,9 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.article.MyWebViewClient;
+import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
@@ -53,10 +55,10 @@ public class ArticleActivity extends Activity {
     public static final String ARTICLE_LIST_ID = "ARTICLE_LIST_ID";
     
     private static final int MENU_MARK_READ = Menu.FIRST;
-    private static final int MENU_MARK_UNREAD = Menu.FIRST + 1;
-    private static final int MENU_OPEN_LINK = Menu.FIRST + 2;
-    private static final int MENU_OPEN_COMMENT_LINK = Menu.FIRST + 3;
-    private static final int MENU_SHARE_LINK = Menu.FIRST + 6;
+    private static final int MENU_MARK_STARRED = Menu.FIRST + 1;
+    private static final int MENU_MARK_PUBLISHED = Menu.FIRST + 2;
+    private static final int MENU_OPEN_LINK = Menu.FIRST + 3;
+    private static final int MENU_SHARE_LINK = Menu.FIRST + 4;
     
     private int mArticleId;
     private int mFeedId;
@@ -130,12 +132,13 @@ public class ArticleActivity extends Activity {
         super.onCreateOptionsMenu(menu);
         
         MenuItem item;
-        item = menu.add(0, MENU_MARK_READ, 0, R.string.ArticleActivity_MarkRead);
-        item = menu.add(0, MENU_MARK_UNREAD, 0, R.string.ArticleActivity_MarkUnread);
+        item = menu.add(0, MENU_MARK_READ, 0, R.string.Commons_MarkRead);
+        item = menu.add(0, MENU_MARK_STARRED, 0, R.string.Commons_ToggleStarred);
+        item.setIcon(R.drawable.menu_star_yellow);
+        item = menu.add(0, MENU_MARK_PUBLISHED, 0, R.string.Commons_TogglePublished);
+        item.setIcon(R.drawable.menu_published_blue);
         item = menu.add(0, MENU_OPEN_LINK, 0, R.string.ArticleActivity_OpenLink);
         item.setIcon(R.drawable.link32);
-        item = menu.add(0, MENU_OPEN_COMMENT_LINK, 0, R.string.ArticleActivity_OpenCommentLink);
-        item.setIcon(R.drawable.commentlink32);
         item = menu.add(0, MENU_SHARE_LINK, 0, R.string.ArticleActivity_ShareLink);
         return true;
     }
@@ -146,19 +149,14 @@ public class ArticleActivity extends Activity {
             case MENU_MARK_READ:
                 new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
                 return true;
-            case MENU_MARK_UNREAD:
-                new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 1)).execute();
+            case MENU_MARK_STARRED:
+                new Updater(null, new StarredStateUpdater(mArticleItem)).execute();
+                return true;
+            case MENU_MARK_PUBLISHED:
+                new Updater(null, new PublishedStateUpdater(mArticleItem)).execute();
                 return true;
             case MENU_OPEN_LINK:
                 openLink();
-                return true;
-            case MENU_OPEN_COMMENT_LINK:
-                String url = mArticleItem.getArticleCommentUrl();
-                if ((url != null) && (url.length() > 0)) {
-                    Intent i = new Intent(Intent.ACTION_VIEW);
-                    i.setData(Uri.parse(url));
-                    startActivity(i);
-                }
                 return true;
             case MENU_SHARE_LINK:
                 Intent i = new Intent(Intent.ACTION_SEND);

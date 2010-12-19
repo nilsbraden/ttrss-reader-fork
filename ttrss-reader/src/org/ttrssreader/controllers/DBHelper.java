@@ -39,7 +39,7 @@ public class DBHelper {
     private boolean mIsDBInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 42;
+    private static final int DATABASE_VERSION = 44;
     
     private static final String TABLE_CATEGORIES = "categories";
     private static final String TABLE_FEEDS = "feeds";
@@ -194,16 +194,25 @@ public class DBHelper {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             boolean didUpgrade = false;
+            String sql = "";
             
             if (oldVersion < 40) {
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to %s.", oldVersion, newVersion));
-                db.execSQL("ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isStarred INTEGER");
+                sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isStarred INTEGER";
+                
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to 40.", oldVersion));
+                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                
+                db.execSQL(sql);
                 didUpgrade = true;
             }
             
             if (oldVersion < 42) {
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to %s.", oldVersion, newVersion));
-                db.execSQL("ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isPublished INTEGER");
+                sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isPublished INTEGER";
+                
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to 42.", oldVersion));
+                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                
+                db.execSQL(sql);
                 didUpgrade = true;
             }
             
@@ -436,10 +445,8 @@ public class DBHelper {
         ContentValues cv = new ContentValues();
         cv.put("unread", count);
         
-        if (count > 0) {
-            synchronized (TABLE_CATEGORIES) {
-                db.update(TABLE_CATEGORIES, cv, "id=" + id, null);
-            }
+        synchronized (TABLE_CATEGORIES) {
+            db.update(TABLE_CATEGORIES, cv, "id=" + id, null);
         }
     }
     
@@ -746,8 +753,7 @@ public class DBHelper {
             } else if (feedId == -2) {
                 c = db.query(TABLE_ARTICLES, null, "isPublished=1", null, null, null, "updateDate DESC");
             } else if (feedId == -3) {
-                // TODO: use get_pref from API and fetch the setting for "FRESH_ARTICLE_MAX_AGE", currently i use 24 h
-                long time = (System.currentTimeMillis() - (1000 * 60 * 60 * 24));
+                long time = Controller.getInstance().getFreshArticleMaxAge();
                 c = db.query(TABLE_ARTICLES, null, "updateDate>" + time, null, null, null, "updateDate DESC");
             } else {
                 c = db.query(TABLE_ARTICLES, null, "feedId=" + feedId, null, null, null, "updateDate DESC");
@@ -965,7 +971,8 @@ public class DBHelper {
         }
         
         // @formatter:off
-        ret = new FeedItem(c.getInt(1), // categoryId
+        ret = new FeedItem(
+                c.getInt(1),            // categoryId
                 c.getInt(0),            // id
                 c.getString(2),         // title
                 c.getString(3),         // url
@@ -985,7 +992,8 @@ public class DBHelper {
         }
         
         // @formatter:off
-        ret = new CategoryItem(c.getInt(0), // id
+        ret = new CategoryItem(
+                c.getInt(0),                // id
                 c.getString(1),             // title
                 c.getInt(2));               // unread
         // @formatter:on
