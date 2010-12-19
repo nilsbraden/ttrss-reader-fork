@@ -43,8 +43,6 @@
     
     <string name="ArticleActivity.OpenLink">Article</string>
     <string name="ArticleActivity.OpenCommentLink">Comments</string>
-    <string name="ArticleActivity.MarkRead">Mark as read</string>
-    <string name="ArticleActivity.MarkUnread">Mark as unread</string>
     <string name="ArticleActivity.ShareLink">Share link</string>
     <string name="ArticleActivity.ShareSubject">Link from TTRSS-Reader</string>
     <string name="ArticleActivity.ShareTitle">Send link...</string>
@@ -56,7 +54,11 @@
     <string name="Commons.NothingToDisplay">Nothing to display.</string>
     <string name="Commons.UpdateReadState">Updating read state</string>
     <string name="Commons.DisplayOnlyUnread">Toggle display unread</string>
-    <string name="Commons.MarkAllRead">Mark everything read</string>
+    <string name="Commons.MarkAllRead">Mark all \"read\"</string>
+    <string name="Commons.MarkRead">Mark as \"read\"</string>
+    <string name="Commons.MarkUnread">Mark as \"unread\"</string>
+    <string name="Commons.ToggleStarred">Toggle \"starred\" state</string>
+    <string name="Commons.TogglePublished">Toggle \"published\" state</string>
     
     <string name="VCategory.AllArticles">All Articles</string>
     <string name="VCategory.FreshArticles">Fresh Articles</string>
@@ -66,16 +68,6 @@
     
     <string name="CategoryActivity.NoServer">No Server specified.</string>
     <string name="CategoryActivity.Donate">Want to Donate?</string>
-    <string name="CategoryActivity.MarkRead">Mark as \"read\"</string>
-    
-    <string name="FeedListActivity.MarkRead">Mark as \"read\"</string>
-    
-    <string name="FeedHeadlineListActivity.MarkAllRead">Mark all as read</string>
-    <string name="FeedHeadlineListActivity.MarkAllUnread">Mark all as unread</string>
-    <string name="FeedHeadlineListActivity.ToggleStarred">Toggle \"starred\" state</string>
-    <string name="FeedHeadlineListActivity.TogglePublished">Toggle \"published\" state</string>
-    <string name="FeedHeadlineListActivity.MarkRead">Mark as \"read\"</string>
-    <string name="FeedHeadlineListActivity.MarkUnread">Mark as \"unread\"</string>
     
     <string name="ConnectionPreferenceCategoryTitle">Connection</string>
     <string name="ConnectionUrlPreferenceTitle">Connection URL</string>

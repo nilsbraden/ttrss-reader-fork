@@ -59,8 +59,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     private static final int MENU_REFRESH = Menu.FIRST;
     private static final int MENU_MARK_ALL_READ = Menu.FIRST + 1;
-    private static final int MENU_MARK_ALL_UNREAD = Menu.FIRST + 2;
-    private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
+    private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 2;
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_STAR = MARK_GROUP + 1;
@@ -221,17 +220,17 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-
+        
         // Get selected Article
         AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         ArticleItem a = (ArticleItem) mAdapter.getItem(info.position);
         
-        menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.FeedHeadlineListActivity_ToggleStarred);
-        menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.FeedHeadlineListActivity_TogglePublished);
+        menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_ToggleStarred);
+        menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_TogglePublished);
         if (a.isUnread()) {
-            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.FeedHeadlineListActivity_MarkRead);
+            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
         } else {
-            menu.add(MARK_GROUP, MARK_UNREAD, Menu.NONE, R.string.FeedHeadlineListActivity_MarkUnread);
+            menu.add(MARK_GROUP, MARK_UNREAD, Menu.NONE, R.string.Commons_MarkUnread);
         }
     }
     
@@ -266,8 +265,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         MenuItem item;
         item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
         item.setIcon(R.drawable.refresh32);
-        item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.FeedHeadlineListActivity_MarkAllRead);
-        item = menu.add(0, MENU_MARK_ALL_UNREAD, 0, R.string.FeedHeadlineListActivity_MarkAllUnread);
+        item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
         item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
         return true;
     }
@@ -281,10 +279,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
                 doRefresh();
                 return true;
             case MENU_MARK_ALL_READ:
-                new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 0)).execute();
-                return true;
-            case MENU_MARK_ALL_UNREAD:
-                new Updater(this, new ReadStateUpdater(mAdapter.getArticles(), mFeedId, 1)).execute();
+                new Updater(this, new ReadStateUpdater(mFeedId, 0)).execute();
                 return true;
             case MENU_DISPLAY_ONLY_UNREAD:
                 boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();

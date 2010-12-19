@@ -18,6 +18,8 @@ package org.ttrssreader.net;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -101,6 +103,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         HttpParams httpParams;
         HttpClient httpclient;
         try {
+            
+            Authenticator.setDefault(new Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication("myuser", "mypass".toCharArray());
+                }
+            });
+            
             httpPost = new HttpPost(url);
             httpParams = httpPost.getParams();
             httpclient = HttpClientFactory.createInstance(httpParams);
@@ -623,6 +632,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 
                 FeedItem f = parseDataForFeed(names, values, null);
                 
+                if (f.getId() <= 0)
+                    continue;
+                
                 Set<FeedItem> feedItems = ret.get(f.getCategoryId());
                 if (feedItems == null) {
                     feedItems = new LinkedHashSet<FeedItem>();
@@ -678,6 +690,9 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     @Override
     public Set<ArticleItem> getArticle(Set<Integer> articleIds) {
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
+        
+        if (articleIds.size() == 0)
+            return ret;
         
         StringBuilder sb = new StringBuilder();
         for (Integer i : articleIds) {

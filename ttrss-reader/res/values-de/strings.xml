@@ -42,8 +42,6 @@
     
     <string name="ArticleActivity.OpenLink">Artikel</string>
     <string name="ArticleActivity.OpenCommentLink">Kommentare</string>
-    <string name="ArticleActivity.MarkRead">Als gelesen markieren</string>
-    <string name="ArticleActivity.MarkUnread">Als ungelesen markieren</string>
     <string name="ArticleActivity.ShareLink">Link senden</string>
     <string name="ArticleActivity.ShareSubject">Link aus TTRSS-Reader</string>
     <string name="ArticleActivity.ShareTitle">Link senden...</string>
@@ -54,7 +52,11 @@
     <string name="Commons.NothingToDisplay">Nichts anzuzeigen.</string>
     <string name="Commons.UpdateReadState">Aktualisiere Status</string>
     <string name="Commons.DisplayOnlyUnread">\"Ungelesene anzeigen\" umschalten</string>
-    <string name="Commons.MarkAllRead">Alles als gelesen markieren</string>
+    <string name="Commons.MarkAllRead">Alles \"gelesen\" markieren</string>
+    <string name="Commons.MarkRead">Als \"gelesen\" markieren</string>
+    <string name="Commons.MarkUnread">Als \"ungelesen\" markieren</string>
+    <string name="Commons.ToggleStarred">\"starred\"-Status des Artikels umschalten</string>
+    <string name="Commons.TogglePublished">\"published\"-Status des Artikels umschalten</string>
     
     <string name="VCategory.AllArticles">Alle Artikel</string>
     <string name="VCategory.FreshArticles">Neue Artikel</string>
@@ -64,16 +66,6 @@
     
     <string name="CategoryActivity.NoServer">Kein Server angegeben.</string>
     <string name="CategoryActivity.Donate">Möchten Sie spenden?</string>
-    <string name="CategoryActivity.MarkRead">Als \"gelesen\" markieren</string>
-    
-    <string name="FeedListActivity.MarkRead.MarkRead">Als \"gelesen\" markieren</string>
-    
-    <string name="FeedHeadlineListActivity.MarkAllRead">Alle als gelesen markieren</string>
-    <string name="FeedHeadlineListActivity.MarkAllUnread">Alle als ungelesen markieren</string>
-    <string name="FeedHeadlineListActivity.ToggleStarred">\"starred\"-Status des Artikels umschalten</string>
-    <string name="FeedHeadlineListActivity.TogglePublished">\"published\"-Status des Artikels umschalten</string>
-    <string name="FeedHeadlineListActivity.MarkRead">Als \"gelesen\" markieren</string>
-    <string name="FeedHeadlineListActivity.MarkUnread">Als \"ungelesen\" markieren</string>
     
     <string name="ConnectionPreferenceCategoryTitle">Verbindung</string>
     <string name="ConnectionUrlPreferenceTitle">Server-URL</string>

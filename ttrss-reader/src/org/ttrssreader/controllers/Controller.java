@@ -19,16 +19,14 @@ package org.ttrssreader.controllers;
 import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * 
- * Not entirely sure why this is called the "Controller", actually, in terms of MVC it isn't the controller. There isn't
- * one in here. But it's called like that and I don't have a better name so we stay with it.
+ * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
+ * isn't one in here but it's called like that and I don't have a better name so we stay with it.
  * 
  */
 public class Controller {
@@ -74,54 +72,46 @@ public class Controller {
     }
     
     public synchronized void initializeController(Context context) {
-        try {
-            prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            
-            // Check for new installation
-            if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
-                isNewInstallation = true;
-            }
-            
-            url = prefs.getString(Constants.URL, "http://localhost/");
-            if (!url.endsWith(JSON_END_URL)) {
-                if (!url.endsWith("/")) {
-                    url += "/";
-                }
-                url += JSON_END_URL;
-            }
-            String userName = prefs.getString(Constants.USERNAME, Constants.USERNAME_DEFAULT);
-            String password = prefs.getString(Constants.PASSWORD, Constants.PASSWORD_DEFAULT);
-            mTrustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
-            mUseKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
-            mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.KEYSTORE_PASSWORD_DEFAULT);
-            mTTRSSConnector = new TTRSSJsonConnector(url, userName, password);
-            
-            // Usage
-            mAutomaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
-            mOpenUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
-                    Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
-            mUpdateUnreadOnStartup = prefs.getBoolean(Constants.UPDATE_UNREAD_ON_STARTUP,
-                    Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
-            mUseVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
-            mVibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
-                    Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
-            mWorkOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
-            
-            // Display
-            mDisplayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
-            mUseSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
-            mDisplayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
-            mArticleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
-            
-            mLastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
-            mLastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
-        } catch (ClassCastException e) {
-            Log.e(Utils.TAG,
-                    "Error reading preferences, resetting prefs with changed datatypes: ArticleLimit, DatabaseVersion, LastUpdateTime, LastVersionRun");
-            setArticleLimit(new Integer(1));
-            setLastUpdateTime(new Long(1));
-            setLastVersionRun(new String(""));
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        
+        // Check for new installation
+        if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
+            isNewInstallation = true;
         }
+        
+        url = prefs.getString(Constants.URL, "http://localhost/");
+        if (!url.endsWith(JSON_END_URL)) {
+            if (!url.endsWith("/")) {
+                url += "/";
+            }
+            url += JSON_END_URL;
+        }
+        String userName = prefs.getString(Constants.USERNAME, Constants.USERNAME_DEFAULT);
+        String password = prefs.getString(Constants.PASSWORD, Constants.PASSWORD_DEFAULT);
+        mTrustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
+        mUseKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
+        mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.KEYSTORE_PASSWORD_DEFAULT);
+        mTTRSSConnector = new TTRSSJsonConnector(url, userName, password);
+        
+        // Usage
+        mAutomaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
+        mOpenUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
+                Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
+        mUpdateUnreadOnStartup = prefs.getBoolean(Constants.UPDATE_UNREAD_ON_STARTUP,
+                Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
+        mUseVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
+        mVibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
+                Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
+        mWorkOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
+        
+        // Display
+        mDisplayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
+        mUseSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
+        mDisplayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
+        mArticleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
+        
+        mLastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
+        mLastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
     }
     
     public synchronized void checkAndInitializeController(final Context context) {
@@ -266,7 +256,7 @@ public class Controller {
         this.mArticleLimit = articleLimit;
     }
     
-    // ******* Internal Data ****************************
+    // ******* INTERNAL Data ****************************
     
     public long getLastUpdateTime() {
         return mLastUpdateTime;

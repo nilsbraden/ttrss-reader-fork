@@ -53,6 +53,15 @@ public class ReadStateUpdater implements IUpdatable {
     }
     
     public ReadStateUpdater(int feedId, int dummy) {
+        
+        if (feedId <= 0) { // Virtual Category...
+            categories = new HashSet<CategoryItem>();
+            CategoryItem ci = Data.getInstance().getCategory(feedId);
+            if (ci != null) {
+                categories.add(ci);
+            }
+        }
+        
         feeds = new HashSet<FeedItem>();
         FeedItem fi = Data.getInstance().getFeed(feedId);
         if (fi != null) {
@@ -61,12 +70,6 @@ public class ReadStateUpdater implements IUpdatable {
     }
     
     /* articleState: 0 = mark as read, 1 = mark as unread */
-    public ReadStateUpdater(Collection<ArticleItem> collection, int pid, int articleState) {
-        articles = collection;
-        mPid = pid;
-        mArticleState = articleState;
-    }
-    
     public ReadStateUpdater(ArticleItem article, int pid, int articleState) {
         articles = new ArrayList<ArticleItem>();
         articles.add(article);
