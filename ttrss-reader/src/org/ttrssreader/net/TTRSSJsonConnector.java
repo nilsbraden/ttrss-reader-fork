@@ -869,7 +869,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             }
         }
         
-        String url = mServerUrl + String.format(OP_CATCHUP, mSessionId, id, isCategory);
+        // TODO: replace 1|0 by boolean value, at the moment the value isn't correctly parsed in the API
+        String url = mServerUrl + String.format(OP_CATCHUP, mSessionId, id, (isCategory ? 1 : 0));
         doRequest(url);
     }
     
