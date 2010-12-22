@@ -82,6 +82,14 @@
     <string name="ConnectionUseKeystorePreferenceTitle">Eigener Keystore</string>
     <string name="ConnectionUseKeystorePreferenceSummary">Soll ein eigener Keystore verwendet werden?</string>
     
+    <string name="ConnectionHttpPreferenceCategoryTitle">Einstellungen für die HTTP-Authentifizierung</string>
+    <string name="ConnectionHttpPreferenceTitle">HTTP-Authentifizierung</string>
+    <string name="ConnectionHttpPreferenceSummary">HTTP-Authentifizierung verwenden</string>
+    <string name="ConnectionHttpUsernamePreferenceTitle">Benutzername</string>
+    <string name="ConnectionHttpUsernamePreferenceSummary">Der Benutzername für Ihre HTTP-basierte Authentifizierungs-Methode</string>
+    <string name="ConnectionHttpPasswordPreferenceTitle">Passwort</string>
+    <string name="ConnectionHttpPasswordPreferenceSummary">Das Passwort für Ihre HTTP-basierte Authentifizierungs-Methode</string>
+    
     <string name="UsagePreferenceCategoryTitle">Verwendung</string>
     <string name="UsageAutomaticMarkReadPreferenceTitle">Artikel automatisch als gelesen markieren</string>
     <string name="UsageAutomaticMarkReadPreferenceSummary">Artikel werden beim Anzeigen automatisch als gelesen markiert.</string>

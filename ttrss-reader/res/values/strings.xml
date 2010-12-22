@@ -84,6 +84,14 @@
     <string name="ConnectionUseKeystorePreferenceTitle">Custom Keystore</string>
     <string name="ConnectionUseKeystorePreferenceSummary">Use custom keystore</string>
     
+    <string name="ConnectionHttpPreferenceCategoryTitle">HTTP-Authentication Settings</string>
+    <string name="ConnectionHttpPreferenceTitle">HTTP-Authentication</string>
+    <string name="ConnectionHttpPreferenceSummary">Use HTTP-Authentication</string>
+    <string name="ConnectionHttpUsernamePreferenceTitle">Username</string>
+    <string name="ConnectionHttpUsernamePreferenceSummary">The username for your HTTP-based authentication method</string>
+    <string name="ConnectionHttpPasswordPreferenceTitle">Password</string>
+    <string name="ConnectionHttpPasswordPreferenceSummary">The password for your HTTP-based authentication method</string>
+    
     <string name="UsagePreferenceCategoryTitle">Usage</string>
     <string name="UsageAutomaticMarkReadPreferenceTitle">Automatically mark article as read</string>
     <string name="UsageAutomaticMarkReadPreferenceSummary">If checked, articles will be marked as read when openning them.</string>

@@ -25,8 +25,12 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -79,6 +83,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private String mServerUrl;
     private String mUserName;
     private String mPassword;
+    private String httpUserName;
+    private String httpPassword;
     
     private String mSessionId;
     private String loginLock = "";
@@ -86,11 +92,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private String mLastError = "";
     private boolean mHasLastError = false;
     
-    public TTRSSJsonConnector(String serverUrl, String userName, String password) {
+    public TTRSSJsonConnector(String serverUrl, String userName, String password, String httpUser, String httpPw) {
         mServerUrl = serverUrl;
         mUserName = userName;
         mPassword = password;
         mSessionId = null;
+        httpUserName = httpUser;
+        httpPassword = httpPw;
     }
     
     private String doRequest(String url) {
@@ -99,18 +107,17 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         
         HttpPost httpPost;
         HttpParams httpParams;
-        HttpClient httpclient;
+        DefaultHttpClient httpclient;
         try {
-            
-            // Authenticator.setDefault(new Authenticator() {
-            // protected PasswordAuthentication getPasswordAuthentication() {
-            // return new PasswordAuthentication("myuser", "mypass".toCharArray());
-            // }
-            // });
-            
             httpPost = new HttpPost(url);
             httpParams = httpPost.getParams();
             httpclient = HttpClientFactory.createInstance(httpParams);
+            
+            CredentialsProvider credProvider = new BasicCredentialsProvider();
+            credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                    new UsernamePasswordCredentials(httpUserName, httpPassword));
+            httpclient.setCredentialsProvider(credProvider);
+            
         } catch (Exception e) {
             Log.e(Utils.TAG, "Error creating HTTP-Connection: " + e.getMessage());
             mHasLastError = true;
@@ -121,14 +128,14 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         try {
             HttpResponse response = httpclient.execute(httpPost);
             
+            // Begin: Log-output
             int end = url.lastIndexOf("&password=");
-            if (end < 1) {
+            if (end < 1)
                 end = url.length();
-            }
             String tempUrl = url.substring(0, end);
-            
             long time = System.currentTimeMillis() - start;
-            Log.d(Utils.TAG, String.format("Hidden URL: %s (took %s ms)", tempUrl, time));
+            Log.d(Utils.TAG, String.format("Requesting URL: %s (took %s ms)", tempUrl, time));
+            // End: Log-output
             
             HttpEntity entity = response.getEntity();
             if (entity != null) {

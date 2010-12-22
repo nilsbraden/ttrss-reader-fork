@@ -2,6 +2,9 @@
 
 = Changes =
 
+== Version 0.7.8 ==
+  * Added HTTP-Authentication. Resolves Issue #32 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=32 If an http 401 (denied) is received, try http authentication]) 
+
 == Version 0.7.7 ==
   * Now using server-side method for marking feeds/categories as read
   * Fixed sorting of categories
