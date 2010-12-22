@@ -18,8 +18,6 @@ package org.ttrssreader.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -104,11 +102,11 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         HttpClient httpclient;
         try {
             
-            Authenticator.setDefault(new Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication("myuser", "mypass".toCharArray());
-                }
-            });
+            // Authenticator.setDefault(new Authenticator() {
+            // protected PasswordAuthentication getPasswordAuthentication() {
+            // return new PasswordAuthentication("myuser", "mypass".toCharArray());
+            // }
+            // });
             
             httpPost = new HttpPost(url);
             httpParams = httpPost.getParams();
@@ -123,8 +121,14 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         try {
             HttpResponse response = httpclient.execute(httpPost);
             
-            Log.d(Utils.TAG, "Requesting URL: " + url.replace(mPassword, "*") + " (took "
-                    + (System.currentTimeMillis() - start) + " ms)");
+            int end = url.lastIndexOf("&password=");
+            if (end < 1) {
+                end = url.length();
+            }
+            String tempUrl = url.substring(0, end);
+            
+            long time = System.currentTimeMillis() - start;
+            Log.d(Utils.TAG, String.format("Hidden URL: %s (took %s ms)", tempUrl, time));
             
             HttpEntity entity = response.getEntity();
             if (entity != null) {
