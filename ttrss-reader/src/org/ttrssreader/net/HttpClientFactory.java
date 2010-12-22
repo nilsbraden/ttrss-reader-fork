@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
-import org.apache.http.client.HttpClient;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -38,7 +37,7 @@ import android.util.Log;
  */
 public class HttpClientFactory {
     
-    public static HttpClient createInstance(HttpParams httpParams) {
+    public static DefaultHttpClient createInstance(HttpParams httpParams) {
         
         boolean trustAllSslCerts = Controller.getInstance().isTrustAllSsl();
         boolean useCustomKeyStore = Controller.getInstance().isUseKeystore();
@@ -70,7 +69,7 @@ public class HttpClientFactory {
         
         registry.register(new Scheme("https", socketFactory, 443));
         
-        HttpClient httpInstance = new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry),
+        DefaultHttpClient httpInstance = new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry),
                 httpParams);
         
         return httpInstance;

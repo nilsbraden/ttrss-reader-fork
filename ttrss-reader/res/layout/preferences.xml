@@ -30,6 +30,36 @@
             android:inputType="textPassword" />
 
         <PreferenceScreen
+            android:title="@string/ConnectionHttpPreferenceCategoryTitle">
+
+            <PreferenceCategory
+                android:title="@string/ConnectionHttpPreferenceCategoryTitle">
+
+                <CheckBoxPreference
+                    android:title="@string/ConnectionHttpPreferenceTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/ConnectionHttpPreferenceSummary"
+                    android:key="ConnectionHttpPreference" />
+
+                <EditTextPreference
+                    android:name="@string/ConnectionHttpUsernamePreferenceTitle"
+                    android:summary="@string/ConnectionUsernamePreferenceSummary"
+                    android:defaultValue=""
+                    android:title="@string/ConnectionHttpUsernamePreferenceTitle"
+                    android:key="ConnectionHttpUsernamePreference"
+                    android:inputType="textFilter" />
+
+                <EditTextPreference
+                    android:name="@string/ConnectionHttpPasswordPreferenceTitle"
+                    android:summary="@string/ConnectionHttpPasswordPreferenceSummary"
+                    android:defaultValue=""
+                    android:title="@string/ConnectionHttpPasswordPreferenceTitle"
+                    android:key="ConnectionHttpPasswordPreference"
+                    android:inputType="textPassword" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+
+        <PreferenceScreen
             android:title="@string/ConnectionSslPreferenceCategoryTitle">
 
             <PreferenceCategory

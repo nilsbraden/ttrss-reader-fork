@@ -24,20 +24,23 @@ import android.util.Log;
 
 public class Constants {
     
+    public static String EMPTY = "";
+    
     // Connection
     public static String URL = "ConnectionUrlPreference";
     public static String USERNAME = "ConnectionUsernamePreference";
     public static String PASSWORD = "ConnectionPasswordPreference";
+    public static String USE_HTTP_AUTH = "ConnectionHttpPreference";
+    public static String HTTP_USERNAME = "ConnectionHttpUsernamePreference";
+    public static String HTTP_PASSWORD = "ConnectionHttpPasswordPreference";
     public static String TRUST_ALL_SSL = "ConnectionSSLPreference";
     public static String USE_KEYSTORE = "ConnectionUseKeystorePreference";
     public static String KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
     // Connection Default Values
     public static String URL_DEFAULT = "http://localhost/";
-    public static String USERNAME_DEFAULT = "";
-    public static String PASSWORD_DEFAULT = "";
+    public static boolean USE_HTTP_AUTH_DEFAULT = false;
     public static boolean TRUST_ALL_SSL_DEFAULT = false;
     public static boolean USE_KEYSTORE_DEFAULT = false;
-    public static String KEYSTORE_PASSWORD_DEFAULT = "";
     
     // Usage
     public static String AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";

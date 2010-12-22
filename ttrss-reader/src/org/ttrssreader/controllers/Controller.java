@@ -86,12 +86,21 @@ public class Controller {
             }
             url += JSON_END_URL;
         }
-        String userName = prefs.getString(Constants.USERNAME, Constants.USERNAME_DEFAULT);
-        String password = prefs.getString(Constants.PASSWORD, Constants.PASSWORD_DEFAULT);
+        String userName = prefs.getString(Constants.USERNAME, Constants.EMPTY);
+        String password = prefs.getString(Constants.PASSWORD, Constants.EMPTY);
+        
+        String httpUserName = "";
+        String httpPassword = "";
+        boolean useHttpAuth = prefs.getBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
+        if (useHttpAuth) {
+            httpUserName = prefs.getString(Constants.HTTP_USERNAME, Constants.EMPTY);
+            httpPassword = prefs.getString(Constants.HTTP_PASSWORD, Constants.EMPTY);
+        }
+        
         mTrustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
         mUseKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
-        mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.KEYSTORE_PASSWORD_DEFAULT);
-        mTTRSSConnector = new TTRSSJsonConnector(url, userName, password);
+        mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
+        mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
         
         // Usage
         mAutomaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);

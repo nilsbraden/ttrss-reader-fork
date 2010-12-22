@@ -84,11 +84,14 @@ public class PreferencesActivity extends PreferenceActivity {
         SharedPreferences.Editor editor = prefs.edit();
         
         editor.putString(Constants.URL, Constants.URL_DEFAULT);
-        editor.putString(Constants.USERNAME, Constants.USERNAME_DEFAULT);
-        editor.putString(Constants.PASSWORD, Constants.PASSWORD_DEFAULT);
+        editor.putString(Constants.USERNAME, Constants.EMPTY);
+        editor.putString(Constants.PASSWORD, Constants.EMPTY);
+        editor.putBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
+        editor.putString(Constants.HTTP_USERNAME, Constants.EMPTY);
+        editor.putString(Constants.HTTP_PASSWORD, Constants.EMPTY);
         editor.putBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
         editor.putBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
-        editor.putString(Constants.KEYSTORE_PASSWORD, Constants.KEYSTORE_PASSWORD_DEFAULT);
+        editor.putString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
         
         editor.putBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
         editor.putBoolean(Constants.OPEN_URL_EMPTY_ARTICLE, Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
