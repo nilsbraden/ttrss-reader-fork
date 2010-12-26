@@ -62,11 +62,14 @@ public class Constants {
     public static String USE_SWIPE = "DisplayUseSwipePreference";
     public static String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
     public static String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
+    public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
     // Display Default Values
     public static boolean SHOW_VIRTUAL_DEFAULT = true;
     public static boolean USE_SWIPE_DEFAULT = true;
     public static boolean ONLY_UNREAD_DEFAULT = false;
     public static int ARTICLE_LIMIT_DEFAULT = 200;
+    public static int IMAGE_CACHE_SIZE_DEFAULT = 200;
+    
     
     // Internal
     public static String DATABASE_VERSION = "DatabaseVersion";

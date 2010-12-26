@@ -30,6 +30,7 @@ import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryListAdapter;
+import org.ttrssreader.model.updaters.ImageCacheUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
@@ -71,6 +72,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private CategoryListAdapter mAdapter = null;
     private Refresher refresher;
     private Updater updater;
+    private ImageCacheUpdater imageCacher;
     
     private boolean configChecked = false;
     
@@ -249,6 +251,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         item = menu.add(0, MENU_SHOW_PREFERENCES, 0, R.string.Main_ShowPreferencesMenu);
         item.setIcon(R.drawable.preferences32);
         item = menu.add(0, MENU_SHOW_ABOUT, 0, R.string.Main_ShowAboutMenu);
+        item = menu.add(0, 123, 0, "CACHE");
         item.setIcon(R.drawable.about32);
         return true;
     }
@@ -276,6 +279,11 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             case MENU_SHOW_ABOUT:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
+            case 123:
+                if (imageCacher == null) {
+                    imageCacher = new ImageCacheUpdater(this);
+                    new Updater(null, imageCacher).execute();
+                }
         }
         return super.onMenuItemSelected(featureId, item);
     }

@@ -113,6 +113,8 @@
     <string name="DisplayShowUnreadOnlySummary">Versteckt bereits gelesene Inhalte.</string>
     <string name="DisplayArticleLimitTitle">Speicherlimit für Artikel</string>
     <string name="DisplayArticleLimitSummary">Gibt an wieviele Artikel lokal gespeichert werden.</string>
+    <string name="StoreImageLimitTitle">Bild-Cache Größe (in MB)</string>
+    <string name="StoreImageLimitSummary">Größe des Zwischenspeichers für Bilder zur Offline-Nutzung.</string>
     
     <string name="ErrorActivity.Title">Fehler</string>
     <string name="ErrorActivity.UserMessage">Konnte nicht zu Ihrer Tiny Tiny RSS-Installation verbinden, bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>

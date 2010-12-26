@@ -19,6 +19,7 @@ package org.ttrssreader.controllers;
 import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.ImageCache;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -35,6 +36,7 @@ public class Controller {
     
     private boolean mIsControllerInitialized = false;
     private ITTRSSConnector mTTRSSConnector;
+    private ImageCache imageCache;
     
     private static final String mutex = "";
     private static Controller mInstance = null;
@@ -56,6 +58,7 @@ public class Controller {
     private boolean mUseSwipe;
     private boolean mDisplayOnlyUnread;
     private int mArticleLimit;
+    private int mImageCacheSize;
     
     private long mLastUpdateTime;
     private String mLastVersionRun;
@@ -118,9 +121,13 @@ public class Controller {
         mUseSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
         mDisplayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
         mArticleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
+        mImageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
         
         mLastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
         mLastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
+        
+        // Initialize ImageCache
+        getImageCache(context);
     }
     
     public synchronized void checkAndInitializeController(final Context context) {
@@ -144,6 +151,20 @@ public class Controller {
     
     public ITTRSSConnector getConnector() {
         return mTTRSSConnector;
+    }
+    
+    public ImageCache getImageCache(Context context) {
+        
+        if (imageCache == null) {
+            // Initialize ImageCache
+            imageCache = new ImageCache(2000, 10080, 2); // Expiration = 7 Days
+            
+            if (context == null || !imageCache.enableDiskCache(context)) {
+                imageCache = null;
+            }
+        }
+        
+        return imageCache;
     }
     
     public boolean isTrustAllSsl() {
@@ -264,9 +285,17 @@ public class Controller {
         put(Constants.ARTICLE_LIMIT, articleLimit);
         this.mArticleLimit = articleLimit;
     }
+
+    public int getImageCacheSize() {
+        return mImageCacheSize;
+    }
+
+    public void setImageCacheSize(int imageCacheSize) {
+        this.mImageCacheSize = imageCacheSize;
+    }
     
     // ******* INTERNAL Data ****************************
-    
+
     public long getLastUpdateTime() {
         return mLastUpdateTime;
     }
