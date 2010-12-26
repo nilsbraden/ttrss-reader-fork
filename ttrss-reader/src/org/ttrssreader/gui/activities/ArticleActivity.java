@@ -199,6 +199,7 @@ public class ArticleActivity extends Activity {
             if (mArticleItem != null && mArticleItem.getContent() != null) {
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
                 String content = injectAttachments(mArticleItem.getContent(), mArticleItem.getAttachments());
+                content = Utils.injectCachedImages(content);
                 
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
                 webview.loadDataWithBaseURL(null, content, "text/html", "utf-8", "about:blank");
@@ -416,7 +417,7 @@ public class ArticleActivity extends Activity {
     
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        // TODO: Add configuration-change-listener
+        // TODO: Add configuration-change-listener. But why?
         super.onConfigurationChanged(newConfig);
     }
     

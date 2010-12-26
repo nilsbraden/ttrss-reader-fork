@@ -115,6 +115,8 @@
     <string name="DisplayShowUnreadOnlySummary">Hide Feeds and Articles that have no unread items.</string>
     <string name="DisplayArticleLimitTitle">Store Articles limit</string>
     <string name="DisplayArticleLimitSummary">How many Articles will be cached locally.</string>
+    <string name="StoreImageLimitTitle">Image cache size (in MB)</string>
+    <string name="StoreImageLimitSummary">The size of the SD-Card image cache for offline usage.</string>
     
     <string name="ErrorActivity.Title">Error</string>
     <string name="ErrorActivity.UserMessage">I was unable to connect to your Tiny Tiny RSS instance, please check your connection and/or connection settings.</string>

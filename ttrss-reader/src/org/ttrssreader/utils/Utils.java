@@ -17,9 +17,17 @@
 package org.ttrssreader.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.activities.AboutActivity;
 import android.app.Activity;
@@ -166,4 +174,118 @@ public class Utils {
         return info.isConnected();
     }
     
+    public static String getCachedImageUrl(String url) {
+        ImageCache cache = Controller.getInstance().getImageCache(null);
+        
+        if (cache != null && cache.containsKey(url)) {
+            String localUrl = "file://" + cache.getDiskCacheDirectory() + File.separator + cache.getFileNameForKey(url);
+            
+            Log.d(Utils.TAG, String.format("Url: %s - Cache-Url:  %s", url, localUrl));
+            return localUrl;
+        }
+        return null;
+    }
+    
+    public static String findImageUrl(String html) {
+        Pattern p = Pattern.compile("<img.+src=\"([^\"]*)\".*/>", Pattern.CASE_INSENSITIVE);
+        
+        int i = html.indexOf("<img");
+        Matcher m = p.matcher(html.substring(i, html.length()));
+        
+        if (m.find()) {
+            return m.group(1);
+        }
+        return null;
+    }
+    
+    public static Set<String> findAllImageUrls(String html) {
+        Set<String> ret = new LinkedHashSet<String>();
+        if (html == null || html.length() < 10) {
+            return ret;
+        }
+        
+        Pattern p = Pattern.compile("<img.+src=\"([^\"]*)\".*/>", Pattern.CASE_INSENSITIVE);
+        
+        for (int i = 0; i < html.length();) {
+            i = html.indexOf("<img", i);
+            if (i == -1) {
+                break;
+            }
+            Matcher m = p.matcher(html.substring(i, html.length()));
+            
+            if (m.find()) {
+                ret.add(m.group(1));
+                i += m.group(1).length();
+            } else {
+                break;
+            }
+        }
+        return ret;
+    }
+    
+    public static String injectCachedImages(String html) {
+        if (html == null || html.length() < 10) {
+            return html;
+        }
+        
+        for (String url : findAllImageUrls(html)) {
+            
+            String localUrl = getCachedImageUrl(url);
+            if (localUrl != null) {
+                html = html.replace(url, localUrl);
+            }
+        }
+        return html;
+    }
+    
+    public static void downloadImage(String downloadUrl, File file) {
+        FileOutputStream fos = null;
+        try {
+            if (file.exists() && file.length() <= 1) {
+                file.delete();
+            }
+            Log.d(Utils.TAG, "Writing image to file: " + file.getAbsolutePath());
+            URL url = new URL(downloadUrl);
+            file.createNewFile();
+            fos = new FileOutputStream(file);
+            
+            URLConnection ucon = url.openConnection();
+            InputStream is = ucon.getInputStream();
+            int size = 1024 * 1024;
+            byte[] buf = new byte[size];
+            int byteRead;
+            int byteWritten = 0;
+            while (((byteRead = is.read(buf)) != -1)) {
+                fos.write(buf, 0, byteRead);
+                byteWritten += byteRead;
+                if (byteWritten > 1024 * 1024 * 1024) { // Should be 1MB. It's late.
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        
+    }
+    
+    public static long getFolderSize(File folder) {
+        long size = 0;
+        
+        File[] list = folder.listFiles();
+        for (int i = 0; i < list.length; i++) {
+            if (list[i].isDirectory()) {
+                size += getFolderSize(list[i]);
+            } else {
+                size += list[i].length();
+            }
+        }
+        return size;
+    }
 }

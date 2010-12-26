@@ -104,6 +104,7 @@ public class PreferencesActivity extends PreferenceActivity {
         editor.putBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
         editor.putBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
         editor.putInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
+        editor.putInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
         
         editor.putInt(Constants.DATABASE_VERSION, Constants.DATABASE_VERSION_DEFAULT);
         editor.putLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);

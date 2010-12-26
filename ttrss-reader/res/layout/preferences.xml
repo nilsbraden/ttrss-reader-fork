@@ -162,6 +162,15 @@
             android:key="DisplayArticleLimitPreference"
             android:maxLength="5"
             android:inputType="number" />
+            
+        <org.ttrssreader.utils.EditIntegerPreference
+            android:name="@string/StoreImageLimitTitle"
+            android:title="@string/StoreImageLimitTitle"
+            android:summary="@string/StoreImageLimitSummary"
+            android:defaultValue="200"
+            android:key="StoreImageLimitPreference"
+            android:maxLength="5"
+            android:inputType="number" />
     </PreferenceCategory>
 
 </PreferenceScreen>

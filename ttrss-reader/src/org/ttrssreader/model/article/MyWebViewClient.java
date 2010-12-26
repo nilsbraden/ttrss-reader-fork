@@ -43,6 +43,7 @@ public class MyWebViewClient extends WebViewClient {
     
     private Context context;
     
+    @Override
     public boolean shouldOverrideUrlLoading(WebView view, final String url) {
         
         Log.e(Utils.TAG, "Link clicked: " + url);
