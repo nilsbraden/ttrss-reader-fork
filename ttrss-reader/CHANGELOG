@@ -1,9 +1,12 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.8 ==
+  * Added pre-downloading of images for offline viewing
 
 == Version 0.7.8 ==
-  * Added HTTP-Authentication. Resolves Issue #32 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=32 If an http 401 (denied) is received, try http authentication]) 
+  * Added HTTP-Authentication. Resolves Issue #32 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=32 If an http 401 (denied) is received, try http authentication])
+  * Fixed Issue 34: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=34 Article refreshing problem]) 
 
 == Version 0.7.7 ==
   * Now using server-side method for marking feeds/categories as read

@@ -174,6 +174,13 @@ public class Utils {
         return info.isConnected();
     }
     
+    /**
+     * Searches for cached versions of the given image and returns the local URL to access the file
+     * 
+     * @param url
+     *            the original URL
+     * @return the local URL or null if not available
+     */
     public static String getCachedImageUrl(String url) {
         ImageCache cache = Controller.getInstance().getImageCache(null);
         
@@ -186,18 +193,13 @@ public class Utils {
         return null;
     }
     
-    public static String findImageUrl(String html) {
-        Pattern p = Pattern.compile("<img.+src=\"([^\"]*)\".*/>", Pattern.CASE_INSENSITIVE);
-        
-        int i = html.indexOf("<img");
-        Matcher m = p.matcher(html.substring(i, html.length()));
-        
-        if (m.find()) {
-            return m.group(1);
-        }
-        return null;
-    }
-    
+    /**
+     * Searches the given html code for img-Tags and filters out all src-attributes, beeing URLs to images.
+     * 
+     * @param html
+     *            the html code which is to be searched
+     * @return a set of URLs in their string representation
+     */
     public static Set<String> findAllImageUrls(String html) {
         Set<String> ret = new LinkedHashSet<String>();
         if (html == null || html.length() < 10) {
@@ -223,6 +225,14 @@ public class Utils {
         return ret;
     }
     
+    /**
+     * Injects the local path to every image which could be found in the local cache, replacing the original URLs in the
+     * html.
+     * 
+     * @param html
+     *            the original html
+     * @return the altered html with the URLs replaced so they point on local files if available
+     */
     public static String injectCachedImages(String html) {
         if (html == null || html.length() < 10) {
             return html;
@@ -238,32 +248,63 @@ public class Utils {
         return html;
     }
     
-    public static void downloadImage(String downloadUrl, File file) {
+    /**
+     * Downloads a given URL directly to a file, stops after maxSize bytes.
+     * 
+     * @param downloadUrl
+     *            the URL of the file
+     * @param file
+     *            the destination file
+     * @param maxSize
+     *            the size in bytes after which to abort the download
+     */
+    public static void downloadToFile(String downloadUrl, File file, long maxSize) {
         FileOutputStream fos = null;
         try {
+            
             if (file.exists() && file.length() <= 1) {
                 file.delete();
             }
-            Log.d(Utils.TAG, "Writing image to file: " + file.getAbsolutePath());
+            
             URL url = new URL(downloadUrl);
+            URLConnection connection = url.openConnection();
+            
+            long contentLength = Long.parseLong(connection.getHeaderField("Content-Length"));
+            if (contentLength > maxSize) {
+                Log.d(Utils.TAG, String.format(
+                        "Not starting download, the size of %s bytes exceeds maximum filesize of %s bytes.",
+                        contentLength, maxSize));
+                return;
+            }
+            
             file.createNewFile();
             fos = new FileOutputStream(file);
+            InputStream is = connection.getInputStream();
             
-            URLConnection ucon = url.openConnection();
-            InputStream is = ucon.getInputStream();
             int size = 1024 * 1024;
             byte[] buf = new byte[size];
             int byteRead;
             int byteWritten = 0;
+            
+            long time = System.currentTimeMillis();
             while (((byteRead = is.read(buf)) != -1)) {
                 fos.write(buf, 0, byteRead);
                 byteWritten += byteRead;
-                if (byteWritten > 1024 * 1024 * 1024) { // Should be 1MB. It's late.
-                    return;
+                
+                if (byteWritten > maxSize) {
+                    file.delete();
+                    break;
                 }
             }
+            time = System.currentTimeMillis() - time;
+            
+            if (file.exists() && file.length() <= 1) {
+                file.delete();
+            } else if (file.exists()) {
+                Log.d(Utils.TAG, String.format("Download time: %s ms (File: %s)", time, file.getAbsolutePath()));
+            }
+            
         } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             if (fos != null) {
                 try {
@@ -275,6 +316,13 @@ public class Utils {
         
     }
     
+    /**
+     * Sums up the size of a folder including all files and subfolders.
+     * 
+     * @param folder
+     *            the folder
+     * @return the size of the folder
+     */
     public static long getFolderSize(File folder) {
         long size = 0;
         

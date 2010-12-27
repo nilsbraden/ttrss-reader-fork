@@ -755,6 +755,8 @@ public class DBHelper {
             } else if (feedId == -3) {
                 long time = Controller.getInstance().getFreshArticleMaxAge();
                 c = db.query(TABLE_ARTICLES, null, "updateDate>" + time, null, null, null, "updateDate DESC");
+            } else if (feedId == -4) {
+                c = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC");
             } else {
                 c = db.query(TABLE_ARTICLES, null, "feedId=" + feedId, null, null, null, "updateDate DESC");
             }
