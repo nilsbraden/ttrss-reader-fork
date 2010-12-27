@@ -55,6 +55,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     private static final String OP_GET_COUNTERS = "?op=getCounters&sid=%s";
     private static final String OP_GET_PREF = "?op=getPref&sid=%s&pref_name=%s";
     
+    private static final String PASSWORD_MATCH = "&password=";
     private static final String ERROR = "{\"error\":";
     private static final String NOT_LOGGED_IN = ERROR + "\"NOT_LOGGED_IN\"}";
     private static final String UNKNOWN_METHOD = ERROR + "\"UNKNOWN_METHOD\"}";
@@ -129,12 +130,12 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             HttpResponse response = httpclient.execute(httpPost);
             
             // Begin: Log-output
-            int end = url.lastIndexOf("&password=");
-            if (end < 1)
-                end = url.length();
-            String tempUrl = url.substring(0, end);
-            long time = System.currentTimeMillis() - start;
-            Log.d(Utils.TAG, String.format("Requesting URL: %s (took %s ms)", tempUrl, time));
+            String tUrl = new String(url);
+            if (url.contains(PASSWORD_MATCH))
+                tUrl = tUrl.substring(0, tUrl.length() - mPassword.length()) + "*";
+            
+            Log.d(Utils.TAG,
+                    String.format("Requesting URL: %s (took %s ms)", tUrl, System.currentTimeMillis() - start));
             // End: Log-output
             
             HttpEntity entity = response.getEntity();

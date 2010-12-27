@@ -33,6 +33,8 @@ import android.util.Log;
 
 public class ImageCacheUpdater implements IUpdatable {
     
+    private static final long maxSize = 1024 * 1024 * 1024;
+    
     private ImageCache cache;
     private Context context;
     
@@ -60,7 +62,7 @@ public class ImageCacheUpdater implements IUpdatable {
                     File file = cache.getCacheFile(s);
                     
                     if (Utils.getCachedImageUrl(s) == null) {
-                        Utils.downloadImage(s, file);
+                        Utils.downloadToFile(s, file, maxSize);
                     }
                 }
                 
@@ -90,7 +92,7 @@ public class ImageCacheUpdater implements IUpdatable {
                 File fileDelete = l.get(i++);
                 long tempSize = fileDelete.length();
                 if (fileDelete.delete()) {
-                    size -= tempSize; 
+                    size -= tempSize;
                 }
             }
         }
