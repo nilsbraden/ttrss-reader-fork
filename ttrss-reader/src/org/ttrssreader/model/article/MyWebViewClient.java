@@ -26,9 +26,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.gui.activities.MediaPlayerActivity;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -116,12 +113,20 @@ public class MyWebViewClient extends WebViewClient {
     private class AsyncDownloader extends AsyncTask<URL, Void, Void> {
         protected Void doInBackground(URL... urls) {
             
+            String msg = "";
             if (urls.length < 1) {
-                showNotification((String) context.getText(R.string.WebViewClientActivity_DownloadError), 0, false);
+                Log.e(Utils.TAG, "No URL given, skipping download...");
+                
+                msg = (String) context.getText(R.string.Utils_DownloadError);
+                Utils.showNotification(msg, 0, false, context);
+                
                 return null;
             } else if (!externalStorageState()) {
                 Log.e(Utils.TAG, "External Storage not available, skipping download...");
-                showNotification((String) context.getText(R.string.WebViewClientActivity_DownloadError), 0, false);
+                
+                msg = (String) context.getText(R.string.Utils_DownloadError);
+                Utils.showNotification(msg, 0, false, context);
+                
                 return null;
             }
             
@@ -175,7 +180,7 @@ public class MyWebViewClient extends WebViewClient {
                 String path = folder + File.separator + name;
                 
                 Log.d(Utils.TAG, "Finished. Path: " + path + " Time: " + time + "s.");
-                showNotification(path, time, false);
+                Utils.showNotification(path, time, false, context);
                 
             } catch (IOException e) {
                 Log.d(Utils.TAG, "Error while downloading: " + e);
@@ -183,36 +188,6 @@ public class MyWebViewClient extends WebViewClient {
             
             return null;
         }
-    }
-    
-    public void showNotification(String path, int time, boolean error) {
-        if (path == null)
-            return;
-        
-        CharSequence ticker = "";
-        CharSequence title = "";
-        
-        if (error) {
-            ticker = (String) context.getText(R.string.WebViewClientActivity_DownloadError);
-            title = (String) context.getText(R.string.WebViewClientActivity_DownloadErrorMessage);
-        } else {
-            ticker = (String) context.getText(R.string.WebViewClientActivity_DownloadFinished);
-            title = String.format((String) context.getText(R.string.WebViewClientActivity_DownloadFinished), time);
-        }
-        
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager mNotMan = (NotificationManager) context.getSystemService(ns);
-        
-        long when = System.currentTimeMillis();
-        int icon = R.drawable.icon;
-        
-        PendingIntent intent = PendingIntent.getActivity(context, 0, new Intent(), 0);
-        Notification n = new Notification(icon, ticker, when);
-        n.flags |= Notification.FLAG_AUTO_CANCEL;
-        n.setLatestEventInfo(context, title, path, intent);
-        
-        // TODO replace with proper ID like articleID or something
-        mNotMan.notify(time - 1290000000, n);
     }
     
 }
