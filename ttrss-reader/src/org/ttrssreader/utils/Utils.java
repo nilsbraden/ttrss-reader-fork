@@ -28,9 +28,15 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.activities.AboutActivity;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -187,7 +193,7 @@ public class Utils {
         if (cache != null && cache.containsKey(url)) {
             String localUrl = "file://" + cache.getDiskCacheDirectory() + File.separator + cache.getFileNameForKey(url);
             
-            Log.d(Utils.TAG, String.format("Url: %s - Cache-Url:  %s", url, localUrl));
+            // Log.d(Utils.TAG, String.format("Url: %s - Cache-Url:  %s", url, localUrl));
             return localUrl;
         }
         return null;
@@ -336,4 +342,47 @@ public class Utils {
         }
         return size;
     }
+    
+    /**
+     * Shows a notification with the given parameters
+     * 
+     * @param content
+     *            the string to display
+     * @param time
+     *            how long the process took
+     * @param error
+     *            set to true if an error occured
+     * @param context
+     *            the context
+     */
+    public static void showNotification(String content, int time, boolean error, Context context) {
+        if (content == null)
+            return;
+        
+        CharSequence ticker = "";
+        CharSequence title = "";
+        
+        if (error) {
+            ticker = (String) context.getText(R.string.Utils_DownloadError);
+            title = (String) context.getText(R.string.Utils_DownloadErrorMessage);
+        } else {
+            ticker = (String) context.getText(R.string.Utils_DownloadFinished);
+            title = String.format((String) context.getText(R.string.Utils_DownloadFinished), time);
+        }
+        
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager mNotMan = (NotificationManager) context.getSystemService(ns);
+        
+        long when = System.currentTimeMillis();
+        int icon = R.drawable.icon;
+        
+        PendingIntent intent = PendingIntent.getActivity(context, 0, new Intent(), 0);
+        Notification n = new Notification(icon, ticker, when);
+        n.flags |= Notification.FLAG_AUTO_CANCEL;
+        n.setLatestEventInfo(context, title, content, intent);
+        
+        // TODO replace with proper ID like articleID or something
+        mNotMan.notify(time - 1290000000, n);
+    }
+    
 }

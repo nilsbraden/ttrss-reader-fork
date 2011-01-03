@@ -45,6 +45,7 @@ public class ImageCacheUpdater implements IUpdatable {
     @Override
     public void update() {
         cache = Controller.getInstance().getImageCache(context);
+        long start = System.currentTimeMillis();
         if (cache == null) {
             Log.e(Utils.TAG, "Could not update cache, Disk-Cache-Directory is not available.");
             return;
@@ -57,8 +58,6 @@ public class ImageCacheUpdater implements IUpdatable {
                 
                 String content = a.getContent();
                 for (String s : Utils.findAllImageUrls(content)) {
-                    Log.d(Utils.TAG, a.getTitle() + " - " + s);
-                    
                     File file = cache.getCacheFile(s);
                     
                     if (Utils.getCachedImageUrl(s) == null) {
@@ -71,33 +70,52 @@ public class ImageCacheUpdater implements IUpdatable {
         
         // Shrink cache to size set in options
         File folder = new File(cache.getDiskCacheDirectory());
+        long sizeMax = Controller.getInstance().getImageCacheSize() * 1024 * 1024;
         long size = Utils.getFolderSize(folder);
-        long sizeOption = Controller.getInstance().getImageCacheSize() * 1024 * 1024;
         
-        Log.d(Utils.TAG, "Local cache size: " + size + " (Limit: " + sizeOption + ")");
-        if (size > sizeOption) {
-            List<File> l = Arrays.asList(folder.listFiles());
+        Log.d(Utils.TAG, String.format("BEFORE Cache: %s MB (Limit: %s MB)", size / 1048576, sizeMax / 1048576));
+        
+        if (size > sizeMax) {
+            List<File> list = Arrays.asList(folder.listFiles());
             
-            Collections.sort(l, new Comparator<File>() {
-                @Override
-                public int compare(File f1, File f2) {
-                    Long l1 = f1.lastModified();
-                    Long l2 = f2.lastModified();
-                    return l1.compareTo(l2);
+            // Delete old images (86400000 = 24 * 60 * 60 * 1000)
+            long maxAge = System.currentTimeMillis() - Controller.getInstance().getImageCacheAge() * 86400000;
+            for (File f : list) {
+                if (f.lastModified() > maxAge) {
+                    f.delete();
                 }
-            });
+            }
             
-            int i = 0;
-            while (size > sizeOption) {
-                File fileDelete = l.get(i++);
-                long tempSize = fileDelete.length();
-                if (fileDelete.delete()) {
-                    size -= tempSize;
+            // Refresh size and check again
+            size = Utils.getFolderSize(folder);
+            if (size > sizeMax) {
+                // Sort list by last access date
+                Collections.sort(list, new Comparator<File>() {
+                    @Override
+                    public int compare(File f1, File f2) {
+                        return ((Long) f1.lastModified()).compareTo((Long) f2.lastModified());
+                    }
+                });
+                
+                // Delete files until size is fine with the settings
+                int i = 0;
+                while (size > sizeMax) {
+                    File fileDelete = list.get(i++);
+                    long tempSize = fileDelete.length();
+                    if (fileDelete.delete()) {
+                        size -= tempSize;
+                    }
                 }
             }
         }
-        Log.d(Utils.TAG, "Local cache size: " + size + " (Limit: " + sizeOption + ")");
         
+        int time = (int) (System.currentTimeMillis() - start) / 1000;
+        String content = String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", size / 1048576,
+                sizeMax / 1048576, time);
+        Utils.showNotification(content, time, false, context);
+        
+        Log.d(Utils.TAG, String.format("AFTER  Cache: %s MB (Limit: %s MB, took %s seconds)", size / 1048576,
+                sizeMax / 1048576, time));
     }
     
 }

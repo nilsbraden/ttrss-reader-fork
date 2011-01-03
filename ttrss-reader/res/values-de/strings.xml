@@ -23,6 +23,7 @@
     <string name="Main.UpdateMenu">Update</string>
     <string name="Main.ShowAboutMenu">About</string>
     <string name="Main.Nothing">Keine Kategorien. Bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
+    <string name="Main.StartDownloadForCache">Cache images</string>
     
     <string name="Preferences.Reset">Einstellungen zurücksetzen</string>
     <string name="Preferences.Btn">Einstellungen</string>
@@ -115,6 +116,8 @@
     <string name="DisplayArticleLimitSummary">Gibt an wieviele Artikel lokal gespeichert werden.</string>
     <string name="StoreImageLimitTitle">Bild-Cache Größe (in MB)</string>
     <string name="StoreImageLimitSummary">Größe des Zwischenspeichers für Bilder zur Offline-Nutzung.</string>
+    <string name="StoreImageAgeLimitTitle">Maximal n Tage alte Bilder zwischenspeichern</string>
+    <string name="StoreImageAgeLimitSummary">Gibt an wie alt Bilder im Cache maximal sein dürfen.</string>
     
     <string name="ErrorActivity.Title">Fehler</string>
     <string name="ErrorActivity.UserMessage">Konnte nicht zu Ihrer Tiny Tiny RSS-Installation verbinden, bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
@@ -122,10 +125,11 @@
     <string name="ErrorActivity.ErrorDefault">Ein unbekannter Fehler ist aufgetreten. Sie können versuchen mehr Informationen mittels \"adb logcat\" von einem PC aus (sofern das Android-SDK installiert ist) oder über das Programm aLogcat aus dem Market zu bekommen.</string>
     <string name="ErrorActivity.CloseBtn">Schließen</string>
     
-    <string name="WebViewClientActivity.DownloadError">Ein Fehler ist aufgetreten.</string>
-    <string name="WebViewClientActivity.DownloadErrorMessage">Ein Fehler ist aufgetreten, der Download konnte nicht abgeschlossen werden.</string>
-    <string name="WebViewClientActivity.DownloadFinished">Download abgeschlossen.</string>
-    <string name="WebViewClientActivity.DownloadFinishedTime">Download in %s Sekunden abgeschlossen.</string>
+    <string name="Utils.DownloadFinished">Prozess abgeschlossen.</string>
+    <string name="Utils.DownloadFinishedTime">Prozess in %s Sekunden abgeschlossen.</string>
+    <string name="Utils.DownloadError">Ein Fehler ist aufgetreten.</string>
+    <string name="Utils.DownloadErrorMessage">Ein Fehler ist aufgetreten, der Prozess konnte nicht abgeschlossen werden.</string>
+
     <string name="WebViewClientActivity.Download">Download</string>
     <string name="WebViewClientActivity.Display">Im Mediaplayer anzeigen</string>
     

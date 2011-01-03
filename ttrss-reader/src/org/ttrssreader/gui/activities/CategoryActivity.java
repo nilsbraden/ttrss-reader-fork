@@ -61,6 +61,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private static final int MENU_SHOW_ABOUT = Menu.FIRST + 2;
     private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
     private static final int MENU_MARK_ALL_READ = Menu.FIRST + 4;
+    private static final int MENU_DOWNLOAD_CACHE = Menu.FIRST + 5;
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_READ = MARK_GROUP + 1;
@@ -72,7 +73,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     private CategoryListAdapter mAdapter = null;
     private Refresher refresher;
     private Updater updater;
-    private ImageCacheUpdater imageCacher;
+    private Updater imageCacher;
     
     private boolean configChecked = false;
     
@@ -135,6 +136,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         if (updater != null) {
             updater.cancel(true);
             updater = null;
+        }
+        if (imageCacher != null) {
+            imageCacher.cancel(true);
+            imageCacher = null;
         }
     }
     
@@ -251,8 +256,8 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         item = menu.add(0, MENU_SHOW_PREFERENCES, 0, R.string.Main_ShowPreferencesMenu);
         item.setIcon(R.drawable.preferences32);
         item = menu.add(0, MENU_SHOW_ABOUT, 0, R.string.Main_ShowAboutMenu);
-        item = menu.add(0, 123, 0, "CACHE");
         item.setIcon(R.drawable.about32);
+        item = menu.add(0, MENU_DOWNLOAD_CACHE, 0, R.string.Main_StartDownloadForCache);
         return true;
     }
     
@@ -279,10 +284,11 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             case MENU_SHOW_ABOUT:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
-            case 123:
-                if (imageCacher == null) {
-                    imageCacher = new ImageCacheUpdater(this);
-                    new Updater(null, imageCacher).execute();
+            case MENU_DOWNLOAD_CACHE:
+                if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
+                    setProgressBarIndeterminateVisibility(true);
+                    imageCacher = new Updater(null, new ImageCacheUpdater(this));
+                    imageCacher.execute();
                 }
         }
         return super.onMenuItemSelected(featureId, item);
@@ -296,6 +302,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         if (updater != null) {
             updater.cancel(true);
             updater = null;
+        }
+        if (imageCacher != null) {
+            imageCacher.cancel(true);
+            imageCacher = null;
         }
         
         Intent i = new Intent(this, ErrorActivity.class);
@@ -394,6 +404,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             if (updater.getStatus().equals(Status.FINISHED)) {
                 setProgressBarIndeterminateVisibility(false);
             }
+        } else if (imageCacher != null) {
+            if (imageCacher.getStatus().equals(Status.FINISHED)) {
+                setProgressBarIndeterminateVisibility(false);
+            }
         } else {
             setProgressBarIndeterminateVisibility(false);
         }
@@ -401,7 +415,16 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     
     @Override
     public void onUpdateEnd() {
-        updater = null;
+        if (updater != null) {
+            if (updater.getStatus().equals(Status.FINISHED)) {
+                updater = null;
+            }
+        }
+        if (imageCacher != null) {
+            if (imageCacher.getStatus().equals(Status.FINISHED)) {
+                imageCacher = null;
+            }
+        }
         doRefresh();
     }
     

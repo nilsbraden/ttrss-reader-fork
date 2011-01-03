@@ -24,6 +24,7 @@
     <string name="Main.UpdateMenu">Update</string>
     <string name="Main.ShowAboutMenu">About</string>
     <string name="Main.Nothing">No categories to display. Check your connection and/or your connection settings.</string>
+    <string name="Main.StartDownloadForCache">Bilder herunterladen</string>
     
     <string name="Preferences.Reset">Reset Preferences</string>
     <string name="Preferences.Btn">Preferences</string>
@@ -117,6 +118,8 @@
     <string name="DisplayArticleLimitSummary">How many Articles will be cached locally.</string>
     <string name="StoreImageLimitTitle">Image cache size (in MB)</string>
     <string name="StoreImageLimitSummary">The size of the SD-Card image cache for offline usage.</string>
+    <string name="StoreImageAgeLimitTitle">Cache images from n days</string>
+    <string name="StoreImageAgeLimitSummary">Specifies how long images are kept in the cache.</string>
     
     <string name="ErrorActivity.Title">Error</string>
     <string name="ErrorActivity.UserMessage">I was unable to connect to your Tiny Tiny RSS instance, please check your connection and/or connection settings.</string>
@@ -124,10 +127,11 @@
     <string name="ErrorActivity.ErrorDefault">An unknown error occurred. You may try to get more information by using aLogcat (from the market) or ADB.</string>
     <string name="ErrorActivity.CloseBtn">Close</string>
     
-    <string name="WebViewClientActivity.DownloadError">An error occurred.</string>
-    <string name="WebViewClientActivity.DownloadErrorMessage">An error occurred, download could not be finished.</string>
-    <string name="WebViewClientActivity.DownloadFinished">Download finished.</string>
-    <string name="WebViewClientActivity.DownloadFinishedTime">Download finished in %s seconds.</string>
+    <string name="Utils.DownloadFinished">Finished.</string>
+    <string name="Utils.DownloadFinishedTime">Process finished in %s seconds.</string>
+    <string name="Utils.Error">An error occurred.</string>
+    <string name="Utils.ErrorMessage">An error occurred, process could not be finished.</string>
+    
     <string name="WebViewClientActivity.Download">Download</string>
     <string name="WebViewClientActivity.Display">Display in Mediaplayer</string>
     
