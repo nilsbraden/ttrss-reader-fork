@@ -193,7 +193,10 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         mLastError = "";
         
         JSONArray result = null;
-        String strResponse = doRequest(url + sidUrl); // Append Session-ID to all calls except login
+        if (!url.contains(sidUrl)) {
+            url += sidUrl;
+        }
+        String strResponse = doRequest(url); // Append Session-ID to all calls except login
         
         if (!mHasLastError) {
             if (strResponse != null && strResponse.length() > 0) {
