@@ -3,6 +3,8 @@
 = Changes =
 == Version 0.8 ==
   * Added pre-downloading of images for offline viewing
+  * Added Settings for Image-Cache and Notification when Caching finished
+  * Fixed Issue #40 (Better error-handling for API_DISABLED and NOT_LOGGED_IN)
 
 == Version 0.7.8 ==
   * Added HTTP-Authentication. Resolves Issue #32 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=32 If an http 401 (denied) is received, try http authentication])

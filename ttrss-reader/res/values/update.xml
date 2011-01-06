@@ -16,7 +16,8 @@
     not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <string-array name="updates"> 
+    <string-array name="updates">
+        <item>v0.8: Added pre-downloading of images for offline viewing, added Settings for Image-Cache and Notification when Caching finished, added better error-handling for API_DISABLED and NOT_LOGGED_IN</item> 
         <item>v0.7.8: Added HTTP-Authentication (Issue #32), Fixed Issue with display of all articles (Issue #34)</item>
         <item>v0.7.7: IMPORTANT: Please update your server to 1.5.0 from http://tt-rss.org/ and visit the TTRSS-Reader\'s project-page for full changelog. If you need to stay with server version 1.4.3.1 you should install TTRSS-Reader v0.7.3 from the project-page.</item>
         <item>v0.7.6: New Application-Icon and Overlay-icons for star/publish, Added support for the star/unstar feature, Added support for the published-feature, Fixed display of fresh/starred/published articles in the virtual feeds, Fixed handling of URLs in Article-View, Fixed problems with marking articles as read/unread</item>
