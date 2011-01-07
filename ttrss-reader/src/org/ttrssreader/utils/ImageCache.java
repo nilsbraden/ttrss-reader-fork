@@ -109,21 +109,10 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     }
     
     public File getCacheFile(String key) {
-        File f = new File(Utils.SDCARD_PATH_CACHE);
+        File f = new File(diskCacheDir);
         if (!f.exists()) {
             f.mkdirs();
         }
-        
-        // Create .nomedia File in Cache-Folder so android doesn't generate thumbnails
-        File nomediaFile = new File(Utils.SDCARD_PATH_CACHE + ".nomedia");
-        if (!nomediaFile.exists()) {
-            try {
-                nomediaFile.createNewFile();
-            } catch (IOException e) {
-                Log.e(Utils.TAG, "Couldn't create File: " + nomediaFile.getAbsolutePath());
-            }
-        }
-        
         return new File(diskCacheDir + "/" + getFileNameForKey(key));
     }
     
