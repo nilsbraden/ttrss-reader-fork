@@ -81,7 +81,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.category);
+        setContentView(R.layout.categorylist);
         
         Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeDB(this);

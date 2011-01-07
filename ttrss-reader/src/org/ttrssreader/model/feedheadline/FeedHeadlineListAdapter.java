@@ -16,9 +16,9 @@
 
 package org.ttrssreader.model.feedheadline;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,13 +29,12 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.article.ArticleItem;
-import org.ttrssreader.utils.DateUtils;
+import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -45,32 +44,32 @@ import android.widget.TextView;
 
 public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable, IUpdatable {
     
-    private Context mContext;
+    private Context context;
     
-    private int mFeedId;
+    private int feedId;
     
     // Renamed from mFeeds to mArticles because its an Article-List
-    private List<ArticleItem> mArticles = null;
-    private Set<ArticleItem> mArticlesTemp = null;
+    private List<ArticleItem> articles = null;
+    private Set<ArticleItem> articlesTemp = null;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
-        mContext = context;
-        mFeedId = feedId;
-        mArticles = new ArrayList<ArticleItem>();
+        this.context = context;
+        this.feedId = feedId;
+        this.articles = new ArrayList<ArticleItem>();
     }
     
     public void setArticles(List<ArticleItem> articles) {
-        this.mArticles = articles;
+        this.articles = articles;
     }
     
     @Override
     public int getCount() {
-        return mArticles.size();
+        return articles.size();
     }
     
     @Override
     public Object getItem(int position) {
-        return mArticles.get(position);
+        return articles.get(position);
     }
     
     @Override
@@ -79,13 +78,13 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     }
     
     public int getFeedItemId(int position) {
-        return mArticles.get(position).getId();
+        return articles.get(position).getId();
     }
     
     public ArrayList<Integer> getFeedItemIds() {
         ArrayList<Integer> result = new ArrayList<Integer>();
         
-        for (ArticleItem ai : mArticles) {
+        for (ArticleItem ai : articles) {
             result.add(ai.getId());
         }
         
@@ -95,7 +94,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     public int getUnreadCount() {
         int result = 0;
         
-        Iterator<ArticleItem> iter = mArticles.iterator();
+        Iterator<ArticleItem> iter = articles.iterator();
         while (iter.hasNext()) {
             if (iter.next().isUnread()) {
                 result++;
@@ -106,14 +105,14 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     }
     
     public List<ArticleItem> getArticles() {
-        return mArticles;
+        return articles;
     }
     
     public List<ArticleItem> getArticleReadList() {
         List<ArticleItem> result = new ArrayList<ArticleItem>();
         
         ArticleItem item;
-        Iterator<ArticleItem> iter = mArticles.iterator();
+        Iterator<ArticleItem> iter = articles.iterator();
         while (iter.hasNext()) {
             item = iter.next();
             if (!item.isUnread()) {
@@ -128,7 +127,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         List<ArticleItem> result = new ArrayList<ArticleItem>();
         
         ArticleItem item;
-        Iterator<ArticleItem> iter = mArticles.iterator();
+        Iterator<ArticleItem> iter = articles.iterator();
         while (iter.hasNext()) {
             item = iter.next();
             if (item.isUnread()) {
@@ -139,125 +138,90 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         return result;
     }
     
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= mArticles.size())
-            return new View(mContext);
-        
-        FeedHeadlineListView sv;
-        ArticleItem a = mArticles.get(position);
-        if (convertView == null) {
-            sv = new FeedHeadlineListView(mContext, a.getTitle(), a.isUnread(), a.getUpdateDate(), a.isStarred(),
-                    a.isPublished());
+    private void getImage(ImageView icon, ArticleItem a) {
+        if (a.isUnread()) {
+            icon.setBackgroundResource(R.drawable.articleunread48);
         } else {
-            sv = (FeedHeadlineListView) convertView;
-            sv.setIcon(a.isUnread(), a.isStarred(), a.isPublished());
-            sv.setBoldTitleIfNecessary(a.isUnread());
-            sv.setTitle(a.getTitle());
-            sv.setUpdateDate(mContext, a.getUpdateDate());
+            icon.setBackgroundResource(R.drawable.articleread48);
         }
         
-        return sv;
+        if (a.isStarred() && a.isPublished()) {
+            icon.setImageResource(R.drawable.published_and_starred48);
+        } else if (a.isStarred()) {
+            icon.setImageResource(R.drawable.star_yellow48);
+        } else if (a.isPublished()) {
+            icon.setImageResource(R.drawable.published_blue48);
+        } else {
+            icon.setBackgroundDrawable(null);
+            if (a.isUnread()) {
+                icon.setImageResource(R.drawable.articleunread48);
+            } else {
+                icon.setImageResource(R.drawable.articleread48);
+            }
+        }
     }
     
-    private class FeedHeadlineListView extends LinearLayout {
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        if (position >= articles.size())
+            return new View(context);
         
-        public FeedHeadlineListView(Context context, String title, boolean isUnread, Date updatedDate,
-                boolean isStarred, boolean isPublished) {
-            super(context);
-            
-            this.setOrientation(HORIZONTAL);
-            
-            // Here we build the child views in code. They could also have
-            // been specified in an XML file.
-            
-            mIcon = new ImageView(context);
-            setIcon(isUnread, isStarred, isPublished);
-            addView(mIcon, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
-            
-            LinearLayout textLayout = new LinearLayout(context);
-            textLayout.setOrientation(VERTICAL);
-            textLayout.setGravity(Gravity.CENTER_VERTICAL);
-            
-            LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
-            layoutParams.setMargins(10, 0, 0, 0);
-            
-            addView(textLayout, layoutParams);
-            
-            mTitle = new TextView(context);
-            setBoldTitleIfNecessary(isUnread);
-            mTitle.setText(title);
-            textLayout.addView(mTitle, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-                    LayoutParams.WRAP_CONTENT));
-            
-            mUpdateDate = new TextView(context);
-            mUpdateDate.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
-            setUpdateDate(context, updatedDate);
-            textLayout.addView(mUpdateDate, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-                    LayoutParams.WRAP_CONTENT));
-        }
+        ArticleItem a = articles.get(position);
         
-        public void setTitle(String title) {
-            mTitle.setText(title);
-        }
-        
-        public void setBoldTitleIfNecessary(boolean isUnread) {
-            if (isUnread) {
-                mTitle.setTypeface(Typeface.DEFAULT_BOLD, 1);
-            } else {
-                mTitle.setTypeface(Typeface.DEFAULT, 0);
+        final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LinearLayout layout = null;
+        if (convertView == null) {
+            layout = (LinearLayout) inflater.inflate(R.layout.feedheadlineitem, null);
+        } else {
+            if (convertView instanceof LinearLayout) {
+                layout = (LinearLayout) convertView;
             }
         }
         
-        public void setIcon(boolean isUnread, boolean isStarred, boolean isPublished) {
-            // TODO: Find a way to overlay more than 2 images
-            if (isUnread) {
-                mIcon.setBackgroundResource(R.drawable.articleunread48);
-            } else {
-                mIcon.setBackgroundResource(R.drawable.articleread48);
-            }
-            
-            if (isStarred && isPublished) {
-                mIcon.setImageResource(R.drawable.published_and_starred48);
-            } else if (isStarred) {
-                mIcon.setImageResource(R.drawable.star_yellow48);
-            } else if (isPublished) {
-                mIcon.setImageResource(R.drawable.published_blue48);
-            } else {
-                mIcon.setBackgroundDrawable(null);
-                if (isUnread) {
-                    mIcon.setImageResource(R.drawable.articleunread48);
-                } else {
-                    mIcon.setImageResource(R.drawable.articleread48);
-                }
+        // TODO: Find a way to overlay more than 2 images
+        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+        getImage(icon, a);
+        
+        TextView title = (TextView) layout.findViewById(R.id.title);
+        title.setText(a.getTitle());
+        if (a.isUnread()) {
+            title.setTypeface(Typeface.DEFAULT_BOLD, 1);
+        } else {
+            title.setTypeface(Typeface.DEFAULT, 0);
+        }
+        
+        TextView updateDate = (TextView) layout.findViewById(R.id.updateDate);
+        String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(a.getUpdateDate());
+        updateDate.setText(date);
+        
+        TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
+        if (feedId < 0 && feedId >= -4) {
+            FeedItem f = Data.getInstance().getFeed(a.getFeedId());
+            if (f != null) {
+                dataSource.setText(f.getTitle());
             }
         }
         
-        public void setUpdateDate(Context context, Date updatedDate) {
-            mUpdateDate.setText(DateUtils.getDisplayDate(context, updatedDate));
-        }
-        
-        private ImageView mIcon;
-        private TextView mTitle;
-        private TextView mUpdateDate;
+        return layout;
     }
     
     @Override
     public Set<?> refreshData() {
         Set<ArticleItem> ret;
         
-        if (mArticlesTemp != null && mArticlesTemp.size() > 0) {
-            List<ArticleItem> articles = new ArrayList<ArticleItem>(mArticlesTemp);
+        if (articlesTemp != null && articlesTemp.size() > 0) {
+            List<ArticleItem> articles = new ArrayList<ArticleItem>(articlesTemp);
             Collections.sort(articles);
             ret = new LinkedHashSet<ArticleItem>(articles);
-            ret.addAll(mArticlesTemp);
-            mArticlesTemp = null;
+            ret.addAll(articlesTemp);
+            articlesTemp = null;
         } else {
             Log.d(Utils.TAG, "Fetching Articles from DB...");
-            ret = new LinkedHashSet<ArticleItem>(Data.getInstance().getArticles(mFeedId));
+            ret = new LinkedHashSet<ArticleItem>(Data.getInstance().getArticles(feedId));
         }
         
-        if (ret != null) {
+        if (ret != null && (feedId < 0 && feedId >= -3)) {
+            // We want all articles for starred (-1) and published (-2) and fresh (-3)
             if (Controller.getInstance().isDisplayOnlyUnread()) {
                 Set<ArticleItem> temp = new LinkedHashSet<ArticleItem>();
                 
@@ -277,8 +241,8 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     public void update() {
         if (!Controller.getInstance().isWorkOffline()) {
             boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-            Log.i(Utils.TAG, "updateArticles(feedId: " + mFeedId + ")");
-            mArticlesTemp = Data.getInstance().updateArticles(mFeedId, displayOnlyUnread);
+            Log.i(Utils.TAG, "updateArticles(feedId: " + feedId + ")");
+            articlesTemp = Data.getInstance().updateArticles(feedId, displayOnlyUnread);
         }
     }
     

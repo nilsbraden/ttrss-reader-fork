@@ -30,7 +30,7 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -40,27 +40,27 @@ import android.widget.TextView;
 
 public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IUpdatable {
     
-    private Context mContext;
+    private Context context;
     
-    private int mUnreadCount;
+    private int unreadCount;
     
-    private List<CategoryItem> mCategories;
-    private Set<CategoryItem> mCategoriesTemp;
+    private List<CategoryItem> categories;
+    private Set<CategoryItem> categoriesTemp;
     
     public CategoryListAdapter(Context context) {
-        mContext = context;
-        mCategories = new ArrayList<CategoryItem>();
-        mUnreadCount = 0;
+        this.context = context;
+        this.categories = new ArrayList<CategoryItem>();
+        this.unreadCount = 0;
     }
     
     @Override
     public int getCount() {
-        return mCategories.size();
+        return categories.size();
     }
     
     @Override
     public Object getItem(int position) {
-        return mCategories.get(position);
+        return categories.get(position);
     }
     
     @Override
@@ -69,27 +69,27 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     }
     
     public int getCategoryId(int position) {
-        return mCategories.get(position).getId();
+        return categories.get(position).getId();
     }
     
     public String getCategoryTitle(int position) {
-        return mCategories.get(position).getTitle();
+        return categories.get(position).getTitle();
     }
     
     public int getUnreadCount(int position) {
-        return mCategories.get(position).getUnread();
+        return categories.get(position).getUnread();
     }
     
     public int getTotalUnread() {
-        return mUnreadCount;
+        return unreadCount;
     }
     
     public List<CategoryItem> getCategories() {
-        return mCategories;
+        return categories;
     }
     
     public void setCategories(List<CategoryItem> categories) {
-        this.mCategories = categories;
+        this.categories = categories;
     }
     
     private String formatTitle(String title, int unread) {
@@ -100,94 +100,64 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
         }
     }
     
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= mCategories.size())
-            return new View(mContext);
-        
-        CategoryListView sv = null;
-        CategoryItem c = mCategories.get(position);
-        if (convertView == null) {
-            sv = new CategoryListView(mContext, c.getTitle(), c.getId(), c.getUnread());
+    private int getImage(int id, boolean unread) {
+        if (id == -1) {
+            return R.drawable.star48;
+        } else if (id == -2) {
+            return R.drawable.published48;
+        } else if (id == -3) {
+            return R.drawable.fresh48;
+        } else if (id == -4) {
+            return R.drawable.all48;
         } else {
-            sv = (CategoryListView) convertView;
-            sv.setIcon(c.getId(), c.getUnread() > 0);
-            sv.setBoldTitleIfNecessary(c.getUnread() > 0);
-            sv.setTitle(formatTitle(c.getTitle(), c.getUnread()));
+            if (unread) {
+                return R.drawable.categoryunread48;
+            } else {
+                return R.drawable.categoryread48;
+            }
         }
-        
-        return sv;
     }
     
-    private class CategoryListView extends LinearLayout {
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        if (position >= categories.size())
+            return new View(context);
         
-        public CategoryListView(Context context, String title, int id, int unreadCount) {
-            super(context);
-            
-            this.setOrientation(HORIZONTAL);
-            
-            // Here we build the child views in code. They could also have
-            // been specified in an XML file.
-            
-            mIcon = new ImageView(context);
-            setIcon(id, unreadCount > 0);
-            addView(mIcon, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
-            
-            mTitle = new TextView(context);
-            mTitle.setGravity(Gravity.CENTER_VERTICAL);
-            setBoldTitleIfNecessary(unreadCount > 0);
-            mTitle.setText(formatTitle(title, unreadCount));
-            
-            LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
-            layoutParams.setMargins(10, 0, 0, 0);
-            
-            addView(mTitle, layoutParams);
-            
-        }
+        CategoryItem c = categories.get(position);
         
-        public void setTitle(String title) {
-            mTitle.setText(title);
-        }
-        
-        public void setBoldTitleIfNecessary(boolean isUnread) {
-            if (isUnread) {
-                mTitle.setTypeface(Typeface.DEFAULT_BOLD, 1);
-            } else {
-                mTitle.setTypeface(Typeface.DEFAULT, 0);
+        final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LinearLayout layout = null;
+        if (convertView == null) {
+            layout = (LinearLayout) inflater.inflate(R.layout.categoryitem, null);
+        } else {
+            if (convertView instanceof LinearLayout) {
+                layout = (LinearLayout) convertView;
             }
         }
         
-        public void setIcon(int id, boolean hasUnread) {
-            if (id == -1) {
-                mIcon.setImageResource(R.drawable.star48);
-            } else if (id == -2) {
-                mIcon.setImageResource(R.drawable.published48);
-            } else if (id == -3) {
-                mIcon.setImageResource(R.drawable.fresh48);
-            } else if (id == -4) {
-                mIcon.setImageResource(R.drawable.all48);
-            } else {
-                if (hasUnread) {
-                    mIcon.setImageResource(R.drawable.categoryunread48);
-                } else {
-                    mIcon.setImageResource(R.drawable.categoryread48);
-                }
-            }
+        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+        icon.setImageResource(getImage(c.getId(), c.getUnread() > 0));
+        
+        TextView title = (TextView) layout.findViewById(R.id.title);
+        title.setText(formatTitle(c.getTitle(), c.getUnread()));
+        if (c.getUnread() > 0) {
+            title.setTypeface(Typeface.DEFAULT_BOLD, 1);
+        } else {
+            title.setTypeface(Typeface.DEFAULT, 0);
         }
         
-        private ImageView mIcon;
-        private TextView mTitle;
+        return layout;
     }
     
     @Override
     public Set<?> refreshData() {
         Set<CategoryItem> ret;
         
-        if (mCategoriesTemp != null) {
-            List<CategoryItem> cats = new ArrayList<CategoryItem>(mCategoriesTemp);
+        if (categoriesTemp != null) {
+            List<CategoryItem> cats = new ArrayList<CategoryItem>(categoriesTemp);
             Collections.sort(cats);
             ret = new LinkedHashSet<CategoryItem>(cats);
-            mCategoriesTemp = null;
+            categoriesTemp = null;
         } else {
             ret = Data.getInstance().getCategories(Controller.getInstance().isDisplayVirtuals());
         }
@@ -207,7 +177,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
         }
         
         // Fetch new overall Unread-Count
-        mUnreadCount = Data.getInstance().getCategoryUnreadCount(-4);
+        unreadCount = Data.getInstance().getCategoryUnreadCount(-4);
         
         return ret;
     }
@@ -226,21 +196,21 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
             Data.getInstance().updateUnreadArticles();
         }
         
-        if (mCategoriesTemp == null) {
-            mCategoriesTemp = new LinkedHashSet<CategoryItem>();
+        if (categoriesTemp == null) {
+            categoriesTemp = new LinkedHashSet<CategoryItem>();
             
             Log.i(Utils.TAG, "CategoryListAdapter - updateCategories()");
             Set<CategoryItem> cats = Data.getInstance().updateCategories();
-            if (cats != null && cats.size() > 0 && mCategoriesTemp != null)
-                mCategoriesTemp.addAll(cats);
+            if (cats != null && cats.size() > 0 && categoriesTemp != null)
+                categoriesTemp.addAll(cats);
             
             Log.i(Utils.TAG, "CategoryListAdapter - updateVirtualCategories()");
             Set<CategoryItem> vCats = Data.getInstance().updateVirtualCategories();
-            if (vCats != null && vCats.size() > 0 && mCategoriesTemp != null)
-                mCategoriesTemp.addAll(vCats);
+            if (vCats != null && vCats.size() > 0 && categoriesTemp != null)
+                categoriesTemp.addAll(vCats);
             
-            if (mCategoriesTemp != null && mCategoriesTemp.isEmpty())
-                mCategoriesTemp = null;
+            if (categoriesTemp != null && categoriesTemp.isEmpty())
+                categoriesTemp = null;
         }
     }
     
