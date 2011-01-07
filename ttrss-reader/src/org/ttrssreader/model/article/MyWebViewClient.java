@@ -150,12 +150,12 @@ public class MyWebViewClient extends WebViewClient {
             
             // Path: /sdcard/Android/data/org.ttrssreader/files/
             StringBuilder sb = new StringBuilder();
-            
-            sb.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH);
+            sb.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH_FILES);
             File folder = new File(sb.toString());
             
-            if (!folder.exists())
+            if (!folder.exists()) {
                 folder.mkdirs();
+            }
             
             RandomAccessFile file = null;
             try {

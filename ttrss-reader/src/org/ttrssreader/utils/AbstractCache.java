@@ -1,11 +1,12 @@
-/* Copyright (c) 2009 Matthias Kaeppler
- *
+/*
+ * Copyright (c) 2009 Matthias Kaeppler
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,49 +26,44 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
-
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
-
 import com.google.common.collect.MapMaker;
 
 /**
  * <p>
- * A simple 2-level cache consisting of a small and fast in-memory cache (1st level cache) and an
- * (optional) slower but bigger disk cache (2nd level cache). For disk caching, either the
- * application's cache directory or the SD card can be used. Please note that in the case of the app
- * cache dir, Android may at any point decide to wipe that entire directory if it runs low on
- * internal storage. The SD card cache <i>must</i> be managed by the application, e.g. by calling
- * {@link #wipe} whenever the app quits.
+ * A simple 2-level cache consisting of a small and fast in-memory cache (1st level cache) and an (optional) slower but
+ * bigger disk cache (2nd level cache). For disk caching, either the application's cache directory or the SD card can be
+ * used. Please note that in the case of the app cache dir, Android may at any point decide to wipe that entire
+ * directory if it runs low on internal storage. The SD card cache <i>must</i> be managed by the application, e.g. by
+ * calling {@link #wipe} whenever the app quits.
  * </p>
  * <p>
- * When pulling from the cache, it will first attempt to load the data from memory. If that fails,
- * it will try to load it from disk (assuming disk caching is enabled). If that succeeds, the data
- * will be put in the in-memory cache and returned (read-through). Otherwise it's a cache miss.
+ * When pulling from the cache, it will first attempt to load the data from memory. If that fails, it will try to load
+ * it from disk (assuming disk caching is enabled). If that succeeds, the data will be put in the in-memory cache and
+ * returned (read-through). Otherwise it's a cache miss.
  * </p>
  * <p>
- * Pushes to the cache are always write-through (i.e. the data will be stored both on disk, if disk
- * caching is enabled, and in memory).
+ * Pushes to the cache are always write-through (i.e. the data will be stored both on disk, if disk caching is enabled,
+ * and in memory).
  * </p>
  * 
  * @author Matthias Kaeppler
  */
 public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
-
+    
     public static final int DISK_CACHE_INTERNAL = 0;
     public static final int DISK_CACHE_SDCARD = 1;
-
-    private static final String LOG_TAG = "Droid-Fu[CacheFu]";
-
-    private boolean isDiskCacheEnabled;
-
-    protected String diskCacheDirectory;
-
+    
+    protected boolean isDiskCacheEnabled;
+    
+    protected String diskCacheDir;
+    
     protected ConcurrentMap<KeyT, ValT> cache;
-
+    
     private String name;
-
+    
     /**
      * Creates a new cache instance.
      * 
@@ -85,11 +81,8 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      *            how many threads you think may at once access the cache; this need not be an exact
      *            number, but it helps in fragmenting the cache properly
      */
-    public AbstractCache(String name, int initialCapacity, long expirationInMinutes,
-            int maxConcurrentThreads) {
-
-        this.name = name;
-
+    public AbstractCache(String name, int initialCapacity, long expirationInMinutes, int maxConcurrentThreads) {
+        
         MapMaker mapMaker = new MapMaker();
         mapMaker.initialCapacity(initialCapacity);
         mapMaker.expiration(expirationInMinutes * 60, TimeUnit.SECONDS);
@@ -97,77 +90,41 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
         mapMaker.softValues();
         this.cache = mapMaker.makeMap();
     }
-
+    
     /**
      * Enable caching to the phone's internal storage or SD card.
      * 
      * @param context
      *            the current context
      * @param storageDevice
-     *            where to store the cached files, either {@link #DISK_CACHE_INTERNAL} or
-     *            {@link #DISK_CACHE_SDCARD})
+     *            where to store the cached files, either {@link #DISK_CACHE_INTERNAL} or {@link #DISK_CACHE_SDCARD})
      * @return
      */
     public boolean enableDiskCache(Context context, int storageDevice) {
         Context appContext = context.getApplicationContext();
-
+        
         String rootDir = null;
         if (storageDevice == DISK_CACHE_SDCARD
                 && Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             // SD-card available
-            rootDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"
-                    + appContext.getPackageName();
+            rootDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + appContext.getPackageName();
         } else {
             rootDir = appContext.getCacheDir().getAbsolutePath();
         }
-
-        this.diskCacheDirectory = rootDir + "/TTRSS-Offline-Cache/"
-                + StringSupport.underscore(name.replaceAll("\\s", ""));
-        File outFile = new File(diskCacheDirectory);
+        
+        this.diskCacheDir = rootDir + File.separator + StringSupport.underscore(name.replaceAll("\\s", ""));
+        File outFile = new File(diskCacheDir);
         outFile.mkdirs();
-
+        
         isDiskCacheEnabled = outFile.exists();
-
+        
         if (!isDiskCacheEnabled) {
-            Log.w(LOG_TAG, "Failed creating disk cache directory " + diskCacheDirectory);
-        } else {
-            Log.d(name, "enabled write through to " + diskCacheDirectory);
+            Log.w(Utils.TAG, "Failed creating disk cache directory " + diskCacheDir);
         }
-
+        
         return isDiskCacheEnabled;
     }
     
-    /**
-     * Enable caching to the phone's SD card.
-     * 
-     * @param context
-     *            the current context
-     * @return
-     */
-    public boolean enableDiskCache(Context context) {
-        Context appContext = context.getApplicationContext();
-        
-        String rootDir = null;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            // SD-card available
-            rootDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + appContext.getPackageName();
-            this.diskCacheDirectory = rootDir + "/TTRSS-Offline-Cache/"
-                    + StringSupport.underscore(name.replaceAll("\\s", ""));
-            File outFile = new File(diskCacheDirectory);
-            outFile.mkdirs();
-
-            isDiskCacheEnabled = outFile.exists();
-        }
-        
-        if (!isDiskCacheEnabled) {
-            Log.w(LOG_TAG, "Failed creating disk cache directory " + diskCacheDirectory);
-        } else {
-            Log.d(name, "enabled write through to " + diskCacheDirectory);
-        }
-        
-        return isDiskCacheEnabled;
-    }
-
     /**
      * Only meaningful if disk caching is enabled. See {@link #enableDiskCache}.
      * 
@@ -175,9 +132,9 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      *         enabled, otherwise null
      */
     public String getDiskCacheDirectory() {
-        return diskCacheDirectory;
+        return diskCacheDir;
     }
-
+    
     /**
      * Only meaningful if disk caching is enabled. See {@link #enableDiskCache}. Turns a cache key
      * into the file name that will be used to persist the value to disk. Subclasses must implement
@@ -188,7 +145,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      * @return the file name
      */
     public abstract String getFileNameForKey(KeyT key);
-
+    
     /**
      * Only meaningful if disk caching is enabled. See {@link #enableDiskCache}. Restores a value
      * previously persisted to the disk cache.
@@ -199,7 +156,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      * @throws IOException
      */
     protected abstract ValT readValueFromDisk(File file) throws IOException;
-
+    
     /**
      * Only meaningful if disk caching is enabled. See {@link #enableDiskCache}. Persists a value to
      * the disk cache.
@@ -210,32 +167,31 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      *            the cache value to persist
      * @throws IOException
      */
-    protected abstract void writeValueToDisk(BufferedOutputStream ostream, ValT value)
-            throws IOException;
-
+    protected abstract void writeValueToDisk(BufferedOutputStream ostream, ValT value) throws IOException;
+    
     private void cacheToDisk(KeyT key, ValT value) {
-        File file = new File(diskCacheDirectory + "/" + getFileNameForKey(key));
+        File file = new File(diskCacheDir + "/" + getFileNameForKey(key));
         try {
             file.createNewFile();
             file.deleteOnExit();
-
+            
             BufferedOutputStream ostream = new BufferedOutputStream(new FileOutputStream(file));
-
+            
             writeValueToDisk(ostream, value);
-
+            
             ostream.close();
-
+            
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
+    
     private File getFileForKey(KeyT key) {
-        return new File(diskCacheDirectory + "/" + getFileNameForKey(key));
+        return new File(diskCacheDir + "/" + getFileNameForKey(key));
     }
-
+    
     /**
      * Reads a value from the cache by probing the in-memory cache, and if enabled and the in-memory
      * probe was a miss, the disk cache.
@@ -253,7 +209,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
             Log.d(name, "MEM cache hit for " + key.toString());
             return value;
         }
-
+        
         // memory miss, try reading from disk
         File file = getFileForKey(key);
         if (file.exists()) {
@@ -272,11 +228,11 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
             cache.put(key, value);
             return value;
         }
-
+        
         // cache miss
         return null;
     }
-
+    
     /**
      * Writes an element to the cache. NOTE: If disk caching is enabled, this will write through to
      * the disk, which may introduce a performance penalty.
@@ -285,14 +241,14 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
         if (isDiskCacheEnabled) {
             cacheToDisk(key, value);
         }
-
+        
         return cache.put(key, value);
     }
-
+    
     public synchronized void putAll(Map<? extends KeyT, ? extends ValT> t) {
         throw new UnsupportedOperationException();
     }
-
+    
     /**
      * Checks if a value is present in the cache. If the disk cached is enabled, this will also
      * check whether the value has been persisted to disk.
@@ -305,7 +261,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     public synchronized boolean containsKey(Object key) {
         return cache.containsKey(key) || (isDiskCacheEnabled && getFileForKey((KeyT) key).exists());
     }
-
+    
     /**
      * Checks if a value is present in the in-memory cache. This method ignores the disk cache.
      * 
@@ -316,49 +272,49 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     public synchronized boolean containsKeyInMemory(Object key) {
         return cache.containsKey(key);
     }
-
+    
     /**
      * Checks if the given value is currently hold in memory.
      */
     public synchronized boolean containsValue(Object value) {
         return cache.containsValue(value);
     }
-
+    
     @SuppressWarnings("unchecked")
     public synchronized ValT remove(Object key) {
         ValT value = cache.remove(key);
-
+        
         if (isDiskCacheEnabled) {
             File cachedValue = getFileForKey((KeyT) key);
             if (cachedValue.exists()) {
                 cachedValue.delete();
             }
         }
-
+        
         return value;
     }
-
+    
     public Set<KeyT> keySet() {
         return cache.keySet();
     }
-
+    
     public Set<Map.Entry<KeyT, ValT>> entrySet() {
         return cache.entrySet();
     }
-
+    
     public synchronized int size() {
         return cache.size();
     }
-
+    
     public synchronized boolean isEmpty() {
         return cache.isEmpty();
     }
-
+    
     public synchronized void clear() {
         cache.clear();
-
+        
         if (isDiskCacheEnabled) {
-            File[] cachedFiles = new File(diskCacheDirectory).listFiles();
+            File[] cachedFiles = new File(diskCacheDir).listFiles();
             if (cachedFiles == null) {
                 return;
             }
@@ -367,7 +323,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
             }
         }
     }
-
+    
     public Collection<ValT> values() {
         return cache.values();
     }

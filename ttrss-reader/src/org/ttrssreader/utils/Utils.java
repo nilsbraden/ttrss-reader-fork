@@ -80,7 +80,12 @@ public class Utils {
     /**
      * Path on sdcard to store files (DB, Certificates, ...)
      */
-    public static final String SDCARD_PATH = "/Android/data/org.ttrssreader/files/";
+    public static final String SDCARD_PATH_FILES = "/Android/data/org.ttrssreader/files/";
+    
+    /**
+     * Path on sdcard to store files (DB, Certificates, ...)
+     */
+    public static final String SDCARD_PATH_CACHE = "/Android/data/org.ttrssreader/cache/";
     
     public static String convertStreamToString(InputStream is) {
         /*

@@ -87,7 +87,7 @@ public class HttpClientFactory {
         try {
             KeyStore trusted = KeyStore.getInstance("BKS");
             
-            File file = new File(Environment.getExternalStorageDirectory() + File.separator + Utils.SDCARD_PATH
+            File file = new File(Environment.getExternalStorageDirectory() + File.separator + Utils.SDCARD_PATH_FILES
                     + "store.bks");
             
             if (!file.exists()) {
