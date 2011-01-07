@@ -196,9 +196,10 @@ public class Data {
                 limit = (l > limit ? l : 30);
             }
             
-            // "smaller than -3" because we want all articles for starred (-1) and published (-2)
-            if (feedId < -3 && feedId > -10) {
+            if (feedId < 0 && feedId >= -3) {
+                // We want all articles for starred (-1) and published (-2) and fresh (-3)
                 limit = getCategoryUnreadCount(feedId);
+                displayOnlyUnread = false;
             }
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");

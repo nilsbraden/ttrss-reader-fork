@@ -177,6 +177,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         return strResponse;
     }
     
+    private void doRequestNoAnswer(String url) {
+        if (!url.contains(sidUrl)) {
+            url += sidUrl;
+        }
+        doRequest(url); // Append Session-ID to all calls except login
+    }
+    
     private JSONArray getJSONResponseAsArray(String url) {
         
         // Make sure we are logged in
@@ -225,7 +232,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 result = new TTRSSJsonResult(strResponse);
             } catch (JSONException e) {
                 mHasLastError = true;
-                mLastError = e.getMessage() + ", Method: getJSONResponse(String url)";
+                mLastError = e.getMessage() + ", Method: getJSONLoginResponse(String url)";
             }
         }
         
@@ -338,7 +345,13 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         try {
             if (!mHasLastError) {
                 if (str != null && str.length() > 0) {
-                    result = new TTRSSJsonResult(str);
+                    
+                    // Make sure we only parse the stuff between the brackets, sometimes there is other output
+                    int start = str.indexOf("{");
+                    int stop = str.lastIndexOf("}");
+                    if (start >= 0 && stop > start && str.length() >= stop + 1) {
+                        result = new TTRSSJsonResult(str.substring(start, stop + 1));
+                    }
                 }
             }
             
@@ -534,7 +547,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         Set<Map<String, Object>> ret = new LinkedHashSet<Map<String, Object>>();
         Map<String, Object> m;
         
-        String url = mServerUrl + String.format(OP_GET_COUNTERS, mSessionId);
+        String url = mServerUrl + String.format(OP_GET_COUNTERS);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
@@ -598,7 +611,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     public Set<CategoryItem> getCategories() {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
         
-        String url = mServerUrl + String.format(OP_GET_CATEGORIES, mSessionId);
+        String url = mServerUrl + String.format(OP_GET_CATEGORIES);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
@@ -629,7 +642,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         Map<Integer, Set<FeedItem>> ret = new HashMap<Integer, Set<FeedItem>>();;
         
         // TODO: Hardcoded -4 fetches all feeds. See http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
-        String url = mServerUrl + String.format(OP_GET_FEEDS, mSessionId, "-4");
+        String url = mServerUrl + String.format(OP_GET_FEEDS, "-4");
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
@@ -668,7 +681,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     public Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode) {
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
         
-        String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, mSessionId, feedId, limit, viewMode);
+        String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
@@ -709,7 +722,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             sb.deleteCharAt(sb.length() - 1);
         }
         
-        String url = mServerUrl + String.format(OP_GET_ARTICLE, mSessionId, sb.toString());
+        String url = mServerUrl + String.format(OP_GET_ARTICLE, sb.toString());
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
@@ -739,7 +752,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         /* Not integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
         Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, Set<ArticleItem>>>();
         
-        String url = mServerUrl + String.format(OP_GET_NEW_ARTICLES, mSessionId, articleState, time);
+        String url = mServerUrl + String.format(OP_GET_NEW_ARTICLES, articleState, time);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {
@@ -815,33 +828,33 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             sb.deleteCharAt(sb.length() - 1);
         }
         
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, mSessionId, sb, articleState, 2);
-        doRequest(url);
+        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, sb, articleState, 2);
+        doRequestNoAnswer(url);
     }
     
     @Override
     public void setArticleStarred(int articlesId, int articleState) {
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, mSessionId, articlesId, articleState, 0);
-        doRequest(url);
+        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, articlesId, articleState, 0);
+        doRequestNoAnswer(url);
     }
     
     @Override
     public void setArticlePublished(int articlesId, int articleState) {
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, mSessionId, articlesId, articleState, 1);
-        doRequest(url);
+        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, articlesId, articleState, 1);
+        doRequestNoAnswer(url);
     }
     
     @Override
     public void setRead(int id, boolean isCategory) {
-        // TODO: replace 1|0 by boolean value, at the moment the value isn't correctly parsed in the API
-        String url = mServerUrl + String.format(OP_CATCHUP, mSessionId, id, (isCategory ? 1 : 0));
-        doRequest(url);
+        // TODO: Someday replace 1|0 by boolean value, at the moment the value isn't correctly parsed in the API
+        String url = mServerUrl + String.format(OP_CATCHUP, id, (isCategory ? 1 : 0));
+        doRequestNoAnswer(url);
     }
     
     @Override
     public String getPref(String pref) {
         String ret = null;
-        String url = mServerUrl + String.format(OP_GET_PREF, mSessionId, pref);
+        String url = mServerUrl + String.format(OP_GET_PREF, pref);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null) {

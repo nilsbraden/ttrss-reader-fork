@@ -82,7 +82,13 @@ public class ReadStateUpdater implements IUpdatable {
         if (categories != null) {
             
             for (CategoryItem ci : categories) {
-                Controller.getInstance().getConnector().setRead(ci.getId(), true);
+                if (ci.getId() > -1) {
+                    Controller.getInstance().getConnector().setRead(ci.getId(), true);
+                } else {
+                    // Virtual Categories are actually Feeds (the server handles them as such) so we have to set isCat
+                    // to false here
+                    Controller.getInstance().getConnector().setRead(ci.getId(), false);
+                }
                 DBHelper.getInstance().markCategoryRead(ci, true);
             }
             Data.getInstance().updateCounters();

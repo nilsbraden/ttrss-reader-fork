@@ -31,7 +31,7 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -41,30 +41,31 @@ import android.widget.TextView;
 
 public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdatable {
     
-    private Context mContext;
-    private int mCategoryId;
+    private Context context;
     
-    private List<FeedItem> mFeeds;
-    private Set<FeedItem> mFeedsTemp;
+    private int categoryId;
+    
+    private List<FeedItem> feeds;
+    private Set<FeedItem> feedsTemp;
     
     public FeedListAdapter(Context context, int categoryId) {
-        mContext = context;
-        mCategoryId = categoryId;
-        mFeeds = new ArrayList<FeedItem>();
+        this.context = context;
+        this.categoryId = categoryId;
+        this.feeds = new ArrayList<FeedItem>();
     }
     
     public void setFeeds(List<FeedItem> feeds) {
-        this.mFeeds = feeds;
+        this.feeds = feeds;
     }
     
     @Override
     public int getCount() {
-        return mFeeds.size();
+        return feeds.size();
     }
     
     @Override
     public Object getItem(int position) {
-        return mFeeds.get(position);
+        return feeds.get(position);
     }
     
     @Override
@@ -73,25 +74,25 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     }
     
     public int getFeedId(int position) {
-        return mFeeds.get(position).getId();
+        return feeds.get(position).getId();
     }
     
     public String getFeedTitle(int position) {
-        return mFeeds.get(position).getTitle();
+        return feeds.get(position).getTitle();
     }
     
     public int getUnread(int position) {
-        return mFeeds.get(position).getUnread();
+        return feeds.get(position).getUnread();
     }
     
     public List<FeedItem> getFeeds() {
-        return mFeeds;
+        return feeds;
     }
     
     public ArrayList<Integer> getFeedIds() {
         ArrayList<Integer> ret = new ArrayList<Integer>();
         
-        for (FeedItem f : mFeeds) {
+        for (FeedItem f : feeds) {
             ret.add(f.getId());
         }
         return ret;
@@ -100,7 +101,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     public ArrayList<String> getFeedNames() {
         ArrayList<String> ret = new ArrayList<String>();
         
-        for (FeedItem f : mFeeds) {
+        for (FeedItem f : feeds) {
             ret.add(f.getTitle());
         }
         return ret;
@@ -109,7 +110,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     public int getTotalUnreadCount() {
         int result = 0;
         
-        Iterator<FeedItem> iter = mFeeds.iterator();
+        Iterator<FeedItem> iter = feeds.iterator();
         while (iter.hasNext()) {
             result += iter.next().getUnread();
         }
@@ -125,89 +126,58 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
         }
     }
     
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= mFeeds.size())
-            return new View(mContext);
-        
-        FeedListView sv = null;
-        FeedItem f = mFeeds.get(position);
-        if (convertView == null) {
-            sv = new FeedListView(mContext, f.getTitle(), f.getUnread());
+    private int getImage(boolean unread) {
+        if (unread) {
+            return R.drawable.feedheadlinesunread48;
         } else {
-            if (convertView instanceof FeedListView) {
-                sv = (FeedListView) convertView;
-                sv.setIcon(f.getUnread() > 0);
-                sv.setBoldTitleIfNecessary(f.getUnread() > 0);
-                sv.setTitle(formatTitle(f.getTitle(), f.getUnread()));
-            }
+            return R.drawable.feedheadlinesread48;
         }
-        
-        return sv;
     }
     
-    private class FeedListView extends LinearLayout {
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        if (position >= feeds.size())
+            return new View(context);
         
-        public FeedListView(Context context, String title, int unread) {
-            super(context);
-            
-            this.setOrientation(HORIZONTAL);
-            
-            // Here we build the child views in code. They could also have
-            // been specified in an XML file.
-            
-            mIcon = new ImageView(context);
-            setIcon(unread > 0);
-            addView(mIcon, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
-            
-            mTitle = new TextView(context);
-            mTitle.setGravity(Gravity.CENTER_VERTICAL);
-            setBoldTitleIfNecessary(unread > 0);
-            mTitle.setText(formatTitle(title, unread));
-            
-            LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
-            layoutParams.setMargins(10, 0, 0, 0);
-            
-            addView(mTitle, layoutParams);
-        }
+        FeedItem f = feeds.get(position);
         
-        public void setTitle(String title) {
-            mTitle.setText(title);
-        }
-        
-        public void setBoldTitleIfNecessary(boolean isUnread) {
-            if (isUnread) {
-                mTitle.setTypeface(Typeface.DEFAULT_BOLD, 1);
-            } else {
-                mTitle.setTypeface(Typeface.DEFAULT, 0);
+        final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LinearLayout layout = null;
+        if (convertView == null) {
+            layout = (LinearLayout) inflater.inflate(R.layout.feeditem, null);
+        } else {
+            if (convertView instanceof LinearLayout) {
+                layout = (LinearLayout) convertView;
             }
         }
         
-        public void setIcon(boolean hasUnread) {
-            if (hasUnread) {
-                mIcon.setImageResource(R.drawable.feedheadlinesunread48);
-            } else {
-                mIcon.setImageResource(R.drawable.feedheadlinesread48);
-            }
+        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+        icon.setImageResource(getImage(f.getUnread() > 0));
+        
+        TextView title = (TextView) layout.findViewById(R.id.title);
+        title.setText(formatTitle(f.getTitle(), f.getUnread()));
+        if (f.getUnread() > 0) {
+            title.setTypeface(Typeface.DEFAULT_BOLD, 1);
+        } else {
+            title.setTypeface(Typeface.DEFAULT, 0);
         }
         
-        private ImageView mIcon;
-        private TextView mTitle;
+        return layout;
     }
     
     @Override
     public Set<?> refreshData() {
         Set<FeedItem> ret;
         
-        if (mFeedsTemp != null && mFeedsTemp.size() > 0) {
-            List<FeedItem> feeds = new ArrayList<FeedItem>(mFeedsTemp);
+        if (feedsTemp != null && feedsTemp.size() > 0) {
+            List<FeedItem> feeds = new ArrayList<FeedItem>(feedsTemp);
             Collections.sort(feeds);
             ret = new LinkedHashSet<FeedItem>(feeds);
-            ret.addAll(mFeedsTemp);
-            mFeedsTemp = null;
+            ret.addAll(feedsTemp);
+            feedsTemp = null;
         } else {
             Log.d(Utils.TAG, "Fetching Feeds from DB...");
-            ret = new LinkedHashSet<FeedItem>(Data.getInstance().getFeeds(mCategoryId));
+            ret = new LinkedHashSet<FeedItem>(Data.getInstance().getFeeds(categoryId));
         }
         
         if (ret != null) {
@@ -229,8 +199,8 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     @Override
     public void update() {
         if (!Controller.getInstance().isWorkOffline()) {
-            Log.i(Utils.TAG, "updateFeeds(catId: " + mCategoryId + ")");
-            mFeedsTemp = Data.getInstance().updateFeeds(mCategoryId);
+            Log.i(Utils.TAG, "updateFeeds(catId: " + categoryId + ")");
+            feedsTemp = Data.getInstance().updateFeeds(categoryId);
         }
     }
     
