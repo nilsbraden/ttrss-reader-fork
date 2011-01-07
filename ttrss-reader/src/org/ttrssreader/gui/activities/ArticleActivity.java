@@ -37,6 +37,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -70,6 +71,10 @@ public class ArticleActivity extends Activity {
     private TextView webviewSwipeText;
     private GestureDetector mGestureDetector;
     private boolean useSwipe;
+    private int absHeight;
+    private int absWidth;
+    private int swipeHeight;
+    private int swipeWidth;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -87,8 +92,17 @@ public class ArticleActivity extends Activity {
         webview.setWebViewClient(new MyWebViewClient());
         mGestureDetector = new GestureDetector(onGestureListener);
         
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        absHeight = metrics.heightPixels;
+        absWidth = metrics.widthPixels;
+        swipeHeight = (int) (absHeight * 0.25); // 25% height
+        swipeWidth = (int) (absWidth * 0.5); // 50% width
+        int padding = (int) ((swipeHeight / 2) - (16 * metrics.density));
+        
         webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
         webviewSwipeText.setVisibility(TextView.INVISIBLE);
+        webviewSwipeText.setPadding(16, padding, 16, padding);
         useSwipe = Controller.getInstance().isUseSwipe();
         
         Bundle extras = getIntent().getExtras();
@@ -265,20 +279,17 @@ public class ArticleActivity extends Activity {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             
-            // Define SWIPE_AREA to be in the bottom and have a height of 80px
-            int SWIPE_HEIGHT = 80;
-            int SWIPE_BOTTOM = webview.getHeight() - SWIPE_HEIGHT;
+            int SWIPE_BOTTOM = webview.getHeight() - swipeHeight;
             
             int dx = (int) (e2.getX() - e1.getX());
             int dy = (int) (e2.getY() - e1.getY());
             
-            if (Math.abs(dy) > 60) {
-                // Too much Y-Movement or
+            if (Math.abs(dy) > (int) (absHeight * 0.2)) {
+                // Too much Y-Movement (20% of screen-height)
                 return false;
             } else if (e1.getY() < SWIPE_BOTTOM || e2.getY() < SWIPE_BOTTOM) {
-                
                 // Only accept swipe in SWIPE_AREA so we can use scrolling as usual
-                if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
+                if (Math.abs(dx) > swipeWidth && Math.abs(velocityX) > Math.abs(velocityY)) {
                     
                     // Display text for swipe-area
                     webviewSwipeText.setVisibility(TextView.VISIBLE);
@@ -290,10 +301,12 @@ public class ArticleActivity extends Activity {
             }
             
             // don't accept the fling if it's too short as it may conflict with a button push
-            if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
+            if (Math.abs(dx) > swipeHeight && Math.abs(velocityX) > Math.abs(velocityY)) {
                 
-                // Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
-                // + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
+                Log.d(Utils.TAG,
+                        String.format("Fling: (%s %s)(%s %s) dx: %s dy: %s (Direction: %s)", e1.getX(), e1.getY(),
+                                e2.getX(), e2.getY(), dx, dy, (velocityX > 0) ? "right" : "left"));
+                Log.d(Utils.TAG, String.format("SWIPE_HEIGHT: %s SWIPE_WIDTH: %s", swipeHeight, swipeWidth));
                 
                 if (velocityX > 0) {
                     Log.d(Utils.TAG, "Fling right");

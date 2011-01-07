@@ -8,6 +8,7 @@
   * Fixed Issue #37: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=37 display source in view "All Articles"])
   * Fixed Issue #38: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=38 mark all read in "All Articles"])
   * Fixed Issue #40 (Better error-handling for disabled API and Not logged in error)
+  * Fixed Issue #41 (Swipe-Area in article view not always visible), Size of Swipe-Area now depends on density and screen-size and is adjusted accordingly
 
 == Version 0.7.8 ==
   * Added HTTP-Authentication. Resolves Issue #32 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=32 If an http 401 (denied) is received, try http authentication])

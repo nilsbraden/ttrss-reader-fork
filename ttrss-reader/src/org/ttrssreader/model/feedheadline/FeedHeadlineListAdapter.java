@@ -220,7 +220,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
             ret = new LinkedHashSet<ArticleItem>(Data.getInstance().getArticles(feedId));
         }
         
-        if (ret != null && (feedId < 0 && feedId >= -3)) {
+        if (ret != null && !(feedId < 0 && feedId >= -3)) {
             // We want all articles for starred (-1) and published (-2) and fresh (-3)
             if (Controller.getInstance().isDisplayOnlyUnread()) {
                 Set<ArticleItem> temp = new LinkedHashSet<ArticleItem>();
