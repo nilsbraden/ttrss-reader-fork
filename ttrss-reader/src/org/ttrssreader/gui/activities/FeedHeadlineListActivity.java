@@ -41,6 +41,7 @@ import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -80,6 +81,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     private ArrayList<Integer> mFeedListIds;
     private ArrayList<String> mFeedListNames;
     private GestureDetector mGestureDetector;
+    private int absHeight;
+    private int absWidth;
     
     private ListView mFeedHeadlineListView;
     private FeedHeadlineListAdapter mAdapter = null;
@@ -99,6 +102,11 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         mFeedHeadlineListView = getListView();
         registerForContextMenu(mFeedHeadlineListView);
         mGestureDetector = new GestureDetector(onGestureListener);
+        
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        absHeight = metrics.heightPixels;
+        absWidth = metrics.widthPixels;
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -328,22 +336,27 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             
+            // SWIPE_WIDTH must be more then 50% of the screen
+            int SWIPE_WIDTH = (int) (absWidth * 0.5);
+            
             int dx = (int) (e2.getX() - e1.getX());
             int dy = (int) (e2.getY() - e1.getY());
             
-            if (Math.abs(dy) > 60) {
-                // Too much Y-Movement
+            if (Math.abs(dy) > (int) (absHeight * 0.2)) {
+                // Too much Y-Movement (20% of screen-height)
                 return false;
             } else if (!Controller.getInstance().isUseSwipe()) {
                 return false;
             }
             
             // don't accept the fling if it's too short as it may conflict with a button push
-            if (Math.abs(dx) > 80 && Math.abs(velocityX) > Math.abs(velocityY)) {
+            if (Math.abs(dx) > SWIPE_WIDTH && Math.abs(velocityX) > Math.abs(velocityY)) {
                 flingDetected = true;
                 
-                // Log.d(Utils.TAG, "Fling: (" + e1.getX() + " " + e1.getY() + ")(" + e2.getX() + " " + e2.getY()
-                // + ") dx: " + dx + " dy: " + dy + " (Direction: " + ((velocityX > 0) ? "right" : "left"));
+                Log.d(Utils.TAG,
+                        String.format("Fling: (%s %s)(%s %s) dx: %s dy: %s (Direction: %s)", e1.getX(), e1.getY(),
+                                e2.getX(), e2.getY(), dx, dy, (velocityX > 0) ? "right" : "left"));
+                Log.d(Utils.TAG, String.format("SWIPE_WIDTH: %s", SWIPE_WIDTH));
                 
                 if (velocityX > 0) {
                     openNextFeed(-1);
@@ -358,8 +371,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            // if (distanceX > distanceY)
-            // return true;
             return false;
         }
         

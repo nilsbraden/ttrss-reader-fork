@@ -108,7 +108,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     
     private String doRequest(String url) {
         long start = System.currentTimeMillis();
-        String strResponse = "";
+        String strResponse = null;
         
         HttpPost httpPost;
         HttpParams httpParams;
@@ -127,7 +127,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
             Log.e(Utils.TAG, "Error creating HTTP-Connection: " + e.getMessage());
             mHasLastError = true;
             mLastError = "Error creating HTTP-Connection: " + e.getMessage();
-            return "";
+            return null;
         }
         
         try {
@@ -146,7 +146,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 InputStream instream = entity.getContent();
                 strResponse = Utils.convertStreamToString(instream);
                 
-                if (strResponse.contains(ERROR + NOT_LOGGED_IN)) {
+                if (strResponse.contains(NOT_LOGGED_IN)) {
                     Log.w(Utils.TAG, "Not logged in, retrying...");
                     // Login and post request again
                     String tempSessionId = new String(mSessionId);
@@ -157,19 +157,28 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                     strResponse = doRequest(url);
                 }
                 
+                // Check if API is enabled for the user
+                if (strResponse.contains(API_DISABLED)) {
+                    Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, mUserName, mServerUrl));
+                    mHasLastError = true;
+                    mLastError = String.format(API_DISABLED_MESSAGE, mUserName, mServerUrl);
+                    return null;
+                }
+                
                 // Check returned string for error-messages
                 if (strResponse.startsWith(ERROR)) {
                     mHasLastError = true;
                     mLastError = strResponse;
+                    return null;
                 }
             }
         } catch (IOException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: doRequest(String url), threw IOException";
-            e.printStackTrace();
+            return null;
         }
         
-        // Parse new start with sequence-number and status-codes
+        // Parse new output with sequence-number and status-codes
         if (strResponse.contains("{\"seq\":")) {
             strResponse = parseMetadata(strResponse);
         }
@@ -211,7 +220,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                     result = new JSONArray(strResponse);
                 } catch (JSONException e) {
                     mHasLastError = true;
-                    mLastError = e.getMessage() + ", Method: getJSONResponseAsArray(String url)";
+                    mLastError = "An Error occurred. Message from Server: " + strResponse;
                 }
             }
         }
@@ -232,16 +241,8 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
                 result = new TTRSSJsonResult(strResponse);
             } catch (JSONException e) {
                 mHasLastError = true;
-                mLastError = e.getMessage() + ", Method: getJSONLoginResponse(String url)";
+                mLastError = "An Error occurred. Message from Server: " + strResponse;
             }
-        }
-        
-        // Check if API is enabled for the user
-        if (strResponse.contains(API_DISABLED)) {
-            Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, mUserName, mServerUrl));
-            mHasLastError = true;
-            mLastError = String.format(API_DISABLED_MESSAGE, mUserName, mServerUrl);
-            return null;
         }
         
         return result;
