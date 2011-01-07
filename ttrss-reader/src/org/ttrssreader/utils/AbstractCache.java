@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009 Matthias Kaeppler
+ * Modified 2010 by Nils Braden
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +51,7 @@ import com.google.common.collect.MapMaker;
  * </p>
  * 
  * @author Matthias Kaeppler
+ * @author Nils Braden (modified some stuff)
  */
 public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     
