@@ -57,23 +57,30 @@ public class ImageCacheUpdater implements IUpdatable {
             long downloaded = 0;
             
             while (!c.isAfterLast()) {
+                
                 // Get images which are included in HTML
                 for (String url : Utils.findAllImageUrls(c.getString(0))) {
                     if (!cache.containsKey(url)) {
                         downloaded += Utils.downloadToFile(url, cache.getCacheFile(url), maxSize);
                     }
                 }
+                
                 // Get images from attachments separately
                 for (String url : DBHelper.getInstance().parseAttachments(c.getString(1))) {
-                    if (!cache.containsKey(url)) {
-                        downloaded += Utils.downloadToFile(url, cache.getCacheFile(url), maxSize);
+                    for (String ext : Utils.IMAGE_EXTENSIONS) {
+                        if (url.toLowerCase().contains(ext) && !cache.containsKey(url)) {
+                            downloaded += Utils.downloadToFile(url, cache.getCacheFile(url), maxSize);
+                            break;
+                        }
                     }
                 }
-                c.move(1);
+                
                 if (downloaded > sizeMax) {
                     Log.w(Utils.TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
                     break;
                 }
+                
+                c.move(1);
             }
         }
         c.close();
