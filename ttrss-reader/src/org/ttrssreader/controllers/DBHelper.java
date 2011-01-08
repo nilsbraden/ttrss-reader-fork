@@ -41,9 +41,9 @@ public class DBHelper {
     private static final String DATABASE_NAME = "ttrss.db";
     private static final int DATABASE_VERSION = 44;
     
-    private static final String TABLE_CATEGORIES = "categories";
-    private static final String TABLE_FEEDS = "feeds";
-    private static final String TABLE_ARTICLES = "articles";
+    public static final String TABLE_CATEGORIES = "categories";
+    public static final String TABLE_FEEDS = "feeds";
+    public static final String TABLE_ARTICLES = "articles";
     
     // @formatter:off
     private static final String INSERT_CATEGORY = 
@@ -155,6 +155,9 @@ public class DBHelper {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
         
+        /**
+         * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
+         */
         @Override
         public void onCreate(SQLiteDatabase db) {
             // @formatter:off
@@ -191,6 +194,9 @@ public class DBHelper {
             // @formatter:on
         }
         
+        /**
+         * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
+         */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             boolean didUpgrade = false;
@@ -225,6 +231,13 @@ public class DBHelper {
             }
             
         }
+    }
+    
+    /**
+     * @see android.database.sqlite.SQLiteDatabase#query(String, String[], String, String[], String, String, String)
+     */
+    public Cursor query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy) {
+        return db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
     }
     
     // *******| INSERT |*******************************************************************
@@ -803,18 +816,24 @@ public class DBHelper {
         return ret;
     }
     
-    public Map<Integer, Set<ArticleItem>> getArticles(boolean withContent) {
+    private Cursor getArticlesCursor;
+    
+    public Map<Integer, Set<ArticleItem>> getArticles() {
         Map<Integer, Set<ArticleItem>> ret = new HashMap<Integer, Set<ArticleItem>>();
         if (!isDBAvailable()) {
             return ret;
         }
         
-        Cursor c = null;
+        // TODO: Changed behaviour so it reuses the query if it was requested before, but didn't test the implementation
+        // afterwards.
+        if (getArticlesCursor != null) {
+            getArticlesCursor.requery();
+        } else {
+            getArticlesCursor = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC");
+        }
         try {
-            c = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC");
-            
-            while (!c.isAfterLast()) {
-                ArticleItem a = handleArticleCursor(c);
+            while (!getArticlesCursor.isAfterLast()) {
+                ArticleItem a = handleArticleCursor(getArticlesCursor);
                 int feedId = a.getFeedId();
                 
                 Set<ArticleItem> set;
@@ -827,18 +846,20 @@ public class DBHelper {
                 set.add(a);
                 ret.put(feedId, set);
                 
-                c.move(1);
+                getArticlesCursor.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
-                c.close();
+            if (getArticlesCursor != null) {
+                getArticlesCursor.deactivate();
             }
         }
         
         return ret;
     }
+    
+    private Cursor getFeedsCursor;
     
     public Map<Integer, Set<FeedItem>> getFeeds() {
         Map<Integer, Set<FeedItem>> ret = new HashMap<Integer, Set<FeedItem>>();
@@ -846,13 +867,17 @@ public class DBHelper {
             return ret;
         }
         
-        Cursor c = null;
+        // TODO: Changed behaviour so it reuses the query if it was requested before, but didn't test the implementation
+        // afterwards.
+        if (getFeedsCursor != null) {
+            getFeedsCursor.requery();
+        } else {
+            getFeedsCursor = db.query(TABLE_FEEDS, null, null, null, null, null, "upper(title) ASC");
+        }
         try {
-            c = db.query(TABLE_FEEDS, null, null, null, null, null, "upper(title) ASC");
-            
-            while (!c.isAfterLast()) {
-                FeedItem fi = handleFeedCursor(c);
-                int catId = c.getInt(1);
+            while (!getFeedsCursor.isAfterLast()) {
+                FeedItem fi = handleFeedCursor(getFeedsCursor);
+                int catId = getFeedsCursor.getInt(1);
                 
                 Set<FeedItem> set;
                 if (ret.get(catId) != null) {
@@ -864,18 +889,20 @@ public class DBHelper {
                 set.add(fi);
                 ret.put(catId, set);
                 
-                c.move(1);
+                getFeedsCursor.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
-                c.close();
+            if (getFeedsCursor != null) {
+                getFeedsCursor.deactivate();
             }
         }
         
         return ret;
     }
+    
+    private Cursor getVirtualCategoriesCursor;
     
     public Set<CategoryItem> getVirtualCategories() {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
@@ -883,26 +910,32 @@ public class DBHelper {
             return ret;
         }
         
-        Cursor c = null;
+        // TODO: Changed behaviour so it reuses the query if it was requested before, but didn't test the implementation
+        // afterwards.
+        if (getVirtualCategoriesCursor != null) {
+            getVirtualCategoriesCursor.requery();
+        } else {
+            getVirtualCategoriesCursor = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
+        }
         try {
-            c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
-            
-            while (!c.isAfterLast()) {
-                CategoryItem ci = handleCategoryCursor(c);
+            while (!getVirtualCategoriesCursor.isAfterLast()) {
+                CategoryItem ci = handleCategoryCursor(getVirtualCategoriesCursor);
                 
                 ret.add(ci);
-                c.move(1);
+                getVirtualCategoriesCursor.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
-                c.close();
+            if (getVirtualCategoriesCursor != null) {
+                getVirtualCategoriesCursor.deactivate();
             }
         }
         
         return ret;
     }
+    
+    private Cursor getCategoriesCursor;
     
     public Set<CategoryItem> getCategories() {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
@@ -910,21 +943,25 @@ public class DBHelper {
             return ret;
         }
         
-        Cursor c = null;
+        // TODO: Changed behaviour so it reuses the query if it was requested before, but didn't test the implementation
+        // afterwards.
+        if (getCategoriesCursor != null) {
+            getCategoriesCursor.requery();
+        } else {
+            getCategoriesCursor = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) ASC");
+        }
         try {
-            c = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) ASC");
-            
-            while (!c.isAfterLast()) {
-                CategoryItem ci = handleCategoryCursor(c);
+            while (!getCategoriesCursor.isAfterLast()) {
+                CategoryItem ci = handleCategoryCursor(getCategoriesCursor);
                 
                 ret.add(ci);
-                c.move(1);
+                getCategoriesCursor.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
-                c.close();
+            if (getCategoriesCursor != null) {
+                getCategoriesCursor.deactivate();
             }
         }
         
@@ -1003,7 +1040,7 @@ public class DBHelper {
         return ret;
     }
     
-    private Set<String> parseAttachments(String att) {
+    public Set<String> parseAttachments(String att) {
         Set<String> ret = new LinkedHashSet<String>();
         if (att == null) {
             return ret;
@@ -1016,7 +1053,7 @@ public class DBHelper {
         return ret;
     }
     
-    private String parseAttachmentSet(Set<String> att) {
+    public String parseAttachmentSet(Set<String> att) {
         if (att == null) {
             return "";
         }

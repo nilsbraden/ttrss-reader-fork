@@ -129,8 +129,8 @@
     
     <string name="Utils.DownloadFinished">Finished.</string>
     <string name="Utils.DownloadFinishedTime">Process finished in %s seconds.</string>
-    <string name="Utils.Error">An error occurred.</string>
-    <string name="Utils.ErrorMessage">An error occurred, process could not be finished.</string>
+    <string name="Utils.DownloadError">An error occurred.</string>
+    <string name="Utils.DownloadErrorMessage">An error occurred, process could not be finished.</string>
     
     <string name="WebViewClientActivity.Download">Download</string>
     <string name="WebViewClientActivity.Display">Display in Mediaplayer</string>

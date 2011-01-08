@@ -89,6 +89,7 @@ public class ArticleActivity extends Activity {
         webview = (WebView) findViewById(R.id.webview);
         webview.getSettings().setJavaScriptEnabled(true);
         webview.getSettings().setBuiltInZoomControls(true);
+        
         webview.setWebViewClient(new MyWebViewClient());
         mGestureDetector = new GestureDetector(onGestureListener);
         
@@ -303,10 +304,10 @@ public class ArticleActivity extends Activity {
             // don't accept the fling if it's too short as it may conflict with a button push
             if (Math.abs(dx) > swipeHeight && Math.abs(velocityX) > Math.abs(velocityY)) {
                 
-                Log.d(Utils.TAG,
-                        String.format("Fling: (%s %s)(%s %s) dx: %s dy: %s (Direction: %s)", e1.getX(), e1.getY(),
-                                e2.getX(), e2.getY(), dx, dy, (velocityX > 0) ? "right" : "left"));
-                Log.d(Utils.TAG, String.format("SWIPE_HEIGHT: %s SWIPE_WIDTH: %s", swipeHeight, swipeWidth));
+                // Log.d(Utils.TAG
+                // String.format("Fling: (%s %s)(%s %s) dx: %s dy: %s (Direction: %s)", e1.getX(), e1.getY()
+                // e2.getX(), e2.getY(), dx, dy, (velocityX > 0) ? "right" : "left"))
+                // Log.d(Utils.TAG, String.format("SWIPE_HEIGHT: %s SWIPE_WIDTH: %s", swipeHeight, swipeWidth));
                 
                 if (velocityX > 0) {
                     Log.d(Utils.TAG, "Fling right");

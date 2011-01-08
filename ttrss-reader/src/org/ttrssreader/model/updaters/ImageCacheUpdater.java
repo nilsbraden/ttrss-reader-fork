@@ -20,22 +20,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.IUpdatable;
-import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
+import android.database.Cursor;
 import android.util.Log;
 
 public class ImageCacheUpdater implements IUpdatable {
     
-    private static final long maxSize = 1024 * 1024 * 1024;
-    
-    private ImageCache cache;
     private Context context;
     
     public ImageCacheUpdater(Context context) {
@@ -44,51 +39,61 @@ public class ImageCacheUpdater implements IUpdatable {
     
     @Override
     public void update() {
-        cache = Controller.getInstance().getImageCache(context);
         long start = System.currentTimeMillis();
-        if (cache == null) {
-            Log.e(Utils.TAG, "Could not update cache, Disk-Cache-Directory is not available.");
+        ImageCache cache = Controller.getInstance().getImageCache(context);
+        if (cache == null)
             return;
-        }
         
         Log.d(Utils.TAG, "Updating images in cache...");
-        Map<Integer, Set<ArticleItem>> map = DBHelper.getInstance().getArticles(true);
-        for (Set<ArticleItem> set : map.values()) {
-            for (ArticleItem a : set) {
-                
-                String content = a.getContent();
-                for (String s : Utils.findAllImageUrls(content)) {
-                    File file = cache.getCacheFile(s);
-                    
-                    if (Utils.getCachedImageUrl(s) == null) {
-                        Utils.downloadToFile(s, file, maxSize);
+        cache.fillMemoryCacheFromDisk();
+        
+        // Read from DB
+        Cursor c = DBHelper.getInstance().query(DBHelper.TABLE_ARTICLES, new String[] { "content", "attachments" },
+                null, null, null, null, null);
+        if (c.moveToFirst()) {
+            while (!c.isAfterLast()) {
+                // Get images which are included in HTML
+                for (String url : Utils.findAllImageUrls(c.getString(0))) {
+                    if (!cache.containsKey(url)) {
+                        Utils.downloadToFile(url, cache.getCacheFile(url));
                     }
                 }
-                
+                // Get images from attachments separately
+                for (String url : DBHelper.getInstance().parseAttachments(c.getString(1))) {
+                    if (!cache.containsKey(url)) {
+                        Utils.downloadToFile(url, cache.getCacheFile(url));
+                    }
+                }
+                c.move(1);
             }
         }
+        c.close();
         
-        // Shrink cache to size set in options
-        File folder = new File(cache.getDiskCacheDirectory());
+        int half = (int) (System.currentTimeMillis() - start) / 1000;
+        Log.d(Utils.TAG, "Downloading finished after " + half + "s, starting cache-shrinking...");
+        
+        // ** FINIHSED UPDATING, NOW SHRINKING CACHE **
+        File cacheFolder = new File(cache.getDiskCacheDirectory());
         long sizeMax = Controller.getInstance().getImageCacheSize() * 1024 * 1024;
-        long size = Utils.getFolderSize(folder);
-        
-        Log.d(Utils.TAG, String.format("BEFORE Cache: %s MB (Limit: %s MB)", size / 1048576, sizeMax / 1048576));
+        long size = Utils.getFolderSize(cacheFolder);
+        Log.d(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB)", size / 1048576, sizeMax / 1048576));
         
         if (size > sizeMax) {
-            List<File> list = Arrays.asList(folder.listFiles());
             
             // Delete old images (86400000 = 24 * 60 * 60 * 1000)
             long maxAge = System.currentTimeMillis() - Controller.getInstance().getImageCacheAge() * 86400000;
-            for (File f : list) {
+            File[] fArray = cacheFolder.listFiles();
+            for (File f : fArray) {
                 if (f.lastModified() > maxAge) {
                     f.delete();
                 }
             }
             
             // Refresh size and check again
-            size = Utils.getFolderSize(folder);
+            size = Utils.getFolderSize(cacheFolder);
             if (size > sizeMax) {
+                List<File> list = Arrays.asList(fArray);
+                
                 // Sort list by last access date
                 Collections.sort(list, new Comparator<File>() {
                     @Override
@@ -113,9 +118,7 @@ public class ImageCacheUpdater implements IUpdatable {
         String content = String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", size / 1048576,
                 sizeMax / 1048576, time);
         Utils.showNotification(content, time, false, context);
-        
-        Log.d(Utils.TAG, String.format("AFTER  Cache: %s MB (Limit: %s MB, took %s seconds)", size / 1048576,
-                sizeMax / 1048576, time));
+        Log.d(Utils.TAG, content);
     }
     
 }

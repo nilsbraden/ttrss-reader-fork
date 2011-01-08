@@ -353,10 +353,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             if (Math.abs(dx) > SWIPE_WIDTH && Math.abs(velocityX) > Math.abs(velocityY)) {
                 flingDetected = true;
                 
-                Log.d(Utils.TAG,
-                        String.format("Fling: (%s %s)(%s %s) dx: %s dy: %s (Direction: %s)", e1.getX(), e1.getY(),
-                                e2.getX(), e2.getY(), dx, dy, (velocityX > 0) ? "right" : "left"));
-                Log.d(Utils.TAG, String.format("SWIPE_WIDTH: %s", SWIPE_WIDTH));
+                // Log.d(Utils.TAG,
+                // String.format("Fling: (%s %s)(%s %s) dx: %s dy: %s (Direction: %s)", e1.getX(), e1.getY(),
+                // e2.getX(), e2.getY(), dx, dy, (velocityX > 0) ? "right" : "left"));
+                // Log.d(Utils.TAG, String.format("SWIPE_WIDTH: %s", SWIPE_WIDTH));
                 
                 if (velocityX > 0) {
                     openNextFeed(-1);
