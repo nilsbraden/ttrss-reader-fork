@@ -70,7 +70,7 @@ public class Constants {
     public static boolean USE_SWIPE_DEFAULT = true;
     public static boolean ONLY_UNREAD_DEFAULT = false;
     public static int ARTICLE_LIMIT_DEFAULT = 1000;
-    public static int IMAGE_CACHE_SIZE_DEFAULT = 400;
+    public static int IMAGE_CACHE_SIZE_DEFAULT = 100;
     public static int IMAGE_CACHE_AGE_DEFAULT = 14;
     
     // Internal

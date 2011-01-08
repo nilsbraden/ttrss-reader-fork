@@ -289,8 +289,8 @@ public class Utils {
             long length = Long.parseLong(connection.getHeaderField("Content-Length"));
             if (length > maxSize) {
                 Log.w(Utils.TAG, String.format(
-                        "Not starting download of %s, the size (%s bytes) exceeds the maximum filesize of %s MB.",
-                        downloadUrl, length, maxSize / 1048576));
+                        "Not starting download of %s, the size (%s MB) exceeds the maximum filesize of %s MB.",
+                        downloadUrl, length / 1048576, maxSize / 1048576));
                 return 0;
             }
             
