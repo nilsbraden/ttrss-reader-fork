@@ -81,39 +81,8 @@ public class PreferencesActivity extends PreferenceActivity {
     
     protected void resetPreferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = prefs.edit();
-        
-        editor.putString(Constants.URL, Constants.URL_DEFAULT);
-        editor.putString(Constants.USERNAME, Constants.EMPTY);
-        editor.putString(Constants.PASSWORD, Constants.EMPTY);
-        editor.putBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
-        editor.putString(Constants.HTTP_USERNAME, Constants.EMPTY);
-        editor.putString(Constants.HTTP_PASSWORD, Constants.EMPTY);
-        editor.putBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
-        editor.putBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
-        editor.putString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
-        
-        editor.putBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
-        editor.putBoolean(Constants.OPEN_URL_EMPTY_ARTICLE, Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
-        editor.putBoolean(Constants.UPDATE_UNREAD_ON_STARTUP, Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
-        editor.putBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
-        editor.putBoolean(Constants.VIBRATE_ON_LAST_ARTICLE, Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
-        editor.putBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
-        
-        editor.putBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
-        editor.putBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
-        editor.putBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
-        editor.putInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
-        editor.putInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
-        editor.putInt(Constants.IMAGE_CACHE_AGE, Constants.IMAGE_CACHE_AGE_DEFAULT);
-        
-        editor.putInt(Constants.DATABASE_VERSION, Constants.DATABASE_VERSION_DEFAULT);
-        editor.putLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
-        editor.putString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
-        
-        editor.commit();
+        Constants.resetPreferences(prefs);
         this.finish();
-        
         ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
         startActivity(new Intent().setComponent(comp));
     }

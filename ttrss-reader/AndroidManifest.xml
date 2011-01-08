@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:versionName="0.8"
-    android:versionCode="800">
+    android:versionCode="801">
 
     <application
         android:icon="@drawable/icon"

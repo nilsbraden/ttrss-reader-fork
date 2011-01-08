@@ -401,21 +401,17 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         }
         
         boolean somethingRunning = false;
-        if (updater != null) {
-            if (!updater.getStatus().equals(Status.FINISHED)) {
-                somethingRunning = true;
-            }
-        } else if (imageCacher != null) {
-            if (!imageCacher.getStatus().equals(Status.FINISHED)) {
-                somethingRunning = true;
-            }
-        } else if (refresher != null) {
-            if (!refresher.getStatus().equals(Status.FINISHED)) {
-                somethingRunning = true;
-            }
+        if (updater != null && !updater.getStatus().equals(Status.FINISHED)) {
+            somethingRunning = true;
+        }
+        if (imageCacher != null && !imageCacher.getStatus().equals(Status.FINISHED)) {
+            somethingRunning = true;
+        }
+        if (refresher != null && !refresher.getStatus().equals(Status.FINISHED)) {
+            somethingRunning = true;
         }
         
-        if (somethingRunning) {
+        if (!somethingRunning) {
             setProgressBarIndeterminateVisibility(false);
         }
     }
