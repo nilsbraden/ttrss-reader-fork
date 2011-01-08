@@ -271,9 +271,11 @@ public class Utils {
      *            the destination file
      * @param maxSize
      *            the size in bytes after which to abort the download
+     * @return length of the downloaded file
      */
-    public static void downloadToFile(String downloadUrl, File file) {
+    public static long downloadToFile(String downloadUrl, File file, long maxSize) {
         FileOutputStream fos = null;
+        int byteWritten = 0;
         try {
             if (file.exists()) {
                 file.delete();
@@ -284,13 +286,13 @@ public class Utils {
             connection.setConnectTimeout(1000);
             connection.setReadTimeout(1000);
             
-            // long contentLength = Long.parseLong(connection.getHeaderField("Content-Length"));
-            // if (contentLength > maxSize) {
-            // Log.d(Utils.TAG, String.format(
-            // "Not starting download, the size of %s bytes exceeds maximum filesize of %s bytes.",
-            // contentLength, maxSize));
-            // return;
-            // }
+            long length = Long.parseLong(connection.getHeaderField("Content-Length"));
+            if (length > maxSize) {
+                Log.w(Utils.TAG, String.format(
+                        "Not starting download of %s, the size (%s bytes) exceeds the maximum filesize of %s MB.",
+                        downloadUrl, length, maxSize / 1048576));
+                return 0;
+            }
             
             file.createNewFile();
             fos = new FileOutputStream(file);
@@ -299,16 +301,18 @@ public class Utils {
             int size = 1024 * 1024;
             byte[] buf = new byte[size];
             int byteRead;
-            int byteWritten = 0;
             
             while (((byteRead = is.read(buf)) != -1)) {
                 fos.write(buf, 0, byteRead);
                 byteWritten += byteRead;
                 
-                // if (byteWritten > maxSize) {
-                // file.delete();
-                // break;
-                // }
+                if (byteWritten > maxSize) {
+                    Log.d(Utils.TAG, String.format(
+                            "Download interrupted, the size of %s bytes exceeds maximum filesize.", byteWritten));
+                    file.delete();
+                    byteWritten = 0;
+                    break;
+                }
             }
         } catch (Exception e) {
         } finally {
@@ -319,7 +323,7 @@ public class Utils {
                 }
             }
         }
-        
+        return byteWritten;
     }
     
     /**
