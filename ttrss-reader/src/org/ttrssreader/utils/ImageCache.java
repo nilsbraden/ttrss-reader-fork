@@ -17,13 +17,10 @@
 
 package org.ttrssreader.utils;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 
@@ -36,8 +33,8 @@ import android.util.Log;
  */
 public class ImageCache extends AbstractCache<String, byte[]> {
     
-    public ImageCache(int initialCapacity, long expirationInMinutes, int maxConcurrentThreads) {
-        super("ImageCache", initialCapacity, expirationInMinutes, maxConcurrentThreads);
+    public ImageCache(int initialCapacity) {
+        super("ImageCache", initialCapacity, 1);
     }
     
     /**
@@ -49,11 +46,9 @@ public class ImageCache extends AbstractCache<String, byte[]> {
      */
     public boolean enableDiskCache() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            
-            this.diskCacheDir = Environment.getExternalStorageDirectory() + File.separator + Utils.SDCARD_PATH_CACHE;
+            diskCacheDir = Environment.getExternalStorageDirectory() + File.separator + Utils.SDCARD_PATH_CACHE;
             File outFile = new File(diskCacheDir);
             outFile.mkdirs();
-            
             isDiskCacheEnabled = outFile.exists();
             
             // Create .nomedia File in Cache-Folder so android doesn't generate thumbnails
@@ -62,7 +57,6 @@ public class ImageCache extends AbstractCache<String, byte[]> {
                 try {
                     nomediaFile.createNewFile();
                 } catch (IOException e) {
-                    Log.e(Utils.TAG, "Couldn't create File: " + nomediaFile.getAbsolutePath());
                 }
             }
         }
@@ -74,39 +68,25 @@ public class ImageCache extends AbstractCache<String, byte[]> {
         return isDiskCacheEnabled;
     }
     
+    public void fillMemoryCacheFromDisk() {
+        byte[] b = new byte[] {};
+        File folder = new File(diskCacheDir);
+        for (File file : folder.listFiles()) {
+            cache.put(file.getName(), b);
+        }
+    }
+    
+    public synchronized boolean containsKey(String key) {
+        if (cache.containsKey(getFileNameForKey(key))) {
+            return true;
+        } else {
+            return (isDiskCacheEnabled && getCacheFile((String) key).exists());
+        }
+    }
+    
     @Override
     public String getFileNameForKey(String imageUrl) {
-        return imageUrl.replaceAll("[.:/,%?&=]", "+").replaceAll("[+]+", "+");
-    }
-    
-    @Override
-    protected byte[] readValueFromDisk(File file) throws IOException {
-        BufferedInputStream istream = new BufferedInputStream(new FileInputStream(file));
-        long fileSize = file.length();
-        if (fileSize > Integer.MAX_VALUE) {
-            throw new IOException("Cannot read files larger than " + Integer.MAX_VALUE + " bytes");
-        }
-        
-        int imageDataLength = (int) fileSize;
-        
-        byte[] imageData = new byte[imageDataLength];
-        istream.read(imageData, 0, imageDataLength);
-        istream.close();
-        
-        return imageData;
-    }
-    
-    public synchronized Bitmap getBitmap(Object elementKey) {
-        byte[] imageData = super.get(elementKey);
-        if (imageData == null) {
-            return null;
-        }
-        return BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-    }
-    
-    @Override
-    protected void writeValueToDisk(BufferedOutputStream ostream, byte[] imageData) throws IOException {
-        ostream.write(imageData);
+        return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,%?&=]", "+").replaceAll("[+]+", "+");
     }
     
     public File getCacheFile(String key) {
@@ -115,6 +95,15 @@ public class ImageCache extends AbstractCache<String, byte[]> {
             f.mkdirs();
         }
         return new File(diskCacheDir + "/" + getFileNameForKey(key));
+    }
+    
+    @Override
+    protected byte[] readValueFromDisk(File file) throws IOException {
+        return null;
+    }
+    
+    @Override
+    protected void writeValueToDisk(BufferedOutputStream ostream, byte[] value) throws IOException {
     }
     
 }

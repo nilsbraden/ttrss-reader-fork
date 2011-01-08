@@ -194,15 +194,16 @@ public class Utils {
      */
     public static String getCachedImageUrl(String url) {
         ImageCache cache = Controller.getInstance().getImageCache(null);
-        
         if (cache != null && cache.containsKey(url)) {
-            String localUrl = "file://" + cache.getDiskCacheDirectory() + File.separator + cache.getFileNameForKey(url);
-            
-            // Log.d(Utils.TAG, String.format("Url: %s - Cache-Url:  %s", url, localUrl));
-            return localUrl;
+            StringBuffer sb = new StringBuffer();
+            sb.append("file://").append(cache.getDiskCacheDirectory()).append(File.separator)
+                    .append(cache.getFileNameForKey(url));
+            return sb.toString();
         }
         return null;
     }
+    
+    private static Pattern findImageUrlsPattern;
     
     /**
      * Searches the given html code for img-Tags and filters out all src-attributes, beeing URLs to images.
@@ -217,16 +218,19 @@ public class Utils {
             return ret;
         }
         
-        Pattern p = Pattern.compile("<img.+src=\"([^\"]*)\".*/>", Pattern.CASE_INSENSITIVE);
+        if (findImageUrlsPattern == null) {
+            findImageUrlsPattern = Pattern.compile("<img.+src=\"([^\"]*)\".*/>", Pattern.CASE_INSENSITIVE);
+        }
         
         for (int i = 0; i < html.length();) {
             i = html.indexOf("<img", i);
             if (i == -1) {
                 break;
             }
-            Matcher m = p.matcher(html.substring(i, html.length()));
+            Matcher m = findImageUrlsPattern.matcher(html.substring(i, html.length()));
             
-            if (m.find()) {
+            // Filter out URLs without leading http, we cannot work with relative URLs yet.
+            if (m.find() && m.group(1).startsWith("http://")) {
                 ret.add(m.group(1));
                 i += m.group(1).length();
             } else {
@@ -245,14 +249,13 @@ public class Utils {
      * @return the altered html with the URLs replaced so they point on local files if available
      */
     public static String injectCachedImages(String html) {
-        if (html == null || html.length() < 10) {
+        if (html == null || html.length() < 40)
             return html;
-        }
         
         for (String url : findAllImageUrls(html)) {
-            
             String localUrl = getCachedImageUrl(url);
             if (localUrl != null) {
+                Log.d(Utils.TAG, "Replacing image: " + localUrl);
                 html = html.replace(url, localUrl);
             }
         }
@@ -269,24 +272,25 @@ public class Utils {
      * @param maxSize
      *            the size in bytes after which to abort the download
      */
-    public static void downloadToFile(String downloadUrl, File file, long maxSize) {
+    public static void downloadToFile(String downloadUrl, File file) {
         FileOutputStream fos = null;
         try {
-            
-            if (file.exists() && file.length() <= 1) {
+            if (file.exists()) {
                 file.delete();
             }
             
             URL url = new URL(downloadUrl);
             URLConnection connection = url.openConnection();
+            connection.setConnectTimeout(1000);
+            connection.setReadTimeout(1000);
             
-            long contentLength = Long.parseLong(connection.getHeaderField("Content-Length"));
-            if (contentLength > maxSize) {
-                Log.d(Utils.TAG, String.format(
-                        "Not starting download, the size of %s bytes exceeds maximum filesize of %s bytes.",
-                        contentLength, maxSize));
-                return;
-            }
+            // long contentLength = Long.parseLong(connection.getHeaderField("Content-Length"));
+            // if (contentLength > maxSize) {
+            // Log.d(Utils.TAG, String.format(
+            // "Not starting download, the size of %s bytes exceeds maximum filesize of %s bytes.",
+            // contentLength, maxSize));
+            // return;
+            // }
             
             file.createNewFile();
             fos = new FileOutputStream(file);
@@ -297,24 +301,15 @@ public class Utils {
             int byteRead;
             int byteWritten = 0;
             
-            long time = System.currentTimeMillis();
             while (((byteRead = is.read(buf)) != -1)) {
                 fos.write(buf, 0, byteRead);
                 byteWritten += byteRead;
                 
-                if (byteWritten > maxSize) {
-                    file.delete();
-                    break;
-                }
+                // if (byteWritten > maxSize) {
+                // file.delete();
+                // break;
+                // }
             }
-            time = System.currentTimeMillis() - time;
-            
-            if (file.exists() && file.length() <= 1) {
-                file.delete();
-            } else if (file.exists()) {
-                Log.d(Utils.TAG, String.format("Download time: %s ms (File: %s)", time, file.getAbsolutePath()));
-            }
-            
         } catch (Exception e) {
         } finally {
             if (fos != null) {
@@ -336,13 +331,11 @@ public class Utils {
      */
     public static long getFolderSize(File folder) {
         long size = 0;
-        
-        File[] list = folder.listFiles();
-        for (int i = 0; i < list.length; i++) {
-            if (list[i].isDirectory()) {
-                size += getFolderSize(list[i]);
+        for (File f : folder.listFiles()) {
+            if (f.isDirectory()) {
+                size += getFolderSize(f);
             } else {
-                size += list[i].length();
+                size += f.length();
             }
         }
         return size;

@@ -156,16 +156,12 @@ public class Controller {
     }
     
     public ImageCache getImageCache(Context context) {
-        
         if (imageCache == null) {
-            // Initialize ImageCache
-            imageCache = new ImageCache(2000, 10080, 2); // Expiration = 7 Days
-            
+            imageCache = new ImageCache(2000);
             if (context == null || !imageCache.enableDiskCache()) {
                 imageCache = null;
             }
         }
-        
         return imageCache;
     }
     

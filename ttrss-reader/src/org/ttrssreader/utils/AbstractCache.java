@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
@@ -83,11 +82,11 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
      *            how many threads you think may at once access the cache; this need not be an exact
      *            number, but it helps in fragmenting the cache properly
      */
-    public AbstractCache(String name, int initialCapacity, long expirationInMinutes, int maxConcurrentThreads) {
+    public AbstractCache(String name, int initialCapacity, int maxConcurrentThreads) {
         
         MapMaker mapMaker = new MapMaker();
         mapMaker.initialCapacity(initialCapacity);
-        mapMaker.expiration(expirationInMinutes * 60, TimeUnit.SECONDS);
+        // mapMaker.expiration(expirationInMinutes * 60, TimeUnit.SECONDS);
         mapMaker.concurrencyLevel(maxConcurrentThreads);
         mapMaker.softValues();
         this.cache = mapMaker.makeMap();
