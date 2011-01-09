@@ -368,14 +368,16 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
                     buf.append(changes[i]);
                 }
                 builder.setMessage(buf.toString().trim());
-                builder.setNeutralButton((String) getText(R.string.CategoryActivity_Donate),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface d, final int which) {
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
-                                        R.string.DonateUrl))));
-                            }
-                        });
+                if (!Controller.getInstance().isDonator()) {
+                    builder.setNeutralButton((String) getText(R.string.CategoryActivity_Donate),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(final DialogInterface d, final int which) {
+                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
+                                            R.string.DonateUrl))));
+                                }
+                            });
+                }
                 break;
         }
         return builder.create();
