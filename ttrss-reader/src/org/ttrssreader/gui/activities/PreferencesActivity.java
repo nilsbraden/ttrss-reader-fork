@@ -26,13 +26,11 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.view.Menu;
 import android.view.MenuItem;
 
 public class PreferencesActivity extends PreferenceActivity {
     
     public static final int ACTIVITY_SHOW_PREFERENCES = 43;
-    private static final int MENU_RESET_PREFERENCES = Menu.FIRST;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,26 +55,14 @@ public class PreferencesActivity extends PreferenceActivity {
     };
     
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        
-        MenuItem item;
-        
-        item = menu.add(0, MENU_RESET_PREFERENCES, 0, R.string.Preferences_Reset);
-        item.setIcon(android.R.drawable.ic_menu_revert);
-        
-        return true;
-    }
-    
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case MENU_RESET_PREFERENCES:
+            case R.id.Preferences_Menu_Reset:
                 resetPreferences();
                 return true;
+            default:
+                return false;
         }
-        
-        return super.onMenuItemSelected(featureId, item);
     }
     
     protected void resetPreferences() {

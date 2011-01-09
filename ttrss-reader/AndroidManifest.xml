@@ -2,6 +2,7 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
+    android:installLocation="auto"
     android:versionName="0.8"
     android:versionCode="802">
 
@@ -40,7 +41,8 @@
     </application>
 
     <uses-sdk
-        android:minSdkVersion="3" />
+        android:minSdkVersion="3"
+        android:targetSdkVersion="8" />
 
     <!-- Check connectivity -->
     <uses-permission
@@ -57,5 +59,11 @@
     <!-- Vibrate on last article/feed -->
     <uses-permission
         android:name="android.permission.VIBRATE" />
+
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:anyDensity="true" />
 
 </manifest> 

@@ -16,9 +16,6 @@
 
 package org.ttrssreader.model.feed;
 
-import org.ttrssreader.utils.Utils;
-import android.util.Log;
-
 public class FeedItem implements Comparable<FeedItem> {
     
     private int mId;
@@ -28,19 +25,19 @@ public class FeedItem implements Comparable<FeedItem> {
     private int mUnread;
     
     public FeedItem() {
-        setId(0);
-        setCategoryId(0);
-        setTitle("");
-        setUrl("");
-        setUnread(0);
+        mId = 0;
+        mCategoryId = 0;
+        mTitle = "";
+        mUrl = "";
+        mUnread = 0;
     }
     
     public FeedItem(int categoryId, int id, String title, String url, int unread) {
-        setId(id);
-        setCategoryId(categoryId);
-        setTitle(title);
-        setUrl(url);
-        setUnread(unread);
+        mId = id;
+        mCategoryId = categoryId;
+        mTitle = title;
+        mUrl = url;
+        mUnread = unread;
     }
     
     /*
@@ -49,9 +46,9 @@ public class FeedItem implements Comparable<FeedItem> {
     public FeedItem(String categoryId, String id, String title, String url, int unread) {
         setId(id);
         setCategoryId(categoryId);
-        setTitle(title);
-        setUrl(url);
-        setUnread(unread);
+        mTitle = title;
+        mUrl = url;
+        mUnread = unread;
     }
     
     public void setDeltaUnreadCount(int value) {
@@ -67,18 +64,16 @@ public class FeedItem implements Comparable<FeedItem> {
     }
     
     public void setId(String id) {
-        // Check if mId is a number, else set to 0
+        // Check if id is a number, else set to 0
         try {
             if (id == null) {
                 this.mId = 0;
-                id = "null"; // Set to (String) "null" for log-output..
             } else if (!id.matches("-*[0-9]+")) {
                 this.mId = 0;
             } else {
                 this.mId = Integer.parseInt(id);
             }
         } catch (NumberFormatException e) {
-            Log.d(Utils.TAG, "Feed-ID has to be an integer-value but was " + id);
         }
     }
     
@@ -91,18 +86,16 @@ public class FeedItem implements Comparable<FeedItem> {
     }
     
     public void setCategoryId(String categoryId) {
-        // Check if mId is a number, else set to 0
+        // Check if categoryId is a number, else set to 0
         try {
             if (categoryId == null) {
                 this.mCategoryId = 0;
-                categoryId = "null"; // Set to (String) "null" for log-output..
             } else if (!categoryId.matches("-*[0-9]+")) {
                 this.mCategoryId = 0;
             } else {
                 this.mCategoryId = Integer.parseInt(categoryId);
             }
         } catch (NumberFormatException e) {
-            Log.d(Utils.TAG, "Feed-ID has to be an integer-value but was " + mId);
         }
     }
     
@@ -132,7 +125,7 @@ public class FeedItem implements Comparable<FeedItem> {
     
     @Override
     public int compareTo(FeedItem fi) {
-        return this.getTitle().compareToIgnoreCase(fi.getTitle());
+        return this.mTitle.compareToIgnoreCase(fi.getTitle());
     }
     
     @Override
@@ -147,7 +140,7 @@ public class FeedItem implements Comparable<FeedItem> {
     
     @Override
     public int hashCode() {
-        return this.getId() + "".hashCode();
+        return mId + "".hashCode();
     }
     
 }

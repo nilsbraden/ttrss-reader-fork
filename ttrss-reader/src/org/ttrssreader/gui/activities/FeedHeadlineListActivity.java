@@ -48,6 +48,7 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -57,10 +58,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class FeedHeadlineListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
-    
-    private static final int MENU_REFRESH = Menu.FIRST;
-    private static final int MENU_MARK_ALL_READ = Menu.FIRST + 1;
-    private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 2;
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_STAR = MARK_GROUP + 1;
@@ -269,36 +266,30 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        
-        MenuItem item;
-        item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
-        item.setIcon(R.drawable.ic_menu_refresh);
-        item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
-        item.setIcon(R.drawable.ic_menu_mark);
-        item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
-        item.setIcon(android.R.drawable.ic_menu_view);
+        MenuInflater inflater = this.getMenuInflater();
+        inflater.inflate(R.menu.feedheadline, menu);
         return true;
     }
     
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case MENU_REFRESH:
+            case R.id.Feedheadline_Menu_Refresh:
                 Data.getInstance().resetArticlesTime(mFeedId);
                 doUpdate();
                 doRefresh();
                 return true;
-            case MENU_MARK_ALL_READ:
+            case R.id.Feedheadline_Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(mFeedId, 0)).execute();
                 return true;
-            case MENU_DISPLAY_ONLY_UNREAD:
+            case R.id.Feedheadline_Menu_DisplayOnlyUnread:
                 boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
                 Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
                 doRefresh();
                 return true;
+            default:
+                return false;
         }
-        
-        return super.onMenuItemSelected(featureId, item);
     }
     
     private void openNextFeed(int direction) {

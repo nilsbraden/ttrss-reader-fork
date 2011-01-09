@@ -16,8 +16,6 @@
 
 package org.ttrssreader.model.category;
 
-import org.ttrssreader.utils.Utils;
-import android.util.Log;
 
 public class CategoryItem implements Comparable<CategoryItem> {
     
@@ -26,21 +24,21 @@ public class CategoryItem implements Comparable<CategoryItem> {
     private int mUnread;
     
     public CategoryItem() {
-        setId(0);
-        setTitle("");
-        setUnread(0);
+        mId = 0;
+        mTitle = "";
+        mUnread = 0;
     }
     
     public CategoryItem(int id, String title, int unread) {
-        setId(id);
-        setTitle(title);
-        setUnread(unread);
+        mId = id;
+        mTitle = title;
+        mUnread = unread;
     }
     
     public CategoryItem(String id, String title, int unread) {
         setId(id);
-        setTitle(title);
-        setUnread(unread);
+        mTitle = title;
+        mUnread = unread;
     }
     
     public int getId() {
@@ -52,18 +50,16 @@ public class CategoryItem implements Comparable<CategoryItem> {
     }
     
     public void setId(String id) {
-        // Check if mId is a number, else set to 0
+        // Check if id is a number, else set to 0
         try {
             if (id == null) {
                 this.mId = 0;
-                id = "null"; // Set to (String) "null" for log-output..
             } else if (!id.matches("-*[0-9]+")) {
                 this.mId = 0;
             } else {
                 this.mId = Integer.parseInt(id);
             }
         } catch (NumberFormatException e) {
-            Log.d(Utils.TAG, "Category-ID has to be an integer-value but was " + id);
         }
     }
     

@@ -32,7 +32,6 @@ import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,6 +42,7 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
@@ -54,12 +54,6 @@ public class ArticleActivity extends Activity {
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_ID = "FEED_ID";
     public static final String ARTICLE_LIST_ID = "ARTICLE_LIST_ID";
-    
-    private static final int MENU_MARK_READ = Menu.FIRST;
-    private static final int MENU_MARK_STARRED = Menu.FIRST + 1;
-    private static final int MENU_MARK_PUBLISHED = Menu.FIRST + 2;
-    private static final int MENU_OPEN_LINK = Menu.FIRST + 3;
-    private static final int MENU_SHARE_LINK = Menu.FIRST + 4;
     
     private int mArticleId;
     private int mFeedId;
@@ -145,37 +139,27 @@ public class ArticleActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        
-        MenuItem item;
-        item = menu.add(0, MENU_MARK_READ, 0, R.string.Commons_MarkRead);
-        item.setIcon(R.drawable.ic_menu_mark);
-        item = menu.add(0, MENU_MARK_STARRED, 0, R.string.Commons_ToggleStarred);
-        item.setIcon(R.drawable.ic_menu_star);
-        item = menu.add(0, MENU_MARK_PUBLISHED, 0, R.string.Commons_TogglePublished);
-        item.setIcon(R.drawable.ic_menu_publish);
-        item = menu.add(0, MENU_OPEN_LINK, 0, R.string.ArticleActivity_OpenLink);
-        item.setIcon(R.drawable.ic_menu_home);
-        item = menu.add(0, MENU_SHARE_LINK, 0, R.string.ArticleActivity_ShareLink);
-        item.setIcon(android.R.drawable.ic_menu_send);
+        MenuInflater inflater = this.getMenuInflater();
+        inflater.inflate(R.menu.article, menu);
         return true;
     }
     
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case MENU_MARK_READ:
+            case R.id.Article_Menu_MarkRead:
                 new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
                 return true;
-            case MENU_MARK_STARRED:
+            case R.id.Article_Menu_ToggleStarred:
                 new Updater(null, new StarredStateUpdater(mArticleItem)).execute();
                 return true;
-            case MENU_MARK_PUBLISHED:
+            case R.id.Article_Menu_TogglePublished:
                 new Updater(null, new PublishedStateUpdater(mArticleItem)).execute();
                 return true;
-            case MENU_OPEN_LINK:
+            case R.id.Article_Menu_OpenLink:
                 openLink();
                 return true;
-            case MENU_SHARE_LINK:
+            case R.id.Article_Menu_ShareLink:
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
                 i.putExtra(Intent.EXTRA_SUBJECT, mArticleItem.getTitle());
@@ -183,9 +167,9 @@ public class ArticleActivity extends Activity {
                 i.putExtra(Intent.EXTRA_TEXT, content + mArticleItem.getArticleUrl());
                 this.startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
+            default:
+                return false;
         }
-        
-        return super.onMenuItemSelected(featureId, item);
     }
     
     private void openLink() {
@@ -216,7 +200,8 @@ public class ArticleActivity extends Activity {
             
             if (mArticleItem != null && mArticleItem.getContent() != null) {
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
-                String content = injectAttachments(mArticleItem.getContent(), mArticleItem.getAttachments());
+                String content = injectAttachments(getApplicationContext(), mArticleItem.getContent(),
+                        mArticleItem.getAttachments());
                 content = Utils.injectCachedImages(content);
                 
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
@@ -389,7 +374,7 @@ public class ArticleActivity extends Activity {
         }
     }
     
-    private String injectAttachments(String content, Set<String> attachments) {
+    private static String injectAttachments(Context context, String content, Set<String> attachments) {
         StringBuilder ret = new StringBuilder(content);
         
         for (String url : attachments) {
@@ -421,21 +406,15 @@ public class ArticleActivity extends Activity {
             } else if (audioOrVideo) {
                 ret.append("<a href=\"");
                 ret.append(url);
-                ret.append("\">" + (String) getText(R.string.ArticleActivity_MediaPlay) + "</a>");
+                ret.append("\">" + (String) context.getText(R.string.ArticleActivity_MediaPlay) + "</a>");
             } else {
                 ret.append("<a href=\"");
                 ret.append(url);
-                ret.append("\">" + (String) getText(R.string.ArticleActivity_MediaDisplayLink) + "</a>");
+                ret.append("\">" + (String) context.getText(R.string.ArticleActivity_MediaDisplayLink) + "</a>");
             }
         }
         
         return ret.toString();
-    }
-    
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        // TODO: Add configuration-change-listener. But why?
-        super.onConfigurationChanged(newConfig);
     }
     
 }
