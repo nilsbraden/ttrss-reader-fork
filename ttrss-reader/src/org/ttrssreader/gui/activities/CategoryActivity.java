@@ -250,14 +250,17 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         
         MenuItem item;
         item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
-        item.setIcon(R.drawable.refresh32);
-        item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
+        item.setIcon(R.drawable.ic_menu_refresh);
         item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
+        item.setIcon(R.drawable.ic_menu_mark);
+        item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
+        item.setIcon(android.R.drawable.ic_menu_view);
         item = menu.add(0, MENU_SHOW_PREFERENCES, 0, R.string.Main_ShowPreferencesMenu);
-        item.setIcon(R.drawable.preferences32);
-        item = menu.add(0, MENU_SHOW_ABOUT, 0, R.string.Main_ShowAboutMenu);
-        item.setIcon(R.drawable.about32);
+        item.setIcon(android.R.drawable.ic_menu_preferences);
         item = menu.add(0, MENU_DOWNLOAD_CACHE, 0, R.string.Main_StartDownloadForCache);
+        item.setIcon(android.R.drawable.ic_menu_save);
+        item = menu.add(0, MENU_SHOW_ABOUT, 0, R.string.Main_ShowAboutMenu);
+        item.setIcon(android.R.drawable.ic_menu_info_details);
         return true;
     }
     

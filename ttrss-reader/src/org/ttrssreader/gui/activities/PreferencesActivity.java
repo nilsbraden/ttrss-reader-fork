@@ -63,7 +63,7 @@ public class PreferencesActivity extends PreferenceActivity {
         MenuItem item;
         
         item = menu.add(0, MENU_RESET_PREFERENCES, 0, R.string.Preferences_Reset);
-        item.setIcon(R.drawable.refresh32);
+        item.setIcon(android.R.drawable.ic_menu_revert);
         
         return true;
     }

@@ -18,15 +18,15 @@
     <string name="ApplicationName">Tiny Tiny RSS Reader</string>
     <string name="ApplicationDescription">Tiny Tiny RSS Reader ist eine Anwendung um RSS-Feeds aus einer Tiny Tiny RSS-Installation zu lesen.</string>
     
-    <string name="Main.ShowPreferencesMenu">Einstellungen</string>
+    <string name="Main.ShowPreferencesMenu">Optionen</string>
     <string name="Main.RefreshMenu">Aktualisieren</string>
     <string name="Main.UpdateMenu">Update</string>
     <string name="Main.ShowAboutMenu">About</string>
     <string name="Main.Nothing">Keine Kategorien. Bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
-    <string name="Main.StartDownloadForCache">Cache images</string>
+    <string name="Main.StartDownloadForCache">Bilder herunterladen</string>
     
     <string name="Preferences.Reset">Einstellungen zurücksetzen</string>
-    <string name="Preferences.Btn">Einstellungen</string>
+    <string name="Preferences.Btn">Optionen</string>
     
     <string name="Changelog.Title">Changelog</string>
     <string name="DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>
@@ -43,21 +43,21 @@
     
     <string name="ArticleActivity.OpenLink">Artikel</string>
     <string name="ArticleActivity.OpenCommentLink">Kommentare</string>
-    <string name="ArticleActivity.ShareLink">Link senden</string>
-    <string name="ArticleActivity.ShareSubject">Link aus TTRSS-Reader</string>
+    <string name="ArticleActivity.ShareLink">Senden</string>
+    <string name="ArticleActivity.ShareSubject">Link aus TTRSS-Reader: </string>
     <string name="ArticleActivity.ShareTitle">Link senden...</string>
-    <string name="ArticleActivity.MediaPlay">Mediendatei aus dem Anhang abspielen</string>
+    <string name="ArticleActivity.MediaPlay">Mediendatei Anhang abspielen</string>
     <string name="ArticleActivity.SwipeNotification">Wischen (swipe) für nächsten/vorherigen Artikel</string>
     
     <string name="Commons.PleaseWait">Bitte warten...</string>
     <string name="Commons.NothingToDisplay">Nichts anzuzeigen.</string>
     <string name="Commons.UpdateReadState">Aktualisiere Status</string>
-    <string name="Commons.DisplayOnlyUnread">\"Ungelesene anzeigen\" umschalten</string>
-    <string name="Commons.MarkAllRead">Alles \"gelesen\" markieren</string>
-    <string name="Commons.MarkRead">Als \"gelesen\" markieren</string>
-    <string name="Commons.MarkUnread">Als \"ungelesen\" markieren</string>
-    <string name="Commons.ToggleStarred">\"starred\"-Status des Artikels umschalten</string>
-    <string name="Commons.TogglePublished">\"published\"-Status des Artikels umschalten</string>
+    <string name="Commons.DisplayOnlyUnread">\"Ungelesene anzeigen\"</string>
+    <string name="Commons.MarkAllRead">Alles \"gelesen\"</string>
+    <string name="Commons.MarkRead">Gelesen</string>
+    <string name="Commons.MarkUnread">Ungelesen</string>
+    <string name="Commons.ToggleStarred">Star</string>
+    <string name="Commons.TogglePublished">Publish</string>
     
     <string name="VCategory.AllArticles">Alle Artikel</string>
     <string name="VCategory.FreshArticles">Neue Artikel</string>
