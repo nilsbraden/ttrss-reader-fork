@@ -118,6 +118,7 @@ public class Constants {
         editor.putBoolean(USE_KEYSTORE, USE_KEYSTORE_DEFAULT);
         editor.putString(KEYSTORE_PASSWORD, EMPTY);
         editor.putBoolean(DONATOR, DONATOR_DEFAULT);
+        editor.putString(DONATOR_MAIL, DONATOR_MAIL_DEFAULT);
         
         editor.putBoolean(AUTOMATIC_MARK_READ, AUTOMATIC_MARK_READ_DEFAULT);
         editor.putBoolean(OPEN_URL_EMPTY_ARTICLE, OPEN_URL_EMPTY_ARTICLE_DEFAULT);
