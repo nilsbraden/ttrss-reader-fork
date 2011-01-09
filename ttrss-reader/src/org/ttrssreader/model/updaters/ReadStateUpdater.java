@@ -83,11 +83,11 @@ public class ReadStateUpdater implements IUpdatable {
             
             for (CategoryItem ci : categories) {
                 if (ci.getId() > -1) {
-                    Controller.getInstance().getConnector().setRead(ci.getId(), true);
+                    Data.getInstance().setRead(ci.getId(), true);
                 } else {
                     // Virtual Categories are actually Feeds (the server handles them as such) so we have to set isCat
                     // to false here
-                    Controller.getInstance().getConnector().setRead(ci.getId(), false);
+                    Data.getInstance().setRead(ci.getId(), false);
                 }
                 DBHelper.getInstance().markCategoryRead(ci, true);
             }
@@ -96,7 +96,7 @@ public class ReadStateUpdater implements IUpdatable {
         } else if (feeds != null) {
             
             for (FeedItem fi : feeds) {
-                Controller.getInstance().getConnector().setRead(fi.getId(), false);
+                Data.getInstance().setRead(fi.getId(), false);
                 DBHelper.getInstance().markFeedRead(fi, true);
             }
             Data.getInstance().updateCounters();
@@ -140,7 +140,7 @@ public class ReadStateUpdater implements IUpdatable {
             }
             
             if (ids.size() > 0) {
-                Controller.getInstance().getConnector().setArticleRead(ids, mArticleState);
+                Data.getInstance().setArticleRead(ids, mArticleState);
                 DBHelper.getInstance().markArticlesRead(ids, mArticleState);
                 
                 // If on a virtual category also update article state in it.

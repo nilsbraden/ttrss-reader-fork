@@ -378,7 +378,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
     
     // ***************** Helper-Methods **************************************************
     
-    public ArticleItem parseDataForArticle(JSONArray names, JSONArray values) {
+    private ArticleItem parseDataForArticle(JSONArray names, JSONArray values) {
         ArticleItem ret = null;
         
         try {
@@ -435,7 +435,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         return (ret == null ? new ArticleItem() : ret);
     }
     
-    public FeedItem parseDataForFeed(JSONArray names, JSONArray values, JSONArray articleValues) {
+    private FeedItem parseDataForFeed(JSONArray names, JSONArray values, JSONArray articleValues) {
         FeedItem ret = null;
         
         try {
@@ -473,7 +473,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         return (ret == null ? new FeedItem() : ret);
     }
     
-    public CategoryItem parseDataForCategory(JSONArray names, JSONArray values, JSONArray feedValues) {
+    private CategoryItem parseDataForCategory(JSONArray names, JSONArray values, JSONArray feedValues) {
         CategoryItem ret = null;
         
         try {
@@ -505,7 +505,7 @@ public class TTRSSJsonConnector implements ITTRSSConnector {
         return (ret == null ? new CategoryItem() : ret);
     }
     
-    public Set<String> parseDataForAttachments(JSONArray array) {
+    private Set<String> parseDataForAttachments(JSONArray array) {
         Set<String> ret = new LinkedHashSet<String>();
         
         try {

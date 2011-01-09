@@ -15,8 +15,8 @@
 
 package org.ttrssreader.model.updaters;
 
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.utils.Utils;
@@ -37,7 +37,7 @@ public class PublishedStateUpdater implements IUpdatable {
     public void update() {
         Log.i(Utils.TAG, "Updating Article-Published-Status...");
         
-        Controller.getInstance().getConnector().setArticlePublished(mArticle.getId(), mArticle.isPublished() ? 0 : 1);
+        Data.getInstance().setArticlePublished(mArticle.getId(), mArticle.isPublished() ? 0 : 1);
         
         DBHelper.getInstance().updateArticlePublished(mArticle.getId(), !mArticle.isPublished());
         // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.

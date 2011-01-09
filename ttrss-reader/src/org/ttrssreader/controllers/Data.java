@@ -350,6 +350,39 @@ public class Data {
         return null;
     }
     
+    // *** STATUS *******************************************************************
+    
+    public void setArticleRead(Set<Integer> articlesIds, int articleState) {
+        if (Utils.isOnline(cm)) {
+            Controller.getInstance().getConnector().setArticleRead(articlesIds, articleState);
+        }
+    }
+    
+    public void setArticleStarred(int articlesId, int articleState) {
+        if (Utils.isOnline(cm)) {
+            Controller.getInstance().getConnector().setArticleStarred(articlesId, articleState);
+        }
+    }
+    
+    public void setArticlePublished(int articlesId, int articleState) {
+        if (Utils.isOnline(cm)) {
+            Controller.getInstance().getConnector().setArticlePublished(articlesId, articleState);
+        }
+    }
+    
+    public void setRead(int id, boolean isCategory) {
+        if (Utils.isOnline(cm)) {
+            Controller.getInstance().getConnector().setRead(id, isCategory);
+        }
+    }
+    
+    public String getPref(String pref) {
+        if (Utils.isOnline(cm)) {
+            return Controller.getInstance().getConnector().getPref(pref);
+        }
+        return null;
+    }
+    
     // **********************************************************************************
     
 }
