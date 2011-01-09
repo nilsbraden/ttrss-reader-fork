@@ -2,7 +2,8 @@
 
 = Changes =
 == Version 0.8 ==
-  * Added pre-downloading of images for offline viewing (see project page for more informationerror)
+  * Added support for donations, status is checked once after providing the mailadress used to poste the donation
+  * For donators: Added pre-downloading of images for offline viewing (see project page for more information)
   * Size of Swipe-Area now depends on density and screen-size and is adjusted accordingly
   * Fixed Issue #36: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=36 functional - suggestion]) (show read articles for Virtual Categories)
   * Fixed Issue #37: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=37 display source in view "All Articles"])

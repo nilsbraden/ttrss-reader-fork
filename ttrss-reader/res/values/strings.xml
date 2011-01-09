@@ -77,6 +77,10 @@
     <string name="ConnectionUsernamePreferenceSummary">The username of your Tiny Tiny RSS account.</string>
     <string name="ConnectionPasswordPreferenceTitle">Password</string>
     <string name="ConnectionPasswordPreferenceSummary">The password of your Tiny Tiny RSS account.</string>
+    
+    <string name="DonatorMailPreferenceTitle">Donator E-Mail</string>
+    <string name="DonatorMailPreferenceSummary">If you donated, please enter your Mailaddress here.</string>
+    
     <string name="ConnectionSslPreferenceCategoryTitle">SSL Settings</string>
     <string name="ConnectionSslPreferenceTitle">SSL</string>
     <string name="ConnectionSslPreferenceSummary">Accept all SSL certificates.</string>

@@ -19,6 +19,7 @@ package org.ttrssreader.controllers;
 import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.DonationHelper;
 import org.ttrssreader.utils.ImageCache;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -46,6 +47,8 @@ public class Controller {
     private boolean mTrustAllSsl;
     private boolean mUseKeystore;
     private String mKeystorePassword;
+    private boolean donator;
+    private String donatorMail;
     
     private boolean mAutomaticMarkRead;
     private boolean mOpenUrlEmptyArticle;
@@ -106,6 +109,17 @@ public class Controller {
         mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
         mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
         
+        // Donator
+        donator = prefs.getBoolean(Constants.DONATOR, Constants.DONATOR_DEFAULT);
+        donatorMail = prefs.getString(Constants.DONATOR_MAIL, Constants.DONATOR_MAIL_DEFAULT);
+        
+        // Check donation-status
+        if (!donator && !donatorMail.equals(Constants.DONATOR_MAIL_DEFAULT)) {
+            if (DonationHelper.checkDonationStatus(context, donatorMail)) {
+                setDonator(true);
+            }
+        }
+        
         // Usage
         mAutomaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
         mOpenUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
@@ -138,8 +152,6 @@ public class Controller {
             mIsControllerInitialized = true;
         }
     }
-    
-    // **** Getter / Setter **********
     
     // ******* USAGE-Options ****************************
     
@@ -190,6 +202,24 @@ public class Controller {
     public void setKeystorePassword(String keystorePassword) {
         put(Constants.KEYSTORE_PASSWORD, keystorePassword);
         this.mKeystorePassword = keystorePassword;
+    }
+    
+    public boolean isDonator() {
+        return donator;
+    }
+    
+    public void setDonator(boolean donator) {
+        put(Constants.DONATOR, donator);
+        this.donator = donator;
+    }
+    
+    public String getDonatorMail() {
+        return donatorMail;
+    }
+    
+    public void setDonatorMail(String donatorMail) {
+        put(Constants.DONATOR_MAIL, donatorMail);
+        this.donatorMail = donatorMail;
     }
     
     public boolean isAutomaticMarkRead() {
@@ -289,15 +319,17 @@ public class Controller {
     }
     
     public void setImageCacheSize(int imageCacheSize) {
+        put(Constants.IMAGE_CACHE_SIZE, imageCacheSize);
         this.mImageCacheSize = imageCacheSize;
-    }
-    
-    public void setImageCacheAge(int imageCacheAge) {
-        this.mImageCacheAge = imageCacheAge;
     }
     
     public int getImageCacheAge() {
         return mImageCacheAge;
+    }
+    
+    public void setImageCacheAge(int imageCacheAge) {
+        put(Constants.IMAGE_CACHE_AGE, imageCacheAge);
+        this.mImageCacheAge = imageCacheAge;
     }
     
     // ******* INTERNAL Data ****************************
@@ -330,7 +362,6 @@ public class Controller {
         } else if (freshArticleMaxAge.equals("")) {
             freshArticleMaxAge = getConnector().getPref("FRESH_ARTICLE_MAX_AGE");
         }
-        
         return Integer.parseInt(freshArticleMaxAge) * 60 * 60 * 1000;
     }
     
