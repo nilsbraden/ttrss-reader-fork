@@ -1,6 +1,7 @@
 /*
  * ttrss-reader-fork for Android
  * 
+ * Copyright (C) 2010 Felix Bechstein
  * Copyright (C) 2010 N. Braden.
  * 
  * This program is free software; you can redistribute it and/or
