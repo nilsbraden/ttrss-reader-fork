@@ -37,11 +37,15 @@ public class Constants {
     public static String TRUST_ALL_SSL = "ConnectionSSLPreference";
     public static String USE_KEYSTORE = "ConnectionUseKeystorePreference";
     public static String KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
+    public static String DONATOR = "DonatorPreference";
+    public static String DONATOR_MAIL = "DonatorMailPreference";
     // Connection Default Values
     public static String URL_DEFAULT = "http://localhost/";
     public static boolean USE_HTTP_AUTH_DEFAULT = false;
     public static boolean TRUST_ALL_SSL_DEFAULT = false;
     public static boolean USE_KEYSTORE_DEFAULT = false;
+    public static boolean DONATOR_DEFAULT = false;
+    public static String DONATOR_MAIL_DEFAULT = "";
     
     // Usage
     public static String AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
@@ -113,6 +117,7 @@ public class Constants {
         editor.putBoolean(TRUST_ALL_SSL, TRUST_ALL_SSL_DEFAULT);
         editor.putBoolean(USE_KEYSTORE, USE_KEYSTORE_DEFAULT);
         editor.putString(KEYSTORE_PASSWORD, EMPTY);
+        editor.putBoolean(DONATOR, DONATOR_DEFAULT);
         
         editor.putBoolean(AUTOMATIC_MARK_READ, AUTOMATIC_MARK_READ_DEFAULT);
         editor.putBoolean(OPEN_URL_EMPTY_ARTICLE, OPEN_URL_EMPTY_ARTICLE_DEFAULT);

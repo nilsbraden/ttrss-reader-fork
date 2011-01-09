@@ -257,8 +257,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         item.setIcon(android.R.drawable.ic_menu_view);
         item = menu.add(0, MENU_SHOW_PREFERENCES, 0, R.string.Main_ShowPreferencesMenu);
         item.setIcon(android.R.drawable.ic_menu_preferences);
-        item = menu.add(0, MENU_DOWNLOAD_CACHE, 0, R.string.Main_StartDownloadForCache);
-        item.setIcon(android.R.drawable.ic_menu_save);
+        if (Controller.getInstance().isDonator()) {
+            item = menu.add(0, MENU_DOWNLOAD_CACHE, 0, R.string.Main_StartDownloadForCache);
+            item.setIcon(android.R.drawable.ic_menu_save);
+        }
         item = menu.add(0, MENU_SHOW_ABOUT, 0, R.string.Main_ShowAboutMenu);
         item.setIcon(android.R.drawable.ic_menu_info_details);
         return true;
