@@ -18,8 +18,6 @@ package org.ttrssreader.model.article;
 
 import java.util.Date;
 import java.util.Set;
-import org.ttrssreader.utils.Utils;
-import android.util.Log;
 
 public class ArticleItem implements Comparable<ArticleItem> {
     
@@ -31,37 +29,37 @@ public class ArticleItem implements Comparable<ArticleItem> {
     private String mArticleCommentUrl;
     private Date mUpdateDate;
     private String mContent;
-    private Set<String> attachments;
+    private Set<String> mAttachments;
     private boolean mIsStarred;
     private boolean mIsPublished;
     
     public ArticleItem() {
-        setId(0);
-        setTitle("");
-        setFeedId(0);
-        setUnread(false);
-        setUpdateDate(new Date());
-        setArticleUrl("");
-        setArticleCommentUrl("");
+        mId = 0;
+        mTitle = "";
+        mFeedId = 0;
+        mIsUnread = false;
+        mUpdateDate = new Date();
+        mArticleUrl = "";
+        mArticleCommentUrl = "";
         setContent("");
-        setAttachments(null);
-        setStarred(false);
-        setPublished(false);
+        mAttachments = null;
+        mIsStarred = false;
+        mIsPublished = false;
     }
     
     public ArticleItem(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
             Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished) {
-        setId(id);
-        setTitle(title);
-        setFeedId(feedId);
-        setUnread(isUnread);
-        setUpdateDate(updateDate);
-        setArticleUrl(articleUrl);
-        setArticleCommentUrl(articleCommentUrl);
+        mId = id;
+        mTitle = title;
+        mFeedId = feedId;
+        mIsUnread = isUnread;
+        mUpdateDate = updateDate;
+        mArticleUrl = articleUrl;
+        mArticleCommentUrl = articleCommentUrl;
         setContent(content);
-        setAttachments(attachments);
-        setStarred(isStarred);
-        setPublished(isPublished);
+        mAttachments = attachments;
+        mIsStarred = isStarred;
+        mIsPublished = isPublished;
     }
     
     /*
@@ -71,16 +69,16 @@ public class ArticleItem implements Comparable<ArticleItem> {
             String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred,
             boolean isPublished) {
         setId(id);
-        setTitle(title);
+        mTitle = title;
         setFeedId(feedId);
-        setUnread(isUnread);
-        setUpdateDate(updateDate);
-        setArticleUrl(articleUrl);
-        setArticleCommentUrl(articleCommentUrl);
+        mIsUnread = isUnread;
+        mUpdateDate = updateDate;
+        mArticleUrl = articleUrl;
+        mArticleCommentUrl = articleCommentUrl;
         setContent(content);
-        setAttachments(attachments);
-        setStarred(isStarred);
-        setPublished(isPublished);
+        mAttachments = attachments;
+        mIsStarred = isStarred;
+        mIsPublished = isPublished;
     }
     
     public int getId() {
@@ -92,18 +90,16 @@ public class ArticleItem implements Comparable<ArticleItem> {
     }
     
     public void setId(String id) {
-        // Check if mId is a number, else set to 0
+        // Check if id is a number, else set to 0
         try {
             if (id == null) {
                 this.mId = 0;
-                id = "null"; // Set to (String) "null" for log-output..
             } else if (!id.matches("[0-9]+")) {
                 this.mId = 0;
             } else {
                 this.mId = Integer.parseInt(id);
             }
         } catch (NumberFormatException e) {
-            Log.d(Utils.TAG, "Article-ID has to be an integer-value but was " + id);
         }
     }
     
@@ -124,18 +120,16 @@ public class ArticleItem implements Comparable<ArticleItem> {
     }
     
     public void setFeedId(String feedId) {
-        // Check if mId is a number, else set to 0
+        // Check if feedId is a number, else set to 0
         try {
             if (feedId == null) {
                 this.mFeedId = 0;
-                feedId = "null"; // Set to (String) "null" for log-output..
             } else if (!feedId.matches("-*[0-9]+")) {
                 this.mFeedId = 0;
             } else {
                 this.mFeedId = Integer.parseInt(feedId);
             }
         } catch (NumberFormatException e) {
-            Log.d(Utils.TAG, "Feed-ID has to be an integer-value but was " + feedId);
         }
     }
     
@@ -184,11 +178,11 @@ public class ArticleItem implements Comparable<ArticleItem> {
     }
     
     public Set<String> getAttachments() {
-        return attachments;
+        return mAttachments;
     }
     
     public void setAttachments(Set<String> attachments) {
-        this.attachments = attachments;
+        this.mAttachments = attachments;
     }
     
     public boolean isStarred() {

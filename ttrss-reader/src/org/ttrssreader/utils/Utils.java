@@ -75,7 +75,7 @@ public class Utils {
     /**
      * The time after which data will be fetched again from the server if asked for the data
      */
-    public static int UPDATE_TIME = 120000;
+    public static final int UPDATE_TIME = 120000;
     
     /**
      * Path on sdcard to store files (DB, Certificates, ...)
@@ -86,6 +86,12 @@ public class Utils {
      * Path on sdcard to store files (DB, Certificates, ...)
      */
     public static final String SDCARD_PATH_CACHE = "/Android/data/org.ttrssreader/cache/";
+    
+    /**
+     * The Pattern to match image-urls inside HTML img-tags.
+     */
+    public static final Pattern findImageUrlsPattern = Pattern.compile("<img.+src=\"([^\"]*)\".*/>",
+            Pattern.CASE_INSENSITIVE);
     
     public static String convertStreamToString(InputStream is) {
         /*
@@ -203,8 +209,6 @@ public class Utils {
         return null;
     }
     
-    private static Pattern findImageUrlsPattern;
-    
     /**
      * Searches the given html code for img-Tags and filters out all src-attributes, beeing URLs to images.
      * 
@@ -216,10 +220,6 @@ public class Utils {
         Set<String> ret = new LinkedHashSet<String>();
         if (html == null || html.length() < 10) {
             return ret;
-        }
-        
-        if (findImageUrlsPattern == null) {
-            findImageUrlsPattern = Pattern.compile("<img.+src=\"([^\"]*)\".*/>", Pattern.CASE_INSENSITIVE);
         }
         
         for (int i = 0; i < html.length();) {

@@ -48,6 +48,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -55,13 +56,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
-    
-    private static final int MENU_REFRESH = Menu.FIRST;
-    private static final int MENU_SHOW_PREFERENCES = Menu.FIRST + 1;
-    private static final int MENU_SHOW_ABOUT = Menu.FIRST + 2;
-    private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 3;
-    private static final int MENU_MARK_ALL_READ = Menu.FIRST + 4;
-    private static final int MENU_DOWNLOAD_CACHE = Menu.FIRST + 5;
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_READ = MARK_GROUP + 1;
@@ -247,56 +241,46 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        
-        MenuItem item;
-        item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
-        item.setIcon(R.drawable.ic_menu_refresh);
-        item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
-        item.setIcon(R.drawable.ic_menu_mark);
-        item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
-        item.setIcon(android.R.drawable.ic_menu_view);
-        item = menu.add(0, MENU_SHOW_PREFERENCES, 0, R.string.Main_ShowPreferencesMenu);
-        item.setIcon(android.R.drawable.ic_menu_preferences);
-        if (Controller.getInstance().isDonator()) {
-            item = menu.add(0, MENU_DOWNLOAD_CACHE, 0, R.string.Main_StartDownloadForCache);
-            item.setIcon(android.R.drawable.ic_menu_save);
+        MenuInflater inflater = this.getMenuInflater();
+        inflater.inflate(R.menu.category, menu);
+        if (!Controller.getInstance().isDonator()) {
+            menu.removeItem(R.id.Category_Menu_StartDownloadForCache);
         }
-        item = menu.add(0, MENU_SHOW_ABOUT, 0, R.string.Main_ShowAboutMenu);
-        item.setIcon(android.R.drawable.ic_menu_info_details);
         return true;
     }
     
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case MENU_REFRESH:
+            case R.id.Category_Menu_Refresh:
                 Data.getInstance().resetCategoriesTime();
                 doUpdate();
                 doRefresh();
                 return true;
-            case MENU_DISPLAY_ONLY_UNREAD:
+            case R.id.Category_Menu_DisplayOnlyUnread:
                 boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
                 Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
                 doRefresh();
                 return true;
-            case MENU_MARK_ALL_READ:
+            case R.id.Category_Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(mAdapter.getCategories())).execute();
                 return true;
-            case MENU_SHOW_PREFERENCES:
+            case R.id.Category_Menu_ShowPreferences:
                 startActivityForResult(new Intent(this, PreferencesActivity.class),
                         PreferencesActivity.ACTIVITY_SHOW_PREFERENCES);
                 return true;
-            case MENU_SHOW_ABOUT:
+            case R.id.Category_Menu_ShowAbout:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
-            case MENU_DOWNLOAD_CACHE:
+            case R.id.Category_Menu_StartDownloadForCache:
                 if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
                     setProgressBarIndeterminateVisibility(true);
                     imageCacher = new Updater(null, new ImageCacheUpdater(this));
                     imageCacher.execute();
                 }
+            default:
+                return false;
         }
-        return super.onMenuItemSelected(featureId, item);
     }
     
     private void openConnectionErrorDialog(String errorMessage) {

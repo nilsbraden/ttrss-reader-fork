@@ -39,6 +39,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -46,10 +47,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class FeedListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
-    
-    private static final int MENU_REFRESH = Menu.FIRST;
-    private static final int MENU_DISPLAY_ONLY_UNREAD = Menu.FIRST + 1;
-    private static final int MENU_MARK_ALL_READ = Menu.FIRST + 2;
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_READ = MARK_GROUP + 1;
@@ -212,36 +209,30 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        
-        MenuItem item;
-        item = menu.add(0, MENU_REFRESH, 0, R.string.Main_RefreshMenu);
-        item.setIcon(R.drawable.ic_menu_refresh);
-        item = menu.add(0, MENU_MARK_ALL_READ, 0, R.string.Commons_MarkAllRead);
-        item.setIcon(R.drawable.ic_menu_mark);
-        item = menu.add(0, MENU_DISPLAY_ONLY_UNREAD, 0, R.string.Commons_DisplayOnlyUnread);
-        item.setIcon(android.R.drawable.ic_menu_view);
+        MenuInflater inflater = this.getMenuInflater();
+        inflater.inflate(R.menu.feedlist, menu);
         return true;
     }
     
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
-            case MENU_REFRESH:
+            case R.id.Feedlist_Menu_Refresh:
                 Data.getInstance().resetFeedTime();
                 doUpdate();
                 doRefresh();
                 return true;
-            case MENU_DISPLAY_ONLY_UNREAD:
+            case R.id.Feedlist_Menu_DisplayOnlyUnread:
                 boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
                 Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
                 doRefresh();
                 return true;
-            case MENU_MARK_ALL_READ:
+            case R.id.Feedlist_Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(mCategoryId)).execute();
                 return true;
+            default:
+                return false;
         }
-        
-        return super.onMenuItemSelected(featureId, item);
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
