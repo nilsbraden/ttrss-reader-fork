@@ -148,13 +148,15 @@ public class ArticleActivity extends Activity {
         
         MenuItem item;
         item = menu.add(0, MENU_MARK_READ, 0, R.string.Commons_MarkRead);
+        item.setIcon(R.drawable.ic_menu_mark);
         item = menu.add(0, MENU_MARK_STARRED, 0, R.string.Commons_ToggleStarred);
-        item.setIcon(R.drawable.menu_star_yellow);
+        item.setIcon(R.drawable.ic_menu_star);
         item = menu.add(0, MENU_MARK_PUBLISHED, 0, R.string.Commons_TogglePublished);
-        item.setIcon(R.drawable.menu_published_blue);
+        item.setIcon(R.drawable.ic_menu_publish);
         item = menu.add(0, MENU_OPEN_LINK, 0, R.string.ArticleActivity_OpenLink);
-        item.setIcon(R.drawable.link32);
+        item.setIcon(R.drawable.ic_menu_home);
         item = menu.add(0, MENU_SHARE_LINK, 0, R.string.ArticleActivity_ShareLink);
+        item.setIcon(android.R.drawable.ic_menu_send);
         return true;
     }
     
@@ -176,8 +178,9 @@ public class ArticleActivity extends Activity {
             case MENU_SHARE_LINK:
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_SUBJECT, (String) getText(R.string.ArticleActivity_ShareSubject));
-                i.putExtra(Intent.EXTRA_TEXT, mArticleItem.getArticleUrl());
+                i.putExtra(Intent.EXTRA_SUBJECT, mArticleItem.getTitle());
+                String content = (String) getText(R.string.ArticleActivity_ShareSubject);
+                i.putExtra(Intent.EXTRA_TEXT, content + mArticleItem.getArticleUrl());
                 this.startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
         }

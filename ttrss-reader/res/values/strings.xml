@@ -24,7 +24,7 @@
     <string name="Main.UpdateMenu">Update</string>
     <string name="Main.ShowAboutMenu">About</string>
     <string name="Main.Nothing">No categories to display. Check your connection and/or your connection settings.</string>
-    <string name="Main.StartDownloadForCache">Bilder herunterladen</string>
+    <string name="Main.StartDownloadForCache">Cache images</string>
     
     <string name="Preferences.Reset">Reset Preferences</string>
     <string name="Preferences.Btn">Preferences</string>
@@ -44,8 +44,8 @@
     
     <string name="ArticleActivity.OpenLink">Article</string>
     <string name="ArticleActivity.OpenCommentLink">Comments</string>
-    <string name="ArticleActivity.ShareLink">Share link</string>
-    <string name="ArticleActivity.ShareSubject">Link from TTRSS-Reader</string>
+    <string name="ArticleActivity.ShareLink">Share</string>
+    <string name="ArticleActivity.ShareSubject">Link from TTRSS-Reader: </string>
     <string name="ArticleActivity.ShareTitle">Send link...</string>
     <string name="ArticleActivity.MediaPlay">Play attached Media-File</string>
     <string name="ArticleActivity.MediaDisplayLink">Open attachment</string>
@@ -54,12 +54,12 @@
     <string name="Commons.PleaseWait">Please wait...</string>
     <string name="Commons.NothingToDisplay">Nothing to display.</string>
     <string name="Commons.UpdateReadState">Updating read state</string>
-    <string name="Commons.DisplayOnlyUnread">Toggle display unread</string>
-    <string name="Commons.MarkAllRead">Mark all \"read\"</string>
-    <string name="Commons.MarkRead">Mark as \"read\"</string>
-    <string name="Commons.MarkUnread">Mark as \"unread\"</string>
-    <string name="Commons.ToggleStarred">Toggle \"starred\" state</string>
-    <string name="Commons.TogglePublished">Toggle \"published\" state</string>
+    <string name="Commons.DisplayOnlyUnread">Display unread</string>
+    <string name="Commons.MarkAllRead">All read</string>
+    <string name="Commons.MarkRead">Read</string>
+    <string name="Commons.MarkUnread">Uunread</string>
+    <string name="Commons.ToggleStarred">Star</string>
+    <string name="Commons.TogglePublished">Publish</string>
     
     <string name="VCategory.AllArticles">All Articles</string>
     <string name="VCategory.FreshArticles">Fresh Articles</string>
