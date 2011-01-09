@@ -15,8 +15,8 @@
 
 package org.ttrssreader.model.updaters;
 
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.utils.Utils;
@@ -38,7 +38,7 @@ public class StarredStateUpdater implements IUpdatable {
         Log.i(Utils.TAG, "Updating Article-Starred-Status...");
         
         // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
-        Controller.getInstance().getConnector().setArticleStarred(mArticle.getId(), mArticle.isStarred() ? 0 : 1);
+        Data.getInstance().setArticleStarred(mArticle.getId(), mArticle.isStarred() ? 0 : 1);
         
         DBHelper.getInstance().updateArticleStarred(mArticle.getId(), !mArticle.isStarred());
         

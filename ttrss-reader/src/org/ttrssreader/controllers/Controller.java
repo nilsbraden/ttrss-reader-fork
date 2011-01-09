@@ -357,12 +357,19 @@ public class Controller {
     }
     
     public long getFreshArticleMaxAge() {
+        int ret = 24 * 60 * 60 * 1000;
         if (freshArticleMaxAge == null) {
-            return 1;
+            return ret;
         } else if (freshArticleMaxAge.equals("")) {
-            freshArticleMaxAge = getConnector().getPref("FRESH_ARTICLE_MAX_AGE");
+            freshArticleMaxAge = Data.getInstance().getPref("FRESH_ARTICLE_MAX_AGE");
         }
-        return Integer.parseInt(freshArticleMaxAge) * 60 * 60 * 1000;
+        
+        try {
+            ret = Integer.parseInt(freshArticleMaxAge) * 60 * 60 * 1000;
+        } catch (Exception e) {
+        }
+        
+        return ret;
     }
     
     /*
