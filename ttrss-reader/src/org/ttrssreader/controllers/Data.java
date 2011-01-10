@@ -23,7 +23,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
-import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -130,24 +129,7 @@ public class Data {
     // takes about 2.5 seconds on wifi
     public void updateCounters() {
         if (Utils.isOnline(cm)) {
-            Set<Map<String, Object>> counters = Controller.getInstance().getConnector().getCounters();
-            
-            for (Map<String, Object> m : counters) {
-                boolean cat = (Boolean) m.get(TTRSSJsonConnector.COUNTER_CAT);
-                int id = (Integer) m.get(TTRSSJsonConnector.COUNTER_ID);
-                int counter = (Integer) m.get(TTRSSJsonConnector.COUNTER_COUNTER);
-                
-                // @formatter:off
-                if        (cat && id >= 0) { // Category
-                    DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
-                } else if (!cat && id < 0) { // Virtual Category
-                    DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
-                } else if (!cat && id > 0) { // Feed
-                    DBHelper.getInstance().updateFeedUnreadCount(id, counter);
-                }
-                // @formatter:on
-            }
-            
+            Controller.getInstance().getConnector().getCounters();
         }
     }
     
@@ -179,15 +161,14 @@ public class Data {
         return null;
     }
     
-    @SuppressWarnings("unchecked")
-    public Set<ArticleItem> updateArticles(int feedId, boolean displayOnlyUnread) {
+    public void updateArticles(int feedId, boolean displayOnlyUnread) {
         Long time = mArticlesUpdated.get(feedId);
         if (time == null) {
             time = new Long(0);
         }
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            return null;
+            return;
         } else if (Utils.isOnline(cm)) {
             FeedItem f = getFeed(feedId);
             int limit = 30;
@@ -207,27 +188,16 @@ public class Data {
                     .getFeedHeadlines(feedId, limit, 0, viewMode);
             
             if (articles.size() == 0)
-                return articles;
+                return;
             
             Set<Integer> set = new LinkedHashSet<Integer>();
             for (ArticleItem a : articles) {
                 set.add(a.getId());
             }
             
-            Set<ArticleItem> temp = Controller.getInstance().getConnector().getArticle(set);
-            
-            if (temp.size() == articles.size()) {
-                articles = temp;
-            }
-            
+            Controller.getInstance().getConnector().getArticleToDatabase(set);
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
-            
-            DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
-            task.execute(articles);
-            
-            return articles;
         }
-        return null;
     }
     
     @SuppressWarnings({ "unchecked" })

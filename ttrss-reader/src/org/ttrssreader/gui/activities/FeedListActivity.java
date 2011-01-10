@@ -30,6 +30,7 @@ import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.model.feed.FeedListAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
@@ -260,7 +261,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     @SuppressWarnings("unchecked")
     @Override
     public void onRefreshEnd() {
-        if (!Controller.getInstance().getConnector().hasLastError()) {
+        if (!ITTRSSConnector.hasLastError()) {
             
             try {
                 List<FeedItem> list = new ArrayList<FeedItem>();
@@ -279,7 +280,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             }
             
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
         }
         
         if (updater != null) {

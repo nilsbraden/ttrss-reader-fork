@@ -28,6 +28,7 @@ import org.ttrssreader.model.article.MyWebViewClient;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
+import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
@@ -186,7 +187,7 @@ public class ArticleActivity extends Activity {
     private void doRefresh() {
         setProgressBarIndeterminateVisibility(true);
         
-        if (!Controller.getInstance().getConnector().hasLastError()) {
+        if (!ITTRSSConnector.hasLastError()) {
             mArticleItem = Data.getInstance().getArticle(mArticleId);
             
             // TODO: DONT READ THIS. ITS NOT IMPORTANT: JUST SKIP THE NEXT EIGHT LINES AND READ ON!
@@ -226,7 +227,7 @@ public class ArticleActivity extends Activity {
                 
             }
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
         }
         
         setProgressBarIndeterminateVisibility(false);

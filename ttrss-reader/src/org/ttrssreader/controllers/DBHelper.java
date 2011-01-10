@@ -75,7 +75,7 @@ public class DBHelper {
         + " AND feedId=?";
     // @formatter:on
     
-    private SQLiteDatabase db;
+    public SQLiteDatabase db;
     
     private SQLiteStatement insertCategorie;
     private SQLiteStatement insertFeed;
@@ -185,11 +185,11 @@ public class DBHelper {
                     + " title TEXT," 
                     + " isUnread INTEGER," 
                     + " articleUrl TEXT," 
-                    + " articleCommentUrl TEXT," 
-                    + " updateDate INTEGER, "
-                    + " content TEXT, "
-                    + " attachments TEXT, "
-                    + " isStarred INTEGER, "
+                    + " articleCommentUrl TEXT,"
+                    + " updateDate INTEGER,"
+                    + " content TEXT,"
+                    + " attachments TEXT,"
+                    + " isStarred INTEGER,"
                     + " isPublished INTEGER)");
             // @formatter:on
         }
@@ -238,6 +238,13 @@ public class DBHelper {
      */
     public Cursor query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy) {
         return db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
+    }
+    
+    /**
+     * @see android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])
+     */
+    public Cursor query(String sql, String[] selectionArgs) {
+        return db.rawQuery(sql, selectionArgs);
     }
     
     // *******| INSERT |*******************************************************************
@@ -317,12 +324,13 @@ public class DBHelper {
         }
     }
     
-    private void insertArticle(int articleId, int feedId, String title, boolean isUnread, String content, String articleUrl, String articleCommentUrl, Date updateDate, Set<String> attachments, boolean isStarred, boolean isPublished) {
+    public void insertArticle(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished) {
         
         if (!isDBAvailable()) {
             return;
         }
         
+        String att = parseAttachmentSet(attachments);
         if (title == null) {
             title = "";
         }
@@ -342,10 +350,8 @@ public class DBHelper {
             attachments = new LinkedHashSet<String>();
         }
         
-        String att = parseAttachmentSet(attachments);
-        
         synchronized (TABLE_ARTICLES) {
-            insertArticle.bindLong(1, articleId);
+            insertArticle.bindLong(1, id);
             insertArticle.bindLong(2, feedId);
             insertArticle.bindString(3, title);
             insertArticle.bindLong(4, (isUnread ? 1 : 0));
@@ -371,8 +377,9 @@ public class DBHelper {
     }
     
     private void insertArticleInternal(ArticleItem a) {
-        insertArticle(a.getId(), a.getFeedId(), a.getTitle(), a.isUnread(), a.getContent(), a.getArticleUrl(),
-                a.getArticleCommentUrl(), a.getUpdateDate(), a.getAttachments(), a.isStarred(), a.isPublished());
+        insertArticle(a.getId(), a.getFeedId(), a.getTitle(), a.isUnread(), a.getArticleUrl(),
+                a.getArticleCommentUrl(), a.getUpdateDate(), a.getContent(), a.getAttachments(), a.isStarred(),
+                a.isPublished());
     }
     
     public void insertArticles(Set<ArticleItem> list, int number) {
@@ -761,18 +768,19 @@ public class DBHelper {
         Cursor c = null;
         try {
             
+            String where = "";
             if (feedId == -1) {
-                c = db.query(TABLE_ARTICLES, null, "isStarred=1", null, null, null, "updateDate DESC");
+                where = "isStarred=1";
             } else if (feedId == -2) {
-                c = db.query(TABLE_ARTICLES, null, "isPublished=1", null, null, null, "updateDate DESC");
+                where = "isPublished=1";
             } else if (feedId == -3) {
-                long time = Controller.getInstance().getFreshArticleMaxAge();
-                c = db.query(TABLE_ARTICLES, null, "updateDate>" + time, null, null, null, "updateDate DESC");
+                where = "updateDate>" + Controller.getInstance().getFreshArticleMaxAge();
             } else if (feedId == -4) {
-                c = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC");
+                where = null;
             } else {
-                c = db.query(TABLE_ARTICLES, null, "feedId=" + feedId, null, null, null, "updateDate DESC");
+                where = "feedId=" + feedId;
             }
+            c = DBHelper.getInstance().query(TABLE_ARTICLES, null, where, null, null, null, "updateDate DESC");
             
             while (!c.isAfterLast()) {
                 ret.add(handleArticleCursor(c));
@@ -816,24 +824,16 @@ public class DBHelper {
         return ret;
     }
     
-    private Cursor getArticlesCursor;
-    
     public Map<Integer, Set<ArticleItem>> getArticles() {
         Map<Integer, Set<ArticleItem>> ret = new HashMap<Integer, Set<ArticleItem>>();
         if (!isDBAvailable()) {
             return ret;
         }
         
-        // TODO: Changed behaviour so it reuses the query if it was requested before, but didn't test the implementation
-        // afterwards.
-        if (getArticlesCursor != null) {
-            getArticlesCursor.requery();
-        } else {
-            getArticlesCursor = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC");
-        }
+        Cursor c = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC");
         try {
-            while (!getArticlesCursor.isAfterLast()) {
-                ArticleItem a = handleArticleCursor(getArticlesCursor);
+            while (!c.isAfterLast()) {
+                ArticleItem a = handleArticleCursor(c);
                 int feedId = a.getFeedId();
                 
                 Set<ArticleItem> set;
@@ -846,20 +846,18 @@ public class DBHelper {
                 set.add(a);
                 ret.put(feedId, set);
                 
-                getArticlesCursor.move(1);
+                c.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (getArticlesCursor != null) {
-                getArticlesCursor.deactivate();
+            if (c != null) {
+                c.close();
             }
         }
         
         return ret;
     }
-    
-    private Cursor getFeedsCursor;
     
     public Map<Integer, Set<FeedItem>> getFeeds() {
         Map<Integer, Set<FeedItem>> ret = new HashMap<Integer, Set<FeedItem>>();
@@ -867,17 +865,11 @@ public class DBHelper {
             return ret;
         }
         
-        // TODO: Changed behaviour so it reuses the query if it was requested before, but didn't test the implementation
-        // afterwards.
-        if (getFeedsCursor != null) {
-            getFeedsCursor.requery();
-        } else {
-            getFeedsCursor = db.query(TABLE_FEEDS, null, null, null, null, null, "upper(title) ASC");
-        }
+        Cursor c = db.query(TABLE_FEEDS, null, null, null, null, null, "upper(title) ASC");
         try {
-            while (!getFeedsCursor.isAfterLast()) {
-                FeedItem fi = handleFeedCursor(getFeedsCursor);
-                int catId = getFeedsCursor.getInt(1);
+            while (!c.isAfterLast()) {
+                FeedItem fi = handleFeedCursor(c);
+                int catId = c.getInt(1);
                 
                 Set<FeedItem> set;
                 if (ret.get(catId) != null) {
@@ -889,20 +881,18 @@ public class DBHelper {
                 set.add(fi);
                 ret.put(catId, set);
                 
-                getFeedsCursor.move(1);
+                c.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (getFeedsCursor != null) {
-                getFeedsCursor.deactivate();
+            if (c != null) {
+                c.close();
             }
         }
         
         return ret;
     }
-    
-    private Cursor getVirtualCategoriesCursor;
     
     public Set<CategoryItem> getVirtualCategories() {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
@@ -910,32 +900,24 @@ public class DBHelper {
             return ret;
         }
         
-        // TODO: Changed behaviour so it reuses the query if it was requested before, but didn't test the implementation
-        // afterwards.
-        if (getVirtualCategoriesCursor != null) {
-            getVirtualCategoriesCursor.requery();
-        } else {
-            getVirtualCategoriesCursor = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
-        }
+        Cursor c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
         try {
-            while (!getVirtualCategoriesCursor.isAfterLast()) {
-                CategoryItem ci = handleCategoryCursor(getVirtualCategoriesCursor);
+            while (!c.isAfterLast()) {
+                CategoryItem ci = handleCategoryCursor(c);
                 
                 ret.add(ci);
-                getVirtualCategoriesCursor.move(1);
+                c.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (getVirtualCategoriesCursor != null) {
-                getVirtualCategoriesCursor.deactivate();
+            if (c != null) {
+                c.close();
             }
         }
         
         return ret;
     }
-    
-    private Cursor getCategoriesCursor;
     
     public Set<CategoryItem> getCategories() {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
@@ -943,25 +925,19 @@ public class DBHelper {
             return ret;
         }
         
-        // TODO: Changed behaviour so it reuses the query if it was requested before, but didn't test the implementation
-        // afterwards.
-        if (getCategoriesCursor != null) {
-            getCategoriesCursor.requery();
-        } else {
-            getCategoriesCursor = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) ASC");
-        }
+        Cursor c = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) ASC");
         try {
-            while (!getCategoriesCursor.isAfterLast()) {
-                CategoryItem ci = handleCategoryCursor(getCategoriesCursor);
+            while (!c.isAfterLast()) {
+                CategoryItem ci = handleCategoryCursor(c);
                 
                 ret.add(ci);
-                getCategoriesCursor.move(1);
+                c.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (getCategoriesCursor != null) {
-                getCategoriesCursor.deactivate();
+            if (c != null) {
+                c.close();
             }
         }
         
@@ -970,7 +946,7 @@ public class DBHelper {
     
     // *******************************************
     
-    private ArticleItem handleArticleCursor(Cursor c) {
+    private static ArticleItem handleArticleCursor(Cursor c) {
         ArticleItem ret = null;
         
         if (c.isBeforeFirst()) {
@@ -979,28 +955,28 @@ public class DBHelper {
             }
         }
         
-        if (isDBAvailable()) {
-            // @formatter:off
-            ret = new ArticleItem(
-                    c.getInt(0),                        // feedId
-                    c.getInt(1),                        // id
-                    c.getString(2),                     // title
-                    (c.getInt(3) != 0 ? true : false),  // isUnread
-                    c.getString(4),                     // updateDate
-                    c.getString(5),                     // content
-                    new Date(c.getLong(6)),             // articleUrl
-                    c.getString(7),                     // articleCommentUrl
-                    parseAttachments(c.getString(8)),   // attachments
-                    (c.getInt(9) != 0 ? true : false),  // isStarred
-                    (c.getInt(10) != 0 ? true : false)  // isPublished
-            );
-            // @formatter:on
-        }
+        // if (isDBAvailable()) {
+        // @formatter:off
+        ret = new ArticleItem(
+                c.getInt(0),                        // feedId
+                c.getInt(1),                        // id
+                c.getString(2),                     // title
+                (c.getInt(3) != 0),                 // isUnread
+                c.getString(4),                     // updateDate
+                c.getString(5),                     // content
+                new Date(c.getLong(6)),             // articleUrl
+                c.getString(7),                     // articleCommentUrl
+                parseAttachments(c.getString(8)),   // attachments
+                (c.getInt(9) != 0),                 // isStarred
+                (c.getInt(10) != 0)                 // isPublished
+        );
+        // @formatter:on
+        // }
         
         return ret;
     }
     
-    private FeedItem handleFeedCursor(Cursor c) {
+    private static FeedItem handleFeedCursor(Cursor c) {
         FeedItem ret = null;
         
         if (c.isBeforeFirst()) {
@@ -1021,7 +997,7 @@ public class DBHelper {
         return ret;
     }
     
-    private CategoryItem handleCategoryCursor(Cursor c) {
+    private static CategoryItem handleCategoryCursor(Cursor c) {
         CategoryItem ret = null;
         
         if (c.isBeforeFirst()) {
@@ -1040,7 +1016,7 @@ public class DBHelper {
         return ret;
     }
     
-    public Set<String> parseAttachments(String att) {
+    private static Set<String> parseAttachments(String att) {
         Set<String> ret = new LinkedHashSet<String>();
         if (att == null) {
             return ret;
@@ -1053,7 +1029,7 @@ public class DBHelper {
         return ret;
     }
     
-    public String parseAttachmentSet(Set<String> att) {
+    private static String parseAttachmentSet(Set<String> att) {
         if (att == null) {
             return "";
         }

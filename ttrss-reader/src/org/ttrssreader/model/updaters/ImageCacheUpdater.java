@@ -66,7 +66,7 @@ public class ImageCacheUpdater implements IUpdatable {
                 }
                 
                 // Get images from attachments separately
-                for (String url : DBHelper.getInstance().parseAttachments(c.getString(1))) {
+                for (String url : c.getString(1).split(";")) {
                     for (String ext : Utils.IMAGE_EXTENSIONS) {
                         if (url.toLowerCase().contains(ext) && !cache.containsKey(url)) {
                             downloaded += Utils.downloadToFile(url, cache.getCacheFile(url), maxSize);

@@ -18,13 +18,11 @@ package org.ttrssreader.model.feedheadline;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Date;
 import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
@@ -32,6 +30,7 @@ import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,29 +46,38 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     private Context context;
     
     private int feedId;
+    private Cursor cursor;
+    private boolean displayOnlyUnread;
     
-    // Renamed from mFeeds to mArticles because its an Article-List
-    private List<ArticleItem> articles = null;
-    private Set<ArticleItem> articlesTemp = null;
-    
-    public FeedHeadlineListAdapter(Context context, int feedId) {
+    public FeedHeadlineListAdapter(Context context, int feedId_) {
+        displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
         this.context = context;
-        this.feedId = feedId;
-        this.articles = new ArrayList<ArticleItem>();
-    }
-    
-    public void setArticles(List<ArticleItem> articles) {
-        this.articles = articles;
+        this.feedId = feedId_;
+        this.cursor = makeQuery(feedId, displayOnlyUnread);
     }
     
     @Override
     public int getCount() {
-        return articles.size();
+        return cursor.getCount();
     }
     
     @Override
     public Object getItem(int position) {
-        return articles.get(position);
+        ArticleItem ret = null;
+        if (cursor.getCount() >= position) {
+            if (cursor.moveToPosition(position)) {
+                
+                ret = new ArticleItem();
+                ret.setFeedId(cursor.getInt(0));
+                ret.setId(cursor.getInt(1));
+                ret.setTitle(cursor.getString(2));
+                ret.setUnread(cursor.getInt(3) != 0);
+                ret.setStarred(cursor.getInt(4) != 0);
+                ret.setPublished(cursor.getInt(5) != 0);
+                ret.setUpdateDate(new Date(cursor.getLong(6)));
+            }
+        }
+        return ret;
     }
     
     @Override
@@ -78,14 +86,22 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     }
     
     public int getFeedItemId(int position) {
-        return articles.get(position).getId();
+        int ret = 0;
+        if (cursor.getCount() >= position) {
+            if (cursor.moveToPosition(position)) {
+                ret = cursor.getInt(0);
+            }
+        }
+        return ret;
     }
     
     public ArrayList<Integer> getFeedItemIds() {
         ArrayList<Integer> result = new ArrayList<Integer>();
         
-        for (ArticleItem ai : articles) {
-            result.add(ai.getId());
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            result.add(cursor.getInt(0));
+            cursor.move(1);
         }
         
         return result;
@@ -93,48 +109,13 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     public int getUnreadCount() {
         int result = 0;
-        
-        Iterator<ArticleItem> iter = articles.iterator();
-        while (iter.hasNext()) {
-            if (iter.next().isUnread()) {
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            if (cursor.getInt(3) != 0) {
                 result++;
             }
+            cursor.move(1);
         }
-        
-        return result;
-    }
-    
-    public List<ArticleItem> getArticles() {
-        return articles;
-    }
-    
-    public List<ArticleItem> getArticleReadList() {
-        List<ArticleItem> result = new ArrayList<ArticleItem>();
-        
-        ArticleItem item;
-        Iterator<ArticleItem> iter = articles.iterator();
-        while (iter.hasNext()) {
-            item = iter.next();
-            if (!item.isUnread()) {
-                result.add(item);
-            }
-        }
-        
-        return result;
-    }
-    
-    public List<ArticleItem> getArticleUnreadList() {
-        List<ArticleItem> result = new ArrayList<ArticleItem>();
-        
-        ArticleItem item;
-        Iterator<ArticleItem> iter = articles.iterator();
-        while (iter.hasNext()) {
-            item = iter.next();
-            if (item.isUnread()) {
-                result.add(item);
-            }
-        }
-        
         return result;
     }
     
@@ -163,10 +144,10 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= articles.size())
+        if (position >= cursor.getCount())
             return new View(context);
         
-        ArticleItem a = articles.get(position);
+        ArticleItem a = (ArticleItem) getItem(position);
         
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;
@@ -205,44 +186,67 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         return layout;
     }
     
+    public void closeCursor() {
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+    }
+    
+    private static Cursor makeQuery(int feedId, boolean displayOnlyUnread) {
+        StringBuffer query = new StringBuffer();
+        
+        query.append("SELECT a.feedId,a.id,a.title,a.isUnread,a.isStarred,a.isPublished,a.updateDate,b.title AS feedTitle FROM ");
+        query.append(DBHelper.TABLE_ARTICLES);
+        query.append(" a,");
+        query.append(DBHelper.TABLE_FEEDS);
+        query.append(" b WHERE a.feedId=b.id");
+        
+        if (displayOnlyUnread) {
+            query.append(" AND a.isUnread>0");
+        }
+        
+        if (feedId == -1) {
+            query.append(" AND a.isStarred=1");
+        } else if (feedId == -2) {
+            query.append(" AND a.isPublished=1");
+        } else if (feedId == -3) {
+            long updateDate = Controller.getInstance().getFreshArticleMaxAge();
+            query.append(" AND a.updateDate>");
+            query.append(updateDate);
+        } else if (feedId == -4) {
+            
+        } else {
+            query.append(" AND a.feedId=");
+            query.append(feedId);
+        }
+        
+        query.append(" ORDER BY a.updateDate DESC");
+        
+        Log.d(Utils.TAG, query.toString());
+        return DBHelper.getInstance().query(query.toString(), null);
+    }
+    
     @Override
     public Set<?> refreshData() {
-        Set<ArticleItem> ret;
         
-        if (articlesTemp != null && articlesTemp.size() > 0) {
-            List<ArticleItem> articles = new ArrayList<ArticleItem>(articlesTemp);
-            Collections.sort(articles);
-            ret = new LinkedHashSet<ArticleItem>(articles);
-            ret.addAll(articlesTemp);
-            articlesTemp = null;
+        // Only create new query when request changed, close cursor before
+        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
+            closeCursor();
+            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+            cursor = makeQuery(feedId, displayOnlyUnread);
+        } else if (cursor.isClosed()) {
+            cursor = makeQuery(feedId, displayOnlyUnread);
         } else {
-            Log.d(Utils.TAG, "Fetching Articles from DB...");
-            ret = new LinkedHashSet<ArticleItem>(Data.getInstance().getArticles(feedId));
+            cursor.requery();
         }
-        
-        if (ret != null && !(feedId < 0 && feedId >= -3)) {
-            // We want all articles for starred (-1) and published (-2) and fresh (-3)
-            if (Controller.getInstance().isDisplayOnlyUnread()) {
-                Set<ArticleItem> temp = new LinkedHashSet<ArticleItem>();
-                
-                for (ArticleItem ai : ret) {
-                    if (ai.isUnread()) {
-                        temp.add(ai);
-                    }
-                }
-                ret = temp;
-            }
-        }
-        
-        return ret;
+        return null;
     }
     
     @Override
     public void update() {
         if (!Controller.getInstance().isWorkOffline()) {
-            boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
             Log.i(Utils.TAG, "updateArticles(feedId: " + feedId + ")");
-            articlesTemp = Data.getInstance().updateArticles(feedId, displayOnlyUnread);
+            Data.getInstance().updateArticles(feedId, Controller.getInstance().isDisplayOnlyUnread());
         }
     }
     
