@@ -178,52 +178,55 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         }
         
         // Parse new output with sequence-number and status-codes
-        if (strResponse.contains("{\"seq\":")) {
+        if (strResponse.contains("{\"seq\":"))
             strResponse = parseMetadata(strResponse);
-        }
         
         return strResponse;
     }
     
     private void doRequestNoAnswer(String url) {
-        if (!url.contains(sidUrl)) {
-            url += sidUrl;
-        }
-        doRequest(url); // Append Session-ID to all calls except login
-    }
-    
-    private JSONArray getJSONResponseAsArray(String url) {
-        
         // Make sure we are logged in
-        if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN)) {
+        if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN))
             login();
-            if (mHasLastError) {
-                return null;
-            }
-        } else if (mHasLastError) {
-            return null;
-        }
+        if (mHasLastError)
+            return;
         
         mHasLastError = false;
         mLastError = "";
         
-        JSONArray result = null;
-        if (!url.contains(sidUrl)) {
+        if (!url.contains(sidUrl))
             url += sidUrl;
-        }
+        
+        doRequest(url); // Append Session-ID to all calls except login
+    }
+    
+    private JSONArray getJSONResponseAsArray(String url) {
+        // Make sure we are logged in
+        if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN))
+            login();
+        if (mHasLastError)
+            return null;
+        
+        mHasLastError = false;
+        mLastError = "";
+        
+        if (!url.contains(sidUrl))
+            url += sidUrl;
+        
         String strResponse = doRequest(url); // Append Session-ID to all calls except login
         
-        if (!mHasLastError) {
-            if (strResponse != null && strResponse.length() > 0) {
-                try {
-                    result = new JSONArray(strResponse);
-                } catch (JSONException e) {
-                    mHasLastError = true;
-                    mLastError = "An Error occurred. Message from Server: " + strResponse;
-                }
+        if (mHasLastError)
+            return null;
+        
+        JSONArray result = null;
+        if (strResponse != null && strResponse.length() > 0) {
+            try {
+                result = new JSONArray(strResponse);
+            } catch (JSONException e) {
+                mHasLastError = true;
+                mLastError = "An Error occurred. Message from Server: " + strResponse;
             }
         }
-        
         return result;
     }
     
@@ -381,11 +384,11 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         ArticleItem ret = null;
         
         try {
-            String realFeedId = null;
-            String id = null;
+            int id = 0;
             String title = null;
             boolean isUnread = false;
             Date updated = null;
+            int realFeedId = 0;
             String content = null;
             String articleUrl = null;
             String articleCommentUrl = null;
@@ -397,7 +400,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                 
                 String s = names.getString(i);
                 if (s.equals(ID)) {
-                    id = values.getString(i);
+                    id = Integer.parseInt(values.getString(i));
                 } else if (s.equals(TITLE)) {
                     title = values.getString(i);
                 } else if (s.equals(UNREAD)) {
@@ -405,7 +408,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                 } else if (s.equals(UPDATED)) {
                     updated = new Date(new Long(values.getString(i) + "000").longValue());
                 } else if (s.equals(FEED_ID)) {
-                    realFeedId = values.getString(i);
+                    realFeedId = Integer.parseInt(values.getString(i));
                 } else if (s.equals(CONTENT)) {
                     content = values.getString(i);
                 } else if (s.equals(URL)) {
@@ -702,7 +705,6 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
     
     @Override
     public Set<ArticleItem> getArticle(Set<Integer> articleIds) {
-        long time = System.currentTimeMillis();
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
         
         if (articleIds.size() == 0)
@@ -725,8 +727,8 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         }
         
         try {
-            for (int j = 0; j < jsonResult.length(); j++) {
-                JSONObject object = jsonResult.getJSONObject(j);
+            for (int i = 0; i < jsonResult.length(); i++) {
+                JSONObject object = jsonResult.getJSONObject(i);
                 
                 JSONArray names = object.names();
                 JSONArray values = object.toJSONArray(names);
@@ -739,7 +741,6 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
             e.printStackTrace();
         }
         
-        Log.v(Utils.TAG, "getArticle took " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
     
@@ -778,11 +779,11 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                     JSONArray names = object.names();
                     JSONArray values = object.toJSONArray(names);
                     
-                    String realFeedId = null;
-                    String id = null;
+                    int id = 0;
                     String title = null;
                     boolean isUnread = false;
                     Date updated = null;
+                    int realFeedId = 0;
                     String content = null;
                     String articleUrl = null;
                     String articleCommentUrl = null;
@@ -791,10 +792,9 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                     boolean isPublished = false;
                     
                     for (int i = 0; i < names.length(); i++) {
-                        
                         String s = names.getString(i);
                         if (s.equals(ID)) {
-                            id = values.getString(i);
+                            id = Integer.parseInt(values.getString(i));
                         } else if (s.equals(TITLE)) {
                             title = values.getString(i);
                         } else if (s.equals(UNREAD)) {
@@ -802,7 +802,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                         } else if (s.equals(UPDATED)) {
                             updated = new Date(new Long(values.getString(i) + "000").longValue());
                         } else if (s.equals(FEED_ID)) {
-                            realFeedId = values.getString(i);
+                            realFeedId = Integer.parseInt(values.getString(i));
                         } else if (s.equals(CONTENT)) {
                             content = values.getString(i);
                         } else if (s.equals(URL)) {
@@ -818,9 +818,8 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                         }
                     }
                     
-                    DBHelper.getInstance().insertArticle(Integer.parseInt(id), Integer.parseInt(realFeedId), title,
-                            isUnread, articleUrl, articleCommentUrl, updated, content, attachments, isStarred,
-                            isPublished);
+                    DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
+                            articleCommentUrl, updated, content, attachments, isStarred, isPublished);
                 }
                 db.setTransactionSuccessful();
             } catch (JSONException e) {
