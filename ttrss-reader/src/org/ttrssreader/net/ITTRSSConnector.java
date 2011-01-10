@@ -22,14 +22,10 @@ import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.feed.FeedItem;
 
-public interface ITTRSSConnector {
+public abstract class ITTRSSConnector {
     
-    /**
-     * Retrieves the number of unread articles.
-     * 
-     * @return the number of unread articles.
-     */
-    // public int getTotalUnread();
+    protected static String mLastError = "";
+    protected static boolean mHasLastError = false;
     
     /**
      * Retrieves a Set of Maps which map Strings to the information, e.g. "id" -> 42, containing the counters for every
@@ -37,46 +33,38 @@ public interface ITTRSSConnector {
      * 
      * @return set of Name-Value-Pairs stored in maps
      */
-    public Set<Map<String, Object>> getCounters();
+    public abstract void getCounters();
     
     /**
      * Retrieves all categories.
      * 
      * @return a list of categories.
      */
-    public Set<CategoryItem> getCategories();
+    public abstract Set<CategoryItem> getCategories();
     
     /**
      * Retrieves all feeds, mapped to their categories.
      * 
      * @return a map of all feeds for every category.
      */
-    public Map<Integer, Set<FeedItem>> getFeeds();
+    public abstract Map<Integer, Set<FeedItem>> getFeeds();
     
     /**
-     * Retrieves the articles for the given feed or category, depending on boolean isCategory. Already read articles can
-     * be filtered.
-     * 
-     * @param id
-     *            the id of the feed or category.
-     * @param displayOnlyUnread
-     *            whether we are to filter out read articles.
-     * @param isCategory
-     *            indicates if the id refers to a category or a feed.
-     * @param limit
-     *            sets a limit of articles that are read.
-     * @return a list of articles or null on error.
-     */
-    // public Set<ArticleItem> getArticles(int parentId, boolean displayOnlyUnread, boolean isCategory, int limit);
-    
-    /**
-     * Retrieves the specified articles.
+     * Retrieves the specified articles and returns them as a set.
      * 
      * @param articleIds
      *            the ids of the articles.
      * @return the articles.
      */
-    public Set<ArticleItem> getArticle(Set<Integer> articleIds);
+    public abstract Set<ArticleItem> getArticle(Set<Integer> articleIds);
+    
+    /**
+     * Retrieves the specified articles and directly stores them in the database.
+     * 
+     * @param articleIds
+     *            the ids of the articles.
+     */
+    public abstract void getArticleToDatabase(Set<Integer> articleIds);
     
     /**
      * Retrieves all articles for a given feed with their headlines to avoid too much traffic for the content.
@@ -87,7 +75,7 @@ public interface ITTRSSConnector {
      * @param viewMode
      * @return
      */
-    public Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode);
+    public abstract Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode);
     
     /**
      * Retrieves all new articles since the given time. ArticleState can be given to only retrieve unread articles.
@@ -98,7 +86,7 @@ public interface ITTRSSConnector {
      *            the time in ms since 1970, specifying the time of the last update.
      * @return a map of List<ArticleItem> mapped to their feeds, mapped to their articles.
      */
-    public Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time /* ago */);
+    public abstract Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time /* ago */);
     
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
@@ -108,7 +96,7 @@ public interface ITTRSSConnector {
      * @param articleState
      *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
      */
-    public void setArticleRead(Set<Integer> articlesIds, int articleState);
+    public abstract void setArticleRead(Set<Integer> articlesIds, int articleState);
     
     /**
      * Marks the given Article as "starred"/"not starred" depending on int articleState.
@@ -118,7 +106,7 @@ public interface ITTRSSConnector {
      * @param articleState
      *            the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
      */
-    public void setArticleStarred(int articlesId, int articleState);
+    public abstract void setArticleStarred(int articlesId, int articleState);
     
     /**
      * Marks the given Article as "published"/"not published" depending on int articleState.
@@ -128,7 +116,7 @@ public interface ITTRSSConnector {
      * @param articleState
      *            the new state of the article (0 -> not published; 1 -> published; 2 -> toggle).
      */
-    public void setArticlePublished(int articlesId, int articleState);
+    public abstract void setArticlePublished(int articlesId, int articleState);
     
     /**
      * Marks a feed or a category with all its feeds as read.
@@ -138,7 +126,7 @@ public interface ITTRSSConnector {
      * @param isCategory
      *            indicates whether id refers to a feed or a category.
      */
-    public void setRead(int id, boolean isCategory);
+    public abstract void setRead(int id, boolean isCategory);
     
     /**
      * Returns the value for the given preference-name as a string.
@@ -147,27 +135,35 @@ public interface ITTRSSConnector {
      *            the preferences name
      * @return the value of the preference or null if it ist not set or unknown
      */
-    public String getPref(String pref);
+    public abstract String getPref(String pref);
     
     /**
      * Returns true if there was an error.
      * 
      * @return true if there was an error.
      */
-    public boolean hasLastError();
+    public static boolean hasLastError() {
+        return mHasLastError;
+    }
     
     /**
      * Returns the last error.
      * 
      * @return a string with the last error-message.
      */
-    public String getLastError();
+    public static String getLastError() {
+        return mLastError;
+    }
     
     /**
      * Returns the last error-message and resets the error-state of the connector.
      * 
      * @return a string with the last error-message.
      */
-    public String pullLastError();
-    
+    public static String pullLastError() {
+        String ret = new String(mLastError);
+        mLastError = "";
+        mHasLastError = false;
+        return ret;
+    }
 }

@@ -17,8 +17,6 @@
 package org.ttrssreader.gui.activities;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -32,6 +30,7 @@ import org.ttrssreader.model.feedheadline.FeedHeadlineListAdapter;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
+import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Context;
@@ -138,6 +137,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
+        }
         if (refresher != null) {
             refresher.cancel(true);
             refresher = null;
@@ -151,6 +153,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
+        }
         outState.putInt(FEED_ID, mFeedId);
         outState.putString(FEED_TITLE, mFeedTitle);
         outState.putIntegerArrayList(FEED_LIST_ID, mFeedListIds);
@@ -431,32 +436,19 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         }
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public void onRefreshEnd() {
-        if (!Controller.getInstance().getConnector().hasLastError()) {
-            
-            try {
-                List<ArticleItem> list = new ArrayList<ArticleItem>();
-                list.addAll((Set<ArticleItem>) refresher.get());
-                refresher = null;
-                mAdapter.setArticles(list);
-                mAdapter.notifyDataSetChanged();
-            } catch (Exception e) {
-            }
-            
-            if (mFeedTitle != null) {
-                this.setTitle(mFeedTitle + " (" + mAdapter.getUnreadCount() + ")");
-            } else {
-                this.setTitle(this.getResources().getString(R.string.ApplicationName) + " ("
-                        + mAdapter.getUnreadCount() + ")");
-            }
+        if (!ITTRSSConnector.hasLastError()) {
+            refresher = null;
+            mAdapter.notifyDataSetChanged();
+            setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getUnreadCount() + ")");
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
         }
         
         if (updater != null) {
             if (updater.getStatus().equals(Status.FINISHED)) {
+                updater = null;
                 setProgressBarIndeterminateVisibility(false);
             }
         } else {

@@ -32,6 +32,7 @@ import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryListAdapter;
 import org.ttrssreader.model.updaters.ImageCacheUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
@@ -370,7 +371,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     @SuppressWarnings("unchecked")
     @Override
     public void onRefreshEnd() {
-        if (!Controller.getInstance().getConnector().hasLastError()) {
+        if (!ITTRSSConnector.hasLastError()) {
             
             try {
                 List<CategoryItem> list = new ArrayList<CategoryItem>();
@@ -382,7 +383,7 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             }
             
         } else {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
             return;
         }
         

@@ -34,17 +34,6 @@ public class ArticleItem implements Comparable<ArticleItem> {
     private boolean mIsPublished;
     
     public ArticleItem() {
-        mId = 0;
-        mTitle = "";
-        mFeedId = 0;
-        mIsUnread = false;
-        mUpdateDate = new Date();
-        mArticleUrl = "";
-        mArticleCommentUrl = "";
-        setContent("");
-        mAttachments = null;
-        mIsStarred = false;
-        mIsPublished = false;
     }
     
     public ArticleItem(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
