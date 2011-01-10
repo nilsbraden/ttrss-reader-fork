@@ -89,7 +89,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         int ret = 0;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = cursor.getInt(0);
+                ret = cursor.getInt(1);
             }
         }
         return ret;
@@ -100,7 +100,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            result.add(cursor.getInt(0));
+            result.add(cursor.getInt(1));
             cursor.move(1);
         }
         
