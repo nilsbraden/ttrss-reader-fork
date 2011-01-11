@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model.feedheadline;
+package org.ttrssreader.model;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -23,9 +23,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.IUpdatable;
-import org.ttrssreader.model.article.ArticleItem;
-import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
@@ -244,7 +241,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         
         query.append(" ORDER BY a.updateDate DESC");
         
-        Log.d(Utils.TAG, query.toString());
+        Log.v(Utils.TAG, query.toString());
         cursor = DBHelper.getInstance().query(query.toString(), null);
     }
     

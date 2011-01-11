@@ -17,8 +17,8 @@ package org.ttrssreader.model.updaters;
 
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.ArticleItem;
 import org.ttrssreader.model.IUpdatable;
-import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 

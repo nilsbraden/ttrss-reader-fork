@@ -14,15 +14,13 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model.category;
+package org.ttrssreader.model;
 
 import java.util.ArrayList;
-import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
@@ -36,17 +34,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
+public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     private Context context;
     public Cursor cursor;
     
-    private int unreadCount;
+    private int categoryId;
     private boolean displayOnlyUnread;
     
-    public CategoryListAdapter(Context context) {
+    public FeedListAdapter(Context context, int categoryId) {
         this.context = context;
-        this.unreadCount = 0;
+        this.categoryId = categoryId;
         makeQuery();
     }
     
@@ -65,10 +63,10 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
             return null;
         }
         
-        CategoryItem ret = null;
+        FeedItem ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = new CategoryItem();
+                ret = new FeedItem();
                 ret.setId(cursor.getInt(0));
                 ret.setTitle(cursor.getString(1));
                 ret.setUnread(cursor.getInt(2));
@@ -79,6 +77,10 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     
     @Override
     public long getItemId(int position) {
+        return position;
+    }
+    
+    public int getFeedId(int position) {
         if (cursor.isClosed()) {
             return -1;
         }
@@ -91,22 +93,9 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         return 0;
     }
     
-    public int getCategoryId(int position) {
+    public String getFeedTitle(int position) {
         if (cursor.isClosed()) {
-            return -1;
-        }
-        
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                return cursor.getInt(0);
-            }
-        }
-        return 0;
-    }
-    
-    public String getCategoryTitle(int position) {
-        if (cursor.isClosed()) {
-            return "";
+            return null;
         }
         
         if (cursor.getCount() >= position) {
@@ -117,23 +106,42 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         return "";
     }
     
-    public int getTotalUnread() {
-        return unreadCount;
+    public ArrayList<Integer> getFeedIds() {
+        if (cursor.isClosed()) {
+        }
+        
+        ArrayList<Integer> result = new ArrayList<Integer>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            result.add(cursor.getInt(0));
+            cursor.move(1);
+        }
+        return result;
     }
     
-    public List<CategoryItem> getCategories() {
+    public ArrayList<String> getFeedNames() {
         if (cursor.isClosed()) {
             return null;
         }
         
-        List<CategoryItem> result = new ArrayList<CategoryItem>();
+        ArrayList<String> result = new ArrayList<String>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            CategoryItem c = new CategoryItem();
-            c.setId(cursor.getInt(0));
-            c.setTitle(cursor.getString(1));
-            c.setUnread(cursor.getInt(2));
-            result.add(c);
+            result.add(cursor.getString(1));
+            cursor.move(1);
+        }
+        return result;
+    }
+    
+    public int getTotalUnreadCount() {
+        if (cursor.isClosed()) {
+            return -1;
+        }
+        
+        int result = 0;
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            result += cursor.getInt(2);
             cursor.move(1);
         }
         return result;
@@ -147,21 +155,11 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         }
     }
     
-    private int getImage(int id, boolean unread) {
-        if (id == -1) {
-            return R.drawable.star48;
-        } else if (id == -2) {
-            return R.drawable.published48;
-        } else if (id == -3) {
-            return R.drawable.fresh48;
-        } else if (id == -4) {
-            return R.drawable.all48;
+    private int getImage(boolean unread) {
+        if (unread) {
+            return R.drawable.feedheadlinesunread48;
         } else {
-            if (unread) {
-                return R.drawable.categoryunread48;
-            } else {
-                return R.drawable.categoryread48;
-            }
+            return R.drawable.feedheadlinesread48;
         }
     }
     
@@ -170,12 +168,12 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         if (position >= getCount() || position < 0)
             return new View(context);
         
-        CategoryItem c = (CategoryItem) getItem(position);
+        FeedItem f = (FeedItem) getItem(position);
         
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;
         if (convertView == null) {
-            layout = (LinearLayout) inflater.inflate(R.layout.categoryitem, null);
+            layout = (LinearLayout) inflater.inflate(R.layout.feeditem, null);
         } else {
             if (convertView instanceof LinearLayout) {
                 layout = (LinearLayout) convertView;
@@ -183,11 +181,11 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         }
         
         ImageView icon = (ImageView) layout.findViewById(R.id.icon);
-        icon.setImageResource(getImage(c.getId(), c.getUnread() > 0));
+        icon.setImageResource(getImage(f.getUnread() > 0));
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(formatTitle(c.getTitle(), c.getUnread()));
-        if (c.getUnread() > 0) {
+        title.setText(formatTitle(f.getTitle(), f.getUnread()));
+        if (f.getUnread() > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
         } else {
             title.setTypeface(Typeface.DEFAULT, 0);
@@ -211,26 +209,24 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         }
         StringBuffer query = new StringBuffer();
         
-        query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
-        query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id<=0 ORDER BY id) AS a UNION SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
-        query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id>0");
+        query.append("SELECT id,title,unread FROM ");
+        query.append(DBHelper.TABLE_FEEDS);
+        query.append(" WHERE categoryId=");
+        query.append(categoryId);
+        
         if (displayOnlyUnread) {
             query.append(" AND unread>0");
         }
-        query.append(" ORDER BY UPPER(title) DESC) AS b");
         
-        Log.d(Utils.TAG, query.toString());
+        query.append(" ORDER BY UPPER(title) ASC");
+        
+        Log.v(Utils.TAG, query.toString());
         cursor = DBHelper.getInstance().query(query.toString(), null);
     }
     
     @Override
     public void update() {
-        unreadCount = Data.getInstance().getCategoryUnreadCount(-4);
-        Data.getInstance().updateCounters();
-        Data.getInstance().updateCategories();
-        Data.getInstance().updateVirtualCategories();
+        Data.getInstance().updateFeeds(categoryId);
     }
     
 }

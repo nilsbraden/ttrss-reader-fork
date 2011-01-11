@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model.article;
+package org.ttrssreader.model;
 
 import java.io.File;
 import java.io.IOException;
