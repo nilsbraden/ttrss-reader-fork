@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model.category;
+package org.ttrssreader.model;
 
 
 public class CategoryItem implements Comparable<CategoryItem> {

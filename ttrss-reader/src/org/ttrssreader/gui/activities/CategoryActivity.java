@@ -22,8 +22,8 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.model.CategoryListAdapter;
 import org.ttrssreader.model.Updater;
-import org.ttrssreader.model.category.CategoryListAdapter;
 import org.ttrssreader.model.updaters.ImageCacheUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.net.ITTRSSConnector;
@@ -153,19 +153,18 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
             somethingRunning = true;
         }
         
-        if (somethingRunning) {
-            setProgressBarIndeterminateVisibility(true);
+        if (!somethingRunning) {
+            setProgressBarIndeterminateVisibility(false);
         }
-        setProgressBarIndeterminateVisibility(false);
     }
     
     private synchronized void doUpdate() {
         // Only update if no updater already running
         if (updater != null) {
-            if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
-                return;
-            } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
                 updater = null;
+            } else {
+                return;
             }
         }
         

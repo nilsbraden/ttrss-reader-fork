@@ -18,9 +18,9 @@ package org.ttrssreader.net;
 
 import java.util.Map;
 import java.util.Set;
-import org.ttrssreader.model.article.ArticleItem;
-import org.ttrssreader.model.category.CategoryItem;
-import org.ttrssreader.model.feed.FeedItem;
+import org.ttrssreader.model.ArticleItem;
+import org.ttrssreader.model.CategoryItem;
+import org.ttrssreader.model.FeedItem;
 
 public abstract class ITTRSSConnector {
     

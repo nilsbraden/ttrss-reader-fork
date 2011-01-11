@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model.feed;
+package org.ttrssreader.model;
 
 public class FeedItem implements Comparable<FeedItem> {
     

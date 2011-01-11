@@ -24,10 +24,10 @@ import java.util.Set;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.ArticleItem;
+import org.ttrssreader.model.CategoryItem;
+import org.ttrssreader.model.FeedItem;
 import org.ttrssreader.model.IUpdatable;
-import org.ttrssreader.model.article.ArticleItem;
-import org.ttrssreader.model.category.CategoryItem;
-import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
