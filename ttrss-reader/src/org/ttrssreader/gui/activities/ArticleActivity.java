@@ -240,7 +240,6 @@ public class ArticleActivity extends Activity {
         // No more articles in this direction
         if (index < 0 || index >= mArticleIds.size()) {
             if (Controller.getInstance().isVibrateOnLastArticle()) {
-                Log.i(Utils.TAG, "No more articles, vibrate..");
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 v.vibrate(Utils.SHORT_VIBRATE);
             }
@@ -252,7 +251,7 @@ public class ArticleActivity extends Activity {
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
         i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mArticleIds);
         
-        Log.i(Utils.TAG, "openArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
+        Log.v(Utils.TAG, "openArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         
         startActivityForResult(i, 0);
         this.finish();
@@ -299,10 +298,10 @@ public class ArticleActivity extends Activity {
                 // Log.d(Utils.TAG, String.format("SWIPE_HEIGHT: %s SWIPE_WIDTH: %s", swipeHeight, swipeWidth));
                 
                 if (velocityX > 0) {
-                    Log.d(Utils.TAG, "Fling right");
+                    Log.v(Utils.TAG, "Fling right");
                     openNextArticle(-1);
                 } else {
-                    Log.d(Utils.TAG, "Fling left");
+                    Log.v(Utils.TAG, "Fling left");
                     openNextArticle(1);
                 }
                 return true;

@@ -63,16 +63,6 @@ public class DBHelper {
         + TABLE_ARTICLES
         + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished)" 
         + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    private static final String UPDATE_ARTICLES =
-        "UPDATE "
-        + TABLE_ARTICLES
-        + " SET title=?,"
-        + "  articleUrl=?,"
-        + "  articleCommentUrl=?,"
-        + "  updateDate=?"
-        + " WHERE id=?"
-        + " AND feedId=?";
     // @formatter:on
     
     public SQLiteDatabase db;
@@ -80,7 +70,6 @@ public class DBHelper {
     private SQLiteStatement insertCategorie;
     private SQLiteStatement insertFeed;
     private SQLiteStatement insertArticle;
-    private SQLiteStatement updateArticle;
     
     boolean externalDBState;
     private Context context;
@@ -93,7 +82,6 @@ public class DBHelper {
         insertCategorie = null;
         insertFeed = null;
         insertArticle = null;
-        updateArticle = null;
     }
     
     private synchronized boolean initializeController() {
@@ -112,7 +100,6 @@ public class DBHelper {
         insertCategorie = db.compileStatement(INSERT_CATEGORY);
         insertFeed = db.compileStatement(INSERT_FEEDS);
         insertArticle = db.compileStatement(INSERT_ARTICLES);
-        updateArticle = db.compileStatement(UPDATE_ARTICLES);
         return true;
     }
     
@@ -133,15 +120,14 @@ public class DBHelper {
         return mInstance;
     }
     
-    public void destroy() {
-        db.close();
-        mInstance = null;
-        mIsDBInitialized = false;
-    }
-    
     private boolean isDBAvailable() {
         if (db != null && db.isOpen()) {
             return true;
+        } else if (db != null) {
+            OpenHelper openHelper = new OpenHelper(context);
+            db = openHelper.getWritableDatabase();
+            mIsDBInitialized = db.isOpen();
+            return mIsDBInitialized;
         } else {
             Log.w(Utils.TAG, "Controller not initialized, trying to do that now...");
             mIsDBInitialized = initializeController();
@@ -284,7 +270,7 @@ public class DBHelper {
         }
     }
     
-    private void insertFeed(int feedId, int categoryId, String title, String url, int unread) {
+    private void insertFeed(int id, int categoryId, String title, String url, int unread) {
         if (!isDBAvailable()) {
             return;
         }
@@ -297,7 +283,7 @@ public class DBHelper {
         }
         
         synchronized (TABLE_FEEDS) {
-            insertFeed.bindLong(1, new Integer(feedId).longValue());
+            insertFeed.bindLong(1, new Integer(id).longValue());
             insertFeed.bindLong(2, new Integer(categoryId).longValue());
             insertFeed.bindString(3, title);
             insertFeed.bindString(4, url);
@@ -538,56 +524,6 @@ public class DBHelper {
         
         synchronized (TABLE_ARTICLES) {
             db.update(TABLE_ARTICLES, cv, "id=" + id, null);
-        }
-    }
-    
-    /**
-     * Apparently not used anymore so I marked it as deprecated
-     * 
-     * @param a
-     */
-    @Deprecated
-    public void updateArticleContent(ArticleItem a) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        int id = a.getId();
-        int feedId = a.getFeedId();
-        String content = a.getContent();
-        String title = a.getTitle();
-        String articleUrl = a.getArticleUrl();
-        String articleCommentUrl = a.getArticleCommentUrl();
-        Date updateDate = a.getUpdateDate();
-        
-        if (content == null) {
-            content = "";
-        }
-        if (title == null) {
-            title = "";
-        }
-        if (articleUrl == null) {
-            articleUrl = "";
-        }
-        if (articleCommentUrl == null) {
-            articleCommentUrl = "";
-        }
-        if (updateDate == null) {
-            updateDate = new Date();
-        }
-        
-        String att = parseAttachmentSet(a.getAttachments());
-        
-        synchronized (TABLE_ARTICLES) {
-            updateArticle.bindString(1, title);
-            updateArticle.bindString(2, articleUrl);
-            updateArticle.bindString(3, articleCommentUrl);
-            updateArticle.bindLong(4, updateDate.getTime());
-            updateArticle.bindLong(5, new Long(id));
-            updateArticle.bindLong(6, new Long(feedId));
-            updateArticle.bindString(7, content);
-            updateArticle.bindString(8, att);
-            updateArticle.execute();
         }
     }
     

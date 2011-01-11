@@ -20,19 +20,18 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
-import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
-import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.model.feed.FeedListAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.net.ITTRSSConnector;
+import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,7 +41,7 @@ import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-public class FeedListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
+public class FeedListActivity extends ListActivity implements IUpdateEndListener {
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_READ = MARK_GROUP + 1;
@@ -55,7 +54,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     
     private ListView mFeedListView;
     private FeedListAdapter mAdapter = null;
-    private Refresher refresher;
     private Updater updater;
     
     @Override
@@ -82,6 +80,9 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             mCategoryId = -1;
             mCategoryTitle = null;
         }
+        
+        mAdapter = new FeedListAdapter(this, mCategoryId);
+        mFeedListView.setAdapter(mAdapter);
     }
     
     @Override
@@ -93,15 +94,41 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     }
     
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
+        Log.v(Utils.TAG, "FeedListActivity: onPause()");
         super.onDestroy();
-        if (refresher != null) {
-            refresher.cancel(true);
-            refresher = null;
-        }
         if (updater != null) {
             updater.cancel(true);
             updater = null;
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
+        }
+    }
+    
+    @Override
+    protected void onStop() {
+        Log.v(Utils.TAG, "FeedListActivity: onStop()");
+        super.onDestroy();
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        Log.v(Utils.TAG, "FeedListActivity: onDestroy()");
+        super.onDestroy();
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
         }
     }
     
@@ -110,29 +137,30 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         super.onSaveInstanceState(outState);
         outState.putInt(CATEGORY_ID, mCategoryId);
         outState.putString(CATEGORY_TITLE, mCategoryTitle);
-        // TODO Perhaps we can save the data from the adapter too so we dont have to read from DB?
     }
     
     private void doRefresh() {
+        // if (mAdapter == null) {
+        // mAdapter = new FeedListAdapter(this, mCategoryId);
+        // mFeedListView.setAdapter(mAdapter);
+        // }
         
-        // Only update if no refresher already running
-        if (refresher != null) {
-            if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
-                return;
-            } else if (refresher.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                refresher = null;
-                return;
+        mAdapter.notifyDataSetChanged();
+        if (!ITTRSSConnector.hasLastError()) {
+            this.setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
+        } else {
+            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+        }
+        
+        if (updater != null) {
+            if (updater.getStatus().equals(Status.FINISHED)) {
+                updater = null;
+                setProgressBarIndeterminateVisibility(false);
             }
+        } else {
+            setProgressBarIndeterminateVisibility(false);
         }
-        
-        if (mAdapter == null) {
-            mAdapter = new FeedListAdapter(this, mCategoryId);
-            mFeedListView.setAdapter(mAdapter);
-        }
-        
         setProgressBarIndeterminateVisibility(true);
-        refresher = new Refresher(this, mAdapter);
-        refresher.execute();
     }
     
     private synchronized void doUpdate() {
@@ -146,10 +174,10 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             }
         }
         
-        if (mAdapter == null) {
-            mAdapter = new FeedListAdapter(this, mCategoryId);
-            mFeedListView.setAdapter(mAdapter);
-        }
+        // if (mAdapter == null) {
+        // mAdapter = new FeedListAdapter(this, mCategoryId);
+        // mFeedListView.setAdapter(mAdapter);
+        // }
         
         setProgressBarIndeterminateVisibility(true);
         updater = new Updater(this, mAdapter);
@@ -166,18 +194,13 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        FeedItem f = (FeedItem) mAdapter.getItem(cmi.position);
-        
-        if (f == null) {
-            return false;
-        }
-        
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(this, new ReadStateUpdater(f.getId(), 42)).execute();
+                new Updater(this, new ReadStateUpdater(mAdapter.getFeedId(cmi.position), 42)).execute();
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
     
     @Override
@@ -223,10 +246,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
-        if (refresher != null) {
-            refresher.cancel(true);
-            refresher = null;
-        }
         if (updater != null) {
             updater.cancel(true);
             updater = null;
@@ -241,26 +260,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
             doUpdate();
             doRefresh();
-        }
-    }
-    
-    @Override
-    public void onRefreshEnd() {
-        if (!ITTRSSConnector.hasLastError()) {
-            refresher = null;
-            mAdapter.notifyDataSetChanged();
-            this.setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
-        } else {
-            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
-        }
-        
-        if (updater != null) {
-            if (updater.getStatus().equals(Status.FINISHED)) {
-                updater = null;
-                setProgressBarIndeterminateVisibility(false);
-            }
-        } else {
-            setProgressBarIndeterminateVisibility(false);
         }
     }
     

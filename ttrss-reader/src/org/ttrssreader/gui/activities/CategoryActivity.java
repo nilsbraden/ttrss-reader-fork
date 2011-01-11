@@ -21,11 +21,8 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
-import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
-import org.ttrssreader.model.category.CategoryItem;
 import org.ttrssreader.model.category.CategoryListAdapter;
 import org.ttrssreader.model.updaters.ImageCacheUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
@@ -52,7 +49,7 @@ import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-public class CategoryActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
+public class CategoryActivity extends ListActivity implements IUpdateEndListener {
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_READ = MARK_GROUP + 1;
@@ -62,7 +59,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     
     private ListView mCategoryListView;
     private CategoryListAdapter mAdapter = null;
-    private Refresher refresher;
     private Updater updater;
     private Updater imageCacher;
     
@@ -76,13 +72,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         
         Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
-        
         Data.getInstance().checkAndInitializeData(this);
         
         mCategoryListView = getListView();
         registerForContextMenu(mCategoryListView);
-        mAdapter = new CategoryListAdapter(this);
-        mCategoryListView.setAdapter(mAdapter);
         
         // Check for update or new installation
         if (Controller.getInstance().isNewInstallation()) {
@@ -93,6 +86,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             // Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
+        
+        mAdapter = new CategoryListAdapter(this);
+        mCategoryListView.setAdapter(mAdapter);
     }
     
     private boolean checkConfig() {
@@ -117,15 +113,41 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     }
     
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
+        Log.v(Utils.TAG, "CategoryActivity: onPause()");
         super.onDestroy();
-        if (refresher != null) {
-            refresher.cancel(true);
-            refresher = null;
-        }
         if (updater != null) {
             updater.cancel(true);
             updater = null;
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
+        }
+    }
+    
+    @Override
+    protected void onStop() {
+        Log.v(Utils.TAG, "CategoryActivity: onStop()");
+        super.onDestroy();
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        Log.v(Utils.TAG, "CategoryActivity: onDestroy()");
+        super.onDestroy();
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
         }
         if (imageCacher != null) {
             imageCacher.cancel(true);
@@ -139,26 +161,35 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     }
     
     private synchronized void doRefresh() {
-        // Only update if no refresher already running
-        if (refresher != null) {
-            if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
-                return;
-            } else if (refresher.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                refresher = null;
-                return;
-            }
-        }
-        
-        if (mAdapter == null) {
-            mAdapter = new CategoryListAdapter(this);
-            mCategoryListView.setAdapter(mAdapter);
-        }
+        // if (mAdapter == null) {
+        // mAdapter = new CategoryListAdapter(this);
+        // mCategoryListView.setAdapter(mAdapter);
+        // }
         
         this.setTitle(this.getResources().getString(R.string.ApplicationName));
+        mAdapter.notifyDataSetChanged();
+        if (ITTRSSConnector.hasLastError()) {
+            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+            return;
+        }
         
+        if (mAdapter.getTotalUnread() >= 0) {
+            this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread()
+                    + ")");
+        }
+        
+        boolean somethingRunning = false;
+        if (updater != null && !updater.getStatus().equals(Status.FINISHED)) {
+            somethingRunning = true;
+        }
+        if (imageCacher != null && !imageCacher.getStatus().equals(Status.FINISHED)) {
+            somethingRunning = true;
+        }
+        
+        if (!somethingRunning) {
+            setProgressBarIndeterminateVisibility(false);
+        }
         setProgressBarIndeterminateVisibility(true);
-        refresher = new Refresher(this, mAdapter);
-        refresher.execute();
     }
     
     private synchronized void doUpdate() {
@@ -172,10 +203,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             }
         }
         
-        if (mAdapter == null) {
-            mAdapter = new CategoryListAdapter(this);
-            mCategoryListView.setAdapter(mAdapter);
-        }
+        // if (mAdapter == null) {
+        // mAdapter = new CategoryListAdapter(this);
+        // mCategoryListView.setAdapter(mAdapter);
+        // }
         
         setProgressBarIndeterminateVisibility(true);
         updater = new Updater(this, mAdapter);
@@ -192,18 +223,13 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        CategoryItem c = (CategoryItem) mAdapter.getItem(cmi.position);
-        
-        if (c == null) {
-            return false;
-        }
-        
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(this, new ReadStateUpdater(c.getId())).execute();
+                new Updater(this, new ReadStateUpdater(mAdapter.getCategoryId(cmi.position))).execute();
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
     
     @Override
@@ -274,10 +300,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
-        if (refresher != null) {
-            refresher.cancel(true);
-            refresher = null;
-        }
         if (updater != null) {
             updater.cancel(true);
             updater = null;
@@ -355,37 +377,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
                 break;
         }
         return builder.create();
-    }
-    
-    @Override
-    public void onRefreshEnd() {
-        if (!ITTRSSConnector.hasLastError()) {
-            refresher = null;
-            mAdapter.notifyDataSetChanged();
-        } else {
-            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
-            return;
-        }
-        
-        if (mAdapter.getTotalUnread() >= 0) {
-            this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread()
-                    + ")");
-        }
-        
-        boolean somethingRunning = false;
-        if (updater != null && !updater.getStatus().equals(Status.FINISHED)) {
-            somethingRunning = true;
-        }
-        if (imageCacher != null && !imageCacher.getStatus().equals(Status.FINISHED)) {
-            somethingRunning = true;
-        }
-        if (refresher != null && !refresher.getStatus().equals(Status.FINISHED)) {
-            somethingRunning = true;
-        }
-        
-        if (!somethingRunning) {
-            setProgressBarIndeterminateVisibility(false);
-        }
     }
     
     @Override

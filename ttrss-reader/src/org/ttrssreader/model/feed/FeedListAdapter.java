@@ -17,12 +17,10 @@
 package org.ttrssreader.model.feed;
 
 import java.util.ArrayList;
-import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
@@ -37,12 +35,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdatable {
+public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     private Context context;
     
     private int categoryId;
-    private Cursor cursor;
+    private volatile Cursor cursor;
     private boolean displayOnlyUnread;
     
     public FeedListAdapter(Context context, int categoryId) {
@@ -53,11 +51,21 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     
     @Override
     public int getCount() {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         return cursor.getCount();
     }
     
     @Override
     public Object getItem(int position) {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         FeedItem ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
@@ -76,26 +84,39 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     }
     
     public int getFeedId(int position) {
-        int ret = 0;
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = cursor.getInt(0);
+                return cursor.getInt(0);
             }
         }
-        return ret;
+        return 0;
     }
     
     public String getFeedTitle(int position) {
-        String ret = "";
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = cursor.getString(1);
+                return cursor.getString(1);
             }
         }
-        return ret;
+        return "";
     }
     
     public ArrayList<Integer> getFeedIds() {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         ArrayList<Integer> result = new ArrayList<Integer>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -106,6 +127,11 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     }
     
     public ArrayList<String> getFeedNames() {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         ArrayList<String> result = new ArrayList<String>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -116,6 +142,11 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     }
     
     public int getTotalUnreadCount() {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         int result = 0;
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -143,7 +174,7 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= cursor.getCount())
+        if (position >= getCount() || position < 0)
             return new View(context);
         
         FeedItem f = (FeedItem) getItem(position);
@@ -173,14 +204,17 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     }
     
     public void closeCursor() {
-        if (cursor != null && !cursor.isClosed()) {
+        if (cursor != null) {
             cursor.close();
         }
     }
     
-    public void makeQuery() {
-        if (cursor != null && !cursor.isClosed()) {
-            return;
+    public synchronized void makeQuery() {
+        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
+            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+            closeCursor();
+        } else if (cursor != null && !cursor.isClosed()) {
+            cursor.requery();
         }
         StringBuffer query = new StringBuffer();
         
@@ -193,31 +227,14 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
             query.append(" AND unread>0");
         }
         
-        query.append(" ORDER BY title ASC");
+        query.append(" ORDER BY UPPER(title) ASC");
         
         Log.d(Utils.TAG, query.toString());
         cursor = DBHelper.getInstance().query(query.toString(), null);
     }
     
     @Override
-    public Set<?> refreshData() {
-        // Only create new query when request changed, close cursor before
-        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
-            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-            closeCursor();
-            makeQuery();
-        } else if (cursor.isClosed()) {
-            makeQuery();
-        } else {
-            cursor.requery();
-        }
-        return null;
-    }
-    
-    @Override
     public void update() {
-        if (Controller.getInstance().isWorkOffline())
-            return;
         Data.getInstance().updateFeeds(categoryId);
     }
     

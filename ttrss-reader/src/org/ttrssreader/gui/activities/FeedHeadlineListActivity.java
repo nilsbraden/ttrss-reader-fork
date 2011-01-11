@@ -21,9 +21,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.IRefreshEndListener;
 import org.ttrssreader.gui.IUpdateEndListener;
-import org.ttrssreader.model.Refresher;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.feedheadline.FeedHeadlineListAdapter;
@@ -55,7 +53,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-public class FeedHeadlineListActivity extends ListActivity implements IRefreshEndListener, IUpdateEndListener {
+public class FeedHeadlineListActivity extends ListActivity implements IUpdateEndListener {
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_STAR = MARK_GROUP + 1;
@@ -81,7 +79,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     
     private ListView mFeedHeadlineListView;
     private FeedHeadlineListAdapter mAdapter = null;
-    private Refresher refresher;
     private Updater updater;
     
     @Override
@@ -120,6 +117,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             mFeedListIds = null;
             mFeedListNames = null;
         }
+        
+        mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
+        mFeedHeadlineListView.setAdapter(mAdapter);
     }
     
     @Override
@@ -131,27 +131,47 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     }
     
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
+        Log.v(Utils.TAG, "FeedHeadlineListActivity: onPause()");
         super.onDestroy();
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
-        if (refresher != null) {
-            refresher.cancel(true);
-            refresher = null;
-        }
         if (updater != null) {
             updater.cancel(true);
             updater = null;
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
+        }
+    }
+    
+    @Override
+    protected void onStop() {
+        Log.v(Utils.TAG, "FeedHeadlineListActivity: onStop()");
+        super.onDestroy();
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        Log.v(Utils.TAG, "FeedHeadlineListActivity: onDestroy()");
+        super.onDestroy();
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        if (mAdapter != null) {
+            mAdapter.closeCursor();
         }
     }
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
         outState.putInt(FEED_ID, mFeedId);
         outState.putString(FEED_TITLE, mFeedTitle);
         outState.putIntegerArrayList(FEED_LIST_ID, mFeedListIds);
@@ -162,24 +182,27 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         // reset fling-status
         flingDetected = false;
         
-        // Only update if no refresher already running
-        if (refresher != null) {
-            if (refresher.getStatus().equals(AsyncTask.Status.PENDING)) {
-                return;
-            } else if (refresher.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                refresher = null;
-                return;
-            }
-        }
-        
-        if (mAdapter == null) {
-            mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
-            mFeedHeadlineListView.setAdapter(mAdapter);
-        }
+        // if (mAdapter == null) {
+        // mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
+        // mFeedHeadlineListView.setAdapter(mAdapter);
+        // }
         
         setProgressBarIndeterminateVisibility(true);
-        refresher = new Refresher(this, mAdapter);
-        refresher.execute();
+        mAdapter.notifyDataSetChanged();
+        if (!ITTRSSConnector.hasLastError()) {
+            // refresher = null;
+            setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getUnreadCount() + ")");
+        } else {
+            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+        }
+        if (updater != null) {
+            if (updater.getStatus().equals(Status.FINISHED)) {
+                updater = null;
+                setProgressBarIndeterminateVisibility(false);
+            }
+        } else {
+            setProgressBarIndeterminateVisibility(false);
+        }
     }
     
     private synchronized void doUpdate() {
@@ -193,10 +216,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             }
         }
         
-        if (mAdapter == null) {
-            mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
-            mFeedHeadlineListView.setAdapter(mAdapter);
-        }
+        // if (mAdapter == null) {
+        // mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
+        // mFeedHeadlineListView.setAdapter(mAdapter);
+        // }
         
         setProgressBarIndeterminateVisibility(true);
         updater = new Updater(this, mAdapter);
@@ -240,22 +263,25 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         ArticleItem a = (ArticleItem) mAdapter.getItem(cmi.position);
         
         if (a != null) {
-            switch (item.getItemId()) {
-                case MARK_STAR:
-                    new Updater(this, new StarredStateUpdater(a)).execute();
-                    return true;
-                case MARK_PUBLISH:
-                    new Updater(this, new PublishedStateUpdater(a)).execute();
-                    return true;
-                case MARK_READ:
-                    new Updater(this, new ReadStateUpdater(a, mFeedId, 0)).execute();
-                    return true;
-                case MARK_UNREAD:
-                    new Updater(this, new ReadStateUpdater(a, mFeedId, 1)).execute();
-                    return true;
-            }
+            return false;
         }
-        return false;
+        
+        switch (item.getItemId()) {
+            case MARK_STAR:
+                new Updater(this, new StarredStateUpdater(a)).execute();
+                return true;
+            case MARK_PUBLISH:
+                new Updater(this, new PublishedStateUpdater(a)).execute();
+                return true;
+            case MARK_READ:
+                new Updater(this, new ReadStateUpdater(a, mFeedId, 0)).execute();
+                return true;
+            case MARK_UNREAD:
+                new Updater(this, new ReadStateUpdater(a, mFeedId, 1)).execute();
+                return true;
+            default:
+                return false;
+        }
     }
     
     @Override
@@ -309,8 +335,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         i.putIntegerArrayListExtra(FEED_LIST_ID, mFeedListIds);
         i.putStringArrayListExtra(FEED_LIST_NAME, mFeedListNames);
         
-        startActivityForResult(i, 0);
-        this.finish();
+        startActivity(i);
+        this.finish(); // finish() because we don't want to go back through all feeds, we want to go back directly to
+                       // the FeedList
     }
     
     @Override
@@ -405,10 +432,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
     }
     
     private void openConnectionErrorDialog(String errorMessage) {
-        if (refresher != null) {
-            refresher.cancel(true);
-            refresher = null;
-        }
         if (updater != null) {
             updater.cancel(true);
             updater = null;
@@ -423,26 +446,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
             doUpdate();
             doRefresh();
-        }
-    }
-    
-    @Override
-    public void onRefreshEnd() {
-        if (!ITTRSSConnector.hasLastError()) {
-            refresher = null;
-            mAdapter.notifyDataSetChanged();
-            setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getUnreadCount() + ")");
-        } else {
-            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
-        }
-        
-        if (updater != null) {
-            if (updater.getStatus().equals(Status.FINISHED)) {
-                updater = null;
-                setProgressBarIndeterminateVisibility(false);
-            }
-        } else {
-            setProgressBarIndeterminateVisibility(false);
         }
     }
     
