@@ -25,13 +25,11 @@ import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.feed.FeedListAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.net.ITTRSSConnector;
-import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -94,42 +92,14 @@ public class FeedListActivity extends ListActivity implements IUpdateEndListener
     }
     
     @Override
-    protected void onPause() {
-        Log.v(Utils.TAG, "FeedListActivity: onPause()");
-        super.onDestroy();
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
-    }
-    
-    @Override
-    protected void onStop() {
-        Log.v(Utils.TAG, "FeedListActivity: onStop()");
-        super.onDestroy();
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
-    }
-    
-    @Override
     protected void onDestroy() {
-        Log.v(Utils.TAG, "FeedListActivity: onDestroy()");
         super.onDestroy();
         if (updater != null) {
             updater.cancel(true);
             updater = null;
         }
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
+        mAdapter.cursor.deactivate();
+        mAdapter.cursor.close();
     }
     
     @Override
@@ -140,16 +110,13 @@ public class FeedListActivity extends ListActivity implements IUpdateEndListener
     }
     
     private void doRefresh() {
-        // if (mAdapter == null) {
-        // mAdapter = new FeedListAdapter(this, mCategoryId);
-        // mFeedListView.setAdapter(mAdapter);
-        // }
-        
         mAdapter.notifyDataSetChanged();
         if (!ITTRSSConnector.hasLastError()) {
             this.setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
         } else {
+            setProgressBarIndeterminateVisibility(false);
             openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+            return;
         }
         
         if (updater != null) {
@@ -160,7 +127,6 @@ public class FeedListActivity extends ListActivity implements IUpdateEndListener
         } else {
             setProgressBarIndeterminateVisibility(false);
         }
-        setProgressBarIndeterminateVisibility(true);
     }
     
     private synchronized void doUpdate() {
@@ -170,14 +136,8 @@ public class FeedListActivity extends ListActivity implements IUpdateEndListener
                 return;
             } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
                 updater = null;
-                return;
             }
         }
-        
-        // if (mAdapter == null) {
-        // mAdapter = new FeedListAdapter(this, mCategoryId);
-        // mFeedListView.setAdapter(mAdapter);
-        // }
         
         setProgressBarIndeterminateVisibility(true);
         updater = new Updater(this, mAdapter);
@@ -258,8 +218,8 @@ public class FeedListActivity extends ListActivity implements IUpdateEndListener
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-            doUpdate();
             doRefresh();
+            doUpdate();
         }
     }
     

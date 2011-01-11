@@ -117,7 +117,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IUpdateEnd
             mFeedListIds = null;
             mFeedListNames = null;
         }
-        
         mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
         mFeedHeadlineListView.setAdapter(mAdapter);
     }
@@ -131,42 +130,14 @@ public class FeedHeadlineListActivity extends ListActivity implements IUpdateEnd
     }
     
     @Override
-    protected void onPause() {
-        Log.v(Utils.TAG, "FeedHeadlineListActivity: onPause()");
-        super.onDestroy();
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
-    }
-    
-    @Override
-    protected void onStop() {
-        Log.v(Utils.TAG, "FeedHeadlineListActivity: onStop()");
-        super.onDestroy();
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
-    }
-    
-    @Override
     protected void onDestroy() {
-        Log.v(Utils.TAG, "FeedHeadlineListActivity: onDestroy()");
         super.onDestroy();
         if (updater != null) {
             updater.cancel(true);
             updater = null;
         }
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
+        mAdapter.cursor.deactivate();
+        mAdapter.cursor.close();
     }
     
     @Override
@@ -179,22 +150,17 @@ public class FeedHeadlineListActivity extends ListActivity implements IUpdateEnd
     }
     
     private void doRefresh() {
-        // reset fling-status
-        flingDetected = false;
+        flingDetected = false; // reset fling-status
         
-        // if (mAdapter == null) {
-        // mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
-        // mFeedHeadlineListView.setAdapter(mAdapter);
-        // }
-        
-        setProgressBarIndeterminateVisibility(true);
         mAdapter.notifyDataSetChanged();
         if (!ITTRSSConnector.hasLastError()) {
-            // refresher = null;
             setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getUnreadCount() + ")");
         } else {
+            setProgressBarIndeterminateVisibility(false);
             openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+            return;
         }
+        
         if (updater != null) {
             if (updater.getStatus().equals(Status.FINISHED)) {
                 updater = null;
@@ -212,14 +178,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IUpdateEnd
                 return;
             } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
                 updater = null;
-                return;
             }
         }
-        
-        // if (mAdapter == null) {
-        // mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
-        // mFeedHeadlineListView.setAdapter(mAdapter);
-        // }
         
         setProgressBarIndeterminateVisibility(true);
         updater = new Updater(this, mAdapter);
@@ -444,8 +404,8 @@ public class FeedHeadlineListActivity extends ListActivity implements IUpdateEnd
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-            doUpdate();
             doRefresh();
+            doUpdate();
         }
     }
     

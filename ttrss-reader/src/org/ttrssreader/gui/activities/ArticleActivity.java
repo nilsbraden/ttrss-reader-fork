@@ -24,7 +24,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.article.ArticleItem;
-import org.ttrssreader.model.article.MyWebViewClient;
+import org.ttrssreader.model.article.ArticleWebViewClient;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -85,7 +85,7 @@ public class ArticleActivity extends Activity {
         webview.getSettings().setJavaScriptEnabled(true);
         webview.getSettings().setBuiltInZoomControls(true);
         
-        webview.setWebViewClient(new MyWebViewClient());
+        webview.setWebViewClient(new ArticleWebViewClient());
         mGestureDetector = new GestureDetector(onGestureListener);
         
         DisplayMetrics metrics = new DisplayMetrics();
