@@ -116,11 +116,11 @@
             android:summary="@string/UsageOpenUrlEmptyArticleSummary"
             android:key="UsageOpenUrlEmptyArticlePreference" />
 
-        <CheckBoxPreference
+<!--        <CheckBoxPreference
             android:title="@string/UsageUpdateArticlesOnStartupTitle"
             android:defaultValue="false"
             android:summary="@string/UsageUpdateArticlesOnStartupSummary"
-            android:key="UsageUpdateArticlesOnStartupPreference" />
+            android:key="UsageUpdateArticlesOnStartupPreference" />-->
 
         <CheckBoxPreference
             android:title="@string/UsageUseVolumeKeysTitle"

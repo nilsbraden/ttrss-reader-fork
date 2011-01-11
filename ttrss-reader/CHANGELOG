@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.8.1 ==
+  * Addressed severe memory-issues
+  * Moved menu-definitions from code to xml files
+  * 
+
 == Version 0.8 ==
   * Added support for donations, status is checked once after providing the mailadress used to poste the donation
   * For donators: Added pre-downloading of images for offline viewing (see project page for more information)

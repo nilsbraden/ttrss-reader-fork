@@ -17,17 +17,17 @@
 package org.ttrssreader.model.category;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,40 +44,63 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     private int unreadCount;
     
-    private List<CategoryItem> categories;
-    private Set<CategoryItem> categoriesTemp;
+    private Cursor cursor;
+    private boolean displayOnlyUnread;
     
     public CategoryListAdapter(Context context) {
         this.context = context;
-        this.categories = new ArrayList<CategoryItem>();
         this.unreadCount = 0;
+        makeQuery();
     }
     
     @Override
     public int getCount() {
-        return categories.size();
+        return cursor.getCount();
     }
     
     @Override
     public Object getItem(int position) {
-        return categories.get(position);
+        CategoryItem ret = null;
+        if (cursor.getCount() >= position) {
+            if (cursor.moveToPosition(position)) {
+                ret = new CategoryItem();
+                ret.setId(cursor.getInt(0));
+                ret.setTitle(cursor.getString(1));
+                ret.setUnread(cursor.getInt(2));
+            }
+        }
+        return ret;
     }
     
     @Override
     public long getItemId(int position) {
-        return position;
+        int ret = 0;
+        if (cursor.getCount() >= position) {
+            if (cursor.moveToPosition(position)) {
+                ret = cursor.getInt(0);
+            }
+        }
+        return ret;
     }
     
     public int getCategoryId(int position) {
-        return categories.get(position).getId();
+        int ret = 0;
+        if (cursor.getCount() >= position) {
+            if (cursor.moveToPosition(position)) {
+                ret = cursor.getInt(0);
+            }
+        }
+        return ret;
     }
     
     public String getCategoryTitle(int position) {
-        return categories.get(position).getTitle();
-    }
-    
-    public int getUnreadCount(int position) {
-        return categories.get(position).getUnread();
+        String ret = "";
+        if (cursor.getCount() >= position) {
+            if (cursor.moveToPosition(position)) {
+                ret = cursor.getString(1);
+            }
+        }
+        return ret;
     }
     
     public int getTotalUnread() {
@@ -85,11 +108,17 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     }
     
     public List<CategoryItem> getCategories() {
-        return categories;
-    }
-    
-    public void setCategories(List<CategoryItem> categories) {
-        this.categories = categories;
+        List<CategoryItem> result = new ArrayList<CategoryItem>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            CategoryItem c = new CategoryItem();
+            c.setId(cursor.getInt(0));
+            c.setTitle(cursor.getString(1));
+            c.setUnread(cursor.getInt(2));
+            result.add(c);
+            cursor.move(1);
+        }
+        return result;
     }
     
     private String formatTitle(String title, int unread) {
@@ -120,10 +149,10 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= categories.size())
+        if (position >= cursor.getCount())
             return new View(context);
         
-        CategoryItem c = categories.get(position);
+        CategoryItem c = (CategoryItem) getItem(position);
         
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;
@@ -149,69 +178,59 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
         return layout;
     }
     
+    public void closeCursor() {
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+    }
+    
+    public void makeQuery() {
+        if (cursor != null && !cursor.isClosed()) {
+            return;
+        }
+        StringBuffer query = new StringBuffer();
+        
+        query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
+        query.append(DBHelper.TABLE_CATEGORIES);
+        query.append(" WHERE id<=0 ORDER BY id) AS a UNION SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
+        query.append(DBHelper.TABLE_CATEGORIES);
+        query.append(" WHERE id>0");
+        if (displayOnlyUnread) {
+            query.append(" AND unread>0");
+        }
+        query.append(" ORDER BY UPPER(title) DESC) AS b");
+        
+        // query.append(" ORDER BY a.updateDate DESC");
+        
+        Log.d(Utils.TAG, query.toString());
+        cursor = DBHelper.getInstance().query(query.toString(), null);
+    }
+    
     @Override
     public Set<?> refreshData() {
-        Set<CategoryItem> ret;
-        
-        if (categoriesTemp != null) {
-            List<CategoryItem> cats = new ArrayList<CategoryItem>(categoriesTemp);
-            Collections.sort(cats);
-            ret = new LinkedHashSet<CategoryItem>(cats);
-            categoriesTemp = null;
-        } else {
-            ret = Data.getInstance().getCategories(Controller.getInstance().isDisplayVirtuals());
-        }
-        
-        if (Controller.getInstance().isDisplayOnlyUnread()) {
-            Set<CategoryItem> temp = new LinkedHashSet<CategoryItem>();
-            
-            for (CategoryItem ci : ret) {
-                if (ci.getId() < 0) {
-                    temp.add(ci); // Virtual Category
-                } else if (ci.getUnread() > 0) {
-                    temp.add(ci);
-                }
-            }
-            
-            ret = temp;
-        }
-        
         // Fetch new overall Unread-Count
         unreadCount = Data.getInstance().getCategoryUnreadCount(-4);
         
-        return ret;
+        // Only create new query when request changed, close cursor before
+        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
+            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+            closeCursor();
+            makeQuery();
+        } else if (cursor.isClosed()) {
+            makeQuery();
+        } else {
+            cursor.requery();
+        }
+        return null;
     }
     
     @Override
     public void update() {
         if (Controller.getInstance().isWorkOffline())
             return;
-        
-        // Update counters
         Data.getInstance().updateCounters();
-        Log.i(Utils.TAG, "CategoryListAdapter - updateCounters()");
-        
-        if (Controller.getInstance().isUpdateUnreadOnStartup()) {
-            Log.i(Utils.TAG, "CategoryListAdapter - updateUnreadArticles()");
-            Data.getInstance().updateUnreadArticles();
-        }
-        
-        if (categoriesTemp == null) {
-            categoriesTemp = new LinkedHashSet<CategoryItem>();
-            
-            Log.i(Utils.TAG, "CategoryListAdapter - updateCategories()");
-            Set<CategoryItem> cats = Data.getInstance().updateCategories();
-            if (cats != null && cats.size() > 0 && categoriesTemp != null)
-                categoriesTemp.addAll(cats);
-            
-            Log.i(Utils.TAG, "CategoryListAdapter - updateVirtualCategories()");
-            Set<CategoryItem> vCats = Data.getInstance().updateVirtualCategories();
-            if (vCats != null && vCats.size() > 0 && categoriesTemp != null)
-                categoriesTemp.addAll(vCats);
-            
-            if (categoriesTemp != null && categoriesTemp.isEmpty())
-                categoriesTemp = null;
-        }
+        Data.getInstance().updateCategories();
+        Data.getInstance().updateVirtualCategories();
     }
     
 }

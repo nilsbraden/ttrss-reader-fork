@@ -348,7 +348,6 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         try {
             if (!mHasLastError) {
                 if (str != null && str.length() > 0) {
-                    
                     // Make sure we only parse the stuff between the brackets, sometimes there is other output
                     int start = str.indexOf("{");
                     int stop = str.lastIndexOf("}");
@@ -374,7 +373,6 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: parseMetadata(String str)";
         }
-        
         return ret;
     }
     
@@ -545,7 +543,6 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
     
     @Override
     public void getCounters() {
-        long time = System.currentTimeMillis();
         String url = mServerUrl + String.format(OP_GET_COUNTERS);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
@@ -601,7 +598,6 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
             mLastError = e.getMessage() + ", Method: getCounters(), threw JSONException";
             e.printStackTrace();
         }
-        Log.v(Utils.TAG, "getCounters took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     @Override
@@ -746,8 +742,6 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
     
     @Override
     public void getArticleToDatabase(Set<Integer> articleIds) {
-        long time = System.currentTimeMillis();
-        
         if (articleIds.size() == 0)
             return;
         
@@ -763,9 +757,8 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         String url = mServerUrl + String.format(OP_GET_ARTICLE, sb.toString());
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
-        if (jsonResult == null) {
+        if (jsonResult == null)
             return;
-        }
         
         // Lots of copy&paste and direct access on DB-ressources here to reduce memory usage for requests with lots of
         // articles...
@@ -773,6 +766,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         synchronized (DBHelper.TABLE_ARTICLES) {
             db.beginTransaction();
             try {
+                
                 for (int j = 0; j < jsonResult.length(); j++) {
                     JSONObject object = jsonResult.getJSONObject(j);
                     
@@ -830,8 +824,6 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                 db.endTransaction();
             }
         }
-        
-        Log.v(Utils.TAG, "getArticleToDatabase took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     @Override

@@ -958,8 +958,8 @@ public class DBHelper {
         // if (isDBAvailable()) {
         // @formatter:off
         ret = new ArticleItem(
-                c.getInt(0),                        // feedId
-                c.getInt(1),                        // id
+                c.getInt(0),                        // id
+                c.getInt(1),                        // feedId
                 c.getString(2),                     // title
                 (c.getInt(3) != 0),                 // isUnread
                 c.getString(4),                     // updateDate
@@ -987,8 +987,8 @@ public class DBHelper {
         
         // @formatter:off
         ret = new FeedItem(
-                c.getInt(1),            // categoryId
                 c.getInt(0),            // id
+                c.getInt(1),            // categoryId
                 c.getString(2),         // title
                 c.getString(3),         // url
                 c.getInt(4));           // unread

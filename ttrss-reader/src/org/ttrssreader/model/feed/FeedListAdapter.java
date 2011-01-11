@@ -17,18 +17,16 @@
 package org.ttrssreader.model.feed;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -44,28 +42,32 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     private Context context;
     
     private int categoryId;
-    
-    private List<FeedItem> feeds;
-    private Set<FeedItem> feedsTemp;
+    private Cursor cursor;
+    private boolean displayOnlyUnread;
     
     public FeedListAdapter(Context context, int categoryId) {
         this.context = context;
         this.categoryId = categoryId;
-        this.feeds = new ArrayList<FeedItem>();
-    }
-    
-    public void setFeeds(List<FeedItem> feeds) {
-        this.feeds = feeds;
+        makeQuery();
     }
     
     @Override
     public int getCount() {
-        return feeds.size();
+        return cursor.getCount();
     }
     
     @Override
     public Object getItem(int position) {
-        return feeds.get(position);
+        FeedItem ret = null;
+        if (cursor.getCount() >= position) {
+            if (cursor.moveToPosition(position)) {
+                ret = new FeedItem();
+                ret.setId(cursor.getInt(0));
+                ret.setTitle(cursor.getString(1));
+                ret.setUnread(cursor.getInt(2));
+            }
+        }
+        return ret;
     }
     
     @Override
@@ -74,47 +76,52 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     }
     
     public int getFeedId(int position) {
-        return feeds.get(position).getId();
+        int ret = 0;
+        if (cursor.getCount() >= position) {
+            if (cursor.moveToPosition(position)) {
+                ret = cursor.getInt(0);
+            }
+        }
+        return ret;
     }
     
     public String getFeedTitle(int position) {
-        return feeds.get(position).getTitle();
-    }
-    
-    public int getUnread(int position) {
-        return feeds.get(position).getUnread();
-    }
-    
-    public List<FeedItem> getFeeds() {
-        return feeds;
+        String ret = "";
+        if (cursor.getCount() >= position) {
+            if (cursor.moveToPosition(position)) {
+                ret = cursor.getString(1);
+            }
+        }
+        return ret;
     }
     
     public ArrayList<Integer> getFeedIds() {
-        ArrayList<Integer> ret = new ArrayList<Integer>();
-        
-        for (FeedItem f : feeds) {
-            ret.add(f.getId());
+        ArrayList<Integer> result = new ArrayList<Integer>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            result.add(cursor.getInt(0));
+            cursor.move(1);
         }
-        return ret;
+        return result;
     }
     
     public ArrayList<String> getFeedNames() {
-        ArrayList<String> ret = new ArrayList<String>();
-        
-        for (FeedItem f : feeds) {
-            ret.add(f.getTitle());
+        ArrayList<String> result = new ArrayList<String>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            result.add(cursor.getString(1));
+            cursor.move(1);
         }
-        return ret;
+        return result;
     }
     
     public int getTotalUnreadCount() {
         int result = 0;
-        
-        Iterator<FeedItem> iter = feeds.iterator();
-        while (iter.hasNext()) {
-            result += iter.next().getUnread();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            result += cursor.getInt(2);
+            cursor.move(1);
         }
-        
         return result;
     }
     
@@ -136,10 +143,10 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= feeds.size())
+        if (position >= cursor.getCount())
             return new View(context);
         
-        FeedItem f = feeds.get(position);
+        FeedItem f = (FeedItem) getItem(position);
         
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;
@@ -165,43 +172,53 @@ public class FeedListAdapter extends BaseAdapter implements IRefreshable, IUpdat
         return layout;
     }
     
+    public void closeCursor() {
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+    }
+    
+    public void makeQuery() {
+        if (cursor != null && !cursor.isClosed()) {
+            return;
+        }
+        StringBuffer query = new StringBuffer();
+        
+        query.append("SELECT id,title,unread FROM ");
+        query.append(DBHelper.TABLE_FEEDS);
+        query.append(" WHERE categoryId=");
+        query.append(categoryId);
+        
+        if (displayOnlyUnread) {
+            query.append(" AND unread>0");
+        }
+        
+        query.append(" ORDER BY title ASC");
+        
+        Log.d(Utils.TAG, query.toString());
+        cursor = DBHelper.getInstance().query(query.toString(), null);
+    }
+    
     @Override
     public Set<?> refreshData() {
-        Set<FeedItem> ret;
-        
-        if (feedsTemp != null && feedsTemp.size() > 0) {
-            List<FeedItem> feeds = new ArrayList<FeedItem>(feedsTemp);
-            Collections.sort(feeds);
-            ret = new LinkedHashSet<FeedItem>(feeds);
-            ret.addAll(feedsTemp);
-            feedsTemp = null;
+        // Only create new query when request changed, close cursor before
+        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
+            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+            closeCursor();
+            makeQuery();
+        } else if (cursor.isClosed()) {
+            makeQuery();
         } else {
-            Log.d(Utils.TAG, "Fetching Feeds from DB...");
-            ret = new LinkedHashSet<FeedItem>(Data.getInstance().getFeeds(categoryId));
+            cursor.requery();
         }
-        
-        if (ret != null) {
-            if (Controller.getInstance().isDisplayOnlyUnread()) {
-                Set<FeedItem> temp = new LinkedHashSet<FeedItem>();
-                
-                for (FeedItem fi : ret) {
-                    if (fi.getUnread() > 0) {
-                        temp.add(fi);
-                    }
-                }
-                ret = temp;
-            }
-        }
-        
-        return ret;
+        return null;
     }
     
     @Override
     public void update() {
-        if (!Controller.getInstance().isWorkOffline()) {
-            Log.i(Utils.TAG, "updateFeeds(catId: " + categoryId + ")");
-            feedsTemp = Data.getInstance().updateFeeds(categoryId);
-        }
+        if (Controller.getInstance().isWorkOffline())
+            return;
+        Data.getInstance().updateFeeds(categoryId);
     }
     
 }
