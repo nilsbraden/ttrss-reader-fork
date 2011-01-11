@@ -32,7 +32,7 @@ public class FeedItem implements Comparable<FeedItem> {
         mUnread = 0;
     }
     
-    public FeedItem(int categoryId, int id, String title, String url, int unread) {
+    public FeedItem(int id, int categoryId, String title, String url, int unread) {
         mId = id;
         mCategoryId = categoryId;
         mTitle = title;
@@ -43,7 +43,7 @@ public class FeedItem implements Comparable<FeedItem> {
     /*
      * Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
      */
-    public FeedItem(String categoryId, String id, String title, String url, int unread) {
+    public FeedItem(String id, String categoryId, String title, String url, int unread) {
         setId(id);
         setCategoryId(categoryId);
         mTitle = title;

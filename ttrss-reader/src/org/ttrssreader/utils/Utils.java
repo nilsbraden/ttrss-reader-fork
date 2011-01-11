@@ -149,7 +149,7 @@ public class Utils {
     
     /**
      * Checks if the option to work offline is set or if the data-connection isn't established, else returns true. If we
-     * are about to connect it waits for maximum 2 seconds and then returns the network state without waiting anymore.
+     * are about to connect it waits for maximum one second and then returns the network state without waiting anymore.
      * 
      * @param cm
      * @return
@@ -177,7 +177,7 @@ public class Utils {
                     e.printStackTrace();
                 }
                 
-                if (wait > 2000) {
+                if (wait > 1000) { // Wait a maximum of one second for connection
                     break;
                 }
             }

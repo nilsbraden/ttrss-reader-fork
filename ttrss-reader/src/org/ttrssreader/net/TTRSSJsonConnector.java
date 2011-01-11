@@ -399,20 +399,20 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                 String s = names.getString(i);
                 if (s.equals(ID)) {
                     id = Integer.parseInt(values.getString(i));
+                } else if (s.equals(FEED_ID)) {
+                    realFeedId = Integer.parseInt(values.getString(i));
                 } else if (s.equals(TITLE)) {
                     title = values.getString(i);
                 } else if (s.equals(UNREAD)) {
                     isUnread = values.getBoolean(i);
-                } else if (s.equals(UPDATED)) {
-                    updated = new Date(new Long(values.getString(i) + "000").longValue());
-                } else if (s.equals(FEED_ID)) {
-                    realFeedId = Integer.parseInt(values.getString(i));
-                } else if (s.equals(CONTENT)) {
-                    content = values.getString(i);
                 } else if (s.equals(URL)) {
                     articleUrl = values.getString(i);
                 } else if (s.equals(COMMENT_URL)) {
                     articleCommentUrl = values.getString(i);
+                } else if (s.equals(UPDATED)) {
+                    updated = new Date(new Long(values.getString(i) + "000").longValue());
+                } else if (s.equals(CONTENT)) {
+                    content = values.getString(i);
                 } else if (s.equals(ATTACHMENTS)) {
                     attachments = parseDataForAttachments((JSONArray) values.get(i));
                 } else if (s.equals(STARRED)) {
@@ -446,10 +446,10 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
             for (int i = 0; i < names.length(); i++) {
                 
                 String s = names.getString(i);
-                if (s.equals(CAT_ID)) {
-                    categoryId = values.getString(i);
-                } else if (s.equals(ID)) {
+                if (s.equals(ID)) {
                     id = values.getString(i);
+                } else if (s.equals(CAT_ID)) {
+                    categoryId = values.getString(i);
                 } else if (s.equals(TITLE)) {
                     title = values.getString(i);
                 } else if (s.equals(FEED_URL)) {
@@ -461,7 +461,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                 }
             }
             
-            ret = new FeedItem(categoryId, id, title, url, unread);
+            ret = new FeedItem(id, categoryId, title, url, unread);
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: parseDataForFeed(...), threw JSONException";

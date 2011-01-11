@@ -19,12 +19,10 @@ package org.ttrssreader.model.feedheadline;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.model.article.ArticleItem;
 import org.ttrssreader.model.feed.FeedItem;
@@ -41,12 +39,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable, IUpdatable {
+public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     
     private Context context;
     
     private int feedId;
-    private Cursor cursor;
+    private volatile Cursor cursor;
     private boolean displayOnlyUnread;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
@@ -58,26 +56,35 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     @Override
     public int getCount() {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         return cursor.getCount();
     }
     
     @Override
     public Object getItem(int position) {
-        ArticleItem ret = null;
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                
-                ret = new ArticleItem();
+                ArticleItem ret = new ArticleItem();
                 ret.setId(cursor.getInt(0));
                 ret.setFeedId(cursor.getInt(1));
                 ret.setTitle(cursor.getString(2));
                 ret.setUnread(cursor.getInt(3) != 0);
-                ret.setStarred(cursor.getInt(4) != 0);
-                ret.setPublished(cursor.getInt(5) != 0);
-                ret.setUpdateDate(new Date(cursor.getLong(6)));
+                ret.setUpdateDate(new Date(cursor.getLong(4)));
+                ret.setStarred(cursor.getInt(5) != 0);
+                ret.setPublished(cursor.getInt(6) != 0);
+                return ret;
             }
         }
-        return ret;
+        return null;
     }
     
     @Override
@@ -86,16 +93,25 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     }
     
     public int getFeedItemId(int position) {
-        int ret = 0;
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = cursor.getInt(0);
+                return cursor.getInt(0);
             }
         }
-        return ret;
+        return 0;
     }
     
     public ArrayList<Integer> getFeedItemIds() {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         ArrayList<Integer> result = new ArrayList<Integer>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -106,6 +122,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     }
     
     public int getUnreadCount() {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         int result = 0;
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -142,7 +163,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= cursor.getCount())
+        if (position >= getCount() || position < 0)
             return new View(context);
         
         ArticleItem a = (ArticleItem) getItem(position);
@@ -185,18 +206,22 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     }
     
     public void closeCursor() {
-        if (cursor != null && !cursor.isClosed()) {
+        if (cursor != null) {
             cursor.close();
         }
     }
     
-    public void makeQuery() {
-        if (cursor != null && !cursor.isClosed()) {
-            return;
+    public synchronized void makeQuery() {
+        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
+            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+            closeCursor();
+        } else if (cursor != null && !cursor.isClosed()) {
+            cursor.requery();
         }
+        
         StringBuffer query = new StringBuffer();
         
-        query.append("SELECT a.id,a.feedId,a.title,a.isUnread,a.isStarred,a.isPublished,a.updateDate,b.title AS feedTitle FROM ");
+        query.append("SELECT a.id,a.feedId,a.title,a.isUnread,a.updateDate,a.isStarred,a.isPublished,b.title AS feedTitle FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
         query.append(" a, ");
         query.append(DBHelper.TABLE_FEEDS);
@@ -228,24 +253,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     }
     
     @Override
-    public Set<?> refreshData() {
-        // Only create new query when request changed, close cursor before
-        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
-            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-            closeCursor();
-            makeQuery();
-        } else if (cursor.isClosed()) {
-            makeQuery();
-        } else {
-            cursor.requery();
-        }
-        return null;
-    }
-    
-    @Override
     public void update() {
-        if (Controller.getInstance().isWorkOffline())
-            return;
         Data.getInstance().updateArticles(feedId, Controller.getInstance().isDisplayOnlyUnread());
     }
     

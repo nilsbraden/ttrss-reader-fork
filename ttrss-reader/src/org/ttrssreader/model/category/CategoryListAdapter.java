@@ -18,12 +18,10 @@ package org.ttrssreader.model.category;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.IRefreshable;
 import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
@@ -38,13 +36,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IUpdatable {
+public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     
     private Context context;
     
     private int unreadCount;
     
-    private Cursor cursor;
+    private volatile Cursor cursor;
     private boolean displayOnlyUnread;
     
     public CategoryListAdapter(Context context) {
@@ -55,11 +53,21 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     @Override
     public int getCount() {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         return cursor.getCount();
     }
     
     @Override
     public Object getItem(int position) {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         CategoryItem ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
@@ -74,33 +82,45 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     @Override
     public long getItemId(int position) {
-        int ret = 0;
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = cursor.getInt(0);
+                return cursor.getInt(0);
             }
         }
-        return ret;
+        return 0;
     }
     
     public int getCategoryId(int position) {
-        int ret = 0;
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = cursor.getInt(0);
+                return cursor.getInt(0);
             }
         }
-        return ret;
+        return 0;
     }
     
     public String getCategoryTitle(int position) {
-        String ret = "";
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = cursor.getString(1);
+                return cursor.getString(1);
             }
         }
-        return ret;
+        return "";
     }
     
     public int getTotalUnread() {
@@ -108,6 +128,11 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     }
     
     public List<CategoryItem> getCategories() {
+        if (cursor.isClosed()) {
+            Log.v(Utils.TAG, "CURSOR REQUERY");
+            makeQuery();
+        }
+        
         List<CategoryItem> result = new ArrayList<CategoryItem>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -149,7 +174,7 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position >= cursor.getCount())
+        if (position >= getCount() || position < 0)
             return new View(context);
         
         CategoryItem c = (CategoryItem) getItem(position);
@@ -179,14 +204,17 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
     }
     
     public void closeCursor() {
-        if (cursor != null && !cursor.isClosed()) {
+        if (cursor != null) {
             cursor.close();
         }
     }
     
-    public void makeQuery() {
-        if (cursor != null && !cursor.isClosed()) {
-            return;
+    public synchronized void makeQuery() {
+        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
+            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+            closeCursor();
+        } else if (cursor != null && !cursor.isClosed()) {
+            cursor.requery();
         }
         StringBuffer query = new StringBuffer();
         
@@ -200,34 +228,13 @@ public class CategoryListAdapter extends BaseAdapter implements IRefreshable, IU
         }
         query.append(" ORDER BY UPPER(title) DESC) AS b");
         
-        // query.append(" ORDER BY a.updateDate DESC");
-        
         Log.d(Utils.TAG, query.toString());
         cursor = DBHelper.getInstance().query(query.toString(), null);
     }
     
     @Override
-    public Set<?> refreshData() {
-        // Fetch new overall Unread-Count
-        unreadCount = Data.getInstance().getCategoryUnreadCount(-4);
-        
-        // Only create new query when request changed, close cursor before
-        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
-            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-            closeCursor();
-            makeQuery();
-        } else if (cursor.isClosed()) {
-            makeQuery();
-        } else {
-            cursor.requery();
-        }
-        return null;
-    }
-    
-    @Override
     public void update() {
-        if (Controller.getInstance().isWorkOffline())
-            return;
+        unreadCount = Data.getInstance().getCategoryUnreadCount(-4);
         Data.getInstance().updateCounters();
         Data.getInstance().updateCategories();
         Data.getInstance().updateVirtualCategories();
