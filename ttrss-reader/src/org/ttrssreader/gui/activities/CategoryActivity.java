@@ -17,9 +17,6 @@
 
 package org.ttrssreader.gui.activities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -45,7 +42,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -97,9 +93,6 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             // Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
-        
-        if (configChecked || checkConfig())
-            doUpdate();
     }
     
     private boolean checkConfig() {
@@ -117,8 +110,10 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         super.onResume();
         DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         
-        if (configChecked || checkConfig())
+        if (configChecked || checkConfig()) {
             doRefresh();
+            doUpdate();
+        }
     }
     
     @Override
@@ -182,15 +177,9 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
             mCategoryListView.setAdapter(mAdapter);
         }
         
+        setProgressBarIndeterminateVisibility(true);
         updater = new Updater(this, mAdapter);
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                if (updater != null) {
-                    setProgressBarIndeterminateVisibility(true);
-                    updater.execute();
-                }
-            }
-        }, Utils.WAIT);
+        updater.execute();
     }
     
     @Override
@@ -368,20 +357,11 @@ public class CategoryActivity extends ListActivity implements IRefreshEndListene
         return builder.create();
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public void onRefreshEnd() {
         if (!ITTRSSConnector.hasLastError()) {
-            
-            try {
-                List<CategoryItem> list = new ArrayList<CategoryItem>();
-                list.addAll((Set<CategoryItem>) refresher.get());
-                refresher = null;
-                mAdapter.setCategories(list);
-                mAdapter.notifyDataSetChanged();
-            } catch (Exception e) {
-            }
-            
+            refresher = null;
+            mAdapter.notifyDataSetChanged();
         } else {
             openConnectionErrorDialog(ITTRSSConnector.pullLastError());
             return;

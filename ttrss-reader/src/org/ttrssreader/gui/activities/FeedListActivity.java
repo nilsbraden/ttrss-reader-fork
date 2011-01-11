@@ -16,9 +16,6 @@
 
 package org.ttrssreader.gui.activities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -31,13 +28,11 @@ import org.ttrssreader.model.feed.FeedItem;
 import org.ttrssreader.model.feed.FeedListAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.net.ITTRSSConnector;
-import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -87,10 +82,6 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             mCategoryId = -1;
             mCategoryTitle = null;
         }
-        
-        mAdapter = new FeedListAdapter(this, mCategoryId);
-        mFeedListView.setAdapter(mAdapter);
-        doUpdate();
     }
     
     @Override
@@ -98,6 +89,7 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         super.onResume();
         DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         doRefresh();
+        doUpdate();
     }
     
     @Override
@@ -159,15 +151,9 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
             mFeedListView.setAdapter(mAdapter);
         }
         
+        setProgressBarIndeterminateVisibility(true);
         updater = new Updater(this, mAdapter);
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                if (updater != null) {
-                    setProgressBarIndeterminateVisibility(true);
-                    updater.execute();
-                }
-            }
-        }, Utils.WAIT);
+        updater.execute();
     }
     
     @Override
@@ -258,33 +244,19 @@ public class FeedListActivity extends ListActivity implements IRefreshEndListene
         }
     }
     
-    @SuppressWarnings("unchecked")
     @Override
     public void onRefreshEnd() {
         if (!ITTRSSConnector.hasLastError()) {
-            
-            try {
-                List<FeedItem> list = new ArrayList<FeedItem>();
-                list.addAll((Set<FeedItem>) refresher.get());
-                refresher = null;
-                mAdapter.setFeeds(list);
-                mAdapter.notifyDataSetChanged();
-            } catch (Exception e) {
-            }
-            
-            if (mCategoryTitle != null) {
-                this.setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
-            } else {
-                this.setTitle(this.getResources().getString(R.string.ApplicationName) + " ("
-                        + mAdapter.getTotalUnreadCount() + ")");
-            }
-            
+            refresher = null;
+            mAdapter.notifyDataSetChanged();
+            this.setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
         } else {
             openConnectionErrorDialog(ITTRSSConnector.pullLastError());
         }
         
         if (updater != null) {
             if (updater.getStatus().equals(Status.FINISHED)) {
+                updater = null;
                 setProgressBarIndeterminateVisibility(false);
             }
         } else {

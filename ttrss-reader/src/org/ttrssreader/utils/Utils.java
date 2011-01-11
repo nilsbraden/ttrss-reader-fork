@@ -63,11 +63,6 @@ public class Utils {
     public static final String TAG = "ttrss";
     
     /**
-     * Time to wait before starting the background-update from the activities
-     */
-    public static final int WAIT = 100;
-    
-    /**
      * Vibrate-Time for vibration when end of list is reached
      */
     public static final long SHORT_VIBRATE = 50;

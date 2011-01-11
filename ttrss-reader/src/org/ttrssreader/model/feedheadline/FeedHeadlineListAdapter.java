@@ -49,11 +49,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     private Cursor cursor;
     private boolean displayOnlyUnread;
     
-    public FeedHeadlineListAdapter(Context context, int feedId_) {
+    public FeedHeadlineListAdapter(Context context, int feedId) {
         displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
         this.context = context;
-        this.feedId = feedId_;
-        this.cursor = makeQuery(feedId, displayOnlyUnread);
+        this.feedId = feedId;
+        makeQuery();
     }
     
     @Override
@@ -68,8 +68,8 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
             if (cursor.moveToPosition(position)) {
                 
                 ret = new ArticleItem();
-                ret.setFeedId(cursor.getInt(0));
-                ret.setId(cursor.getInt(1));
+                ret.setId(cursor.getInt(0));
+                ret.setFeedId(cursor.getInt(1));
                 ret.setTitle(cursor.getString(2));
                 ret.setUnread(cursor.getInt(3) != 0);
                 ret.setStarred(cursor.getInt(4) != 0);
@@ -89,7 +89,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         int ret = 0;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = cursor.getInt(1);
+                ret = cursor.getInt(0);
             }
         }
         return ret;
@@ -97,13 +97,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     public ArrayList<Integer> getFeedItemIds() {
         ArrayList<Integer> result = new ArrayList<Integer>();
-        
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            result.add(cursor.getInt(1));
+            result.add(cursor.getInt(0));
             cursor.move(1);
         }
-        
         return result;
     }
     
@@ -192,12 +190,15 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         }
     }
     
-    private static Cursor makeQuery(int feedId, boolean displayOnlyUnread) {
+    public void makeQuery() {
+        if (cursor != null && !cursor.isClosed()) {
+            return;
+        }
         StringBuffer query = new StringBuffer();
         
-        query.append("SELECT a.feedId,a.id,a.title,a.isUnread,a.isStarred,a.isPublished,a.updateDate,b.title AS feedTitle FROM ");
+        query.append("SELECT a.id,a.feedId,a.title,a.isUnread,a.isStarred,a.isPublished,a.updateDate,b.title AS feedTitle FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
-        query.append(" a,");
+        query.append(" a, ");
         query.append(DBHelper.TABLE_FEEDS);
         query.append(" b WHERE a.feedId=b.id");
         
@@ -223,19 +224,18 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
         query.append(" ORDER BY a.updateDate DESC");
         
         Log.d(Utils.TAG, query.toString());
-        return DBHelper.getInstance().query(query.toString(), null);
+        cursor = DBHelper.getInstance().query(query.toString(), null);
     }
     
     @Override
     public Set<?> refreshData() {
-        
         // Only create new query when request changed, close cursor before
         if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
-            closeCursor();
             displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-            cursor = makeQuery(feedId, displayOnlyUnread);
+            closeCursor();
+            makeQuery();
         } else if (cursor.isClosed()) {
-            cursor = makeQuery(feedId, displayOnlyUnread);
+            makeQuery();
         } else {
             cursor.requery();
         }
@@ -244,10 +244,9 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IRefreshable
     
     @Override
     public void update() {
-        if (!Controller.getInstance().isWorkOffline()) {
-            Log.i(Utils.TAG, "updateArticles(feedId: " + feedId + ")");
-            Data.getInstance().updateArticles(feedId, Controller.getInstance().isDisplayOnlyUnread());
-        }
+        if (Controller.getInstance().isWorkOffline())
+            return;
+        Data.getInstance().updateArticles(feedId, Controller.getInstance().isDisplayOnlyUnread());
     }
     
 }

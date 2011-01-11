@@ -38,7 +38,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -121,10 +120,6 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             mFeedListIds = null;
             mFeedListNames = null;
         }
-        
-        mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
-        mFeedHeadlineListView.setAdapter(mAdapter);
-        doUpdate();
     }
     
     @Override
@@ -132,6 +127,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
         super.onResume();
         DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         doRefresh();
+        doUpdate();
     }
     
     @Override
@@ -202,15 +198,9 @@ public class FeedHeadlineListActivity extends ListActivity implements IRefreshEn
             mFeedHeadlineListView.setAdapter(mAdapter);
         }
         
+        setProgressBarIndeterminateVisibility(true);
         updater = new Updater(this, mAdapter);
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                if (updater != null) {
-                    setProgressBarIndeterminateVisibility(true);
-                    updater.execute();
-                }
-            }
-        }, Utils.WAIT);
+        updater.execute();
     }
     
     @Override
