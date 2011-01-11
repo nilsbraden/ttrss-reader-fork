@@ -38,9 +38,9 @@ import android.widget.TextView;
 public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     private Context context;
+    public Cursor cursor;
     
     private int categoryId;
-    private volatile Cursor cursor;
     private boolean displayOnlyUnread;
     
     public FeedListAdapter(Context context, int categoryId) {
@@ -52,8 +52,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     @Override
     public int getCount() {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return -1;
         }
         
         return cursor.getCount();
@@ -62,8 +61,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     @Override
     public Object getItem(int position) {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return null;
         }
         
         FeedItem ret = null;
@@ -85,8 +83,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     public int getFeedId(int position) {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return -1;
         }
         
         if (cursor.getCount() >= position) {
@@ -99,8 +96,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     public String getFeedTitle(int position) {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return null;
         }
         
         if (cursor.getCount() >= position) {
@@ -113,8 +109,6 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     public ArrayList<Integer> getFeedIds() {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
         }
         
         ArrayList<Integer> result = new ArrayList<Integer>();
@@ -128,8 +122,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     public ArrayList<String> getFeedNames() {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return null;
         }
         
         ArrayList<String> result = new ArrayList<String>();
@@ -143,8 +136,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     public int getTotalUnreadCount() {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return -1;
         }
         
         int result = 0;

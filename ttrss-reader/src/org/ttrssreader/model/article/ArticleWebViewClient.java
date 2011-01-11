@@ -36,7 +36,7 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class MyWebViewClient extends WebViewClient {
+public class ArticleWebViewClient extends WebViewClient {
     
     private Context context;
     

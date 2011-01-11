@@ -39,10 +39,9 @@ import android.widget.TextView;
 public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     
     private Context context;
+    public Cursor cursor;
     
     private int unreadCount;
-    
-    private volatile Cursor cursor;
     private boolean displayOnlyUnread;
     
     public CategoryListAdapter(Context context) {
@@ -54,8 +53,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     @Override
     public int getCount() {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return -1;
         }
         
         return cursor.getCount();
@@ -64,8 +62,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     @Override
     public Object getItem(int position) {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return null;
         }
         
         CategoryItem ret = null;
@@ -83,8 +80,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     @Override
     public long getItemId(int position) {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return -1;
         }
         
         if (cursor.getCount() >= position) {
@@ -97,8 +93,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     
     public int getCategoryId(int position) {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return -1;
         }
         
         if (cursor.getCount() >= position) {
@@ -111,8 +106,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     
     public String getCategoryTitle(int position) {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return "";
         }
         
         if (cursor.getCount() >= position) {
@@ -129,8 +123,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     
     public List<CategoryItem> getCategories() {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return null;
         }
         
         List<CategoryItem> result = new ArrayList<CategoryItem>();

@@ -113,46 +113,18 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
     }
     
     @Override
-    protected void onPause() {
-        Log.v(Utils.TAG, "CategoryActivity: onPause()");
-        super.onDestroy();
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
-    }
-    
-    @Override
-    protected void onStop() {
-        Log.v(Utils.TAG, "CategoryActivity: onStop()");
-        super.onDestroy();
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
-        }
-    }
-    
-    @Override
     protected void onDestroy() {
-        Log.v(Utils.TAG, "CategoryActivity: onDestroy()");
         super.onDestroy();
         if (updater != null) {
             updater.cancel(true);
             updater = null;
-        }
-        if (mAdapter != null) {
-            mAdapter.closeCursor();
         }
         if (imageCacher != null) {
             imageCacher.cancel(true);
             imageCacher = null;
         }
+        mAdapter.cursor.deactivate();
+        mAdapter.cursor.close();
     }
     
     @Override
@@ -161,21 +133,16 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
     }
     
     private synchronized void doRefresh() {
-        // if (mAdapter == null) {
-        // mAdapter = new CategoryListAdapter(this);
-        // mCategoryListView.setAdapter(mAdapter);
-        // }
-        
         this.setTitle(this.getResources().getString(R.string.ApplicationName));
         mAdapter.notifyDataSetChanged();
-        if (ITTRSSConnector.hasLastError()) {
-            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
-            return;
-        }
         
-        if (mAdapter.getTotalUnread() >= 0) {
+        if (!ITTRSSConnector.hasLastError()) {
             this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread()
                     + ")");
+        } else {
+            setProgressBarIndeterminateVisibility(false);
+            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+            return;
         }
         
         boolean somethingRunning = false;
@@ -186,10 +153,10 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
             somethingRunning = true;
         }
         
-        if (!somethingRunning) {
-            setProgressBarIndeterminateVisibility(false);
+        if (somethingRunning) {
+            setProgressBarIndeterminateVisibility(true);
         }
-        setProgressBarIndeterminateVisibility(true);
+        setProgressBarIndeterminateVisibility(false);
     }
     
     private synchronized void doUpdate() {
@@ -199,14 +166,8 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
                 return;
             } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
                 updater = null;
-                return;
             }
         }
-        
-        // if (mAdapter == null) {
-        // mAdapter = new CategoryListAdapter(this);
-        // mCategoryListView.setAdapter(mAdapter);
-        // }
         
         setProgressBarIndeterminateVisibility(true);
         updater = new Updater(this, mAdapter);
@@ -216,7 +177,6 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        
         menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
     }
     
@@ -318,13 +278,13 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
         Log.d(Utils.TAG, "onActivityResult. requestCode: " + requestCode + " resultCode: " + resultCode);
         if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
             if (configChecked || checkConfig()) {
-                doUpdate();
                 doRefresh();
+                doUpdate();
             }
         } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
             if (configChecked || checkConfig()) {
-                doUpdate();
                 doRefresh();
+                doUpdate();
             }
         }
     }

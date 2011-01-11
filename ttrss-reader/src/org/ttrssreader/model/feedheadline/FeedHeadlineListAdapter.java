@@ -44,7 +44,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     private Context context;
     
     private int feedId;
-    private volatile Cursor cursor;
+    public Cursor cursor;
     private boolean displayOnlyUnread;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
@@ -57,8 +57,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     @Override
     public int getCount() {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return 1;
         }
         
         return cursor.getCount();
@@ -67,8 +66,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     @Override
     public Object getItem(int position) {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return null;
         }
         
         if (cursor.getCount() >= position) {
@@ -94,8 +92,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     
     public int getFeedItemId(int position) {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return 1;
         }
         
         if (cursor.getCount() >= position) {
@@ -108,8 +105,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     
     public ArrayList<Integer> getFeedItemIds() {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return null;
         }
         
         ArrayList<Integer> result = new ArrayList<Integer>();
@@ -123,8 +119,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     
     public int getUnreadCount() {
         if (cursor.isClosed()) {
-            Log.v(Utils.TAG, "CURSOR REQUERY");
-            makeQuery();
+            return 1;
         }
         
         int result = 0;
@@ -208,6 +203,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     public void closeCursor() {
         if (cursor != null) {
             cursor.close();
+            cursor = null;
         }
     }
     
