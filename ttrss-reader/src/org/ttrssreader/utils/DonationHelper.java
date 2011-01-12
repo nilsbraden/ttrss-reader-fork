@@ -39,20 +39,17 @@ public class DonationHelper {
         
         final HttpGet request = new HttpGet(url);
         try {
-            Log.d(Utils.TAG, "DonationHelper - url: " + url);
             final HttpResponse response = new DefaultHttpClient().execute(request);
-            int resp = response.getStatusLine().getStatusCode();
-            if (resp != HttpStatus.SC_OK) {
+            int ret = response.getStatusLine().getStatusCode();
+            if (ret != HttpStatus.SC_OK) {
                 return false;
             }
-            final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.getEntity()
-                    .getContent()), 512);
-            final String line = bufferedReader.readLine();
+            final BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()), 512);
+            final String line = br.readLine();
             if (line.equals("OK")) {
                 return true;
             }
         } catch (IOException e) {
-            Log.e(Utils.TAG, "error loading sig", e);
         }
         
         return false;
@@ -66,13 +63,12 @@ public class DonationHelper {
      * @return MD5 hash of IMEI
      */
     public static String getImeiHash(final Context context) {
-        String imeiHash = "";
         TelephonyManager mTelephonyMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         final String did = mTelephonyMgr.getDeviceId();
         if (did != null) {
-            imeiHash = DonationHelper.md5(did);
+            return DonationHelper.md5(did);
         }
-        return imeiHash;
+        return "";
     }
     
     /**

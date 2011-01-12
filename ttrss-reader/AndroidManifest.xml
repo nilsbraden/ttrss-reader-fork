@@ -10,7 +10,7 @@
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName"
         android:description="@string/ApplicationDescription"
-        android:debuggable="true">
+        android:debuggable="false">
 
         <activity
             android:name=".gui.CategoryActivity"
@@ -59,6 +59,10 @@
     <!-- Vibrate on last article/feed -->
     <uses-permission
         android:name="android.permission.VIBRATE" />
+
+    <!-- Read IMEI to check Donation-Status -->
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE" />
 
     <supports-screens
         android:smallScreens="true"
