@@ -27,9 +27,6 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.ArticleItem;
 import org.ttrssreader.model.CategoryItem;
 import org.ttrssreader.model.FeedItem;
-import org.ttrssreader.model.IUpdatable;
-import org.ttrssreader.utils.Utils;
-import android.util.Log;
 
 public class ReadStateUpdater implements IUpdatable {
     
@@ -103,8 +100,6 @@ public class ReadStateUpdater implements IUpdatable {
             
         } else if (articles != null) {
             
-            Log.i(Utils.TAG, "Updating Article-Read-Status...");
-            
             boolean boolState = mArticleState == 1 ? true : false;
             int delta = mArticleState == 1 ? 1 : -1;
             int deltaUnread = mArticleState == 1 ? articles.size() : -articles.size();
@@ -145,10 +140,8 @@ public class ReadStateUpdater implements IUpdatable {
                 
                 // If on a virtual category also update article state in it.
                 if (mPid < 0 && mPid > -4) {
-                    Log.d(Utils.TAG, "Delta-Unread: " + deltaUnread + " Virtual-Category: " + mPid);
                     DBHelper.getInstance().updateCategoryDeltaUnreadCount(mPid, deltaUnread);
                 }
-                Log.d(Utils.TAG, "Delta-Unread: " + deltaUnread + " mPid: " + mPid);
                 DBHelper.getInstance().updateCategoryDeltaUnreadCount(-4, deltaUnread);
             }
             

@@ -30,7 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.activities.AboutActivity;
+import org.ttrssreader.gui.AboutActivity;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -104,12 +104,12 @@ public class Utils {
                 sb.append(line + "\n");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
         return sb.toString();
@@ -174,7 +174,7 @@ public class Utils {
                     wait += 100;
                     Utils.class.wait(100);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                 }
                 
                 if (wait > 1000) { // Wait a maximum of one second for connection

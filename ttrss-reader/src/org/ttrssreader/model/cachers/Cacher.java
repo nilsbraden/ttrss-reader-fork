@@ -14,38 +14,38 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model;
+package org.ttrssreader.model.cachers;
 
-import java.util.Set;
-import org.ttrssreader.gui.IRefreshEndListener;
+import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 
-public class Refresher extends AsyncTask<String, Integer, Set<?>> {
+public class Cacher extends AsyncTask<Void, Void, Void> {
     
-    private IRefreshEndListener mParent;
-    private IRefreshable mRefreshable;
+    private ICacheEndListener mParent;
+    private ICacheable mCacheable;
     
-    public Refresher(IRefreshEndListener parent, IRefreshable refreshable) {
+    public Cacher(ICacheEndListener parent, ICacheable cacheable) {
         mParent = parent;
-        mRefreshable = refreshable;
+        mCacheable = cacheable;
     }
     
     private Handler handler = new Handler() {
         
         @Override
         public void handleMessage(Message msg) {
-            mParent.onRefreshEnd();
+            if (mParent != null) {
+                mParent.onCacheEnd();
+            }
         }
     };
     
     @Override
-    protected Set<?> doInBackground(String... params) {
-        Set<?> ret = mRefreshable.refreshData();
+    protected Void doInBackground(Void... params) {
+        mCacheable.cache();
         handler.sendEmptyMessage(0);
-        
-        return ret;
+        return null;
     }
     
 }

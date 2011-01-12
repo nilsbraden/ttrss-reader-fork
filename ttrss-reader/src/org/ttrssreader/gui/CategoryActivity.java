@@ -15,17 +15,19 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.gui.activities;
+package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.gui.interfaces.ICacheEndListener;
+import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.CategoryListAdapter;
-import org.ttrssreader.model.Updater;
-import org.ttrssreader.model.updaters.ImageCacheUpdater;
+import org.ttrssreader.model.cachers.Cacher;
+import org.ttrssreader.model.cachers.ImageCacher;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
@@ -49,7 +51,7 @@ import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-public class CategoryActivity extends ListActivity implements IUpdateEndListener {
+public class CategoryActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_READ = MARK_GROUP + 1;
@@ -60,7 +62,7 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
     private ListView mCategoryListView;
     private CategoryListAdapter mAdapter = null;
     private Updater updater;
-    private Updater imageCacher;
+    private Cacher imageCacher;
     
     private boolean configChecked = false;
     
@@ -133,27 +135,18 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
     }
     
     private synchronized void doRefresh() {
-        this.setTitle(this.getResources().getString(R.string.ApplicationName));
+        this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread() + ")");
+        
+        mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
         
-        if (!ITTRSSConnector.hasLastError()) {
-            this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread()
-                    + ")");
-        } else {
+        if (ITTRSSConnector.hasLastError()) {
             setProgressBarIndeterminateVisibility(false);
             openConnectionErrorDialog(ITTRSSConnector.pullLastError());
             return;
         }
         
-        boolean somethingRunning = false;
-        if (updater != null && !updater.getStatus().equals(Status.FINISHED)) {
-            somethingRunning = true;
-        }
-        if (imageCacher != null && !imageCacher.getStatus().equals(Status.FINISHED)) {
-            somethingRunning = true;
-        }
-        
-        if (!somethingRunning) {
+        if (updater == null && imageCacher == null) {
             setProgressBarIndeterminateVisibility(false);
         }
     }
@@ -250,7 +243,7 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
             case R.id.Category_Menu_StartDownloadForCache:
                 if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
                     setProgressBarIndeterminateVisibility(true);
-                    imageCacher = new Updater(null, new ImageCacheUpdater(this));
+                    imageCacher = new Cacher(this, new ImageCacher(this));
                     imageCacher.execute();
                 }
             default:
@@ -340,16 +333,13 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
     
     @Override
     public void onUpdateEnd() {
-        if (updater != null) {
-            if (updater.getStatus().equals(Status.FINISHED)) {
-                updater = null;
-            }
-        }
-        if (imageCacher != null) {
-            if (imageCacher.getStatus().equals(Status.FINISHED)) {
-                imageCacher = null;
-            }
-        }
+        updater = null;
+        doRefresh();
+    }
+    
+    @Override
+    public void onCacheEnd() {
+        imageCacher = null;
         doRefresh();
     }
     
