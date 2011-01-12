@@ -4,7 +4,7 @@
     package="org.ttrssreader"
     android:installLocation="auto"
     android:versionName="0.8.1"
-    android:versionCode="805">
+    android:versionCode="806">
 
     <application
         android:icon="@drawable/icon"
@@ -13,7 +13,7 @@
         android:debuggable="true">
 
         <activity
-            android:name=".gui.activities.CategoryActivity"
+            android:name=".gui.CategoryActivity"
             android:label="@string/ApplicationName">
             <intent-filter>
                 <action
@@ -23,19 +23,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".gui.activities.FeedListActivity" />
+            android:name=".gui.FeedListActivity" />
         <activity
-            android:name=".gui.activities.FeedHeadlineListActivity" />
+            android:name=".gui.FeedHeadlineListActivity" />
         <activity
-            android:name=".gui.activities.ArticleActivity" />
+            android:name=".gui.ArticleActivity" />
         <activity
-            android:name=".gui.activities.PreferencesActivity" />
+            android:name=".gui.PreferencesActivity" />
         <activity
-            android:name=".gui.activities.MediaPlayerActivity" />
+            android:name=".gui.MediaPlayerActivity" />
         <activity
-            android:name=".gui.activities.ErrorActivity" />
+            android:name=".gui.ErrorActivity" />
         <activity
-            android:name=".gui.activities.AboutActivity"
+            android:name=".gui.AboutActivity"
             android:theme="@android:style/Theme.Dialog"
             android:label="@string/AboutActivity.Title" />
     </application>

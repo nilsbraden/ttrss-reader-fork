@@ -97,7 +97,7 @@ public class ArticleWebViewClient extends WebViewClient {
         try {
             new AsyncDownloader().execute(new URL(url));
         } catch (MalformedURLException e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
     

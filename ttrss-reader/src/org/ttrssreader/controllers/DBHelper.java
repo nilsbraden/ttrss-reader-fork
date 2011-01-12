@@ -393,7 +393,7 @@ public class DBHelper {
                 }
                 db.setTransactionSuccessful();
             } catch (SQLException e) {
-                // e.printStackTrace();
+                 e.printStackTrace();
             } finally {
                 db.endTransaction();
             }
@@ -589,7 +589,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -615,7 +615,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -641,7 +641,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -681,7 +681,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -707,7 +707,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -742,7 +742,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -777,7 +777,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -802,7 +802,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -827,7 +827,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
