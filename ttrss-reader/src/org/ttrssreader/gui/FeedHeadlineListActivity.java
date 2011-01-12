@@ -14,20 +14,20 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.gui.activities;
+package org.ttrssreader.gui;
 
 import java.util.ArrayList;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.ArticleItem;
 import org.ttrssreader.model.FeedHeadlineListAdapter;
-import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
+import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
@@ -152,6 +152,7 @@ public class FeedHeadlineListActivity extends ListActivity implements IUpdateEnd
     private void doRefresh() {
         flingDetected = false; // reset fling-status
         
+        mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
         if (!ITTRSSConnector.hasLastError()) {
             setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getUnreadCount() + ")");
@@ -174,10 +175,10 @@ public class FeedHeadlineListActivity extends ListActivity implements IUpdateEnd
     private synchronized void doUpdate() {
         // Only update if no updater already running
         if (updater != null) {
-            if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
-                return;
-            } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
                 updater = null;
+            } else {
+                return;
             }
         }
         

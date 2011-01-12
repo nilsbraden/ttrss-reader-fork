@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model.updaters;
+package org.ttrssreader.model.cachers;
 
 import java.io.File;
 import java.util.Arrays;
@@ -22,25 +22,24 @@ import java.util.Comparator;
 import java.util.List;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.IUpdatable;
 import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
-public class ImageCacheUpdater implements IUpdatable {
+public class ImageCacher implements ICacheable {
     
     private long maxSize = 1024 * 1024 * 6; // Max size for one image is 6 MB
     
     private Context context;
     
-    public ImageCacheUpdater(Context context) {
+    public ImageCacher(Context context) {
         this.context = context;
     }
     
     @Override
-    public void update() {
+    public void cache() {
         long start = System.currentTimeMillis();
         long sizeMax = Controller.getInstance().getImageCacheSize() * 1048576;
         ImageCache cache = Controller.getInstance().getImageCache(context);

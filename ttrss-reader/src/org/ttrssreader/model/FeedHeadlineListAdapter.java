@@ -23,11 +23,10 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.utils.Utils;
+import org.ttrssreader.model.updaters.IUpdatable;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -241,7 +240,9 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         
         query.append(" ORDER BY a.updateDate DESC");
         
-        Log.v(Utils.TAG, query.toString());
+        // Log.v(Utils.TAG, query.toString());
+        if (cursor != null)
+            cursor.close();
         cursor = DBHelper.getInstance().query(query.toString(), null);
     }
     

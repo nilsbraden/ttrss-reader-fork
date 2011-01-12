@@ -14,10 +14,10 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.gui;
+package org.ttrssreader.model.cachers;
 
-public interface IRefreshEndListener {
+public interface ICacheable {
     
-    public void onRefreshEnd();
+    public void cache();
     
 }

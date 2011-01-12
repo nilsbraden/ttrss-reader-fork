@@ -393,7 +393,7 @@ public class DBHelper {
                 }
                 db.setTransactionSuccessful();
             } catch (SQLException e) {
-                e.printStackTrace();
+                // e.printStackTrace();
             } finally {
                 db.endTransaction();
             }
@@ -403,56 +403,48 @@ public class DBHelper {
     // *******| UPDATE |*******************************************************************
     
     public void markCategoryRead(CategoryItem c, boolean recursive) {
-        updateCategoryUnreadCount(c.getId(), 0);
-        
-        if (recursive) {
-            for (FeedItem f : getFeeds(c.getId())) {
-                markFeedRead(f, recursive);
+        if (isDBAvailable()) {
+            updateCategoryUnreadCount(c.getId(), 0);
+            
+            if (recursive) {
+                for (FeedItem f : getFeeds(c.getId())) {
+                    markFeedRead(f, recursive);
+                }
             }
         }
     }
     
     public void markFeedRead(FeedItem f, boolean recursive) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        updateFeedUnreadCount(f.getId(), 0);
-        
-        if (recursive) {
-            ContentValues cv = new ContentValues();
-            cv.put("isUnread", 0);
+        if (isDBAvailable()) {
+            updateFeedUnreadCount(f.getId(), 0);
             
-            synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "feedId=" + f.getId(), null);
+            if (recursive) {
+                ContentValues cv = new ContentValues();
+                cv.put("isUnread", 0);
+                synchronized (TABLE_ARTICLES) {
+                    db.update(TABLE_ARTICLES, cv, "feedId=" + f.getId(), null);
+                }
             }
         }
     }
     
     public void markArticlesRead(Set<Integer> iDlist, int articleState) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        for (Integer id : iDlist) {
-            boolean isUnread = articleState == 1 ? true : false;
-            updateArticleUnread(id, isUnread);
+        if (isDBAvailable()) {
+            for (Integer id : iDlist) {
+                boolean isUnread = articleState == 1 ? true : false;
+                updateArticleUnread(id, isUnread);
+            }
         }
     }
     
     public void updateCategoryUnreadCount(int id, int count) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        if (count < 0) {
-            return;
-        }
-        
-        ContentValues cv = new ContentValues();
-        cv.put("unread", count);
-        
-        synchronized (TABLE_CATEGORIES) {
+        if (isDBAvailable() && count >= 0) {
+            ContentValues cv = new ContentValues();
+            cv.put("unread", count);
+            // TODO: No synchronisation for now, this gots called quite often..
+            // synchronized (TABLE_CATEGORIES) {
             db.update(TABLE_CATEGORIES, cv, "id=" + id, null);
+            // }
         }
     }
     
@@ -460,22 +452,15 @@ public class DBHelper {
         CategoryItem c = getCategory(id);
         int count = c.getUnread();
         count += delta;
-        
         updateCategoryUnreadCount(id, count);
     }
     
     public void updateFeedUnreadCount(int id, int count) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        if (count < 0) {
-            return;
-        }
-        
-        ContentValues cv = new ContentValues();
-        cv.put("unread", count);
-        
-        synchronized (TABLE_FEEDS) {
+        if (isDBAvailable() && count >= 0) {
+            ContentValues cv = new ContentValues();
+            cv.put("unread", count);
+            // TODO: No synchronisation for now, this gots called quite often..
+            // synchronized (TABLE_FEEDS) {
             db.update(TABLE_FEEDS, cv, "id=" + id, null);
         }
     }
@@ -484,133 +469,105 @@ public class DBHelper {
         FeedItem f = getFeed(id);
         int count = f.getUnread();
         count += delta;
-        
         updateFeedUnreadCount(id, count);
     }
     
     public void updateArticleUnread(int id, boolean isUnread) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        ContentValues cv = new ContentValues();
-        cv.put("isUnread", isUnread);
-        
-        synchronized (TABLE_ARTICLES) {
-            db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+        if (isDBAvailable()) {
+            ContentValues cv = new ContentValues();
+            cv.put("isUnread", isUnread);
+            synchronized (TABLE_ARTICLES) {
+                db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+            }
         }
     }
     
     public void updateArticleStarred(int id, boolean isStarred) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        ContentValues cv = new ContentValues();
-        cv.put("isStarred", isStarred);
-        
-        synchronized (TABLE_ARTICLES) {
-            db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+        if (isDBAvailable()) {
+            ContentValues cv = new ContentValues();
+            cv.put("isStarred", isStarred);
+            synchronized (TABLE_ARTICLES) {
+                db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+            }
         }
     }
     
     public void updateArticlePublished(int id, boolean isPublished) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        ContentValues cv = new ContentValues();
-        cv.put("isPublished", isPublished);
-        
-        synchronized (TABLE_ARTICLES) {
-            db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+        if (isDBAvailable()) {
+            ContentValues cv = new ContentValues();
+            cv.put("isPublished", isPublished);
+            synchronized (TABLE_ARTICLES) {
+                db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+            }
         }
     }
     
     public void deleteCategory(int id) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        synchronized (TABLE_CATEGORIES) {
-            db.delete(TABLE_CATEGORIES, "id=" + id, null);
+        if (isDBAvailable()) {
+            synchronized (TABLE_CATEGORIES) {
+                db.delete(TABLE_CATEGORIES, "id=" + id, null);
+            }
         }
     }
     
     public void deleteFeed(int id) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        synchronized (TABLE_FEEDS) {
-            db.delete(TABLE_FEEDS, "id=" + id, null);
+        if (isDBAvailable()) {
+            synchronized (TABLE_FEEDS) {
+                db.delete(TABLE_FEEDS, "id=" + id, null);
+            }
         }
     }
     
     public void deleteArticle(int id) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        synchronized (TABLE_ARTICLES) {
-            db.delete(TABLE_ARTICLES, "id=" + id, null);
+        if (isDBAvailable()) {
+            synchronized (TABLE_ARTICLES) {
+                db.delete(TABLE_ARTICLES, "id=" + id, null);
+            }
         }
     }
     
     public void deleteCategories(boolean withVirtualCategories) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        String wherePart = "";
-        if (!withVirtualCategories) {
-            wherePart = "id > 0";
-        }
-        
-        synchronized (TABLE_CATEGORIES) {
-            db.delete(TABLE_CATEGORIES, wherePart, null);
+        if (isDBAvailable()) {
+            String wherePart = "";
+            if (!withVirtualCategories) {
+                wherePart = "id > 0";
+            }
+            synchronized (TABLE_CATEGORIES) {
+                db.delete(TABLE_CATEGORIES, wherePart, null);
+            }
         }
     }
     
     public void deleteFeeds() {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        synchronized (TABLE_FEEDS) {
-            db.delete(TABLE_FEEDS, null, null);
+        if (isDBAvailable()) {
+            synchronized (TABLE_FEEDS) {
+                db.delete(TABLE_FEEDS, null, null);
+            }
         }
     }
     
     public void deleteArticles() {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        synchronized (TABLE_ARTICLES) {
-            db.delete(TABLE_ARTICLES, null, null);
+        if (isDBAvailable()) {
+            synchronized (TABLE_ARTICLES) {
+                db.delete(TABLE_ARTICLES, null, null);
+            }
         }
     }
     
     public void purgeArticlesDays(Date olderThenThis) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        synchronized (TABLE_ARTICLES) {
-            db.delete(TABLE_ARTICLES, "updateDate<" + olderThenThis.getTime(), null);
+        if (isDBAvailable()) {
+            synchronized (TABLE_ARTICLES) {
+                db.delete(TABLE_ARTICLES, "updateDate<" + olderThenThis.getTime(), null);
+            }
         }
     }
     
     public void purgeArticlesNumber(int number) {
-        if (!isDBAvailable()) {
-            return;
-        }
-        
-        String idList = "select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
-        
-        synchronized (TABLE_ARTICLES) {
-            db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
+        if (isDBAvailable()) {
+            String idList = "select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
+            synchronized (TABLE_ARTICLES) {
+                db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
+            }
         }
     }
     
@@ -632,7 +589,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -658,7 +615,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -684,7 +641,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -724,7 +681,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -750,7 +707,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -785,7 +742,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -820,7 +777,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -845,7 +802,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -870,7 +827,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();

@@ -14,9 +14,9 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model;
+package org.ttrssreader.model.updaters;
 
-import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;

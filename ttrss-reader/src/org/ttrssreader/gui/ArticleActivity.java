@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.gui.activities;
+package org.ttrssreader.gui;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -24,10 +24,10 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.ArticleItem;
 import org.ttrssreader.model.ArticleWebViewClient;
-import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
+import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;

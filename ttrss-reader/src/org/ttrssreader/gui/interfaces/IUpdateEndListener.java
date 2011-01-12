@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.gui;
+package org.ttrssreader.gui.interfaces;
 
 public interface IUpdateEndListener {
     

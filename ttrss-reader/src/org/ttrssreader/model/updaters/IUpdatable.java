@@ -14,12 +14,11 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model;
+package org.ttrssreader.model.updaters;
 
-import java.util.Set;
 
-public interface IRefreshable {
+public interface IUpdatable {
     
-    public Set<?> refreshData();
+    public void update();
     
 }

@@ -14,16 +14,16 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.gui.activities;
+package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.IUpdateEndListener;
+import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.FeedListAdapter;
-import org.ttrssreader.model.Updater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.ITTRSSConnector;
 import android.app.ListActivity;
 import android.content.Intent;
@@ -110,6 +110,7 @@ public class FeedListActivity extends ListActivity implements IUpdateEndListener
     }
     
     private void doRefresh() {
+        mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
         if (!ITTRSSConnector.hasLastError()) {
             this.setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
@@ -132,10 +133,10 @@ public class FeedListActivity extends ListActivity implements IUpdateEndListener
     private synchronized void doUpdate() {
         // Only update if no updater already running
         if (updater != null) {
-            if (updater.getStatus().equals(AsyncTask.Status.PENDING)) {
-                return;
-            } else if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+            if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
                 updater = null;
+            } else {
+                return;
             }
         }
         
