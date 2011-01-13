@@ -219,10 +219,6 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         query.append(DBHelper.TABLE_FEEDS);
         query.append(" b WHERE a.feedId=b.id");
         
-        if (displayOnlyUnread) {
-            query.append(" AND a.isUnread>0");
-        }
-        
         if (feedId == -1) {
             query.append(" AND a.isStarred=1");
         } else if (feedId == -2) {
@@ -232,10 +228,15 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
             query.append(" AND a.updateDate>");
             query.append(updateDate);
         } else if (feedId == -4) {
-            
+            if (displayOnlyUnread) {
+                query.append(" AND a.isUnread>0");
+            }
         } else {
             query.append(" AND a.feedId=");
             query.append(feedId);
+            if (displayOnlyUnread) {
+                query.append(" AND a.isUnread>0");
+            }
         }
         
         query.append(" ORDER BY a.updateDate DESC");

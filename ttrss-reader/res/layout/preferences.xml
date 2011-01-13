@@ -28,7 +28,7 @@
             android:title="@string/ConnectionPasswordPreferenceTitle"
             android:key="ConnectionPasswordPreference"
             android:inputType="textPassword" />
-        
+
         <EditTextPreference
             android:name="@string/DonatorMailPreferenceTitle"
             android:summary="@string/DonatorMailPreferenceSummary"
@@ -116,12 +116,6 @@
             android:summary="@string/UsageOpenUrlEmptyArticleSummary"
             android:key="UsageOpenUrlEmptyArticlePreference" />
 
-<!--        <CheckBoxPreference
-            android:title="@string/UsageUpdateArticlesOnStartupTitle"
-            android:defaultValue="false"
-            android:summary="@string/UsageUpdateArticlesOnStartupSummary"
-            android:key="UsageUpdateArticlesOnStartupPreference" />-->
-
         <CheckBoxPreference
             android:title="@string/UsageUseVolumeKeysTitle"
             android:defaultValue="true"
@@ -134,11 +128,11 @@
             android:summary="@string/UsageVibrateOnLastArticleSummary"
             android:key="UsageVibrateOnLastArticlePreference" />
 
-        <CheckBoxPreference
+        <!-- <CheckBoxPreference
             android:title="@string/UsageWorkOfflineTitle"
             android:defaultValue="false"
             android:summary="@string/UsageWorkOfflineSummary"
-            android:key="UsageWorkOfflinePreference" />
+            android:key="UsageWorkOfflinePreference" /> -->
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -156,11 +150,11 @@
             android:summary="@string/DisplayUseSwipeSummary"
             android:key="DisplayUseSwipePreference" />
 
-        <CheckBoxPreference
+        <!-- <CheckBoxPreference
             android:title="@string/DisplayShowUnreadOnlyTitle"
             android:defaultValue="false"
             android:summary="@string/DisplayShowUnreadOnlySummary"
-            android:key="DisplayShowUnreadOnlyPreference" />
+            android:key="DisplayShowUnreadOnlyPreference" /> -->
 
         <org.ttrssreader.utils.EditIntegerPreference
             android:name="@string/DisplayArticleLimitTitle"
@@ -188,6 +182,44 @@
             android:key="StoreImageAgeLimitPreference"
             android:maxLength="5"
             android:inputType="number" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/About.about">
+
+        <!-- Doesn't work, perhaps because AboutActivity is set to android:theme="@android:style/Theme.Dialog" ? -->
+    <!-- <PreferenceScreen
+        android:title="@string/About.about"
+        android:summary="@string/About.about_hint">
+        <intent
+        android:action="android.intent.action.MAIN"
+        android:targetPackage="org.ttrssreader.gui"
+        android:targetClass="org.ttrssreader.gui.AboutActivity" />
+        </PreferenceScreen> -->
+
+        <PreferenceScreen
+            android:title="@string/About.project"
+            android:summary="@string/About.project_hint">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://code.google.com/p/ttrss-reader-fork/" />
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:title="@string/About.feedback"
+            android:summary="@string/About.feedback_hint">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://code.google.com/p/ttrss-reader-fork/issues/list" />
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:title="@string/About.twitter"
+            android:summary="@string/About.twitter_hint">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://twitter.com/nilsbraden" />
+        </PreferenceScreen>
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -17,18 +17,17 @@
 -->
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item
         android:title="@string/Commons.MarkRead"
         android:id="@+id/Article_Menu_MarkRead"
         android:icon="@drawable/ic_menu_mark" />
     <item
-        android:title="@string/Commons.ToggleStarred"
-        android:id="@+id/Article_Menu_ToggleStarred"
+        android:title="@string/Commons.MarkStar"
+        android:id="@+id/Article_Menu_MarkStar"
         android:icon="@drawable/ic_menu_star" />
     <item
-        android:title="@string/Commons.TogglePublished"
-        android:id="@+id/Article_Menu_TogglePublished"
+        android:title="@string/Commons.MarkPublish"
+        android:id="@+id/Article_Menu_MarkPublish"
         android:icon="@drawable/ic_menu_publish" />
     <item
         android:title="@string/ArticleActivity.OpenLink"
@@ -38,5 +37,8 @@
         android:title="@string/ArticleActivity.ShareLink"
         android:id="@+id/Article_Menu_ShareLink"
         android:icon="@android:drawable/ic_menu_send" />
-
+    <item
+        android:title="@string/UsageOfflineTitle"
+        android:id="@+id/Article_Menu_WorkOffline"
+        android:icon="@drawable/ic_menu_stop" />
 </menu>

@@ -21,25 +21,24 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
+import org.ttrssreader.model.FeedItem;
 import org.ttrssreader.model.FeedListAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.ITTRSSConnector;
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-public class FeedListActivity extends ListActivity implements IUpdateEndListener {
+public class FeedListActivity extends MenuActivity implements IUpdateEndListener {
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_READ = MARK_GROUP + 1;
@@ -146,6 +145,19 @@ public class FeedListActivity extends ListActivity implements IUpdateEndListener
     }
     
     @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        
+        Intent i = new Intent(this, FeedHeadlineListActivity.class);
+        i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getFeedId(position));
+        i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getFeedTitle(position));
+        i.putIntegerArrayListExtra(FeedHeadlineListActivity.FEED_LIST_ID, mAdapter.getFeedIds());
+        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAME, mAdapter.getFeedNames());
+        
+        startActivity(i);
+    }
+    
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         
@@ -165,45 +177,25 @@ public class FeedListActivity extends ListActivity implements IUpdateEndListener
     }
     
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        
-        Intent i = new Intent(this, FeedHeadlineListActivity.class);
-        i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getFeedId(position));
-        i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getFeedTitle(position));
-        i.putIntegerArrayListExtra(FeedHeadlineListActivity.FEED_LIST_ID, mAdapter.getFeedIds());
-        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAME, mAdapter.getFeedNames());
-        
-        startActivity(i);
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = this.getMenuInflater();
-        inflater.inflate(R.menu.feedlist, menu);
-        return true;
-    }
-    
-    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
+        boolean ret = super.onOptionsItemSelected(item);
+        
         switch (item.getItemId()) {
-            case R.id.Feedlist_Menu_Refresh:
-                Data.getInstance().resetFeedTime();
+            case R.id.Menu_Refresh:
+                Data.getInstance().resetTime(new FeedItem());
                 doUpdate();
-                doRefresh();
                 return true;
-            case R.id.Feedlist_Menu_DisplayOnlyUnread:
-                boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-                Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
-                doRefresh();
-                return true;
-            case R.id.Feedlist_Menu_MarkAllRead:
+            case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(mCategoryId)).execute();
                 return true;
             default:
-                return false;
+                break;
         }
+        
+        if (ret) {
+            doRefresh();
+        }
+        return true;
     }
     
     private void openConnectionErrorDialog(String errorMessage) {

@@ -17,18 +17,28 @@
 -->
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item
         android:title="@string/Main.RefreshMenu"
-        android:id="@+id/Feedlist_Menu_Refresh"
+        android:id="@+id/Menu_Refresh"
         android:icon="@drawable/ic_menu_refresh" />
     <item
         android:title="@string/Commons.MarkAllRead"
-        android:id="@+id/Feedlist_Menu_MarkAllRead"
+        android:id="@+id/Menu_MarkAllRead"
         android:icon="@drawable/ic_menu_mark" />
     <item
         android:title="@string/Commons.DisplayOnlyUnread"
-        android:id="@+id/Feedlist_Menu_DisplayOnlyUnread"
+        android:id="@+id/Menu_DisplayOnlyUnread"
         android:icon="@android:drawable/ic_menu_view" />
-
+    <item
+        android:title="@string/UsageOfflineTitle"
+        android:id="@+id/Menu_WorkOffline"
+        android:icon="@drawable/ic_menu_stop" />
+    <item
+        android:title="@string/Main.ShowPreferencesMenu"
+        android:id="@+id/Menu_ShowPreferences"
+        android:icon="@android:drawable/ic_menu_preferences" />
+    <item
+        android:title="@string/About.about"
+        android:id="@+id/Menu_About"
+        android:icon="@android:drawable/ic_menu_help" />
 </menu>

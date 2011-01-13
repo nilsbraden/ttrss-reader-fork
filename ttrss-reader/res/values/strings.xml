@@ -55,11 +55,14 @@
     <string name="Commons.NothingToDisplay">Nothing to display.</string>
     <string name="Commons.UpdateReadState">Updating read state</string>
     <string name="Commons.DisplayOnlyUnread">Display unread</string>
+    <string name="Commons.DisplayAll">Display all</string>
     <string name="Commons.MarkAllRead">All read</string>
     <string name="Commons.MarkRead">Read</string>
-    <string name="Commons.MarkUnread">Uunread</string>
-    <string name="Commons.ToggleStarred">Star</string>
-    <string name="Commons.TogglePublished">Publish</string>
+    <string name="Commons.MarkUnread">Unread</string>
+    <string name="Commons.MarkStar">Star</string>
+    <string name="Commons.MarkUnstar">Un-Star</string>
+    <string name="Commons.MarkPublish">Publish</string>
+    <string name="Commons.MarkUnpublish">Un-Publish</string>
     
     <string name="VCategory.AllArticles">All Articles</string>
     <string name="VCategory.FreshArticles">Fresh Articles</string>
@@ -109,6 +112,8 @@
     <string name="UsageVibrateOnLastArticleTitle">Vibrate when reached last article</string>
     <string name="UsageVibrateOnLastArticleSummary">Vibrates once when the first or last article is reached and tried to access the next article.</string>
     <string name="UsageWorkOfflineTitle">Work offline</string>
+    <string name="UsageOfflineTitle">Offline</string>
+    <string name="UsageOnlineTitle">Online</string>
     <string name="UsageWorkOfflineSummary">Switch online-synchronisation on and off.</string>
     
     <string name="DisplayPreferenceCategoryTitle">Display</string>
@@ -139,4 +144,12 @@
     <string name="WebViewClientActivity.Download">Download</string>
     <string name="WebViewClientActivity.Display">Display in Mediaplayer</string>
     
+    <string name="About.about">About</string>
+    <string name="About.about_hint">About this app</string>
+    <string name="About.project">Project-Page</string>
+    <string name="About.project_hint">Information on Development, Changelog etc.</string>
+    <string name="About.twitter">Twitter</string>
+    <string name="About.twitter_hint">Follow me on twitter.\nGet update notifications etc.</string>
+    <string name="About.feedback">Feedback</string>
+    <string name="About.feedback_hint">Report bugs, request features ...</string>
 </resources>

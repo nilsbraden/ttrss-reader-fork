@@ -17,35 +17,8 @@
 -->
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item
-        android:title="@string/Main.RefreshMenu"
-        android:id="@+id/Category_Menu_Refresh"
-        android:icon="@drawable/ic_menu_refresh" />
-
-    <item
-        android:title="@string/Commons.MarkAllRead"
-        android:id="@+id/Category_Menu_MarkAllRead"
-        android:icon="@drawable/ic_menu_mark" />
-
-    <item
-        android:title="@string/Commons.DisplayOnlyUnread"
-        android:id="@+id/Category_Menu_DisplayOnlyUnread"
-        android:icon="@android:drawable/ic_menu_view" />
-
-    <item
-        android:title="@string/Main.ShowPreferencesMenu"
-        android:id="@+id/Category_Menu_ShowPreferences"
-        android:icon="@android:drawable/ic_menu_preferences" />
-
     <item
         android:title="@string/Main.StartDownloadForCache"
         android:id="@+id/Category_Menu_StartDownloadForCache"
         android:icon="@android:drawable/ic_menu_save" />
-
-    <item
-        android:title="@string/Main.ShowAboutMenu"
-        android:id="@+id/Category_Menu_ShowAbout"
-        android:icon="@android:drawable/ic_menu_info_details" />
-
 </menu>

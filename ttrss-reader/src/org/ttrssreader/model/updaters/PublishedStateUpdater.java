@@ -23,25 +23,40 @@ import android.util.Log;
 
 public class PublishedStateUpdater implements IUpdatable {
     
-    private ArticleItem mArticle;
+    private ArticleItem article;
+    private int articleState;
     
     /**
      * Toggles the articles' Published-Status.
      */
     public PublishedStateUpdater(ArticleItem article) {
-        mArticle = article;
+        this.article = article;
+        this.articleState = -1;
+    }
+    
+    /**
+     * Sets the articles' Published-Status according to articleState
+     */
+    public PublishedStateUpdater(ArticleItem article, int articleState) {
+        this.article = article;
+        this.articleState = articleState;
     }
     
     @Override
     public void update() {
         Log.i(Utils.TAG, "Updating Article-Published-Status...");
         
-        Data.getInstance().setArticlePublished(mArticle.getId(), mArticle.isPublished() ? 0 : 1);
-        
-        DBHelper.getInstance().updateArticlePublished(mArticle.getId(), !mArticle.isPublished());
-        // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
-        
-        mArticle.setPublished(!mArticle.isPublished());
+        if (articleState >= 0) {
+            // article.isPublished() ? 0 : 1
+            Data.getInstance().setArticlePublished(article.getId(), articleState);
+            DBHelper.getInstance().updateArticlePublished(article.getId(), articleState > 0 ? true : false);
+            article.setPublished(articleState > 0 ? true : false);
+        } else {
+            // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
+            Data.getInstance().setArticlePublished(article.getId(), article.isPublished() ? 0 : 1);
+            DBHelper.getInstance().updateArticlePublished(article.getId(), !article.isPublished());
+            article.setPublished(!article.isPublished());
+        }
     }
     
 }

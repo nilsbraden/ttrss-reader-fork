@@ -47,6 +47,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.Window;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
 
@@ -146,16 +147,46 @@ public class ArticleActivity extends Activity {
     }
     
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        
+        MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
+        if (mArticleItem.isUnread()) {
+            read.setTitle(getString(R.string.Commons_MarkRead));
+        } else {
+            read.setTitle(getString(R.string.Commons_MarkUnread));
+        }
+        
+        MenuItem publish = menu.findItem(R.id.Article_Menu_MarkStar);
+        if (mArticleItem.isStarred()) {
+            publish.setTitle(getString(R.string.Commons_MarkUnstar));
+        } else {
+            publish.setTitle(getString(R.string.Commons_MarkStar));
+        }
+        
+        MenuItem star = menu.findItem(R.id.Article_Menu_MarkPublish);
+        if (mArticleItem.isPublished()) {
+            star.setTitle(getString(R.string.Commons_MarkUnpublish));
+        } else {
+            star.setTitle(getString(R.string.Commons_MarkPublish));
+        }
+        
+        return true;
+    }
+    
+    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
-                new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
+                new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, mArticleItem.isUnread() ? 0 : 1))
+                        .execute();
                 return true;
-            case R.id.Article_Menu_ToggleStarred:
-                new Updater(null, new StarredStateUpdater(mArticleItem)).execute();
+            case R.id.Article_Menu_MarkStar:
+                new Updater(null, new StarredStateUpdater(mArticleItem, mArticleItem.isStarred() ? 0 : 1)).execute();
                 return true;
-            case R.id.Article_Menu_TogglePublished:
-                new Updater(null, new PublishedStateUpdater(mArticleItem)).execute();
+            case R.id.Article_Menu_MarkPublish:
+                new Updater(null, new PublishedStateUpdater(mArticleItem, mArticleItem.isPublished() ? 0 : 1))
+                        .execute();
                 return true;
             case R.id.Article_Menu_OpenLink:
                 openLink();
@@ -186,6 +217,12 @@ public class ArticleActivity extends Activity {
     
     private void doRefresh() {
         setProgressBarIndeterminateVisibility(true);
+        
+        if (Controller.getInstance().isWorkOffline()) {
+            webview.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+        } else {
+            webview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+        }
         
         if (!ITTRSSConnector.hasLastError()) {
             mArticleItem = Data.getInstance().getArticle(mArticleId);

@@ -183,9 +183,9 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
             ostream.close();
             
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
     
@@ -220,7 +220,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
                 value = readValueFromDisk(file);
             } catch (IOException e) {
                 // treat decoding errors as a cache miss
-                e.printStackTrace();
+//                e.printStackTrace();
                 return null;
             }
             if (value == null) {
