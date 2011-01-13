@@ -4,7 +4,10 @@
 == Version 0.8.1 ==
   * Addressed severe memory-issues
   * Moved menu-definitions from code to xml files
-  * Fixed articles not getting marked as read, please mail if it is still broken.
+  * Added information to preferences-screen
+  * Refactored menus
+  * Fixed articles not getting marked as read
+  * Fixed offline-setting
 
 == Version 0.8 ==
   * Added support for donations, status is checked once after providing the mailadress used to poste the donation
