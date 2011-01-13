@@ -1,6 +1,9 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.8.2 ==
+  *
+
 == Version 0.8.1 ==
   * Addressed severe memory-issues
   * Moved menu-definitions from code to xml files
