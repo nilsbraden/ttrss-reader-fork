@@ -30,7 +30,6 @@ import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.utils.Utils;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -44,7 +43,6 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,13 +51,12 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-public class FeedHeadlineListActivity extends ListActivity implements IUpdateEndListener {
+public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEndListener {
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_STAR = MARK_GROUP + 1;
     private static final int MARK_PUBLISH = MARK_GROUP + 2;
-    private static final int MARK_READ = MARK_GROUP + 3;
-    private static final int MARK_UNREAD = MARK_GROUP + 4;
+    private static final int MARK_UNREAD = MARK_GROUP + 3;
     
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
@@ -209,12 +206,22 @@ public class FeedHeadlineListActivity extends ListActivity implements IUpdateEnd
         AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         ArticleItem a = (ArticleItem) mAdapter.getItem(info.position);
         
-        menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_ToggleStarred);
-        menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_TogglePublished);
         if (a.isUnread()) {
-            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
+            menu.add(MARK_GROUP, MARK_UNREAD, Menu.NONE, R.string.Commons_MarkRead);
         } else {
             menu.add(MARK_GROUP, MARK_UNREAD, Menu.NONE, R.string.Commons_MarkUnread);
+        }
+        
+        if (a.isStarred()) {
+            menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkUnstar);
+        } else {
+            menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkStar);
+        }
+        
+        if (a.isPublished()) {
+            menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkUnpublish);
+        } else {
+            menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
         }
     }
     
@@ -223,55 +230,45 @@ public class FeedHeadlineListActivity extends ListActivity implements IUpdateEnd
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         ArticleItem a = (ArticleItem) mAdapter.getItem(cmi.position);
         
-        if (a != null) {
+        if (a == null) {
             return false;
         }
         
         switch (item.getItemId()) {
+            case MARK_UNREAD:
+                new Updater(this, new ReadStateUpdater(a, mFeedId, a.isUnread() ? 0 : 1)).execute();
+                return true;
             case MARK_STAR:
-                new Updater(this, new StarredStateUpdater(a)).execute();
+                new Updater(this, new StarredStateUpdater(a, a.isStarred() ? 0 : 1)).execute();
                 return true;
             case MARK_PUBLISH:
-                new Updater(this, new PublishedStateUpdater(a)).execute();
-                return true;
-            case MARK_READ:
-                new Updater(this, new ReadStateUpdater(a, mFeedId, 0)).execute();
-                return true;
-            case MARK_UNREAD:
-                new Updater(this, new ReadStateUpdater(a, mFeedId, 1)).execute();
+                new Updater(this, new PublishedStateUpdater(a, a.isPublished() ? 0 : 1)).execute();
                 return true;
             default:
                 return false;
         }
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = this.getMenuInflater();
-        inflater.inflate(R.menu.feedheadline, menu);
-        return true;
     }
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
+        boolean ret = super.onOptionsItemSelected(item);
+        
         switch (item.getItemId()) {
-            case R.id.Feedheadline_Menu_Refresh:
-                Data.getInstance().resetArticlesTime(mFeedId);
+            case R.id.Menu_Refresh:
+                Data.getInstance().resetTime(mFeedId);
                 doUpdate();
-                doRefresh();
                 return true;
-            case R.id.Feedheadline_Menu_MarkAllRead:
+            case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(mFeedId, 0)).execute();
                 return true;
-            case R.id.Feedheadline_Menu_DisplayOnlyUnread:
-                boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-                Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
-                doRefresh();
-                return true;
             default:
-                return false;
+                break;
         }
+        
+        if (ret) {
+            doRefresh();
+        }
+        return true;
     }
     
     private void openNextFeed(int direction) {

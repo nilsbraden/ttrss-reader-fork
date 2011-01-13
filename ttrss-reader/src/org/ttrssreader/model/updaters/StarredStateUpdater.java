@@ -23,25 +23,40 @@ import android.util.Log;
 
 public class StarredStateUpdater implements IUpdatable {
     
-    private ArticleItem mArticle;
+    private ArticleItem article;
+    private int articleState;
     
     /**
      * Toggles the articles' Starred-Status.
      */
     public StarredStateUpdater(ArticleItem article) {
-        mArticle = article;
+        this.article = article;
+        this.articleState = -1;
+    }
+    
+    /**
+     * Sets the articles' Starred-Status according to articleState
+     */
+    public StarredStateUpdater(ArticleItem article, int articleState) {
+        this.article = article;
+        this.articleState = articleState;
     }
     
     @Override
     public void update() {
         Log.i(Utils.TAG, "Updating Article-Starred-Status...");
         
-        // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
-        Data.getInstance().setArticleStarred(mArticle.getId(), mArticle.isStarred() ? 0 : 1);
-        
-        DBHelper.getInstance().updateArticleStarred(mArticle.getId(), !mArticle.isStarred());
-        
-        mArticle.setStarred(!mArticle.isStarred());
+        if (articleState >= 0) {
+            // mArticle.isStarred() ? 0 : 1
+            Data.getInstance().setArticleStarred(article.getId(), articleState);
+            DBHelper.getInstance().updateArticleStarred(article.getId(), articleState > 0 ? true : false);
+            article.setStarred(articleState > 0 ? true : false);
+        } else {
+            // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
+            Data.getInstance().setArticleStarred(article.getId(), article.isStarred() ? 0 : 1);
+            DBHelper.getInstance().updateArticleStarred(article.getId(), !article.isStarred());
+            article.setStarred(!article.isStarred());
+        }
     }
     
 }

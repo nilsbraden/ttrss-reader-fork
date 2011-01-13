@@ -23,6 +23,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
+import org.ttrssreader.model.CategoryItem;
 import org.ttrssreader.model.CategoryListAdapter;
 import org.ttrssreader.model.cachers.Cacher;
 import org.ttrssreader.model.cachers.ImageCacher;
@@ -33,7 +34,6 @@ import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -51,7 +51,7 @@ import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
-public class CategoryActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
+public class CategoryActivity extends MenuActivity implements IUpdateEndListener, ICacheEndListener {
     
     private static final int MARK_GROUP = 42;
     private static final int MARK_READ = MARK_GROUP + 1;
@@ -219,26 +219,15 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
+        boolean ret = super.onOptionsItemSelected(item);
+        
         switch (item.getItemId()) {
-            case R.id.Category_Menu_Refresh:
-                Data.getInstance().resetCategoriesTime();
+            case R.id.Menu_Refresh:
+                Data.getInstance().resetTime(new CategoryItem());
                 doUpdate();
-                doRefresh();
                 return true;
-            case R.id.Category_Menu_DisplayOnlyUnread:
-                boolean displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
-                Controller.getInstance().setDisplayOnlyUnread(!displayOnlyUnread);
-                doRefresh();
-                return true;
-            case R.id.Category_Menu_MarkAllRead:
+            case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(mAdapter.getCategories())).execute();
-                return true;
-            case R.id.Category_Menu_ShowPreferences:
-                startActivityForResult(new Intent(this, PreferencesActivity.class),
-                        PreferencesActivity.ACTIVITY_SHOW_PREFERENCES);
-                return true;
-            case R.id.Category_Menu_ShowAbout:
-                startActivity(new Intent(this, AboutActivity.class));
                 return true;
             case R.id.Category_Menu_StartDownloadForCache:
                 if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
@@ -246,9 +235,15 @@ public class CategoryActivity extends ListActivity implements IUpdateEndListener
                     imageCacher = new Cacher(this, new ImageCacher(this));
                     imageCacher.execute();
                 }
+                return true;
             default:
-                return false;
+                break;
         }
+        
+        if (ret) {
+            doRefresh();
+        }
+        return true;
     }
     
     private void openConnectionErrorDialog(String errorMessage) {

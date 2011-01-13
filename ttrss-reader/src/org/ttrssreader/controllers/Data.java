@@ -104,17 +104,20 @@ public class Data {
     
     // *** COUNTERS *********************************************************************
     
-    public void resetArticlesTime(int feedId) {
-        mArticlesUpdated.put(feedId, new Long(0));
-    }
-    
-    public void resetFeedTime() {
-        mFeedsUpdated = 0;
-    }
-    
-    public void resetCategoriesTime() {
-        mVirtCategoriesUpdated = 0;
-        mCategoriesUpdated = 0;
+    public void resetTime(Object o) {
+        if (o == null) {
+            return;
+        }
+        
+        if (o instanceof CategoryItem) {
+            mVirtCategoriesUpdated = 0;
+            mCategoriesUpdated = 0;
+        } else if (o instanceof FeedItem) {
+            mFeedsUpdated = 0;
+        } else if (o instanceof Integer) {
+            Integer i = (Integer) o;
+            mArticlesUpdated.put(i, new Long(0));
+        }
     }
     
     public int getCategoryUnreadCount(int catId) {

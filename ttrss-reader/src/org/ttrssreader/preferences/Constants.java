@@ -53,7 +53,7 @@ public class Constants {
     // public static String UPDATE_UNREAD_ON_STARTUP = "UsageUpdateArticlesOnStartupPreference";
     public static String USE_VOLUME_KEYS = "UsageUseVolumeKeysPreference";
     public static String VIBRATE_ON_LAST_ARTICLE = "UsageVibrateOnLastArticlePreference";
-    public static String WORK_OFFLINE = "DisplayWorkOfflinePreference";
+    public static String WORK_OFFLINE = "UsageWorkOfflinePreference";
     // Usage Default Values
     public static boolean AUTOMATIC_MARK_READ_DEFAULT = true;
     public static boolean OPEN_URL_EMPTY_ARTICLE_DEFAULT = false;
