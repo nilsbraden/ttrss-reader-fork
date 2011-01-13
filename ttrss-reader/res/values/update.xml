@@ -17,7 +17,7 @@
 -->
 <resources>
     <string-array name="updates">
-        <item>v0.8.1: Addressed severe memory-issues, Moved menu-definitions from code to xml files, Fixed articles not getting marked as read, please mail if it is still broken.</item>
+        <item>v0.8.1: Addressed severe memory-issues, moved menu-definitions from code to xml files, added information to preferences-screen, refactored menus, fixed articles not getting marked as read, fixed offline-setting</item>
         <item>v0.8: Donators: Added pre-downloading of images for offline viewing (see project page for more information), Fixed several usability issues (Issues 36,37,38,41), Fixed Issue #40 (Better error-handling for disabled API and Not logged in error), Size of Swipe-Area now depends on density and screen-size, Icons got some polishing...</item>
         <item>v0.7.8: Added HTTP-Authentication (Issue #32), Fixed Issue with display of all articles (Issue #34)</item>
         <item>v0.7.7: IMPORTANT: Please update your server to 1.5.0 from http://tt-rss.org/ and visit the TTRSS-Reader\'s project-page for full changelog. If you need to stay with server version 1.4.3.1 you should install TTRSS-Reader v0.7.3 from the project-page.</item>
