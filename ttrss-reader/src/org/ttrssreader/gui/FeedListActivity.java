@@ -28,7 +28,6 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.ITTRSSConnector;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -49,9 +48,7 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
     private int mCategoryId;
     private String mCategoryTitle;
     
-    private ListView mFeedListView;
     private FeedListAdapter mAdapter = null;
-    private Updater updater;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -63,8 +60,8 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        mFeedListView = getListView();
-        registerForContextMenu(mFeedListView);
+        mListView = getListView();
+        registerForContextMenu(mListView);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -79,7 +76,7 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
         }
         
         mAdapter = new FeedListAdapter(this, mCategoryId);
-        mFeedListView.setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
     }
     
     @Override
@@ -108,28 +105,25 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
         outState.putString(CATEGORY_TITLE, mCategoryTitle);
     }
     
-    private void doRefresh() {
+    @Override
+    protected synchronized void doRefresh() {
+        setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
+        
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
-        if (!ITTRSSConnector.hasLastError()) {
-            this.setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
-        } else {
-            setProgressBarIndeterminateVisibility(false);
+        
+        if (ITTRSSConnector.hasLastError()) {
             openConnectionErrorDialog(ITTRSSConnector.pullLastError());
             return;
         }
         
-        if (updater != null) {
-            if (updater.getStatus().equals(Status.FINISHED)) {
-                updater = null;
-                setProgressBarIndeterminateVisibility(false);
-            }
-        } else {
+        if (updater == null) {
             setProgressBarIndeterminateVisibility(false);
         }
     }
     
-    private synchronized void doUpdate() {
+    @Override
+    protected synchronized void doUpdate() {
         // Only update if no updater already running
         if (updater != null) {
             if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -196,24 +190,6 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
             doRefresh();
         }
         return true;
-    }
-    
-    private void openConnectionErrorDialog(String errorMessage) {
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        
-        Intent i = new Intent(this, ErrorActivity.class);
-        i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
-        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
-    }
-    
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-            doRefresh();
-            doUpdate();
-        }
     }
     
     @Override

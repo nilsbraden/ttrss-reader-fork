@@ -17,13 +17,26 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ListView;
 
+/**
+ * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
+ * FeedHeadlineListActivity).
+ */
 public class MenuActivity extends ListActivity {
+    
+    protected boolean configChecked = false;
+    protected ListView mListView;
+    protected Updater updater;
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -81,4 +94,44 @@ public class MenuActivity extends ListActivity {
         }
     }
     
+    protected boolean checkConfig() {
+        String url = Controller.getInstance().getUrl();
+        if (url.equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
+            return false;
+        }
+        configChecked = true;
+        return true;
+    }
+    
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(Utils.TAG, "onActivityResult. requestCode: " + requestCode + " resultCode: " + resultCode);
+        if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
+            if (configChecked || checkConfig()) {
+                doRefresh();
+                doUpdate();
+            }
+        } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
+            if (configChecked || checkConfig()) {
+                doRefresh();
+                doUpdate();
+            }
+        }
+    }
+    
+    protected synchronized void doRefresh() {
+    }
+    
+    protected synchronized void doUpdate() {
+    }
+    
+    protected void openConnectionErrorDialog(String errorMessage) {
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        setProgressBarIndeterminateVisibility(false);
+        Intent i = new Intent(this, ErrorActivity.class);
+        i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
+        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
+    }
 }
