@@ -22,6 +22,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.updaters.IUpdatable;
 import android.content.Context;
 import android.database.Cursor;

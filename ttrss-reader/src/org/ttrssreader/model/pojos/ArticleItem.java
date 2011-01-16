@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model;
+package org.ttrssreader.model.pojos;
 
 import java.util.Date;
 import java.util.Set;

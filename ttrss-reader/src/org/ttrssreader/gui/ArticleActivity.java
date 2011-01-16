@@ -22,8 +22,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.ArticleItem;
-import org.ttrssreader.model.ArticleWebViewClient;
+import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -196,7 +195,7 @@ public class ArticleActivity extends Activity {
                 i.setType("text/plain");
                 i.putExtra(Intent.EXTRA_SUBJECT, mArticleItem.getTitle());
                 String content = (String) getText(R.string.ArticleActivity_ShareSubject);
-                i.putExtra(Intent.EXTRA_TEXT, content + mArticleItem.getArticleUrl());
+                i.putExtra(Intent.EXTRA_TEXT, content + " " + mArticleItem.getArticleUrl());
                 this.startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
             default:

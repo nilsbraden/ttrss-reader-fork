@@ -36,9 +36,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.ArticleItem;
-import org.ttrssreader.model.CategoryItem;
-import org.ttrssreader.model.FeedItem;
+import org.ttrssreader.model.pojos.ArticleItem;
+import org.ttrssreader.model.pojos.CategoryItem;
+import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.Utils;
 import android.database.sqlite.SQLiteDatabase;
@@ -280,7 +280,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                     result = false;
                     mHasLastError = true;
                     mLastError = e.getMessage() + ", Method: login(String url), threw JSONException";
-//                    e.printStackTrace();
+                    e.printStackTrace();
                 }
                 
             } else {
@@ -331,7 +331,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
             } catch (JSONException e) {
                 mHasLastError = true;
                 mLastError = e.getMessage() + ", Method: login(String url), threw JSONException";
-//                e.printStackTrace();
+                e.printStackTrace();
                 return false;
             }
             return true;
@@ -427,7 +427,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: parseDataForArticle(...), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         
         return (ret == null ? new ArticleItem() : ret);
@@ -465,7 +465,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: parseDataForFeed(...), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         
         return (ret == null ? new FeedItem() : ret);
@@ -497,7 +497,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: parseDataForCategory(...), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         
         return (ret == null ? new CategoryItem() : ret);
@@ -533,7 +533,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
                 }
             }
         } catch (JSONException je) {
-//            je.printStackTrace();
+            je.printStackTrace();
         }
         
         return ret;
@@ -596,7 +596,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: getCounters(), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
     
@@ -624,7 +624,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: getCategories(), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         
         return ret;
@@ -664,7 +664,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: getSubsribedFeeds(), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         
         return ret;
@@ -693,7 +693,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: getFeedHeadlines(...), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         
         return ret;
@@ -734,7 +734,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: getArticle(...), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         
         return ret;
@@ -819,7 +819,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
             } catch (JSONException e) {
                 mHasLastError = true;
                 mLastError = e.getMessage() + ", Method: getArticle(...), threw JSONException";
-//                e.printStackTrace();
+                e.printStackTrace();
             } finally {
                 db.endTransaction();
             }
@@ -891,7 +891,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: getNewArticles(...), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         
         return ret;
@@ -959,7 +959,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         } catch (JSONException e) {
             mHasLastError = true;
             mLastError = e.getMessage() + ", Method: getPref(), threw JSONException";
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         return ret;
     }
