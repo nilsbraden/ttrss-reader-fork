@@ -104,12 +104,12 @@ public class Utils {
                 sb.append(line + "\n");
             }
         } catch (IOException e) {
-            // e.printStackTrace();
+             e.printStackTrace();
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                // e.printStackTrace();
+                 e.printStackTrace();
             }
         }
         return sb.toString();
@@ -174,7 +174,7 @@ public class Utils {
                     wait += 100;
                     Utils.class.wait(100);
                 } catch (InterruptedException e) {
-                    // e.printStackTrace();
+                     e.printStackTrace();
                 }
                 
                 if (wait > 1000) { // Wait a maximum of one second for connection

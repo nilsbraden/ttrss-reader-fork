@@ -24,9 +24,9 @@ import java.util.Set;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.ArticleItem;
-import org.ttrssreader.model.CategoryItem;
-import org.ttrssreader.model.FeedItem;
+import org.ttrssreader.model.pojos.ArticleItem;
+import org.ttrssreader.model.pojos.CategoryItem;
+import org.ttrssreader.model.pojos.FeedItem;
 
 public class ReadStateUpdater implements IUpdatable {
     

@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model;
+package org.ttrssreader.gui;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +23,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.ttrssreader.R;
-import org.ttrssreader.gui.MediaPlayerActivity;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -97,7 +96,7 @@ public class ArticleWebViewClient extends WebViewClient {
         try {
             new AsyncDownloader().execute(new URL(url));
         } catch (MalformedURLException e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
     }
     

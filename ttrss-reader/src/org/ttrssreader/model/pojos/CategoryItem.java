@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model;
+package org.ttrssreader.model.pojos;
 
 
 public class CategoryItem implements Comparable<CategoryItem> {

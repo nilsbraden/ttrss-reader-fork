@@ -17,7 +17,7 @@ package org.ttrssreader.controllers;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
-import org.ttrssreader.model.ArticleItem;
+import org.ttrssreader.model.pojos.ArticleItem;
 import android.os.AsyncTask;
 
 public class DBInsertArticlesTask extends AsyncTask<Set<ArticleItem>, Void, Void> {
