@@ -23,9 +23,11 @@ import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 
 /**
@@ -37,6 +39,17 @@ public class MenuActivity extends ListActivity {
     protected boolean configChecked = false;
     protected ListView mListView;
     protected Updater updater;
+    
+    protected static final int MARK_GROUP = 42;
+    protected static final int MARK_READ = MARK_GROUP + 1;
+    protected static final int MARK_STAR = MARK_GROUP + 2;
+    protected static final int MARK_PUBLISH = MARK_GROUP + 3;
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
+    }
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

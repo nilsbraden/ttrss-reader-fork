@@ -52,11 +52,6 @@ import android.widget.ListView;
 
 public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEndListener {
     
-    private static final int MARK_GROUP = 42;
-    private static final int MARK_STAR = MARK_GROUP + 1;
-    private static final int MARK_PUBLISH = MARK_GROUP + 2;
-    private static final int MARK_UNREAD = MARK_GROUP + 3;
-    
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
     public static final String FEED_LIST_ID = "FEED_LIST_ID";
@@ -144,7 +139,7 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getUnreadCount() + ")");
+        setTitle(String.format("%s (%s)", mFeedTitle, mAdapter.getUnreadCount()));
         flingDetected = false; // reset fling-status
         
         mAdapter.makeQuery();
@@ -199,9 +194,9 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         ArticleItem a = (ArticleItem) mAdapter.getItem(info.position);
         
         if (a.isUnread()) {
-            menu.add(MARK_GROUP, MARK_UNREAD, Menu.NONE, R.string.Commons_MarkRead);
+            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
         } else {
-            menu.add(MARK_GROUP, MARK_UNREAD, Menu.NONE, R.string.Commons_MarkUnread);
+            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkUnread);
         }
         
         if (a.isStarred()) {
@@ -222,12 +217,11 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         ArticleItem a = (ArticleItem) mAdapter.getItem(cmi.position);
         
-        if (a == null) {
+        if (a == null)
             return false;
-        }
         
         switch (item.getItemId()) {
-            case MARK_UNREAD:
+            case MARK_READ:
                 new Updater(this, new ReadStateUpdater(a, mFeedId, a.isUnread() ? 0 : 1)).execute();
                 return true;
             case MARK_STAR:
@@ -236,9 +230,8 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
             case MARK_PUBLISH:
                 new Updater(this, new PublishedStateUpdater(a, a.isPublished() ? 0 : 1)).execute();
                 return true;
-            default:
-                return false;
         }
+        return false;
     }
     
     @Override
@@ -253,8 +246,6 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
             case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(mFeedId, 0)).execute();
                 return true;
-            default:
-                break;
         }
         
         if (ret) {
@@ -279,15 +270,14 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
             return;
         }
         
-        Intent i = new Intent(this, this.getClass());
+        Intent i = new Intent(this, getClass());
         i.putExtra(FEED_ID, mFeedListIds.get(index));
         i.putExtra(FEED_TITLE, mFeedListNames.get(index));
         i.putIntegerArrayListExtra(FEED_LIST_ID, mFeedListIds);
         i.putStringArrayListExtra(FEED_LIST_NAME, mFeedListNames);
         
         startActivity(i);
-        this.finish(); // finish() because we don't want to go back through all feeds, we want to go back directly to
-                       // the FeedList
+        finish(); // finish(), we don't want to go back through all feeds, we want to go back directly to the FeedList
     }
     
     @Override
@@ -372,6 +362,7 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         return super.onKeyDown(keyCode, event);
     }
     
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (Controller.getInstance().isUseVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
@@ -379,13 +370,6 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
             }
         }
         return super.onKeyUp(keyCode, event);
-    }
-    
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-            doRefresh();
-            doUpdate();
-        }
     }
     
     @Override

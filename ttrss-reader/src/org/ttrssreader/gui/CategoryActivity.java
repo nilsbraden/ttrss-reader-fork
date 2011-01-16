@@ -40,8 +40,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -51,9 +49,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class CategoryActivity extends MenuActivity implements IUpdateEndListener, ICacheEndListener {
-    
-    private static final int MARK_GROUP = 42;
-    private static final int MARK_READ = MARK_GROUP + 1;
     
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
@@ -76,9 +71,9 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         
         // Check for update or new installation
         if (Controller.getInstance().isNewInstallation()) {
-            this.showDialog(DIALOG_WELCOME);
+            showDialog(DIALOG_WELCOME);
         } else if (Utils.newVersionInstalled(this)) {
-            this.showDialog(DIALOG_UPDATE);
+            showDialog(DIALOG_UPDATE);
         } else if (!checkConfig()) {
             // Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
@@ -116,7 +111,8 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
     
     @Override
     protected synchronized void doRefresh() {
-        this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread() + ")");
+        setTitle(String
+                .format("%s (%s)", getResources().getString(R.string.ApplicationName), mAdapter.getTotalUnread()));
         
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
@@ -152,21 +148,13 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
     }
     
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
-    }
-    
-    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case MARK_READ:
-                new Updater(this, new ReadStateUpdater(mAdapter.getCategoryId(cmi.position))).execute();
-                return true;
-            default:
-                return false;
+        if (item.getItemId() == MARK_READ) {
+            new Updater(this, new ReadStateUpdater(mAdapter.getCategoryId(cmi.position))).execute();
+            return true;
         }
+        return false;
     }
     
     @Override
@@ -187,14 +175,13 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
             i.putExtra(FeedListActivity.CATEGORY_ID, categoryId);
             i.putExtra(FeedListActivity.CATEGORY_TITLE, mAdapter.getCategoryTitle(position));
         }
-        
         startActivity(i);
     }
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = this.getMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.category, menu);
         if (!Controller.getInstance().isDonator()) {
             menu.removeItem(R.id.Category_Menu_StartDownloadForCache);
@@ -221,8 +208,6 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
                     imageCacher.execute();
                 }
                 return true;
-            default:
-                break;
         }
         
         if (ret) {
@@ -231,9 +216,6 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         return true;
     }
     
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected final Dialog onCreateDialog(final int id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -252,7 +234,6 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
                             @Override
                             public void onClick(final DialogInterface d, final int which) {
                                 Intent i = new Intent(context, PreferencesActivity.class);
-                                Log.e(Utils.TAG, "Starting PreferencesActivity");
                                 startActivity(i);
                             }
                         });
