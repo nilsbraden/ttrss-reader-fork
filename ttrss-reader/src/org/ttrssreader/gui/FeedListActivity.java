@@ -29,8 +29,6 @@ import org.ttrssreader.net.ITTRSSConnector;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -38,9 +36,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class FeedListActivity extends MenuActivity implements IUpdateEndListener {
-    
-    private static final int MARK_GROUP = 42;
-    private static final int MARK_READ = MARK_GROUP + 1;
     
     public static final String CATEGORY_ID = "CATEGORY_ID";
     public static final String CATEGORY_TITLE = "CATEGORY_TITLE";
@@ -107,7 +102,7 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(mCategoryTitle + " (" + mAdapter.getTotalUnreadCount() + ")");
+        setTitle(String.format("%s (%s)", mCategoryTitle, mAdapter.getTotalUnreadCount()));
         
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
@@ -152,22 +147,13 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
     }
     
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        
-        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
-    }
-    
-    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case MARK_READ:
-                new Updater(this, new ReadStateUpdater(mAdapter.getFeedId(cmi.position), 42)).execute();
-                return true;
-            default:
-                return false;
+        if (item.getItemId() == MARK_READ) {
+            new Updater(this, new ReadStateUpdater(mAdapter.getFeedId(cmi.position), 42)).execute();
+            return true;
         }
+        return false;
     }
     
     @Override
@@ -182,8 +168,6 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
             case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(mCategoryId)).execute();
                 return true;
-            default:
-                break;
         }
         
         if (ret) {
