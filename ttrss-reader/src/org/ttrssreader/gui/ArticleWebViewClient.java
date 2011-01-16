@@ -74,7 +74,11 @@ public class ArticleWebViewClient extends WebViewClient {
                             context.startActivity(i);
                             break;
                         case 1:
-                            downloadFile(url);
+                            try {
+                                new AsyncDownloader().execute(new URL(url));
+                            } catch (MalformedURLException e) {
+                                e.printStackTrace();
+                            }
                             break;
                         default:
                             Log.e(Utils.TAG, "Doing nothing, but why is that?? Item: " + item);
@@ -90,14 +94,6 @@ public class ArticleWebViewClient extends WebViewClient {
         }
         
         return true;
-    }
-    
-    private void downloadFile(String url) {
-        try {
-            new AsyncDownloader().execute(new URL(url));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
     }
     
     private boolean externalStorageState() {

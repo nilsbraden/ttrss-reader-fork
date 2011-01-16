@@ -33,7 +33,6 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
@@ -60,7 +59,6 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
     
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
-    public static final String FEED_LIST = "FEED_LIST";
     public static final String FEED_LIST_ID = "FEED_LIST_ID";
     public static final String FEED_LIST_NAME = "FEED_LIST_NAME";
     
@@ -74,9 +72,7 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
     private int absHeight;
     private int absWidth;
     
-    private ListView mFeedHeadlineListView;
     private FeedHeadlineListAdapter mAdapter = null;
-    private Updater updater;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -88,8 +84,8 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        mFeedHeadlineListView = getListView();
-        registerForContextMenu(mFeedHeadlineListView);
+        mListView = getListView();
+        registerForContextMenu(mListView);
         mGestureDetector = new GestureDetector(onGestureListener);
         
         DisplayMetrics metrics = new DisplayMetrics();
@@ -115,7 +111,7 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
             mFeedListNames = null;
         }
         mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
-        mFeedHeadlineListView.setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
     }
     
     @Override
@@ -146,30 +142,26 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         outState.putStringArrayList(FEED_LIST_NAME, mFeedListNames);
     }
     
-    private void doRefresh() {
+    @Override
+    protected synchronized void doRefresh() {
+        setTitle(getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getUnreadCount() + ")");
         flingDetected = false; // reset fling-status
         
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
-        if (!ITTRSSConnector.hasLastError()) {
-            setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getUnreadCount() + ")");
-        } else {
-            setProgressBarIndeterminateVisibility(false);
+        
+        if (ITTRSSConnector.hasLastError()) {
             openConnectionErrorDialog(ITTRSSConnector.pullLastError());
             return;
         }
         
-        if (updater != null) {
-            if (updater.getStatus().equals(Status.FINISHED)) {
-                updater = null;
-                setProgressBarIndeterminateVisibility(false);
-            }
-        } else {
+        if (updater == null) {
             setProgressBarIndeterminateVisibility(false);
         }
     }
     
-    private synchronized void doUpdate() {
+    @Override
+    protected synchronized void doUpdate() {
         // Only update if no updater already running
         if (updater != null) {
             if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -387,17 +379,6 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
             }
         }
         return super.onKeyUp(keyCode, event);
-    }
-    
-    private void openConnectionErrorDialog(String errorMessage) {
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        
-        Intent i = new Intent(this, ErrorActivity.class);
-        i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
-        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

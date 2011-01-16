@@ -30,7 +30,6 @@ import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.ITTRSSConnector;
-import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -59,12 +58,8 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
     
-    private ListView mCategoryListView;
     private CategoryListAdapter mAdapter = null;
-    private Updater updater;
     private Cacher imageCacher;
-    
-    private boolean configChecked = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +71,8 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        mCategoryListView = getListView();
-        registerForContextMenu(mCategoryListView);
+        mListView = getListView();
+        registerForContextMenu(mListView);
         
         // Check for update or new installation
         if (Controller.getInstance().isNewInstallation()) {
@@ -90,17 +85,7 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         }
         
         mAdapter = new CategoryListAdapter(this);
-        mCategoryListView.setAdapter(mAdapter);
-    }
-    
-    private boolean checkConfig() {
-        String url = Controller.getInstance().getUrl();
-        if (url.equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
-            return false;
-        }
-        
-        configChecked = true;
-        return true;
+        mListView.setAdapter(mAdapter);
     }
     
     @Override
@@ -130,18 +115,17 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
     }
     
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-    
-    private synchronized void doRefresh() {
+    protected synchronized void doRefresh() {
         this.setTitle(this.getResources().getString(R.string.ApplicationName) + " (" + mAdapter.getTotalUnread() + ")");
         
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
         
         if (ITTRSSConnector.hasLastError()) {
-            setProgressBarIndeterminateVisibility(false);
+            if (imageCacher != null) {
+                imageCacher.cancel(true);
+                imageCacher = null;
+            }
             openConnectionErrorDialog(ITTRSSConnector.pullLastError());
             return;
         }
@@ -151,7 +135,8 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         }
     }
     
-    private synchronized void doUpdate() {
+    @Override
+    protected synchronized void doUpdate() {
         // Only update if no updater already running
         if (updater != null) {
             if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -244,36 +229,6 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
             doRefresh();
         }
         return true;
-    }
-    
-    private void openConnectionErrorDialog(String errorMessage) {
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        if (imageCacher != null) {
-            imageCacher.cancel(true);
-            imageCacher = null;
-        }
-        
-        Intent i = new Intent(this, ErrorActivity.class);
-        i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
-        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
-    }
-    
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(Utils.TAG, "onActivityResult. requestCode: " + requestCode + " resultCode: " + resultCode);
-        if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-            if (configChecked || checkConfig()) {
-                doRefresh();
-                doUpdate();
-            }
-        } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
-            if (configChecked || checkConfig()) {
-                doRefresh();
-                doUpdate();
-            }
-        }
     }
     
     /**
