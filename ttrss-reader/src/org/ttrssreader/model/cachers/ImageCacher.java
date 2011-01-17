@@ -49,6 +49,7 @@ public class ImageCacher implements ICacheable {
             return;
         
         // Fetch all articles
+        // TODO: TEST
         long time2 = System.currentTimeMillis();
         for (FeedItem f : Data.getInstance().updateFeeds(-4)) {
             Data.getInstance().updateArticles(f.getId(), false);

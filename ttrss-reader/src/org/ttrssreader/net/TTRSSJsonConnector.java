@@ -50,7 +50,7 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
     private static final String OP_GET_CATEGORIES = "?op=getCategories";
     private static final String OP_GET_FEEDS = "?op=getFeeds&cat_id=%s";
     private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&feed_id=%s&limit=%s&view_mode=%s";
-    private static final String OP_GET_NEW_ARTICLES = "?op=getNewArticles&unread=%s&time=%s";
+//    private static final String OP_GET_NEW_ARTICLES = "?op=getNewArticles&unread=%s&time=%s";
     private static final String OP_GET_ARTICLE = "?op=getArticle&article_id=%s";
     private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&article_ids=%s&mode=%s&field=%s";
     private static final String OP_CATCHUP = "?op=catchupFeed&feed_id=%s&is_cat=%s";
@@ -826,76 +826,76 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         }
     }
     
-    @Override
-    public Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time) {
-        /* Not integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
-        Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, Set<ArticleItem>>>();
-        
-        String url = mServerUrl + String.format(OP_GET_NEW_ARTICLES, articleState, time);
-        JSONArray jsonResult = getJSONResponseAsArray(url);
-        
-        if (jsonResult == null) {
-            return ret;
-        } else if (mHasLastError && mLastError.contains(ERROR)) {
-            // Catch unknown-method error, see comment above
-            if (mLastError.contains(UNKNOWN_METHOD)) {
-                mLastError = "";
-                mHasLastError = false;
-            }
-            return ret;
-        }
-        
-        try {
-            for (int i = 0; i < jsonResult.length(); i++) {
-                JSONObject object = jsonResult.getJSONObject(i);
-                
-                Map<FeedItem, Set<ArticleItem>> feedMap = new HashMap<FeedItem, Set<ArticleItem>>();
-                
-                JSONArray names = object.names();
-                JSONArray values = object.toJSONArray(names);
-                JSONArray feedValues = new JSONArray();
-                
-                CategoryItem c = parseDataForCategory(names, values, feedValues);
-                
-                if (feedValues.length() < 1) {
-                    continue;
-                }
-                
-                TTRSSJsonResult resultFeeds = new TTRSSJsonResult(feedValues.getString(0));
-                JSONArray feedNames = resultFeeds.getNames();
-                feedValues = resultFeeds.getValues();
-                
-                for (int j = 0; j < feedNames.length(); j++) {
-                    Set<ArticleItem> articles = new LinkedHashSet<ArticleItem>();
-                    
-                    JSONArray articleValues = new JSONArray();
-                    FeedItem f = parseDataForFeed(names, values, articleValues);
-                    
-                    if (articleValues.length() < 1) {
-                        continue;
-                    }
-                    
-                    TTRSSJsonResult resultArts = new TTRSSJsonResult(articleValues.getString(0));
-                    JSONArray articleNames = resultArts.getNames();
-                    articleValues = resultArts.getValues();
-                    
-                    for (int k = 0; k < articleNames.length(); k++) {
-                        articles.add(parseDataForArticle(articleNames, articleValues));
-                    }
-                    
-                    feedMap.put(f, articles);
-                }
-                
-                ret.put(c, feedMap);
-            }
-        } catch (JSONException e) {
-            mHasLastError = true;
-            mLastError = e.getMessage() + ", Method: getNewArticles(...), threw JSONException";
-            e.printStackTrace();
-        }
-        
-        return ret;
-    }
+//    @Override
+//    public Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time) {
+//        /* Not integrated into Tiny Tiny RSS, handle with care so nobody get hurt */
+//        Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = new HashMap<CategoryItem, Map<FeedItem, Set<ArticleItem>>>();
+//        
+//        String url = mServerUrl + String.format(OP_GET_NEW_ARTICLES, articleState, time);
+//        JSONArray jsonResult = getJSONResponseAsArray(url);
+//        
+//        if (jsonResult == null) {
+//            return ret;
+//        } else if (mHasLastError && mLastError.contains(ERROR)) {
+//            // Catch unknown-method error, see comment above
+//            if (mLastError.contains(UNKNOWN_METHOD)) {
+//                mLastError = "";
+//                mHasLastError = false;
+//            }
+//            return ret;
+//        }
+//        
+//        try {
+//            for (int i = 0; i < jsonResult.length(); i++) {
+//                JSONObject object = jsonResult.getJSONObject(i);
+//                
+//                Map<FeedItem, Set<ArticleItem>> feedMap = new HashMap<FeedItem, Set<ArticleItem>>();
+//                
+//                JSONArray names = object.names();
+//                JSONArray values = object.toJSONArray(names);
+//                JSONArray feedValues = new JSONArray();
+//                
+//                CategoryItem c = parseDataForCategory(names, values, feedValues);
+//                
+//                if (feedValues.length() < 1) {
+//                    continue;
+//                }
+//                
+//                TTRSSJsonResult resultFeeds = new TTRSSJsonResult(feedValues.getString(0));
+//                JSONArray feedNames = resultFeeds.getNames();
+//                feedValues = resultFeeds.getValues();
+//                
+//                for (int j = 0; j < feedNames.length(); j++) {
+//                    Set<ArticleItem> articles = new LinkedHashSet<ArticleItem>();
+//                    
+//                    JSONArray articleValues = new JSONArray();
+//                    FeedItem f = parseDataForFeed(names, values, articleValues);
+//                    
+//                    if (articleValues.length() < 1) {
+//                        continue;
+//                    }
+//                    
+//                    TTRSSJsonResult resultArts = new TTRSSJsonResult(articleValues.getString(0));
+//                    JSONArray articleNames = resultArts.getNames();
+//                    articleValues = resultArts.getValues();
+//                    
+//                    for (int k = 0; k < articleNames.length(); k++) {
+//                        articles.add(parseDataForArticle(articleNames, articleValues));
+//                    }
+//                    
+//                    feedMap.put(f, articles);
+//                }
+//                
+//                ret.put(c, feedMap);
+//            }
+//        } catch (JSONException e) {
+//            mHasLastError = true;
+//            mLastError = e.getMessage() + ", Method: getNewArticles(...), threw JSONException";
+//            e.printStackTrace();
+//        }
+//        
+//        return ret;
+//    }
     
     @Override
     public void setArticleRead(Set<Integer> articlesIds, int articleState) {

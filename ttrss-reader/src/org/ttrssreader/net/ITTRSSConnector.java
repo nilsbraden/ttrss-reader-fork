@@ -77,16 +77,16 @@ public abstract class ITTRSSConnector {
      */
     public abstract Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode);
     
-    /**
-     * Retrieves all new articles since the given time. ArticleState can be given to only retrieve unread articles.
-     * 
-     * @param articleState
-     *            int indicating whetether we are to fetch unread articles only (1) or all articles (0).
-     * @param time
-     *            the time in ms since 1970, specifying the time of the last update.
-     * @return a map of List<ArticleItem> mapped to their feeds, mapped to their articles.
-     */
-    public abstract Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time /* ago */);
+//    /**
+//     * Retrieves all new articles since the given time. ArticleState can be given to only retrieve unread articles.
+//     * 
+//     * @param articleState
+//     *            int indicating whetether we are to fetch unread articles only (1) or all articles (0).
+//     * @param time
+//     *            the time in ms since 1970, specifying the time of the last update.
+//     * @return a map of List<ArticleItem> mapped to their feeds, mapped to their articles.
+//     */
+//    public abstract Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time /* ago */);
     
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
