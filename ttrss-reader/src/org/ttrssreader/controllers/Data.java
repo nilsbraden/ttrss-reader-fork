@@ -203,37 +203,37 @@ public class Data {
         }
     }
     
-    @SuppressWarnings({ "unchecked" })
-    public void updateUnreadArticles() {
-        mNewArticlesUpdated = Controller.getInstance().getLastUpdateTime();
-        if (mNewArticlesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-            return;
-        }
-        
-        if (!Utils.isOnline(cm)) {
-            return;
-        }
-        
-        Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = Controller.getInstance().getConnector()
-                .getNewArticles(1, mNewArticlesUpdated);
-        
-        Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
-        Set<ArticleItem> articles = new LinkedHashSet<ArticleItem>();
-        
-        for (CategoryItem c : ret.keySet()) {
-            Map<FeedItem, Set<ArticleItem>> feeds = ret.get(c);
-            
-            for (FeedItem f : feeds.keySet()) {
-                Set<ArticleItem> a = feeds.get(f);
-                if (a != null) {
-                    articles.addAll(a);
-                }
-            }
-        }
-        
-        DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
-        task.execute(articles);
-    }
+//    @SuppressWarnings({ "unchecked" })
+//    public void updateUnreadArticles() {
+//        mNewArticlesUpdated = Controller.getInstance().getLastUpdateTime();
+//        if (mNewArticlesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+//            return;
+//        }
+//        
+//        if (!Utils.isOnline(cm)) {
+//            return;
+//        }
+//        
+//        Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = Controller.getInstance().getConnector()
+//                .getNewArticles(1, mNewArticlesUpdated);
+//        
+//        Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
+//        Set<ArticleItem> articles = new LinkedHashSet<ArticleItem>();
+//        
+//        for (CategoryItem c : ret.keySet()) {
+//            Map<FeedItem, Set<ArticleItem>> feeds = ret.get(c);
+//            
+//            for (FeedItem f : feeds.keySet()) {
+//                Set<ArticleItem> a = feeds.get(f);
+//                if (a != null) {
+//                    articles.addAll(a);
+//                }
+//            }
+//        }
+//        
+//        DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
+//        task.execute(articles);
+//    }
     
     // *** FEEDS ************************************************************************
     
