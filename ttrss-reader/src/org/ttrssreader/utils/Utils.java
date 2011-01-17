@@ -104,12 +104,12 @@ public class Utils {
                 sb.append(line + "\n");
             }
         } catch (IOException e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                 e.printStackTrace();
+                e.printStackTrace();
             }
         }
         return sb.toString();
@@ -174,7 +174,7 @@ public class Utils {
                     wait += 100;
                     Utils.class.wait(100);
                 } catch (InterruptedException e) {
-                     e.printStackTrace();
+                    e.printStackTrace();
                 }
                 
                 if (wait > 1000) { // Wait a maximum of one second for connection
@@ -378,7 +378,6 @@ public class Utils {
         n.flags |= Notification.FLAG_AUTO_CANCEL;
         n.setLatestEventInfo(context, title, content, intent);
         
-        // TODO replace with proper ID like articleID or something
         mNotMan.notify(time - 1290000000, n);
     }
     

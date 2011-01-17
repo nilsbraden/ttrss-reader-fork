@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.ReentrantLock;
 import com.google.common.base.Function;
+import com.google.common.collect.CustomConcurrentHashMap.Builder;
+import com.google.common.collect.CustomConcurrentHashMap.Strategy;
 
 /**
  * A framework for concurrent hash map implementations. The
@@ -394,7 +396,6 @@ final class CustomConcurrentHashMap {
          */
         int getHash(E entry);
         
-        // TODO:
         // /**
         // * Notifies the strategy that an entry has been removed from the map.
         // *
@@ -420,7 +421,6 @@ final class CustomConcurrentHashMap {
      */
     public interface Internals<K, V, E> {
         
-        // TODO:
         // /**
         // * Returns a set view of the internal entries.
         // */

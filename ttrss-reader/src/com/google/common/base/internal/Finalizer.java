@@ -104,8 +104,6 @@ public class Finalizer extends Thread {
             logger.log(Level.INFO, "Failed to clear thread local values inherited" + " by reference finalizer thread.",
                     t);
         }
-        
-        // TODO: Priority?
     }
     
     /**
