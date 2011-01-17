@@ -226,7 +226,6 @@ public class ArticleActivity extends Activity {
         if (!ITTRSSConnector.hasLastError()) {
             mArticleItem = Data.getInstance().getArticle(mArticleId);
             
-            // TODO: DONT READ THIS. ITS NOT IMPORTANT: JUST SKIP THE NEXT EIGHT LINES AND READ ON!
             // Check if articleItem and content are null, if it is so do update the article again
             if (mArticleItem == null || mArticleItem.getContent() == null) {
                 ArticleItem temp = Data.getInstance().updateArticle(mArticleId);

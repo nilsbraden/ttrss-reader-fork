@@ -441,7 +441,7 @@ public class DBHelper {
         if (isDBAvailable() && count >= 0) {
             ContentValues cv = new ContentValues();
             cv.put("unread", count);
-            // TODO: No synchronisation for now, this gots called quite often..
+            // No synchronisation for now, this gets called quite often..
             // synchronized (TABLE_CATEGORIES) {
             db.update(TABLE_CATEGORIES, cv, "id=" + id, null);
             // }
@@ -459,9 +459,10 @@ public class DBHelper {
         if (isDBAvailable() && count >= 0) {
             ContentValues cv = new ContentValues();
             cv.put("unread", count);
-            // TODO: No synchronisation for now, this gots called quite often..
+            // No synchronisation for now, this gets called quite often..
             // synchronized (TABLE_FEEDS) {
             db.update(TABLE_FEEDS, cv, "id=" + id, null);
+            // }
         }
     }
     
@@ -692,7 +693,7 @@ public class DBHelper {
     }
     
     /**
-     *  0 - Uncategorized
+     * 0 - Uncategorized
      * -1 - Special (e.g. Starred, Published, Archived, etc.) <- these are categories here o.O
      * -2 - Labels
      * -3 - All feeds, excluding virtual feeds (e.g. Labels and such)
