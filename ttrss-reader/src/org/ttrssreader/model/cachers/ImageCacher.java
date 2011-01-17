@@ -22,6 +22,8 @@ import java.util.Comparator;
 import java.util.List;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
@@ -46,6 +48,13 @@ public class ImageCacher implements ICacheable {
         if (cache == null)
             return;
         
+        // Fetch all articles
+        long time2 = System.currentTimeMillis();
+        for (FeedItem f : Data.getInstance().updateFeeds(-4)) {
+            Data.getInstance().updateArticles(f.getId(), false);
+        }
+        Log.i(Utils.TAG, "Fetching new Articles took " + (System.currentTimeMillis() - time2) + "ms");
+        
         Log.w(Utils.TAG, "Updating images in cache...");
         cache.fillMemoryCacheFromDisk();
         
@@ -57,7 +66,7 @@ public class ImageCacher implements ICacheable {
             
             while (!c.isAfterLast()) {
                 
-                // Get images which are included in HTML
+                // Get images included in HTML
                 for (String url : Utils.findAllImageUrls(c.getString(0))) {
                     if (!cache.containsKey(url)) {
                         downloaded += Utils.downloadToFile(url, cache.getCacheFile(url), maxSize);

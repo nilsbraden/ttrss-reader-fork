@@ -393,7 +393,7 @@ public class DBHelper {
                 }
                 db.setTransactionSuccessful();
             } catch (SQLException e) {
-                 e.printStackTrace();
+                e.printStackTrace();
             } finally {
                 db.endTransaction();
             }
@@ -589,7 +589,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -615,7 +615,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -641,7 +641,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -681,7 +681,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -691,6 +691,16 @@ public class DBHelper {
         return ret;
     }
     
+    /**
+     *  0 - Uncategorized
+     * -1 - Special (e.g. Starred, Published, Archived, etc.) <- these are categories here o.O
+     * -2 - Labels
+     * -3 - All feeds, excluding virtual feeds (e.g. Labels and such)
+     * -4 - All feeds, including virtual feeds
+     * 
+     * @param categoryId
+     * @return
+     */
     public Set<FeedItem> getFeeds(int categoryId) {
         Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
         if (!isDBAvailable()) {
@@ -699,7 +709,12 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_FEEDS, null, "categoryId=" + categoryId, null, null, null, "upper(title) ASC");
+            String where = "categoryId=" + categoryId;
+            if (categoryId == -4) {
+                where = null;
+            }
+            
+            c = db.query(TABLE_FEEDS, null, where, null, null, null, "upper(title) ASC");
             
             while (!c.isAfterLast()) {
                 ret.add(handleFeedCursor(c));
@@ -707,7 +722,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -742,7 +757,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -777,7 +792,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -802,7 +817,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
@@ -827,7 +842,7 @@ public class DBHelper {
                 c.move(1);
             }
         } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
         } finally {
             if (c != null) {
                 c.close();
