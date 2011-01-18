@@ -16,9 +16,7 @@
 
 package org.ttrssreader.net;
 
-import java.util.Map;
 import java.util.Set;
-import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.pojos.FeedItem;
 
@@ -47,7 +45,7 @@ public abstract class ITTRSSConnector {
      * 
      * @return a map of all feeds for every category.
      */
-    public abstract Map<Integer, Set<FeedItem>> getFeeds();
+    public abstract Set<FeedItem> getFeeds();
     
     /**
      * Retrieves the specified articles and returns them as a set.
@@ -56,7 +54,7 @@ public abstract class ITTRSSConnector {
      *            the ids of the articles.
      * @return the articles.
      */
-    public abstract Set<ArticleItem> getArticle(Set<Integer> articleIds);
+    // public abstract Set<ArticleItem> getArticle(Set<Integer> articleIds);
     
     /**
      * Retrieves the specified articles and directly stores them in the database.
@@ -64,7 +62,7 @@ public abstract class ITTRSSConnector {
      * @param articleIds
      *            the ids of the articles.
      */
-    public abstract void getArticleToDatabase(Set<Integer> articleIds);
+    public abstract void getHeadlinesToDatabase(int feedId, int limit, int filter, String viewMode, boolean withContent);
     
     /**
      * Retrieves all articles for a given feed with their headlines to avoid too much traffic for the content.
@@ -73,20 +71,11 @@ public abstract class ITTRSSConnector {
      * @param limit
      * @param filter
      * @param viewMode
+     * @param withContent
      * @return
      */
-    public abstract Set<ArticleItem> getFeedHeadlines(int feedId, int limit, int filter, String viewMode);
-    
-//    /**
-//     * Retrieves all new articles since the given time. ArticleState can be given to only retrieve unread articles.
-//     * 
-//     * @param articleState
-//     *            int indicating whetether we are to fetch unread articles only (1) or all articles (0).
-//     * @param time
-//     *            the time in ms since 1970, specifying the time of the last update.
-//     * @return a map of List<ArticleItem> mapped to their feeds, mapped to their articles.
-//     */
-//    public abstract Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> getNewArticles(int articleState, long time /* ago */);
+    // public abstract Set<ArticleItem> getHeadlines(int feedId, int limit, int filter, String viewMode, boolean
+    // withContent);
     
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
