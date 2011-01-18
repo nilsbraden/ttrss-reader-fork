@@ -227,12 +227,12 @@ public class ArticleActivity extends Activity {
             mArticleItem = Data.getInstance().getArticle(mArticleId);
             
             // Check if articleItem and content are null, if it is so do update the article again
-            if (mArticleItem == null || mArticleItem.getContent() == null) {
-                ArticleItem temp = Data.getInstance().updateArticle(mArticleId);
-                if (temp != null && temp.getContent() != null) {
-                    mArticleItem = temp;
-                }
-            }
+            // if (mArticleItem == null || mArticleItem.getContent() == null) {
+            // ArticleItem temp = Data.getInstance().updateArticle(mArticleId);
+            // if (temp != null && temp.getContent() != null) {
+            // mArticleItem = temp;
+            // }
+            // }
             
             if (mArticleItem != null && mArticleItem.getContent() != null) {
                 // Inject the specific code for attachments, <img> for images, http-link for Videos

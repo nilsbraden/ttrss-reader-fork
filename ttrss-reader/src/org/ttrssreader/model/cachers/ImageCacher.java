@@ -151,9 +151,10 @@ public class ImageCacher implements ICacheable {
      */
     private void updateLocalArticles(int nrOfTasks) {
         UpdateArticlesTask[] tasks = new UpdateArticlesTask[nrOfTasks];
+        Data.getInstance().updateFeeds(-4);
         
         synchronized (this) {
-            for (FeedItem f : Data.getInstance().updateFeeds(-4)) {
+            for (FeedItem f : DBHelper.getInstance().getFeeds(-4)) {
                 boolean done = false;
                 while (!done) {
                     

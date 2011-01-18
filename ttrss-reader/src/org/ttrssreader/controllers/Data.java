@@ -26,7 +26,6 @@ import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.util.Log;
 
 public class Data {
     
@@ -146,23 +145,23 @@ public class Data {
         return DBHelper.getInstance().getArticle(articleId);
     }
     
-    public ArticleItem updateArticle(int articleId) {
-        // Hopefully someday we don't need to fetch the content seperately and can remove this method.
-        // Don't check last update time here
-        if (Utils.isOnline(cm)) {
-            Set<Integer> set = new LinkedHashSet<Integer>();
-            set.add(articleId);
-            
-            for (ArticleItem a : Controller.getInstance().getConnector().getArticle(set)) {
-                if (a.getId() == articleId) {
-                    Log.d(Utils.TAG, "Found article: " + articleId);
-                    return a;
-                }
-            }
-        }
-        Log.d(Utils.TAG, "Couldn't find article: " + articleId);
-        return null;
-    }
+    // public ArticleItem updateArticle(int articleId) {
+    // // Hopefully someday we don't need to fetch the content seperately and can remove this method.
+    // // Don't check last update time here
+    // if (Utils.isOnline(cm)) {
+    // Set<Integer> set = new LinkedHashSet<Integer>();
+    // set.add(articleId);
+    //
+    // for (ArticleItem a : Controller.getInstance().getConnector().getArticle(set)) {
+    // if (a.getId() == articleId) {
+    // Log.d(Utils.TAG, "Found article: " + articleId);
+    // return a;
+    // }
+    // }
+    // }
+    // Log.d(Utils.TAG, "Couldn't find article: " + articleId);
+    // return null;
+    // }
     
     public void updateArticles(int feedId, boolean displayOnlyUnread) {
         Long time = mArticlesUpdated.get(feedId);
@@ -177,7 +176,7 @@ public class Data {
             int limit = 30;
             if (f != null) {
                 int l = getFeed(feedId).getUnread();
-                limit = (l > limit ? l : 30);
+                limit = (l > limit ? l : 50);
             }
             
             if (feedId < 0 && feedId >= -3) {
@@ -187,53 +186,10 @@ public class Data {
             }
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
-            Set<ArticleItem> articles = Controller.getInstance().getConnector()
-                    .getFeedHeadlines(feedId, limit, 0, viewMode);
-            
-            if (articles.size() == 0)
-                return;
-            
-            Set<Integer> set = new LinkedHashSet<Integer>();
-            for (ArticleItem a : articles) {
-                set.add(a.getId());
-            }
-            
-            Controller.getInstance().getConnector().getArticleToDatabase(set);
+            Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, 0, viewMode, true);
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
         }
     }
-    
-    // @SuppressWarnings({ "unchecked" })
-    // public void updateUnreadArticles() {
-    // mNewArticlesUpdated = Controller.getInstance().getLastUpdateTime();
-    // if (mNewArticlesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
-    // return;
-    // }
-    //
-    // if (!Utils.isOnline(cm)) {
-    // return;
-    // }
-    //
-    // Map<CategoryItem, Map<FeedItem, Set<ArticleItem>>> ret = Controller.getInstance().getConnector()
-    // .getNewArticles(1, mNewArticlesUpdated);
-    //
-    // Controller.getInstance().setLastUpdateTime(System.currentTimeMillis());
-    // Set<ArticleItem> articles = new LinkedHashSet<ArticleItem>();
-    //
-    // for (CategoryItem c : ret.keySet()) {
-    // Map<FeedItem, Set<ArticleItem>> feeds = ret.get(c);
-    //
-    // for (FeedItem f : feeds.keySet()) {
-    // Set<ArticleItem> a = feeds.get(f);
-    // if (a != null) {
-    // articles.addAll(a);
-    // }
-    // }
-    // }
-    //
-    // DBInsertArticlesTask task = new DBInsertArticlesTask(Controller.getInstance().getArticleLimit());
-    // task.execute(articles);
-    // }
     
     // *** FEEDS ************************************************************************
     
@@ -249,7 +205,7 @@ public class Data {
         if (mFeedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isOnline(cm)) {
-            Map<Integer, Set<FeedItem>> feeds = Controller.getInstance().getConnector().getFeeds();
+            Set<FeedItem> feeds = Controller.getInstance().getConnector().getFeeds();
             mFeedsUpdated = System.currentTimeMillis();
             
             if (!feeds.isEmpty()) {
@@ -258,12 +214,12 @@ public class Data {
             }
             
             Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
-            for (Integer s : feeds.keySet()) {
-                if (categoryId == -4 || s.equals(categoryId)) {
-                    ret.addAll(feeds.get(s));
+            for (FeedItem f : feeds) {
+                if (categoryId == -4 || f.getCategoryId() == categoryId) {
+                    ret.add(f);
                 }
-                DBHelper.getInstance().insertFeeds(feeds.get(s));
             }
+            DBHelper.getInstance().insertFeeds(feeds);
             
             return ret;
         }

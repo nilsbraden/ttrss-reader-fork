@@ -16,9 +16,7 @@
 package org.ttrssreader.controllers;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.pojos.CategoryItem;
@@ -236,13 +234,10 @@ public class DBHelper {
     // *******| INSERT |*******************************************************************
     
     private void insertCategory(int id, String title, int unread) {
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return;
-        }
-        
-        if (title == null) {
+        if (title == null)
             title = "";
-        }
         
         synchronized (TABLE_CATEGORIES) {
             insertCategorie.bindLong(1, id);
@@ -253,17 +248,15 @@ public class DBHelper {
     }
     
     public void insertCategory(CategoryItem c) {
-        if (c == null) {
+        if (c == null)
             return;
-        }
         
         insertCategory(c.getId(), c.getTitle(), c.getUnread());
     }
     
     public void insertCategories(Set<CategoryItem> set) {
-        if (set == null) {
+        if (set == null)
             return;
-        }
         
         for (CategoryItem c : set) {
             insertCategory(c.getId(), c.getTitle(), c.getUnread());
@@ -271,16 +264,12 @@ public class DBHelper {
     }
     
     private void insertFeed(int id, int categoryId, String title, String url, int unread) {
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return;
-        }
-        
-        if (title == null) {
+        if (title == null)
             title = "";
-        }
-        if (url == null) {
+        if (url == null)
             url = "";
-        }
         
         synchronized (TABLE_FEEDS) {
             insertFeed.bindLong(1, new Integer(id).longValue());
@@ -293,17 +282,15 @@ public class DBHelper {
     }
     
     public void insertFeed(FeedItem f) {
-        if (f == null) {
+        if (f == null)
             return;
-        }
         
         insertFeed(f.getId(), f.getCategoryId(), f.getTitle(), f.getUrl(), f.getUnread());
     }
     
     public void insertFeeds(Set<FeedItem> set) {
-        if (set == null) {
+        if (set == null)
             return;
-        }
         
         for (FeedItem f : set) {
             insertFeed(f);
@@ -312,29 +299,20 @@ public class DBHelper {
     
     public void insertArticle(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished) {
         
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return;
-        }
-        
-        String att = parseAttachmentSet(attachments);
-        if (title == null) {
+        if (title == null)
             title = "";
-        }
-        if (content == null) {
+        if (content == null)
             content = "";
-        }
-        if (articleUrl == null) {
+        if (articleUrl == null)
             articleUrl = "";
-        }
-        if (articleCommentUrl == null) {
+        if (articleCommentUrl == null)
             articleCommentUrl = "";
-        }
-        if (updateDate == null) {
+        if (updateDate == null)
             updateDate = new Date(System.currentTimeMillis());
-        }
-        if (attachments == null) {
+        if (attachments == null)
             attachments = new LinkedHashSet<String>();
-        }
         
         synchronized (TABLE_ARTICLES) {
             insertArticle.bindLong(1, id);
@@ -345,7 +323,7 @@ public class DBHelper {
             insertArticle.bindString(6, articleCommentUrl);
             insertArticle.bindLong(7, updateDate.getTime());
             insertArticle.bindString(8, content);
-            insertArticle.bindString(9, att);
+            insertArticle.bindString(9, parseAttachmentSet(attachments));
             insertArticle.bindLong(10, (isStarred ? 1 : 0));
             insertArticle.bindLong(11, (isPublished ? 1 : 0));
             insertArticle.executeInsert();
@@ -354,9 +332,8 @@ public class DBHelper {
     }
     
     public void insertArticle(ArticleItem a, int number) {
-        if (a == null) {
+        if (a == null)
             return;
-        }
         
         insertArticleInternal(a);
         purgeArticlesNumber(number);
@@ -369,21 +346,18 @@ public class DBHelper {
     }
     
     public void insertArticles(Set<ArticleItem> list, int number) {
-        if (list == null) {
+        if (list == null)
             return;
-        }
         
         insertArticlesInternal(list);
         purgeArticlesNumber(number);
     }
     
     private void insertArticlesInternal(Set<ArticleItem> set) {
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return;
-        }
-        if (set == null) {
+        if (set == null)
             return;
-        }
         
         synchronized (TABLE_ARTICLES) {
             db.beginTransaction();
@@ -576,9 +550,8 @@ public class DBHelper {
     
     public ArticleItem getArticle(int id) {
         ArticleItem ret = null;
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return ret;
-        }
         
         Cursor c = null;
         try {
@@ -592,9 +565,8 @@ public class DBHelper {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
+            if (c != null)
                 c.close();
-            }
         }
         
         return ret;
@@ -602,9 +574,8 @@ public class DBHelper {
     
     public FeedItem getFeed(int id) {
         FeedItem ret = new FeedItem();
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return ret;
-        }
         
         Cursor c = null;
         try {
@@ -618,9 +589,8 @@ public class DBHelper {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
+            if (c != null)
                 c.close();
-            }
         }
         
         return ret;
@@ -628,9 +598,8 @@ public class DBHelper {
     
     public CategoryItem getCategory(int id) {
         CategoryItem ret = new CategoryItem();
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return ret;
-        }
         
         Cursor c = null;
         try {
@@ -644,9 +613,8 @@ public class DBHelper {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
+            if (c != null)
                 c.close();
-            }
         }
         
         return ret;
@@ -655,9 +623,8 @@ public class DBHelper {
     public Set<ArticleItem> getArticles(int feedId, boolean withContent) {
         
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return ret;
-        }
         
         Cursor c = null;
         try {
@@ -678,15 +645,13 @@ public class DBHelper {
             
             while (!c.isAfterLast()) {
                 ret.add(handleArticleCursor(c));
-                
                 c.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
+            if (c != null)
                 c.close();
-            }
         }
         
         return ret;
@@ -704,9 +669,8 @@ public class DBHelper {
      */
     public Set<FeedItem> getFeeds(int categoryId) {
         Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return ret;
-        }
         
         Cursor c = null;
         try {
@@ -719,85 +683,13 @@ public class DBHelper {
             
             while (!c.isAfterLast()) {
                 ret.add(handleFeedCursor(c));
-                
                 c.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
+            if (c != null)
                 c.close();
-            }
-        }
-        
-        return ret;
-    }
-    
-    public Map<Integer, Set<ArticleItem>> getArticles() {
-        Map<Integer, Set<ArticleItem>> ret = new HashMap<Integer, Set<ArticleItem>>();
-        if (!isDBAvailable()) {
-            return ret;
-        }
-        
-        Cursor c = db.query(TABLE_ARTICLES, null, null, null, null, null, "updateDate DESC");
-        try {
-            while (!c.isAfterLast()) {
-                ArticleItem a = handleArticleCursor(c);
-                int feedId = a.getFeedId();
-                
-                Set<ArticleItem> set;
-                if (ret.get(feedId) != null) {
-                    set = ret.get(feedId);
-                } else {
-                    set = new LinkedHashSet<ArticleItem>();
-                }
-                
-                set.add(a);
-                ret.put(feedId, set);
-                
-                c.move(1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-        
-        return ret;
-    }
-    
-    public Map<Integer, Set<FeedItem>> getFeeds() {
-        Map<Integer, Set<FeedItem>> ret = new HashMap<Integer, Set<FeedItem>>();
-        if (!isDBAvailable()) {
-            return ret;
-        }
-        
-        Cursor c = db.query(TABLE_FEEDS, null, null, null, null, null, "upper(title) ASC");
-        try {
-            while (!c.isAfterLast()) {
-                FeedItem fi = handleFeedCursor(c);
-                int catId = c.getInt(1);
-                
-                Set<FeedItem> set;
-                if (ret.get(catId) != null) {
-                    set = ret.get(catId);
-                } else {
-                    set = new LinkedHashSet<FeedItem>();
-                }
-                
-                set.add(fi);
-                ret.put(catId, set);
-                
-                c.move(1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (c != null) {
-                c.close();
-            }
         }
         
         return ret;
@@ -805,24 +697,21 @@ public class DBHelper {
     
     public Set<CategoryItem> getVirtualCategories() {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return ret;
-        }
         
         Cursor c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
         try {
             while (!c.isAfterLast()) {
                 CategoryItem ci = handleCategoryCursor(c);
-                
                 ret.add(ci);
                 c.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
+            if (c != null)
                 c.close();
-            }
         }
         
         return ret;
@@ -830,24 +719,21 @@ public class DBHelper {
     
     public Set<CategoryItem> getCategories() {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
-        if (!isDBAvailable()) {
+        if (!isDBAvailable())
             return ret;
-        }
         
         Cursor c = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) ASC");
         try {
             while (!c.isAfterLast()) {
                 CategoryItem ci = handleCategoryCursor(c);
-                
                 ret.add(ci);
                 c.move(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) {
+            if (c != null)
                 c.close();
-            }
         }
         
         return ret;
@@ -927,9 +813,8 @@ public class DBHelper {
     
     private static Set<String> parseAttachments(String att) {
         Set<String> ret = new LinkedHashSet<String>();
-        if (att == null) {
+        if (att == null)
             return ret;
-        }
         
         for (String s : att.split(";")) {
             ret.add(s);
@@ -939,17 +824,15 @@ public class DBHelper {
     }
     
     private static String parseAttachmentSet(Set<String> att) {
-        if (att == null) {
+        if (att == null)
             return "";
-        }
-        StringBuilder ret = new StringBuilder();
         
+        StringBuilder ret = new StringBuilder();
         for (String s : att) {
             ret.append(s + ";");
         }
-        if (att.size() > 0) {
+        if (att.size() > 0)
             ret.deleteCharAt(ret.length() - 1);
-        }
         
         return ret.toString();
     }
