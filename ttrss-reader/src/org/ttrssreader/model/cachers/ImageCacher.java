@@ -50,7 +50,7 @@ public class ImageCacher implements ICacheable {
             return;
         
         long time2 = System.currentTimeMillis();
-        updateLocalArticles(3);
+        updateLocalArticles(4);
         Log.i(Utils.TAG, "Fetching new Articles took " + (System.currentTimeMillis() - time2) + "ms");
         
         Log.w(Utils.TAG, "Updating cache...");
@@ -170,13 +170,12 @@ public class ImageCacher implements ICacheable {
                         }
                     }
                     
-                    if (!done) { // No taks-slot available, wait.
+                    if (!done) { // No task-slot available, wait.
                         try {
                             wait(150);
                         } catch (InterruptedException e) {
                         }
                     }
-                    
                 }
             }
             
@@ -201,6 +200,7 @@ public class ImageCacher implements ICacheable {
                 }
             }
         }
+        
     }
     
 }

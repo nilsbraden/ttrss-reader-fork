@@ -39,7 +39,7 @@ public class Controller {
     private ITTRSSConnector mTTRSSConnector;
     private ImageCache imageCache;
     
-    private static final String mutex = "";
+    private static final Integer mutex = 0;
     private static Controller mInstance = null;
     private SharedPreferences prefs = null;
     
@@ -52,7 +52,6 @@ public class Controller {
     
     private boolean mAutomaticMarkRead;
     private boolean mOpenUrlEmptyArticle;
-    // private boolean mUpdateUnreadOnStartup;
     private boolean mUseVolumeKeys;
     private boolean mVibrateOnLastArticle;
     private boolean mWorkOffline;
@@ -70,12 +69,14 @@ public class Controller {
     private String freshArticleMaxAge;
     
     public static Controller getInstance() {
-        synchronized (mutex) {
-            if (mInstance == null) {
-                mInstance = new Controller();
+        if (mInstance == null) {
+            synchronized (mutex) {
+                if (mInstance == null) {
+                    mInstance = new Controller();
+                }
             }
-            return mInstance;
         }
+        return mInstance;
     }
     
     public synchronized void initializeController(Context context) {
@@ -124,8 +125,6 @@ public class Controller {
         mAutomaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
         mOpenUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
                 Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
-        // mUpdateUnreadOnStartup = prefs.getBoolean(Constants.UPDATE_UNREAD_ON_STARTUP,
-        // Constants.UPDATE_UNREAD_ON_STARTUP_DEFAULT);
         mUseVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
         mVibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
                 Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
@@ -239,15 +238,6 @@ public class Controller {
         put(Constants.OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
         this.mOpenUrlEmptyArticle = openUrlEmptyArticle;
     }
-    
-    // public boolean isUpdateUnreadOnStartup() {
-    // return mUpdateUnreadOnStartup;
-    // }
-    //
-    // public void setUpdateUnreadOnStartup(boolean mUpdateUnreadOnStartup) {
-    // put(Constants.UPDATE_UNREAD_ON_STARTUP, mUpdateUnreadOnStartup);
-    // this.mUpdateUnreadOnStartup = mUpdateUnreadOnStartup;
-    // }
     
     public boolean isUseVolumeKeys() {
         return mUseVolumeKeys;
