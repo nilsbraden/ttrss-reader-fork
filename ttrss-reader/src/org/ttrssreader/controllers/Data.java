@@ -176,7 +176,7 @@ public class Data {
             int limit = 30;
             if (f != null) {
                 int l = getFeed(feedId).getUnread();
-                limit = (l > limit ? l : 50);
+                limit = (l > limit ? l : 30);
             }
             
             if (feedId < 0 && feedId >= -3) {

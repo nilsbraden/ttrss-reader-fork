@@ -181,6 +181,7 @@ public class Utils {
                     break;
                 }
             }
+            Log.d(Utils.TAG, "Synchronized: Waited for " + wait + "ms for connection to become available...");
         }
         
         return info.isConnected();

@@ -33,6 +33,7 @@ import android.util.Log;
 
 public class DBHelper {
     
+    private static final Long mutex = new Long(1);
     private static DBHelper mInstance = null;
     private boolean mIsDBInitialized = false;
     
@@ -113,7 +114,11 @@ public class DBHelper {
     
     public static DBHelper getInstance() {
         if (mInstance == null) {
-            mInstance = new DBHelper();
+            synchronized (mutex) {
+                if (mInstance == null) {
+                    mInstance = new DBHelper();
+                }
+            }
         }
         return mInstance;
     }
