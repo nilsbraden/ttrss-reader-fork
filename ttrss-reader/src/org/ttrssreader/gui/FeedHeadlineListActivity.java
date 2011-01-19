@@ -23,6 +23,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.FeedHeadlineListAdapter;
+import org.ttrssreader.model.FeedListAdapter;
 import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
@@ -53,17 +54,20 @@ import android.widget.TextView;
 
 public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEndListener {
     
+    public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
-    public static final String FEED_LIST_ID = "FEED_LIST_ID";
-    public static final String FEED_LIST_NAME = "FEED_LIST_NAME";
     
     public boolean flingDetected = false;
     
+    private int mCategoryId;
     private int mFeedId;
     private String mFeedTitle;
+    
+    private FeedListAdapter mFeedListAdapter;
     private ArrayList<Integer> mFeedListIds;
     private ArrayList<String> mFeedListNames;
+    
     private GestureDetector mGestureDetector;
     private int absHeight;
     private int absWidth;
@@ -92,20 +96,17 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            mCategoryId = extras.getInt(FEED_CAT_ID);
             mFeedId = extras.getInt(FEED_ID);
             mFeedTitle = extras.getString(FEED_TITLE);
-            mFeedListIds = extras.getIntegerArrayList(FEED_LIST_ID);
-            mFeedListNames = extras.getStringArrayList(FEED_LIST_NAME);
         } else if (instance != null) {
+            mCategoryId = instance.getInt(FEED_CAT_ID);
             mFeedId = instance.getInt(FEED_ID);
             mFeedTitle = instance.getString(FEED_TITLE);
-            mFeedListIds = instance.getIntegerArrayList(FEED_LIST_ID);
-            mFeedListNames = instance.getStringArrayList(FEED_LIST_NAME);
         } else {
+            mCategoryId = -1;
             mFeedId = -1;
             mFeedTitle = null;
-            mFeedListIds = null;
-            mFeedListNames = null;
         }
         mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
         mListView.setAdapter(mAdapter);
@@ -133,10 +134,9 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putInt(FEED_CAT_ID, mCategoryId);
         outState.putInt(FEED_ID, mFeedId);
         outState.putString(FEED_TITLE, mFeedTitle);
-        outState.putIntegerArrayList(FEED_LIST_ID, mFeedListIds);
-        outState.putStringArrayList(FEED_LIST_NAME, mFeedListNames);
     }
     
     @Override
@@ -183,7 +183,7 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         Intent i = new Intent(this, ArticleActivity.class);
         i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(position));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mAdapter.getFeedItemIds());
+//        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mAdapter.getFeedItemIds());
         
         if (!flingDetected) {
             startActivity(i);
@@ -263,6 +263,12 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         if (mFeedId < 0)
             return;
         
+        if (mFeedListAdapter == null) {
+            mFeedListAdapter = new FeedListAdapter(getApplicationContext(), mCategoryId);
+        }
+        
+        mFeedListIds = mFeedListAdapter.getFeedIds();
+        mFeedListNames = mFeedListAdapter.getFeedNames();
         int index = mFeedListIds.indexOf(mFeedId) + direction;
         
         // No more feeds in this direction
@@ -276,10 +282,9 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         }
         
         Intent i = new Intent(this, getClass());
+        i.putExtra(FEED_CAT_ID, mCategoryId);
         i.putExtra(FEED_ID, mFeedListIds.get(index));
         i.putExtra(FEED_TITLE, mFeedListNames.get(index));
-        i.putIntegerArrayListExtra(FEED_LIST_ID, mFeedListIds);
-        i.putStringArrayListExtra(FEED_LIST_NAME, mFeedListNames);
         
         startActivity(i);
         finish(); // finish(), we don't want to go back through all feeds, we want to go back directly to the FeedList

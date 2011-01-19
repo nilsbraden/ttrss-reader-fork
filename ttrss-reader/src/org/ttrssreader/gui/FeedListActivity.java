@@ -143,10 +143,9 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
         super.onListItemClick(l, v, position, id);
         
         Intent i = new Intent(this, FeedHeadlineListActivity.class);
+        i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, mCategoryId);
         i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getFeedId(position));
         i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getFeedTitle(position));
-        i.putIntegerArrayListExtra(FeedHeadlineListActivity.FEED_LIST_ID, mAdapter.getFeedIds());
-        i.putStringArrayListExtra(FeedHeadlineListActivity.FEED_LIST_NAME, mAdapter.getFeedNames());
         
         startActivity(i);
     }

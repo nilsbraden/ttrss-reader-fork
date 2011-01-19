@@ -108,6 +108,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     public ArrayList<Integer> getFeedIds() {
         if (cursor.isClosed()) {
+            return null;
         }
         
         ArrayList<Integer> result = new ArrayList<Integer>();
