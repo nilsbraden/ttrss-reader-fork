@@ -29,6 +29,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
@@ -39,6 +40,7 @@ public class MenuActivity extends ListActivity {
     protected boolean configChecked = false;
     protected ListView mListView;
     protected Updater updater;
+    protected TextView notificationTextView;
     
     protected static final int MARK_GROUP = 42;
     protected static final int MARK_READ = MARK_GROUP + 1;

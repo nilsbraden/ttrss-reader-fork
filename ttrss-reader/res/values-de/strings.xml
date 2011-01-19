@@ -49,6 +49,13 @@
     <string name="ArticleActivity.MediaPlay">Mediendatei Anhang abspielen</string>
     <string name="ArticleActivity.SwipeNotification">Wischen (swipe) für nächsten/vorherigen Artikel</string>
     
+    <string name="Loading.Headlines">Lade Artikelliste...</string>
+    <string name="Loading.Feeds">Lade Feed-Liste...</string>
+    <string name="Loading.Categories">Lade Kategorien...</string>
+    <string name="Loading.EmptyHeadlines">Keine Artikel anzuzeigen</string>
+    <string name="Loading.EmptyFeeds">Keine Feeds anzuzeigen</string>
+    <string name="Loading.EmptyCategories">Keine Kategorien anzuzeigen</string>
+    
     <string name="Commons.PleaseWait">Bitte warten...</string>
     <string name="Commons.NothingToDisplay">Nichts anzuzeigen.</string>
     <string name="Commons.UpdateReadState">Aktualisiere Status</string>
