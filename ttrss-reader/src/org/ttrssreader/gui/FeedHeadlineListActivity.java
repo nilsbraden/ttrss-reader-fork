@@ -49,6 +49,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEndListener {
     
@@ -81,6 +82,7 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         
         mListView = getListView();
         registerForContextMenu(mListView);
+        notificationTextView = (TextView) findViewById(R.id.notification);
         mGestureDetector = new GestureDetector(onGestureListener);
         
         DisplayMetrics metrics = new DisplayMetrics();
@@ -152,6 +154,7 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         
         if (updater == null) {
             setProgressBarIndeterminateVisibility(false);
+            notificationTextView.setText(R.string.Loading_EmptyHeadlines);
         }
     }
     
@@ -167,6 +170,8 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         }
         
         setProgressBarIndeterminateVisibility(true);
+        notificationTextView.setText(R.string.Loading_Headlines);
+        
         updater = new Updater(this, mAdapter);
         updater.execute();
     }

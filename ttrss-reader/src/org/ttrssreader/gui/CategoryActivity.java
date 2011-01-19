@@ -47,6 +47,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class CategoryActivity extends MenuActivity implements IUpdateEndListener, ICacheEndListener {
     
@@ -68,6 +69,7 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         
         mListView = getListView();
         registerForContextMenu(mListView);
+        notificationTextView = (TextView) findViewById(R.id.notification);
         
         // Check for update or new installation
         if (Controller.getInstance().isNewInstallation()) {
@@ -128,6 +130,7 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         
         if (updater == null && imageCacher == null) {
             setProgressBarIndeterminateVisibility(false);
+            notificationTextView.setText(R.string.Loading_EmptyCategories);
         }
     }
     
@@ -143,6 +146,8 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         }
         
         setProgressBarIndeterminateVisibility(true);
+        notificationTextView.setText(R.string.Loading_Categories);
+        
         updater = new Updater(this, mAdapter);
         updater.execute();
     }

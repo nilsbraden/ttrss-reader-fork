@@ -34,6 +34,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class FeedListActivity extends MenuActivity implements IUpdateEndListener {
     
@@ -57,6 +58,7 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
         
         mListView = getListView();
         registerForContextMenu(mListView);
+        notificationTextView = (TextView) findViewById(R.id.notification);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -114,6 +116,7 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
         
         if (updater == null) {
             setProgressBarIndeterminateVisibility(false);
+            notificationTextView.setText(R.string.Loading_EmptyFeeds);
         }
     }
     
@@ -129,6 +132,8 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
         }
         
         setProgressBarIndeterminateVisibility(true);
+        notificationTextView.setText(R.string.Loading_Feeds);
+        
         updater = new Updater(this, mAdapter);
         updater.execute();
     }

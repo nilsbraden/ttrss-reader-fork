@@ -51,6 +51,13 @@
     <string name="ArticleActivity.MediaDisplayLink">Open attachment</string>
     <string name="ArticleActivity.SwipeNotification">For Next / Previous Article Swipe here</string>
     
+    <string name="Loading.Headlines">Loading articles...</string>
+    <string name="Loading.Feeds">Loading feeds...</string>
+    <string name="Loading.Categories">Loading categories...</string>
+    <string name="Loading.EmptyHeadlines">No articles</string>
+    <string name="Loading.EmptyFeeds">No feeds</string>
+    <string name="Loading.EmptyCategories">No Categories</string>
+    
     <string name="Commons.PleaseWait">Please wait...</string>
     <string name="Commons.NothingToDisplay">Nothing to display.</string>
     <string name="Commons.UpdateReadState">Updating read state</string>
