@@ -63,6 +63,7 @@ public class ArticleActivity extends Activity {
     private ArrayList<Integer> mArticleIds;
     
     private ArticleItem mArticleItem = null;
+    private String content;
     
     private WebView webview;
     private TextView webviewSwipeText;
@@ -87,7 +88,7 @@ public class ArticleActivity extends Activity {
         webview.getSettings().setJavaScriptEnabled(true);
         webview.getSettings().setBuiltInZoomControls(true);
         
-        webview.setWebViewClient(new ArticleWebViewClient());
+        webview.setWebViewClient(new ArticleWebViewClient(this));
         mGestureDetector = new GestureDetector(onGestureListener);
         
         DisplayMetrics metrics = new DisplayMetrics();
@@ -234,12 +235,18 @@ public class ArticleActivity extends Activity {
             
             if (mArticleItem != null && mArticleItem.getContent() != null) {
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
-                String content = injectAttachments(getApplicationContext(), mArticleItem.getContent(),
+                content = injectAttachments(getApplicationContext(), mArticleItem.getContent(),
                         mArticleItem.getAttachments());
                 content = Utils.injectCachedImages(content);
                 
+                // Load html from Raw-Ressources and insert content
+                String temp = getResources().getString(R.string.INJECT_HTML_HEAD);
+                // Log.d(Utils.TAG, "VORHER: " + temp);
+                String text = temp.replace("MARKER", content);
+                // Log.d(Utils.TAG, "OUTPUT: " + text);
+                
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-                webview.loadDataWithBaseURL(null, content, "text/html", "utf-8", "about:blank");
+                webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
                 
                 if (mArticleItem.getTitle() != null) {
                     this.setTitle(mArticleItem.getTitle());
@@ -264,6 +271,25 @@ public class ArticleActivity extends Activity {
         }
         
         setProgressBarIndeterminateVisibility(false);
+    }
+    
+    public void onZoomChanged(boolean returnToFirstState) {
+        if (returnToFirstState) {
+            // Load html from Raw-Ressources and insert content
+            String temp = getResources().getString(R.string.INJECT_HTML_HEAD);
+            String text = temp.replace("MARKER", content);
+            
+            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
+            webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
+        } else {
+            Log.d(Utils.TAG, "Injecting HEAD for zoom");
+            // Load html from Raw-Ressources and insert content
+            String temp = getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
+            String text = temp.replace("MARKER", content);
+            
+            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
+            webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
+        }
     }
     
     private void openNextArticle(int direction) {
