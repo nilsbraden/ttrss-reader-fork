@@ -22,6 +22,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.FeedHeadlineListAdapter;
 import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
@@ -54,10 +55,11 @@ public class ArticleActivity extends Activity {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_ID = "FEED_ID";
-    public static final String ARTICLE_LIST_ID = "ARTICLE_LIST_ID";
     
     private int mArticleId;
     private int mFeedId;
+    
+    private FeedHeadlineListAdapter mFeedHeadlineListAdapter;
     private ArrayList<Integer> mArticleIds;
     
     private ArticleItem mArticleItem = null;
@@ -105,15 +107,12 @@ public class ArticleActivity extends Activity {
         if (extras != null) {
             mArticleId = extras.getInt(ARTICLE_ID);
             mFeedId = extras.getInt(FEED_ID);
-            mArticleIds = extras.getIntegerArrayList(ARTICLE_LIST_ID);
         } else if (instance != null) {
             mArticleId = instance.getInt(ARTICLE_ID);
             mFeedId = instance.getInt(FEED_ID);
-            mArticleIds = instance.getIntegerArrayList(ARTICLE_LIST_ID);
         } else {
             mArticleId = -1;
             mFeedId = -1;
-            mArticleIds = new ArrayList<Integer>();
         }
     }
     
@@ -134,7 +133,6 @@ public class ArticleActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putInt(ARTICLE_ID, mArticleId);
         outState.putInt(FEED_ID, mFeedId);
-        outState.putIntegerArrayList(ARTICLE_LIST_ID, mArticleIds);
     }
     
     @Override
@@ -270,6 +268,11 @@ public class ArticleActivity extends Activity {
     
     private void openNextArticle(int direction) {
         
+        if (mFeedHeadlineListAdapter == null) {
+            mFeedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), mFeedId);
+        }
+        mArticleIds = mFeedHeadlineListAdapter.getFeedItemIds();
+        
         int index = mArticleIds.indexOf(mArticleId) + direction;
         
         // No more articles in this direction
@@ -284,7 +287,6 @@ public class ArticleActivity extends Activity {
         Intent i = new Intent(this, ArticleActivity.class);
         i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mArticleIds);
         
         Log.v(Utils.TAG, "openArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         
