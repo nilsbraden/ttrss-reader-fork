@@ -282,7 +282,6 @@ public class ArticleActivity extends Activity {
             // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
             webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
         } else {
-            Log.d(Utils.TAG, "Injecting HEAD for zoom");
             // Load html from Raw-Ressources and insert content
             String temp = getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
             String text = temp.replace("MARKER", content);
