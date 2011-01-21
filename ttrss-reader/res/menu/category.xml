@@ -18,7 +18,11 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:title="@string/Main.StartDownloadForCache"
-        android:id="@+id/Category_Menu_StartDownloadForCache"
+        android:title="@string/Main.ImageCache"
+        android:id="@+id/Category_Menu_ImageCache"
+        android:icon="@android:drawable/ic_menu_save" />
+    <item
+        android:title="@string/Main.ArticleCache"
+        android:id="@+id/Category_Menu_ArticleCache"
         android:icon="@android:drawable/ic_menu_save" />
 </menu>

@@ -189,7 +189,8 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.category, menu);
         if (!Controller.getInstance().isDonator()) {
-            menu.removeItem(R.id.Category_Menu_StartDownloadForCache);
+            menu.removeItem(R.id.Category_Menu_ImageCache);
+            menu.removeItem(R.id.Category_Menu_ArticleCache);
         }
         return true;
     }
@@ -206,10 +207,17 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
             case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(mAdapter.getCategories())).execute();
                 return true;
-            case R.id.Category_Menu_StartDownloadForCache:
+            case R.id.Category_Menu_ImageCache:
                 if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
                     setProgressBarIndeterminateVisibility(true);
-                    imageCacher = new Cacher(this, new ImageCacher(this));
+                    imageCacher = new Cacher(this, new ImageCacher(this, false));
+                    imageCacher.execute();
+                }
+                return true;
+            case R.id.Category_Menu_ArticleCache:
+                if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
+                    setProgressBarIndeterminateVisibility(true);
+                    imageCacher = new Cacher(this, new ImageCacher(this, true));
                     imageCacher.execute();
                 }
                 return true;

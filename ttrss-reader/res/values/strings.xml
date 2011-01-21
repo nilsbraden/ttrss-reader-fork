@@ -24,7 +24,8 @@
     <string name="Main.UpdateMenu">Update</string>
     <string name="Main.ShowAboutMenu">About</string>
     <string name="Main.Nothing">No categories to display. Check your connection and/or your connection settings.</string>
-    <string name="Main.StartDownloadForCache">Cache images</string>
+    <string name="Main.ImageCache">Cache images</string>
+    <string name="Main.ArticleCache">Cache articles</string>
     
     <string name="Preferences.Reset">Reset Preferences</string>
     <string name="Preferences.Btn">Preferences</string>
