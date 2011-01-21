@@ -22,13 +22,10 @@ import java.util.Comparator;
 import java.util.List;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.util.Log;
 
 public class ImageCacher implements ICacheable {
@@ -36,9 +33,11 @@ public class ImageCacher implements ICacheable {
     private long maxSize = 1024 * 1024 * 6; // Max size for one image is 6 MB
     
     private Context context;
+    private boolean onlyArticles;
     
-    public ImageCacher(Context context) {
+    public ImageCacher(Context context, boolean onlyArticles) {
         this.context = context;
+        this.onlyArticles = onlyArticles;
     }
     
     @Override
@@ -49,9 +48,11 @@ public class ImageCacher implements ICacheable {
         if (cache == null)
             return;
         
-        long time2 = System.currentTimeMillis();
-        updateLocalArticles(4);
-        Log.i(Utils.TAG, "Fetching new Articles took " + (System.currentTimeMillis() - time2) + "ms");
+        // Update all articles
+        Utils.updateLocalArticles(4);
+        
+        if (onlyArticles)
+            return;
         
         Log.w(Utils.TAG, "Updating cache...");
         cache.fillMemoryCacheFromDisk();
@@ -143,64 +144,6 @@ public class ImageCacher implements ICacheable {
                 sizeMax / 1048576, time);
         Utils.showNotification(content, time, false, context);
         Log.w(Utils.TAG, content);
-    }
-    
-    /**
-     * 
-     * @param nrOfTasks
-     */
-    private void updateLocalArticles(int nrOfTasks) {
-        UpdateArticlesTask[] tasks = new UpdateArticlesTask[nrOfTasks];
-        Data.getInstance().updateFeeds(-4);
-        
-        synchronized (this) {
-            for (FeedItem f : DBHelper.getInstance().getFeeds(-4)) {
-                boolean done = false;
-                while (!done) {
-                    
-                    // Start new Task if task-slot is available
-                    for (int i = 0; i < nrOfTasks; i++) {
-                        UpdateArticlesTask t = tasks[i];
-                        if (t == null || t.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                            t = new UpdateArticlesTask();
-                            t.execute(f.getId());
-                            tasks[i] = t;
-                            done = true;
-                            break;
-                        }
-                    }
-                    
-                    if (!done) { // No task-slot available, wait.
-                        try {
-                            wait(150);
-                        } catch (InterruptedException e) {
-                        }
-                    }
-                }
-            }
-            
-            // Wait for tasks to finish
-            boolean finished = false;
-            while (!finished) {
-                for (int i = 0; i < nrOfTasks; i++) {
-                    if (tasks[i] == null || tasks[i].getStatus().equals(AsyncTask.Status.FINISHED)) {
-                        tasks[i] = null; // Reset to null for easier checking next round...
-                        finished = true;
-                    } else {
-                        finished = false;
-                        break;
-                    }
-                }
-                
-                if (!finished) { // Not all tasks finished, wait.
-                    try {
-                        wait(150);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        }
-        
     }
     
 }

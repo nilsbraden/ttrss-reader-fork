@@ -23,7 +23,8 @@
     <string name="Main.UpdateMenu">Update</string>
     <string name="Main.ShowAboutMenu">About</string>
     <string name="Main.Nothing">Keine Kategorien. Bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
-    <string name="Main.StartDownloadForCache">Bilder herunterladen</string>
+    <string name="Main.ImageCache">Bilder herunterladen</string>
+    <string name="Main.ArticleCache">Artikel herunterladen</string>
     
     <string name="Preferences.Reset">Einstellungen zurücksetzen</string>
     <string name="Preferences.Btn">Optionen</string>
