@@ -44,6 +44,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     private int feedId;
     public Cursor cursor;
     private boolean displayOnlyUnread;
+    int unreadCount = 0;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
         displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
@@ -115,20 +116,8 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         return result;
     }
     
-    public int getUnreadCount() {
-        if (cursor.isClosed()) {
-            return 1;
-        }
-        
-        int result = 0;
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            if (cursor.getInt(3) != 0) {
-                result++;
-            }
-            cursor.move(1);
-        }
-        return result;
+    public int getUnread() {
+        return unreadCount;
     }
     
     private void getImage(ImageView icon, ArticleItem a) {
@@ -189,7 +178,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         
         TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
         if (feedId < 0 && feedId >= -4) {
-            FeedItem f = Data.getInstance().getFeed(a.getFeedId());
+            FeedItem f = DBHelper.getInstance().getFeed(a.getFeedId());
             if (f != null) {
                 dataSource.setText(f.getTitle());
             }
@@ -252,6 +241,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     @Override
     public void update() {
         Data.getInstance().updateArticles(feedId, Controller.getInstance().isDisplayOnlyUnread());
+        unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
     }
     
 }

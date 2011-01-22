@@ -35,7 +35,7 @@ public class Controller {
     public final static String JSON_END_URL = "api/";
     
     private boolean mIsControllerInitialized = false;
-    private TTRSSJsonConnector mTTRSSJsonConnector;
+    private TTRSSJsonConnector mTTRSSConnector;
     private ImageCache imageCache;
     
     private static final Integer mutex = 0;
@@ -107,7 +107,7 @@ public class Controller {
         mTrustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
         mUseKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
         mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
-        mTTRSSJsonConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
+        mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
         
         // Donator
         donator = prefs.getBoolean(Constants.DONATOR, Constants.DONATOR_DEFAULT);
@@ -162,7 +162,7 @@ public class Controller {
     }
     
     public TTRSSJsonConnector getConnector() {
-        return mTTRSSJsonConnector;
+        return mTTRSSConnector;
     }
     
     public ImageCache getImageCache(Context context) {

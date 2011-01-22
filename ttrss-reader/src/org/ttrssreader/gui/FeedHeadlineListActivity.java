@@ -141,7 +141,7 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(String.format("%s (%s)", mFeedTitle, mAdapter.getUnreadCount()));
+        setTitle(String.format("%s (%s)", mFeedTitle, mAdapter.getUnread()));
         flingDetected = false; // reset fling-status
         
         mAdapter.makeQuery();

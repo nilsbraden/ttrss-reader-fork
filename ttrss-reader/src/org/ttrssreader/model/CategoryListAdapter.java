@@ -41,6 +41,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     public Cursor cursor;
     
     private boolean displayOnlyUnread;
+    int unreadCount = 0;
     
     public CategoryListAdapter(Context context) {
         this.context = context;
@@ -114,8 +115,8 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         return "";
     }
     
-    public int getTotalUnread() {
-        return Data.getInstance().getCategoryUnreadCount(-4);
+    public int getUnread() {
+        return unreadCount;
     }
     
     public List<CategoryItem> getCategories() {
@@ -229,6 +230,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         Data.getInstance().updateCounters();
         Data.getInstance().updateCategories();
         Data.getInstance().updateVirtualCategories();
+        unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
     }
     
 }

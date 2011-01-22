@@ -114,7 +114,7 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
     @Override
     protected synchronized void doRefresh() {
         setTitle(String
-                .format("%s (%s)", getResources().getString(R.string.ApplicationName), mAdapter.getTotalUnread()));
+                .format("%s (%s)", getResources().getString(R.string.ApplicationName), mAdapter.getUnread()));
         
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();

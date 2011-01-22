@@ -625,35 +625,6 @@ public class DBHelper {
         return ret;
     }
     
-    public int getUnreadCount(int id, boolean isCat) {
-        int ret = 0;
-        if (!isDBAvailable())
-            return ret;
-        
-        Cursor c = null;
-        try {
-            String table = isCat ? TABLE_CATEGORIES : TABLE_FEEDS;
-            c = db.query(table, new String[] { "unread" }, "id=" + id, null, null, null, null, null);
-            
-            while (!c.isAfterLast()) {
-                if (c.isBeforeFirst()) {
-                    if (!c.moveToFirst()) {
-                        return ret;
-                    }
-                }
-                
-                ret = c.getInt(0);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (c != null)
-                c.close();
-        }
-        
-        return ret;
-    }
-    
     public Set<ArticleItem> getArticles(int feedId, boolean withContent) {
         
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
@@ -751,10 +722,14 @@ public class DBHelper {
         return ret;
     }
     
-    public Set<CategoryItem> getCategories() {
+    public Set<CategoryItem> getCategories(boolean virtuals) {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
         if (!isDBAvailable())
             return ret;
+        
+        if (virtuals) {
+            ret.addAll(getVirtualCategories());
+        }
         
         Cursor c = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) ASC");
         try {
@@ -763,6 +738,30 @@ public class DBHelper {
                 ret.add(ci);
                 c.move(1);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        return ret;
+    }
+    
+    public int getUnreadCount(int id, boolean isCat) {
+        int ret = 0;
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = null;
+        try {
+            c = db.query(isCat ? TABLE_CATEGORIES : TABLE_FEEDS, new String[] { "unread" }, "id=" + id, null, null,
+                    null, null, null);
+            
+            if (c.moveToFirst()) {
+                ret = c.getInt(0);
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -784,7 +783,6 @@ public class DBHelper {
             }
         }
         
-        // if (isDBAvailable()) {
         // @formatter:off
         ret = new ArticleItem(
                 c.getInt(0),                        // id
@@ -800,7 +798,6 @@ public class DBHelper {
                 (c.getInt(10) != 0)                 // isPublished
         );
         // @formatter:on
-        // }
         
         return ret;
     }
