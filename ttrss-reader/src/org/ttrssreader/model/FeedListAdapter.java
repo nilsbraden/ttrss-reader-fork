@@ -41,6 +41,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     private int categoryId;
     private boolean displayOnlyUnread;
+    int unreadCount = 0;
     
     public FeedListAdapter(Context context, int categoryId) {
         this.context = context;
@@ -134,18 +135,8 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
         return result;
     }
     
-    public int getTotalUnreadCount() {
-        if (cursor.isClosed()) {
-            return -1;
-        }
-        
-        int result = 0;
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            result += cursor.getInt(2);
-            cursor.move(1);
-        }
-        return result;
+    public int getUnread() {
+        return unreadCount;
     }
     
     private String formatTitle(String title, int unread) {
@@ -230,6 +221,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     @Override
     public void update() {
         Data.getInstance().updateFeeds(categoryId);
+        unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
     }
     
 }

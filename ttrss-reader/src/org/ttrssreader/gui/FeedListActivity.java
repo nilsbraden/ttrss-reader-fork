@@ -104,7 +104,7 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(String.format("%s (%s)", mCategoryTitle, mAdapter.getTotalUnreadCount()));
+        setTitle(String.format("%s (%s)", mCategoryTitle, mAdapter.getUnread()));
         
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();

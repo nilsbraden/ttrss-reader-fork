@@ -43,7 +43,7 @@ public class ReadStateUpdater implements IUpdatable {
     
     public ReadStateUpdater(int categoryId) {
         categories = new HashSet<CategoryItem>();
-        CategoryItem ci = Data.getInstance().getCategory(categoryId);
+        CategoryItem ci = DBHelper.getInstance().getCategory(categoryId);
         if (ci != null) {
             categories.add(ci);
         }
@@ -53,14 +53,14 @@ public class ReadStateUpdater implements IUpdatable {
         
         if (feedId <= 0) { // Virtual Category...
             categories = new HashSet<CategoryItem>();
-            CategoryItem ci = Data.getInstance().getCategory(feedId);
+            CategoryItem ci = DBHelper.getInstance().getCategory(feedId);
             if (ci != null) {
                 categories.add(ci);
             }
         }
         
         feeds = new HashSet<FeedItem>();
-        FeedItem fi = Data.getInstance().getFeed(feedId);
+        FeedItem fi = DBHelper.getInstance().getFeed(feedId);
         if (fi != null) {
             feeds.add(fi);
         }
@@ -120,7 +120,7 @@ public class ReadStateUpdater implements IUpdatable {
                 article.setUnread(boolState);
                 
                 int feedId = article.getFeedId();
-                FeedItem mFeed = Data.getInstance().getFeed(feedId);
+                FeedItem mFeed = DBHelper.getInstance().getFeed(feedId);
                 int categoryId = mFeed.getCategoryId();
                 
                 DBHelper.getInstance().updateFeedDeltaUnreadCount(feedId, delta);

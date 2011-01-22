@@ -174,22 +174,23 @@ public class Utils {
         if (info.isConnected())
             return true;
         
-        if (!info.isConnected() && info.isConnectedOrConnecting()) {
-            synchronized (Utils.class) {
-                int wait = 0;
-                while (!info.isConnected() && info.isConnectedOrConnecting()) {
-                    try {
-                        wait += 100;
-                        Utils.class.wait(100);
-                    } catch (InterruptedException e) {
-                    }
-                    
-                    if (wait > 1000) // Wait a maximum of one second for connection
-                        break;
+        synchronized (Utils.class) {
+            int wait = 0;
+            while (info.isConnectedOrConnecting() && !info.isConnected()) {
+                try {
+                    wait += 100;
+                    Utils.class.wait(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                Log.d(Utils.TAG, "Synchronized: Waited for " + wait + "ms for connection to become available...");
+                
+                if (wait > 1000) { // Wait a maximum of one second for connection
+                    break;
+                }
             }
+            Log.d(Utils.TAG, "Synchronized: Waited for " + wait + "ms for connection to become available...");
         }
+        
         return info.isConnected();
     }
     
@@ -417,7 +418,7 @@ public class Utils {
                 if (!done) { // No task-slot available, wait.
                     synchronized (mutex) {
                         try {
-                            mutex.wait(50);
+                            mutex.wait(100);
                         } catch (InterruptedException e) {
                         }
                     }

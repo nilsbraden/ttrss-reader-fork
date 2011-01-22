@@ -20,7 +20,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.R;
-import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.utils.Utils;
@@ -119,10 +118,6 @@ public class Data {
         }
     }
     
-    public int getCategoryUnreadCount(int catId) {
-        return DBHelper.getInstance().getUnreadCount(catId, true);
-    }
-    
     // takes about 2.5 seconds on wifi
     public void updateCounters() {
         if (Utils.isOnline(cm)) {
@@ -132,33 +127,8 @@ public class Data {
     
     // *** ARTICLES *********************************************************************
     
-    public Set<ArticleItem> getArticles(int feedId) {
-        return DBHelper.getInstance().getArticles(feedId, true);
-    }
-    
-    public ArticleItem getArticle(int articleId) {
-        return DBHelper.getInstance().getArticle(articleId);
-    }
-    
-    // public ArticleItem updateArticle(int articleId) {
-    // // Hopefully someday we don't need to fetch the content seperately and can remove this method.
-    // // Don't check last update time here
-    // if (Utils.isOnline(cm)) {
-    // Set<Integer> set = new LinkedHashSet<Integer>();
-    // set.add(articleId);
-    //
-    // for (ArticleItem a : Controller.getInstance().getConnector().getArticle(set)) {
-    // if (a.getId() == articleId) {
-    // Log.d(Utils.TAG, "Found article: " + articleId);
-    // return a;
-    // }
-    // }
-    // }
-    // Log.d(Utils.TAG, "Couldn't find article: " + articleId);
-    // return null;
-    // }
-    
     public void updateArticles(int feedId, boolean displayOnlyUnread) {
+        
         Long time = mArticlesUpdated.get(feedId);
         if (time == null) {
             time = new Long(0);
@@ -171,7 +141,7 @@ public class Data {
             
             if (feedId < 0 && feedId >= -3) {
                 // We want all articles for starred (-1) and published (-2) and fresh (-3)
-                limit = getCategoryUnreadCount(feedId);
+                limit = DBHelper.getInstance().getUnreadCount(feedId, false);
                 displayOnlyUnread = false;
             } else {
                 int l = DBHelper.getInstance().getUnreadCount(feedId, false);
@@ -190,14 +160,6 @@ public class Data {
     }
     
     // *** FEEDS ************************************************************************
-    
-    public Set<FeedItem> getFeeds(int categoryId) {
-        return DBHelper.getInstance().getFeeds(categoryId);
-    }
-    
-    public FeedItem getFeed(int feedId) {
-        return DBHelper.getInstance().getFeed(feedId);
-    }
     
     public Set<FeedItem> updateFeeds(int categoryId) {
         if (mFeedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
@@ -226,32 +188,20 @@ public class Data {
     
     // *** CATEGORIES *******************************************************************
     
-    public Set<CategoryItem> getCategories(boolean virtuals) {
-        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
-        
-        if (virtuals) {
-            ret.addAll(DBHelper.getInstance().getVirtualCategories());
-        }
-        ret.addAll(DBHelper.getInstance().getCategories());
-        
-        return ret;
-    }
-    
-    public CategoryItem getCategory(int categoryId) {
-        return DBHelper.getInstance().getCategory(categoryId);
-    }
-    
     public Set<CategoryItem> updateVirtualCategories() {
         if (mVirtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         }
         
         Set<CategoryItem> virtCategories = new LinkedHashSet<CategoryItem>();
-        virtCategories.add(new CategoryItem(-4, vCategoryAllArticles, getCategoryUnreadCount(-4)));
-        virtCategories.add(new CategoryItem(-3, vCategoryFreshArticles, getCategoryUnreadCount(-3)));
-        virtCategories.add(new CategoryItem(-2, vCategoryPublishedArticles, getCategoryUnreadCount(-2)));
-        virtCategories.add(new CategoryItem(-1, vCategoryStarredArticles, getCategoryUnreadCount(-1)));
-        virtCategories.add(new CategoryItem(0, feedUncategorizedFeeds, getCategoryUnreadCount(0)));
+        virtCategories.add(new CategoryItem(-4, vCategoryAllArticles, DBHelper.getInstance().getUnreadCount(-4, true)));
+        virtCategories
+                .add(new CategoryItem(-3, vCategoryFreshArticles, DBHelper.getInstance().getUnreadCount(-3, true)));
+        virtCategories.add(new CategoryItem(-2, vCategoryPublishedArticles, DBHelper.getInstance().getUnreadCount(-2,
+                true)));
+        virtCategories.add(new CategoryItem(-1, vCategoryStarredArticles, DBHelper.getInstance().getUnreadCount(-1,
+                true)));
+        virtCategories.add(new CategoryItem(0, feedUncategorizedFeeds, DBHelper.getInstance().getUnreadCount(0, true)));
         
         DBHelper.getInstance().insertCategories(virtCategories);
         mVirtCategoriesUpdated = System.currentTimeMillis();
@@ -309,7 +259,5 @@ public class Data {
         }
         return null;
     }
-    
-    // **********************************************************************************
     
 }

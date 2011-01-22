@@ -223,7 +223,7 @@ public class ArticleActivity extends Activity {
         }
         
         if (!TTRSSJsonConnector.hasLastError()) {
-            mArticleItem = Data.getInstance().getArticle(mArticleId);
+            mArticleItem = DBHelper.getInstance().getArticle(mArticleId);
             
             // Check if articleItem and content are null, if it is so do update the article again
             // if (mArticleItem == null || mArticleItem.getContent() == null) {
