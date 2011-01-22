@@ -2,7 +2,13 @@
 
 = Changes =
 == Version 0.8.2 ==
-  * Minor bugfixes
+  * Added ArticleCache (load all new articles at once) for Donators
+  * Refresh unread-state while browsing unread articles
+  * Scale images in articleActivity so they match the display-width in original zoom (for other zoom-factors the original size is restored)
+  * Set CSS: text-align:"justify" in articleActivity
+  * More useful text when loading content
+  * Fixed ANR-situation
+  * Minor bugfixes/refactoring
 
 == Version 0.8.1 ==
   * Addressed severe memory-issues

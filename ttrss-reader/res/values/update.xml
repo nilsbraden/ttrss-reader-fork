@@ -17,7 +17,7 @@
 -->
 <resources>
     <string-array name="updates">
-        <item>v0.8.2: </item>
+        <item>v0.8.2: ArticleCache (load all new articles at once) for Donators, Refresh unread-state while browsing unread articles, Scale images to match display-width (for other zoom-factors the original size is restored), Set CSS: text-align:"justify", more useful text when loading content, Minor bugfixes/refactoring</item>
         <item>v0.8.1: Addressed severe memory-issues, moved menu-definitions from code to xml files, added information to preferences-screen, refactored menus, fixed articles not getting marked as read, fixed offline-setting</item>
         <item>v0.8: Donators: Added pre-downloading of images for offline viewing (see project page for more information), Fixed several usability issues (Issues 36,37,38,41), Fixed Issue #40 (Better error-handling for disabled API and Not logged in error), Size of Swipe-Area now depends on density and screen-size, Icons got some polishing...</item>
         <item>v0.7.8: Added HTTP-Authentication (Issue #32), Fixed Issue with display of all articles (Issue #34)</item>
