@@ -120,12 +120,7 @@ public class Data {
     }
     
     public int getCategoryUnreadCount(int catId) {
-        CategoryItem c = DBHelper.getInstance().getCategory(catId);
-        if (c != null) {
-            return c.getUnread();
-        }
-        
-        return -1;
+        return DBHelper.getInstance().getUnreadCount(catId, true);
     }
     
     // takes about 2.5 seconds on wifi
@@ -172,21 +167,24 @@ public class Data {
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isOnline(cm)) {
-            FeedItem f = getFeed(feedId);
             int limit = 30;
-            if (f != null) {
-                int l = getFeed(feedId).getUnread();
-                limit = (l > limit ? l : 30);
-            }
             
             if (feedId < 0 && feedId >= -3) {
                 // We want all articles for starred (-1) and published (-2) and fresh (-3)
                 limit = getCategoryUnreadCount(feedId);
                 displayOnlyUnread = false;
+            } else {
+                int l = DBHelper.getInstance().getUnreadCount(feedId, false);
+                limit = (l > limit ? l : 30);
             }
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
-            Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, 0, viewMode, true);
+            Set<Integer> ids = Controller.getInstance().getConnector()
+                    .getHeadlinesToDatabase(feedId, limit, 0, viewMode, true);
+            if (ids != null) {
+                Controller.getInstance().getConnector().getArticle(ids);
+            }
+            
             mArticlesUpdated.put(feedId, System.currentTimeMillis());
         }
     }

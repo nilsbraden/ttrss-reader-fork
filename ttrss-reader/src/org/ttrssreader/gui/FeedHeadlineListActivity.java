@@ -29,7 +29,7 @@ import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.ITTRSSConnector;
+import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
@@ -147,8 +147,8 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
         
-        if (ITTRSSConnector.hasLastError()) {
-            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+        if (TTRSSJsonConnector.hasLastError()) {
+            openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
             return;
         }
         
@@ -183,7 +183,7 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         Intent i = new Intent(this, ArticleActivity.class);
         i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(position));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-//        i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mAdapter.getFeedItemIds());
+        // i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mAdapter.getFeedItemIds());
         
         if (!flingDetected) {
             startActivity(i);

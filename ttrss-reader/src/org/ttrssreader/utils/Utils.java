@@ -97,7 +97,7 @@ public class Utils {
         /*
          * To convert the InputStream to String we use the BufferedReader.readLine()
          * method. We iterate until the BufferedReader return null which means
-         * there's no more data to read. Each line will appended to a StringBuilder
+         * there's no more data to read. Each line will be appended to a StringBuilder
          * and returned as String.
          */
         BufferedReader reader = new BufferedReader(new InputStreamReader(is), 1024 * 10);
@@ -168,27 +168,28 @@ public class Utils {
         
         NetworkInfo info = cm.getActiveNetworkInfo();
         
-        if (info == null) {
+        if (info == null)
             return false;
-        }
         
-        synchronized (Utils.class) {
-            int wait = 0;
-            while (info.isConnectedOrConnecting() && !info.isConnected()) {
-                try {
-                    wait += 100;
-                    Utils.class.wait(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        if (info.isConnected())
+            return true;
+        
+        if (!info.isConnected() && info.isConnectedOrConnecting()) {
+            synchronized (Utils.class) {
+                int wait = 0;
+                while (!info.isConnected() && info.isConnectedOrConnecting()) {
+                    try {
+                        wait += 100;
+                        Utils.class.wait(100);
+                    } catch (InterruptedException e) {
+                    }
+                    
+                    if (wait > 1000) // Wait a maximum of one second for connection
+                        break;
                 }
-                
-                if (wait > 1000) { // Wait a maximum of one second for connection
-                    break;
-                }
+                Log.d(Utils.TAG, "Synchronized: Waited for " + wait + "ms for connection to become available...");
             }
-            Log.d(Utils.TAG, "Synchronized: Waited for " + wait + "ms for connection to become available...");
         }
-        
         return info.isConnected();
     }
     
@@ -413,10 +414,10 @@ public class Utils {
                     }
                 }
                 
-                synchronized (mutex) {
-                    if (!done) { // No task-slot available, wait.
+                if (!done) { // No task-slot available, wait.
+                    synchronized (mutex) {
                         try {
-                            mutex.wait(100);
+                            mutex.wait(50);
                         } catch (InterruptedException e) {
                         }
                     }
@@ -438,9 +439,11 @@ public class Utils {
             }
             
             if (!finished) { // Not all tasks finished, wait.
-                try {
-                    mutex.wait(100);
-                } catch (InterruptedException e) {
+                synchronized (mutex) {
+                    try {
+                        mutex.wait(100);
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
         }

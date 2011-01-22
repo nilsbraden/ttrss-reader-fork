@@ -16,7 +16,6 @@
 
 package org.ttrssreader.controllers;
 
-import org.ttrssreader.net.ITTRSSConnector;
 import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.DonationHelper;
@@ -36,7 +35,7 @@ public class Controller {
     public final static String JSON_END_URL = "api/";
     
     private boolean mIsControllerInitialized = false;
-    private ITTRSSConnector mTTRSSConnector;
+    private TTRSSJsonConnector mTTRSSJsonConnector;
     private ImageCache imageCache;
     
     private static final Integer mutex = 0;
@@ -108,7 +107,7 @@ public class Controller {
         mTrustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
         mUseKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
         mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
-        mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
+        mTTRSSJsonConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
         
         // Donator
         donator = prefs.getBoolean(Constants.DONATOR, Constants.DONATOR_DEFAULT);
@@ -162,8 +161,8 @@ public class Controller {
         this.url = url;
     }
     
-    public ITTRSSConnector getConnector() {
-        return mTTRSSConnector;
+    public TTRSSJsonConnector getConnector() {
+        return mTTRSSJsonConnector;
     }
     
     public ImageCache getImageCache(Context context) {

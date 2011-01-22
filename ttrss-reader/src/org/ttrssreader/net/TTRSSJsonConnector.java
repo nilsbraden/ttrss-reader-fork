@@ -41,11 +41,15 @@ import org.ttrssreader.utils.Utils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class TTRSSJsonConnector extends ITTRSSConnector {
+public class TTRSSJsonConnector {
+    
+    private static String mLastError = "";
+    private static boolean mHasLastError = false;
     
     private static final String OP_LOGIN = "?op=login&user=%s&password=%s";
     private static final String OP_GET_CATEGORIES = "?op=getCategories";
     private static final String OP_GET_FEEDS = "?op=getFeeds&cat_id=%s";
+    private static final String OP_GET_ARTICLE = "?op=getArticle&article_id=%s";
     private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&feed_id=%s&limit=%s&view_mode=%s&show_content=%s";
     private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&article_ids=%s&mode=%s&field=%s";
     private static final String OP_CATCHUP = "?op=catchupFeed&feed_id=%s&is_cat=%s";
@@ -373,131 +377,6 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
     
     // ***************** Helper-Methods **************************************************
     
-    // private static ArticleItem parseDataForArticle(JSONArray names, JSONArray values) {
-    // ArticleItem ret = null;
-    //
-    // try {
-    // int id = 0;
-    // String title = null;
-    // boolean isUnread = false;
-    // Date updated = null;
-    // int realFeedId = 0;
-    // String content = null;
-    // String articleUrl = null;
-    // String articleCommentUrl = null;
-    // Set<String> attachments = null;
-    // boolean isStarred = false;
-    // boolean isPublished = false;
-    //
-    // for (int i = 0; i < names.length(); i++) {
-    //
-    // String s = names.getString(i);
-    // if (s.equals(ID)) {
-    // id = Integer.parseInt(values.getString(i));
-    // } else if (s.equals(FEED_ID)) {
-    // realFeedId = Integer.parseInt(values.getString(i));
-    // } else if (s.equals(TITLE)) {
-    // title = values.getString(i);
-    // } else if (s.equals(UNREAD)) {
-    // isUnread = values.getBoolean(i);
-    // } else if (s.equals(URL)) {
-    // articleUrl = values.getString(i);
-    // } else if (s.equals(COMMENT_URL)) {
-    // articleCommentUrl = values.getString(i);
-    // } else if (s.equals(UPDATED)) {
-    // updated = new Date(new Long(values.getString(i) + "000").longValue());
-    // } else if (s.equals(CONTENT)) {
-    // content = values.getString(i);
-    // } else if (s.equals(ATTACHMENTS)) {
-    // attachments = parseDataForAttachments((JSONArray) values.get(i));
-    // } else if (s.equals(STARRED)) {
-    // isStarred = values.getBoolean(i);
-    // } else if (s.equals(PUBLISHED)) {
-    // isPublished = values.getBoolean(i);
-    // }
-    // }
-    //
-    // ret = new ArticleItem(id, realFeedId, title, isUnread, articleUrl, articleCommentUrl, updated, content,
-    // attachments, isStarred, isPublished);
-    // } catch (JSONException e) {
-    // mHasLastError = true;
-    // mLastError = e.getMessage() + ", Method: parseDataForArticle(...), threw JSONException";
-    // e.printStackTrace();
-    // }
-    //
-    // return (ret == null ? new ArticleItem() : ret);
-    // }
-    
-    // private static FeedItem parseDataForFeed(JSONArray names, JSONArray values, JSONArray articleValues) {
-    // FeedItem ret = null;
-    //
-    // try {
-    // String categoryId = "";
-    // String id = "";
-    // String title = "";
-    // String url = "";
-    // int unread = 0;
-    //
-    // for (int i = 0; i < names.length(); i++) {
-    //
-    // String s = names.getString(i);
-    // if (s.equals(ID)) {
-    // id = values.getString(i);
-    // } else if (s.equals(CAT_ID)) {
-    // categoryId = values.getString(i);
-    // } else if (s.equals(TITLE)) {
-    // title = values.getString(i);
-    // } else if (s.equals(FEED_URL)) {
-    // url = values.getString(i);
-    // } else if (s.equals(UNREAD)) {
-    // unread = values.getInt(i);
-    // } else if (s.equals("articles")) {
-    // articleValues = (JSONArray) values.get(i);
-    // }
-    // }
-    //
-    // ret = new FeedItem(id, categoryId, title, url, unread);
-    // } catch (JSONException e) {
-    // mHasLastError = true;
-    // mLastError = e.getMessage() + ", Method: parseDataForFeed(...), threw JSONException";
-    // e.printStackTrace();
-    // }
-    //
-    // return (ret == null ? new FeedItem() : ret);
-    // }
-    
-    // private static CategoryItem parseDataForCategory(JSONArray names, JSONArray values, JSONArray feedValues) {
-    // CategoryItem ret = null;
-    //
-    // try {
-    // String id = "";
-    // String title = "";
-    // int unreadCount = 0;
-    //
-    // for (int i = 0; i < names.length(); i++) {
-    //
-    // String s = names.getString(i);
-    // if (s.equals(ID)) {
-    // id = values.getString(i);
-    // } else if (s.equals(TITLE)) {
-    // title = values.getString(i);
-    // } else if (s.equals(UNREAD)) {
-    // unreadCount = values.getInt(i);
-    // } else if (s.equals("feeds")) {
-    // feedValues = (JSONArray) values.get(i);
-    // }
-    // }
-    //
-    // ret = new CategoryItem(id, title, unreadCount);
-    // } catch (JSONException e) {
-    // mHasLastError = true;
-    // mLastError = e.getMessage() + ", Method: parseDataForCategory(...), threw JSONException";
-    // e.printStackTrace();
-    // }
-    //
-    // return (ret == null ? new CategoryItem() : ret);
-    // }
-    
     private static Set<String> parseDataForAttachments(JSONArray array) {
         Set<String> ret = new LinkedHashSet<String>();
         
@@ -533,9 +412,86 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         return ret;
     }
     
+    private Set<Integer> parseArticlesAndInsertInDB(JSONArray jsonResult) {
+        // Lots of copy&paste and direct access on DB-ressources here to reduce memory usage for requests with lots of
+        // articles...
+        
+        Set<Integer> ret = new LinkedHashSet<Integer>();
+        
+        SQLiteDatabase db = DBHelper.getInstance().db;
+        synchronized (DBHelper.TABLE_ARTICLES) {
+            db.beginTransaction();
+            try {
+                
+                for (int j = 0; j < jsonResult.length(); j++) {
+                    JSONObject object = jsonResult.getJSONObject(j);
+                    JSONArray names = object.names();
+                    JSONArray values = object.toJSONArray(names);
+                    
+                    int id = 0;
+                    String title = null;
+                    boolean isUnread = false;
+                    Date updated = null;
+                    int realFeedId = 0;
+                    String content = null;
+                    String articleUrl = null;
+                    String articleCommentUrl = null;
+                    Set<String> attachments = null;
+                    boolean isStarred = false;
+                    boolean isPublished = false;
+                    
+                    for (int i = 0; i < names.length(); i++) {
+                        String s = names.getString(i);
+                        if (s.equals(ID)) {
+                            id = values.getInt(i);
+                        } else if (s.equals(TITLE)) {
+                            title = values.getString(i);
+                        } else if (s.equals(UNREAD)) {
+                            isUnread = values.getBoolean(i);
+                        } else if (s.equals(UPDATED)) {
+                            updated = new Date(new Long(values.getString(i) + "000").longValue());
+                        } else if (s.equals(FEED_ID)) {
+                            realFeedId = values.getInt(i);
+                        } else if (s.equals(CONTENT)) {
+                            content = values.getString(i);
+                        } else if (s.equals(URL)) {
+                            articleUrl = values.getString(i);
+                        } else if (s.equals(COMMENT_URL)) {
+                            articleCommentUrl = values.getString(i);
+                        } else if (s.equals(ATTACHMENTS)) {
+                            attachments = parseDataForAttachments((JSONArray) values.get(i));
+                        } else if (s.equals(STARRED)) {
+                            isStarred = values.getBoolean(i);
+                        } else if (s.equals(PUBLISHED)) {
+                            isPublished = values.getBoolean(i);
+                        }
+                    }
+                    
+                    DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
+                            articleCommentUrl, updated, content, attachments, isStarred, isPublished);
+                    ret.add(id);
+                }
+                db.setTransactionSuccessful();
+            } catch (JSONException e) {
+                mHasLastError = true;
+                mLastError = e.getMessage() + ", Method: parseArticlesAndInsertInDB(...), threw JSONException";
+                e.printStackTrace();
+            } finally {
+                db.endTransaction();
+            }
+        }
+        
+        return ret;
+    }
+    
     // ***************** Retrieve-Data-Methods **************************************************
     
-    @Override
+    /**
+     * Retrieves a Set of Maps which map Strings to the information, e.g. "id" -> 42, containing the counters for every
+     * category and feed.
+     * 
+     * @return set of Name-Value-Pairs stored in maps
+     */
     public void getCounters() {
         String url = mServerUrl + String.format(OP_GET_COUNTERS);
         JSONArray jsonResult = getJSONResponseAsArray(url);
@@ -594,7 +550,11 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         }
     }
     
-    @Override
+    /**
+     * Retrieves all categories.
+     * 
+     * @return a list of categories.
+     */
     public Set<CategoryItem> getCategories() {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
         
@@ -638,7 +598,11 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         return ret;
     }
     
-    @Override
+    /**
+     * Retrieves all feeds, mapped to their categories.
+     * 
+     * @return a map of all feeds for every category.
+     */
     public Set<FeedItem> getFeeds() {
         Set<FeedItem> ret = new LinkedHashSet<FeedItem>();;
         
@@ -690,150 +654,58 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         return ret;
     }
     
-    // @Override
-    // public Set<ArticleItem> getHeadlines(int feedId, int limit, int filter, String viewMode, boolean withContent) {
-    // Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
-    //
-    // String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, withContent ? 1 : 0);
-    // JSONArray jsonResult = getJSONResponseAsArray(url);
-    //
-    // if (jsonResult == null) {
-    // return ret;
-    // }
-    //
-    // try {
-    // for (int i = 0; i < jsonResult.length(); i++) {
-    // JSONObject object = jsonResult.getJSONObject(i);
-    //
-    // JSONArray names = object.names();
-    // JSONArray values = object.toJSONArray(names);
-    //
-    // ret.add(parseDataForArticle(names, values));
-    // }
-    // } catch (JSONException e) {
-    // mHasLastError = true;
-    // mLastError = e.getMessage() + ", Method: getFeedHeadlines(...), threw JSONException";
-    // e.printStackTrace();
-    // }
-    //
-    // return ret;
-    // }
-    
-    // @Override
-    // public Set<ArticleItem> getArticle(Set<Integer> articleIds) {
-    // Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
-    //
-    // if (articleIds.size() == 0)
-    // return ret;
-    //
-    // StringBuilder sb = new StringBuilder();
-    // for (Integer i : articleIds) {
-    // sb.append(i);
-    // sb.append(",");
-    // }
-    // if (sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') {
-    // sb.deleteCharAt(sb.length() - 1);
-    // }
-    //
-    // String url = mServerUrl + String.format(OP_GET_ARTICLE, sb.toString());
-    // JSONArray jsonResult = getJSONResponseAsArray(url);
-    //
-    // if (jsonResult == null) {
-    // return ret;
-    // }
-    //
-    // try {
-    // for (int i = 0; i < jsonResult.length(); i++) {
-    // JSONObject object = jsonResult.getJSONObject(i);
-    //
-    // JSONArray names = object.names();
-    // JSONArray values = object.toJSONArray(names);
-    //
-    // ret.add(parseDataForArticle(names, values));
-    // }
-    // } catch (JSONException e) {
-    // mHasLastError = true;
-    // mLastError = e.getMessage() + ", Method: getArticle(...), threw JSONException";
-    // e.printStackTrace();
-    // }
-    //
-    // return ret;
-    // }
-    
-    @Override
-    public void getHeadlinesToDatabase(int feedId, int limit, int filter, String viewMode, boolean withContent) {
-        String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, withContent ? 1 : 0);
+    /**
+     * Retrieves the specified articles and inserts them into the Database
+     * 
+     * @param articleIds
+     *            the ids of the articles.
+     */
+    public void getArticle(Set<Integer> articleIds) {
+        if (articleIds.size() == 0)
+            return;
+        
+        StringBuilder sb = new StringBuilder();
+        for (Integer i : articleIds) {
+            sb.append(i);
+            sb.append(",");
+        }
+        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        
+        String url = mServerUrl + String.format(OP_GET_ARTICLE, sb.toString());
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
             return;
         
-        // Lots of copy&paste and direct access on DB-ressources here to reduce memory usage for requests with lots of
-        // articles...
-        SQLiteDatabase db = DBHelper.getInstance().db;
-        synchronized (DBHelper.TABLE_ARTICLES) {
-            db.beginTransaction();
-            try {
-                
-                for (int j = 0; j < jsonResult.length(); j++) {
-                    JSONObject object = jsonResult.getJSONObject(j);
-                    JSONArray names = object.names();
-                    JSONArray values = object.toJSONArray(names);
-                    
-                    int id = 0;
-                    String title = null;
-                    boolean isUnread = false;
-                    Date updated = null;
-                    int realFeedId = 0;
-                    String content = null;
-                    String articleUrl = null;
-                    String articleCommentUrl = null;
-                    Set<String> attachments = null;
-                    boolean isStarred = false;
-                    boolean isPublished = false;
-                    
-                    for (int i = 0; i < names.length(); i++) {
-                        String s = names.getString(i);
-                        if (s.equals(ID)) {
-                            id = values.getInt(i);
-                        } else if (s.equals(TITLE)) {
-                            title = values.getString(i);
-                        } else if (s.equals(UNREAD)) {
-                            isUnread = values.getBoolean(i);
-                        } else if (s.equals(UPDATED)) {
-                            updated = new Date(new Long(values.getString(i) + "000").longValue());
-                        } else if (s.equals(FEED_ID)) {
-                            realFeedId = values.getInt(i);
-                        } else if (s.equals(CONTENT)) {
-                            content = values.getString(i);
-                        } else if (s.equals(URL)) {
-                            articleUrl = values.getString(i);
-                        } else if (s.equals(COMMENT_URL)) {
-                            articleCommentUrl = values.getString(i);
-                        } else if (s.equals(ATTACHMENTS)) {
-                            attachments = parseDataForAttachments((JSONArray) values.get(i));
-                        } else if (s.equals(STARRED)) {
-                            isStarred = values.getBoolean(i);
-                        } else if (s.equals(PUBLISHED)) {
-                            isPublished = values.getBoolean(i);
-                        }
-                    }
-                    
-                    DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
-                            articleCommentUrl, updated, content, attachments, isStarred, isPublished);
-                }
-                db.setTransactionSuccessful();
-            } catch (JSONException e) {
-                mHasLastError = true;
-                mLastError = e.getMessage() + ", Method: getArticle(...), threw JSONException";
-                e.printStackTrace();
-            } finally {
-                db.endTransaction();
-            }
-        }
+        parseArticlesAndInsertInDB(jsonResult);
     }
     
-    @Override
+    /**
+     * Retrieves the specified articles and directly stores them in the database.
+     * 
+     * @param articleIds
+     *            the ids of the articles.
+     */
+    public Set<Integer> getHeadlinesToDatabase(int feedId, int limit, int filter, String viewMode, boolean withContent) {
+        String url = mServerUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, withContent ? 1 : 0);
+        JSONArray jsonResult = getJSONResponseAsArray(url);
+        
+        if (jsonResult == null)
+            return null;
+        
+        return parseArticlesAndInsertInDB(jsonResult);
+    }
+    
+    /**
+     * Marks the given list of article-Ids as read/unread depending on int articleState.
+     * 
+     * @param articlesIds
+     *            the list of ids.
+     * @param articleState
+     *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
+     */
     public void setArticleRead(Set<Integer> articlesIds, int articleState) {
         StringBuilder sb = new StringBuilder();
         for (Integer s : articlesIds) {
@@ -847,25 +719,52 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
         doRequestNoAnswer(url);
     }
     
-    @Override
+    /**
+     * Marks the given Article as "starred"/"not starred" depending on int articleState.
+     * 
+     * @param articlesId
+     *            the article.
+     * @param articleState
+     *            the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
+     */
     public void setArticleStarred(int articlesId, int articleState) {
         String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, articlesId, articleState, 0);
         doRequestNoAnswer(url);
     }
     
-    @Override
+    /**
+     * Marks the given Article as "published"/"not published" depending on int articleState.
+     * 
+     * @param articlesId
+     *            the article.
+     * @param articleState
+     *            the new state of the article (0 -> not published; 1 -> published; 2 -> toggle).
+     */
     public void setArticlePublished(int articlesId, int articleState) {
         String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, articlesId, articleState, 1);
         doRequestNoAnswer(url);
     }
     
-    @Override
+    /**
+     * Marks a feed or a category with all its feeds as read.
+     * 
+     * @param id
+     *            the feed-id/category-id.
+     * @param isCategory
+     *            indicates whether id refers to a feed or a category.
+     */
     public void setRead(int id, boolean isCategory) {
         String url = mServerUrl + String.format(OP_CATCHUP, id, (isCategory ? 1 : 0));
         doRequestNoAnswer(url);
     }
     
-    @Override
+    /**
+     * Returns the value for the given preference-name as a string.
+     * 
+     * @param pref
+     *            the preferences name
+     * @return the value of the preference or null if it ist not set or unknown
+     */
     public String getPref(String pref) {
         String url = mServerUrl + String.format(OP_GET_PREF, pref);
         JSONArray jsonResult = getJSONResponseAsArray(url);
@@ -892,6 +791,36 @@ public class TTRSSJsonConnector extends ITTRSSConnector {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    /**
+     * Returns true if there was an error.
+     * 
+     * @return true if there was an error.
+     */
+    public static boolean hasLastError() {
+        return mHasLastError;
+    }
+    
+    /**
+     * Returns the last error.
+     * 
+     * @return a string with the last error-message.
+     */
+    public static String getLastError() {
+        return mLastError;
+    }
+    
+    /**
+     * Returns the last error-message and resets the error-state of the connector.
+     * 
+     * @return a string with the last error-message.
+     */
+    public static String pullLastError() {
+        String ret = new String(mLastError);
+        mLastError = "";
+        mHasLastError = false;
+        return ret;
     }
     
 }
