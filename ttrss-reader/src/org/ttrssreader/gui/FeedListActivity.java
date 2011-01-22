@@ -25,7 +25,7 @@ import org.ttrssreader.model.FeedListAdapter;
 import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.ITTRSSConnector;
+import org.ttrssreader.net.TTRSSJsonConnector;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -109,8 +109,8 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
         
-        if (ITTRSSConnector.hasLastError()) {
-            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+        if (TTRSSJsonConnector.hasLastError()) {
+            openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
             return;
         }
         

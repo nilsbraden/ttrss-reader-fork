@@ -29,7 +29,7 @@ import org.ttrssreader.model.cachers.ImageCacher;
 import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.ITTRSSConnector;
+import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -119,12 +119,12 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
         
-        if (ITTRSSConnector.hasLastError()) {
+        if (TTRSSJsonConnector.hasLastError()) {
             if (imageCacher != null) {
                 imageCacher.cancel(true);
                 imageCacher = null;
             }
-            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+            openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
             return;
         }
         

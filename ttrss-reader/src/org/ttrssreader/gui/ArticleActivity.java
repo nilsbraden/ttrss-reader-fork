@@ -28,7 +28,7 @@ import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.ITTRSSConnector;
+import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
@@ -222,7 +222,7 @@ public class ArticleActivity extends Activity {
             webview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         }
         
-        if (!ITTRSSConnector.hasLastError()) {
+        if (!TTRSSJsonConnector.hasLastError()) {
             mArticleItem = Data.getInstance().getArticle(mArticleId);
             
             // Check if articleItem and content are null, if it is so do update the article again
@@ -267,7 +267,7 @@ public class ArticleActivity extends Activity {
                 
             }
         } else {
-            openConnectionErrorDialog(ITTRSSConnector.pullLastError());
+            openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
         }
         
         setProgressBarIndeterminateVisibility(false);

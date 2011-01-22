@@ -625,6 +625,35 @@ public class DBHelper {
         return ret;
     }
     
+    public int getUnreadCount(int id, boolean isCat) {
+        int ret = 0;
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = null;
+        try {
+            String table = isCat ? TABLE_CATEGORIES : TABLE_FEEDS;
+            c = db.query(table, new String[] { "unread" }, "id=" + id, null, null, null, null, null);
+            
+            while (!c.isAfterLast()) {
+                if (c.isBeforeFirst()) {
+                    if (!c.moveToFirst()) {
+                        return ret;
+                    }
+                }
+                
+                ret = c.getInt(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        return ret;
+    }
+    
     public Set<ArticleItem> getArticles(int feedId, boolean withContent) {
         
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
