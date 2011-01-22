@@ -155,7 +155,7 @@ public class ArticleItem implements Comparable<ArticleItem> {
     }
     
     public void setContent(String mContent) {
-        if (mContent == null || mContent.equals("") || mContent.equals("null")) {
+        if (mContent == null || mContent.equals("null")) {
             this.mContent = null;
         } else {
             this.mContent = mContent;

@@ -64,6 +64,8 @@ public class ArticleActivity extends Activity {
     
     private ArticleItem mArticleItem = null;
     private String content;
+    private boolean linkAutoOpened;
+    private int currentIndex;
     
     private WebView webview;
     private TextView webviewSwipeText;
@@ -225,15 +227,16 @@ public class ArticleActivity extends Activity {
         if (!TTRSSJsonConnector.hasLastError()) {
             mArticleItem = DBHelper.getInstance().getArticle(mArticleId);
             
-            // Check if articleItem and content are null, if it is so do update the article again
-            // if (mArticleItem == null || mArticleItem.getContent() == null) {
-            // ArticleItem temp = Data.getInstance().updateArticle(mArticleId);
-            // if (temp != null && temp.getContent() != null) {
-            // mArticleItem = temp;
-            // }
-            // }
-            
             if (mArticleItem != null && mArticleItem.getContent() != null) {
+                
+                // Store current index in ID-List so we can jump between articles
+                if (mFeedHeadlineListAdapter == null) {
+                    mFeedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), mFeedId);
+                }
+                if (mFeedHeadlineListAdapter.getFeedItemIds().indexOf(mArticleId) >= 0) {
+                    currentIndex = mFeedHeadlineListAdapter.getFeedItemIds().indexOf(mArticleId);
+                }
+                
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
                 content = injectAttachments(getApplicationContext(), mArticleItem.getContent(),
                         mArticleItem.getAttachments());
@@ -241,26 +244,25 @@ public class ArticleActivity extends Activity {
                 
                 // Load html from Raw-Ressources and insert content
                 String temp = getResources().getString(R.string.INJECT_HTML_HEAD);
-                // Log.d(Utils.TAG, "VORHER: " + temp);
                 String text = temp.replace("MARKER", content);
-                // Log.d(Utils.TAG, "OUTPUT: " + text);
                 
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
                 webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
                 
                 if (mArticleItem.getTitle() != null) {
-                    this.setTitle(mArticleItem.getTitle());
+                    setTitle(mArticleItem.getTitle());
                 } else {
-                    this.setTitle(this.getResources().getString(R.string.ApplicationName));
+                    setTitle(getResources().getString(R.string.ApplicationName));
                 }
                 
                 if (mArticleItem.isUnread() && Controller.getInstance().isAutomaticMarkRead()) {
                     new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
                 }
                 
-                if (content.length() < 3) {
+                if (!linkAutoOpened && content.length() < 3) {
                     if (Controller.getInstance().isOpenUrlEmptyArticle()) {
                         Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+                        linkAutoOpened = true;
                         openLink();
                     }
                 }
@@ -278,15 +280,11 @@ public class ArticleActivity extends Activity {
             // Load html from Raw-Ressources and insert content
             String temp = getResources().getString(R.string.INJECT_HTML_HEAD);
             String text = temp.replace("MARKER", content);
-            
-            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
             webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
         } else {
             // Load html from Raw-Ressources and insert content
             String temp = getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
             String text = temp.replace("MARKER", content);
-            
-            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
             webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
         }
     }
@@ -298,7 +296,7 @@ public class ArticleActivity extends Activity {
         }
         mArticleIds = mFeedHeadlineListAdapter.getFeedItemIds();
         
-        int index = mArticleIds.indexOf(mArticleId) + direction;
+        int index = currentIndex + direction;
         
         // No more articles in this direction
         if (index < 0 || index >= mArticleIds.size()) {
@@ -312,8 +310,6 @@ public class ArticleActivity extends Activity {
         Intent i = new Intent(this, ArticleActivity.class);
         i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
         i.putExtra(ArticleActivity.FEED_ID, mFeedId);
-        
-        Log.v(Utils.TAG, "openArticle() FeedID: " + mFeedId + ", ArticleID: " + mArticleIds.get(index));
         
         startActivityForResult(i, 0);
         this.finish();
@@ -360,10 +356,8 @@ public class ArticleActivity extends Activity {
                 // Log.d(Utils.TAG, String.format("SWIPE_HEIGHT: %s SWIPE_WIDTH: %s", swipeHeight, swipeWidth));
                 
                 if (velocityX > 0) {
-                    Log.v(Utils.TAG, "Fling right");
                     openNextArticle(-1);
                 } else {
-                    Log.v(Utils.TAG, "Fling left");
                     openNextArticle(1);
                 }
                 return true;
@@ -371,35 +365,23 @@ public class ArticleActivity extends Activity {
             return false;
         }
         
+        // @formatter:off
         private Runnable timerTask = new Runnable() {
-            // Need this to set the text invisible after some time
-            public void run() {
+            public void run() { // Need this to set the text invisible after some time
                 webviewSwipeText.setVisibility(TextView.INVISIBLE);
             }
         };
-        
         @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return false;
-        }
-        
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
         @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return false;
-        }
-        
+        public boolean onSingleTapUp(MotionEvent e) { return false; }
         @Override
-        public boolean onDown(MotionEvent e) {
-            return false;
-        }
-        
+        public boolean onDown(MotionEvent e) { return false; }
         @Override
-        public void onLongPress(MotionEvent e) {
-        }
-        
+        public void onLongPress(MotionEvent e) { }
         @Override
-        public void onShowPress(MotionEvent e) {
-        }
+        public void onShowPress(MotionEvent e) { }
+        // @formatter:on
     };
     
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -417,9 +399,8 @@ public class ArticleActivity extends Activity {
     
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (Controller.getInstance().isUseVolumeKeys()) {
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
                 return true;
-            }
         }
         return super.onKeyUp(keyCode, event);
     }
@@ -431,51 +412,40 @@ public class ArticleActivity extends Activity {
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
+        if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR)
             doRefresh();
-        }
     }
     
     private static String injectAttachments(Context context, String content, Set<String> attachments) {
         StringBuilder ret = new StringBuilder(content);
         
         for (String url : attachments) {
-            if (url.length() == 0) {
+            if (url.length() == 0)
                 continue;
-            }
             
             boolean image = false;
             for (String s : Utils.IMAGE_EXTENSIONS) {
-                if (url.toLowerCase().contains(s)) {
+                if (url.toLowerCase().contains(s))
                     image = true;
-                    break;
-                }
             }
             
             boolean audioOrVideo = false;
             for (String s : Utils.MEDIA_EXTENSIONS) {
-                if (url.toLowerCase().contains(s)) {
+                if (url.toLowerCase().contains(s))
                     audioOrVideo = true;
-                    break;
-                }
             }
             
             ret.append("<br>\n");
             if (image) {
-                ret.append("<img src=\"");
-                ret.append(url);
-                ret.append("\" /><br>\n");
+                ret.append("<img src=\"").append(url).append("\" /><br>\n");
             } else if (audioOrVideo) {
-                ret.append("<a href=\"");
-                ret.append(url);
-                ret.append("\">" + (String) context.getText(R.string.ArticleActivity_MediaPlay) + "</a>");
+                ret.append("<a href=\"").append(url).append("\">");
+                ret.append((String) context.getText(R.string.ArticleActivity_MediaPlay)).append("</a>");
             } else {
-                ret.append("<a href=\"");
-                ret.append(url);
-                ret.append("\">" + (String) context.getText(R.string.ArticleActivity_MediaDisplayLink) + "</a>");
+                ret.append("<a href=\"").append(url).append("\">");
+                ret.append((String) context.getText(R.string.ArticleActivity_MediaDisplayLink)).append("</a>");
             }
         }
-        
         return ret.toString();
     }
     
