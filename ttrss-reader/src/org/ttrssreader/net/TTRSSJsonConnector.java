@@ -33,6 +33,7 @@ import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.pojos.FeedItem;
@@ -342,36 +343,14 @@ public class TTRSSJsonConnector {
     }
     
     private String parseMetadata(String str) {
-        // Perhaps add seq-nr-check some day? But what for?
-        
-        TTRSSJsonResult result = null;
-        
-        try {
-            if (!mHasLastError) {
-                if (str != null && str.length() > 0) {
-                    // Make sure we only parse the stuff between the brackets, sometimes there is other output
-                    int start = str.indexOf("{");
-                    int stop = str.lastIndexOf("}");
-                    if (start >= 0 && stop > start && str.length() >= stop + 1) {
-                        result = new TTRSSJsonResult(str.substring(start, stop + 1));
-                    }
-                }
-            }
-            
-            if (result == null)
-                return "";
-            
-            int i = 0;
-            while ((i < result.getNames().length())) {
-                if (result.getNames().getString(i).equals(CONTENT)) {
-                    return result.getValues().getString(i);
-                }
-                i++;
-            }
-        } catch (JSONException e) {
-            mHasLastError = true;
-            mLastError = e.getMessage() + ", Method: parseMetadata(String str)";
+        // Cut string from content: to the end: /{"seq":0,"status":0,"content":(.*)}/\1/
+        String pattern = "\"content\":";
+        int start = str.indexOf(pattern) + pattern.length();
+        int stop = str.length() - 2;
+        if (start >= pattern.length() && stop > start) {
+            return str.substring(start, stop);
         }
+        
         return "";
     }
     
@@ -478,6 +457,7 @@ public class TTRSSJsonConnector {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
+                DBHelper.getInstance().purgeArticlesNumber(Controller.getInstance().getArticleLimit());
             }
         }
         
