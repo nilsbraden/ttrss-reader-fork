@@ -25,7 +25,6 @@ import org.ttrssreader.utils.Utils;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
@@ -334,49 +333,6 @@ public class DBHelper {
             insertArticle.executeInsert();
         }
         
-    }
-    
-    public void insertArticle(ArticleItem a, int number) {
-        if (a == null)
-            return;
-        
-        insertArticleInternal(a);
-        purgeArticlesNumber(number);
-    }
-    
-    private void insertArticleInternal(ArticleItem a) {
-        insertArticle(a.getId(), a.getFeedId(), a.getTitle(), a.isUnread(), a.getArticleUrl(),
-                a.getArticleCommentUrl(), a.getUpdateDate(), a.getContent(), a.getAttachments(), a.isStarred(),
-                a.isPublished());
-    }
-    
-    public void insertArticles(Set<ArticleItem> list, int number) {
-        if (list == null)
-            return;
-        
-        insertArticlesInternal(list);
-        purgeArticlesNumber(number);
-    }
-    
-    private void insertArticlesInternal(Set<ArticleItem> set) {
-        if (!isDBAvailable())
-            return;
-        if (set == null)
-            return;
-        
-        synchronized (TABLE_ARTICLES) {
-            db.beginTransaction();
-            try {
-                for (ArticleItem a : set) {
-                    insertArticleInternal(a);
-                }
-                db.setTransactionSuccessful();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                db.endTransaction();
-            }
-        }
     }
     
     // *******| UPDATE |*******************************************************************

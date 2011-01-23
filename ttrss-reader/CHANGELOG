@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.8.3 ==
+  * Fixed Articles not getting purged according to "Store articles limit"
+  * Probably fixed OutOfMemory problem while fetching articles
+  
 == Version 0.8.2 ==
   * Added ArticleCache (load all new articles at once) for Donators
   * Refresh unread-state while browsing unread articles
