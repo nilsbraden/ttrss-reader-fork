@@ -143,12 +143,6 @@
             android:defaultValue="true"
             android:summary="@string/UsageVibrateOnLastArticleSummary"
             android:key="UsageVibrateOnLastArticlePreference" />
-
-        <!-- <CheckBoxPreference
-            android:title="@string/UsageWorkOfflineTitle"
-            android:defaultValue="false"
-            android:summary="@string/UsageWorkOfflineSummary"
-            android:key="UsageWorkOfflinePreference" /> -->
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -165,12 +159,6 @@
             android:defaultValue="true"
             android:summary="@string/DisplayUseSwipeSummary"
             android:key="DisplayUseSwipePreference" />
-
-        <!-- <CheckBoxPreference
-            android:title="@string/DisplayShowUnreadOnlyTitle"
-            android:defaultValue="false"
-            android:summary="@string/DisplayShowUnreadOnlySummary"
-            android:key="DisplayShowUnreadOnlyPreference" /> -->
 
         <org.ttrssreader.utils.EditIntegerPreference
             android:name="@string/DisplayArticleLimitTitle"
@@ -198,6 +186,18 @@
             android:key="StoreImageAgeLimitPreference"
             android:maxLength="5"
             android:inputType="number" />
+            
+        <CheckBoxPreference
+            android:title="@string/CacheImagesUnreadArticlesTitle"
+            android:defaultValue="true"
+            android:summary="@string/CacheImagesUnreadArticlesSummary"
+            android:key="CacheImagesUnreadArticlesPreference" />
+            
+        <CheckBoxPreference
+            android:title="@string/CacheUnreadArticlesTitle"
+            android:defaultValue="true"
+            android:summary="@string/CacheUnreadArticlesSummary"
+            android:key="CacheUnreadArticlesPreference" />
     </PreferenceCategory>
 
     <PreferenceCategory

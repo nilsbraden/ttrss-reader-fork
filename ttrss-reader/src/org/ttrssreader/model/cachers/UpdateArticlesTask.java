@@ -20,10 +20,16 @@ import android.os.AsyncTask;
 
 public class UpdateArticlesTask extends AsyncTask<Integer, Void, Void> {
     
+    private boolean onlyUnread;
+    
+    public UpdateArticlesTask(boolean onlyUnread) {
+        this.onlyUnread = onlyUnread;
+    }
+    
     @Override
     protected Void doInBackground(Integer... params) {
         for (Integer i : params) {
-            Data.getInstance().updateArticles(i, false);
+            Data.getInstance().updateArticles(i, onlyUnread, true); // true to override offline-check
         }
         return null;
     }

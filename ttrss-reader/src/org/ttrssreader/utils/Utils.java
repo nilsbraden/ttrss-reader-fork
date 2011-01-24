@@ -30,11 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.AboutActivity;
-import org.ttrssreader.model.cachers.UpdateArticlesTask;
-import org.ttrssreader.model.pojos.FeedItem;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -46,7 +42,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.util.Log;
 
 public class Utils {
@@ -114,7 +109,6 @@ public class Utils {
             try {
                 is.close();
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
         return sb.toString();
@@ -162,7 +156,19 @@ public class Utils {
     public static boolean isOnline(ConnectivityManager cm) {
         if (Controller.getInstance().isWorkOffline()) {
             return false;
-        } else if (cm == null) {
+        } else {
+            return checkConnection(cm);
+        }
+    }
+    
+    /**
+     * Only checks the connectivity without regard to the preferences
+     * 
+     * @param cm
+     * @return
+     */
+    public static boolean checkConnection(ConnectivityManager cm) {
+        if (cm == null) {
             return false;
         }
         
@@ -387,69 +393,6 @@ public class Utils {
         n.setLatestEventInfo(context, title, content, intent);
         
         mNotMan.notify(time - 1290000000, n);
-    }
-    
-    /**
-     * 
-     * @param nrOfTasks
-     */
-    public static void updateLocalArticles(int nrOfTasks) {
-        long time = System.currentTimeMillis();
-        UpdateArticlesTask[] tasks = new UpdateArticlesTask[nrOfTasks];
-        Data.getInstance().updateFeeds(-4);
-        String mutex = "";
-        
-        for (FeedItem f : DBHelper.getInstance().getFeeds(-4)) {
-            boolean done = false;
-            while (!done) {
-                
-                // Start new Task if task-slot is available
-                for (int i = 0; i < nrOfTasks; i++) {
-                    UpdateArticlesTask t = tasks[i];
-                    if (t == null || t.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                        t = new UpdateArticlesTask();
-                        t.execute(f.getId());
-                        tasks[i] = t;
-                        done = true;
-                        break;
-                    }
-                }
-                
-                if (!done) { // No task-slot available, wait.
-                    synchronized (mutex) {
-                        try {
-                            mutex.wait(100);
-                        } catch (InterruptedException e) {
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Wait for tasks to finish
-        boolean finished = false;
-        while (!finished) {
-            for (int i = 0; i < nrOfTasks; i++) {
-                if (tasks[i] == null || tasks[i].getStatus().equals(AsyncTask.Status.FINISHED)) {
-                    tasks[i] = null; // Reset to null for easier checking next round...
-                    finished = true;
-                } else {
-                    finished = false;
-                    break;
-                }
-            }
-            
-            if (!finished) { // Not all tasks finished, wait.
-                synchronized (mutex) {
-                    try {
-                        mutex.wait(100);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        }
-        
-        Log.i(Utils.TAG, "Fetching new Articles took " + (System.currentTimeMillis() - time) + "ms");
     }
     
 }

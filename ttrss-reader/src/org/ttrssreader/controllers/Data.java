@@ -128,6 +128,10 @@ public class Data {
     // *** ARTICLES *********************************************************************
     
     public void updateArticles(int feedId, boolean displayOnlyUnread) {
+        updateArticles(feedId, displayOnlyUnread, false);
+    }
+    
+    public void updateArticles(int feedId, boolean displayOnlyUnread, boolean overrideOffline) {
         
         Long time = mArticlesUpdated.get(feedId);
         if (time == null) {
@@ -136,7 +140,7 @@ public class Data {
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
-        } else if (Utils.isOnline(cm)) {
+        } else if (Utils.isOnline(cm) || (overrideOffline && Utils.checkConnection(cm))) {
             int limit = 30;
             
             if (feedId < 0 && feedId >= -3) {

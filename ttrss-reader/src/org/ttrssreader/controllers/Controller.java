@@ -61,6 +61,8 @@ public class Controller {
     private int mArticleLimit;
     private int mImageCacheSize;
     private int mImageCacheAge;
+    private boolean mImageCacheUnread;
+    private boolean mArticleCacheUnread;
     
     private long mLastUpdateTime;
     private String mLastVersionRun;
@@ -136,6 +138,8 @@ public class Controller {
         mArticleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
         mImageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
         mImageCacheAge = prefs.getInt(Constants.IMAGE_CACHE_AGE, Constants.IMAGE_CACHE_AGE_DEFAULT);
+        mImageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
+        mArticleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD, Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
         
         mLastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
         mLastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
@@ -319,6 +323,22 @@ public class Controller {
     public void setImageCacheAge(int imageCacheAge) {
         put(Constants.IMAGE_CACHE_AGE, imageCacheAge);
         this.mImageCacheAge = imageCacheAge;
+    }
+    
+    public boolean isImageCacheUnread() {
+        return mImageCacheUnread;
+    }
+    
+    public void setImageCacheUnread(boolean imageCacheUnread) {
+        this.mImageCacheUnread = imageCacheUnread;
+    }
+    
+    public boolean isArticleCacheUnread() {
+        return mArticleCacheUnread;
+    }
+    
+    public void setArticleCacheUnread(boolean articleCacheUnread) {
+        this.mArticleCacheUnread = articleCacheUnread;
     }
     
     // ******* INTERNAL Data ****************************

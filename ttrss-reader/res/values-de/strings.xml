@@ -135,6 +135,10 @@
     <string name="StoreImageLimitSummary">Größe des Zwischenspeichers für Bilder zur Offline-Nutzung.</string>
     <string name="StoreImageAgeLimitTitle">Maximal n Tage alte Bilder zwischenspeichern</string>
     <string name="StoreImageAgeLimitSummary">Gibt an wie alt Bilder im Cache maximal sein dürfen.</string>
+    <string name="CacheImagesUnreadArticlesTitle">Bild-Cache nur ungelesene?</string>
+    <string name="CacheImagesUnreadArticlesSummary">Gibt an ob im Bild-Cache nur Bilder aus ungelesenen Artikeln gespeichert werden sollen.</string>
+    <string name="CacheUnreadArticlesTitle">Artikel-Cache nur ungeleseneß</string>
+    <string name="CacheUnreadArticlesSummary">Gibt an ob im Artikel-Cache nur ungelesene Artikeln gespeichert werden sollen.</string>
     
     <string name="ErrorActivity.Title">Fehler</string>
     <string name="ErrorActivity.UserMessage">Konnte nicht zu Ihrer Tiny Tiny RSS-Installation verbinden, bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
