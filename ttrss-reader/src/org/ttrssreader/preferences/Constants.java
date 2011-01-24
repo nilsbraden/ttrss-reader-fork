@@ -69,6 +69,8 @@ public class Constants {
     public static String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
     public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
     public static String IMAGE_CACHE_AGE = "StoreImageAgeLimitPreference";
+    public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesTitle";
+    public static String ARTICLE_CACHE_UNREAD = "CacheUnreadArticlesTitle";
     // Display Default Values
     public static boolean SHOW_VIRTUAL_DEFAULT = true;
     public static boolean USE_SWIPE_DEFAULT = true;
@@ -76,6 +78,8 @@ public class Constants {
     public static int ARTICLE_LIMIT_DEFAULT = 1000;
     public static int IMAGE_CACHE_SIZE_DEFAULT = 100;
     public static int IMAGE_CACHE_AGE_DEFAULT = 14;
+    public static boolean IMAGE_CACHE_UNREAD_DEFAULT = true;
+    public static boolean ARTICLE_CACHE_UNREAD_DEFAULT = true;
     
     // Internal
     public static String DATABASE_VERSION = "DatabaseVersion";
@@ -122,7 +126,6 @@ public class Constants {
         
         editor.putBoolean(AUTOMATIC_MARK_READ, AUTOMATIC_MARK_READ_DEFAULT);
         editor.putBoolean(OPEN_URL_EMPTY_ARTICLE, OPEN_URL_EMPTY_ARTICLE_DEFAULT);
-        // editor.putBoolean(UPDATE_UNREAD_ON_STARTUP, UPDATE_UNREAD_ON_STARTUP_DEFAULT);
         editor.putBoolean(USE_VOLUME_KEYS, USE_VOLUME_KEYS_DEFAULT);
         editor.putBoolean(VIBRATE_ON_LAST_ARTICLE, VIBRATE_ON_LAST_ARTICLE_DEFAULT);
         editor.putBoolean(WORK_OFFLINE, WORK_OFFLINE_DEFAULT);
@@ -133,6 +136,8 @@ public class Constants {
         editor.putInt(ARTICLE_LIMIT, ARTICLE_LIMIT_DEFAULT);
         editor.putInt(IMAGE_CACHE_SIZE, IMAGE_CACHE_SIZE_DEFAULT);
         editor.putInt(IMAGE_CACHE_AGE, IMAGE_CACHE_AGE_DEFAULT);
+        editor.putBoolean(IMAGE_CACHE_UNREAD, IMAGE_CACHE_UNREAD_DEFAULT);
+        editor.putBoolean(ARTICLE_CACHE_UNREAD, ARTICLE_CACHE_UNREAD_DEFAULT);
         
         editor.putInt(DATABASE_VERSION, DATABASE_VERSION_DEFAULT);
         editor.putLong(LAST_UPDATE_TIME, LAST_UPDATE_TIME_DEFAULT);

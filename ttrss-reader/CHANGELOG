@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.8.4 ==
+  * Added options for Image- and ArticleCache: cache for unread articles only
+  * Caching now works independent from online/offline state
+  
 == Version 0.8.3 ==
   * Fixed Articles not getting purged according to "Store articles limit"
   * Probably fixed OutOfMemory problem while fetching articles

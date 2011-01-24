@@ -99,6 +99,8 @@ public class TTRSSJsonConnector {
     private String sidUrl;
     private String loginLock = "";
     
+    private CredentialsProvider credProvider;
+    
     public TTRSSJsonConnector(String serverUrl, String userName, String password, String httpUser, String httpPw) {
         mServerUrl = serverUrl;
         mUserName = userName;
@@ -106,6 +108,10 @@ public class TTRSSJsonConnector {
         mSessionId = null;
         httpUserName = httpUser;
         httpPassword = httpPw;
+        
+        credProvider = new BasicCredentialsProvider();
+        credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                new UsernamePasswordCredentials(httpUserName, httpPassword));
     }
     
     private String doRequest(String url) {
@@ -119,14 +125,8 @@ public class TTRSSJsonConnector {
             httpPost = new HttpPost(url);
             httpParams = httpPost.getParams();
             httpclient = HttpClientFactory.createInstance(httpParams);
-            
-            CredentialsProvider credProvider = new BasicCredentialsProvider();
-            credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                    new UsernamePasswordCredentials(httpUserName, httpPassword));
             httpclient.setCredentialsProvider(credProvider);
-            
         } catch (Exception e) {
-            Log.e(Utils.TAG, "Error creating HTTP-Connection: " + e.getMessage());
             mHasLastError = true;
             mLastError = "Error creating HTTP-Connection: " + e.getMessage();
             return null;
