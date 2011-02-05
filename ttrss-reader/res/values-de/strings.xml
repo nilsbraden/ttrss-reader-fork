@@ -162,4 +162,8 @@
     <string name="About.twitter_hint">Follow me on twitter.\nGet update notifications etc.</string>
     <string name="About.feedback">Feedback</string>
     <string name="About.feedback_hint">Report bugs, request features ...</string>
+    <string name="debug_">Debug</string>
+    <!-- <string name="sendlog_install_">SendLog installieren</string>
+    <string name="send_logs_">Logs senden</string>
+    <string name="send_logs_hint">Logs von deinem Handy an den Entwickler senden.\nBitte nur nach Aufforderung senden.</string> -->
 </resources>
