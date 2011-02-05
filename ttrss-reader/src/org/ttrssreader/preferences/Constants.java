@@ -50,14 +50,12 @@ public class Constants {
     // Usage
     public static String AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
     public static String OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
-    // public static String UPDATE_UNREAD_ON_STARTUP = "UsageUpdateArticlesOnStartupPreference";
     public static String USE_VOLUME_KEYS = "UsageUseVolumeKeysPreference";
     public static String VIBRATE_ON_LAST_ARTICLE = "UsageVibrateOnLastArticlePreference";
     public static String WORK_OFFLINE = "UsageWorkOfflinePreference";
     // Usage Default Values
     public static boolean AUTOMATIC_MARK_READ_DEFAULT = true;
     public static boolean OPEN_URL_EMPTY_ARTICLE_DEFAULT = false;
-    // public static boolean UPDATE_UNREAD_ON_STARTUP_DEFAULT = false;
     public static boolean USE_VOLUME_KEYS_DEFAULT = false;
     public static boolean VIBRATE_ON_LAST_ARTICLE_DEFAULT = true;
     public static boolean WORK_OFFLINE_DEFAULT = false;

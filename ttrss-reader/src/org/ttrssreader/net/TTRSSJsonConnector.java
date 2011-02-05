@@ -25,6 +25,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -150,9 +151,12 @@ public class TTRSSJsonConnector {
                 
                 if (strResponse.contains(NOT_LOGGED_IN)) {
                     Log.w(Utils.TAG, "Not logged in, retrying...");
+                    mHasLastError = true;
+                    mLastError = NOT_LOGGED_IN;
+                    
                     // Login and post request again
                     String tempSessionId = new String(mSessionId);
-                    login();
+                    Log.d(Utils.TAG, "Login returned " + (login() ? "true." : "false."));
                     if (url.contains(tempSessionId)) {
                         url = url.replace(tempSessionId, mSessionId);
                     }
@@ -174,9 +178,13 @@ public class TTRSSJsonConnector {
                     return null;
                 }
             }
+        } catch (ClientProtocolException e) {
+            mHasLastError = true;
+            mLastError = e.getMessage() + ", Method: doRequest(String url) threw ClientProtocolException";
+            return null;
         } catch (IOException e) {
             mHasLastError = true;
-            mLastError = e.getMessage() + ", Method: doRequest(String url), threw IOException";
+            mLastError = e.getMessage() + ", Method: doRequest(String url) threw IOException";
             return null;
         }
         
@@ -257,6 +265,7 @@ public class TTRSSJsonConnector {
         // Just login once, check if already logged in after acquiring the lock on mSessionId
         synchronized (loginLock) {
             if (mSessionId != null && !(mLastError.equals(NOT_LOGGED_IN))) {
+                Log.d(Utils.TAG, "login() returned, already logged in.");
                 return true;
             }
             
@@ -282,7 +291,7 @@ public class TTRSSJsonConnector {
                 } catch (JSONException e) {
                     result = false;
                     mHasLastError = true;
-                    mLastError = e.getMessage() + ", Method: login(String url), threw JSONException";
+                    mLastError = e.getMessage() + ", Method: login(String url) threw JSONException";
                     e.printStackTrace();
                 }
                 
@@ -303,6 +312,7 @@ public class TTRSSJsonConnector {
     }
     
     private boolean loginBase64() {
+        Log.d(Utils.TAG, "login() didn't work, trying loginBase64()...");
         mSessionId = null;
         
         byte[] bytes = mPassword.getBytes();
@@ -311,9 +321,8 @@ public class TTRSSJsonConnector {
         String url = mServerUrl + String.format(OP_LOGIN, mUserName, mPasswordEncoded);
         TTRSSJsonResult jsonResult = getJSONLoginResponse(url);
         
-        if (jsonResult == null) {
+        if (jsonResult == null)
             return false;
-        }
         
         if (!mHasLastError) {
             int i = 0;
@@ -321,7 +330,6 @@ public class TTRSSJsonConnector {
             
             try {
                 while ((i < jsonResult.getNames().length()) && (!stop)) {
-                    
                     if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
                         stop = true;
                         mSessionId = jsonResult.getValues().getString(i);
@@ -329,11 +337,10 @@ public class TTRSSJsonConnector {
                     } else {
                         i++;
                     }
-                    
                 }
             } catch (JSONException e) {
                 mHasLastError = true;
-                mLastError = e.getMessage() + ", Method: login(String url), threw JSONException";
+                mLastError = e.getMessage() + ", Method: login(String url) threw JSONException";
                 e.printStackTrace();
                 return false;
             }
@@ -392,9 +399,6 @@ public class TTRSSJsonConnector {
     }
     
     private Set<Integer> parseArticlesAndInsertInDB(JSONArray jsonResult) {
-        // Lots of copy&paste and direct access on DB-ressources here to reduce memory usage for requests with lots of
-        // articles...
-        
         Set<Integer> ret = new LinkedHashSet<Integer>();
         
         SQLiteDatabase db = DBHelper.getInstance().db;
@@ -453,7 +457,7 @@ public class TTRSSJsonConnector {
                 db.setTransactionSuccessful();
             } catch (JSONException e) {
                 mHasLastError = true;
-                mLastError = e.getMessage() + ", Method: parseArticlesAndInsertInDB(...), threw JSONException";
+                mLastError = e.getMessage() + ", Method: parseArticlesAndInsertInDB(...) threw JSONException";
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
@@ -479,7 +483,6 @@ public class TTRSSJsonConnector {
         if (jsonResult == null) {
             return;
         } else if (mHasLastError && mLastError.contains(ERROR)) {
-            // Catch unknown-method error
             if (mLastError.contains(UNKNOWN_METHOD)) {
                 mLastError = "";
                 mHasLastError = false;
@@ -525,7 +528,7 @@ public class TTRSSJsonConnector {
             }
         } catch (JSONException e) {
             mHasLastError = true;
-            mLastError = e.getMessage() + ", Method: getCounters(), threw JSONException";
+            mLastError = e.getMessage() + ", Method: getCounters() threw JSONException";
             e.printStackTrace();
         }
     }
@@ -562,16 +565,14 @@ public class TTRSSJsonConnector {
                         title = values.getString(j);
                     } else if (s.equals(UNREAD)) {
                         unread = values.getInt(j);
-                    }// else if (s.equals("feeds")) {
-                     // feedValues = (JSONArray) values.get(i);
-                     // }
+                    }
                 }
                 
                 ret.add(new CategoryItem(id, title, unread));
             }
         } catch (JSONException e) {
             mHasLastError = true;
-            mLastError = e.getMessage() + ", Method: getCategories(), threw JSONException";
+            mLastError = e.getMessage() + ", Method: getCategories() threw JSONException";
             e.printStackTrace();
         }
         
@@ -617,9 +618,7 @@ public class TTRSSJsonConnector {
                         feedUrl = values.getString(j);
                     } else if (s.equals(UNREAD)) {
                         unread = values.getInt(j);
-                    }// else if (s.equals("articles")) {
-                     // articleValues = (JSONArray) values.get(i);
-                     // }
+                    }
                 }
                 
                 if (id > 0)
@@ -627,7 +626,7 @@ public class TTRSSJsonConnector {
             }
         } catch (JSONException e) {
             mHasLastError = true;
-            mLastError = e.getMessage() + ", Method: getSubsribedFeeds(), threw JSONException";
+            mLastError = e.getMessage() + ", Method: getSubsribedFeeds() threw JSONException";
             e.printStackTrace();
         }
         
@@ -767,7 +766,7 @@ public class TTRSSJsonConnector {
             }
         } catch (JSONException e) {
             mHasLastError = true;
-            mLastError = e.getMessage() + ", Method: getPref(), threw JSONException";
+            mLastError = e.getMessage() + ", Method: getPref() threw JSONException";
             e.printStackTrace();
         }
         return null;

@@ -204,13 +204,13 @@
         android:title="@string/About.about">
 
         <!-- Doesn't work, perhaps because AboutActivity is set to android:theme="@android:style/Theme.Dialog" ? -->
-    <!-- <PreferenceScreen
-        android:title="@string/About.about"
-        android:summary="@string/About.about_hint">
-        <intent
-        android:action="android.intent.action.MAIN"
-        android:targetPackage="org.ttrssreader.gui"
-        android:targetClass="org.ttrssreader.gui.AboutActivity" />
+        <!-- <PreferenceScreen
+            android:title="@string/About.about"
+            android:summary="@string/About.about_hint">
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetPackage="org.ttrssreader.gui"
+                android:targetClass="org.ttrssreader.gui.AboutActivity" />
         </PreferenceScreen> -->
 
         <PreferenceScreen
@@ -237,5 +237,25 @@
                 android:data="http://twitter.com/nilsbraden" />
         </PreferenceScreen>
     </PreferenceCategory>
+
+    <!-- <PreferenceCategory
+        android:title="@string/debug_">
+        <PreferenceScreen
+            android:title="@string/sendlog_install_" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="market://search?q=pname:org.l6n.sendlog" />
+        </PreferenceScreen>
+                
+        <PreferenceScreen
+            android:title="@string/send_logs_"
+            android:summary="@string/send_logs_hint" >
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetPackage="org.l6n.sendlog"
+                android:targetClass="org.l6n.sendlog.SendLog"
+                android:data="7|com.google.android.gm.ComposeActivityGmail|nils.braden@web.de" />
+        </PreferenceScreen>
+    </PreferenceCategory> -->
 
 </PreferenceScreen>
