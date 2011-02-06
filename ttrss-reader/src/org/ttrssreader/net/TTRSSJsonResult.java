@@ -16,20 +16,18 @@
 
 package org.ttrssreader.net;
 
-import java.io.InputStream;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ttrssreader.utils.Utils;
 
 public class TTRSSJsonResult {
     
     private JSONArray mNames;
     private JSONArray mValues;
     
-    public TTRSSJsonResult(InputStream is) throws JSONException {
-        this(Utils.convertStreamToString(is));
-    }
+    // public TTRSSJsonResult(InputStream is) throws JSONException {
+    // this(Utils.convertStreamToString(is));
+    // }
     
     public TTRSSJsonResult(String input) throws JSONException {
         

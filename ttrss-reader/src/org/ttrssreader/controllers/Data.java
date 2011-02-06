@@ -16,6 +16,7 @@
 package org.ttrssreader.controllers;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -241,13 +242,17 @@ public class Data {
     
     public void setArticleStarred(int articlesId, int articleState) {
         if (Utils.isOnline(cm)) {
-            Controller.getInstance().getConnector().setArticleStarred(articlesId, articleState);
+            Set<Integer> ids = new HashSet<Integer>();
+            ids.add(articlesId);
+            Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
         }
     }
     
     public void setArticlePublished(int articlesId, int articleState) {
         if (Utils.isOnline(cm)) {
-            Controller.getInstance().getConnector().setArticlePublished(articlesId, articleState);
+            Set<Integer> ids = new HashSet<Integer>();
+            ids.add(articlesId);
+            Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
         }
     }
     
@@ -264,4 +269,36 @@ public class Data {
         return null;
     }
     
+    public void synchronizeStatus() {
+        if (!Utils.isOnline(cm))
+            return;
+        
+        String[] marks = new String[] { "isUnread", "isStarred", "isPublished" };
+        for (String mark : marks) {
+            Set<Integer> idsMark = DBHelper.getInstance().getMarked(mark, 1);
+            Set<Integer> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
+            
+            if ("isUnread".equals(mark)) {
+                if (Controller.getInstance().getConnector().setArticleRead(idsMark, 1))
+                    DBHelper.getInstance().setMarked(idsMark, mark);
+                
+                if (Controller.getInstance().getConnector().setArticleRead(idsUnmark, 0))
+                    DBHelper.getInstance().setMarked(idsUnmark, mark);
+            }
+            if ("isStarred".equals(mark)) {
+                if (Controller.getInstance().getConnector().setArticleStarred(idsMark, 1))
+                    DBHelper.getInstance().setMarked(idsMark, mark);
+                
+                if (Controller.getInstance().getConnector().setArticleStarred(idsUnmark, 0))
+                    DBHelper.getInstance().setMarked(idsUnmark, mark);
+            }
+            if ("isPublished".equals(mark)) {
+                if (Controller.getInstance().getConnector().setArticlePublished(idsMark, 1))
+                    DBHelper.getInstance().setMarked(idsMark, mark);
+                
+                if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0))
+                    DBHelper.getInstance().setMarked(idsUnmark, mark);
+            }
+        }
+    }
 }

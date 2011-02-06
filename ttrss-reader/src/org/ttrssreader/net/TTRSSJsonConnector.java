@@ -67,6 +67,7 @@ public class TTRSSJsonConnector {
     private static final String UNKNOWN_METHOD = ERROR + "\"UNKNOWN_METHOD\"}";
     private static final String API_DISABLED = ERROR + "\"API_DISABLED\"}";
     private static final String API_DISABLED_MESSAGE = "Please enable API for this user in its preferences on the Server. (User: %s, URL: %s)";
+    private static final String OK = "\"status\":\"OK\"";
     
     private static final String SESSION_ID = "session_id";
     private static final String ID = "id";
@@ -115,7 +116,7 @@ public class TTRSSJsonConnector {
                 new UsernamePasswordCredentials(httpUserName, httpPassword));
     }
     
-    private String doRequest(String url) {
+    private String doRequest(String url, boolean firstCall) {
         long start = System.currentTimeMillis();
         String strResponse = null;
         
@@ -147,20 +148,20 @@ public class TTRSSJsonConnector {
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 InputStream instream = entity.getContent();
-                strResponse = Utils.convertStreamToString(instream);
+                strResponse = Utils.convertStreamToString(instream); // TODO: See if this can be and/or needs to be
+                                                                     // optimized.
                 
-                if (strResponse.contains(NOT_LOGGED_IN)) {
+                if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
                     Log.w(Utils.TAG, "Not logged in, retrying...");
                     mHasLastError = true;
                     mLastError = NOT_LOGGED_IN;
                     
                     // Login and post request again
                     String tempSessionId = new String(mSessionId);
-                    Log.d(Utils.TAG, "Login returned " + (login() ? "true." : "false."));
                     if (url.contains(tempSessionId)) {
                         url = url.replace(tempSessionId, mSessionId);
                     }
-                    strResponse = doRequest(url);
+                    strResponse = doRequest(url, false);
                 }
                 
                 // Check if API is enabled for the user
@@ -195,12 +196,12 @@ public class TTRSSJsonConnector {
         return strResponse;
     }
     
-    private void doRequestNoAnswer(String url) {
+    private String doRequestNoAnswer(String url) {
         // Make sure we are logged in
         if (mSessionId == null || mLastError.equals(NOT_LOGGED_IN))
             login();
         if (mHasLastError)
-            return;
+            return null;
         
         mHasLastError = false;
         mLastError = "";
@@ -208,7 +209,7 @@ public class TTRSSJsonConnector {
         if (!url.contains(sidUrl))
             url += sidUrl;
         
-        doRequest(url); // Append Session-ID to all calls except login
+        return doRequest(url, true); // Append Session-ID to all calls except login
     }
     
     private JSONArray getJSONResponseAsArray(String url) {
@@ -224,7 +225,7 @@ public class TTRSSJsonConnector {
         if (!url.contains(sidUrl))
             url += sidUrl;
         
-        String strResponse = doRequest(url); // Append Session-ID to all calls except login
+        String strResponse = doRequest(url, true); // Append Session-ID to all calls except login
         
         if (mHasLastError)
             return null;
@@ -247,7 +248,7 @@ public class TTRSSJsonConnector {
         mLastError = "";
         
         TTRSSJsonResult result = null;
-        String strResponse = doRequest(url);
+        String strResponse = doRequest(url, true);
         
         if (!mHasLastError) {
             try {
@@ -685,9 +686,9 @@ public class TTRSSJsonConnector {
      * @param articleState
      *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
      */
-    public void setArticleRead(Set<Integer> articlesIds, int articleState) {
+    public boolean setArticleRead(Set<Integer> articleIds, int articleState) {
         StringBuilder sb = new StringBuilder();
-        for (Integer s : articlesIds) {
+        for (Integer s : articleIds) {
             sb.append(s + ",");
         }
         if (sb.length() > 0) {
@@ -695,7 +696,8 @@ public class TTRSSJsonConnector {
         }
         
         String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, sb, articleState, 2);
-        doRequestNoAnswer(url);
+        String ret = doRequestNoAnswer(url);
+        return ret.contains(OK);
     }
     
     /**
@@ -706,9 +708,18 @@ public class TTRSSJsonConnector {
      * @param articleState
      *            the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
      */
-    public void setArticleStarred(int articlesId, int articleState) {
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, articlesId, articleState, 0);
-        doRequestNoAnswer(url);
+    public boolean setArticleStarred(Set<Integer> articleIds, int articleState) {
+        StringBuilder sb = new StringBuilder();
+        for (Integer s : articleIds) {
+            sb.append(s + ",");
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        
+        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, sb, articleState, 0);
+        String ret = doRequestNoAnswer(url);
+        return ret.contains(OK);
     }
     
     /**
@@ -719,9 +730,18 @@ public class TTRSSJsonConnector {
      * @param articleState
      *            the new state of the article (0 -> not published; 1 -> published; 2 -> toggle).
      */
-    public void setArticlePublished(int articlesId, int articleState) {
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, articlesId, articleState, 1);
-        doRequestNoAnswer(url);
+    public boolean setArticlePublished(Set<Integer> articleIds, int articleState) {
+        StringBuilder sb = new StringBuilder();
+        for (Integer s : articleIds) {
+            sb.append(s + ",");
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        
+        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, sb, articleState, 1);
+        String ret = doRequestNoAnswer(url);
+        return ret.contains(OK);
     }
     
     /**
@@ -732,9 +752,10 @@ public class TTRSSJsonConnector {
      * @param isCategory
      *            indicates whether id refers to a feed or a category.
      */
-    public void setRead(int id, boolean isCategory) {
+    public boolean setRead(int id, boolean isCategory) {
         String url = mServerUrl + String.format(OP_CATCHUP, id, (isCategory ? 1 : 0));
-        doRequestNoAnswer(url);
+        String ret = doRequestNoAnswer(url);
+        return ret.contains(OK);
     }
     
     /**
