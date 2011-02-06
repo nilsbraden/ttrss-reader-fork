@@ -21,7 +21,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.FeedHeadlineListAdapter;
 import org.ttrssreader.model.FeedListAdapter;
 import org.ttrssreader.model.pojos.ArticleItem;
@@ -52,7 +51,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEndListener {
+public class FeedHeadlineListActivity extends MenuActivity {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "FEED_ID";
@@ -127,6 +126,10 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
             updater.cancel(true);
             updater = null;
         }
+        if (imageCacher != null) {
+            imageCacher.cancel(true);
+            imageCacher = null;
+        }
         mAdapter.cursor.deactivate();
         mAdapter.cursor.close();
     }
@@ -148,11 +151,15 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
         mAdapter.notifyDataSetChanged();
         
         if (TTRSSJsonConnector.hasLastError()) {
+            if (imageCacher != null) {
+                imageCacher.cancel(true);
+                imageCacher = null;
+            }
             openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
             return;
         }
         
-        if (updater == null) {
+        if (updater == null && imageCacher == null) {
             setProgressBarIndeterminateVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyHeadlines);
         }
@@ -334,37 +341,27 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
             return false;
         }
         
+        // @formatter:off
         @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return false;
-        }
-        
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
         @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            return false;
-        }
-        
+        public boolean onSingleTapUp(MotionEvent e) { return false; }
         @Override
-        public boolean onDown(MotionEvent e) {
-            return false;
-        }
-        
+        public boolean onDown(MotionEvent e) { return false; }
         @Override
-        public void onLongPress(MotionEvent e) {
-        }
-        
+        public void onLongPress(MotionEvent e) { }
         @Override
-        public void onShowPress(MotionEvent e) {
-        }
+        public void onShowPress(MotionEvent e) { }
+        // @formatter:on
     };
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (Controller.getInstance().isUseVolumeKeys()) {
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_N) {
                 openNextFeed(-1);
                 return true;
-            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_B) {
                 openNextFeed(1);
                 return true;
             }
@@ -375,17 +372,12 @@ public class FeedHeadlineListActivity extends MenuActivity implements IUpdateEnd
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (Controller.getInstance().isUseVolumeKeys()) {
-            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP
+                    || keyCode == KeyEvent.KEYCODE_N || keyCode == KeyEvent.KEYCODE_B) {
                 return true;
             }
         }
         return super.onKeyUp(keyCode, event);
-    }
-    
-    @Override
-    public void onUpdateEnd() {
-        updater = null;
-        doRefresh();
     }
     
 }

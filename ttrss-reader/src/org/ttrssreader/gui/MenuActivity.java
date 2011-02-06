@@ -17,6 +17,10 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.interfaces.ICacheEndListener;
+import org.ttrssreader.gui.interfaces.IUpdateEndListener;
+import org.ttrssreader.model.cachers.Cacher;
+import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
@@ -35,11 +39,12 @@ import android.widget.TextView;
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
  * FeedHeadlineListActivity).
  */
-public class MenuActivity extends ListActivity {
+public class MenuActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
     
     protected boolean configChecked = false;
     protected ListView mListView;
     protected Updater updater;
+    protected Cacher imageCacher;
     protected TextView notificationTextView;
     
     protected static final int MARK_GROUP = 42;
@@ -96,6 +101,10 @@ public class MenuActivity extends ListActivity {
                 return true;
             case R.id.Menu_WorkOffline:
                 Controller.getInstance().setWorkOffline(!Controller.getInstance().isWorkOffline());
+                if (!Controller.getInstance().isWorkOffline()) {
+                    // Synchronize status of articles with server
+                    new Updater(this, new StateSynchronisationUpdater()).execute((Void[]) null);
+                }
                 return true;
             case R.id.Menu_ShowPreferences:
                 startActivityForResult(new Intent(this, PreferencesActivity.class),
@@ -148,5 +157,17 @@ public class MenuActivity extends ListActivity {
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
+    }
+    
+    @Override
+    public void onUpdateEnd() {
+        updater = null;
+        doRefresh();
+    }
+    
+    @Override
+    public void onCacheEnd() {
+        imageCacher = null;
+        doRefresh();
     }
 }

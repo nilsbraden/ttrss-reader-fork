@@ -39,6 +39,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.utils.Base64;
+import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -209,7 +210,15 @@ public class TTRSSJsonConnector {
         if (!url.contains(sidUrl))
             url += sidUrl;
         
-        return doRequest(url, true); // Append Session-ID to all calls except login
+        String ret = doRequest(url, true); // Append Session-ID to all calls except login
+        
+        if (mHasLastError) {
+            mHasLastError = false;
+            mLastError = "";
+            ret = "";
+        }
+        
+        return ret;
     }
     
     private JSONArray getJSONResponseAsArray(String url) {
@@ -266,7 +275,6 @@ public class TTRSSJsonConnector {
         // Just login once, check if already logged in after acquiring the lock on mSessionId
         synchronized (loginLock) {
             if (mSessionId != null && !(mLastError.equals(NOT_LOGGED_IN))) {
-                Log.d(Utils.TAG, "login() returned, already logged in.");
                 return true;
             }
             
@@ -640,20 +648,13 @@ public class TTRSSJsonConnector {
      * @param articleIds
      *            the ids of the articles.
      */
-    public void getArticle(Set<Integer> articleIds) {
-        if (articleIds.size() == 0)
+    public void getArticle(Set<Integer> ids) {
+        if (ids.size() == 0)
             return;
         
-        StringBuilder sb = new StringBuilder();
-        for (Integer i : articleIds) {
-            sb.append(i);
-            sb.append(",");
-        }
-        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == ',') {
-            sb.deleteCharAt(sb.length() - 1);
-        }
+        String idList = StringSupport.convertListToString(ids);
         
-        String url = mServerUrl + String.format(OP_GET_ARTICLE, sb.toString());
+        String url = mServerUrl + String.format(OP_GET_ARTICLE, idList);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
@@ -686,16 +687,13 @@ public class TTRSSJsonConnector {
      * @param articleState
      *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
      */
-    public boolean setArticleRead(Set<Integer> articleIds, int articleState) {
-        StringBuilder sb = new StringBuilder();
-        for (Integer s : articleIds) {
-            sb.append(s + ",");
-        }
-        if (sb.length() > 0) {
-            sb.deleteCharAt(sb.length() - 1);
-        }
+    public boolean setArticleRead(Set<Integer> ids, int articleState) {
+        if (ids.size() == 0)
+            return true;
         
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, sb, articleState, 2);
+        String idList = StringSupport.convertListToString(ids);
+        
+        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 2);
         String ret = doRequestNoAnswer(url);
         return ret.contains(OK);
     }
@@ -708,16 +706,13 @@ public class TTRSSJsonConnector {
      * @param articleState
      *            the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
      */
-    public boolean setArticleStarred(Set<Integer> articleIds, int articleState) {
-        StringBuilder sb = new StringBuilder();
-        for (Integer s : articleIds) {
-            sb.append(s + ",");
-        }
-        if (sb.length() > 0) {
-            sb.deleteCharAt(sb.length() - 1);
-        }
+    public boolean setArticleStarred(Set<Integer> ids, int articleState) {
+        if (ids.size() == 0)
+            return true;
         
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, sb, articleState, 0);
+        String idList = StringSupport.convertListToString(ids);
+        
+        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 0);
         String ret = doRequestNoAnswer(url);
         return ret.contains(OK);
     }
@@ -730,16 +725,13 @@ public class TTRSSJsonConnector {
      * @param articleState
      *            the new state of the article (0 -> not published; 1 -> published; 2 -> toggle).
      */
-    public boolean setArticlePublished(Set<Integer> articleIds, int articleState) {
-        StringBuilder sb = new StringBuilder();
-        for (Integer s : articleIds) {
-            sb.append(s + ",");
-        }
-        if (sb.length() > 0) {
-            sb.deleteCharAt(sb.length() - 1);
-        }
+    public boolean setArticlePublished(Set<Integer> ids, int articleState) {
+        if (ids.size() == 0)
+            return true;
         
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, sb, articleState, 1);
+        String idList = StringSupport.convertListToString(ids);
+        
+        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 1);
         String ret = doRequestNoAnswer(url);
         return ret.contains(OK);
     }

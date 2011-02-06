@@ -234,65 +234,77 @@ public class Data {
     
     // *** STATUS *******************************************************************
     
-    public void setArticleRead(Set<Integer> articlesIds, int articleState) {
-        if (Utils.isOnline(cm)) {
-            Controller.getInstance().getConnector().setArticleRead(articlesIds, articleState);
-        }
+    public void setArticleRead(Set<Integer> ids, int articleState) {
+        boolean erg = false;
+        if (Utils.isOnline(cm))
+            erg = Controller.getInstance().getConnector().setArticleRead(ids, articleState);
+        
+        if (!erg)
+            DBHelper.getInstance().markArticles(ids, DBHelper.MARK_READ, articleState);
     }
     
-    public void setArticleStarred(int articlesId, int articleState) {
-        if (Utils.isOnline(cm)) {
-            Set<Integer> ids = new HashSet<Integer>();
-            ids.add(articlesId);
-            Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
-        }
+    public void setArticleStarred(int articleIds, int articleState) {
+        boolean erg = false;
+        Set<Integer> ids = new HashSet<Integer>();
+        ids.add(articleIds);
+        
+        if (Utils.isOnline(cm))
+            erg = Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
+        
+        if (!erg)
+            DBHelper.getInstance().markArticles(ids, DBHelper.MARK_STAR, articleState);
     }
     
-    public void setArticlePublished(int articlesId, int articleState) {
-        if (Utils.isOnline(cm)) {
-            Set<Integer> ids = new HashSet<Integer>();
-            ids.add(articlesId);
-            Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
-        }
+    public void setArticlePublished(int articleIds, int articleState) {
+        boolean erg = false;
+        Set<Integer> ids = new HashSet<Integer>();
+        ids.add(articleIds);
+        
+        if (Utils.isOnline(cm))
+            erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
+        
+        if (!erg)
+            DBHelper.getInstance().markArticles(ids, DBHelper.MARK_PUBLISH, articleState);
     }
     
     public void setRead(int id, boolean isCategory) {
-        if (Utils.isOnline(cm)) {
-            Controller.getInstance().getConnector().setRead(id, isCategory);
-        }
+        if (!Utils.isOnline(cm))
+            return;
+        
+        Controller.getInstance().getConnector().setRead(id, isCategory);
     }
     
     public String getPref(String pref) {
-        if (Utils.isOnline(cm)) {
-            return Controller.getInstance().getConnector().getPref(pref);
-        }
-        return null;
+        if (!Utils.isOnline(cm))
+            return null;
+        
+        return Controller.getInstance().getConnector().getPref(pref);
     }
     
     public void synchronizeStatus() {
         if (!Utils.isOnline(cm))
             return;
         
-        String[] marks = new String[] { "isUnread", "isStarred", "isPublished" };
+        String[] marks = new String[] { DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH };
         for (String mark : marks) {
             Set<Integer> idsMark = DBHelper.getInstance().getMarked(mark, 1);
             Set<Integer> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
             
-            if ("isUnread".equals(mark)) {
+            if (DBHelper.MARK_READ.equals(mark)) {
                 if (Controller.getInstance().getConnector().setArticleRead(idsMark, 1))
                     DBHelper.getInstance().setMarked(idsMark, mark);
                 
                 if (Controller.getInstance().getConnector().setArticleRead(idsUnmark, 0))
                     DBHelper.getInstance().setMarked(idsUnmark, mark);
             }
-            if ("isStarred".equals(mark)) {
+            if (DBHelper.MARK_STAR.equals(mark)) {
                 if (Controller.getInstance().getConnector().setArticleStarred(idsMark, 1))
                     DBHelper.getInstance().setMarked(idsMark, mark);
                 
                 if (Controller.getInstance().getConnector().setArticleStarred(idsUnmark, 0))
                     DBHelper.getInstance().setMarked(idsUnmark, mark);
             }
-            if ("isPublished".equals(mark)) {
+            if (DBHelper.MARK_PUBLISH.equals(mark)) {
                 if (Controller.getInstance().getConnector().setArticlePublished(idsMark, 1))
                     DBHelper.getInstance().setMarked(idsMark, mark);
                 

@@ -46,6 +46,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -92,6 +94,7 @@ public class ArticleActivity extends Activity {
         
         webview.setWebViewClient(new ArticleWebViewClient(this));
         mGestureDetector = new GestureDetector(onGestureListener);
+        webview.setOnKeyListener(keyListener);
         
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -404,6 +407,23 @@ public class ArticleActivity extends Activity {
         }
         return super.onKeyUp(keyCode, event);
     }
+    
+    private OnKeyListener keyListener = new OnKeyListener() {
+        
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event) {
+            if (Controller.getInstance().isUseVolumeKeys()) {
+                if (keyCode == KeyEvent.KEYCODE_N) {
+                    openNextArticle(-1);
+                    return true;
+                } else if (keyCode == KeyEvent.KEYCODE_B) {
+                    openNextArticle(1);
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
     
     private void openConnectionErrorDialog(String errorMessage) {
         Intent i = new Intent(this, ErrorActivity.class);
