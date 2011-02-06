@@ -16,6 +16,7 @@
 package org.ttrssreader.controllers;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import org.ttrssreader.model.pojos.ArticleItem;
@@ -37,11 +38,16 @@ public class DBHelper {
     private boolean mIsDBInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 44;
+    private static final int DATABASE_VERSION = 45;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
     public static final String TABLE_ARTICLES = "articles";
+    public static final String TABLE_MARK_THINGS = "marked";
+    
+    public static final int TYPE_CATEGORY = 1;
+    public static final int TYPE_FEED = 2;
+    public static final int TYPE_ARTICLE = 3;
     
     // @formatter:off
     private static final String INSERT_CATEGORY = 
@@ -88,8 +94,6 @@ public class DBHelper {
             Log.e(Utils.TAG, "Can't handle internal DB without Context-Object.");
             return false;
         }
-        
-        // handleDBUpdate();
         
         OpenHelper openHelper = new OpenHelper(context);
         db = openHelper.getWritableDatabase();
@@ -210,6 +214,25 @@ public class DBHelper {
                 didUpgrade = true;
             }
             
+            if (oldVersion < 45) {
+                // @formatter:off
+                sql = "CREATE TABLE "
+                    + TABLE_MARK_THINGS
+                    + " (id INTEGER,"
+                    + " type INTEGER,"
+                    + " isUnread INTEGER,"
+                    + " isStarred INTEGER,"
+                    + " isPublished INTEGER,"
+                    + " PRIMARY KEY(id, type))";
+                // @formatter:on
+                
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to 45.", oldVersion));
+                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                
+                db.execSQL(sql);
+                didUpgrade = true;
+            }
+            
             if (didUpgrade == false) {
                 Log.w(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
@@ -251,6 +274,7 @@ public class DBHelper {
         }
     }
     
+    @Deprecated
     public void insertCategory(CategoryItem c) {
         if (c == null)
             return;
@@ -411,9 +435,22 @@ public class DBHelper {
     public void updateArticleUnread(int id, boolean isUnread) {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
+            
             cv.put("isUnread", isUnread);
             synchronized (TABLE_ARTICLES) {
                 db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+            }
+            
+            cv.put("id", id);
+            cv.put("type", TYPE_ARTICLE);
+            synchronized (TABLE_MARK_THINGS) {
+                /*
+                 * First update, then insert with CONFLICT_IGNORE. If row is already there it gets updated and second
+                 * call ignores it, if it is not there yet the second call inserts it.
+                 * TODO: Is there a better way to achieve this?
+                 */
+                db.update(TABLE_MARK_THINGS, cv, "id=" + id, null);
+                db.insertWithOnConflict(TABLE_MARK_THINGS, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
             }
         }
     }
@@ -421,9 +458,21 @@ public class DBHelper {
     public void updateArticleStarred(int id, boolean isStarred) {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
+            
             cv.put("isStarred", isStarred);
             synchronized (TABLE_ARTICLES) {
                 db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+            }
+            
+            cv.put("id", id);
+            cv.put("type", TYPE_ARTICLE);
+            synchronized (TABLE_MARK_THINGS) {
+                /*
+                 * First update, then insert with CONFLICT_IGNORE. If row is already there it gets updated and second
+                 * call ignores it, if it is not there yet the second call inserts it.
+                 */
+                db.update(TABLE_MARK_THINGS, cv, "id=" + id, null);
+                db.insertWithOnConflict(TABLE_MARK_THINGS, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
             }
         }
     }
@@ -431,13 +480,26 @@ public class DBHelper {
     public void updateArticlePublished(int id, boolean isPublished) {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
+            
             cv.put("isPublished", isPublished);
             synchronized (TABLE_ARTICLES) {
                 db.update(TABLE_ARTICLES, cv, "id=" + id, null);
             }
+            
+            cv.put("id", id);
+            cv.put("type", TYPE_ARTICLE);
+            synchronized (TABLE_MARK_THINGS) {
+                /*
+                 * First update, then insert with CONFLICT_IGNORE. If row is already there it gets updated and second
+                 * call ignores it, if it is not there yet the second call inserts it.
+                 */
+                db.update(TABLE_MARK_THINGS, cv, "id=" + id, null);
+                db.insertWithOnConflict(TABLE_MARK_THINGS, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+            }
         }
     }
     
+    @Deprecated
     public void deleteCategory(int id) {
         if (isDBAvailable()) {
             synchronized (TABLE_CATEGORIES) {
@@ -446,6 +508,7 @@ public class DBHelper {
         }
     }
     
+    @Deprecated
     public void deleteFeed(int id) {
         if (isDBAvailable()) {
             synchronized (TABLE_FEEDS) {
@@ -454,6 +517,7 @@ public class DBHelper {
         }
     }
     
+    @Deprecated
     public void deleteArticle(int id) {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
@@ -482,6 +546,7 @@ public class DBHelper {
         }
     }
     
+    @Deprecated
     public void deleteArticles() {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
@@ -490,6 +555,7 @@ public class DBHelper {
         }
     }
     
+    @Deprecated
     public void purgeArticlesDays(Date olderThenThis) {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
@@ -581,6 +647,7 @@ public class DBHelper {
         return ret;
     }
     
+    @Deprecated
     public Set<ArticleItem> getArticles(int feedId, boolean withContent) {
         
         Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
@@ -678,6 +745,7 @@ public class DBHelper {
         return ret;
     }
     
+    @Deprecated
     public Set<CategoryItem> getCategories(boolean virtuals) {
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
         if (!isDBAvailable())
@@ -726,6 +794,52 @@ public class DBHelper {
         }
         
         return ret;
+    }
+    
+    public Set<Integer> getMarked(String mark, int status) {
+        Set<Integer> ret = new HashSet<Integer>();
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = null;
+        try {
+            c = db.query(TABLE_MARK_THINGS, new String[] { "id" }, mark + "=" + status, null, null, null, null, null);
+            
+            while (!c.isAfterLast()) {
+                ret.add(c.getInt(0));
+                c.move(1);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        return ret;
+    }
+    
+    public void setMarked(Set<Integer> ids, String mark) {
+        if (!isDBAvailable())
+            return;
+        
+        try {
+            StringBuilder idList = new StringBuilder();
+            while (ids.iterator().hasNext()) {
+                idList.append(ids.iterator().next());
+                if (ids.iterator().hasNext()) {
+                    idList.append(",");
+                }
+            }
+            Log.d(Utils.TAG, "idList: " + idList);
+            
+            ContentValues cv = new ContentValues();
+            cv.putNull(mark);
+            db.update(TABLE_MARK_THINGS, cv, "id in (" + idList + ")", null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     // *******************************************
