@@ -20,7 +20,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.FeedListAdapter;
 import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
@@ -36,7 +35,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FeedListActivity extends MenuActivity implements IUpdateEndListener {
+public class FeedListActivity extends MenuActivity {
     
     public static final String CATEGORY_ID = "CATEGORY_ID";
     public static final String CATEGORY_TITLE = "CATEGORY_TITLE";
@@ -91,6 +90,10 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
             updater.cancel(true);
             updater = null;
         }
+        if (imageCacher != null) {
+            imageCacher.cancel(true);
+            imageCacher = null;
+        }
         mAdapter.cursor.deactivate();
         mAdapter.cursor.close();
     }
@@ -110,11 +113,15 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
         mAdapter.notifyDataSetChanged();
         
         if (TTRSSJsonConnector.hasLastError()) {
+            if (imageCacher != null) {
+                imageCacher.cancel(true);
+                imageCacher = null;
+            }
             openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
             return;
         }
         
-        if (updater == null) {
+        if (updater == null && imageCacher == null) {
             setProgressBarIndeterminateVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyFeeds);
         }
@@ -178,12 +185,6 @@ public class FeedListActivity extends MenuActivity implements IUpdateEndListener
             doRefresh();
         }
         return true;
-    }
-    
-    @Override
-    public void onUpdateEnd() {
-        updater = null;
-        doRefresh();
     }
     
 }

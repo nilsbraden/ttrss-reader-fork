@@ -22,6 +22,7 @@ import java.util.Set;
 import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.content.ContentValues;
 import android.content.Context;
@@ -43,7 +44,11 @@ public class DBHelper {
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
     public static final String TABLE_ARTICLES = "articles";
-    public static final String TABLE_MARK_THINGS = "marked";
+    public static final String TABLE_MARK = "marked";
+    
+    public static final String MARK_READ = "isUnread";
+    public static final String MARK_STAR = "isStarred";
+    public static final String MARK_PUBLISH = "isPublished";
     
     public static final int TYPE_CATEGORY = 1;
     public static final int TYPE_FEED = 2;
@@ -215,14 +220,15 @@ public class DBHelper {
             }
             
             if (oldVersion < 45) {
+                
                 // @formatter:off
                 sql = "CREATE TABLE "
-                    + TABLE_MARK_THINGS
+                    + TABLE_MARK
                     + " (id INTEGER,"
                     + " type INTEGER,"
-                    + " isUnread INTEGER,"
-                    + " isStarred INTEGER,"
-                    + " isPublished INTEGER,"
+                    + " " + MARK_READ + " INTEGER,"
+                    + " " + MARK_STAR + " INTEGER,"
+                    + " " + MARK_PUBLISH + " INTEGER,"
                     + " PRIMARY KEY(id, type))";
                 // @formatter:on
                 
@@ -396,6 +402,33 @@ public class DBHelper {
         }
     }
     
+    public void markArticle(int id, String mark, boolean isMarked) {
+        if (isDBAvailable()) {
+            ContentValues cv = new ContentValues();
+            cv.put(mark, isMarked);
+            cv.put("id", id);
+            cv.put("type", TYPE_ARTICLE);
+            synchronized (TABLE_MARK) {
+                /*
+                 * First update, then insert with CONFLICT_IGNORE. If row is already there it gets updated and second
+                 * call ignores it, if it is not there yet the second call inserts it.
+                 * TODO: Is there a better way to achieve this?
+                 */
+                db.update(TABLE_MARK, cv, "id=" + id, null);
+                db.insertWithOnConflict(TABLE_MARK, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+            }
+        }
+    }
+    
+    public void markArticles(Set<Integer> iDlist, String mark, int state) {
+        if (isDBAvailable()) {
+            for (Integer id : iDlist) {
+                boolean isUnread = state > 0 ? true : false;
+                markArticle(id, mark, isUnread);
+            }
+        }
+    }
+    
     public void updateCategoryUnreadCount(int id, int count) {
         if (isDBAvailable() && count >= 0) {
             ContentValues cv = new ContentValues();
@@ -440,18 +473,6 @@ public class DBHelper {
             synchronized (TABLE_ARTICLES) {
                 db.update(TABLE_ARTICLES, cv, "id=" + id, null);
             }
-            
-            cv.put("id", id);
-            cv.put("type", TYPE_ARTICLE);
-            synchronized (TABLE_MARK_THINGS) {
-                /*
-                 * First update, then insert with CONFLICT_IGNORE. If row is already there it gets updated and second
-                 * call ignores it, if it is not there yet the second call inserts it.
-                 * TODO: Is there a better way to achieve this?
-                 */
-                db.update(TABLE_MARK_THINGS, cv, "id=" + id, null);
-                db.insertWithOnConflict(TABLE_MARK_THINGS, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
-            }
         }
     }
     
@@ -463,17 +484,6 @@ public class DBHelper {
             synchronized (TABLE_ARTICLES) {
                 db.update(TABLE_ARTICLES, cv, "id=" + id, null);
             }
-            
-            cv.put("id", id);
-            cv.put("type", TYPE_ARTICLE);
-            synchronized (TABLE_MARK_THINGS) {
-                /*
-                 * First update, then insert with CONFLICT_IGNORE. If row is already there it gets updated and second
-                 * call ignores it, if it is not there yet the second call inserts it.
-                 */
-                db.update(TABLE_MARK_THINGS, cv, "id=" + id, null);
-                db.insertWithOnConflict(TABLE_MARK_THINGS, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
-            }
         }
     }
     
@@ -484,17 +494,6 @@ public class DBHelper {
             cv.put("isPublished", isPublished);
             synchronized (TABLE_ARTICLES) {
                 db.update(TABLE_ARTICLES, cv, "id=" + id, null);
-            }
-            
-            cv.put("id", id);
-            cv.put("type", TYPE_ARTICLE);
-            synchronized (TABLE_MARK_THINGS) {
-                /*
-                 * First update, then insert with CONFLICT_IGNORE. If row is already there it gets updated and second
-                 * call ignores it, if it is not there yet the second call inserts it.
-                 */
-                db.update(TABLE_MARK_THINGS, cv, "id=" + id, null);
-                db.insertWithOnConflict(TABLE_MARK_THINGS, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
             }
         }
     }
@@ -803,7 +802,10 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_MARK_THINGS, new String[] { "id" }, mark + "=" + status, null, null, null, null, null);
+            c = db.query(TABLE_MARK, new String[] { "id" }, mark + "=" + status, null, null, null, null, null);
+            
+            if (!c.moveToFirst())
+                return ret;
             
             while (!c.isAfterLast()) {
                 ret.add(c.getInt(0));
@@ -825,18 +827,11 @@ public class DBHelper {
             return;
         
         try {
-            StringBuilder idList = new StringBuilder();
-            while (ids.iterator().hasNext()) {
-                idList.append(ids.iterator().next());
-                if (ids.iterator().hasNext()) {
-                    idList.append(",");
-                }
-            }
-            Log.d(Utils.TAG, "idList: " + idList);
-            
+            String idList = StringSupport.convertListToString(ids);
             ContentValues cv = new ContentValues();
             cv.putNull(mark);
-            db.update(TABLE_MARK_THINGS, cv, "id in (" + idList + ")", null);
+            db.update(TABLE_MARK, cv, "id in (" + idList + ")", null);
+            db.delete(TABLE_MARK, "isUnread is null AND isStarred is null AND isPublished is null", null);
         } catch (Exception e) {
             e.printStackTrace();
         }

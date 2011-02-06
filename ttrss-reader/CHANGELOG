@@ -4,6 +4,8 @@
 == Version 0.8.4 ==
   * Added options for Image- and ArticleCache: cache for unread articles only
   * Caching now works independent from online/offline state
+  * Added Offline-Synchronisation (article-state, star, published is synchronized later when browsing offline)
+  * Navigate by keyboard: n for next, b for previous article/feed
   
 == Version 0.8.3 ==
   * Fixed Articles not getting purged according to "Store articles limit"

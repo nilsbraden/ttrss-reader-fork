@@ -21,8 +21,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.interfaces.ICacheEndListener;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.CategoryListAdapter;
 import org.ttrssreader.model.cachers.Cacher;
 import org.ttrssreader.model.cachers.ImageCacher;
@@ -49,13 +47,12 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class CategoryActivity extends MenuActivity implements IUpdateEndListener, ICacheEndListener {
+public class CategoryActivity extends MenuActivity {
     
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
     
     private CategoryListAdapter mAdapter = null;
-    private Cacher imageCacher;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -272,18 +269,6 @@ public class CategoryActivity extends MenuActivity implements IUpdateEndListener
                 break;
         }
         return builder.create();
-    }
-    
-    @Override
-    public void onUpdateEnd() {
-        updater = null;
-        doRefresh();
-    }
-    
-    @Override
-    public void onCacheEnd() {
-        imageCacher = null;
-        doRefresh();
     }
     
 }
