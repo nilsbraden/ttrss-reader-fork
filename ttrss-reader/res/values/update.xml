@@ -17,6 +17,7 @@
 -->
 <resources>
     <string-array name="updates">
+        <item>v0.8.4: Added options for Image-/ArticleCache: cache for unread articles only, caching now independent from online/offline state, added Offline-Synchronisation (article-state, star, published is synchronized later when marked while browsing offline), navigate feeds/articles by keyboard: n for next, b for previous article/feed</item>
         <item>v0.8.3: Fixed Articles not getting purged according to "Store articles limit", probably fixed OutOfMemory problem while fetching articles</item>
         <item>v0.8.2: ArticleCache (load all new articles at once) for Donators, Refresh unread-state while browsing unread articles, Scale images to match display-width (for other zoom-factors the original size is restored), Set CSS: text-align:"justify", more useful text when loading content, Minor bugfixes/refactoring</item>
         <item>v0.8.1: Addressed severe memory-issues, moved menu-definitions from code to xml files, added information to preferences-screen, refactored menus, fixed articles not getting marked as read, fixed offline-setting</item>
