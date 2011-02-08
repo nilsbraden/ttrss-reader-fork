@@ -30,7 +30,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.AboutActivity;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -140,7 +139,7 @@ public class Utils {
             PackageInfo info = manager.getPackageInfo(a.getPackageName(), 0);
             result = info.versionName;
         } catch (NameNotFoundException e) {
-            Log.w(AboutActivity.class.toString(), "Unable to get application version: " + e.getMessage());
+            Log.w(TAG, "Unable to get application version: " + e.getMessage());
             result = "";
         }
         return result;
@@ -207,7 +206,7 @@ public class Utils {
      *            the original URL
      * @return the local URL or null if not available
      */
-    public static String getCachedImageUrl(String url) {
+    private static String getCachedImageUrl(String url) {
         ImageCache cache = Controller.getInstance().getImageCache(null);
         if (cache != null && cache.containsKey(url)) {
             StringBuffer sb = new StringBuffer();

@@ -51,25 +51,6 @@ public class ArticleItem implements Comparable<ArticleItem> {
         mIsPublished = isPublished;
     }
     
-    /*
-     * Article-ID and Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
-     */
-    public ArticleItem(String id, String feedId, String title, boolean isUnread, String articleUrl,
-            String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred,
-            boolean isPublished) {
-        setId(id);
-        mTitle = title;
-        setFeedId(feedId);
-        mIsUnread = isUnread;
-        mUpdateDate = updateDate;
-        mArticleUrl = articleUrl;
-        mArticleCommentUrl = articleCommentUrl;
-        setContent(content);
-        mAttachments = attachments;
-        mIsStarred = isStarred;
-        mIsPublished = isPublished;
-    }
-    
     public int getId() {
         return mId;
     }

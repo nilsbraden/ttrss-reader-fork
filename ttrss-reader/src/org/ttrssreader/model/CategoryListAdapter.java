@@ -41,7 +41,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     public Cursor cursor;
     
     private boolean displayOnlyUnread;
-    int unreadCount = 0;
+    private int unreadCount = 0;
     
     public CategoryListAdapter(Context context) {
         this.context = context;
@@ -194,7 +194,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         return layout;
     }
     
-    public void closeCursor() {
+    private void closeCursor() {
         if (cursor != null) {
             cursor.close();
         }

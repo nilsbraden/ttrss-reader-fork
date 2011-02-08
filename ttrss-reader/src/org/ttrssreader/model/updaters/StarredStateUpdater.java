@@ -27,14 +27,6 @@ public class StarredStateUpdater implements IUpdatable {
     private int articleState;
     
     /**
-     * Toggles the articles' Starred-Status.
-     */
-    public StarredStateUpdater(ArticleItem article) {
-        this.article = article;
-        this.articleState = -1;
-    }
-    
-    /**
      * Sets the articles' Starred-Status according to articleState
      */
     public StarredStateUpdater(ArticleItem article, int articleState) {

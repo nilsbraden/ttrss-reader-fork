@@ -44,7 +44,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     private int feedId;
     public Cursor cursor;
     private boolean displayOnlyUnread;
-    int unreadCount = 0;
+    private int unreadCount = 0;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
         displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
@@ -187,7 +187,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         return layout;
     }
     
-    public void closeCursor() {
+    private void closeCursor() {
         if (cursor != null) {
             cursor.close();
             cursor = null;

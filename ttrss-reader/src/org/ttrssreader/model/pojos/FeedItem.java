@@ -40,17 +40,6 @@ public class FeedItem implements Comparable<FeedItem> {
         mUnread = unread;
     }
     
-    /*
-     * Feed-ID given as String, will be parsed in setId(String mId) or set to 0 if value is invalid.
-     */
-    public FeedItem(String id, String categoryId, String title, String url, int unread) {
-        setId(id);
-        setCategoryId(categoryId);
-        mTitle = title;
-        mUrl = url;
-        mUnread = unread;
-    }
-    
     public void setDeltaUnreadCount(int value) {
         mUnread += value;
     }

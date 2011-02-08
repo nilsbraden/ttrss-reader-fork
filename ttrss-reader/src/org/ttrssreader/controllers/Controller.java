@@ -25,10 +25,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 /**
- * 
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
  * isn't one in here but it's called like that and I don't have a better name so we stay with it.
- * 
  */
 public class Controller {
     
@@ -384,7 +382,7 @@ public class Controller {
     /*
      * Generic method to insert values into the preferences store
      */
-    public void put(String constant, Object o) {
+    private void put(String constant, Object o) {
         SharedPreferences.Editor editor = prefs.edit();
         if (o instanceof String) {
             editor.putString(constant, (String) o);

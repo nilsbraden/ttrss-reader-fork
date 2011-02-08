@@ -72,11 +72,11 @@ public class AboutActivity extends Activity {
         }
     }
     
-    public void closeButtonPressed() {
+    private void closeButtonPressed() {
         this.finish();
     }
     
-    public void donateButtonPressed() {
+    private void donateButtonPressed() {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.DonateUrl))));
         this.finish();
     }

@@ -65,7 +65,7 @@ public class PreferencesActivity extends PreferenceActivity {
         }
     }
     
-    protected void resetPreferences() {
+    private void resetPreferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Constants.resetPreferences(prefs);
         this.finish();

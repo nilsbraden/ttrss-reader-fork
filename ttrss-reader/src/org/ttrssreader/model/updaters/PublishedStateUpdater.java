@@ -27,14 +27,6 @@ public class PublishedStateUpdater implements IUpdatable {
     private int articleState;
     
     /**
-     * Toggles the articles' Published-Status.
-     */
-    public PublishedStateUpdater(ArticleItem article) {
-        this.article = article;
-        this.articleState = -1;
-    }
-    
-    /**
      * Sets the articles' Published-Status according to articleState
      */
     public PublishedStateUpdater(ArticleItem article, int articleState) {

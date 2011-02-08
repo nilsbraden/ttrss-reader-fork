@@ -41,7 +41,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     private int categoryId;
     private boolean displayOnlyUnread;
-    int unreadCount = 0;
+    private int unreadCount = 0;
     
     public FeedListAdapter(Context context, int categoryId) {
         this.context = context;
@@ -186,7 +186,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
         return layout;
     }
     
-    public void closeCursor() {
+    private void closeCursor() {
         if (cursor != null) {
             cursor.close();
         }

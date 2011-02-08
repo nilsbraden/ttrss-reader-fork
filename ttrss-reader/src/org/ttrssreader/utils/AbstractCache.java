@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 import com.google.common.collect.MapMaker;
 
@@ -53,9 +51,6 @@ import com.google.common.collect.MapMaker;
  * @author Nils Braden (modified some stuff)
  */
 public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
-    
-    public static final int DISK_CACHE_INTERNAL = 0;
-    public static final int DISK_CACHE_SDCARD = 1;
     
     protected boolean isDiskCacheEnabled;
     
@@ -90,40 +85,6 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
         mapMaker.concurrencyLevel(maxConcurrentThreads);
         mapMaker.softValues();
         this.cache = mapMaker.makeMap();
-    }
-    
-    /**
-     * Enable caching to the phone's internal storage or SD card.
-     * 
-     * @param context
-     *            the current context
-     * @param storageDevice
-     *            where to store the cached files, either {@link #DISK_CACHE_INTERNAL} or {@link #DISK_CACHE_SDCARD})
-     * @return
-     */
-    public boolean enableDiskCache(Context context, int storageDevice) {
-        Context appContext = context.getApplicationContext();
-        
-        String rootDir = null;
-        if (storageDevice == DISK_CACHE_SDCARD
-                && Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            // SD-card available
-            rootDir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + appContext.getPackageName();
-        } else {
-            rootDir = appContext.getCacheDir().getAbsolutePath();
-        }
-        
-        this.diskCacheDir = rootDir + File.separator + StringSupport.underscore(name.replaceAll("\\s", ""));
-        File outFile = new File(diskCacheDir);
-        outFile.mkdirs();
-        
-        isDiskCacheEnabled = outFile.exists();
-        
-        if (!isDiskCacheEnabled) {
-            Log.w(Utils.TAG, "Failed creating disk cache directory " + diskCacheDir);
-        }
-        
-        return isDiskCacheEnabled;
     }
     
     /**
@@ -261,17 +222,6 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     @SuppressWarnings("unchecked")
     public synchronized boolean containsKey(Object key) {
         return cache.containsKey(key) || (isDiskCacheEnabled && getFileForKey((KeyT) key).exists());
-    }
-    
-    /**
-     * Checks if a value is present in the in-memory cache. This method ignores the disk cache.
-     * 
-     * @param key
-     *            the cache key
-     * @return true if the value is currently hold in memory, false otherwise
-     */
-    public synchronized boolean containsKeyInMemory(Object key) {
-        return cache.containsKey(key);
     }
     
     /**

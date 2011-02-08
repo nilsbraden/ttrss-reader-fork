@@ -59,7 +59,7 @@ public class Data {
         return mInstance;
     }
     
-    public synchronized void initializeData(Context context) {
+    private synchronized void initializeData(Context context) {
         if (context != null) {
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         }
@@ -274,7 +274,7 @@ public class Data {
         Controller.getInstance().getConnector().setRead(id, isCategory);
     }
     
-    public String getPref(String pref) {
+    protected String getPref(String pref) {
         if (!Utils.isOnline(cm))
             return null;
         
