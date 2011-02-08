@@ -35,12 +35,6 @@ public class CategoryItem implements Comparable<CategoryItem> {
         mUnread = unread;
     }
     
-    public CategoryItem(String id, String title, int unread) {
-        setId(id);
-        mTitle = title;
-        mUnread = unread;
-    }
-    
     public int getId() {
         return mId;
     }

@@ -87,10 +87,10 @@ public class TTRSSJsonConnector {
     private static final String VALUE = "value";
     private static final String SID_APPEND = "&sid=%s";
     
-    public static final String COUNTER_KIND = "kind";
-    public static final String COUNTER_CAT = "cat";
-    public static final String COUNTER_ID = "id";
-    public static final String COUNTER_COUNTER = "counter";
+    private static final String COUNTER_KIND = "kind";
+    private static final String COUNTER_CAT = "cat";
+    private static final String COUNTER_ID = "id";
+    private static final String COUNTER_COUNTER = "counter";
     
     private String mServerUrl;
     private String mUserName;
@@ -792,15 +792,6 @@ public class TTRSSJsonConnector {
      */
     public static boolean hasLastError() {
         return mHasLastError;
-    }
-    
-    /**
-     * Returns the last error.
-     * 
-     * @return a string with the last error-message.
-     */
-    public static String getLastError() {
-        return mLastError;
     }
     
     /**

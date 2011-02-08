@@ -31,14 +31,6 @@ public class FakeTrustManager implements X509TrustManager {
     public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
     }
     
-    public boolean isClientTrusted(X509Certificate[] chain) {
-        return true;
-    }
-    
-    public boolean isServerTrusted(X509Certificate[] chain) {
-        return true;
-    }
-    
     @Override
     public X509Certificate[] getAcceptedIssuers() {
         return _AcceptedIssuers;

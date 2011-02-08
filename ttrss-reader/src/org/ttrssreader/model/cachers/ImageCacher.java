@@ -90,7 +90,7 @@ public class ImageCacher implements ICacheable {
         Log.w(Utils.TAG, content);
     }
     
-    public void updateLocalArticles(int nrOfTasks) {
+    private void updateLocalArticles(int nrOfTasks) {
         long time = System.currentTimeMillis();
         UpdateArticlesTask[] tasks = new UpdateArticlesTask[nrOfTasks];
         Data.getInstance().updateFeeds(-4);

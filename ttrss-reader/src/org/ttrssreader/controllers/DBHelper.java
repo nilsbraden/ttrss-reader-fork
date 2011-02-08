@@ -50,9 +50,9 @@ public class DBHelper {
     public static final String MARK_STAR = "isStarred";
     public static final String MARK_PUBLISH = "isPublished";
     
-    public static final int TYPE_CATEGORY = 1;
-    public static final int TYPE_FEED = 2;
-    public static final int TYPE_ARTICLE = 3;
+    // private static final int TYPE_CATEGORY = 1;
+    // private static final int TYPE_FEED = 2;
+    // private static final int TYPE_ARTICLE = 3;
     
     // @formatter:off
     private static final String INSERT_CATEGORY = 
@@ -74,14 +74,12 @@ public class DBHelper {
         + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     // @formatter:on
     
+    private Context context;
     public SQLiteDatabase db;
     
     private SQLiteStatement insertCategorie;
     private SQLiteStatement insertFeed;
     private SQLiteStatement insertArticle;
-    
-    boolean externalDBState;
-    private Context context;
     
     public DBHelper() {
         context = null;
@@ -280,14 +278,6 @@ public class DBHelper {
         }
     }
     
-    @Deprecated
-    public void insertCategory(CategoryItem c) {
-        if (c == null)
-            return;
-        
-        insertCategory(c.getId(), c.getTitle(), c.getUnread());
-    }
-    
     public void insertCategories(Set<CategoryItem> set) {
         if (set == null)
             return;
@@ -315,7 +305,7 @@ public class DBHelper {
         }
     }
     
-    public void insertFeed(FeedItem f) {
+    private void insertFeed(FeedItem f) {
         if (f == null)
             return;
         
@@ -402,12 +392,12 @@ public class DBHelper {
         }
     }
     
-    public void markArticle(int id, String mark, boolean isMarked) {
+    private void markArticle(int id, String mark, boolean isMarked) {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
             cv.put(mark, isMarked);
             cv.put("id", id);
-            cv.put("type", TYPE_ARTICLE);
+            // cv.put("type", TYPE_ARTICLE);
             synchronized (TABLE_MARK) {
                 /*
                  * First update, then insert with CONFLICT_IGNORE. If row is already there it gets updated and second
@@ -465,7 +455,7 @@ public class DBHelper {
         updateFeedUnreadCount(id, count);
     }
     
-    public void updateArticleUnread(int id, boolean isUnread) {
+    private void updateArticleUnread(int id, boolean isUnread) {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
             
@@ -498,33 +488,6 @@ public class DBHelper {
         }
     }
     
-    @Deprecated
-    public void deleteCategory(int id) {
-        if (isDBAvailable()) {
-            synchronized (TABLE_CATEGORIES) {
-                db.delete(TABLE_CATEGORIES, "id=" + id, null);
-            }
-        }
-    }
-    
-    @Deprecated
-    public void deleteFeed(int id) {
-        if (isDBAvailable()) {
-            synchronized (TABLE_FEEDS) {
-                db.delete(TABLE_FEEDS, "id=" + id, null);
-            }
-        }
-    }
-    
-    @Deprecated
-    public void deleteArticle(int id) {
-        if (isDBAvailable()) {
-            synchronized (TABLE_ARTICLES) {
-                db.delete(TABLE_ARTICLES, "id=" + id, null);
-            }
-        }
-    }
-    
     public void deleteCategories(boolean withVirtualCategories) {
         if (isDBAvailable()) {
             String wherePart = "";
@@ -541,24 +504,6 @@ public class DBHelper {
         if (isDBAvailable()) {
             synchronized (TABLE_FEEDS) {
                 db.delete(TABLE_FEEDS, null, null);
-            }
-        }
-    }
-    
-    @Deprecated
-    public void deleteArticles() {
-        if (isDBAvailable()) {
-            synchronized (TABLE_ARTICLES) {
-                db.delete(TABLE_ARTICLES, null, null);
-            }
-        }
-    }
-    
-    @Deprecated
-    public void purgeArticlesDays(Date olderThenThis) {
-        if (isDBAvailable()) {
-            synchronized (TABLE_ARTICLES) {
-                db.delete(TABLE_ARTICLES, "updateDate<" + olderThenThis.getTime(), null);
             }
         }
     }
@@ -646,44 +591,6 @@ public class DBHelper {
         return ret;
     }
     
-    @Deprecated
-    public Set<ArticleItem> getArticles(int feedId, boolean withContent) {
-        
-        Set<ArticleItem> ret = new LinkedHashSet<ArticleItem>();
-        if (!isDBAvailable())
-            return ret;
-        
-        Cursor c = null;
-        try {
-            
-            String where = "";
-            if (feedId == -1) {
-                where = "isStarred=1";
-            } else if (feedId == -2) {
-                where = "isPublished=1";
-            } else if (feedId == -3) {
-                where = "updateDate>" + Controller.getInstance().getFreshArticleMaxAge();
-            } else if (feedId == -4) {
-                where = null;
-            } else {
-                where = "feedId=" + feedId;
-            }
-            c = DBHelper.getInstance().query(TABLE_ARTICLES, null, where, null, null, null, "updateDate DESC");
-            
-            while (!c.isAfterLast()) {
-                ret.add(handleArticleCursor(c));
-                c.move(1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (c != null)
-                c.close();
-        }
-        
-        return ret;
-    }
-    
     /**
      * 0 - Uncategorized
      * -1 - Special (e.g. Starred, Published, Archived, etc.) <- these are categories here o.O
@@ -728,33 +635,6 @@ public class DBHelper {
             return ret;
         
         Cursor c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
-        try {
-            while (!c.isAfterLast()) {
-                CategoryItem ci = handleCategoryCursor(c);
-                ret.add(ci);
-                c.move(1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (c != null)
-                c.close();
-        }
-        
-        return ret;
-    }
-    
-    @Deprecated
-    public Set<CategoryItem> getCategories(boolean virtuals) {
-        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
-        if (!isDBAvailable())
-            return ret;
-        
-        if (virtuals) {
-            ret.addAll(getVirtualCategories());
-        }
-        
-        Cursor c = db.query(TABLE_CATEGORIES, null, "id>0", null, null, null, "upper(title) ASC");
         try {
             while (!c.isAfterLast()) {
                 CategoryItem ci = handleCategoryCursor(c);

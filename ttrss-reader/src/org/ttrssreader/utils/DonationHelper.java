@@ -32,7 +32,7 @@ import android.util.Log;
 
 public class DonationHelper {
     
-    public static final String URL = "http://ttrss-donation-helper.appspot.com/";
+    private static final String URL = "http://ttrss-donation-helper.appspot.com/";
     
     public static boolean checkDonationStatus(Context context, String mail) {
         String url = URL + "?mail=" + Uri.encode(mail) + "&hash=" + getImeiHash(context);
@@ -62,7 +62,7 @@ public class DonationHelper {
      *            {@link Context}
      * @return MD5 hash of IMEI
      */
-    public static String getImeiHash(final Context context) {
+    private static String getImeiHash(final Context context) {
         TelephonyManager mTelephonyMgr = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         final String did = mTelephonyMgr.getDeviceId();
         if (did != null) {
@@ -78,7 +78,7 @@ public class DonationHelper {
      *            input
      * @return hash
      */
-    public static String md5(final String s) {
+    private static String md5(final String s) {
         try {
             // Create MD5 Hash
             MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
