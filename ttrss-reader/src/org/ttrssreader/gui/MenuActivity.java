@@ -71,7 +71,7 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
         super.onPrepareOptionsMenu(menu);
         
         MenuItem offline = menu.findItem(R.id.Menu_WorkOffline);
-        if (Controller.getInstance().isWorkOffline()) {
+        if (Controller.getInstance().workOffline()) {
             offline.setTitle(getString(R.string.UsageOnlineTitle));
             offline.setIcon(R.drawable.ic_menu_play_clip);
         } else {
@@ -80,7 +80,7 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
         }
         
         MenuItem displayUnread = menu.findItem(R.id.Menu_DisplayOnlyUnread);
-        if (Controller.getInstance().isDisplayOnlyUnread()) {
+        if (Controller.getInstance().displayOnlyUnread()) {
             displayUnread.setTitle(getString(R.string.Commons_DisplayAll));
             // displayUnread.setIcon(R.drawable.ic_menu_play_clip);
         } else {
@@ -97,11 +97,11 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
         
         switch (item.getItemId()) {
             case R.id.Menu_DisplayOnlyUnread:
-                Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().isDisplayOnlyUnread());
+                Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().displayOnlyUnread());
                 return true;
             case R.id.Menu_WorkOffline:
-                Controller.getInstance().setWorkOffline(!Controller.getInstance().isWorkOffline());
-                if (!Controller.getInstance().isWorkOffline()) {
+                Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
+                if (!Controller.getInstance().workOffline()) {
                     // Synchronize status of articles with server
                     new Updater(this, new StateSynchronisationUpdater()).execute((Void[]) null);
                 }

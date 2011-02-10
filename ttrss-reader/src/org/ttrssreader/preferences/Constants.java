@@ -65,19 +65,24 @@ public class Constants {
     public static String USE_SWIPE = "DisplayUseSwipePreference";
     public static String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
     public static String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
-    public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
-    public static String IMAGE_CACHE_AGE = "StoreImageAgeLimitPreference";
-    public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesTitle";
-    public static String ARTICLE_CACHE_UNREAD = "CacheUnreadArticlesTitle";
     // Display Default Values
     public static boolean SHOW_VIRTUAL_DEFAULT = true;
     public static boolean USE_SWIPE_DEFAULT = true;
     public static boolean ONLY_UNREAD_DEFAULT = false;
     public static int ARTICLE_LIMIT_DEFAULT = 1000;
+    
+    // System
+    public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
+    public static String IMAGE_CACHE_AGE = "StoreImageAgeLimitPreference";
+    public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesTitle";
+    public static String ARTICLE_CACHE_UNREAD = "CacheUnreadArticlesTitle";
+    public static String SPLIT_GET_REQUESTS = "SplitLongGetRequestsPreference";
+    // Display Default Values
     public static int IMAGE_CACHE_SIZE_DEFAULT = 100;
     public static int IMAGE_CACHE_AGE_DEFAULT = 14;
     public static boolean IMAGE_CACHE_UNREAD_DEFAULT = true;
     public static boolean ARTICLE_CACHE_UNREAD_DEFAULT = true;
+    public static boolean SPLIT_GET_REQUESTS_DEFAULT = false;
     
     // Internal
     public static String DATABASE_VERSION = "DatabaseVersion";

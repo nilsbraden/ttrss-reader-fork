@@ -1,8 +1,10 @@
 package org.ttrssreader.utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import org.ttrssreader.controllers.Controller;
 import android.text.TextUtils;
 
 // contains code from the Apache Software foundation
@@ -99,18 +101,42 @@ public class StringSupport {
         return (String[]) list.toArray(new String[list.size()]);
     }
     
-    public static String convertListToString(Set<Integer> ids) {
-        StringBuilder idList = new StringBuilder();
-        Iterator<Integer> it = ids.iterator();
+    /**
+     * Splits the ids into Sets of Strings with 50 ids each if configured in preferences, else only splits on 500 to
+     * avoid extremely large requests.
+     * 
+     * @param ids
+     *            the set of ids to be split
+     * @return a set of Strings with comma-separated ids
+     */
+    public static Set<String> convertListToString(Set<Integer> ids) {
+        int maxCount = 500;
         
+        if (Controller.getInstance().splitGetRequests())
+            maxCount = 50;
+        
+        Set<String> ret = new HashSet<String>();
+        int count = 0;
+        
+        Iterator<Integer> it = ids.iterator();
+        StringBuilder idList = new StringBuilder();
         while (it.hasNext()) {
             idList.append(it.next());
-            if (it.hasNext()) {
+            if (it.hasNext() && count < maxCount) {
                 idList.append(",");
+            }
+            if (count >= maxCount) {
+                ret.add(idList.toString());
+                idList = new StringBuilder();
+                count = 0;
+            } else {
+                count++;
             }
         }
         
-        return idList.toString();
+        ret.add(idList.toString());
+        
+        return ret;
     }
     
 }

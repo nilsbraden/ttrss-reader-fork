@@ -652,15 +652,16 @@ public class TTRSSJsonConnector {
         if (ids.size() == 0)
             return;
         
-        String idList = StringSupport.convertListToString(ids);
-        
-        String url = mServerUrl + String.format(OP_GET_ARTICLE, idList);
-        JSONArray jsonResult = getJSONResponseAsArray(url);
-        
-        if (jsonResult == null)
-            return;
-        
-        parseArticlesAndInsertInDB(jsonResult);
+        for (String idList : StringSupport.convertListToString(ids)) {
+            
+            String url = mServerUrl + String.format(OP_GET_ARTICLE, idList);
+            JSONArray jsonResult = getJSONResponseAsArray(url);
+            
+            if (jsonResult == null)
+                continue;
+            
+            parseArticlesAndInsertInDB(jsonResult);
+        }
     }
     
     /**
@@ -691,10 +692,12 @@ public class TTRSSJsonConnector {
         if (ids.size() == 0)
             return true;
         
-        String idList = StringSupport.convertListToString(ids);
+        String ret = "";
         
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 2);
-        String ret = doRequestNoAnswer(url);
+        for (String idList : StringSupport.convertListToString(ids)) {
+            String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 2);
+            ret = doRequestNoAnswer(url);
+        }
         return ret.contains(OK);
     }
     
@@ -710,10 +713,12 @@ public class TTRSSJsonConnector {
         if (ids.size() == 0)
             return true;
         
-        String idList = StringSupport.convertListToString(ids);
+        String ret = "";
         
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 0);
-        String ret = doRequestNoAnswer(url);
+        for (String idList : StringSupport.convertListToString(ids)) {
+            String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 0);
+            ret = doRequestNoAnswer(url);
+        }
         return ret.contains(OK);
     }
     
@@ -729,10 +734,12 @@ public class TTRSSJsonConnector {
         if (ids.size() == 0)
             return true;
         
-        String idList = StringSupport.convertListToString(ids);
+        String ret = "";
         
-        String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 1);
-        String ret = doRequestNoAnswer(url);
+        for (String idList : StringSupport.convertListToString(ids)) {
+            String url = mServerUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 1);
+            ret = doRequestNoAnswer(url);
+        }
         return ret.contains(OK);
     }
     

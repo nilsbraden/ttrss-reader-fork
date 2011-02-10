@@ -47,7 +47,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     private int unreadCount = 0;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
-        displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+        displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
         this.context = context;
         this.feedId = feedId;
         makeQuery();
@@ -195,8 +195,8 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     }
     
     public synchronized void makeQuery() {
-        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
-            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+        if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
+            displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
             closeCursor();
         } else if (cursor != null && !cursor.isClosed()) {
             cursor.requery();
@@ -240,7 +240,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     
     @Override
     public void update() {
-        Data.getInstance().updateArticles(feedId, Controller.getInstance().isDisplayOnlyUnread());
+        Data.getInstance().updateArticles(feedId, Controller.getInstance().displayOnlyUnread());
         unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
     }
     

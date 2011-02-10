@@ -153,7 +153,7 @@ public class Utils {
      * @return
      */
     public static boolean isOnline(ConnectivityManager cm) {
-        if (Controller.getInstance().isWorkOffline()) {
+        if (Controller.getInstance().workOffline()) {
             return false;
         } else {
             return checkConnection(cm);

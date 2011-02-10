@@ -280,7 +280,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         // No more feeds in this direction
         if (index < 0 || index >= mFeedListIds.size()) {
-            if (Controller.getInstance().isVibrateOnLastArticle()) {
+            if (Controller.getInstance().vibrateOnLastArticle()) {
                 Log.i(Utils.TAG, "No more feeds, vibrate..");
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 v.vibrate(Utils.SHORT_VIBRATE);
@@ -317,7 +317,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
             if (Math.abs(dy) > (int) (absHeight * 0.2)) {
                 // Too much Y-Movement (20% of screen-height)
                 return false;
-            } else if (!Controller.getInstance().isUseSwipe()) {
+            } else if (!Controller.getInstance().useSwipe()) {
                 return false;
             }
             
@@ -357,7 +357,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (Controller.getInstance().isUseVolumeKeys()) {
+        if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_N) {
                 openNextFeed(-1);
                 return true;
@@ -371,7 +371,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
     
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (Controller.getInstance().isUseVolumeKeys()) {
+        if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP
                     || keyCode == KeyEvent.KEYCODE_N || keyCode == KeyEvent.KEYCODE_B) {
                 return true;

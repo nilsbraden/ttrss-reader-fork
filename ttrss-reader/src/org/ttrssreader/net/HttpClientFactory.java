@@ -39,8 +39,8 @@ public class HttpClientFactory {
     
     public static DefaultHttpClient createInstance(HttpParams httpParams) {
         
-        boolean trustAllSslCerts = Controller.getInstance().isTrustAllSsl();
-        boolean useCustomKeyStore = Controller.getInstance().isUseKeystore();
+        boolean trustAllSslCerts = Controller.getInstance().trustAllSsl();
+        boolean useCustomKeyStore = Controller.getInstance().useKeystore();
         
         SchemeRegistry registry = new SchemeRegistry();
         registry.register(new Scheme("http", new PlainSocketFactory(), 80));

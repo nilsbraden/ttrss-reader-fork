@@ -32,50 +32,52 @@ public class Controller {
     
     public final static String JSON_END_URL = "api/";
     
-    private boolean mIsControllerInitialized = false;
-    private TTRSSJsonConnector mTTRSSConnector;
+    private boolean isControllerInitialized = false;
+    private TTRSSJsonConnector ttrssConnector;
     private ImageCache imageCache;
     
     private static final Integer mutex = 0;
-    private static Controller mInstance = null;
+    private static Controller instance = null;
     private SharedPreferences prefs = null;
     
     private String url = "";
-    private boolean mTrustAllSsl;
-    private boolean mUseKeystore;
-    private String mKeystorePassword;
+    private boolean trustAllSsl;
+    private boolean useKeystore;
+    private String keystorePassword;
     private boolean donator;
     private String donatorMail;
     
-    private boolean mAutomaticMarkRead;
-    private boolean mOpenUrlEmptyArticle;
-    private boolean mUseVolumeKeys;
-    private boolean mVibrateOnLastArticle;
-    private boolean mWorkOffline;
+    private boolean automaticMarkRead;
+    private boolean openUrlEmptyArticle;
+    private boolean useVolumeKeys;
+    private boolean vibrateOnLastArticle;
+    private boolean workOffline;
     
-    private boolean mDisplayVirtuals;
-    private boolean mUseSwipe;
-    private boolean mDisplayOnlyUnread;
-    private int mArticleLimit;
-    private int mImageCacheSize;
-    private int mImageCacheAge;
-    private boolean mImageCacheUnread;
-    private boolean mArticleCacheUnread;
+    private boolean displayVirtuals;
+    private boolean useSwipe;
+    private boolean displayOnlyUnread;
+    private int articleLimit;
     
-    private long mLastUpdateTime;
-    private String mLastVersionRun;
-    private boolean isNewInstallation = false;
+    private int imageCacheSize;
+    private int imageCacheAge;
+    private boolean imageCacheUnread;
+    private boolean articleCacheUnread;
+    private boolean splitGetRequests;
+    
+    private long lastUpdateTime;
+    private String lastVersionRun;
+    private boolean newInstallation = false;
     private String freshArticleMaxAge;
     
     public static Controller getInstance() {
-        if (mInstance == null) {
+        if (instance == null) {
             synchronized (mutex) {
-                if (mInstance == null) {
-                    mInstance = new Controller();
+                if (instance == null) {
+                    instance = new Controller();
                 }
             }
         }
-        return mInstance;
+        return instance;
     }
     
     public synchronized void initializeController(Context context) {
@@ -83,7 +85,7 @@ public class Controller {
         
         // Check for new installation
         if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
-            isNewInstallation = true;
+            newInstallation = true;
         }
         
         url = prefs.getString(Constants.URL, "http://localhost/");
@@ -104,10 +106,10 @@ public class Controller {
             httpPassword = prefs.getString(Constants.HTTP_PASSWORD, Constants.EMPTY);
         }
         
-        mTrustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
-        mUseKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
-        mKeystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
-        mTTRSSConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
+        trustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
+        useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
+        keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
+        ttrssConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
         
         // Donator
         donator = prefs.getBoolean(Constants.DONATOR, Constants.DONATOR_DEFAULT);
@@ -121,35 +123,38 @@ public class Controller {
         }
         
         // Usage
-        mAutomaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
-        mOpenUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
+        automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
+        openUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
                 Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
-        mUseVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
-        mVibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
+        useVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
+        vibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
                 Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
-        mWorkOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
+        workOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
         
         // Display
-        mDisplayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
-        mUseSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
-        mDisplayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
-        mArticleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
-        mImageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
-        mImageCacheAge = prefs.getInt(Constants.IMAGE_CACHE_AGE, Constants.IMAGE_CACHE_AGE_DEFAULT);
-        mImageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
-        mArticleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD, Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
+        displayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
+        useSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
+        displayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
+        articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
         
-        mLastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
-        mLastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
+        // System
+        imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
+        imageCacheAge = prefs.getInt(Constants.IMAGE_CACHE_AGE, Constants.IMAGE_CACHE_AGE_DEFAULT);
+        imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
+        articleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD, Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
+        splitGetRequests = prefs.getBoolean(Constants.SPLIT_GET_REQUESTS, Constants.SPLIT_GET_REQUESTS_DEFAULT);
+        
+        lastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
+        lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         
         // Initialize ImageCache
         getImageCache(context);
     }
     
     public synchronized void checkAndInitializeController(final Context context) {
-        if (!mIsControllerInitialized) {
+        if (!isControllerInitialized) {
             initializeController(context);
-            mIsControllerInitialized = true;
+            isControllerInitialized = true;
         }
     }
     
@@ -164,7 +169,7 @@ public class Controller {
     }
     
     public TTRSSJsonConnector getConnector() {
-        return mTTRSSConnector;
+        return ttrssConnector;
     }
     
     public ImageCache getImageCache(Context context) {
@@ -177,31 +182,31 @@ public class Controller {
         return imageCache;
     }
     
-    public boolean isTrustAllSsl() {
-        return mTrustAllSsl;
+    public boolean trustAllSsl() {
+        return trustAllSsl;
     }
     
     public void setTrustAllSsl(boolean trustAllSsl) {
         put(Constants.TRUST_ALL_SSL, trustAllSsl);
-        this.mTrustAllSsl = trustAllSsl;
+        this.trustAllSsl = trustAllSsl;
     }
     
-    public boolean isUseKeystore() {
-        return mUseKeystore;
+    public boolean useKeystore() {
+        return useKeystore;
     }
     
     public void setUseKeystore(boolean useKeystore) {
         put(Constants.USE_KEYSTORE, useKeystore);
-        this.mUseKeystore = useKeystore;
+        this.useKeystore = useKeystore;
     }
     
     public String getKeystorePassword() {
-        return mKeystorePassword;
+        return keystorePassword;
     }
     
     public void setKeystorePassword(String keystorePassword) {
         put(Constants.KEYSTORE_PASSWORD, keystorePassword);
-        this.mKeystorePassword = keystorePassword;
+        this.keystorePassword = keystorePassword;
     }
     
     public boolean isDonator() {
@@ -222,145 +227,156 @@ public class Controller {
         this.donatorMail = donatorMail;
     }
     
-    public boolean isAutomaticMarkRead() {
-        return mAutomaticMarkRead;
+    public boolean automaticMarkRead() {
+        return automaticMarkRead;
     }
     
     public void setAutomaticMarkRead(boolean automaticMarkRead) {
         put(Constants.AUTOMATIC_MARK_READ, automaticMarkRead);
-        this.mAutomaticMarkRead = automaticMarkRead;
+        this.automaticMarkRead = automaticMarkRead;
     }
     
-    public boolean isOpenUrlEmptyArticle() {
-        return mOpenUrlEmptyArticle;
+    public boolean openUrlEmptyArticle() {
+        return openUrlEmptyArticle;
     }
     
     public void setOpenUrlEmptyArticle(boolean openUrlEmptyArticle) {
         put(Constants.OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
-        this.mOpenUrlEmptyArticle = openUrlEmptyArticle;
+        this.openUrlEmptyArticle = openUrlEmptyArticle;
     }
     
-    public boolean isUseVolumeKeys() {
-        return mUseVolumeKeys;
+    public boolean useVolumeKeys() {
+        return useVolumeKeys;
     }
     
     public void setUseVolumeKeys(boolean useVolumeKeys) {
         put(Constants.USE_VOLUME_KEYS, useVolumeKeys);
-        this.mUseVolumeKeys = useVolumeKeys;
+        this.useVolumeKeys = useVolumeKeys;
     }
     
-    public boolean isVibrateOnLastArticle() {
-        return mVibrateOnLastArticle;
+    public boolean vibrateOnLastArticle() {
+        return vibrateOnLastArticle;
     }
     
     public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
         put(Constants.VIBRATE_ON_LAST_ARTICLE, vibrateOnLastArticle);
-        this.mVibrateOnLastArticle = vibrateOnLastArticle;
+        this.vibrateOnLastArticle = vibrateOnLastArticle;
     }
     
-    public boolean isWorkOffline() {
-        return mWorkOffline;
+    public boolean workOffline() {
+        return workOffline;
     }
     
     public void setWorkOffline(boolean workOffline) {
         put(Constants.WORK_OFFLINE, workOffline);
-        this.mWorkOffline = workOffline;
+        this.workOffline = workOffline;
     }
     
     // ******* DISPLAY-Options ****************************
     
-    public boolean isDisplayVirtuals() {
-        return mDisplayVirtuals;
+    public boolean displayVirtuals() {
+        return displayVirtuals;
     }
     
     public void setDisplayVirtuals(boolean displayVirtuals) {
         put(Constants.SHOW_VIRTUAL, displayVirtuals);
-        this.mDisplayVirtuals = displayVirtuals;
+        this.displayVirtuals = displayVirtuals;
     }
     
-    public boolean isUseSwipe() {
-        return mUseSwipe;
+    public boolean useSwipe() {
+        return useSwipe;
     }
     
     public void setUseSwipe(boolean useSwipe) {
         put(Constants.USE_SWIPE, useSwipe);
-        this.mUseSwipe = useSwipe;
+        this.useSwipe = useSwipe;
     }
     
-    public boolean isDisplayOnlyUnread() {
-        return mDisplayOnlyUnread;
+    public boolean displayOnlyUnread() {
+        return displayOnlyUnread;
     }
     
     public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
         put(Constants.ONLY_UNREAD, displayOnlyUnread);
-        this.mDisplayOnlyUnread = displayOnlyUnread;
+        this.displayOnlyUnread = displayOnlyUnread;
     }
     
     public int getArticleLimit() {
-        return mArticleLimit;
+        return articleLimit;
     }
     
     public void setArticleLimit(int articleLimit) {
         put(Constants.ARTICLE_LIMIT, articleLimit);
-        this.mArticleLimit = articleLimit;
+        this.articleLimit = articleLimit;
     }
     
     public int getImageCacheSize() {
-        return mImageCacheSize;
+        return imageCacheSize;
     }
     
     public void setImageCacheSize(int imageCacheSize) {
         put(Constants.IMAGE_CACHE_SIZE, imageCacheSize);
-        this.mImageCacheSize = imageCacheSize;
+        this.imageCacheSize = imageCacheSize;
     }
     
     public int getImageCacheAge() {
-        return mImageCacheAge;
+        return imageCacheAge;
     }
     
     public void setImageCacheAge(int imageCacheAge) {
         put(Constants.IMAGE_CACHE_AGE, imageCacheAge);
-        this.mImageCacheAge = imageCacheAge;
+        this.imageCacheAge = imageCacheAge;
     }
     
     public boolean isImageCacheUnread() {
-        return mImageCacheUnread;
+        return imageCacheUnread;
     }
     
     public void setImageCacheUnread(boolean imageCacheUnread) {
-        this.mImageCacheUnread = imageCacheUnread;
+        put(Constants.IMAGE_CACHE_UNREAD, imageCacheUnread);
+        this.imageCacheUnread = imageCacheUnread;
     }
     
     public boolean isArticleCacheUnread() {
-        return mArticleCacheUnread;
+        return articleCacheUnread;
     }
     
     public void setArticleCacheUnread(boolean articleCacheUnread) {
-        this.mArticleCacheUnread = articleCacheUnread;
+        put(Constants.ARTICLE_CACHE_UNREAD, articleCacheUnread);
+        this.articleCacheUnread = articleCacheUnread;
+    }
+    
+    public boolean splitGetRequests() {
+        return splitGetRequests;
+    }
+    
+    public void setSplitGetRequests(boolean splitGetRequests) {
+        put(Constants.SPLIT_GET_REQUESTS, splitGetRequests);
+        this.splitGetRequests = splitGetRequests;
     }
     
     // ******* INTERNAL Data ****************************
     
     public long getLastUpdateTime() {
-        return mLastUpdateTime;
+        return lastUpdateTime;
     }
     
     public void setLastUpdateTime(long lastUpdateTime) {
         put(Constants.LAST_UPDATE_TIME, lastUpdateTime);
-        this.mLastUpdateTime = lastUpdateTime;
+        this.lastUpdateTime = lastUpdateTime;
     }
     
     public String getLastVersionRun() {
-        return mLastVersionRun;
+        return lastVersionRun;
     }
     
     public void setLastVersionRun(String lastVersionRun) {
         put(Constants.LAST_VERSION_RUN, lastVersionRun);
-        this.mLastVersionRun = lastVersionRun;
+        this.lastVersionRun = lastVersionRun;
     }
     
-    public boolean isNewInstallation() {
-        return isNewInstallation;
+    public boolean newInstallation() {
+        return newInstallation;
     }
     
     public long getFreshArticleMaxAge() {

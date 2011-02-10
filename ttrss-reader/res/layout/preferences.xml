@@ -169,6 +169,11 @@
             android:maxLength="5"
             android:inputType="number" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/SystemPreferenceCategoryTitle">
+
         <org.ttrssreader.utils.EditIntegerPreference
             android:name="@string/StoreImageLimitTitle"
             android:title="@string/StoreImageLimitTitle"
@@ -198,6 +203,12 @@
             android:defaultValue="true"
             android:summary="@string/CacheUnreadArticlesSummary"
             android:key="CacheUnreadArticlesPreference" />
+            
+        <CheckBoxPreference
+            android:title="@string/SplitLongGetRequestsTitle"
+            android:defaultValue="false"
+            android:summary="@string/SplitLongGetRequestsSummary"
+            android:key="SplitLongGetRequestsPreference" />
     </PreferenceCategory>
 
     <PreferenceCategory
