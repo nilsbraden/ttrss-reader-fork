@@ -39,7 +39,7 @@ public class DBHelper {
     private boolean mIsDBInitialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 45;
+    private static final int DATABASE_VERSION = 46;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -237,6 +237,28 @@ public class DBHelper {
                 didUpgrade = true;
             }
             
+            if (oldVersion < 46) {
+                
+                // @formatter:off
+                sql = "DROP TABLE "
+                    + TABLE_MARK;
+                String sql2 = "CREATE TABLE "
+                    + TABLE_MARK
+                    + " (id INTEGER PRIMARY KEY,"
+                    + " " + MARK_READ + " INTEGER,"
+                    + " " + MARK_STAR + " INTEGER,"
+                    + " " + MARK_PUBLISH + " INTEGER)";
+                // @formatter:on
+                
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to 46.", oldVersion));
+                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.w(Utils.TAG, String.format(" (Executing: %s", sql2));
+                
+                db.execSQL(sql);
+                db.execSQL(sql2);
+                didUpgrade = true;
+            }
+            
             if (didUpgrade == false) {
                 Log.w(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
@@ -392,20 +414,21 @@ public class DBHelper {
         }
     }
     
-    private void markArticle(int id, String mark, boolean isMarked) {
+    private void markArticle(int id, String mark, int isMarked) {
         if (isDBAvailable()) {
-            ContentValues cv = new ContentValues();
-            cv.put(mark, isMarked);
-            cv.put("id", id);
-            // cv.put("type", TYPE_ARTICLE);
             synchronized (TABLE_MARK) {
                 /*
-                 * First update, then insert with CONFLICT_IGNORE. If row is already there it gets updated and second
+                 * First update, then insert. If row is already there it gets updated and second
                  * call ignores it, if it is not there yet the second call inserts it.
                  * TODO: Is there a better way to achieve this?
                  */
-                db.update(TABLE_MARK, cv, "id=" + id, null);
-                db.insertWithOnConflict(TABLE_MARK, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+                String sql;
+                sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, isMarked, id);
+                db.execSQL(sql);
+                
+                sql = String
+                        .format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id, isMarked);
+                db.execSQL(sql);
             }
         }
     }
@@ -413,10 +436,45 @@ public class DBHelper {
     public void markArticles(Set<Integer> iDlist, String mark, int state) {
         if (isDBAvailable()) {
             for (Integer id : iDlist) {
-                boolean isUnread = state > 0 ? true : false;
-                markArticle(id, mark, isUnread);
+                markArticle(id, mark, state);
             }
         }
+    }
+    
+    public void markArticlesReadCategory(int id) {
+        for (FeedItem f : getFeeds(id)) {
+            markArticlesReadFeed(f.getId());
+        }
+    }
+    
+    public void markArticlesReadFeed(int id) {
+        if (!isDBAvailable())
+            return;
+        
+        Set<Integer> set = new HashSet<Integer>();
+        Cursor c = null;
+        try {
+            c = db.query(TABLE_ARTICLES, new String[] { "id" }, "feedId=" + id + " AND isUnread=1", null, null, null,
+                    null, null);
+            
+            if (c.isBeforeFirst()) {
+                if (!c.moveToFirst()) {
+                    return;
+                }
+            }
+            
+            while (!c.isAfterLast()) {
+                set.add(c.getInt(0));
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        markArticles(set, MARK_READ, 0);
     }
     
     public void updateCategoryUnreadCount(int id, int count) {
