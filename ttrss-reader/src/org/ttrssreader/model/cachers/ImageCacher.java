@@ -93,7 +93,7 @@ public class ImageCacher implements ICacheable {
     private void updateLocalArticles(int nrOfTasks) {
         long time = System.currentTimeMillis();
         UpdateArticlesTask[] tasks = new UpdateArticlesTask[nrOfTasks];
-        Data.getInstance().updateFeeds(-4);
+        Data.getInstance().updateFeeds(-4, true);
         
         for (FeedItem f : DBHelper.getInstance().getFeeds(-4)) {
             if (f.getUnread() == 0)

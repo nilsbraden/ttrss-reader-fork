@@ -166,10 +166,10 @@ public class Data {
     
     // *** FEEDS ************************************************************************
     
-    public Set<FeedItem> updateFeeds(int categoryId) {
+    public Set<FeedItem> updateFeeds(int categoryId, boolean overrideOffline) {
         if (mFeedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
-        } else if (Utils.isOnline(cm)) {
+        } else if (Utils.isOnline(cm) || (overrideOffline && Utils.checkConnection(cm))) {
             Set<FeedItem> feeds = Controller.getInstance().getConnector().getFeeds();
             mFeedsUpdated = System.currentTimeMillis();
             
@@ -221,11 +221,7 @@ public class Data {
             Set<CategoryItem> categories = Controller.getInstance().getConnector().getCategories();
             mCategoriesUpdated = System.currentTimeMillis();
             
-            if (!categories.isEmpty()) {
-                // Only delete categories if we got new categories...
-                DBHelper.getInstance().deleteCategories(false);
-            }
-            
+            DBHelper.getInstance().deleteCategories(false);
             DBHelper.getInstance().insertCategories(categories);
             return categories;
         }
