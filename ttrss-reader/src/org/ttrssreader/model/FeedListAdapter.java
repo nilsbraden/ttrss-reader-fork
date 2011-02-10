@@ -220,7 +220,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     @Override
     public void update() {
-        Data.getInstance().updateFeeds(categoryId);
+        Data.getInstance().updateFeeds(categoryId, false);
         unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
     }
     
