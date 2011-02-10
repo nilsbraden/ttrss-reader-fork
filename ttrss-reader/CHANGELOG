@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.8.6 ==
+  * 
+  * Fixed Issue #45: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=45 SQL Error because of suhosin-blocked article_id])
+
 == Version 0.8.5 ==
   * Synchronizing marked articles now also works for complete feeds and categories
   * When marking feeds/categories as read while beeing offline only local articles can be included, articles that are new on the server but not synchronized to the client cannot.
@@ -40,7 +44,7 @@
   * Fixed Issue #36: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=36 functional - suggestion]) (show read articles for Virtual Categories)
   * Fixed Issue #37: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=37 display source in view "All Articles"])
   * Fixed Issue #38: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=38 mark all read in "All Articles"])
-  * Fixed Issue #40 (Better error-handling for disabled API and Not logged in 
+  * Fixed Issue #40: (Better error-handling for disabled API and Not logged in 
 
 == Version 0.7.8 ==
   * Added HTTP-Authentication. Resolves Issue #32 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=32 If an http 401 (denied) is received, try http authentication])

@@ -69,7 +69,7 @@ public class CategoryActivity extends MenuActivity {
         notificationTextView = (TextView) findViewById(R.id.notification);
         
         // Check for update or new installation
-        if (Controller.getInstance().isNewInstallation()) {
+        if (Controller.getInstance().newInstallation()) {
             showDialog(DIALOG_WELCOME);
         } else if (Utils.newVersionInstalled(this)) {
             showDialog(DIALOG_UPDATE);

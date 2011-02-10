@@ -201,8 +201,8 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     }
     
     public synchronized void makeQuery() {
-        if (displayOnlyUnread != Controller.getInstance().isDisplayOnlyUnread()) {
-            displayOnlyUnread = Controller.getInstance().isDisplayOnlyUnread();
+        if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
+            displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
             closeCursor();
         } else if (cursor != null && !cursor.isClosed()) {
             cursor.requery();

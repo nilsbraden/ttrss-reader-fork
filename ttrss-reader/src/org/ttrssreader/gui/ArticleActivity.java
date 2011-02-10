@@ -107,7 +107,7 @@ public class ArticleActivity extends Activity {
         webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
         webviewSwipeText.setVisibility(TextView.INVISIBLE);
         webviewSwipeText.setPadding(16, padding, 16, padding);
-        useSwipe = Controller.getInstance().isUseSwipe();
+        useSwipe = Controller.getInstance().useSwipe();
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -221,7 +221,7 @@ public class ArticleActivity extends Activity {
     private void doRefresh() {
         setProgressBarIndeterminateVisibility(true);
         
-        if (Controller.getInstance().isWorkOffline()) {
+        if (Controller.getInstance().workOffline()) {
             webview.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
         } else {
             webview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
@@ -258,12 +258,12 @@ public class ArticleActivity extends Activity {
                     setTitle(getResources().getString(R.string.ApplicationName));
                 }
                 
-                if (mArticleItem.isUnread() && Controller.getInstance().isAutomaticMarkRead()) {
+                if (mArticleItem.isUnread() && Controller.getInstance().automaticMarkRead()) {
                     new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
                 }
                 
                 if (!linkAutoOpened && content.length() < 3) {
-                    if (Controller.getInstance().isOpenUrlEmptyArticle()) {
+                    if (Controller.getInstance().openUrlEmptyArticle()) {
                         Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
                         linkAutoOpened = true;
                         openLink();
@@ -303,7 +303,7 @@ public class ArticleActivity extends Activity {
         
         // No more articles in this direction
         if (index < 0 || index >= mArticleIds.size()) {
-            if (Controller.getInstance().isVibrateOnLastArticle()) {
+            if (Controller.getInstance().vibrateOnLastArticle()) {
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 v.vibrate(Utils.SHORT_VIBRATE);
             }
@@ -388,7 +388,7 @@ public class ArticleActivity extends Activity {
     };
     
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (Controller.getInstance().isUseVolumeKeys()) {
+        if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
                 openNextArticle(-1);
                 return true;
@@ -401,7 +401,7 @@ public class ArticleActivity extends Activity {
     }
     
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (Controller.getInstance().isUseVolumeKeys()) {
+        if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
                 return true;
         }
@@ -412,7 +412,7 @@ public class ArticleActivity extends Activity {
         
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
-            if (Controller.getInstance().isUseVolumeKeys()) {
+            if (Controller.getInstance().useVolumeKeys()) {
                 if (keyCode == KeyEvent.KEYCODE_N) {
                     openNextArticle(-1);
                     return true;

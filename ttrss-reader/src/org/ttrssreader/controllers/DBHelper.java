@@ -765,11 +765,12 @@ public class DBHelper {
             return;
         
         try {
-            String idList = StringSupport.convertListToString(ids);
-            ContentValues cv = new ContentValues();
-            cv.putNull(mark);
-            db.update(TABLE_MARK, cv, "id in (" + idList + ")", null);
-            db.delete(TABLE_MARK, "isUnread is null AND isStarred is null AND isPublished is null", null);
+            for (String idList : StringSupport.convertListToString(ids)) {
+                ContentValues cv = new ContentValues();
+                cv.putNull(mark);
+                db.update(TABLE_MARK, cv, "id in (" + idList + ")", null);
+                db.delete(TABLE_MARK, "isUnread is null AND isStarred is null AND isPublished is null", null);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
