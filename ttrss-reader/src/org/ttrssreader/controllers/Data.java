@@ -268,10 +268,17 @@ public class Data {
     }
     
     public void setRead(int id, boolean isCategory) {
-        if (!Utils.isOnline(cm))
-            return;
+        boolean erg = false;
+        if (Utils.isOnline(cm))
+            Controller.getInstance().getConnector().setRead(id, isCategory);
         
-        Controller.getInstance().getConnector().setRead(id, isCategory);
+        if (!erg) {
+            if (isCategory) {
+                DBHelper.getInstance().markArticlesReadCategory(id);
+            } else {
+                DBHelper.getInstance().markArticlesReadFeed(id);
+            }
+        }
     }
     
     protected String getPref(String pref) {
