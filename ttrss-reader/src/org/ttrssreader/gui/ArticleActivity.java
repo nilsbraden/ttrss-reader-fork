@@ -154,21 +154,21 @@ public class ArticleActivity extends Activity {
         super.onPrepareOptionsMenu(menu);
         
         MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
-        if (mArticleItem.isUnread()) {
+        if (mArticleItem.mIsUnread) {
             read.setTitle(getString(R.string.Commons_MarkRead));
         } else {
             read.setTitle(getString(R.string.Commons_MarkUnread));
         }
         
         MenuItem publish = menu.findItem(R.id.Article_Menu_MarkStar);
-        if (mArticleItem.isStarred()) {
+        if (mArticleItem.mIsStarred) {
             publish.setTitle(getString(R.string.Commons_MarkUnstar));
         } else {
             publish.setTitle(getString(R.string.Commons_MarkStar));
         }
         
         MenuItem star = menu.findItem(R.id.Article_Menu_MarkPublish);
-        if (mArticleItem.isPublished()) {
+        if (mArticleItem.mIsPublished) {
             star.setTitle(getString(R.string.Commons_MarkUnpublish));
         } else {
             star.setTitle(getString(R.string.Commons_MarkPublish));
@@ -181,15 +181,14 @@ public class ArticleActivity extends Activity {
     public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
-                new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, mArticleItem.isUnread() ? 0 : 1))
+                new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, mArticleItem.mIsUnread ? 0 : 1))
                         .execute();
                 return true;
             case R.id.Article_Menu_MarkStar:
-                new Updater(null, new StarredStateUpdater(mArticleItem, mArticleItem.isStarred() ? 0 : 1)).execute();
+                new Updater(null, new StarredStateUpdater(mArticleItem, mArticleItem.mIsStarred ? 0 : 1)).execute();
                 return true;
             case R.id.Article_Menu_MarkPublish:
-                new Updater(null, new PublishedStateUpdater(mArticleItem, mArticleItem.isPublished() ? 0 : 1))
-                        .execute();
+                new Updater(null, new PublishedStateUpdater(mArticleItem, mArticleItem.mIsPublished ? 0 : 1)).execute();
                 return true;
             case R.id.Article_Menu_OpenLink:
                 openLink();
@@ -197,9 +196,9 @@ public class ArticleActivity extends Activity {
             case R.id.Article_Menu_ShareLink:
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_SUBJECT, mArticleItem.getTitle());
+                i.putExtra(Intent.EXTRA_SUBJECT, mArticleItem.mTitle);
                 String content = (String) getText(R.string.ArticleActivity_ShareSubject);
-                i.putExtra(Intent.EXTRA_TEXT, content + " " + mArticleItem.getArticleUrl());
+                i.putExtra(Intent.EXTRA_TEXT, content + " " + mArticleItem.mArticleUrl);
                 this.startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
             default:
@@ -209,7 +208,7 @@ public class ArticleActivity extends Activity {
     
     private void openLink() {
         if (mArticleItem != null) {
-            String url = mArticleItem.getArticleUrl();
+            String url = mArticleItem.mArticleUrl;
             if ((url != null) && (url.length() > 0)) {
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
@@ -230,7 +229,7 @@ public class ArticleActivity extends Activity {
         if (!TTRSSJsonConnector.hasLastError()) {
             mArticleItem = DBHelper.getInstance().getArticle(mArticleId);
             
-            if (mArticleItem != null && mArticleItem.getContent() != null) {
+            if (mArticleItem != null && mArticleItem.mContent != null) {
                 
                 // Store current index in ID-List so we can jump between articles
                 if (mFeedHeadlineListAdapter == null) {
@@ -241,8 +240,7 @@ public class ArticleActivity extends Activity {
                 }
                 
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
-                content = injectAttachments(getApplicationContext(), mArticleItem.getContent(),
-                        mArticleItem.getAttachments());
+                content = injectAttachments(getApplicationContext(), mArticleItem.mContent, mArticleItem.mAttachments);
                 content = Utils.injectCachedImages(content);
                 
                 // Load html from Raw-Ressources and insert content
@@ -252,13 +250,13 @@ public class ArticleActivity extends Activity {
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
                 webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
                 
-                if (mArticleItem.getTitle() != null) {
-                    setTitle(mArticleItem.getTitle());
+                if (mArticleItem.mTitle != null) {
+                    setTitle(mArticleItem.mTitle);
                 } else {
                     setTitle(getResources().getString(R.string.ApplicationName));
                 }
                 
-                if (mArticleItem.isUnread() && Controller.getInstance().automaticMarkRead()) {
+                if (mArticleItem.mIsUnread && Controller.getInstance().automaticMarkRead()) {
                     new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
                 }
                 

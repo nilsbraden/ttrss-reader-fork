@@ -71,12 +71,17 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     public void fillMemoryCacheFromDisk() {
         byte[] b = new byte[] {};
         File folder = new File(diskCacheDir);
-        for (File file : folder.listFiles()) {
+        File[] files = folder.listFiles();
+        
+        if (files == null)
+            return;
+        
+        for (File file : files) {
             cache.put(file.getName(), b);
         }
     }
     
-    public synchronized boolean containsKey(String key) {
+    public boolean containsKey(String key) {
         if (cache.containsKey(getFileNameForKey(key))) {
             return true;
         } else {

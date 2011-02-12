@@ -67,9 +67,9 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
                 ret = new CategoryItem();
-                ret.setId(cursor.getInt(0));
-                ret.setTitle(cursor.getString(1));
-                ret.setUnread(cursor.getInt(2));
+                ret.id = cursor.getInt(0);
+                ret.title = cursor.getString(1);
+                ret.unread = cursor.getInt(2);
             }
         }
         return ret;
@@ -128,9 +128,9 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             CategoryItem c = new CategoryItem();
-            c.setId(cursor.getInt(0));
-            c.setTitle(cursor.getString(1));
-            c.setUnread(cursor.getInt(2));
+            c.id = cursor.getInt(0);
+            c.title = cursor.getString(1);
+            c.unread = cursor.getInt(2);
             result.add(c);
             cursor.move(1);
         }
@@ -181,11 +181,11 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         }
         
         ImageView icon = (ImageView) layout.findViewById(R.id.icon);
-        icon.setImageResource(getImage(c.getId(), c.getUnread() > 0));
+        icon.setImageResource(getImage(c.id, c.unread > 0));
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(formatTitle(c.getTitle(), c.getUnread()));
-        if (c.getUnread() > 0) {
+        title.setText(formatTitle(c.title, c.unread));
+        if (c.unread > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
         } else {
             title.setTypeface(Typeface.DEFAULT, 0);
@@ -227,8 +227,8 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     
     @Override
     public void update() {
-        Data.getInstance().updateCounters();
-        Data.getInstance().updateCategories();
+        Data.getInstance().updateCounters(false);
+        Data.getInstance().updateCategories(false);
         Data.getInstance().updateVirtualCategories();
         unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
     }

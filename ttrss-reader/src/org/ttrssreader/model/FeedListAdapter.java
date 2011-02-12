@@ -68,9 +68,9 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
                 ret = new FeedItem();
-                ret.setId(cursor.getInt(0));
-                ret.setTitle(cursor.getString(1));
-                ret.setUnread(cursor.getInt(2));
+                ret.id = cursor.getInt(0);
+                ret.title = cursor.getString(1);
+                ret.unread = cursor.getInt(2);
             }
         }
         return ret;
@@ -173,11 +173,11 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
         }
         
         ImageView icon = (ImageView) layout.findViewById(R.id.icon);
-        icon.setImageResource(getImage(f.getUnread() > 0));
+        icon.setImageResource(getImage(f.unread > 0));
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(formatTitle(f.getTitle(), f.getUnread()));
-        if (f.getUnread() > 0) {
+        title.setText(formatTitle(f.title, f.unread));
+        if (f.unread > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
         } else {
             title.setTypeface(Typeface.DEFAULT, 0);

@@ -74,8 +74,8 @@ public class Constants {
     // System
     public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
     public static String IMAGE_CACHE_AGE = "StoreImageAgeLimitPreference";
-    public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesTitle";
-    public static String ARTICLE_CACHE_UNREAD = "CacheUnreadArticlesTitle";
+    public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesPreference";
+    public static String ARTICLE_CACHE_UNREAD = "CacheUnreadArticlesPreference";
     public static String SPLIT_GET_REQUESTS = "SplitLongGetRequestsPreference";
     // Display Default Values
     public static int IMAGE_CACHE_SIZE_DEFAULT = 100;

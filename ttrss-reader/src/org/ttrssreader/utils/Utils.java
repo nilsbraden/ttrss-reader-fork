@@ -271,7 +271,8 @@ public class Utils {
     }
     
     /**
-     * Downloads a given URL directly to a file, stops after maxSize bytes.
+     * Downloads a given URL directly to a file, when maxSize bytes are reached the download is stopped and the file is
+     * deleted.
      * 
      * @param downloadUrl
      *            the URL of the file

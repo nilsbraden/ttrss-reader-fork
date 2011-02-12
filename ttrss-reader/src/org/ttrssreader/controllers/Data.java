@@ -120,8 +120,8 @@ public class Data {
     }
     
     // takes about 2.5 seconds on wifi
-    public void updateCounters() {
-        if (Utils.isOnline(cm)) {
+    public void updateCounters(boolean overrideOffline) {
+        if (Utils.isOnline(cm) || overrideOffline) {
             Controller.getInstance().getConnector().getCounters();
         }
     }
@@ -180,7 +180,7 @@ public class Data {
             
             Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
             for (FeedItem f : feeds) {
-                if (categoryId == -4 || f.getCategoryId() == categoryId) {
+                if (categoryId == -4 || f.categoryId == categoryId) {
                     ret.add(f);
                 }
             }
@@ -214,10 +214,10 @@ public class Data {
         return virtCategories;
     }
     
-    public Set<CategoryItem> updateCategories() {
+    public Set<CategoryItem> updateCategories(boolean overrideOffline) {
         if (mCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
-        } else if (Utils.isOnline(cm)) {
+        } else if (Utils.isOnline(cm) || overrideOffline) {
             Set<CategoryItem> categories = Controller.getInstance().getConnector().getCategories();
             mCategoriesUpdated = System.currentTimeMillis();
             
