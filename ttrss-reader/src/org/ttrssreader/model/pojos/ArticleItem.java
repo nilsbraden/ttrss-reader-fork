@@ -21,17 +21,17 @@ import java.util.Set;
 
 public class ArticleItem implements Comparable<ArticleItem> {
     
-    private int mId;
-    private String mTitle;
-    private int mFeedId;
-    private volatile boolean mIsUnread;
-    private String mArticleUrl;
-    private String mArticleCommentUrl;
-    private Date mUpdateDate;
-    private String mContent;
-    private Set<String> mAttachments;
-    private boolean mIsStarred;
-    private boolean mIsPublished;
+    public int mId;
+    public String mTitle;
+    public int mFeedId;
+    public volatile boolean mIsUnread;
+    public String mArticleUrl;
+    public String mArticleCommentUrl;
+    public Date mUpdateDate;
+    public String mContent;
+    public Set<String> mAttachments;
+    public boolean mIsStarred;
+    public boolean mIsPublished;
     
     public ArticleItem() {
     }
@@ -45,142 +45,26 @@ public class ArticleItem implements Comparable<ArticleItem> {
         mUpdateDate = updateDate;
         mArticleUrl = articleUrl;
         mArticleCommentUrl = articleCommentUrl;
-        setContent(content);
+        if (content == null || content.equals("null")) {
+            this.mContent = null;
+        } else {
+            this.mContent = content;
+        }
         mAttachments = attachments;
         mIsStarred = isStarred;
         mIsPublished = isPublished;
     }
     
-    public int getId() {
-        return mId;
-    }
-    
-    public void setId(int id) {
-        this.mId = id;
-    }
-    
-    public void setId(String id) {
-        // Check if id is a number, else set to 0
-        try {
-            if (id == null) {
-                this.mId = 0;
-            } else if (!id.matches("[0-9]+")) {
-                this.mId = 0;
-            } else {
-                this.mId = Integer.parseInt(id);
-            }
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public String getTitle() {
-        return mTitle;
-    }
-    
-    public void setTitle(String mTitle) {
-        this.mTitle = mTitle;
-    }
-    
-    public int getFeedId() {
-        return mFeedId;
-    }
-    
-    public void setFeedId(int feedId) {
-        this.mFeedId = feedId;
-    }
-    
-    public void setFeedId(String feedId) {
-        // Check if feedId is a number, else set to 0
-        try {
-            if (feedId == null) {
-                this.mFeedId = 0;
-            } else if (!feedId.matches("-*[0-9]+")) {
-                this.mFeedId = 0;
-            } else {
-                this.mFeedId = Integer.parseInt(feedId);
-            }
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public boolean isUnread() {
-        return mIsUnread;
-    }
-    
-    public void setUnread(boolean mIsUnread) {
-        this.mIsUnread = mIsUnread;
-    }
-    
-    public String getArticleUrl() {
-        return mArticleUrl;
-    }
-    
-    public void setArticleUrl(String mArticleUrl) {
-        this.mArticleUrl = mArticleUrl;
-    }
-    
-    public String getArticleCommentUrl() {
-        return mArticleCommentUrl;
-    }
-    
-    public void setArticleCommentUrl(String mArticleCommentUrl) {
-        this.mArticleCommentUrl = mArticleCommentUrl;
-    }
-    
-    public Date getUpdateDate() {
-        return mUpdateDate;
-    }
-    
-    public String getContent() {
-        return mContent;
-    }
-    
-    public void setContent(String mContent) {
-        if (mContent == null || mContent.equals("null")) {
-            this.mContent = null;
-        } else {
-            this.mContent = mContent;
-        }
-    }
-    
-    public void setUpdateDate(Date mUpdateDate) {
-        this.mUpdateDate = mUpdateDate;
-    }
-    
-    public Set<String> getAttachments() {
-        return mAttachments;
-    }
-    
-    public void setAttachments(Set<String> attachments) {
-        this.mAttachments = attachments;
-    }
-    
-    public boolean isStarred() {
-        return mIsStarred;
-    }
-    
-    public void setStarred(boolean isStarred) {
-        this.mIsStarred = isStarred;
-    }
-    
-    public boolean isPublished() {
-        return mIsPublished;
-    }
-    
-    public void setPublished(boolean isPublished) {
-        this.mIsPublished = isPublished;
-    }
-    
     @Override
     public int compareTo(ArticleItem ai) {
-        return ai.getUpdateDate().compareTo(this.getUpdateDate());
+        return ai.mUpdateDate.compareTo(this.mUpdateDate);
     }
     
     @Override
     public boolean equals(Object o) {
         if (o instanceof ArticleItem) {
             ArticleItem other = (ArticleItem) o;
-            return (this.getId() == other.getId());
+            return (this.mId == other.mId);
         } else {
             return false;
         }
@@ -188,7 +72,7 @@ public class ArticleItem implements Comparable<ArticleItem> {
     
     @Override
     public int hashCode() {
-        return this.getId() + "".hashCode();
+        return this.mId + "".hashCode();
     }
     
 }

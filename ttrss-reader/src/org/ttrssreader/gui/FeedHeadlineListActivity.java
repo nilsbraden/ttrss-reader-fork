@@ -205,19 +205,19 @@ public class FeedHeadlineListActivity extends MenuActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         ArticleItem a = (ArticleItem) mAdapter.getItem(info.position);
         
-        if (a.isUnread()) {
+        if (a.mIsUnread) {
             menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
         } else {
             menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkUnread);
         }
         
-        if (a.isStarred()) {
+        if (a.mIsStarred) {
             menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkUnstar);
         } else {
             menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkStar);
         }
         
-        if (a.isPublished()) {
+        if (a.mIsPublished) {
             menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkUnpublish);
         } else {
             menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
@@ -234,13 +234,13 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(this, new ReadStateUpdater(a, mFeedId, a.isUnread() ? 0 : 1)).execute();
+                new Updater(this, new ReadStateUpdater(a, mFeedId, a.mIsUnread ? 0 : 1)).execute();
                 return true;
             case MARK_STAR:
-                new Updater(this, new StarredStateUpdater(a, a.isStarred() ? 0 : 1)).execute();
+                new Updater(this, new StarredStateUpdater(a, a.mIsStarred ? 0 : 1)).execute();
                 return true;
             case MARK_PUBLISH:
-                new Updater(this, new PublishedStateUpdater(a, a.isPublished() ? 0 : 1)).execute();
+                new Updater(this, new PublishedStateUpdater(a, a.mIsPublished ? 0 : 1)).execute();
                 return true;
         }
         return false;

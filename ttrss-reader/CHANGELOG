@@ -2,8 +2,10 @@
 
 = Changes =
 == Version 0.8.6 ==
-  * 
+  * ImageCache download now parallelized into 4 threads (ArticleCache: 8 threads)
+  * Some performance tweaks
   * Fixed Issue #45: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=45 SQL Error because of suhosin-blocked article_id])
+  * Added preference to split long GET-Requests due to problems with server-side security scanners like Suhosin
 
 == Version 0.8.5 ==
   * Synchronizing marked articles now also works for complete feeds and categories

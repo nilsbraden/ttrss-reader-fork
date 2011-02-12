@@ -305,7 +305,7 @@ public class DBHelper {
             return;
         
         for (CategoryItem c : set) {
-            insertCategory(c.getId(), c.getTitle(), c.getUnread());
+            insertCategory(c.id, c.title, c.unread);
         }
     }
     
@@ -331,7 +331,7 @@ public class DBHelper {
         if (f == null)
             return;
         
-        insertFeed(f.getId(), f.getCategoryId(), f.getTitle(), f.getUrl(), f.getUnread());
+        insertFeed(f.id, f.categoryId, f.title, f.url, f.unread);
     }
     
     public void insertFeeds(Set<FeedItem> set) {
@@ -381,10 +381,10 @@ public class DBHelper {
     
     public void markCategoryRead(CategoryItem c, boolean recursive) {
         if (isDBAvailable()) {
-            updateCategoryUnreadCount(c.getId(), 0);
+            updateCategoryUnreadCount(c.id, 0);
             
             if (recursive) {
-                for (FeedItem f : getFeeds(c.getId())) {
+                for (FeedItem f : getFeeds(c.id)) {
                     markFeedRead(f, recursive);
                 }
             }
@@ -393,13 +393,13 @@ public class DBHelper {
     
     public void markFeedRead(FeedItem f, boolean recursive) {
         if (isDBAvailable()) {
-            updateFeedUnreadCount(f.getId(), 0);
+            updateFeedUnreadCount(f.id, 0);
             
             if (recursive) {
                 ContentValues cv = new ContentValues();
                 cv.put("isUnread", 0);
                 synchronized (TABLE_ARTICLES) {
-                    db.update(TABLE_ARTICLES, cv, "feedId=" + f.getId(), null);
+                    db.update(TABLE_ARTICLES, cv, "feedId=" + f.id, null);
                 }
             }
         }
@@ -443,7 +443,7 @@ public class DBHelper {
     
     public void markArticlesReadCategory(int id) {
         for (FeedItem f : getFeeds(id)) {
-            markArticlesReadFeed(f.getId());
+            markArticlesReadFeed(f.id);
         }
     }
     
@@ -490,7 +490,7 @@ public class DBHelper {
     
     public void updateCategoryDeltaUnreadCount(int id, int delta) {
         CategoryItem c = getCategory(id);
-        int count = c.getUnread();
+        int count = c.unread;
         count += delta;
         updateCategoryUnreadCount(id, count);
     }
@@ -508,7 +508,7 @@ public class DBHelper {
     
     public void updateFeedDeltaUnreadCount(int id, int delta) {
         FeedItem f = getFeed(id);
-        int count = f.getUnread();
+        int count = f.unread;
         count += delta;
         updateFeedUnreadCount(id, count);
     }

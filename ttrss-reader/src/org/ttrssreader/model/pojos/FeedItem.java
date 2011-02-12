@@ -18,110 +18,38 @@ package org.ttrssreader.model.pojos;
 
 public class FeedItem implements Comparable<FeedItem> {
     
-    private int mId;
-    private int mCategoryId;
-    private String mTitle;
-    private String mUrl;
-    private int mUnread;
+    public int id;
+    public int categoryId;
+    public String title;
+    public String url;
+    public int unread;
     
     public FeedItem() {
-        mId = 0;
-        mCategoryId = 0;
-        mTitle = "";
-        mUrl = "";
-        mUnread = 0;
+        this.id = 0;
+        this.categoryId = 0;
+        this.title = "";
+        this.url = "";
+        this.unread = 0;
     }
     
     public FeedItem(int id, int categoryId, String title, String url, int unread) {
-        mId = id;
-        mCategoryId = categoryId;
-        mTitle = title;
-        mUrl = url;
-        mUnread = unread;
-    }
-    
-    public void setDeltaUnreadCount(int value) {
-        mUnread += value;
-    }
-    
-    public int getId() {
-        return mId;
-    }
-    
-    public void setId(int id) {
-        this.mId = id;
-    }
-    
-    public void setId(String id) {
-        // Check if id is a number, else set to 0
-        try {
-            if (id == null) {
-                this.mId = 0;
-            } else if (!id.matches("-*[0-9]+")) {
-                this.mId = 0;
-            } else {
-                this.mId = Integer.parseInt(id);
-            }
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public int getCategoryId() {
-        return mCategoryId;
-    }
-    
-    public void setCategoryId(int categoryId) {
-        this.mCategoryId = categoryId;
-    }
-    
-    public void setCategoryId(String categoryId) {
-        // Check if categoryId is a number, else set to 0
-        try {
-            if (categoryId == null) {
-                this.mCategoryId = 0;
-            } else if (!categoryId.matches("-*[0-9]+")) {
-                this.mCategoryId = 0;
-            } else {
-                this.mCategoryId = Integer.parseInt(categoryId);
-            }
-        } catch (NumberFormatException e) {
-        }
-    }
-    
-    public String getTitle() {
-        return mTitle;
-    }
-    
-    public void setTitle(String mTitle) {
-        this.mTitle = mTitle;
-    }
-    
-    public String getUrl() {
-        return mUrl;
-    }
-    
-    public void setUrl(String mUrl) {
-        this.mUrl = mUrl;
-    }
-    
-    public int getUnread() {
-        return mUnread;
-    }
-    
-    public void setUnread(int mUnread) {
-        this.mUnread = mUnread;
+        this.id = id;
+        this.categoryId = categoryId;
+        this.title = title;
+        this.url = url;
+        this.unread = unread;
     }
     
     @Override
     public int compareTo(FeedItem fi) {
-        return this.mTitle.compareToIgnoreCase(fi.getTitle());
+        return title.compareToIgnoreCase(fi.title);
     }
     
     @Override
     public boolean equals(Object o) {
         if (o instanceof FeedItem) {
             FeedItem other = (FeedItem) o;
-            return (this.getId() == other.getId());
+            return (id == other.id);
         } else {
             return false;
         }
@@ -129,7 +57,7 @@ public class FeedItem implements Comparable<FeedItem> {
     
     @Override
     public int hashCode() {
-        return mId + "".hashCode();
+        return id + "".hashCode();
     }
     
 }

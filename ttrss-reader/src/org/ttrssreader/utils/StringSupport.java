@@ -139,4 +139,13 @@ public class StringSupport {
         return ret;
     }
     
+    public static String[] setToArray(Set<String> set) {
+        String[] ret = new String[set.size()];
+        int i = 0;
+        for (String s : set) {
+            ret[i++] = s;
+        }
+        return ret;
+    }
+    
 }
