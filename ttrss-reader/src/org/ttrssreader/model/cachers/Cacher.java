@@ -22,27 +22,27 @@ import android.os.Message;
 
 public class Cacher extends AsyncTask<Void, Void, Void> {
     
-    private ICacheEndListener mParent;
-    private ICacheable mCacheable;
+    private ICacheEndListener parent;
+    private ICacheable cacheable;
     
     public Cacher(ICacheEndListener parent, ICacheable cacheable) {
-        mParent = parent;
-        mCacheable = cacheable;
+        this.parent = parent;
+        this.cacheable = cacheable;
     }
     
     private Handler handler = new Handler() {
         
         @Override
         public void handleMessage(Message msg) {
-            if (mParent != null) {
-                mParent.onCacheEnd();
+            if (parent != null) {
+                parent.onCacheEnd();
             }
         }
     };
     
     @Override
     protected Void doInBackground(Void... params) {
-        mCacheable.cache();
+        cacheable.cache();
         handler.sendEmptyMessage(0);
         return null;
     }

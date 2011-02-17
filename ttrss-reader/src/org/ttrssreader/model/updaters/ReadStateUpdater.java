@@ -30,48 +30,48 @@ import org.ttrssreader.model.pojos.FeedItem;
 
 public class ReadStateUpdater implements IUpdatable {
     
-    private int mPid = 0;
-    private int mArticleState;
+    private int pid = 0;
+    private int articleState;
     
     private Collection<CategoryItem> categories = null;
     private Collection<FeedItem> feeds = null;
     private Collection<ArticleItem> articles = null;
     
     public ReadStateUpdater(Collection<CategoryItem> collection) {
-        categories = new HashSet<CategoryItem>(collection);
+        this.categories = new HashSet<CategoryItem>(collection);
     }
     
     public ReadStateUpdater(int categoryId) {
-        categories = new HashSet<CategoryItem>();
+        this.categories = new HashSet<CategoryItem>();
         CategoryItem ci = DBHelper.getInstance().getCategory(categoryId);
         if (ci != null) {
-            categories.add(ci);
+            this.categories.add(ci);
         }
     }
     
     public ReadStateUpdater(int feedId, int dummy) {
         
         if (feedId <= 0) { // Virtual Category...
-            categories = new HashSet<CategoryItem>();
+            this.categories = new HashSet<CategoryItem>();
             CategoryItem ci = DBHelper.getInstance().getCategory(feedId);
             if (ci != null) {
-                categories.add(ci);
+                this.categories.add(ci);
             }
         }
         
-        feeds = new HashSet<FeedItem>();
+        this.feeds = new HashSet<FeedItem>();
         FeedItem fi = DBHelper.getInstance().getFeed(feedId);
         if (fi != null) {
-            feeds.add(fi);
+            this.feeds.add(fi);
         }
     }
     
     /* articleState: 0 = mark as read, 1 = mark as unread */
     public ReadStateUpdater(ArticleItem article, int pid, int articleState) {
-        articles = new ArrayList<ArticleItem>();
-        articles.add(article);
-        mPid = pid;
-        mArticleState = articleState;
+        this.articles = new ArrayList<ArticleItem>();
+        this.articles.add(article);
+        this.pid = pid;
+        this.articleState = articleState;
     }
     
     @Override
@@ -100,26 +100,26 @@ public class ReadStateUpdater implements IUpdatable {
             
         } else if (articles != null) {
             
-            boolean boolState = mArticleState == 1 ? true : false;
-            int delta = mArticleState == 1 ? 1 : -1;
-            int deltaUnread = mArticleState == 1 ? articles.size() : -articles.size();
+            boolean boolState = articleState == 1 ? true : false;
+            int delta = articleState == 1 ? 1 : -1;
+            int deltaUnread = articleState == 1 ? articles.size() : -articles.size();
             
             Set<Integer> ids = new HashSet<Integer>();
             
             for (ArticleItem article : articles) {
-                if (mArticleState != 0 && article.mIsUnread) {
+                if (articleState != 0 && article.isUnread) {
                     continue;
-                } else if (mArticleState == 0 && !article.mIsUnread) {
+                } else if (articleState == 0 && !article.isUnread) {
                     continue;
                 }
                 
                 // Build a list of article ids to update.
-                ids.add(article.mId);
+                ids.add(article.id);
                 
                 // Set ArticleItem-State directly because the Activity uses this object
-                article.mIsUnread = boolState;
+                article.isUnread = boolState;
                 
-                int feedId = article.mFeedId;
+                int feedId = article.feedId;
                 FeedItem mFeed = DBHelper.getInstance().getFeed(feedId);
                 int categoryId = mFeed.categoryId;
                 
@@ -129,18 +129,18 @@ public class ReadStateUpdater implements IUpdatable {
                 // Check if is a fresh article and modify that count too
                 long ms = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
                 Date d = new Date(ms);
-                if (article.mUpdateDate.after(d)) {
+                if (article.updated.after(d)) {
                     DBHelper.getInstance().updateCategoryDeltaUnreadCount(-3, deltaUnread);
                 }
             }
             
             if (ids.size() > 0) {
-                Data.getInstance().setArticleRead(ids, mArticleState);
-                DBHelper.getInstance().markArticlesRead(ids, mArticleState);
+                Data.getInstance().setArticleRead(ids, articleState);
+                DBHelper.getInstance().markArticlesRead(ids, articleState);
                 
                 // If on a virtual category also update article state in it.
-                if (mPid < 0 && mPid > -4) {
-                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(mPid, deltaUnread);
+                if (pid < 0 && pid > -4) {
+                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(pid, deltaUnread);
                 }
                 DBHelper.getInstance().updateCategoryDeltaUnreadCount(-4, deltaUnread);
             }

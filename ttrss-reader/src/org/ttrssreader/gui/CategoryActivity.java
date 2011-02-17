@@ -52,7 +52,7 @@ public class CategoryActivity extends MenuActivity {
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
     
-    private CategoryListAdapter mAdapter = null;
+    private CategoryListAdapter adapter = null;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +64,8 @@ public class CategoryActivity extends MenuActivity {
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        mListView = getListView();
-        registerForContextMenu(mListView);
+        listView = getListView();
+        registerForContextMenu(listView);
         notificationTextView = (TextView) findViewById(R.id.notification);
         
         // Check for update or new installation
@@ -78,8 +78,8 @@ public class CategoryActivity extends MenuActivity {
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
         
-        mAdapter = new CategoryListAdapter(this);
-        mListView.setAdapter(mAdapter);
+        adapter = new CategoryListAdapter(this);
+        listView.setAdapter(adapter);
     }
     
     @Override
@@ -104,16 +104,16 @@ public class CategoryActivity extends MenuActivity {
             imageCacher.cancel(true);
             imageCacher = null;
         }
-        mAdapter.cursor.deactivate();
-        mAdapter.cursor.close();
+        adapter.cursor.deactivate();
+        adapter.cursor.close();
     }
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(String.format("%s (%s)", getResources().getString(R.string.ApplicationName), mAdapter.getUnread()));
+        setTitle(String.format("%s (%s)", getResources().getString(R.string.ApplicationName), adapter.getUnread()));
         
-        mAdapter.makeQuery();
-        mAdapter.notifyDataSetChanged();
+        adapter.makeQuery();
+        adapter.notifyDataSetChanged();
         
         if (TTRSSJsonConnector.hasLastError()) {
             if (imageCacher != null) {
@@ -144,7 +144,7 @@ public class CategoryActivity extends MenuActivity {
         setProgressBarIndeterminateVisibility(true);
         notificationTextView.setText(R.string.Loading_Categories);
         
-        updater = new Updater(this, mAdapter);
+        updater = new Updater(this, adapter);
         updater.execute();
     }
     
@@ -152,7 +152,7 @@ public class CategoryActivity extends MenuActivity {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (item.getItemId() == MARK_READ) {
-            new Updater(this, new ReadStateUpdater(mAdapter.getCategoryId(cmi.position))).execute();
+            new Updater(this, new ReadStateUpdater(adapter.getCategoryId(cmi.position))).execute();
             return true;
         }
         return false;
@@ -162,19 +162,19 @@ public class CategoryActivity extends MenuActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         
-        int categoryId = mAdapter.getCategoryId(position);
+        int categoryId = adapter.getCategoryId(position);
         Intent i;
         
         if (categoryId < 0 && categoryId >= -4) {
             // Virtual feeds
             i = new Intent(this, FeedHeadlineListActivity.class);
             i.putExtra(FeedHeadlineListActivity.FEED_ID, categoryId);
-            i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getCategoryTitle(position));
+            i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getCategoryTitle(position));
         } else {
             // Categories
             i = new Intent(this, FeedListActivity.class);
             i.putExtra(FeedListActivity.CATEGORY_ID, categoryId);
-            i.putExtra(FeedListActivity.CATEGORY_TITLE, mAdapter.getCategoryTitle(position));
+            i.putExtra(FeedListActivity.CATEGORY_TITLE, adapter.getCategoryTitle(position));
         }
         startActivity(i);
     }
@@ -201,7 +201,7 @@ public class CategoryActivity extends MenuActivity {
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
-                new Updater(this, new ReadStateUpdater(mAdapter.getCategories())).execute();
+                new Updater(this, new ReadStateUpdater(adapter.getCategories())).execute();
                 return true;
             case R.id.Category_Menu_ImageCache:
                 if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {

@@ -30,8 +30,8 @@ import android.net.ConnectivityManager;
 public class Data {
     
     private static final String mutex = "";
-    private static Data mInstance = null;
-    private static boolean mIsDataInitialized = false;
+    private static Data instance = null;
+    private static boolean initialized = false;
     
     private String vCategoryAllArticles;
     private String vCategoryFreshArticles;
@@ -39,24 +39,24 @@ public class Data {
     private String vCategoryStarredArticles;
     private String feedUncategorizedFeeds;
     
-    private long mCountersUpdated = 0;
-    private Map<Integer, Long> mArticlesUpdated = new HashMap<Integer, Long>();
-    private long mFeedsUpdated = 0;
-    private long mVirtCategoriesUpdated = 0;
-    private long mCategoriesUpdated = 0;
-    private long mNewArticlesUpdated = 0;
+    private long countersUpdated = 0;
+    private Map<Integer, Long> articlesUpdated = new HashMap<Integer, Long>();
+    private long feedsUpdated = 0;
+    private long virtCategoriesUpdated = 0;
+    private long categoriesUpdated = 0;
+    private long newArticlesUpdated = 0;
     
     private ConnectivityManager cm;
     
     public static Data getInstance() {
-        if (mInstance == null) {
+        if (instance == null) {
             synchronized (mutex) {
-                if (mInstance == null) {
-                    mInstance = new Data();
+                if (instance == null) {
+                    instance = new Data();
                 }
             }
         }
-        return mInstance;
+        return instance;
     }
     
     private synchronized void initializeData(Context context) {
@@ -65,26 +65,26 @@ public class Data {
         }
         
         // Set new update-time if necessary
-        if (mCountersUpdated < mNewArticlesUpdated) {
-            mCountersUpdated = mNewArticlesUpdated;
+        if (countersUpdated < newArticlesUpdated) {
+            countersUpdated = newArticlesUpdated;
         }
         
-        for (int article : mArticlesUpdated.keySet()) {
-            if (mArticlesUpdated.get(article) < mNewArticlesUpdated) {
-                mArticlesUpdated.put(article, mNewArticlesUpdated);
+        for (int article : articlesUpdated.keySet()) {
+            if (articlesUpdated.get(article) < newArticlesUpdated) {
+                articlesUpdated.put(article, newArticlesUpdated);
             }
         }
         
-        if (mFeedsUpdated < mNewArticlesUpdated) {
-            mFeedsUpdated = mNewArticlesUpdated;
+        if (feedsUpdated < newArticlesUpdated) {
+            feedsUpdated = newArticlesUpdated;
         }
         
-        if (mVirtCategoriesUpdated < mNewArticlesUpdated) {
-            mVirtCategoriesUpdated = mNewArticlesUpdated;
+        if (virtCategoriesUpdated < newArticlesUpdated) {
+            virtCategoriesUpdated = newArticlesUpdated;
         }
         
-        if (mCategoriesUpdated < mNewArticlesUpdated) {
-            mCategoriesUpdated = mNewArticlesUpdated;
+        if (categoriesUpdated < newArticlesUpdated) {
+            categoriesUpdated = newArticlesUpdated;
         }
         
         vCategoryAllArticles = (String) context.getText(R.string.VCategory_AllArticles);
@@ -95,9 +95,9 @@ public class Data {
     }
     
     public synchronized void checkAndInitializeData(final Context context) {
-        if (!mIsDataInitialized) {
+        if (!initialized) {
             initializeData(context);
-            mIsDataInitialized = true;
+            initialized = true;
         }
     }
     
@@ -109,13 +109,13 @@ public class Data {
         }
         
         if (o instanceof CategoryItem) {
-            mVirtCategoriesUpdated = 0;
-            mCategoriesUpdated = 0;
+            virtCategoriesUpdated = 0;
+            categoriesUpdated = 0;
         } else if (o instanceof FeedItem) {
-            mFeedsUpdated = 0;
+            feedsUpdated = 0;
         } else if (o instanceof Integer) {
             Integer i = (Integer) o;
-            mArticlesUpdated.put(i, new Long(0));
+            articlesUpdated.put(i, new Long(0));
         }
     }
     
@@ -134,7 +134,7 @@ public class Data {
     
     public void updateArticles(int feedId, boolean displayOnlyUnread, boolean overrideOffline) {
         
-        Long time = mArticlesUpdated.get(feedId);
+        Long time = articlesUpdated.get(feedId);
         if (time == null) {
             time = new Long(0);
         }
@@ -163,18 +163,18 @@ public class Data {
                 Controller.getInstance().getConnector().getArticle(ids);
             }
             
-            mArticlesUpdated.put(feedId, System.currentTimeMillis());
+            articlesUpdated.put(feedId, System.currentTimeMillis());
         }
     }
     
     // *** FEEDS ************************************************************************
     
     public Set<FeedItem> updateFeeds(int categoryId, boolean overrideOffline) {
-        if (mFeedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        if (feedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isOnline(cm) || (overrideOffline && Utils.checkConnection(cm))) {
             Set<FeedItem> feeds = Controller.getInstance().getConnector().getFeeds();
-            mFeedsUpdated = System.currentTimeMillis();
+            feedsUpdated = System.currentTimeMillis();
             
             if (!feeds.isEmpty()) {
                 // Only delete feeds if we got new feeds...
@@ -197,7 +197,7 @@ public class Data {
     // *** CATEGORIES *******************************************************************
     
     public Set<CategoryItem> updateVirtualCategories() {
-        if (mVirtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        if (virtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         }
         
@@ -212,17 +212,17 @@ public class Data {
         virtCategories.add(new CategoryItem(0, feedUncategorizedFeeds, DBHelper.getInstance().getUnreadCount(0, true)));
         
         DBHelper.getInstance().insertCategories(virtCategories);
-        mVirtCategoriesUpdated = System.currentTimeMillis();
+        virtCategoriesUpdated = System.currentTimeMillis();
         
         return virtCategories;
     }
     
     public Set<CategoryItem> updateCategories(boolean overrideOffline) {
-        if (mCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        if (categoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isOnline(cm) || overrideOffline) {
             Set<CategoryItem> categories = Controller.getInstance().getConnector().getCategories();
-            mCategoriesUpdated = System.currentTimeMillis();
+            categoriesUpdated = System.currentTimeMillis();
             
             DBHelper.getInstance().deleteCategories(false);
             DBHelper.getInstance().insertCategories(categories);

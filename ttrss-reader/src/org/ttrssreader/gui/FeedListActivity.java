@@ -40,8 +40,8 @@ public class FeedListActivity extends MenuActivity {
     public static final String CATEGORY_ID = "CATEGORY_ID";
     public static final String CATEGORY_TITLE = "CATEGORY_TITLE";
     
-    private int mCategoryId;
-    private String mCategoryTitle;
+    private int categoryId;
+    private String categoryTitle;
     
     private FeedListAdapter mAdapter = null;
     
@@ -55,24 +55,24 @@ public class FeedListActivity extends MenuActivity {
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        mListView = getListView();
-        registerForContextMenu(mListView);
+        listView = getListView();
+        registerForContextMenu(listView);
         notificationTextView = (TextView) findViewById(R.id.notification);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mCategoryId = extras.getInt(CATEGORY_ID);
-            mCategoryTitle = extras.getString(CATEGORY_TITLE);
+            categoryId = extras.getInt(CATEGORY_ID);
+            categoryTitle = extras.getString(CATEGORY_TITLE);
         } else if (instance != null) {
-            mCategoryId = instance.getInt(CATEGORY_ID);
-            mCategoryTitle = instance.getString(CATEGORY_TITLE);
+            categoryId = instance.getInt(CATEGORY_ID);
+            categoryTitle = instance.getString(CATEGORY_TITLE);
         } else {
-            mCategoryId = -1;
-            mCategoryTitle = null;
+            categoryId = -1;
+            categoryTitle = null;
         }
         
-        mAdapter = new FeedListAdapter(this, mCategoryId);
-        mListView.setAdapter(mAdapter);
+        mAdapter = new FeedListAdapter(this, categoryId);
+        listView.setAdapter(mAdapter);
     }
     
     @Override
@@ -101,13 +101,13 @@ public class FeedListActivity extends MenuActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(CATEGORY_ID, mCategoryId);
-        outState.putString(CATEGORY_TITLE, mCategoryTitle);
+        outState.putInt(CATEGORY_ID, categoryId);
+        outState.putString(CATEGORY_TITLE, categoryTitle);
     }
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(String.format("%s (%s)", mCategoryTitle, mAdapter.getUnread()));
+        setTitle(String.format("%s (%s)", categoryTitle, mAdapter.getUnread()));
         
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
@@ -150,7 +150,7 @@ public class FeedListActivity extends MenuActivity {
         super.onListItemClick(l, v, position, id);
         
         Intent i = new Intent(this, FeedHeadlineListActivity.class);
-        i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, mCategoryId);
+        i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getFeedId(position));
         i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getFeedTitle(position));
         
@@ -177,7 +177,7 @@ public class FeedListActivity extends MenuActivity {
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
-                new Updater(this, new ReadStateUpdater(mCategoryId)).execute();
+                new Updater(this, new ReadStateUpdater(categoryId)).execute();
                 return true;
         }
         

@@ -59,19 +59,19 @@ public class FeedHeadlineListActivity extends MenuActivity {
     
     public boolean flingDetected = false;
     
-    private int mCategoryId;
-    private int mFeedId;
-    private String mFeedTitle;
+    private int categoryId;
+    private int feedId;
+    private String feedTitle;
     
-    private FeedListAdapter mFeedListAdapter;
-    private ArrayList<Integer> mFeedListIds;
-    private ArrayList<String> mFeedListNames;
+    private FeedListAdapter feedListAdapter;
+    private ArrayList<Integer> feedListIds;
+    private ArrayList<String> feedListNames;
     
-    private GestureDetector mGestureDetector;
+    private GestureDetector gestureDetector;
     private int absHeight;
     private int absWidth;
     
-    private FeedHeadlineListAdapter mAdapter = null;
+    private FeedHeadlineListAdapter adapter = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -83,10 +83,10 @@ public class FeedHeadlineListActivity extends MenuActivity {
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        mListView = getListView();
-        registerForContextMenu(mListView);
+        listView = getListView();
+        registerForContextMenu(listView);
         notificationTextView = (TextView) findViewById(R.id.notification);
-        mGestureDetector = new GestureDetector(onGestureListener);
+        gestureDetector = new GestureDetector(onGestureListener);
         
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -95,20 +95,20 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mCategoryId = extras.getInt(FEED_CAT_ID);
-            mFeedId = extras.getInt(FEED_ID);
-            mFeedTitle = extras.getString(FEED_TITLE);
+            categoryId = extras.getInt(FEED_CAT_ID);
+            feedId = extras.getInt(FEED_ID);
+            feedTitle = extras.getString(FEED_TITLE);
         } else if (instance != null) {
-            mCategoryId = instance.getInt(FEED_CAT_ID);
-            mFeedId = instance.getInt(FEED_ID);
-            mFeedTitle = instance.getString(FEED_TITLE);
+            categoryId = instance.getInt(FEED_CAT_ID);
+            feedId = instance.getInt(FEED_ID);
+            feedTitle = instance.getString(FEED_TITLE);
         } else {
-            mCategoryId = -1;
-            mFeedId = -1;
-            mFeedTitle = null;
+            categoryId = -1;
+            feedId = -1;
+            feedTitle = null;
         }
-        mAdapter = new FeedHeadlineListAdapter(this, mFeedId);
-        mListView.setAdapter(mAdapter);
+        adapter = new FeedHeadlineListAdapter(this, feedId);
+        listView.setAdapter(adapter);
     }
     
     @Override
@@ -130,25 +130,25 @@ public class FeedHeadlineListActivity extends MenuActivity {
             imageCacher.cancel(true);
             imageCacher = null;
         }
-        mAdapter.cursor.deactivate();
-        mAdapter.cursor.close();
+        adapter.cursor.deactivate();
+        adapter.cursor.close();
     }
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(FEED_CAT_ID, mCategoryId);
-        outState.putInt(FEED_ID, mFeedId);
-        outState.putString(FEED_TITLE, mFeedTitle);
+        outState.putInt(FEED_CAT_ID, categoryId);
+        outState.putInt(FEED_ID, feedId);
+        outState.putString(FEED_TITLE, feedTitle);
     }
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(String.format("%s (%s)", mFeedTitle, mAdapter.getUnread()));
+        setTitle(String.format("%s (%s)", feedTitle, adapter.getUnread()));
         flingDetected = false; // reset fling-status
         
-        mAdapter.makeQuery();
-        mAdapter.notifyDataSetChanged();
+        adapter.makeQuery();
+        adapter.notifyDataSetChanged();
         
         if (TTRSSJsonConnector.hasLastError()) {
             if (imageCacher != null) {
@@ -179,7 +179,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
         setProgressBarIndeterminateVisibility(true);
         notificationTextView.setText(R.string.Loading_Headlines);
         
-        updater = new Updater(this, mAdapter);
+        updater = new Updater(this, adapter);
         updater.execute();
     }
     
@@ -188,8 +188,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
         super.onListItemClick(l, v, position, id);
         
         Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, mAdapter.getFeedItemId(position));
-        i.putExtra(ArticleActivity.FEED_ID, mFeedId);
+        i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getFeedItemId(position));
+        i.putExtra(ArticleActivity.FEED_ID, feedId);
         // i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mAdapter.getFeedItemIds());
         
         if (!flingDetected) {
@@ -203,21 +203,21 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         // Get selected Article
         AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        ArticleItem a = (ArticleItem) mAdapter.getItem(info.position);
+        ArticleItem a = (ArticleItem) adapter.getItem(info.position);
         
-        if (a.mIsUnread) {
+        if (a.isUnread) {
             menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
         } else {
             menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkUnread);
         }
         
-        if (a.mIsStarred) {
+        if (a.isStarred) {
             menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkUnstar);
         } else {
             menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkStar);
         }
         
-        if (a.mIsPublished) {
+        if (a.isPublished) {
             menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkUnpublish);
         } else {
             menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
@@ -227,20 +227,20 @@ public class FeedHeadlineListActivity extends MenuActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        ArticleItem a = (ArticleItem) mAdapter.getItem(cmi.position);
+        ArticleItem a = (ArticleItem) adapter.getItem(cmi.position);
         
         if (a == null)
             return false;
         
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(this, new ReadStateUpdater(a, mFeedId, a.mIsUnread ? 0 : 1)).execute();
+                new Updater(this, new ReadStateUpdater(a, feedId, a.isUnread ? 0 : 1)).execute();
                 return true;
             case MARK_STAR:
-                new Updater(this, new StarredStateUpdater(a, a.mIsStarred ? 0 : 1)).execute();
+                new Updater(this, new StarredStateUpdater(a, a.isStarred ? 0 : 1)).execute();
                 return true;
             case MARK_PUBLISH:
-                new Updater(this, new PublishedStateUpdater(a, a.mIsPublished ? 0 : 1)).execute();
+                new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).execute();
                 return true;
         }
         return false;
@@ -252,11 +252,11 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(mFeedId);
+                Data.getInstance().resetTime(feedId);
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
-                new Updater(this, new ReadStateUpdater(mFeedId, 0)).execute();
+                new Updater(this, new ReadStateUpdater(feedId, 0)).execute();
                 return true;
         }
         
@@ -267,19 +267,19 @@ public class FeedHeadlineListActivity extends MenuActivity {
     }
     
     private void openNextFeed(int direction) {
-        if (mFeedId < 0)
+        if (feedId < 0)
             return;
         
-        if (mFeedListAdapter == null) {
-            mFeedListAdapter = new FeedListAdapter(getApplicationContext(), mCategoryId);
+        if (feedListAdapter == null) {
+            feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
         }
         
-        mFeedListIds = mFeedListAdapter.getFeedIds();
-        mFeedListNames = mFeedListAdapter.getFeedNames();
-        int index = mFeedListIds.indexOf(mFeedId) + direction;
+        feedListIds = feedListAdapter.getFeedIds();
+        feedListNames = feedListAdapter.getFeedNames();
+        int index = feedListIds.indexOf(feedId) + direction;
         
         // No more feeds in this direction
-        if (index < 0 || index >= mFeedListIds.size()) {
+        if (index < 0 || index >= feedListIds.size()) {
             if (Controller.getInstance().vibrateOnLastArticle()) {
                 Log.i(Utils.TAG, "No more feeds, vibrate..");
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -289,9 +289,9 @@ public class FeedHeadlineListActivity extends MenuActivity {
         }
         
         Intent i = new Intent(this, getClass());
-        i.putExtra(FEED_CAT_ID, mCategoryId);
-        i.putExtra(FEED_ID, mFeedListIds.get(index));
-        i.putExtra(FEED_TITLE, mFeedListNames.get(index));
+        i.putExtra(FEED_CAT_ID, categoryId);
+        i.putExtra(FEED_ID, feedListIds.get(index));
+        i.putExtra(FEED_TITLE, feedListNames.get(index));
         
         startActivity(i);
         finish(); // finish(), we don't want to go back through all feeds, we want to go back directly to the FeedList
@@ -300,7 +300,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
         super.dispatchTouchEvent(e);
-        return mGestureDetector.onTouchEvent(e);
+        return gestureDetector.onTouchEvent(e);
     }
     
     private OnGestureListener onGestureListener = new OnGestureListener() {

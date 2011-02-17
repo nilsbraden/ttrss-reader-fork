@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.8.7 ==
+  * Performance improvements for ImageCache
+  * Minor fixes for retrieving of articles
+  
 == Version 0.8.6 ==
   * ImageCache download now parallelized into 4 threads (ArticleCache: 8 threads)
   * Some performance tweaks

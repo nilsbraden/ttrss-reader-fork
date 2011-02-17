@@ -32,7 +32,7 @@ public class Controller {
     
     public final static String JSON_END_URL = "api/";
     
-    private boolean isControllerInitialized = false;
+    private boolean initialized = false;
     private TTRSSJsonConnector ttrssConnector;
     private ImageCache imageCache;
     
@@ -59,7 +59,6 @@ public class Controller {
     private int articleLimit;
     
     private int imageCacheSize;
-    private int imageCacheAge;
     private boolean imageCacheUnread;
     private boolean articleCacheUnread;
     private boolean splitGetRequests;
@@ -139,7 +138,6 @@ public class Controller {
         
         // System
         imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
-        imageCacheAge = prefs.getInt(Constants.IMAGE_CACHE_AGE, Constants.IMAGE_CACHE_AGE_DEFAULT);
         imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
         articleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD, Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
         splitGetRequests = prefs.getBoolean(Constants.SPLIT_GET_REQUESTS, Constants.SPLIT_GET_REQUESTS_DEFAULT);
@@ -152,9 +150,9 @@ public class Controller {
     }
     
     public synchronized void checkAndInitializeController(final Context context) {
-        if (!isControllerInitialized) {
+        if (!initialized) {
             initializeController(context);
-            isControllerInitialized = true;
+            initialized = true;
         }
     }
     
@@ -317,15 +315,6 @@ public class Controller {
     public void setImageCacheSize(int imageCacheSize) {
         put(Constants.IMAGE_CACHE_SIZE, imageCacheSize);
         this.imageCacheSize = imageCacheSize;
-    }
-    
-    public int getImageCacheAge() {
-        return imageCacheAge;
-    }
-    
-    public void setImageCacheAge(int imageCacheAge) {
-        put(Constants.IMAGE_CACHE_AGE, imageCacheAge);
-        this.imageCacheAge = imageCacheAge;
     }
     
     public boolean isImageCacheUnread() {

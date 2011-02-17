@@ -23,27 +23,27 @@ import android.os.Message;
 
 public class Updater extends AsyncTask<Void, Void, Void> {
     
-    private IUpdateEndListener mParent;
-    private IUpdatable mUpdatable;
+    private IUpdateEndListener parent;
+    private IUpdatable updatable;
     
     public Updater(IUpdateEndListener parent, IUpdatable updatable) {
-        mParent = parent;
-        mUpdatable = updatable;
+        this.parent = parent;
+        this.updatable = updatable;
     }
     
     private Handler handler = new Handler() {
         
         @Override
         public void handleMessage(Message msg) {
-            if (mParent != null) {
-                mParent.onUpdateEnd();
+            if (parent != null) {
+                parent.onUpdateEnd();
             }
         }
     };
     
     @Override
     protected Void doInBackground(Void... params) {
-        mUpdatable.update();
+        updatable.update();
         handler.sendEmptyMessage(0);
         return null;
     }
