@@ -42,7 +42,7 @@ import android.widget.TextView;
 public class MenuActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
     
     protected boolean configChecked = false;
-    protected ListView mListView;
+    protected ListView listView;
     protected Updater updater;
     protected Cacher imageCacher;
     protected TextView notificationTextView;

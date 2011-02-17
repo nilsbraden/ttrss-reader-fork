@@ -73,13 +73,11 @@ public class Constants {
     
     // System
     public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
-    public static String IMAGE_CACHE_AGE = "StoreImageAgeLimitPreference";
     public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesPreference";
     public static String ARTICLE_CACHE_UNREAD = "CacheUnreadArticlesPreference";
     public static String SPLIT_GET_REQUESTS = "SplitLongGetRequestsPreference";
     // Display Default Values
     public static int IMAGE_CACHE_SIZE_DEFAULT = 100;
-    public static int IMAGE_CACHE_AGE_DEFAULT = 14;
     public static boolean IMAGE_CACHE_UNREAD_DEFAULT = true;
     public static boolean ARTICLE_CACHE_UNREAD_DEFAULT = true;
     public static boolean SPLIT_GET_REQUESTS_DEFAULT = false;
@@ -138,7 +136,6 @@ public class Constants {
         editor.putBoolean(ONLY_UNREAD, ONLY_UNREAD_DEFAULT);
         editor.putInt(ARTICLE_LIMIT, ARTICLE_LIMIT_DEFAULT);
         editor.putInt(IMAGE_CACHE_SIZE, IMAGE_CACHE_SIZE_DEFAULT);
-        editor.putInt(IMAGE_CACHE_AGE, IMAGE_CACHE_AGE_DEFAULT);
         editor.putBoolean(IMAGE_CACHE_UNREAD, IMAGE_CACHE_UNREAD_DEFAULT);
         editor.putBoolean(ARTICLE_CACHE_UNREAD, ARTICLE_CACHE_UNREAD_DEFAULT);
         

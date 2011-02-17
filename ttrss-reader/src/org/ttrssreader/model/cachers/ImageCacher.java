@@ -134,8 +134,25 @@ public class ImageCacher implements ICacheable {
             }
         }
         
-        Log.i(Utils.TAG, "Updating articles took " + (System.currentTimeMillis() - time)
-                + "ms (There can be still tasks running...)");
+        // Wait for all tasks to finish
+        boolean tasksRunning = true;
+        while (tasksRunning) {
+            tasksRunning = false;
+            synchronized (this) {
+                try {
+                    wait(200);
+                } catch (InterruptedException e) {
+                }
+            }
+            for (int i = 0; i < DOWNLOAD_ARTICLES_THREADS; i++) {
+                UpdateArticlesTask t = tasks[i];
+                if (t != null && t.getStatus().equals(AsyncTask.Status.RUNNING)) {
+                    tasksRunning = true;
+                }
+            }
+        }
+        
+        Log.i(Utils.TAG, "Updating articles took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     private void downloadImages() {
@@ -143,25 +160,15 @@ public class ImageCacher implements ICacheable {
         long time = System.currentTimeMillis();
         DownloadImageTask[] tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
         
-        // Add where-clause for only unread articles
-        String where = null;
-        if (onlyUnreadImages) {
-            where = "isUnread>0";
-        }
-        
-        Cursor c = DBHelper.getInstance().query(DBHelper.TABLE_ARTICLES, new String[] { "content", "attachments" },
-                where, null, null, null, null);
+        Cursor c = DBHelper.getInstance().queryArticlesForImageCache(onlyUnreadImages);
         if (c.moveToFirst()) {
-            
             while (!c.isAfterLast()) {
-                
                 // Get images included in HTML
                 Set<String> set = new HashSet<String>();
                 
                 for (String url : Utils.findAllImageUrls(c.getString(0))) {
-                    if (!imageCache.containsKey(url)) {
+                    if (!imageCache.containsKey(url))
                         set.add(url);
-                    }
                 }
                 
                 // Get images from attachments separately
@@ -180,7 +187,6 @@ public class ImageCacher implements ICacheable {
                     Log.w(Utils.TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
                     break;
                 }
-                
                 c.move(1);
             }
         }
@@ -190,14 +196,12 @@ public class ImageCacher implements ICacheable {
         boolean tasksRunning = true;
         while (tasksRunning) {
             tasksRunning = false;
-            
             synchronized (this) {
                 try {
                     wait(200);
                 } catch (InterruptedException e) {
                 }
             }
-            
             for (int i = 0; i < DOWNLOAD_IMAGES_THREADS; i++) {
                 DownloadImageTask t = tasks[i];
                 retrieveResult(t);
@@ -206,6 +210,9 @@ public class ImageCacher implements ICacheable {
                 }
             }
         }
+        
+        DBHelper.getInstance().updateAllArticlesCachedImages(true);
+        
         Log.i(Utils.TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
     }
     
@@ -213,46 +220,38 @@ public class ImageCacher implements ICacheable {
         Log.w(Utils.TAG, "Purging cache...");
         long time = System.currentTimeMillis();
         File cacheFolder = new File(imageCache.getDiskCacheDirectory());
-        folderSize = Utils.getFolderSize(cacheFolder);
+        
+        folderSize = 0;
+        for (File f : cacheFolder.listFiles()) {
+            folderSize += f.length();
+        }
         
         if (folderSize > cacheSizeMax) {
-            Log.d(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB)", folderSize / 1048576, cacheSizeMax / 1048576));
+            Log.d(Utils.TAG, String.format("Before - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
             
-            // Delete old images (86400000 = 24 * 60 * 60 * 1000)
-            long maxAge = System.currentTimeMillis() - (Controller.getInstance().getImageCacheAge() * 86400000);
-            File[] fArray = cacheFolder.listFiles();
-            for (File f : fArray) {
-                if (f.lastModified() < maxAge) {
-                    f.delete();
+            // Sort list of files by last access date
+            List<File> list = Arrays.asList(cacheFolder.listFiles());
+            Collections.sort(list, new Comparator<File>() {
+                @Override
+                public int compare(File f1, File f2) {
+                    long size1 = f1.lastModified();
+                    long size2 = f2.lastModified();
+                    if (size1 < size2) {
+                        return -1;
+                    } else if (size1 > size2) {
+                        return 1;
+                    }
+                    return 0; // equal
                 }
-            }
+            });
             
-            // Refresh size and check again
-            folderSize = Utils.getFolderSize(cacheFolder);
-            if (folderSize > cacheSizeMax) {
-                List<File> list = Arrays.asList(fArray);
-                
-                // Sort list by last access date
-                Collections.sort(list, new Comparator<File>() {
-                    @Override
-                    public int compare(File f1, File f2) {
-                        return ((Long) f1.lastModified()).compareTo((Long) f2.lastModified());
-                    }
-                });
-                
-                // Delete files until size is fine with the settings
-                int i = 0;
-                long tempSize = 0;
-                while (folderSize > cacheSizeMax) {
-                    File fileDelete = list.get(i++);
-                    tempSize = fileDelete.length();
-                    if (fileDelete.delete()) {
-                        Log.d(Utils.TAG, String.format("Cache: %s bytes, Limit: %s bytes, Deleting: %s bytes",
-                                folderSize, cacheSizeMax, tempSize));
-                        folderSize -= tempSize;
-                    }
-                }
+            int i = 0;
+            while (folderSize > cacheSizeMax) {
+                File f = list.get(i++);
+                folderSize -= f.length();
+                f.delete();
             }
+            Log.d(Utils.TAG, String.format("After - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
         }
         Log.w(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
     }

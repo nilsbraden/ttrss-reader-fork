@@ -22,8 +22,8 @@ import org.json.JSONObject;
 
 public class TTRSSJsonResult {
     
-    private JSONArray mNames;
-    private JSONArray mValues;
+    private JSONArray names;
+    private JSONArray values;
     
     // public TTRSSJsonResult(InputStream is) throws JSONException {
     // this(Utils.convertStreamToString(is));
@@ -33,17 +33,17 @@ public class TTRSSJsonResult {
         
         JSONObject object = new JSONObject(input);
         
-        mNames = object.names();
-        mValues = object.toJSONArray(mNames);
+        names = object.names();
+        values = object.toJSONArray(names);
         
     }
     
     public JSONArray getNames() {
-        return mNames;
+        return names;
     }
     
     public JSONArray getValues() {
-        return mValues;
+        return values;
     }
     
 }

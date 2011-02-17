@@ -26,7 +26,7 @@ public class ErrorActivity extends Activity {
     public static final int ACTIVITY_SHOW_ERROR = 42;
     public static final String ERROR_MESSAGE = "ERROR_MESSAGE";
     
-    private String mErrorMessage;
+    private String message;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +36,13 @@ public class ErrorActivity extends Activity {
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mErrorMessage = extras.getString(ERROR_MESSAGE);
+            message = extras.getString(ERROR_MESSAGE);
         } else if (savedInstanceState != null) {
-            mErrorMessage = savedInstanceState.getString(ERROR_MESSAGE);
+            message = savedInstanceState.getString(ERROR_MESSAGE);
         }
         
         TextView errorText = (TextView) this.findViewById(R.id.ErrorActivity_ErrorMessage);
-        errorText.setText(mErrorMessage);
+        errorText.setText(message);
         
         Button prefBtn = (Button) this.findViewById(R.id.Preferences_Btn);
         prefBtn.setOnClickListener(new View.OnClickListener() {

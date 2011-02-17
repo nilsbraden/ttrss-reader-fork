@@ -137,8 +137,6 @@
     <string name="SystemPreferenceCategoryTitle">System</string>
     <string name="StoreImageLimitTitle">Image cache size (in MB)</string>
     <string name="StoreImageLimitSummary">The size of the SD-Card image cache for offline usage.</string>
-    <string name="StoreImageAgeLimitTitle">Cache images from n days</string>
-    <string name="StoreImageAgeLimitSummary">Specifies how long images are kept in the cache.</string>
     <string name="CacheImagesUnreadArticlesTitle">ImageCache unread only</string>
     <string name="CacheImagesUnreadArticlesSummary">Cache images for unread articles only?</string>
     <string name="CacheUnreadArticlesTitle">ArticleCache unread only</string>

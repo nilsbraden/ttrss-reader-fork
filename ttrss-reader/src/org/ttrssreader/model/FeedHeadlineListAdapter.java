@@ -71,13 +71,13 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
                 ArticleItem ret = new ArticleItem();
-                ret.mId = cursor.getInt(0);
-                ret.mFeedId = cursor.getInt(1);
-                ret.mTitle = cursor.getString(2);
-                ret.mIsUnread = cursor.getInt(3) != 0;
-                ret.mUpdateDate = new Date(cursor.getLong(4));
-                ret.mIsStarred = cursor.getInt(5) != 0;
-                ret.mIsPublished = cursor.getInt(6) != 0;
+                ret.id = cursor.getInt(0);
+                ret.feedId = cursor.getInt(1);
+                ret.title = cursor.getString(2);
+                ret.isUnread = cursor.getInt(3) != 0;
+                ret.updated = new Date(cursor.getLong(4));
+                ret.isStarred = cursor.getInt(5) != 0;
+                ret.isPublished = cursor.getInt(6) != 0;
                 return ret;
             }
         }
@@ -121,21 +121,21 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     }
     
     private void getImage(ImageView icon, ArticleItem a) {
-        if (a.mIsUnread) {
+        if (a.isUnread) {
             icon.setBackgroundResource(R.drawable.articleunread48);
         } else {
             icon.setBackgroundResource(R.drawable.articleread48);
         }
         
-        if (a.mIsStarred && a.mIsPublished) {
+        if (a.isStarred && a.isPublished) {
             icon.setImageResource(R.drawable.published_and_starred48);
-        } else if (a.mIsStarred) {
+        } else if (a.isStarred) {
             icon.setImageResource(R.drawable.star_yellow48);
-        } else if (a.mIsPublished) {
+        } else if (a.isPublished) {
             icon.setImageResource(R.drawable.published_blue48);
         } else {
             icon.setBackgroundDrawable(null);
-            if (a.mIsUnread) {
+            if (a.isUnread) {
                 icon.setImageResource(R.drawable.articleunread48);
             } else {
                 icon.setImageResource(R.drawable.articleread48);
@@ -165,20 +165,20 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         getImage(icon, a);
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(a.mTitle);
-        if (a.mIsUnread) {
+        title.setText(a.title);
+        if (a.isUnread) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
         } else {
             title.setTypeface(Typeface.DEFAULT, 0);
         }
         
         TextView updateDate = (TextView) layout.findViewById(R.id.updateDate);
-        String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(a.mUpdateDate);
+        String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(a.updated);
         updateDate.setText(date);
         
         TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
         if (feedId < 0 && feedId >= -4) {
-            FeedItem f = DBHelper.getInstance().getFeed(a.mFeedId);
+            FeedItem f = DBHelper.getInstance().getFeed(a.feedId);
             if (f != null) {
                 dataSource.setText(f.title);
             }

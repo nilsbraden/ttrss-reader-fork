@@ -58,13 +58,13 @@ public class ArticleActivity extends Activity {
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_ID = "FEED_ID";
     
-    private int mArticleId;
-    private int mFeedId;
+    private int articleId;
+    private int feedId;
     
-    private FeedHeadlineListAdapter mFeedHeadlineListAdapter;
-    private ArrayList<Integer> mArticleIds;
+    private FeedHeadlineListAdapter feedHeadlineListAdapter;
+    private ArrayList<Integer> articleIds;
     
-    private ArticleItem mArticleItem = null;
+    private ArticleItem article = null;
     private String content;
     private boolean linkAutoOpened;
     private int currentIndex;
@@ -111,14 +111,14 @@ public class ArticleActivity extends Activity {
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mArticleId = extras.getInt(ARTICLE_ID);
-            mFeedId = extras.getInt(FEED_ID);
+            articleId = extras.getInt(ARTICLE_ID);
+            feedId = extras.getInt(FEED_ID);
         } else if (instance != null) {
-            mArticleId = instance.getInt(ARTICLE_ID);
-            mFeedId = instance.getInt(FEED_ID);
+            articleId = instance.getInt(ARTICLE_ID);
+            feedId = instance.getInt(FEED_ID);
         } else {
-            mArticleId = -1;
-            mFeedId = -1;
+            articleId = -1;
+            feedId = -1;
         }
     }
     
@@ -137,8 +137,8 @@ public class ArticleActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(ARTICLE_ID, mArticleId);
-        outState.putInt(FEED_ID, mFeedId);
+        outState.putInt(ARTICLE_ID, articleId);
+        outState.putInt(FEED_ID, feedId);
     }
     
     @Override
@@ -154,21 +154,21 @@ public class ArticleActivity extends Activity {
         super.onPrepareOptionsMenu(menu);
         
         MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
-        if (mArticleItem.mIsUnread) {
+        if (article.isUnread) {
             read.setTitle(getString(R.string.Commons_MarkRead));
         } else {
             read.setTitle(getString(R.string.Commons_MarkUnread));
         }
         
         MenuItem publish = menu.findItem(R.id.Article_Menu_MarkStar);
-        if (mArticleItem.mIsStarred) {
+        if (article.isStarred) {
             publish.setTitle(getString(R.string.Commons_MarkUnstar));
         } else {
             publish.setTitle(getString(R.string.Commons_MarkStar));
         }
         
         MenuItem star = menu.findItem(R.id.Article_Menu_MarkPublish);
-        if (mArticleItem.mIsPublished) {
+        if (article.isPublished) {
             star.setTitle(getString(R.string.Commons_MarkUnpublish));
         } else {
             star.setTitle(getString(R.string.Commons_MarkPublish));
@@ -181,14 +181,13 @@ public class ArticleActivity extends Activity {
     public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
-                new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, mArticleItem.mIsUnread ? 0 : 1))
-                        .execute();
+                new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).execute();
                 return true;
             case R.id.Article_Menu_MarkStar:
-                new Updater(null, new StarredStateUpdater(mArticleItem, mArticleItem.mIsStarred ? 0 : 1)).execute();
+                new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).execute();
                 return true;
             case R.id.Article_Menu_MarkPublish:
-                new Updater(null, new PublishedStateUpdater(mArticleItem, mArticleItem.mIsPublished ? 0 : 1)).execute();
+                new Updater(null, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).execute();
                 return true;
             case R.id.Article_Menu_OpenLink:
                 openLink();
@@ -196,9 +195,9 @@ public class ArticleActivity extends Activity {
             case R.id.Article_Menu_ShareLink:
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_SUBJECT, mArticleItem.mTitle);
+                i.putExtra(Intent.EXTRA_SUBJECT, article.title);
                 String content = (String) getText(R.string.ArticleActivity_ShareSubject);
-                i.putExtra(Intent.EXTRA_TEXT, content + " " + mArticleItem.mArticleUrl);
+                i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
                 this.startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
             default:
@@ -207,8 +206,8 @@ public class ArticleActivity extends Activity {
     }
     
     private void openLink() {
-        if (mArticleItem != null) {
-            String url = mArticleItem.mArticleUrl;
+        if (article != null) {
+            String url = article.url;
             if ((url != null) && (url.length() > 0)) {
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
@@ -227,21 +226,24 @@ public class ArticleActivity extends Activity {
         }
         
         if (!TTRSSJsonConnector.hasLastError()) {
-            mArticleItem = DBHelper.getInstance().getArticle(mArticleId);
+            article = DBHelper.getInstance().getArticle(articleId);
             
-            if (mArticleItem != null && mArticleItem.mContent != null) {
+            if (article != null && article.content != null) {
                 
                 // Store current index in ID-List so we can jump between articles
-                if (mFeedHeadlineListAdapter == null) {
-                    mFeedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), mFeedId);
+                if (feedHeadlineListAdapter == null) {
+                    feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId);
                 }
-                if (mFeedHeadlineListAdapter.getFeedItemIds().indexOf(mArticleId) >= 0) {
-                    currentIndex = mFeedHeadlineListAdapter.getFeedItemIds().indexOf(mArticleId);
+                if (feedHeadlineListAdapter.getFeedItemIds().indexOf(articleId) >= 0) {
+                    currentIndex = feedHeadlineListAdapter.getFeedItemIds().indexOf(articleId);
                 }
                 
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
-                content = injectAttachments(getApplicationContext(), mArticleItem.mContent, mArticleItem.mAttachments);
-                content = Utils.injectCachedImages(content);
+                content = injectAttachments(getApplicationContext(), article.content, article.attachments);
+                
+                if (article.cachedImages) {
+                    content = Utils.injectCachedImages(content);
+                }
                 
                 // Load html from Raw-Ressources and insert content
                 String temp = getResources().getString(R.string.INJECT_HTML_HEAD);
@@ -250,14 +252,14 @@ public class ArticleActivity extends Activity {
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
                 webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
                 
-                if (mArticleItem.mTitle != null) {
-                    setTitle(mArticleItem.mTitle);
+                if (article.title != null) {
+                    setTitle(article.title);
                 } else {
                     setTitle(getResources().getString(R.string.ApplicationName));
                 }
                 
-                if (mArticleItem.mIsUnread && Controller.getInstance().automaticMarkRead()) {
-                    new Updater(null, new ReadStateUpdater(mArticleItem, mFeedId, 0)).execute();
+                if (article.isUnread && Controller.getInstance().automaticMarkRead()) {
+                    new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
                 }
                 
                 if (!linkAutoOpened && content.length() < 3) {
@@ -292,15 +294,15 @@ public class ArticleActivity extends Activity {
     
     private void openNextArticle(int direction) {
         
-        if (mFeedHeadlineListAdapter == null) {
-            mFeedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), mFeedId);
+        if (feedHeadlineListAdapter == null) {
+            feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId);
         }
-        mArticleIds = mFeedHeadlineListAdapter.getFeedItemIds();
+        articleIds = feedHeadlineListAdapter.getFeedItemIds();
         
         int index = currentIndex + direction;
         
         // No more articles in this direction
-        if (index < 0 || index >= mArticleIds.size()) {
+        if (index < 0 || index >= articleIds.size()) {
             if (Controller.getInstance().vibrateOnLastArticle()) {
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 v.vibrate(Utils.SHORT_VIBRATE);
@@ -309,8 +311,8 @@ public class ArticleActivity extends Activity {
         }
         
         Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, mArticleIds.get(index));
-        i.putExtra(ArticleActivity.FEED_ID, mFeedId);
+        i.putExtra(ArticleActivity.ARTICLE_ID, articleIds.get(index));
+        i.putExtra(ArticleActivity.FEED_ID, feedId);
         
         startActivityForResult(i, 0);
         this.finish();

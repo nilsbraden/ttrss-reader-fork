@@ -35,11 +35,11 @@ import android.util.Log;
 public class DBHelper {
     
     private static final Long mutex = new Long(1);
-    private static DBHelper mInstance = null;
-    private boolean mIsDBInitialized = false;
+    private static DBHelper instance = null;
+    private boolean initialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 46;
+    private static final int DATABASE_VERSION = 47;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -70,8 +70,8 @@ public class DBHelper {
     private static final String INSERT_ARTICLES = 
         "REPLACE INTO "
         + TABLE_ARTICLES
-        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished)" 
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages)" 
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     // @formatter:on
     
     private Context context;
@@ -111,22 +111,22 @@ public class DBHelper {
     public synchronized void checkAndInitializeDB(Context context) {
         this.context = context;
         
-        if (!mIsDBInitialized) {
-            mIsDBInitialized = initializeController();
+        if (!initialized) {
+            initialized = initializeController();
         } else if (db == null || !db.isOpen()) {
-            mIsDBInitialized = initializeController();
+            initialized = initializeController();
         }
     }
     
     public static DBHelper getInstance() {
-        if (mInstance == null) {
+        if (instance == null) {
             synchronized (mutex) {
-                if (mInstance == null) {
-                    mInstance = new DBHelper();
+                if (instance == null) {
+                    instance = new DBHelper();
                 }
             }
         }
-        return mInstance;
+        return instance;
     }
     
     private boolean isDBAvailable() {
@@ -135,12 +135,12 @@ public class DBHelper {
         } else if (db != null) {
             OpenHelper openHelper = new OpenHelper(context);
             db = openHelper.getWritableDatabase();
-            mIsDBInitialized = db.isOpen();
-            return mIsDBInitialized;
+            initialized = db.isOpen();
+            return initialized;
         } else {
             Log.w(Utils.TAG, "Controller not initialized, trying to do that now...");
-            mIsDBInitialized = initializeController();
-            return mIsDBInitialized;
+            initialized = initializeController();
+            return initialized;
         }
     }
     
@@ -170,7 +170,7 @@ public class DBHelper {
                     + " categoryId INTEGER," 
                     + " title TEXT," 
                     + " url TEXT," 
-                    + " unread INTEGER)");
+                    + " unread INTEGER");
             
             db.execSQL(
                     "CREATE TABLE "
@@ -185,7 +185,8 @@ public class DBHelper {
                     + " content TEXT,"
                     + " attachments TEXT,"
                     + " isStarred INTEGER,"
-                    + " isPublished INTEGER)");
+                    + " isPublished INTEGER,"
+                    + " cachedImages INTEGER)");
             // @formatter:on
         }
         
@@ -217,7 +218,6 @@ public class DBHelper {
             }
             
             if (oldVersion < 45) {
-                
                 // @formatter:off
                 String sql = "CREATE TABLE "
                     + TABLE_MARK
@@ -258,6 +258,16 @@ public class DBHelper {
                 didUpgrade = true;
             }
             
+            if (oldVersion < 47) {
+                String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN cachedImages INTEGER DEFAULT 0";
+                
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to 45.", oldVersion));
+                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                
+                db.execSQL(sql);
+                didUpgrade = true;
+            }
+            
             if (didUpgrade == false) {
                 Log.w(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
@@ -271,17 +281,21 @@ public class DBHelper {
     }
     
     /**
-     * @see android.database.sqlite.SQLiteDatabase#query(String, String[], String, String[], String, String, String)
-     */
-    public Cursor query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy) {
-        return db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
-    }
-    
-    /**
      * @see android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])
      */
     public Cursor query(String sql, String[] selectionArgs) {
         return db.rawQuery(sql, selectionArgs);
+    }
+    
+    public Cursor queryArticlesForImageCache(boolean onlyUnreadImages) {
+        // Add where-clause for only unread articles
+        String where = "cachedImages=0";
+        if (onlyUnreadImages) {
+            where += " AND isUnread>0";
+        }
+        
+        return db.query(DBHelper.TABLE_ARTICLES, new String[] { "content", "attachments" }, where, null, null, null,
+                null);
     }
     
     // *******| INSERT |*******************************************************************
@@ -360,6 +374,12 @@ public class DBHelper {
         if (attachments == null)
             attachments = new LinkedHashSet<String>();
         
+        boolean cachedImages = false;
+        ArticleItem a = getArticle(id);
+        if (a != null) {
+            cachedImages = a.cachedImages;
+        }
+        
         synchronized (TABLE_ARTICLES) {
             insertArticle.bindLong(1, id);
             insertArticle.bindLong(2, feedId);
@@ -372,6 +392,7 @@ public class DBHelper {
             insertArticle.bindString(9, parseAttachmentSet(attachments));
             insertArticle.bindLong(10, (isStarred ? 1 : 0));
             insertArticle.bindLong(11, (isPublished ? 1 : 0));
+            insertArticle.bindLong(12, (cachedImages ? 1 : 0));
             insertArticle.executeInsert();
         }
         
@@ -542,6 +563,17 @@ public class DBHelper {
             cv.put("isPublished", isPublished);
             synchronized (TABLE_ARTICLES) {
                 db.update(TABLE_ARTICLES, cv, "id=" + id, null);
+            }
+        }
+    }
+    
+    public void updateAllArticlesCachedImages(boolean isCachedImages) {
+        if (isDBAvailable()) {
+            ContentValues cv = new ContentValues();
+            
+            cv.put("cachedImages", true);
+            synchronized (TABLE_ARTICLES) {
+                db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
             }
         }
     }
@@ -801,6 +833,7 @@ public class DBHelper {
                 (c.getInt(9) != 0),                 // isStarred
                 (c.getInt(10) != 0)                 // isPublished
         );
+        ret.cachedImages = (c.getInt(11) != 0);
         // @formatter:on
         
         return ret;

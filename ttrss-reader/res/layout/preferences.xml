@@ -183,15 +183,6 @@
             android:maxLength="5"
             android:inputType="number" />
 
-        <org.ttrssreader.utils.EditIntegerPreference
-            android:name="@string/StoreImageAgeLimitTitle"
-            android:title="@string/StoreImageAgeLimitTitle"
-            android:summary="@string/StoreImageAgeLimitSummary"
-            android:defaultValue="14"
-            android:key="StoreImageAgeLimitPreference"
-            android:maxLength="5"
-            android:inputType="number" />
-            
         <CheckBoxPreference
             android:title="@string/CacheImagesUnreadArticlesTitle"
             android:defaultValue="true"

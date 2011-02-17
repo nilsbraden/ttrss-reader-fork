@@ -29,8 +29,8 @@ public class MediaPlayerActivity extends Activity {
     
     public static final String URL = "media_url";
     
-    private String mUrl;
-    private MediaPlayer mMp;
+    private String url;
+    private MediaPlayer mediaPlayer;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -40,18 +40,18 @@ public class MediaPlayerActivity extends Activity {
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mUrl = extras.getString(URL);
+            url = extras.getString(URL);
         } else if (instance != null) {
-            mUrl = instance.getString(URL);
+            url = instance.getString(URL);
         } else {
-            mUrl = "";
+            url = "";
         }
         
         Log.e(Utils.TAG, "Displaying video...");
         VideoView videoView = (VideoView) findViewById(R.id.MediaView);
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
-        Uri video = Uri.parse(mUrl);
+        Uri video = Uri.parse(url);
         videoView.setMediaController(mediaController);
         videoView.setVideoURI(video);
         videoView.start();
@@ -60,8 +60,8 @@ public class MediaPlayerActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mMp != null)
-            mMp.release();
+        if (mediaPlayer != null)
+            mediaPlayer.release();
     }
     
 }
