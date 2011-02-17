@@ -144,7 +144,10 @@ public class Data {
         } else if (Utils.isOnline(cm) || (overrideOffline && Utils.checkConnection(cm))) {
             int limit = 30;
             
-            if (feedId < 0 && feedId >= -3) {
+            if (feedId == -4) {
+                // We want all articles
+                limit = DBHelper.getInstance().getUnreadCount(feedId, true);
+            } else if (feedId < 0 && feedId >= -3) {
                 // We want all articles for starred (-1) and published (-2) and fresh (-3)
                 limit = DBHelper.getInstance().getUnreadCount(feedId, false);
                 displayOnlyUnread = false;
