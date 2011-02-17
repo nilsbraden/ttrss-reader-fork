@@ -195,10 +195,9 @@ public class DBHelper {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             boolean didUpgrade = false;
-            String sql = "";
             
             if (oldVersion < 40) {
-                sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isStarred INTEGER";
+                String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isStarred INTEGER";
                 
                 Log.w(Utils.TAG, String.format("Upgrading database from %s to 40.", oldVersion));
                 Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
@@ -208,7 +207,7 @@ public class DBHelper {
             }
             
             if (oldVersion < 42) {
-                sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isPublished INTEGER";
+                String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isPublished INTEGER";
                 
                 Log.w(Utils.TAG, String.format("Upgrading database from %s to 42.", oldVersion));
                 Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
@@ -220,7 +219,7 @@ public class DBHelper {
             if (oldVersion < 45) {
                 
                 // @formatter:off
-                sql = "CREATE TABLE "
+                String sql = "CREATE TABLE "
                     + TABLE_MARK
                     + " (id INTEGER,"
                     + " type INTEGER,"
@@ -240,7 +239,7 @@ public class DBHelper {
             if (oldVersion < 46) {
                 
                 // @formatter:off
-                sql = "DROP TABLE "
+                String sql = "DROP TABLE "
                     + TABLE_MARK;
                 String sql2 = "CREATE TABLE "
                     + TABLE_MARK
@@ -264,6 +263,7 @@ public class DBHelper {
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARK);
                 onCreate(db);
             }
             
@@ -481,10 +481,10 @@ public class DBHelper {
         if (isDBAvailable() && count >= 0) {
             ContentValues cv = new ContentValues();
             cv.put("unread", count);
-            // No synchronisation for now, this gets called quite often..
-            // synchronized (TABLE_CATEGORIES) {
-            db.update(TABLE_CATEGORIES, cv, "id=" + id, null);
-            // }
+            
+            synchronized (TABLE_CATEGORIES) {
+                db.update(TABLE_CATEGORIES, cv, "id=" + id, null);
+            }
         }
     }
     
@@ -499,10 +499,10 @@ public class DBHelper {
         if (isDBAvailable() && count >= 0) {
             ContentValues cv = new ContentValues();
             cv.put("unread", count);
-            // No synchronisation for now, this gets called quite often..
-            // synchronized (TABLE_FEEDS) {
-            db.update(TABLE_FEEDS, cv, "id=" + id, null);
-            // }
+            
+            synchronized (TABLE_FEEDS) {
+                db.update(TABLE_FEEDS, cv, "id=" + id, null);
+            }
         }
     }
     
