@@ -36,7 +36,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -56,12 +55,14 @@ public class FeedHeadlineListActivity extends MenuActivity {
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
+    public static final String FEED_INDEX = "INDEX";
     
     public boolean flingDetected = false;
     
     private int categoryId;
     private int feedId;
     private String feedTitle;
+    private int currentIndex;
     
     private FeedListAdapter feedListAdapter;
     private ArrayList<Integer> feedListIds;
@@ -98,14 +99,17 @@ public class FeedHeadlineListActivity extends MenuActivity {
             categoryId = extras.getInt(FEED_CAT_ID);
             feedId = extras.getInt(FEED_ID);
             feedTitle = extras.getString(FEED_TITLE);
+            currentIndex = extras.getInt(FEED_INDEX);
         } else if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
             feedId = instance.getInt(FEED_ID);
             feedTitle = instance.getString(FEED_TITLE);
+            currentIndex = instance.getInt(FEED_INDEX);
         } else {
             categoryId = -1;
             feedId = -1;
             feedTitle = null;
+            currentIndex = 0;
         }
         adapter = new FeedHeadlineListAdapter(this, feedId);
         listView.setAdapter(adapter);
@@ -149,6 +153,14 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         adapter.makeQuery();
         adapter.notifyDataSetChanged();
+        
+        // Store current index in ID-List so we can jump between articles
+        if (feedListAdapter == null) {
+            feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
+        }
+        if (feedListAdapter.getFeedIds().indexOf(feedId) >= 0) {
+            currentIndex = feedListAdapter.getFeedIds().indexOf(feedId);
+        }
         
         if (TTRSSJsonConnector.hasLastError()) {
             if (imageCacher != null) {
@@ -270,18 +282,16 @@ public class FeedHeadlineListActivity extends MenuActivity {
         if (feedId < 0)
             return;
         
-        if (feedListAdapter == null) {
+        if (feedListAdapter == null)
             feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
-        }
         
         feedListIds = feedListAdapter.getFeedIds();
         feedListNames = feedListAdapter.getFeedNames();
-        int index = feedListIds.indexOf(feedId) + direction;
+        int index = currentIndex + direction;
         
         // No more feeds in this direction
         if (index < 0 || index >= feedListIds.size()) {
             if (Controller.getInstance().vibrateOnLastArticle()) {
-                Log.i(Utils.TAG, "No more feeds, vibrate..");
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 v.vibrate(Utils.SHORT_VIBRATE);
             }
@@ -293,8 +303,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
         i.putExtra(FEED_ID, feedListIds.get(index));
         i.putExtra(FEED_TITLE, feedListNames.get(index));
         
-        startActivity(i);
-        finish(); // finish(), we don't want to go back through all feeds, we want to go back directly to the FeedList
+        startActivityForResult(i, 0);
+        this.finish();
     }
     
     @Override
@@ -337,7 +347,6 @@ public class FeedHeadlineListActivity extends MenuActivity {
                 }
                 return true;
             }
-            
             return false;
         }
         

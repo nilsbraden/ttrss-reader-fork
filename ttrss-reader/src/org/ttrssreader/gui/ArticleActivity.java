@@ -57,6 +57,7 @@ public class ArticleActivity extends Activity {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_ID = "FEED_ID";
+    public static final String ARTICLE_INDEX = "INDEX";
     
     private int articleId;
     private int feedId;
@@ -113,12 +114,15 @@ public class ArticleActivity extends Activity {
         if (extras != null) {
             articleId = extras.getInt(ARTICLE_ID);
             feedId = extras.getInt(FEED_ID);
+            currentIndex = extras.getInt(ARTICLE_INDEX);
         } else if (instance != null) {
             articleId = instance.getInt(ARTICLE_ID);
             feedId = instance.getInt(FEED_ID);
+            currentIndex = extras.getInt(ARTICLE_INDEX);
         } else {
             articleId = -1;
             feedId = -1;
+            currentIndex = 0;
         }
     }
     
@@ -294,11 +298,10 @@ public class ArticleActivity extends Activity {
     
     private void openNextArticle(int direction) {
         
-        if (feedHeadlineListAdapter == null) {
+        if (feedHeadlineListAdapter == null)
             feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId);
-        }
-        articleIds = feedHeadlineListAdapter.getFeedItemIds();
         
+        articleIds = feedHeadlineListAdapter.getFeedItemIds();
         int index = currentIndex + direction;
         
         // No more articles in this direction

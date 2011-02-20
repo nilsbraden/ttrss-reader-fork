@@ -4,6 +4,7 @@
 == Version 0.8.7 ==
   * Performance improvements for ImageCache
   * Minor fixes for retrieving of articles
+  * Fixed accidental jump to first feed while browsing
   
 == Version 0.8.6 ==
   * ImageCache download now parallelized into 4 threads (ArticleCache: 8 threads)
