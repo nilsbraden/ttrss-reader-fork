@@ -17,6 +17,7 @@
 -->
 <resources>
     <string-array name="updates">
+        <item>v0.8.7: Performance improvements for ImageCache, minor fixes for retrieving of articles, fixed accidental jump to first feed while browsing</item>
         <item>v0.8.6: ImageCache download now parallelized into 4 threads (ArticleCache: 8 threads), Some performance tweaks, Fixed Issue #45: (SQL Error because of suhosin-blocked article_id), Added preference to split long GET-Requests due to problems with server-side security scanners like Suhosin</item>
         <item>v0.8.5: Synchronizing marked articles now also works for complete feeds and categories, when marking feeds/categories as read while beeing offline only local articles can be included, articles that are new on the server but not synchronized to the client cannot, fixed FC on mark article read while beeing offline</item>
         <item>v0.8.4: Added options for Image-/ArticleCache: cache for unread articles only, caching now independent from online/offline state, added Offline-Synchronisation (article-state, star, published is synchronized later when marked while browsing offline), navigate feeds/articles by keyboard: n for next, b for previous article/feed</item>

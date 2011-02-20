@@ -4,7 +4,7 @@
     package="org.ttrssreader"
     android:installLocation="auto"
     android:versionName="0.8.7"
-    android:versionCode="870">
+    android:versionCode="871">
 
     <application
         android:icon="@drawable/icon"
