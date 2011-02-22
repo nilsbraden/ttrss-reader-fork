@@ -65,7 +65,6 @@ public class TTRSSJsonConnector {
     private static final String PASSWORD_MATCH = "&password=";
     private static final String ERROR = "{\"error\":";
     private static final String NOT_LOGGED_IN = ERROR + "\"NOT_LOGGED_IN\"}";
-    private static final String UNKNOWN_METHOD = ERROR + "\"UNKNOWN_METHOD\"}";
     private static final String API_DISABLED = ERROR + "\"API_DISABLED\"}";
     private static final String API_DISABLED_MESSAGE = "Please enable API for this user in its preferences on the Server. (User: %s, URL: %s)";
     private static final String OK = "\"status\":\"OK\"";
@@ -200,12 +199,10 @@ public class TTRSSJsonConnector {
     private String doRequestNoAnswer(String url) {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
-            login();
+            if (!login())
+                return null;
         if (hasLastError)
             return null;
-        
-        hasLastError = false;
-        lastError = "";
         
         if (!url.contains(sidUrl))
             url += sidUrl;
@@ -223,13 +220,12 @@ public class TTRSSJsonConnector {
     
     private JSONArray getJSONResponseAsArray(String url) {
         // Make sure we are logged in
-        if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
-            login();
+        if (sessionId == null || lastError.equals(NOT_LOGGED_IN)) {
+            if (!login())
+                return null;
+        }
         if (hasLastError)
             return null;
-        
-        hasLastError = false;
-        lastError = "";
         
         if (!url.contains(sidUrl))
             url += sidUrl;
@@ -244,8 +240,12 @@ public class TTRSSJsonConnector {
             try {
                 result = new JSONArray(strResponse);
             } catch (JSONException e) {
-                hasLastError = true;
-                lastError = "An Error occurred. Message from Server: " + strResponse;
+                try {
+                    result = new JSONArray("[" + strResponse + "]");
+                } catch (JSONException e1) {
+                    hasLastError = true;
+                    lastError = "An Error occurred. Message from Server: " + strResponse;
+                }
             }
         }
         return result;
@@ -253,8 +253,8 @@ public class TTRSSJsonConnector {
     
     private TTRSSJsonResult getJSONLoginResponse(String url) {
         // No check with assertLogin here, we are about to login so no need for this.
-        hasLastError = false;
-        lastError = "";
+        // hasLastError = false;
+        // lastError = "";
         
         TTRSSJsonResult result = null;
         String strResponse = doRequest(url, true);
@@ -275,48 +275,43 @@ public class TTRSSJsonConnector {
         // Just login once, check if already logged in after acquiring the lock on mSessionId
         synchronized (loginLock) {
             if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN))) {
-                return true;
+                return true; // Login done while we were waiting for the lock
             }
             
-            boolean result = true;
             sessionId = null;
             
             String url = serverUrl + String.format(OP_LOGIN, userName, password);
             TTRSSJsonResult jsonResult = getJSONLoginResponse(url);
             
-            if (!hasLastError || jsonResult != null) {
+            if (!hasLastError && jsonResult != null) {
                 
                 int i = 0;
                 try {
                     
-                    while ((i < jsonResult.getNames().length())) {
+                    while (i < jsonResult.getNames().length()) {
                         if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
                             sessionId = jsonResult.getValues().getString(i);
                             sidUrl = String.format(SID_APPEND, sessionId);
-                            break;
+                            return true;
                         }
                         i++;
                     }
                 } catch (JSONException e) {
-                    result = false;
                     hasLastError = true;
                     lastError = e.getMessage() + ", Method: login(String url) threw JSONException";
                     e.printStackTrace();
                 }
                 
+            }
+            
+            // Try again with base64-encoded passphrase
+            if (!loginBase64()) {
+                hasLastError = true;
+                lastError = "Couldn't login, please check your settings.";
+                return false;
             } else {
-                result = false;
+                return true;
             }
-            
-            if (result == false) {
-                hasLastError = false;
-                lastError = "";
-                
-                // Try again with base64-encoded passphrase
-                result = loginBase64();
-            }
-            
-            return result;
         }
     }
     
@@ -330,19 +325,15 @@ public class TTRSSJsonConnector {
         String url = serverUrl + String.format(OP_LOGIN, userName, mPasswordEncoded);
         TTRSSJsonResult jsonResult = getJSONLoginResponse(url);
         
-        if (jsonResult == null)
-            return false;
-        
-        if (!hasLastError) {
+        if (!hasLastError && jsonResult != null) {
             int i = 0;
-            boolean stop = false;
             
             try {
-                while ((i < jsonResult.getNames().length()) && (!stop)) {
+                while (i < jsonResult.getNames().length()) {
                     if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
-                        stop = true;
                         sessionId = jsonResult.getValues().getString(i);
                         sidUrl = String.format(SID_APPEND, sessionId);
+                        return true;
                     } else {
                         i++;
                     }
@@ -351,9 +342,7 @@ public class TTRSSJsonConnector {
                 hasLastError = true;
                 lastError = e.getMessage() + ", Method: login(String url) threw JSONException";
                 e.printStackTrace();
-                return false;
             }
-            return true;
         }
         return false;
     }
@@ -489,14 +478,8 @@ public class TTRSSJsonConnector {
         String url = serverUrl + String.format(OP_GET_COUNTERS);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
-        if (jsonResult == null) {
+        if (jsonResult == null)
             return;
-        } else if (hasLastError && lastError.contains(ERROR)) {
-            if (lastError.contains(UNKNOWN_METHOD)) {
-                lastError = "";
-                hasLastError = false;
-            }
-        }
         
         try {
             for (int i = 0; i < jsonResult.length(); i++) {

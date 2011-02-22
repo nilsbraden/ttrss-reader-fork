@@ -144,16 +144,24 @@ public class Data {
         } else if (Utils.isOnline(cm) || (overrideOffline && Utils.checkConnection(cm))) {
             int limit = 30;
             
-            if (feedId == -4) {
-                // We want all articles
-                limit = DBHelper.getInstance().getUnreadCount(feedId, true);
-            } else if (feedId < 0 && feedId >= -3) {
-                // We want all articles for starred (-1) and published (-2) and fresh (-3)
-                limit = DBHelper.getInstance().getUnreadCount(feedId, false);
-                displayOnlyUnread = false;
-            } else {
-                int l = DBHelper.getInstance().getUnreadCount(feedId, false);
-                limit = (l > limit ? l : 30);
+            switch (feedId) {
+                case -1:
+                case -2:
+                    limit = DBHelper.getInstance().getUnreadCount(feedId, false);
+                    displayOnlyUnread = false;
+                    break;
+                
+                case -3:
+                    limit = DBHelper.getInstance().getUnreadCount(feedId, false);
+                    break;
+                
+                case -4:
+                    limit = DBHelper.getInstance().getUnreadCount(feedId, true);
+                    break;
+                
+                default:
+                    int l = DBHelper.getInstance().getUnreadCount(feedId, false);
+                    limit = (l > limit ? l : 30);
             }
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
@@ -275,16 +283,20 @@ public class Data {
             if (isCategory) {
                 DBHelper.getInstance().markArticlesReadCategory(id);
             } else {
-                DBHelper.getInstance().markArticlesReadFeed(id);
+                if (id < 0) { // Filter Virtual Categories AGAIN. Why are we doing this weird stuff. Thanks to the guy
+                              // who started developing the reader...
+                    DBHelper.getInstance().markArticlesReadCategory(id);
+                } else {
+                    DBHelper.getInstance().markArticlesReadFeed(id);
+                }
             }
         }
     }
     
     protected String getPref(String pref) {
-        if (!Utils.isOnline(cm))
-            return null;
-        
-        return Controller.getInstance().getConnector().getPref(pref);
+        if (Utils.isOnline(cm))
+            return Controller.getInstance().getConnector().getPref(pref);
+        return null;
     }
     
     public void synchronizeStatus() {

@@ -144,6 +144,7 @@ public class Controller {
         
         lastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
         lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
+        freshArticleMaxAge = "";
         
         // Initialize ImageCache
         getImageCache(context);
@@ -379,6 +380,7 @@ public class Controller {
         try {
             ret = Integer.parseInt(freshArticleMaxAge) * 60 * 60 * 1000;
         } catch (Exception e) {
+            return ret;
         }
         
         return ret;

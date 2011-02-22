@@ -699,7 +699,7 @@ public class DBHelper {
         Cursor c = null;
         try {
             String where = "categoryId=" + categoryId;
-            if (categoryId == -4) {
+            if (categoryId < 0) {
                 where = null;
             }
             

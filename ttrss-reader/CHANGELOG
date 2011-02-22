@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.8.8 ==
+  * Fixed Issue #49: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=49 ttrss-reader-fork closes on launch and with wrong password])
+  * Fixed Issue #50: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=50 New Article unread are shown])
+
 == Version 0.8.7 ==
   * Performance improvements for ImageCache
   * Minor fixes for retrieving of articles
