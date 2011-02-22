@@ -53,7 +53,7 @@ public class ArticleWebViewClient extends WebViewClient {
         
         boolean audioOrVideo = false;
         for (String s : Utils.MEDIA_EXTENSIONS) {
-            if (url.toLowerCase().contains(s)) {
+            if (url.toLowerCase().contains("." + s)) {
                 audioOrVideo = true;
                 break;
             }
