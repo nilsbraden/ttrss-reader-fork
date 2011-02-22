@@ -26,9 +26,11 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.model.updaters.IUpdatable;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -210,24 +212,34 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         query.append(DBHelper.TABLE_FEEDS);
         query.append(" b WHERE a.feedId=b.id");
         
-        if (feedId == -1) {
-            query.append(" AND a.isStarred=1");
-        } else if (feedId == -2) {
-            query.append(" AND a.isPublished=1");
-        } else if (feedId == -3) {
-            long updateDate = Controller.getInstance().getFreshArticleMaxAge();
-            query.append(" AND a.updateDate>");
-            query.append(updateDate);
-        } else if (feedId == -4) {
-            if (displayOnlyUnread) {
+        switch (feedId) {
+            case -1:
+                query.append(" AND a.isStarred=1");
+                break;
+            
+            case -2:
+                query.append(" AND a.isPublished=1");
+                break;
+            
+            case -3:
+                long updateDate = Controller.getInstance().getFreshArticleMaxAge();
+                query.append(" AND a.updateDate>");
+                query.append(updateDate);
                 query.append(" AND a.isUnread>0");
-            }
-        } else {
-            query.append(" AND a.feedId=");
-            query.append(feedId);
-            if (displayOnlyUnread) {
-                query.append(" AND a.isUnread>0");
-            }
+                // if (displayOnlyUnread)
+                break;
+            
+            case -4:
+                if (displayOnlyUnread)
+                    query.append(" AND a.isUnread>0");
+                break;
+            
+            default:
+                query.append(" AND a.feedId=");
+                query.append(feedId);
+                if (displayOnlyUnread) {
+                    query.append(" AND a.isUnread>0");
+                }
         }
         
         query.append(" ORDER BY a.updateDate DESC");
@@ -235,6 +247,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         // Log.v(Utils.TAG, query.toString());
         if (cursor != null)
             cursor.close();
+        Log.d(Utils.TAG, query.toString());
         cursor = DBHelper.getInstance().query(query.toString(), null);
     }
     

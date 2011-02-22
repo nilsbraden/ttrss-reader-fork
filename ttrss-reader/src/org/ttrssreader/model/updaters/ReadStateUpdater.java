@@ -50,19 +50,16 @@ public class ReadStateUpdater implements IUpdatable {
     }
     
     public ReadStateUpdater(int feedId, int dummy) {
-        
         if (feedId <= 0) { // Virtual Category...
             this.categories = new HashSet<CategoryItem>();
             CategoryItem ci = DBHelper.getInstance().getCategory(feedId);
-            if (ci != null) {
+            if (ci != null)
                 this.categories.add(ci);
-            }
-        }
-        
-        this.feeds = new HashSet<FeedItem>();
-        FeedItem fi = DBHelper.getInstance().getFeed(feedId);
-        if (fi != null) {
-            this.feeds.add(fi);
+        } else {
+            this.feeds = new HashSet<FeedItem>();
+            FeedItem fi = DBHelper.getInstance().getFeed(feedId);
+            if (fi != null)
+                this.feeds.add(fi);
         }
     }
     
@@ -79,7 +76,7 @@ public class ReadStateUpdater implements IUpdatable {
         if (categories != null) {
             
             for (CategoryItem ci : categories) {
-                if (ci.id > -1) {
+                if (ci.id >= 0) {
                     Data.getInstance().setRead(ci.id, true);
                 } else {
                     // Virtual Categories are actually Feeds (the server handles them as such) so we have to set isCat
