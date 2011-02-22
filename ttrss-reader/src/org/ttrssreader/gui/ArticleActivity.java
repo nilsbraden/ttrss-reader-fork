@@ -448,13 +448,13 @@ public class ArticleActivity extends Activity {
             
             boolean image = false;
             for (String s : Utils.IMAGE_EXTENSIONS) {
-                if (url.toLowerCase().contains(s))
+                if (url.toLowerCase().contains("." + s))
                     image = true;
             }
             
             boolean audioOrVideo = false;
             for (String s : Utils.MEDIA_EXTENSIONS) {
-                if (url.toLowerCase().contains(s))
+                if (url.toLowerCase().contains("." + s))
                     audioOrVideo = true;
             }
             
