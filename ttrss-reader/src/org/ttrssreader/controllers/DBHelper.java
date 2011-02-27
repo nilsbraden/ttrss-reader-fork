@@ -170,7 +170,7 @@ public class DBHelper {
                     + " categoryId INTEGER," 
                     + " title TEXT," 
                     + " url TEXT," 
-                    + " unread INTEGER");
+                    + " unread INTEGER)");
             
             db.execSQL(
                     "CREATE TABLE "
