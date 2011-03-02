@@ -39,7 +39,7 @@ public class DBHelper {
     private boolean initialized = false;
     
     private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 47;
+    private static final int DATABASE_VERSION = 48;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -186,7 +186,16 @@ public class DBHelper {
                     + " attachments TEXT,"
                     + " isStarred INTEGER,"
                     + " isPublished INTEGER,"
-                    + " cachedImages INTEGER)");
+                    + " cachedImages INTEGER DEFAULT 0)");
+            
+            db.execSQL("CREATE TABLE "
+                    + TABLE_MARK
+                    + " (id INTEGER,"
+                    + " type INTEGER,"
+                    + " " + MARK_READ + " INTEGER,"
+                    + " " + MARK_STAR + " INTEGER,"
+                    + " " + MARK_PUBLISH + " INTEGER,"
+                    + " PRIMARY KEY(id, type))");
             // @formatter:on
         }
         
@@ -219,7 +228,7 @@ public class DBHelper {
             
             if (oldVersion < 45) {
                 // @formatter:off
-                String sql = "CREATE TABLE "
+                String sql = "CREATE TABLE IF NOT EXISTS "
                     + TABLE_MARK
                     + " (id INTEGER,"
                     + " type INTEGER,"
@@ -241,7 +250,7 @@ public class DBHelper {
                 // @formatter:off
                 String sql = "DROP TABLE "
                     + TABLE_MARK;
-                String sql2 = "CREATE TABLE "
+                String sql2 = "CREATE TABLE IF NOT EXISTS "
                     + TABLE_MARK
                     + " (id INTEGER PRIMARY KEY,"
                     + " " + MARK_READ + " INTEGER,"
@@ -261,7 +270,26 @@ public class DBHelper {
             if (oldVersion < 47) {
                 String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN cachedImages INTEGER DEFAULT 0";
                 
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to 45.", oldVersion));
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to 47.", oldVersion));
+                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                
+                db.execSQL(sql);
+                didUpgrade = true;
+            }
+            
+            if (oldVersion < 48) {
+                // @formatter:off
+                String sql = "CREATE TABLE IF NOT EXISTS "
+                        + TABLE_MARK
+                        + " (id INTEGER,"
+                        + " type INTEGER,"
+                        + " " + MARK_READ + " INTEGER,"
+                        + " " + MARK_STAR + " INTEGER,"
+                        + " " + MARK_PUBLISH + " INTEGER,"
+                        + " PRIMARY KEY(id, type))";
+                // @formatter:on
+                
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to 48.", oldVersion));
                 Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
