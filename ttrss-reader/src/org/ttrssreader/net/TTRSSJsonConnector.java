@@ -118,7 +118,6 @@ public class TTRSSJsonConnector {
     
     private String doRequest(String url, boolean firstCall) {
         long start = System.currentTimeMillis();
-        String strResponse = null;
         
         HttpPost httpPost;
         HttpParams httpParams;
@@ -130,62 +129,83 @@ public class TTRSSJsonConnector {
             httpclient.setCredentialsProvider(credProvider);
         } catch (Exception e) {
             hasLastError = true;
-            lastError = "Error creating HTTP-Connection: " + e.getMessage();
+            lastError = "(1) Error creating HTTP-Connection: " + e.getMessage();
             return null;
         }
         
+        HttpResponse response = null;
+        HttpEntity entity = null;
+        InputStream instream = null;
+        String strResponse = null;
+        
         try {
-            HttpResponse response = httpclient.execute(httpPost);
-            
-            // Begin: Log-output
-            String tUrl = new String(url);
-            if (url.contains(PASSWORD_MATCH))
-                tUrl = tUrl.substring(0, tUrl.length() - password.length()) + "*";
-            
-            Log.d(Utils.TAG, String.format("Requesting URL: %s (took %s ms)", tUrl, System.currentTimeMillis() - start));
-            // End: Log-output
-            
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                InputStream instream = entity.getContent();
-                strResponse = Utils.convertStreamToString(instream); // TODO: See if this can be and/or needs to be
-                                                                     // optimized.
-                
-                if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
-                    Log.w(Utils.TAG, "Not logged in, retrying...");
-                    hasLastError = true;
-                    lastError = NOT_LOGGED_IN;
-                    
-                    // Login and post request again
-                    String tempSessionId = new String(sessionId);
-                    if (url.contains(tempSessionId)) {
-                        url = url.replace(tempSessionId, sessionId);
-                    }
-                    strResponse = doRequest(url, false);
-                }
-                
-                // Check if API is enabled for the user
-                if (strResponse.contains(API_DISABLED)) {
-                    Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, userName, serverUrl));
-                    hasLastError = true;
-                    lastError = String.format(API_DISABLED_MESSAGE, userName, serverUrl);
-                    return null;
-                }
-                
-                // Check returned string for error-messages
-                if (strResponse.startsWith(ERROR)) {
-                    hasLastError = true;
-                    lastError = strResponse;
-                    return null;
-                }
-            }
+            response = httpclient.execute(httpPost);
         } catch (ClientProtocolException e) {
             hasLastError = true;
-            lastError = e.getMessage() + ", Method: doRequest(String url) threw ClientProtocolException";
+            lastError = "(2) " + e.getMessage()
+                    + ", Method: doRequest(String url) threw ClientProtocolException on httpclient.execute(httpPost)";
             return null;
         } catch (IOException e) {
             hasLastError = true;
-            lastError = e.getMessage() + ", Method: doRequest(String url) threw IOException";
+            lastError = "(3) " + e.getMessage()
+                    + ", Method: doRequest(String url) threw IOException on httpclient.execute(httpPost);";
+            return null;
+        }
+        
+        // Begin: Log-output
+        String tUrl = new String(url);
+        if (url.contains(PASSWORD_MATCH))
+            tUrl = tUrl.substring(0, tUrl.length() - password.length()) + "*";
+        
+        Log.d(Utils.TAG, String.format("Requesting URL: %s (took %s ms)", tUrl, System.currentTimeMillis() - start));
+        // End: Log-output
+        
+        try {
+            entity = response.getEntity();
+            if (entity != null) {
+                instream = entity.getContent();
+            }
+        } catch (IOException e) {
+            hasLastError = true;
+            lastError = "(4) " + e.getMessage()
+                    + ", Method: doRequest(String url) threw IOException on entity.getContent()";
+            return null;
+        }
+        
+        if (instream == null) {
+            hasLastError = true;
+            lastError = "(5) Couldn't get InputStream in Method doRequest(String url).";
+            return null;
+        }
+        
+        // TODO: See if this can be and/or needs to be optimized.
+        strResponse = Utils.convertStreamToString(instream);
+        
+        if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
+            Log.w(Utils.TAG, "Not logged in, retrying...");
+            hasLastError = true;
+            lastError = NOT_LOGGED_IN;
+            
+            // Login and post request again
+            String tempSessionId = new String(sessionId);
+            if (url.contains(tempSessionId)) {
+                url = url.replace(tempSessionId, sessionId);
+            }
+            strResponse = doRequest(url, false);
+        }
+        
+        // Check if API is enabled for the user
+        if (strResponse.contains(API_DISABLED)) {
+            Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, userName, serverUrl));
+            hasLastError = true;
+            lastError = String.format(API_DISABLED_MESSAGE, userName, serverUrl);
+            return null;
+        }
+        
+        // Check returned string for error-messages
+        if (strResponse.startsWith(ERROR)) {
+            hasLastError = true;
+            lastError = strResponse;
             return null;
         }
         
