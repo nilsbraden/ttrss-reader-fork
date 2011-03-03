@@ -129,7 +129,7 @@ public class TTRSSJsonConnector {
             httpclient.setCredentialsProvider(credProvider);
         } catch (Exception e) {
             hasLastError = true;
-            lastError = "(1) Error creating HTTP-Connection: " + e.getMessage();
+            lastError = "(1) Error creating HTTP-Connection: " + e.getMessage() + " [ " + e.getCause() + " ]";
             return null;
         }
         
@@ -143,12 +143,14 @@ public class TTRSSJsonConnector {
         } catch (ClientProtocolException e) {
             hasLastError = true;
             lastError = "(2) " + e.getMessage()
-                    + ", Method: doRequest(String url) threw ClientProtocolException on httpclient.execute(httpPost)";
+                    + ", Method: doRequest(String url) threw ClientProtocolException on httpclient.execute(httpPost)"
+                    + " [ " + e.getCause() + " ]";
             return null;
         } catch (IOException e) {
             hasLastError = true;
             lastError = "(3) " + e.getMessage()
-                    + ", Method: doRequest(String url) threw IOException on httpclient.execute(httpPost);";
+                    + ", Method: doRequest(String url) threw IOException on httpclient.execute(httpPost)" + " [ "
+                    + e.getCause() + " ]";
             return null;
         }
         
@@ -168,13 +170,14 @@ public class TTRSSJsonConnector {
         } catch (IOException e) {
             hasLastError = true;
             lastError = "(4) " + e.getMessage()
-                    + ", Method: doRequest(String url) threw IOException on entity.getContent()";
+                    + ", Method: doRequest(String url) threw IOException on entity.getContent()" + " [ " + e.getCause()
+                    + " ]";
             return null;
         }
         
         if (instream == null) {
             hasLastError = true;
-            lastError = "(5) Couldn't get InputStream in Method doRequest(String url).";
+            lastError = "(5) Couldn't get InputStream in Method doRequest(String url) [instream was null]";
             return null;
         }
         
