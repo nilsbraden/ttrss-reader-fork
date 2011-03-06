@@ -6,6 +6,7 @@
   * Fixed Issue #50: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=50 New Article unread are shown])
   * Fixed Issue #53: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=53 crashes with "mark all as read"])
   * Small fix which prevented new users from starting the app
+  * Small fix for a DB-Problem
 
 == Version 0.8.7 ==
   * Performance improvements for ImageCache
