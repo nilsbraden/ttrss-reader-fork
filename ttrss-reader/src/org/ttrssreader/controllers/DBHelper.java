@@ -248,7 +248,7 @@ public class DBHelper {
             if (oldVersion < 46) {
                 
                 // @formatter:off
-                String sql = "DROP TABLE "
+                String sql = "DROP TABLE IF EXISTS "
                     + TABLE_MARK;
                 String sql2 = "CREATE TABLE IF NOT EXISTS "
                     + TABLE_MARK
