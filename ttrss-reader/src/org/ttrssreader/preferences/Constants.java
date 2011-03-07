@@ -65,11 +65,13 @@ public class Constants {
     public static String USE_SWIPE = "DisplayUseSwipePreference";
     public static String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
     public static String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
+    public static String DISPLAY_ARTICLE_HEADER = "DisplayArticleHeaderPreference";
     // Display Default Values
     public static boolean SHOW_VIRTUAL_DEFAULT = true;
     public static boolean USE_SWIPE_DEFAULT = true;
     public static boolean ONLY_UNREAD_DEFAULT = false;
     public static int ARTICLE_LIMIT_DEFAULT = 1000;
+    public static boolean DISPLAY_ARTICLE_HEADER_DEFAULT = true;
     
     // System
     public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
@@ -135,6 +137,7 @@ public class Constants {
         editor.putBoolean(USE_SWIPE, USE_SWIPE_DEFAULT);
         editor.putBoolean(ONLY_UNREAD, ONLY_UNREAD_DEFAULT);
         editor.putInt(ARTICLE_LIMIT, ARTICLE_LIMIT_DEFAULT);
+        editor.putBoolean(DISPLAY_ARTICLE_HEADER, DISPLAY_ARTICLE_HEADER_DEFAULT);
         editor.putInt(IMAGE_CACHE_SIZE, IMAGE_CACHE_SIZE_DEFAULT);
         editor.putBoolean(IMAGE_CACHE_UNREAD, IMAGE_CACHE_UNREAD_DEFAULT);
         editor.putBoolean(ARTICLE_CACHE_UNREAD, ARTICLE_CACHE_UNREAD_DEFAULT);

@@ -169,6 +169,12 @@
             android:maxLength="5"
             android:inputType="number" />
 
+        <CheckBoxPreference
+            android:title="@string/DisplayArticleHeaderTitle"
+            android:defaultValue="true"
+            android:summary="@string/DisplayArticleHeaderSummary"
+            android:key="DisplayArticleHeaderPreference" />
+            
     </PreferenceCategory>
 
     <PreferenceCategory

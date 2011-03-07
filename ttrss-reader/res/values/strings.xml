@@ -133,6 +133,8 @@
     <string name="DisplayShowUnreadOnlySummary">Hide Feeds and Articles that have no unread items.</string>
     <string name="DisplayArticleLimitTitle">Store Articles limit</string>
     <string name="DisplayArticleLimitSummary">How many Articles will be cached locally.</string>
+    <string name="DisplayArticleHeaderTitle">Display Article-Header</string>
+    <string name="DisplayArticleHeaderSummary">Enables display of more information when browsing articles (Title, Feed, Date etc.).</string>
     
     <string name="SystemPreferenceCategoryTitle">System</string>
     <string name="StoreImageLimitTitle">Image cache size (in MB)</string>

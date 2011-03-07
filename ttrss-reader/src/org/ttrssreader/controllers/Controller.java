@@ -57,6 +57,7 @@ public class Controller {
     private boolean useSwipe;
     private boolean displayOnlyUnread;
     private int articleLimit;
+    private boolean displayArticleHeader;
     
     private int imageCacheSize;
     private boolean imageCacheUnread;
@@ -135,6 +136,8 @@ public class Controller {
         useSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
         displayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
         articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
+        displayArticleHeader = prefs.getBoolean(Constants.DISPLAY_ARTICLE_HEADER,
+                Constants.DISPLAY_ARTICLE_HEADER_DEFAULT);
         
         // System
         imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
@@ -307,6 +310,15 @@ public class Controller {
     public void setArticleLimit(int articleLimit) {
         put(Constants.ARTICLE_LIMIT, articleLimit);
         this.articleLimit = articleLimit;
+    }
+    
+    public boolean displayArticleHeader() {
+        return displayArticleHeader;
+    }
+    
+    public void setDisplayArticleHeader(boolean displayArticleHeader) {
+        put(Constants.DISPLAY_ARTICLE_HEADER, displayArticleHeader);
+        this.displayArticleHeader = displayArticleHeader;
     }
     
     public int getImageCacheSize() {

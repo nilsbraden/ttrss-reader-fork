@@ -64,6 +64,7 @@ public class ArticleActivity extends Activity {
     
     private FeedHeadlineListAdapter feedHeadlineListAdapter;
     private ArrayList<Integer> articleIds;
+    private ArticleHeaderView headerContainer;
     
     private ArticleItem article = null;
     private String content;
@@ -84,6 +85,7 @@ public class ArticleActivity extends Activity {
         super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.articleitem);
+        headerContainer = (ArticleHeaderView) findViewById(R.id.article_header_container);
         
         Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
@@ -118,7 +120,7 @@ public class ArticleActivity extends Activity {
         } else if (instance != null) {
             articleId = instance.getInt(ARTICLE_ID);
             feedId = instance.getInt(FEED_ID);
-            currentIndex = extras.getInt(ARTICLE_INDEX);
+            currentIndex = instance.getInt(ARTICLE_INDEX);
         } else {
             articleId = -1;
             feedId = -1;
@@ -233,6 +235,13 @@ public class ArticleActivity extends Activity {
             article = DBHelper.getInstance().getArticle(articleId);
             
             if (article != null && article.content != null) {
+                
+                // Polulate information-bar on top of the webview if enabled
+                if (Controller.getInstance().displayArticleHeader()) {
+                    headerContainer.populate(article);
+                } else {
+                    headerContainer.setVisibility(View.GONE);
+                }
                 
                 // Store current index in ID-List so we can jump between articles
                 if (feedHeadlineListAdapter == null) {
