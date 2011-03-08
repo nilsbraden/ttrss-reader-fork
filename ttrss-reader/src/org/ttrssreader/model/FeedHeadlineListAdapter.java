@@ -24,7 +24,6 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.ArticleItem;
-import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.utils.Utils;
@@ -187,15 +186,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         updateDate.setText(date);
         
         TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
-        if (feedId < 0 && feedId >= -4) {
+        // Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category
+        if ((feedId < 0 && feedId >= -4) || (categoryId >= 0)) {
             FeedItem f = DBHelper.getInstance().getFeed(a.feedId);
             if (f != null) {
                 dataSource.setText(f.title);
-            }
-        } else if (categoryId >= 0) {
-            CategoryItem c = DBHelper.getInstance().getCategory(categoryId);
-            if (c != null) {
-                dataSource.setText(c.title);
             }
         }
         
@@ -282,7 +277,13 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     
     @Override
     public void update() {
-        Data.getInstance().updateArticles(feedId, Controller.getInstance().displayOnlyUnread());
+        if (categoryId >= 0) {
+            for (FeedItem f : DBHelper.getInstance().getFeeds(categoryId)) {
+                Data.getInstance().updateArticles(f.id, Controller.getInstance().displayOnlyUnread());
+            }
+        } else {
+            Data.getInstance().updateArticles(feedId, Controller.getInstance().displayOnlyUnread());
+        }
         unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
     }
     
