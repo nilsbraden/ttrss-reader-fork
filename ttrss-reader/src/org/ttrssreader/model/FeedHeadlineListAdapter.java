@@ -24,6 +24,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.ArticleItem;
+import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.utils.Utils;
@@ -190,6 +191,11 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
             FeedItem f = DBHelper.getInstance().getFeed(a.feedId);
             if (f != null) {
                 dataSource.setText(f.title);
+            }
+        } else if (categoryId >= 0) {
+            CategoryItem c = DBHelper.getInstance().getCategory(categoryId);
+            if (c != null) {
+                dataSource.setText(c.title);
             }
         }
         
