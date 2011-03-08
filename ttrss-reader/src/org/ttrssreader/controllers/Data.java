@@ -32,12 +32,7 @@ public class Data {
     private static final String mutex = "";
     private static Data instance = null;
     private static boolean initialized = false;
-    
-    private String vCategoryAllArticles;
-    private String vCategoryFreshArticles;
-    private String vCategoryPublishedArticles;
-    private String vCategoryStarredArticles;
-    private String feedUncategorizedFeeds;
+    private Context context;
     
     private long countersUpdated = 0;
     private Map<Integer, Long> articlesUpdated = new HashMap<Integer, Long>();
@@ -51,47 +46,35 @@ public class Data {
     public static Data getInstance() {
         if (instance == null) {
             synchronized (mutex) {
-                if (instance == null) {
+                if (instance == null)
                     instance = new Data();
-                }
             }
         }
         return instance;
     }
     
     private synchronized void initializeData(Context context) {
-        if (context != null) {
+        this.context = context;
+        if (context != null)
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        }
         
         // Set new update-time if necessary
-        if (countersUpdated < newArticlesUpdated) {
+        if (countersUpdated < newArticlesUpdated)
             countersUpdated = newArticlesUpdated;
-        }
         
         for (int article : articlesUpdated.keySet()) {
-            if (articlesUpdated.get(article) < newArticlesUpdated) {
+            if (articlesUpdated.get(article) < newArticlesUpdated)
                 articlesUpdated.put(article, newArticlesUpdated);
-            }
         }
         
-        if (feedsUpdated < newArticlesUpdated) {
+        if (feedsUpdated < newArticlesUpdated)
             feedsUpdated = newArticlesUpdated;
-        }
         
-        if (virtCategoriesUpdated < newArticlesUpdated) {
+        if (virtCategoriesUpdated < newArticlesUpdated)
             virtCategoriesUpdated = newArticlesUpdated;
-        }
         
-        if (categoriesUpdated < newArticlesUpdated) {
+        if (categoriesUpdated < newArticlesUpdated)
             categoriesUpdated = newArticlesUpdated;
-        }
-        
-        vCategoryAllArticles = (String) context.getText(R.string.VCategory_AllArticles);
-        vCategoryFreshArticles = (String) context.getText(R.string.VCategory_FreshArticles);
-        vCategoryPublishedArticles = (String) context.getText(R.string.VCategory_PublishedArticles);
-        vCategoryStarredArticles = (String) context.getText(R.string.VCategory_StarredArticles);
-        feedUncategorizedFeeds = (String) context.getText(R.string.Feed_UncategorizedFeeds);
     }
     
     public synchronized void checkAndInitializeData(final Context context) {
@@ -104,9 +87,8 @@ public class Data {
     // *** COUNTERS *********************************************************************
     
     public void resetTime(Object o) {
-        if (o == null) {
+        if (o == null)
             return;
-        }
         
         if (o instanceof CategoryItem) {
             virtCategoriesUpdated = 0;
@@ -121,9 +103,8 @@ public class Data {
     
     // takes about 2.5 seconds on wifi
     public void updateCounters(boolean overrideOffline) {
-        if (Utils.isOnline(cm) || overrideOffline) {
+        if (Utils.isOnline(cm) || overrideOffline)
             Controller.getInstance().getConnector().getCounters();
-        }
     }
     
     // *** ARTICLES *********************************************************************
@@ -135,9 +116,8 @@ public class Data {
     public void updateArticles(int feedId, boolean displayOnlyUnread, boolean overrideOffline) {
         
         Long time = articlesUpdated.get(feedId);
-        if (time == null) {
+        if (time == null)
             time = new Long(0);
-        }
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
@@ -167,9 +147,8 @@ public class Data {
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
             Set<Integer> ids = Controller.getInstance().getConnector()
                     .getHeadlinesToDatabase(feedId, limit, 0, viewMode, true);
-            if (ids != null) {
+            if (ids != null)
                 Controller.getInstance().getConnector().getArticle(ids);
-            }
             
             articlesUpdated.put(feedId, System.currentTimeMillis());
         }
@@ -184,16 +163,14 @@ public class Data {
             Set<FeedItem> feeds = Controller.getInstance().getConnector().getFeeds();
             feedsUpdated = System.currentTimeMillis();
             
-            if (!feeds.isEmpty()) {
-                // Only delete feeds if we got new feeds...
+            // Only delete feeds if we got new feeds...
+            if (!feeds.isEmpty())
                 DBHelper.getInstance().deleteFeeds();
-            }
             
             Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
             for (FeedItem f : feeds) {
-                if (categoryId == -4 || f.categoryId == categoryId) {
+                if (categoryId == -4 || f.categoryId == categoryId)
                     ret.add(f);
-                }
             }
             DBHelper.getInstance().insertFeeds(feeds);
             
@@ -205,24 +182,34 @@ public class Data {
     // *** CATEGORIES *******************************************************************
     
     public Set<CategoryItem> updateVirtualCategories() {
-        if (virtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        if (virtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME)
             return null;
+        
+        String vCatAllArticles = "";
+        String vCatFreshArticles = "";
+        String vCatPublishedArticles = "";
+        String vCatStarredArticles = "";
+        String uncatFeeds = "";
+        
+        if (context != null) {
+            vCatAllArticles = (String) context.getText(R.string.VCategory_AllArticles);
+            vCatFreshArticles = (String) context.getText(R.string.VCategory_FreshArticles);
+            vCatPublishedArticles = (String) context.getText(R.string.VCategory_PublishedArticles);
+            vCatStarredArticles = (String) context.getText(R.string.VCategory_StarredArticles);
+            uncatFeeds = (String) context.getText(R.string.Feed_UncategorizedFeeds);
         }
         
-        Set<CategoryItem> virtCategories = new LinkedHashSet<CategoryItem>();
-        virtCategories.add(new CategoryItem(-4, vCategoryAllArticles, DBHelper.getInstance().getUnreadCount(-4, true)));
-        virtCategories
-                .add(new CategoryItem(-3, vCategoryFreshArticles, DBHelper.getInstance().getUnreadCount(-3, true)));
-        virtCategories.add(new CategoryItem(-2, vCategoryPublishedArticles, DBHelper.getInstance().getUnreadCount(-2,
-                true)));
-        virtCategories.add(new CategoryItem(-1, vCategoryStarredArticles, DBHelper.getInstance().getUnreadCount(-1,
-                true)));
-        virtCategories.add(new CategoryItem(0, feedUncategorizedFeeds, DBHelper.getInstance().getUnreadCount(0, true)));
+        Set<CategoryItem> vCats = new LinkedHashSet<CategoryItem>();
+        vCats.add(new CategoryItem(-4, vCatAllArticles, DBHelper.getInstance().getUnreadCount(-4, true)));
+        vCats.add(new CategoryItem(-3, vCatFreshArticles, DBHelper.getInstance().getUnreadCount(-3, true)));
+        vCats.add(new CategoryItem(-2, vCatPublishedArticles, DBHelper.getInstance().getUnreadCount(-2, true)));
+        vCats.add(new CategoryItem(-1, vCatStarredArticles, DBHelper.getInstance().getUnreadCount(-1, true)));
+        vCats.add(new CategoryItem(0, uncatFeeds, DBHelper.getInstance().getUnreadCount(0, true)));
         
-        DBHelper.getInstance().insertCategories(virtCategories);
+        DBHelper.getInstance().insertCategories(vCats);
         virtCategoriesUpdated = System.currentTimeMillis();
         
-        return virtCategories;
+        return vCats;
     }
     
     public Set<CategoryItem> updateCategories(boolean overrideOffline) {

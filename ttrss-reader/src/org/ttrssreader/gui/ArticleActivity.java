@@ -84,6 +84,9 @@ public class ArticleActivity extends Activity {
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        if (Controller.getInstance().displayArticleHeader())
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+        
         setContentView(R.layout.articleitem);
         headerContainer = (ArticleHeaderView) findViewById(R.id.article_header_container);
         

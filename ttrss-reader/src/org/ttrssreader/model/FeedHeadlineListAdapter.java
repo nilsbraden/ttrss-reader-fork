@@ -42,16 +42,23 @@ import android.widget.TextView;
 public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     
     private Context context;
+    public Cursor cursor;
     
     private int feedId;
-    public Cursor cursor;
+    private int categoryId;
     private boolean displayOnlyUnread;
+    private boolean invertSort;
     private int unreadCount = 0;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
-        displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
+        this(context, feedId, -1);
+    }
+    
+    public FeedHeadlineListAdapter(Context context, int feedId, int categoryId) {
+        this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
         this.context = context;
         this.feedId = feedId;
+        this.categoryId = categoryId;
         makeQuery();
     }
     
@@ -197,8 +204,12 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     }
     
     public synchronized void makeQuery() {
+        // Check if display-settings have changed
         if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
-            displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
+            displayOnlyUnread = !displayOnlyUnread;
+            closeCursor();
+        } else if (invertSort != Controller.getInstance().invertSortArticleList()) {
+            invertSort = !invertSort;
             closeCursor();
         } else if (cursor != null && !cursor.isClosed()) {
             cursor.requery();
@@ -235,14 +246,26 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
                 break;
             
             default:
-                query.append(" AND a.feedId=");
-                query.append(feedId);
+                if (categoryId < 0) {
+                    query.append(" AND a.feedId=");
+                    query.append(feedId);
+                } else {
+                    // User selected to display all articles of a category directly
+                    query.append(" AND b.categoryId=");
+                    query.append(categoryId);
+                }
                 if (displayOnlyUnread) {
                     query.append(" AND a.isUnread>0");
                 }
         }
         
-        query.append(" ORDER BY a.updateDate DESC");
+        query.append(" ORDER BY a.updateDate ");
+        
+        if (invertSort) {
+            query.append("ASC");
+        } else {
+            query.append("DESC");
+        }
         
         // Log.v(Utils.TAG, query.toString());
         if (cursor != null)

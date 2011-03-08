@@ -129,7 +129,7 @@ public class TTRSSJsonConnector {
             httpclient.setCredentialsProvider(credProvider);
         } catch (Exception e) {
             hasLastError = true;
-            lastError = "(1) Error creating HTTP-Connection: " + e.getMessage() + " [ " + e.getCause() + " ]";
+            lastError = "Error creating HTTP-Connection: " + e.getMessage() + " [ " + e.getCause() + " ]";
             return null;
         }
         
@@ -142,15 +142,16 @@ public class TTRSSJsonConnector {
             response = httpclient.execute(httpPost);
         } catch (ClientProtocolException e) {
             hasLastError = true;
-            lastError = "(2) " + e.getMessage()
+            lastError = e.getMessage()
                     + ", Method: doRequest(String url) threw ClientProtocolException on httpclient.execute(httpPost)"
                     + " [ " + e.getCause() + " ]";
             return null;
         } catch (IOException e) {
-            hasLastError = true;
-            lastError = "(3) " + e.getMessage()
-                    + ", Method: doRequest(String url) threw IOException on httpclient.execute(httpPost)" + " [ "
-                    + e.getCause() + " ]";
+            /*
+             * TODO: Occurs on timeout of the connection. Would be better to catch the specialized exception for that
+             * case but which is it? The Reference (http://developer.android.com/reference/java/io/IOException.html)
+             * lists lots of subclasses.
+             */
             return null;
         }
         
@@ -169,15 +170,14 @@ public class TTRSSJsonConnector {
             }
         } catch (IOException e) {
             hasLastError = true;
-            lastError = "(4) " + e.getMessage()
-                    + ", Method: doRequest(String url) threw IOException on entity.getContent()" + " [ " + e.getCause()
-                    + " ]";
+            lastError = e.getMessage() + ", Method: doRequest(String url) threw IOException on entity.getContent()"
+                    + " [ " + e.getCause() + " ]";
             return null;
         }
         
         if (instream == null) {
             hasLastError = true;
-            lastError = "(5) Couldn't get InputStream in Method doRequest(String url) [instream was null]";
+            lastError = "Couldn't get InputStream in Method doRequest(String url) [instream was null]";
             return null;
         }
         

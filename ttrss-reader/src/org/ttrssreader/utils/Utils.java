@@ -104,10 +104,12 @@ public class Utils {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (OutOfMemoryError oome) {
+            oome.printStackTrace();
         } finally {
             try {
                 is.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
             }
         }
         return sb.toString();
