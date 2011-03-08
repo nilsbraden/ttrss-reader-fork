@@ -17,6 +17,7 @@
 -->
 <resources>
     <string-array name="updates">
+        <item>v0.8.9: New: Added custom title-bar in Article-Display (can be disabled in preferences), New: Added setting to change the display-order of all lists, New: Added long-press option to Category-View, showing list of all articles inside, Addressed connectivity problems</item>
         <item>v0.8.8: Fixed Issue #49 (FC on launch with wrong password), Fixed Issue #50 (\"New Articles\" now shows only unread articles), Fixed Issue #53 (crashed on new installations), small Fix which prevented new users from starting the app</item>
         <item>v0.8.7: Performance improvements for ImageCache, minor fixes for retrieving of articles, fixed accidental jump to first feed while browsing</item>
         <item>v0.8.6: ImageCache download now parallelized into 4 threads (ArticleCache: 8 threads), Some performance tweaks, Fixed Issue #45: (SQL Error because of suhosin-blocked article_id), Added preference to split long GET-Requests due to problems with server-side security scanners like Suhosin</item>
