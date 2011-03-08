@@ -41,6 +41,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     
     private int categoryId;
     private boolean displayOnlyUnread;
+    private boolean invertSort;
     private int unreadCount = 0;
     
     public FeedListAdapter(Context context, int categoryId) {
@@ -193,12 +194,17 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
     }
     
     public synchronized void makeQuery() {
+        // Check if display-settings have changed
         if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
-            displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
+            displayOnlyUnread = !displayOnlyUnread;
+            closeCursor();
+        } else if (invertSort != Controller.getInstance().invertSortFeedsCats()) {
+            invertSort = !invertSort;
             closeCursor();
         } else if (cursor != null && !cursor.isClosed()) {
             cursor.requery();
         }
+        
         StringBuffer query = new StringBuffer();
         
         query.append("SELECT id,title,unread FROM ");
@@ -210,7 +216,13 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
             query.append(" AND unread>0");
         }
         
-        query.append(" ORDER BY UPPER(title) ASC");
+        query.append(" ORDER BY UPPER(title) ");
+        
+        if (invertSort) {
+            query.append("DESC");
+        } else {
+            query.append("ASC");
+        }
         
         // Log.v(Utils.TAG, query.toString());
         if (cursor != null)

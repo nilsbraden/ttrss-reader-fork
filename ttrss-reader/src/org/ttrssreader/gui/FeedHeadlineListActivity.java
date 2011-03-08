@@ -56,6 +56,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
     public static final String FEED_INDEX = "INDEX";
+    public static final int FEED_NO_ID = 37846914;
     
     public boolean flingDetected = false;
     
@@ -106,12 +107,12 @@ public class FeedHeadlineListActivity extends MenuActivity {
             feedTitle = instance.getString(FEED_TITLE);
             currentIndex = instance.getInt(FEED_INDEX);
         } else {
-            categoryId = -1;
-            feedId = -1;
+            categoryId = -1000;
+            feedId = -1000;
             feedTitle = null;
             currentIndex = 0;
         }
-        adapter = new FeedHeadlineListAdapter(this, feedId);
+        adapter = new FeedHeadlineListAdapter(this, feedId, categoryId);
         listView.setAdapter(adapter);
     }
     
@@ -216,6 +217,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
         // Get selected Article
         AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         ArticleItem a = (ArticleItem) adapter.getItem(info.position);
+        menu.removeItem(MARK_READ); // Remove "Mark read" from super-class
         
         if (a.isUnread) {
             menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
@@ -268,7 +270,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
-                new Updater(this, new ReadStateUpdater(feedId, 0)).execute();
+                if (feedId >= 0)
+                    new Updater(this, new ReadStateUpdater(feedId, 0)).execute();
                 return true;
         }
         

@@ -30,6 +30,10 @@
         android:id="@+id/Menu_DisplayOnlyUnread"
         android:icon="@android:drawable/ic_menu_view" />
     <item
+        android:title="@string/Commons.InvertSort"
+        android:id="@+id/Menu_InvertSort"
+        android:icon="@android:drawable/ic_menu_rotate" />
+    <item
         android:title="@string/UsageOfflineTitle"
         android:id="@+id/Menu_WorkOffline"
         android:icon="@drawable/ic_menu_stop" />

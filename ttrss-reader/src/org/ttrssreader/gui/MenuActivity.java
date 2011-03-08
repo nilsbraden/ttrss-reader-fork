@@ -99,6 +99,14 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
             case R.id.Menu_DisplayOnlyUnread:
                 Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().displayOnlyUnread());
                 return true;
+            case R.id.Menu_InvertSort:
+                if (this instanceof FeedHeadlineListActivity) {
+                    Controller.getInstance()
+                            .setInvertSortArticleList(!Controller.getInstance().invertSortArticleList());
+                } else {
+                    Controller.getInstance().setInvertSortFeedsCats(!Controller.getInstance().invertSortFeedsCats());
+                }
+                return true;
             case R.id.Menu_WorkOffline:
                 Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
                 if (!Controller.getInstance().workOffline()) {

@@ -58,6 +58,8 @@ public class Controller {
     private boolean displayOnlyUnread;
     private int articleLimit;
     private boolean displayArticleHeader;
+    private boolean invertSortArticleList;
+    private boolean invertSortFeedsCats;
     
     private int imageCacheSize;
     private boolean imageCacheUnread;
@@ -138,6 +140,10 @@ public class Controller {
         articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
         displayArticleHeader = prefs.getBoolean(Constants.DISPLAY_ARTICLE_HEADER,
                 Constants.DISPLAY_ARTICLE_HEADER_DEFAULT);
+        invertSortArticleList = prefs.getBoolean(Constants.INVERT_SORT_ARTICLELIST,
+                Constants.INVERT_SORT_ARTICLELIST_DEFAULT);
+        invertSortFeedsCats = prefs
+                .getBoolean(Constants.INVERT_SORT_FEEDSCATS, Constants.INVERT_SORT_FEEDSCATS_DEFAULT);
         
         // System
         imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
@@ -319,6 +325,24 @@ public class Controller {
     public void setDisplayArticleHeader(boolean displayArticleHeader) {
         put(Constants.DISPLAY_ARTICLE_HEADER, displayArticleHeader);
         this.displayArticleHeader = displayArticleHeader;
+    }
+    
+    public boolean invertSortArticleList() {
+        return invertSortArticleList;
+    }
+    
+    public void setInvertSortArticleList(boolean invertSortArticleList) {
+        put(Constants.INVERT_SORT_ARTICLELIST, invertSortArticleList);
+        this.invertSortArticleList = invertSortArticleList;
+    }
+    
+    public boolean invertSortFeedsCats() {
+        return invertSortFeedsCats;
+    }
+    
+    public void setInvertSortFeedsCats(boolean invertSortFeedsCats) {
+        put(Constants.INVERT_SORT_FEEDSCATS, invertSortFeedsCats);
+        this.invertSortFeedsCats = invertSortFeedsCats;
     }
     
     public int getImageCacheSize() {

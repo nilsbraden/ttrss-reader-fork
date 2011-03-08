@@ -61,7 +61,9 @@
     <string name="Commons.NothingToDisplay">Nichts anzuzeigen.</string>
     <string name="Commons.UpdateReadState">Aktualisiere Status</string>
     <string name="Commons.DisplayOnlyUnread">Ungelesene zeigen</string>
+    <string name="Commons.InvertSort">Umkehren</string>
     <string name="Commons.DisplayAll">Alle zeigen</string>
+    <string name="Commons.SelectArticles">Zeige alle Artikel</string>
     <string name="Commons.MarkAllRead">Alles \"gelesen\"</string>
     <string name="Commons.MarkRead">Gelesen</string>
     <string name="Commons.MarkUnread">Ungelesen</string>

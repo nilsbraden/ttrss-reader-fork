@@ -38,6 +38,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -51,6 +52,8 @@ public class CategoryActivity extends MenuActivity {
     
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
+    
+    protected static final int MARK_ARTICLES = MARK_GROUP + 4;
     
     private CategoryListAdapter adapter = null;
     
@@ -149,11 +152,23 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(MARK_GROUP, MARK_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
+    }
+    
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        if (item.getItemId() == MARK_READ) {
-            new Updater(this, new ReadStateUpdater(adapter.getCategoryId(cmi.position))).execute();
-            return true;
+        switch (item.getItemId()) {
+            case MARK_READ:
+                new Updater(this, new ReadStateUpdater(adapter.getCategoryId(cmi.position))).execute();
+                return true;
+            case MARK_ARTICLES:
+                Intent i = new Intent(this, FeedHeadlineListActivity.class);
+                i.putExtra(FeedHeadlineListActivity.FEED_ID, FeedHeadlineListActivity.FEED_NO_ID);
+                i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, adapter.getCategoryId(cmi.position));
+                i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getCategoryTitle(cmi.position));
         }
         return false;
     }

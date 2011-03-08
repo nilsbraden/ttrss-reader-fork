@@ -41,6 +41,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     public Cursor cursor;
     
     private boolean displayOnlyUnread;
+    private boolean invertSort;
     private int unreadCount = 0;
     
     public CategoryListAdapter(Context context) {
@@ -201,12 +202,17 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
     }
     
     public synchronized void makeQuery() {
+        // Check if display-settings have changed
         if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
-            displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
+            displayOnlyUnread = !displayOnlyUnread;
+            closeCursor();
+        } else if (invertSort != Controller.getInstance().invertSortFeedsCats()) {
+            invertSort = !invertSort;
             closeCursor();
         } else if (cursor != null && !cursor.isClosed()) {
             cursor.requery();
         }
+        
         StringBuffer query = new StringBuffer();
         
         query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
@@ -217,7 +223,13 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         if (displayOnlyUnread) {
             query.append(" AND unread>0");
         }
-        query.append(" ORDER BY UPPER(title) DESC) AS b");
+        query.append(" ORDER BY UPPER(title) ");
+        if (invertSort) {
+            query.append("ASC");
+        } else {
+            query.append("DESC");
+        }
+        query.append(") AS b");
         
         // Log.v(Utils.TAG, query.toString());
         if (cursor != null)
