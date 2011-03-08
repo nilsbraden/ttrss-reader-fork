@@ -4,7 +4,7 @@
 == Version 0.8.9 ==
   * New: Added custom title-bar in Article-Display (can be disabled in preferences)
   * New: Added setting to change the display-order of all lists
-  * New: Added long-press option to Category-View, showing list of all articles inside 
+  * New: Added long-press option to Category-View, showing list of all articles inside (Please note that updating all feeds in a category can take a while but it happens in background anyway)
   * Addressed connectivity problems (probably no more annoying "could not connect"-messages)
   
 == Version 0.8.8 ==
