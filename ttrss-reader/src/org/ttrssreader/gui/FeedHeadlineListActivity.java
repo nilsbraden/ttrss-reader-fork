@@ -55,15 +55,17 @@ public class FeedHeadlineListActivity extends MenuActivity {
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
+    public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
     public static final String FEED_INDEX = "INDEX";
     public static final int FEED_NO_ID = 37846914;
     
     public boolean flingDetected = false;
     
-    private int categoryId;
-    private int feedId;
-    private String feedTitle;
-    private int currentIndex;
+    private int categoryId = -1000;
+    private int feedId = -1000;
+    private String feedTitle = null;
+    private int currentIndex = 0;
+    private boolean selectArticlesForCategory = false;
     
     private FeedListAdapter feedListAdapter;
     private ArrayList<Integer> feedListIds;
@@ -101,18 +103,15 @@ public class FeedHeadlineListActivity extends MenuActivity {
             feedId = extras.getInt(FEED_ID);
             feedTitle = extras.getString(FEED_TITLE);
             currentIndex = extras.getInt(FEED_INDEX);
+            selectArticlesForCategory = extras.getBoolean(FEED_SELECT_ARTICLES);
         } else if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
             feedId = instance.getInt(FEED_ID);
             feedTitle = instance.getString(FEED_TITLE);
             currentIndex = instance.getInt(FEED_INDEX);
-        } else {
-            categoryId = -1000;
-            feedId = -1000;
-            feedTitle = null;
-            currentIndex = 0;
+            selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
         }
-        adapter = new FeedHeadlineListAdapter(this, feedId, categoryId);
+        adapter = new FeedHeadlineListAdapter(this, feedId, categoryId, selectArticlesForCategory);
         listView.setAdapter(adapter);
     }
     
@@ -145,6 +144,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
         outState.putInt(FEED_CAT_ID, categoryId);
         outState.putInt(FEED_ID, feedId);
         outState.putString(FEED_TITLE, feedTitle);
+        outState.putInt(FEED_INDEX, currentIndex);
+        outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
     }
     
     @Override
