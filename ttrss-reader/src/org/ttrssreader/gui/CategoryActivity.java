@@ -169,6 +169,7 @@ public class CategoryActivity extends MenuActivity {
                 i.putExtra(FeedHeadlineListActivity.FEED_ID, FeedHeadlineListActivity.FEED_NO_ID);
                 i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, adapter.getCategoryId(cmi.position));
                 i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getCategoryTitle(cmi.position));
+                i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, true);
                 startActivity(i);
         }
         return false;

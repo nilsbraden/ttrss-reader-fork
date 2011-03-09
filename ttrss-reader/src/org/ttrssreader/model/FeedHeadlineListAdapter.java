@@ -26,11 +26,9 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.model.updaters.IUpdatable;
-import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,14 +46,17 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
     private int categoryId;
     private boolean displayOnlyUnread;
     private boolean invertSort;
+    private boolean selectArticlesForCategory;
     private int unreadCount = 0;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
-        this(context, feedId, -1);
+        this(context, feedId, -1, false);
     }
     
-    public FeedHeadlineListAdapter(Context context, int feedId, int categoryId) {
+    public FeedHeadlineListAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
         this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
+        this.invertSort = Controller.getInstance().invertSortArticleList();
+        this.selectArticlesForCategory = selectArticlesForCategory;
         this.context = context;
         this.feedId = feedId;
         this.categoryId = categoryId;
@@ -187,7 +188,7 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         
         TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
         // Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category
-        if ((feedId < 0 && feedId >= -4) || (categoryId >= 0)) {
+        if ((feedId < 0 && feedId >= -4) || (selectArticlesForCategory)) {
             FeedItem f = DBHelper.getInstance().getFeed(a.feedId);
             if (f != null) {
                 dataSource.setText(f.title);
@@ -247,13 +248,13 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
                 break;
             
             default:
-                if (categoryId < 0) {
-                    query.append(" AND a.feedId=");
-                    query.append(feedId);
-                } else {
+                if (selectArticlesForCategory) {
                     // User selected to display all articles of a category directly
                     query.append(" AND b.categoryId=");
                     query.append(categoryId);
+                } else {
+                    query.append(" AND a.feedId=");
+                    query.append(feedId);
                 }
                 if (displayOnlyUnread) {
                     query.append(" AND a.isUnread>0");
@@ -271,13 +272,13 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         // Log.v(Utils.TAG, query.toString());
         if (cursor != null)
             cursor.close();
-        Log.d(Utils.TAG, query.toString());
+        // Log.d(Utils.TAG, query.toString());
         cursor = DBHelper.getInstance().query(query.toString(), null);
     }
     
     @Override
     public void update() {
-        if (categoryId >= 0) {
+        if (selectArticlesForCategory) {
             for (FeedItem f : DBHelper.getInstance().getFeeds(categoryId)) {
                 Data.getInstance().updateArticles(f.id, Controller.getInstance().displayOnlyUnread());
             }
