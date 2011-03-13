@@ -146,7 +146,8 @@ public class Data {
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
             Set<Integer> ids = Controller.getInstance().getConnector()
-                    .getHeadlinesToDatabase(feedId, limit, 0, viewMode, true);
+                    .getHeadlinesToDatabase(feedId, limit, 0, viewMode, false); // false = Disable fetching of content
+                                                                                // here
             if (ids != null)
                 Controller.getInstance().getConnector().getArticle(ids);
             
