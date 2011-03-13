@@ -100,8 +100,8 @@ public class Controller {
         String userName = prefs.getString(Constants.USERNAME, Constants.EMPTY);
         String password = prefs.getString(Constants.PASSWORD, Constants.EMPTY);
         
-        String httpUserName = "";
-        String httpPassword = "";
+        String httpUserName = Constants.EMPTY;
+        String httpPassword = Constants.EMPTY;
         boolean useHttpAuth = prefs.getBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
         if (useHttpAuth) {
             httpUserName = prefs.getString(Constants.HTTP_USERNAME, Constants.EMPTY);

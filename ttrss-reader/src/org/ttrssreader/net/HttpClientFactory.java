@@ -37,42 +37,49 @@ import android.util.Log;
  */
 public class HttpClientFactory {
     
-    public static DefaultHttpClient createInstance(HttpParams httpParams) {
+    private static HttpClientFactory instance;
+    private SchemeRegistry registry;
+    
+    public HttpClientFactory() {
         
         boolean trustAllSslCerts = Controller.getInstance().trustAllSsl();
         boolean useCustomKeyStore = Controller.getInstance().useKeystore();
         
-        SchemeRegistry registry = new SchemeRegistry();
+        registry = new SchemeRegistry();
         registry.register(new Scheme("http", new PlainSocketFactory(), 80));
         
         SocketFactory socketFactory = null;
         
         if (useCustomKeyStore) {
-            
             String keystorePassword = Controller.getInstance().getKeystorePassword();
             
             socketFactory = newSslSocketFactory(keystorePassword);
             if (socketFactory == null) {
                 socketFactory = SSLSocketFactory.getSocketFactory();
-                Log.d(Utils.TAG, "HttpClientFactory() - custom key store could not be opened, using default settings");
-            } else {
-                // Log.d(Utils.TAG, "HttpClientFactory() - using custom key store");
+                Log.w(Utils.TAG, "HttpClientFactory() - custom key store could not be opened, using default settings");
             }
             
         } else if (trustAllSslCerts) {
             socketFactory = new FakeSocketFactory();
-            // Log.d(Utils.TAG, "HttpClientFactory() - trust all ssl certificates");
         } else {
             socketFactory = SSLSocketFactory.getSocketFactory();
-            // Log.d(Utils.TAG, "HttpClientFactory() - using default settings");
         }
         
         registry.register(new Scheme("https", socketFactory, 443));
         
+    }
+    
+    public DefaultHttpClient getHttpClient(HttpParams httpParams) {
         DefaultHttpClient httpInstance = new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry),
                 httpParams);
-        
         return httpInstance;
+    }
+    
+    public static HttpClientFactory getInstance() {
+        if (instance == null) {
+            instance = new HttpClientFactory();
+        }
+        return instance;
     }
     
     /**
@@ -90,9 +97,8 @@ public class HttpClientFactory {
             File file = new File(Environment.getExternalStorageDirectory() + File.separator + Utils.SDCARD_PATH_FILES
                     + "store.bks");
             
-            if (!file.exists()) {
+            if (!file.exists())
                 return null;
-            }
             
             InputStream in = new FileInputStream(file);
             
@@ -104,7 +110,7 @@ public class HttpClientFactory {
             
             return new SSLSocketFactory(trusted);
         } catch (Exception e) {
-            // throw new AssertionError(e);
+            e.printStackTrace();
         }
         
         return null;

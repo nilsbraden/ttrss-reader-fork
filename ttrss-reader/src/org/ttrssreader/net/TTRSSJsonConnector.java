@@ -18,6 +18,7 @@ package org.ttrssreader.net;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -38,6 +39,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -101,7 +103,11 @@ public class TTRSSJsonConnector {
     private String sidUrl;
     private String loginLock = "";
     
-    private CredentialsProvider credProvider;
+    private CredentialsProvider credProvider = null;
+    
+    // HTTP-Stuff
+    HttpPost post;
+    DefaultHttpClient client;
     
     public TTRSSJsonConnector(String serverUrl, String userName, String password, String httpUser, String httpPw) {
         this.serverUrl = serverUrl;
@@ -111,22 +117,29 @@ public class TTRSSJsonConnector {
         this.httpUserName = httpUser;
         this.httpPassword = httpPw;
         
-        this.credProvider = new BasicCredentialsProvider();
-        this.credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                new UsernamePasswordCredentials(httpUserName, httpPassword));
+        if (!httpUserName.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
+            this.credProvider = new BasicCredentialsProvider();
+            this.credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                    new UsernamePasswordCredentials(httpUserName, httpPassword));
+        }
+        
+        post = new HttpPost();
     }
     
     private String doRequest(String url, boolean firstCall) {
         long start = System.currentTimeMillis();
         
-        HttpPost httpPost;
-        HttpParams httpParams;
-        DefaultHttpClient httpclient;
         try {
-            httpPost = new HttpPost(url);
-            httpParams = httpPost.getParams();
-            httpclient = HttpClientFactory.createInstance(httpParams);
-            httpclient.setCredentialsProvider(credProvider);
+            post.setURI(new URI(url));
+            HttpParams params = post.getParams();
+            if (client == null) {
+                client = HttpClientFactory.getInstance().getHttpClient(params);
+            } else {
+                client.setParams(params);
+            }
+            if (credProvider != null) {
+                client.setCredentialsProvider(credProvider);
+            }
         } catch (Exception e) {
             hasLastError = true;
             lastError = "Error creating HTTP-Connection: " + e.getMessage() + " [ " + e.getCause() + " ]";
@@ -134,12 +147,10 @@ public class TTRSSJsonConnector {
         }
         
         HttpResponse response = null;
-        HttpEntity entity = null;
         InputStream instream = null;
-        String strResponse = null;
         
         try {
-            response = httpclient.execute(httpPost);
+            response = client.execute(post);
         } catch (ClientProtocolException e) {
             hasLastError = true;
             lastError = e.getMessage()
@@ -160,11 +171,11 @@ public class TTRSSJsonConnector {
         if (url.contains(PASSWORD_MATCH))
             tUrl = tUrl.substring(0, tUrl.length() - password.length()) + "*";
         
-        Log.d(Utils.TAG, String.format("Requesting URL: %s (took %s ms)", tUrl, System.currentTimeMillis() - start));
+        Log.d(Utils.TAG, String.format("Requesting %s (took %s ms)", tUrl, System.currentTimeMillis() - start));
         // End: Log-output
         
         try {
-            entity = response.getEntity();
+            HttpEntity entity = response.getEntity();
             if (entity != null) {
                 instream = entity.getContent();
             }
@@ -182,7 +193,7 @@ public class TTRSSJsonConnector {
         }
         
         // TODO: See if this can be and/or needs to be optimized.
-        strResponse = Utils.convertStreamToString(instream);
+        String strResponse = Utils.convertStreamToString(instream);
         
         if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
             Log.w(Utils.TAG, "Not logged in, retrying...");
