@@ -16,10 +16,12 @@
     not, see <http://www.gnu.org/licenses/>.
 -->
 <PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+>
 
     <PreferenceCategory
-        android:title="@string/ConnectionPreferenceCategoryTitle">
+        android:title="@string/ConnectionPreferenceCategoryTitle"
+    >
 
         <EditTextPreference
             android:name="@string/ConnectionUrlPreferenceTitle"
@@ -54,10 +56,12 @@
             android:inputType="textFilter" />
 
         <PreferenceScreen
-            android:title="@string/ConnectionHttpPreferenceCategoryTitle">
+            android:title="@string/ConnectionHttpPreferenceCategoryTitle"
+        >
 
             <PreferenceCategory
-                android:title="@string/ConnectionHttpPreferenceCategoryTitle">
+                android:title="@string/ConnectionHttpPreferenceCategoryTitle"
+            >
 
                 <CheckBoxPreference
                     android:title="@string/ConnectionHttpPreferenceTitle"
@@ -84,10 +88,12 @@
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:title="@string/ConnectionSslPreferenceCategoryTitle">
+            android:title="@string/ConnectionSslPreferenceCategoryTitle"
+        >
 
             <PreferenceCategory
-                android:title="@string/ConnectionSslPreferenceCategoryTitle">
+                android:title="@string/ConnectionSslPreferenceCategoryTitle"
+            >
 
                 <CheckBoxPreference
                     android:title="@string/ConnectionSslPreferenceTitle"
@@ -117,113 +123,126 @@
 
     </PreferenceCategory>
 
+
     <PreferenceCategory
-        android:title="@string/UsagePreferenceCategoryTitle">
+        android:title="@string/MiscellaneousPreferenceCategoryTitle"
+    >
+        <PreferenceScreen
+            android:title="@string/UsagePreferenceCategoryTitle"
+        >
+            <PreferenceCategory
+                android:title="@string/UsagePreferenceCategoryTitle"
+            >
 
-        <CheckBoxPreference
-            android:title="@string/UsageAutomaticMarkReadPreferenceTitle"
-            android:defaultValue="false"
-            android:summary="@string/UsageAutomaticMarkReadPreferenceSummary"
-            android:key="UsageAutomaticMarkReadPreference" />
+                <CheckBoxPreference
+                    android:title="@string/UsageAutomaticMarkReadPreferenceTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/UsageAutomaticMarkReadPreferenceSummary"
+                    android:key="UsageAutomaticMarkReadPreference" />
 
-        <CheckBoxPreference
-            android:title="@string/UsageOpenUrlEmptyArticleTitle"
-            android:defaultValue="false"
-            android:summary="@string/UsageOpenUrlEmptyArticleSummary"
-            android:key="UsageOpenUrlEmptyArticlePreference" />
+                <CheckBoxPreference
+                    android:title="@string/UsageOpenUrlEmptyArticleTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/UsageOpenUrlEmptyArticleSummary"
+                    android:key="UsageOpenUrlEmptyArticlePreference" />
 
-        <CheckBoxPreference
-            android:title="@string/UsageUseVolumeKeysTitle"
-            android:defaultValue="true"
-            android:summary="@string/UsageUseVolumeKeysSummary"
-            android:key="UsageUseVolumeKeysPreference" />
+                <CheckBoxPreference
+                    android:title="@string/UsageUseVolumeKeysTitle"
+                    android:defaultValue="true"
+                    android:summary="@string/UsageUseVolumeKeysSummary"
+                    android:key="UsageUseVolumeKeysPreference" />
 
-        <CheckBoxPreference
-            android:title="@string/UsageVibrateOnLastArticleTitle"
-            android:defaultValue="true"
-            android:summary="@string/UsageVibrateOnLastArticleSummary"
-            android:key="UsageVibrateOnLastArticlePreference" />
+                <CheckBoxPreference
+                    android:title="@string/DisplayUseSwipeTitle"
+                    android:defaultValue="true"
+                    android:summary="@string/DisplayUseSwipeSummary"
+                    android:key="DisplayUseSwipePreference" />
+
+                <CheckBoxPreference
+                    android:title="@string/UsageVibrateOnLastArticleTitle"
+                    android:defaultValue="true"
+                    android:summary="@string/UsageVibrateOnLastArticleSummary"
+                    android:key="UsageVibrateOnLastArticlePreference" />
+
+                <CheckBoxPreference
+                    android:title="@string/DisplayVirtualPreferenceTitle"
+                    android:defaultValue="true"
+                    android:summary="@string/DisplayVirtualPreferenceSummary"
+                    android:key="DisplayShowVirtualPreference" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:title="@string/SystemPreferenceCategoryTitle"
+        >
+            <PreferenceCategory
+                android:title="@string/SystemPreferenceCategoryTitle"
+            >
+
+                <org.ttrssreader.utils.EditIntegerPreference
+                    android:name="@string/DisplayArticleLimitTitle"
+                    android:title="@string/DisplayArticleLimitTitle"
+                    android:summary="@string/DisplayArticleLimitSummary"
+                    android:defaultValue="200"
+                    android:key="DisplayArticleLimitPreference"
+                    android:maxLength="5"
+                    android:inputType="number" />
+
+                <CheckBoxPreference
+                    android:title="@string/DisplayArticleHeaderTitle"
+                    android:defaultValue="true"
+                    android:summary="@string/DisplayArticleHeaderSummary"
+                    android:key="DisplayArticleHeaderPreference" />
+
+                <org.ttrssreader.utils.EditIntegerPreference
+                    android:name="@string/StoreImageLimitTitle"
+                    android:title="@string/StoreImageLimitTitle"
+                    android:summary="@string/StoreImageLimitSummary"
+                    android:defaultValue="200"
+                    android:key="StoreImageLimitPreference"
+                    android:maxLength="5"
+                    android:inputType="number" />
+
+                <CheckBoxPreference
+                    android:title="@string/CacheImagesUnreadArticlesTitle"
+                    android:defaultValue="true"
+                    android:summary="@string/CacheImagesUnreadArticlesSummary"
+                    android:key="CacheImagesUnreadArticlesPreference" />
+
+                <CheckBoxPreference
+                    android:title="@string/CacheUnreadArticlesTitle"
+                    android:defaultValue="true"
+                    android:summary="@string/CacheUnreadArticlesSummary"
+                    android:key="CacheUnreadArticlesPreference" />
+
+                <CheckBoxPreference
+                    android:title="@string/SplitLongGetRequestsTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/SplitLongGetRequestsSummary"
+                    android:key="SplitLongGetRequestsPreference" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/DisplayPreferenceCategoryTitle">
-
-        <CheckBoxPreference
-            android:title="@string/DisplayVirtualPreferenceTitle"
-            android:defaultValue="true"
-            android:summary="@string/DisplayVirtualPreferenceSummary"
-            android:key="DisplayShowVirtualPreference" />
-
-        <CheckBoxPreference
-            android:title="@string/DisplayUseSwipeTitle"
-            android:defaultValue="true"
-            android:summary="@string/DisplayUseSwipeSummary"
-            android:key="DisplayUseSwipePreference" />
-
-        <org.ttrssreader.utils.EditIntegerPreference
-            android:name="@string/DisplayArticleLimitTitle"
-            android:title="@string/DisplayArticleLimitTitle"
-            android:summary="@string/DisplayArticleLimitSummary"
-            android:defaultValue="200"
-            android:key="DisplayArticleLimitPreference"
-            android:maxLength="5"
-            android:inputType="number" />
-
-        <CheckBoxPreference
-            android:title="@string/DisplayArticleHeaderTitle"
-            android:defaultValue="true"
-            android:summary="@string/DisplayArticleHeaderSummary"
-            android:key="DisplayArticleHeaderPreference" />
-            
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/SystemPreferenceCategoryTitle">
-
-        <org.ttrssreader.utils.EditIntegerPreference
-            android:name="@string/StoreImageLimitTitle"
-            android:title="@string/StoreImageLimitTitle"
-            android:summary="@string/StoreImageLimitSummary"
-            android:defaultValue="200"
-            android:key="StoreImageLimitPreference"
-            android:maxLength="5"
-            android:inputType="number" />
-
-        <CheckBoxPreference
-            android:title="@string/CacheImagesUnreadArticlesTitle"
-            android:defaultValue="true"
-            android:summary="@string/CacheImagesUnreadArticlesSummary"
-            android:key="CacheImagesUnreadArticlesPreference" />
-            
-        <CheckBoxPreference
-            android:title="@string/CacheUnreadArticlesTitle"
-            android:defaultValue="true"
-            android:summary="@string/CacheUnreadArticlesSummary"
-            android:key="CacheUnreadArticlesPreference" />
-            
-        <CheckBoxPreference
-            android:title="@string/SplitLongGetRequestsTitle"
-            android:defaultValue="false"
-            android:summary="@string/SplitLongGetRequestsSummary"
-            android:key="SplitLongGetRequestsPreference" />
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/About.about">
+        android:title="@string/About.about"
+    >
 
         <!-- Doesn't work, perhaps because AboutActivity is set to android:theme="@android:style/Theme.Dialog" ? -->
         <!-- <PreferenceScreen
             android:title="@string/About.about"
             android:summary="@string/About.about_hint">
             <intent
-                android:action="android.intent.action.MAIN"
-                android:targetPackage="org.ttrssreader.gui"
-                android:targetClass="org.ttrssreader.gui.AboutActivity" />
-        </PreferenceScreen> -->
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="org.ttrssreader.gui"
+            android:targetClass="org.ttrssreader.gui.AboutActivity" />
+            </PreferenceScreen> -->
 
         <PreferenceScreen
             android:title="@string/About.project"
-            android:summary="@string/About.project_hint">
+            android:summary="@string/About.project_hint"
+        >
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://code.google.com/p/ttrss-reader-fork/" />
@@ -231,7 +250,8 @@
 
         <PreferenceScreen
             android:title="@string/About.feedback"
-            android:summary="@string/About.feedback_hint">
+            android:summary="@string/About.feedback_hint"
+        >
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://code.google.com/p/ttrss-reader-fork/issues/list" />
@@ -239,7 +259,8 @@
 
         <PreferenceScreen
             android:title="@string/About.twitter"
-            android:summary="@string/About.twitter_hint">
+            android:summary="@string/About.twitter_hint"
+        >
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="@string/About.twitter_acc" />

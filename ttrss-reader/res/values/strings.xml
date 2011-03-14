@@ -112,27 +112,25 @@
     <string name="ConnectionHttpPasswordPreferenceTitle">Password</string>
     <string name="ConnectionHttpPasswordPreferenceSummary">The password for your HTTP-based authentication method</string>
     
+    <string name="MiscellaneousPreferenceCategoryTitle">Miscellaneous Preferences</string>
     <string name="UsagePreferenceCategoryTitle">Usage</string>
     <string name="UsageAutomaticMarkReadPreferenceTitle">Automatically mark article as read</string>
     <string name="UsageAutomaticMarkReadPreferenceSummary">If checked, articles will be marked as read when openning them.</string>
     <string name="UsageOpenUrlEmptyArticleTitle">Open URL for empty article</string>
     <string name="UsageOpenUrlEmptyArticleSummary">Automatically visits the Website of the article in the browser if the content is empty.</string>
-    <string name="UsageUpdateArticlesOnStartupTitle">Update articles with content on startup</string>
-    <string name="UsageUpdateArticlesOnStartupSummary">Loads all new articles including their content on startup.</string>
-    <string name="UsageUseVolumeKeysTitle">Navigate through articles with volume-keys</string>
+    <string name="UsageUseVolumeKeysTitle">Navigate with volume-keys</string>
     <string name="UsageUseVolumeKeysSummary">Press up for the next newer article, down for older article.</string>
-    <string name="UsageVibrateOnLastArticleTitle">Vibrate when reached last article</string>
+    <string name="UsageVibrateOnLastArticleTitle">Vibrate on last article</string>
     <string name="UsageVibrateOnLastArticleSummary">Vibrates once when the first or last article is reached and tried to access the next article.</string>
     <string name="UsageWorkOfflineTitle">Work offline</string>
     <string name="UsageOfflineTitle">Offline</string>
     <string name="UsageOnlineTitle">Online</string>
     <string name="UsageWorkOfflineSummary">Switch online-synchronisation on and off.</string>
     
-    <string name="DisplayPreferenceCategoryTitle">Display</string>
     <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
     <string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>
     <string name="DisplayUseSwipeTitle">Use Swipe</string>
-    <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe to navigate through articles.</string>
+    <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe for navigation.</string>
     <string name="DisplayShowUnreadOnlyTitle">Only show unread</string>
     <string name="DisplayShowUnreadOnlySummary">Hide Feeds and Articles that have no unread items.</string>
     <string name="DisplayArticleLimitTitle">Store Articles limit</string>
