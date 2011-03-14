@@ -281,10 +281,16 @@ public class Data {
         }
     }
     
-    protected String getPref(String pref) {
+    public String getPref(String pref) {
         if (Utils.isOnline(cm))
             return Controller.getInstance().getConnector().getPref(pref);
         return null;
+    }
+    
+    public int getVersion() {
+        if (Utils.isOnline(cm))
+            return Controller.getInstance().getConnector().getVersion();
+        return -1;
     }
     
     public void synchronizeStatus() {

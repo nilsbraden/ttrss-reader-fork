@@ -70,6 +70,8 @@ public class Controller {
     private String lastVersionRun;
     private boolean newInstallation = false;
     private String freshArticleMaxAge;
+    private int serverVersion;
+    private long serverVersionLastUpdate;
     
     public static Controller getInstance() {
         if (instance == null) {
@@ -150,6 +152,9 @@ public class Controller {
         imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
         articleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD, Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
         splitGetRequests = prefs.getBoolean(Constants.SPLIT_GET_REQUESTS, Constants.SPLIT_GET_REQUESTS_DEFAULT);
+        serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
+        serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
+                Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
         
         lastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
         lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
@@ -407,6 +412,7 @@ public class Controller {
     
     public long getFreshArticleMaxAge() {
         int ret = 24 * 60 * 60 * 1000;
+        
         if (freshArticleMaxAge == null) {
             return ret;
         } else if (freshArticleMaxAge.equals("")) {
@@ -418,6 +424,23 @@ public class Controller {
         } catch (Exception e) {
             return ret;
         }
+        
+        return ret;
+    }
+    
+    public long getServerVersion() {
+        int ret = -1;
+        
+        if (serverVersion < 0) {
+            serverVersion = Data.getInstance().getVersion();
+            serverVersionLastUpdate = System.currentTimeMillis();
+        } else if (serverVersionLastUpdate < (System.currentTimeMillis() - 24 * 60 * 60 * 1000)) {
+            serverVersion = Data.getInstance().getVersion();
+            serverVersionLastUpdate = System.currentTimeMillis();
+        }
+        
+        put(Constants.SERVER_VERSION, serverVersion);
+        put(Constants.SERVER_VERSION_LAST_UPDATE, serverVersionLastUpdate);
         
         return ret;
     }

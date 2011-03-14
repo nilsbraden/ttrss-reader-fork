@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.9 ==
+  * New: Added check for supported server-version on startup
+  * New: Added check for saved crash-report and option to send report by mail
+  * Minor changes in network-access, Requests are faster now
+
 == Version 0.8.9 (1) ==
   * New: Added custom title-bar in Article-Display (can be disabled in preferences)
   * New: Added setting to change the display-order of all lists
