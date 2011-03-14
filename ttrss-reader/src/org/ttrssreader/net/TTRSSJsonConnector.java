@@ -59,6 +59,7 @@ public class TTRSSJsonConnector {
     private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&article_ids=%s&mode=%s&field=%s";
     private static final String OP_CATCHUP = "?op=catchupFeed&feed_id=%s&is_cat=%s";
     private static final String OP_GET_PREF = "?op=getPref&pref_name=%s";
+    private static final String OP_GET_VERSION = "?op=getVersion";
     private static final String OP_GET_COUNTERS = "?op=getCounters&output_mode=fc"; // output_mode (default: flc) - what
                                                                                     // kind of information to return
                                                                                     // (f-feeds, l-labels, c-categories,
@@ -86,6 +87,7 @@ public class TTRSSJsonConnector {
     private static final String STARRED = "marked";
     private static final String PUBLISHED = "published";
     private static final String VALUE = "value";
+    private static final String VERSION = "version";
     private static final String SID_APPEND = "&sid=%s";
     
     private static final String COUNTER_KIND = "kind";
@@ -807,6 +809,48 @@ public class TTRSSJsonConnector {
             e.printStackTrace();
         }
         return null;
+    }
+    
+    /**
+     * Returns the version of the server-installation as integer (version without dots)
+     * 
+     * @return the version
+     */
+    public int getVersion() {
+        String url = serverUrl + OP_GET_VERSION;
+        JSONArray jsonResult = getJSONResponseAsArray(url);
+        
+        if (jsonResult == null)
+            return -1;
+        
+        String ret = "";
+        try {
+            for (int i = 0; i < jsonResult.length(); i++) {
+                JSONObject object = jsonResult.getJSONObject(i);
+                JSONArray names = object.names();
+                JSONArray values = object.toJSONArray(names);
+                
+                for (int j = 0; j < names.length(); j++) {
+                    String s = names.getString(j);
+                    if (s.equals(VERSION)) {
+                        ret = values.getString(j);
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            hasLastError = true;
+            lastError = e.getMessage() + ", Method: getVersion() threw JSONException";
+            e.printStackTrace();
+        }
+        
+        try {
+            // Replace dots, parse integer
+            return Integer.parseInt(ret.replaceAll(".", ""));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return -1;
     }
     
     /**

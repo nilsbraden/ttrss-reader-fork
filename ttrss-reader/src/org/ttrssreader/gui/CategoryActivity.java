@@ -17,6 +17,10 @@
 
 package org.ttrssreader.gui;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -28,6 +32,7 @@ import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.TTRSSJsonConnector;
+import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -52,6 +57,8 @@ public class CategoryActivity extends MenuActivity {
     
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
+    private static final int DIALOG_CRASH = 3;
+    private static final int DIALOG_OLD_SERVER = 4; // TODO
     
     protected static final int MARK_ARTICLES = MARK_GROUP + 4;
     
@@ -63,6 +70,9 @@ public class CategoryActivity extends MenuActivity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.categorylist);
         
+        // Register our own ExceptionHander
+        Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
+        
         Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
@@ -72,10 +82,14 @@ public class CategoryActivity extends MenuActivity {
         notificationTextView = (TextView) findViewById(R.id.notification);
         
         // Check for update or new installation
-        if (Controller.getInstance().newInstallation()) {
+        if (Utils.checkFirstRun(this)) {
             showDialog(DIALOG_WELCOME);
-        } else if (Utils.newVersionInstalled(this)) {
+        } else if (Utils.checkNewVersion(this)) {
             showDialog(DIALOG_UPDATE);
+        } else if (Utils.checkCrashReport(this)) {
+            showDialog(DIALOG_CRASH);
+        } else if (Utils.checkServerVersion(this)) {
+            showDialog(DIALOG_OLD_SERVER);
         } else if (!checkConfig()) {
             // Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
@@ -253,6 +267,7 @@ public class CategoryActivity extends MenuActivity {
         
         switch (id) {
             case DIALOG_WELCOME:
+
                 builder.setTitle(getResources().getString(R.string.Welcome_Title));
                 builder.setMessage(getResources().getString(R.string.Welcome_Message));
                 builder.setNeutralButton((String) getText(R.string.Preferences_Btn),
@@ -264,7 +279,9 @@ public class CategoryActivity extends MenuActivity {
                             }
                         });
                 break;
+            
             case DIALOG_UPDATE:
+
                 builder.setTitle(getResources().getString(R.string.Changelog_Title));
                 final String[] changes = getResources().getStringArray(R.array.updates);
                 final StringBuilder buf = new StringBuilder();
@@ -284,8 +301,70 @@ public class CategoryActivity extends MenuActivity {
                             });
                 }
                 break;
+            
+            case DIALOG_CRASH:
+
+                builder.setTitle("Error");
+                builder.setMessage("A crashreport was saved, do you want to send it to the developer by mail?");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface d, final int which) {
+                        sendReport();
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface d, final int which) {
+                        d.dismiss();
+                    }
+                });
+                break;
+            
+            case DIALOG_OLD_SERVER:
+
+                builder.setTitle("Error");
+                builder.setMessage("It has been detected that your Tiny Tiny RSS-Server is running an old software version which is not supported by TTRSS-Ready anymore. Please update your server.");
+                builder.setNeutralButton((String) getText(R.string.Preferences_Btn),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface d, final int which) {
+                                Intent i = new Intent(context, PreferencesActivity.class);
+                                startActivity(i);
+                            }
+                        });
+                break;
+            
         }
         return builder.create();
+    }
+    
+    public void sendReport() {
+        String line = "";
+        StringBuilder sb = new StringBuilder();
+        
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(openFileInput(TopExceptionHandler.FILE)));
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+        } catch (FileNotFoundException fnfe) {
+            // ...
+        } catch (IOException ioe) {
+            // ...
+        }
+        
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        String subject = "Error report";
+        String body = "Mail this to nils.braden@web.de: " + "\n\n" + sb.toString() + "\n\n";
+        
+        sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { "nils.braden@web.de" });
+        sendIntent.putExtra(Intent.EXTRA_TEXT, body);
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        sendIntent.setType("message/rfc822");
+        
+        startActivity(Intent.createChooser(sendIntent, "Title:"));
+        
+        deleteFile(TopExceptionHandler.FILE);
     }
     
 }

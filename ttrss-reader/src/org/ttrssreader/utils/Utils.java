@@ -18,6 +18,7 @@ package org.ttrssreader.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,6 +56,11 @@ public class Utils {
      */
     public static final String[] MEDIA_EXTENSIONS = { "3gp", "mp4", "m4a", "aac", "mp3", "mid", "xmf", "mxmf", "rtttl",
             "rtx", "ota", "imy", "ogg", "wav" };
+    
+    /**
+     * Min supported versions of the Tiny Tiny RSS Server
+     */
+    public static final int SERVER_VERSION = 150;
     
     /**
      * The TAG for Log-Output
@@ -115,7 +121,17 @@ public class Utils {
         return sb.toString();
     }
     
-    public static boolean newVersionInstalled(Activity a) {
+    /*
+     * Check if this is the first run of the app, if yes, returns true.
+     */
+    public static boolean checkFirstRun(Activity a) {
+        return Controller.getInstance().newInstallation();
+    }
+    
+    /*
+     * Check if a new version of the app was installed, returns true if this is the case.
+     */
+    public static boolean checkNewVersion(Activity a) {
         String thisVersion = getVersion(a);
         String lastVersionRun = Controller.getInstance().getLastVersionRun();
         Controller.getInstance().setLastVersionRun(thisVersion);
@@ -125,6 +141,28 @@ public class Utils {
         } else {
             return true;
         }
+    }
+    
+    /*
+     * Check if crashreport-file exists, returns true if it exists.
+     */
+    public static boolean checkCrashReport(Activity a) {
+        try {
+            a.openFileInput(TopExceptionHandler.FILE);
+            return true;
+        } catch (FileNotFoundException e) {
+            return false;
+        }
+    }
+    
+    /*
+     * Checks if the server is supported by the app, returns true if it is supported.
+     */
+    public static boolean checkServerVersion(Activity a) {
+        if (Controller.getInstance().getServerVersion() >= SERVER_VERSION) {
+            return true;
+        }
+        return false;
     }
     
     /**
