@@ -469,7 +469,6 @@ public class DBHelper {
                 /*
                  * First update, then insert. If row is already there it gets updated and second
                  * call ignores it, if it is not there yet the second call inserts it.
-                 * TODO: Is there a better way to achieve this?
                  */
                 String sql;
                 sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, isMarked, id);

@@ -428,21 +428,25 @@ public class Controller {
         return ret;
     }
     
+    public void resetServerVersion() {
+        serverVersion = -1;
+        serverVersionLastUpdate = -1;
+    }
+    
     public long getServerVersion() {
-        int ret = -1;
+        long oldTime = (System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         
-        if (serverVersion < 0) {
+        if (serverVersion < 0 || serverVersionLastUpdate < oldTime) {
+            
             serverVersion = Data.getInstance().getVersion();
             serverVersionLastUpdate = System.currentTimeMillis();
-        } else if (serverVersionLastUpdate < (System.currentTimeMillis() - 24 * 60 * 60 * 1000)) {
-            serverVersion = Data.getInstance().getVersion();
-            serverVersionLastUpdate = System.currentTimeMillis();
+            
         }
         
         put(Constants.SERVER_VERSION, serverVersion);
         put(Constants.SERVER_VERSION_LAST_UPDATE, serverVersionLastUpdate);
         
-        return ret;
+        return serverVersion;
     }
     
     /*

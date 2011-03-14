@@ -170,7 +170,6 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
             }
         }
         
-        // TODO: Find a way to overlay more than 2 images
         ImageView icon = (ImageView) layout.findViewById(R.id.icon);
         getImage(icon, a);
         

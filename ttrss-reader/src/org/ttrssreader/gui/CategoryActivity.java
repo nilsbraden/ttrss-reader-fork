@@ -58,7 +58,7 @@ public class CategoryActivity extends MenuActivity {
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
     private static final int DIALOG_CRASH = 3;
-    private static final int DIALOG_OLD_SERVER = 4; // TODO
+    private static final int DIALOG_OLD_SERVER = 4;
     
     protected static final int MARK_ARTICLES = MARK_GROUP + 4;
     
@@ -73,6 +73,7 @@ public class CategoryActivity extends MenuActivity {
         // Register our own ExceptionHander
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         
+        // Initialize Singletons for Config, Data-Access and DB
         Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
@@ -81,17 +82,24 @@ public class CategoryActivity extends MenuActivity {
         registerForContextMenu(listView);
         notificationTextView = (TextView) findViewById(R.id.notification);
         
-        // Check for update or new installation
-        if (Utils.checkFirstRun(this)) {
+        // Check for new installation
+        if (Utils.checkFirstRun(this))
             showDialog(DIALOG_WELCOME);
-        } else if (Utils.checkNewVersion(this)) {
+        
+        // Check for update
+        if (Utils.checkNewVersion(this))
             showDialog(DIALOG_UPDATE);
-        } else if (Utils.checkCrashReport(this)) {
+        
+        // Check for crash-reports
+        if (Utils.checkCrashReport(this))
             showDialog(DIALOG_CRASH);
-        } else if (Utils.checkServerVersion(this)) {
+        
+        // Check if the server-version is supported
+        if (Utils.checkServerVersion(this))
             showDialog(DIALOG_OLD_SERVER);
-        } else if (!checkConfig()) {
-            // Check if we have a server specified
+        
+        // Check if we have a server specified
+        if (!checkConfig()) {
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
         
@@ -304,8 +312,8 @@ public class CategoryActivity extends MenuActivity {
             
             case DIALOG_CRASH:
 
-                builder.setTitle("Error");
-                builder.setMessage("A crashreport was saved, do you want to send it to the developer by mail?");
+                builder.setTitle(getResources().getString(R.string.ErrorActivity_Title));
+                builder.setMessage(getResources().getString(R.string.Check_Crash));
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface d, final int which) {
@@ -315,6 +323,7 @@ public class CategoryActivity extends MenuActivity {
                 builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface d, final int which) {
+                        deleteFile(TopExceptionHandler.FILE);
                         d.dismiss();
                     }
                 });
@@ -322,8 +331,14 @@ public class CategoryActivity extends MenuActivity {
             
             case DIALOG_OLD_SERVER:
 
-                builder.setTitle("Error");
-                builder.setMessage("It has been detected that your Tiny Tiny RSS-Server is running an old software version which is not supported by TTRSS-Ready anymore. Please update your server.");
+                builder.setTitle(getResources().getString(R.string.ErrorActivity_Title));
+                builder.setMessage(getResources().getString(R.string.Check_OldVersion));
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface d, final int which) {
+                        finish();
+                    }
+                });
                 builder.setNeutralButton((String) getText(R.string.Preferences_Btn),
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -355,9 +370,10 @@ public class CategoryActivity extends MenuActivity {
         
         Intent sendIntent = new Intent(Intent.ACTION_SEND);
         String subject = "Error report";
-        String body = "Mail this to nils.braden@web.de: " + "\n\n" + sb.toString() + "\n\n";
+        String mail = getResources().getString(R.string.About_mail);
+        String body = "Please mail this to " + mail + ": " + "\n\n" + sb.toString() + "\n\n";
         
-        sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { "nils.braden@web.de" });
+        sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { mail });
         sendIntent.putExtra(Intent.EXTRA_TEXT, body);
         sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
         sendIntent.setType("message/rfc822");
