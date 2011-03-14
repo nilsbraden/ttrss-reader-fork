@@ -18,7 +18,6 @@ package org.ttrssreader.controllers;
 
 import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.DonationHelper;
 import org.ttrssreader.utils.ImageCache;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -120,11 +119,11 @@ public class Controller {
         donatorMail = prefs.getString(Constants.DONATOR_MAIL, Constants.DONATOR_MAIL_DEFAULT);
         
         // Check donation-status
-        if (!donator && !donatorMail.equals(Constants.DONATOR_MAIL_DEFAULT)) {
-            if (DonationHelper.checkDonationStatus(context, donatorMail)) {
-                setDonator(true);
-            }
-        }
+        // if (!donator && !donatorMail.equals(Constants.DONATOR_MAIL_DEFAULT)) {
+        // if (DonationHelper.checkDonationStatus(context, donatorMail)) {
+        // setDonator(true);
+        // }
+        // }
         
         // Usage
         automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
