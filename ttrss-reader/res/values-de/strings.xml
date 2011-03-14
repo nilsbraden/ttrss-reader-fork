@@ -33,6 +33,8 @@
     <string name="DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>
     <string name="Welcome.Title">Willkommen</string>
     <string name="Welcome.Message">Willkommen zum TTRSS-Reader!\n\nBitte beachten Sie, dass dieser Reader nur mit einem \"Tiny Tiny RSS\" Server arbeiten kann.\n\nWenn dies der erste Start dieser Anwendung ist sollten Sie Ihre Server- und Benutzer-Einstellungen setzen. Drücken Sie \"Einstellungen\" um fortzufahren.</string>
+    <string name="Check.OldVersion">Der angegebene Tiny Tiny RSS Server liegt in einer nicht unterstützten Version vor. Bitte aktualisieren Sie den Server.</string>
+    <string name="Check.Crash">Es wurde ein Fehlerbericht gespeichert soll dieser per Mail an den Entwickler der Anwendung gesendet werden?</string>
     
     <string name="AboutActivity.Title">About</string>
     <string name="AboutActivity.CloseBtn">Schließen</string>

@@ -93,6 +93,7 @@ public class Utils {
     public static final Pattern findImageUrlsPattern = Pattern.compile("<img.+src=\"([^\"]*)\".*/>",
             Pattern.CASE_INSENSITIVE);
     
+    // TODO: See if this can be and/or needs to be optimized.
     public static String convertStreamToString(InputStream is) {
         /*
          * To convert the InputStream to String we use the BufferedReader.readLine()
@@ -156,10 +157,13 @@ public class Utils {
     }
     
     /*
-     * Checks if the server is supported by the app, returns true if it is supported.
+     * Checks if the server is supported by the app, returns true if it is NOT supported.
      */
     public static boolean checkServerVersion(Activity a) {
-        if (Controller.getInstance().getServerVersion() >= SERVER_VERSION) {
+        if (Controller.getInstance().getServerVersion() < SERVER_VERSION) {
+            
+            // Reset the stored value so it get updated on next run.
+            Controller.getInstance().resetServerVersion();
             return true;
         }
         return false;

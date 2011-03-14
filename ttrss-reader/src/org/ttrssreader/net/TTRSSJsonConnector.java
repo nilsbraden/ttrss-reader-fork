@@ -161,7 +161,7 @@ public class TTRSSJsonConnector {
             return null;
         } catch (IOException e) {
             /*
-             * TODO: Occurs on timeout of the connection. Would be better to catch the specialized exception for that
+             * Occurs on timeout of the connection. Would be better to catch the specialized exception for that
              * case but which is it? The Reference (http://developer.android.com/reference/java/io/IOException.html)
              * lists lots of subclasses.
              */
@@ -194,7 +194,6 @@ public class TTRSSJsonConnector {
             return null;
         }
         
-        // TODO: See if this can be and/or needs to be optimized.
         String strResponse = Utils.convertStreamToString(instream);
         
         if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
@@ -845,7 +844,7 @@ public class TTRSSJsonConnector {
         
         try {
             // Replace dots, parse integer
-            return Integer.parseInt(ret.replaceAll(".", ""));
+            return Integer.parseInt(ret.replace(".", ""));
         } catch (Exception e) {
             e.printStackTrace();
         }
