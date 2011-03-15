@@ -2,8 +2,10 @@ package org.ttrssreader.utils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import org.ttrssreader.controllers.Controller;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 
 /**
  * Saves Exceptions with Stack-Trace to a file in the application-directory so it can be sent to the developer by mail
@@ -29,7 +31,7 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
         StringBuilder sb = new StringBuilder();
         
         sb.append(e.toString() + "\n\n");
-        sb.append("--------- Stacktrace ---------\n\n");
+        sb.append("--------- Stacktrace ---------\n");
         
         for (int i = 0; i < element.length; i++) {
             sb.append("  " + element[i].toString() + "\n");
@@ -42,7 +44,7 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
         
         Throwable cause = e.getCause();
         if (cause != null) {
-            sb.append("--------- Cause --------------\n\n");
+            sb.append("--------- Cause --------------\n");
             
             sb.append(cause.toString() + "\n\n");
             element = cause.getStackTrace();
@@ -53,6 +55,24 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
             
             sb.append("------------------------------\n\n");
         }
+
+        sb.append("--------- Device -------------\n");
+        sb.append("Brand: " + Build.BRAND + "\n");
+        sb.append("Device: " + Build.DEVICE + "\n");
+        sb.append("Model: " + Build.MODEL + "\n");
+        sb.append("Id: " + Build.ID + "\n");
+        sb.append("Product: " + Build.PRODUCT + "\n");
+        sb.append("------------------------------\n\n");
+        
+        sb.append("--------- Firmware -----------\n");
+        sb.append("SDK: " + Build.VERSION.SDK + "\n");
+        sb.append("Release: " + Build.VERSION.RELEASE + "\n");
+        sb.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n");
+        sb.append("------------------------------\n\n");
+
+        sb.append("--------- Application --------\n");
+        sb.append("Version: " + Controller.getInstance().getLastVersionRun() + "\n");
+        sb.append("------------------------------\n\n");
         
         try {
             FileOutputStream trace = app.openFileOutput(FILE, Context.MODE_PRIVATE);
