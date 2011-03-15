@@ -235,9 +235,9 @@ public class TTRSSJsonConnector {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
             if (!login())
-                return null;
+                return "";
         if (hasLastError)
-            return null;
+            return "";
         
         if (!url.contains(sidUrl))
             url += sidUrl;
