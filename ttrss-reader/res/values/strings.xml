@@ -35,7 +35,7 @@
     <string name="Welcome.Title">Welcome</string>
     <string name="Welcome.Message">Welcome to TTRSS-Reader!\n\nPlease note that this Reader only works with a \"Tiny Tiny RSS\" Server.\n\nIf this is the first time you started TTRSS-Reader you should set your Serverlocation and User-Settings. Press "Preferences" to proceed.</string>
     <string name="Check.OldVersion">It has been detected that your Tiny Tiny RSS-Server is running an old software version which is not supported by TTRSS-Ready anymore. Please update your server.</string>
-    <string name="Check.Crash">A crashreport was saved, do you want to send it to the developer by mail</string>
+    <string name="Check.Crash">A crashreport was saved, do you want to send it to the developer by mail?</string>
     
     <string name="AboutActivity.Title">About</string>
     <string name="AboutActivity.CloseBtn">Close</string>
@@ -112,27 +112,25 @@
     <string name="ConnectionHttpPasswordPreferenceTitle">Password</string>
     <string name="ConnectionHttpPasswordPreferenceSummary">The password for your HTTP-based authentication method</string>
     
+    <string name="MiscellaneousPreferenceCategoryTitle">Miscellaneous Preferences</string>
     <string name="UsagePreferenceCategoryTitle">Usage</string>
     <string name="UsageAutomaticMarkReadPreferenceTitle">Automatically mark article as read</string>
     <string name="UsageAutomaticMarkReadPreferenceSummary">If checked, articles will be marked as read when openning them.</string>
     <string name="UsageOpenUrlEmptyArticleTitle">Open URL for empty article</string>
     <string name="UsageOpenUrlEmptyArticleSummary">Automatically visits the Website of the article in the browser if the content is empty.</string>
-    <string name="UsageUpdateArticlesOnStartupTitle">Update articles with content on startup</string>
-    <string name="UsageUpdateArticlesOnStartupSummary">Loads all new articles including their content on startup.</string>
-    <string name="UsageUseVolumeKeysTitle">Navigate through articles with volume-keys</string>
+    <string name="UsageUseVolumeKeysTitle">Navigate with volume-keys</string>
     <string name="UsageUseVolumeKeysSummary">Press up for the next newer article, down for older article.</string>
-    <string name="UsageVibrateOnLastArticleTitle">Vibrate when reached last article</string>
+    <string name="UsageVibrateOnLastArticleTitle">Vibrate on last article</string>
     <string name="UsageVibrateOnLastArticleSummary">Vibrates once when the first or last article is reached and tried to access the next article.</string>
     <string name="UsageWorkOfflineTitle">Work offline</string>
     <string name="UsageOfflineTitle">Offline</string>
     <string name="UsageOnlineTitle">Online</string>
     <string name="UsageWorkOfflineSummary">Switch online-synchronisation on and off.</string>
     
-    <string name="DisplayPreferenceCategoryTitle">Display</string>
     <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
     <string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>
     <string name="DisplayUseSwipeTitle">Use Swipe</string>
-    <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe to navigate through articles.</string>
+    <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe for navigation.</string>
     <string name="DisplayShowUnreadOnlyTitle">Only show unread</string>
     <string name="DisplayShowUnreadOnlySummary">Hide Feeds and Articles that have no unread items.</string>
     <string name="DisplayArticleLimitTitle">Store Articles limit</string>
@@ -155,6 +153,7 @@
     <string name="ErrorActivity.ErrorTitle">Error details:</string>
     <string name="ErrorActivity.ErrorDefault">An unknown error occurred. You may try to get more information by using aLogcat (from the market) or ADB.</string>
     <string name="ErrorActivity.CloseBtn">Close</string>
+    <string name="ErrorActivity.ExitBtn">Exit</string>
     
     <string name="Utils.DownloadFinished">Finished.</string>
     <string name="Utils.DownloadFinishedTime">Process finished in %s seconds.</string>

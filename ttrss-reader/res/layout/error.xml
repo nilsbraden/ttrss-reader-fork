@@ -19,19 +19,22 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="15dip">
+    android:padding="15dip"
+>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical"
         android:isScrollContainer="true"
-        android:scrollbars="vertical">
+        android:scrollbars="vertical"
+    >
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+        >
 
             <TextView
                 android:text="@string/ErrorActivity.Title"
@@ -44,14 +47,14 @@
                 android:textSize="12.5sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="6dp" />
 
             <TextView
                 android:text="@string/ErrorActivity.ErrorTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12.5sp"
-                android:layout_marginTop="8dp" />
+                android:layout_marginTop="6dp" />
 
             <TextView
                 android:id="@+id/ErrorActivity.ErrorMessage"
@@ -59,29 +62,45 @@
                 android:textSize="12.5sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginLeft="8dp" />
+                android:layout_marginTop="6dp"
+                android:layout_marginLeft="6dp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dip"
-            android:orientation="horizontal">
+            android:layout_marginTop="8dip"
+            android:orientation="horizontal"
+        >
 
             <Button
                 android:id="@+id/Preferences.Btn"
                 android:text="@string/Preferences.Btn"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_weight="0.5" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dip"
+            android:orientation="horizontal"
+        >
             <Button
                 android:id="@+id/ErrorActivity.CloseBtn"
                 android:text="@string/ErrorActivity.CloseBtn"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="0.5" />
+
+            <Button
+                android:id="@+id/ErrorActivity.ExitBtn"
+                android:text="@string/ErrorActivity.ExitBtn"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
                 android:layout_weight="0.5" />
 
         </LinearLayout>

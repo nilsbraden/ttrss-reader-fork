@@ -17,7 +17,6 @@
 package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Intent;
@@ -60,16 +59,12 @@ public class AboutActivity extends Activity {
         });
         
         Button donateBtn = (Button) this.findViewById(R.id.AboutActivity_DonateBtn);
-        if (Controller.getInstance().isDonator()) {
-            donateBtn.setVisibility(View.INVISIBLE);
-        } else {
-            donateBtn.setOnClickListener(new View.OnClickListener() {
-                
-                public void onClick(View view) {
-                    donateButtonPressed();
-                }
-            });
-        }
+        donateBtn.setOnClickListener(new View.OnClickListener() {
+            
+            public void onClick(View view) {
+                donateButtonPressed();
+            }
+        });
     }
     
     private void closeButtonPressed() {

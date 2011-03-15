@@ -110,27 +110,25 @@
     <string name="ConnectionHttpPasswordPreferenceTitle">Passwort</string>
     <string name="ConnectionHttpPasswordPreferenceSummary">Das Passwort für Ihre HTTP-basierte Authentifizierungs-Methode</string>
     
+    <string name="MiscellaneousPreferenceCategoryTitle">Sonstige Einstellungen</string>
     <string name="UsagePreferenceCategoryTitle">Verwendung</string>
     <string name="UsageAutomaticMarkReadPreferenceTitle">Artikel automatisch als gelesen markieren</string>
     <string name="UsageAutomaticMarkReadPreferenceSummary">Artikel werden beim Anzeigen automatisch als gelesen markiert.</string>
     <string name="UsageOpenUrlEmptyArticleTitle">URL für leeren Artikel öffnen</string>
     <string name="UsageOpenUrlEmptyArticleSummary">Öffnet automatisch die Webseite des Artikels, wenn der Inhalt leer ist.</string>
-    <string name="UsageUpdateArticlesOnStartupTitle">Alle Artikel beim Start aktualisieren</string>
-    <string name="UsageUpdateArticlesOnStartupSummary">Lädt alle Artikel inklusive Inhalt beim Start.</string>
     <string name="UsageUseVolumeKeysTitle">Lautstärke-Knopf zum Navigieren verwenden</string>
     <string name="UsageUseVolumeKeysSummary">(+) für nächsten Artikel, (-) für vorherigen.</string>
-    <string name="UsageVibrateOnLastArticleTitle">Beim letzten Artikel vibrieren</string>
-    <string name="UsageVibrateOnLastArticleSummary">Vibriert kurz wenn der letzte Artikel (Feed) in der Liste erreicht wurde.</string>
+    <string name="UsageVibrateOnLastArticleTitle">Vibrieren beim letzten Artikel</string>
+    <string name="UsageVibrateOnLastArticleSummary">Vibriert kurz wenn der letzte Artikel in der Liste erreicht wurde.</string>
     <string name="UsageWorkOfflineTitle">Offline arbeiten</string>
     <string name="UsageOfflineTitle">Offline</string>
     <string name="UsageOnlineTitle">Online</string>
     <string name="UsageWorkOfflineSummary">Schaltet die Online-Synchronisierung aus.</string>
     
-    <string name="DisplayPreferenceCategoryTitle">Anzeige</string>
     <string name="DisplayVirtualPreferenceTitle">Virtuelle Feeds anzeigen</string>
     <string name="DisplayVirtualPreferenceSummary">Aktiviert die Anzeige virtueller Feeds wie \"Alle Artikel\".</string>
     <string name="DisplayUseSwipeTitle">Wischen (swipe) benutzen</string>
-    <string name="DisplayUseSwipeSummary">Ermöglicht den Wechsel zum nächsten/vorherigen Artikel durch Wisch-Bewegungen.</string>
+    <string name="DisplayUseSwipeSummary">Ermöglicht die Navigation durch Wisch-Bewegungen.</string>
     <string name="DisplayShowUnreadOnlyTitle">Nur ungelesenes anzeigen</string>
     <string name="DisplayShowUnreadOnlySummary">Versteckt bereits gelesene Inhalte.</string>
     <string name="DisplayArticleLimitTitle">Speicherlimit für Artikel</string>
@@ -152,7 +150,8 @@
     <string name="ErrorActivity.UserMessage">Konnte nicht zu Ihrer Tiny Tiny RSS-Installation verbinden, bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
     <string name="ErrorActivity.ErrorTitle">Weitere Informationen:</string>
     <string name="ErrorActivity.ErrorDefault">Ein unbekannter Fehler ist aufgetreten. Sie können versuchen mehr Informationen mittels \"adb logcat\" von einem PC aus (sofern das Android-SDK installiert ist) oder über das Programm aLogcat aus dem Market zu bekommen.</string>
-    <string name="ErrorActivity.CloseBtn">Schließen</string>
+    <string name="ErrorActivity.CloseBtn">Meldung schließen</string>
+    <string name="ErrorActivity.ExitBtn">Anwendung beenden</string>
     
     <string name="Utils.DownloadFinished">Prozess abgeschlossen.</string>
     <string name="Utils.DownloadFinishedTime">Prozess in %s Sekunden abgeschlossen.</string>

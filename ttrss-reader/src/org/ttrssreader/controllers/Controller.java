@@ -18,7 +18,6 @@ package org.ttrssreader.controllers;
 
 import org.ttrssreader.net.TTRSSJsonConnector;
 import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.DonationHelper;
 import org.ttrssreader.utils.ImageCache;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -44,8 +43,6 @@ public class Controller {
     private boolean trustAllSsl;
     private boolean useKeystore;
     private String keystorePassword;
-    private boolean donator;
-    private String donatorMail;
     
     private boolean automaticMarkRead;
     private boolean openUrlEmptyArticle;
@@ -114,17 +111,6 @@ public class Controller {
         useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
         keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
         ttrssConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
-        
-        // Donator
-        donator = prefs.getBoolean(Constants.DONATOR, Constants.DONATOR_DEFAULT);
-        donatorMail = prefs.getString(Constants.DONATOR_MAIL, Constants.DONATOR_MAIL_DEFAULT);
-        
-        // Check donation-status
-        if (!donator && !donatorMail.equals(Constants.DONATOR_MAIL_DEFAULT)) {
-            if (DonationHelper.checkDonationStatus(context, donatorMail)) {
-                setDonator(true);
-            }
-        }
         
         // Usage
         automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
@@ -220,24 +206,6 @@ public class Controller {
     public void setKeystorePassword(String keystorePassword) {
         put(Constants.KEYSTORE_PASSWORD, keystorePassword);
         this.keystorePassword = keystorePassword;
-    }
-    
-    public boolean isDonator() {
-        return donator;
-    }
-    
-    public void setDonator(boolean donator) {
-        put(Constants.DONATOR, donator);
-        this.donator = donator;
-    }
-    
-    public String getDonatorMail() {
-        return donatorMail;
-    }
-    
-    public void setDonatorMail(String donatorMail) {
-        put(Constants.DONATOR_MAIL, donatorMail);
-        this.donatorMail = donatorMail;
     }
     
     public boolean automaticMarkRead() {
@@ -433,7 +401,7 @@ public class Controller {
         serverVersionLastUpdate = -1;
     }
     
-    public long getServerVersion() {
+    public int getServerVersion() {
         long oldTime = (System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         
         if (serverVersion < 0 || serverVersionLastUpdate < oldTime) {
