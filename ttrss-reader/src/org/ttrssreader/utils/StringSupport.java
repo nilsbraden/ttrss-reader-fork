@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import org.ttrssreader.controllers.Controller;
+import android.net.Uri;
 import android.text.TextUtils;
 
 // contains code from the Apache Software foundation
@@ -146,6 +147,16 @@ public class StringSupport {
             ret[i++] = s;
         }
         return ret;
+    }
+    
+    public static String getBaseURL(String url) {
+        Uri uri = Uri.parse(url);
+        if (uri != null) {
+            // TODO: Check if base-url is the right thing to return, perhaps we also need the rest of the path without
+            // the last segment
+            return uri.getScheme() + "://" + uri.getAuthority();
+        }
+        return null;
     }
     
 }

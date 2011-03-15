@@ -29,6 +29,7 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.TTRSSJsonConnector;
+import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
@@ -266,7 +267,8 @@ public class ArticleActivity extends Activity {
                 String text = temp.replace("MARKER", content);
                 
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-                webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
+                String baseURL = StringSupport.getBaseURL(article.url);
+                webview.loadDataWithBaseURL(baseURL, text, "text/html", "utf-8", "about:blank");
                 
                 if (article.title != null) {
                     setTitle(article.title);
