@@ -106,6 +106,5 @@
         </LinearLayout>
 
     </LinearLayout>
-    <QuickContactBadge android:id="@+id/quickContactBadge1" android:layout_width="match_parent" android:layout_height="match_parent"></QuickContactBadge>
 
 </ScrollView>
