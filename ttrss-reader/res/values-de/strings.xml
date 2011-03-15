@@ -150,7 +150,8 @@
     <string name="ErrorActivity.UserMessage">Konnte nicht zu Ihrer Tiny Tiny RSS-Installation verbinden, bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
     <string name="ErrorActivity.ErrorTitle">Weitere Informationen:</string>
     <string name="ErrorActivity.ErrorDefault">Ein unbekannter Fehler ist aufgetreten. Sie können versuchen mehr Informationen mittels \"adb logcat\" von einem PC aus (sofern das Android-SDK installiert ist) oder über das Programm aLogcat aus dem Market zu bekommen.</string>
-    <string name="ErrorActivity.CloseBtn">Schließen</string>
+    <string name="ErrorActivity.CloseBtn">Meldung schließen</string>
+    <string name="ErrorActivity.ExitBtn">Anwendung beenden</string>
     
     <string name="Utils.DownloadFinished">Prozess abgeschlossen.</string>
     <string name="Utils.DownloadFinishedTime">Prozess in %s Sekunden abgeschlossen.</string>

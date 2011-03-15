@@ -35,7 +35,7 @@
     <string name="Welcome.Title">Welcome</string>
     <string name="Welcome.Message">Welcome to TTRSS-Reader!\n\nPlease note that this Reader only works with a \"Tiny Tiny RSS\" Server.\n\nIf this is the first time you started TTRSS-Reader you should set your Serverlocation and User-Settings. Press "Preferences" to proceed.</string>
     <string name="Check.OldVersion">It has been detected that your Tiny Tiny RSS-Server is running an old software version which is not supported by TTRSS-Ready anymore. Please update your server.</string>
-    <string name="Check.Crash">A crashreport was saved, do you want to send it to the developer by mail</string>
+    <string name="Check.Crash">A crashreport was saved, do you want to send it to the developer by mail?</string>
     
     <string name="AboutActivity.Title">About</string>
     <string name="AboutActivity.CloseBtn">Close</string>
@@ -153,6 +153,7 @@
     <string name="ErrorActivity.ErrorTitle">Error details:</string>
     <string name="ErrorActivity.ErrorDefault">An unknown error occurred. You may try to get more information by using aLogcat (from the market) or ADB.</string>
     <string name="ErrorActivity.CloseBtn">Close</string>
+    <string name="ErrorActivity.ExitBtn">Exit</string>
     
     <string name="Utils.DownloadFinished">Finished.</string>
     <string name="Utils.DownloadFinishedTime">Process finished in %s seconds.</string>

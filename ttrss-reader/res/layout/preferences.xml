@@ -47,14 +47,6 @@
             android:key="ConnectionPasswordPreference"
             android:inputType="textPassword" />
 
-        <EditTextPreference
-            android:name="@string/DonatorMailPreferenceTitle"
-            android:summary="@string/DonatorMailPreferenceSummary"
-            android:defaultValue=""
-            android:title="@string/DonatorMailPreferenceTitle"
-            android:key="DonatorMailPreference"
-            android:inputType="textFilter" />
-
         <PreferenceScreen
             android:title="@string/ConnectionHttpPreferenceCategoryTitle"
         >
