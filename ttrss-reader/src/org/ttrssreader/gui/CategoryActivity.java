@@ -223,10 +223,6 @@ public class CategoryActivity extends MenuActivity {
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.category, menu);
-        if (!Controller.getInstance().isDonator()) {
-            menu.removeItem(R.id.Category_Menu_ImageCache);
-            menu.removeItem(R.id.Category_Menu_ArticleCache);
-        }
         return true;
     }
     
@@ -298,16 +294,14 @@ public class CategoryActivity extends MenuActivity {
                     buf.append(changes[i]);
                 }
                 builder.setMessage(buf.toString().trim());
-                if (!Controller.getInstance().isDonator()) {
-                    builder.setNeutralButton((String) getText(R.string.CategoryActivity_Donate),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(final DialogInterface d, final int which) {
-                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
-                                            R.string.DonateUrl))));
-                                }
-                            });
-                }
+                builder.setNeutralButton((String) getText(R.string.CategoryActivity_Donate),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface d, final int which) {
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
+                                        R.string.DonateUrl))));
+                            }
+                        });
                 break;
             
             case DIALOG_CRASH:

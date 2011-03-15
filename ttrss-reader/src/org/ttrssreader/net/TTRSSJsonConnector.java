@@ -274,10 +274,10 @@ public class TTRSSJsonConnector {
         if (strResponse != null && strResponse.length() > 0) {
             try {
                 result = new JSONArray(strResponse);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 try {
                     result = new JSONArray("[" + strResponse + "]");
-                } catch (JSONException e1) {
+                } catch (Exception e1) {
                     hasLastError = true;
                     lastError = "An Error occurred. Message from Server: " + strResponse;
                 }
@@ -297,7 +297,7 @@ public class TTRSSJsonConnector {
         if (!hasLastError) {
             try {
                 result = new TTRSSJsonResult(strResponse);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 hasLastError = true;
                 lastError = "An Error occurred. Message from Server: " + strResponse;
             }
@@ -331,9 +331,9 @@ public class TTRSSJsonConnector {
                         }
                         i++;
                     }
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     hasLastError = true;
-                    lastError = e.getMessage() + ", Method: login(String url) threw JSONException";
+                    lastError = e.getMessage() + ", Method: login(String url) threw Exception";
                     e.printStackTrace();
                 }
                 
@@ -373,9 +373,9 @@ public class TTRSSJsonConnector {
                         i++;
                     }
                 }
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 hasLastError = true;
-                lastError = e.getMessage() + ", Method: login(String url) threw JSONException";
+                lastError = e.getMessage() + ", Method: login(String url) threw Exception";
                 e.printStackTrace();
             }
         }
@@ -488,9 +488,9 @@ public class TTRSSJsonConnector {
                     ret.add(id);
                 }
                 db.setTransactionSuccessful();
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 hasLastError = true;
-                lastError = e.getMessage() + ", Method: parseArticlesAndInsertInDB(...) threw JSONException";
+                lastError = e.getMessage() + ", Method: parseArticlesAndInsertInDB(...) threw Exception";
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
@@ -553,9 +553,9 @@ public class TTRSSJsonConnector {
                 }
                 
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             hasLastError = true;
-            lastError = e.getMessage() + ", Method: getCounters() threw JSONException";
+            lastError = e.getMessage() + ", Method: getCounters() threw Exception";
             e.printStackTrace();
         }
     }
@@ -597,9 +597,9 @@ public class TTRSSJsonConnector {
                 
                 ret.add(new CategoryItem(id, title, unread));
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             hasLastError = true;
-            lastError = e.getMessage() + ", Method: getCategories() threw JSONException";
+            lastError = e.getMessage() + ", Method: getCategories() threw Exception";
             e.printStackTrace();
         }
         
@@ -651,9 +651,9 @@ public class TTRSSJsonConnector {
                 if (id > 0)
                     ret.add(new FeedItem(id, categoryId, title, feedUrl, unread));
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             hasLastError = true;
-            lastError = e.getMessage() + ", Method: getSubsribedFeeds() threw JSONException";
+            lastError = e.getMessage() + ", Method: getSubsribedFeeds() threw Exception";
             e.printStackTrace();
         }
         
@@ -802,9 +802,9 @@ public class TTRSSJsonConnector {
                     }
                 }
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             hasLastError = true;
-            lastError = e.getMessage() + ", Method: getPref() threw JSONException";
+            lastError = e.getMessage() + ", Method: getPref() threw Exception";
             e.printStackTrace();
         }
         return null;
@@ -836,9 +836,9 @@ public class TTRSSJsonConnector {
                     }
                 }
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             hasLastError = true;
-            lastError = e.getMessage() + ", Method: getVersion() threw JSONException";
+            lastError = e.getMessage() + ", Method: getVersion() threw Exception";
             e.printStackTrace();
         }
         

@@ -19,13 +19,12 @@ package org.ttrssreader.preferences;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import org.ttrssreader.utils.Utils;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 public class Constants {
     
     public static String EMPTY = "";
+    private static String APPENDED_DEFAULT = "_DEFAULT";
     
     // Connection
     public static String URL = "ConnectionUrlPreference";
@@ -37,15 +36,11 @@ public class Constants {
     public static String TRUST_ALL_SSL = "ConnectionSSLPreference";
     public static String USE_KEYSTORE = "ConnectionUseKeystorePreference";
     public static String KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
-    public static String DONATOR = "DonatorPreference";
-    public static String DONATOR_MAIL = "DonatorMailPreference";
     // Connection Default Values
     public static String URL_DEFAULT = "http://localhost/";
     public static boolean USE_HTTP_AUTH_DEFAULT = false;
     public static boolean TRUST_ALL_SSL_DEFAULT = false;
     public static boolean USE_KEYSTORE_DEFAULT = false;
-    public static boolean DONATOR_DEFAULT = false;
-    public static String DONATOR_MAIL_DEFAULT = "";
     
     // Usage
     public static String AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
@@ -102,60 +97,86 @@ public class Constants {
     public static String LAST_VERSION_RUN_DEFAULT = "1";
     
     /*
-     * Returns a list of the values of all constants in this class. Allows for easier watching the changes in the
-     * preferences-activity.
+     * Returns a list of the values of all constants in this class which represent preferences. Allows for easier
+     * watching the changes in the preferences-activity.
      */
     public static List<String> getConstants() {
         List<String> ret = new ArrayList<String>();
-        for (Field f : Constants.class.getFields()) {
+        
+        // Iterate over all fields
+        for (Field field : Constants.class.getDeclaredFields()) {
+            // Continue on "_DEFAULT"-Fields, these hold only the default values for a preference
+            if (field.getName().endsWith(APPENDED_DEFAULT))
+                continue;
+            
             try {
-                if (f.get(null) instanceof String) {
-                    ret.add((String) f.get(null));
+                // Return all String-Fields, these hold the preference-name
+                if (field.get(null) instanceof String) {
+                    ret.add((String) field.get(null));
                 }
-            } catch (IllegalArgumentException e) {
-                Log.e(Utils.TAG, "IllegalArgumentException");
-            } catch (IllegalAccessException e) {
-                Log.e(Utils.TAG, "IllegalAccessException");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return ret;
     }
     
+    /*
+     * Resets all preferences to their default values. Only preferences which are mentioned in this class are reset, old
+     * or unsused values don't get reset.
+     */
     public static void resetPreferences(SharedPreferences prefs) {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(URL, URL_DEFAULT);
-        editor.putString(USERNAME, EMPTY);
-        editor.putString(PASSWORD, EMPTY);
-        editor.putBoolean(USE_HTTP_AUTH, USE_HTTP_AUTH_DEFAULT);
-        editor.putString(HTTP_USERNAME, EMPTY);
-        editor.putString(HTTP_PASSWORD, EMPTY);
-        editor.putBoolean(TRUST_ALL_SSL, TRUST_ALL_SSL_DEFAULT);
-        editor.putBoolean(USE_KEYSTORE, USE_KEYSTORE_DEFAULT);
-        editor.putString(KEYSTORE_PASSWORD, EMPTY);
-        editor.putBoolean(DONATOR, DONATOR_DEFAULT);
-        editor.putString(DONATOR_MAIL, DONATOR_MAIL_DEFAULT);
         
-        editor.putBoolean(AUTOMATIC_MARK_READ, AUTOMATIC_MARK_READ_DEFAULT);
-        editor.putBoolean(OPEN_URL_EMPTY_ARTICLE, OPEN_URL_EMPTY_ARTICLE_DEFAULT);
-        editor.putBoolean(USE_VOLUME_KEYS, USE_VOLUME_KEYS_DEFAULT);
-        editor.putBoolean(VIBRATE_ON_LAST_ARTICLE, VIBRATE_ON_LAST_ARTICLE_DEFAULT);
-        editor.putBoolean(WORK_OFFLINE, WORK_OFFLINE_DEFAULT);
+        // Iterate over all fields
+        for (Field field : Constants.class.getDeclaredFields()) {
+            
+            // Continue on "_DEFAULT"-Fields, these hold only the default values for a preference
+            if (field.getName().endsWith(APPENDED_DEFAULT))
+                continue;
+            
+            try {
+                // Get the default value
+                Field fieldDefault = Constants.class.getDeclaredField(field.getName() + APPENDED_DEFAULT);
+                String value = (String) field.get(new Constants());
+                
+                // Get the default type and store value for the specific type
+                String type = fieldDefault.getType().getSimpleName();
+                if (type.equals("String")) {
+                    
+                    String defaultValue = (String) fieldDefault.get(null);
+                    editor.putString(value, defaultValue);
+                    
+                } else if (type.equals("boolean")) {
+                    
+                    boolean defaultValue = fieldDefault.getBoolean(null);
+                    editor.putBoolean(value, defaultValue);
+                    
+                } else if (type.equals("int")) {
+                    
+                    int defaultValue = fieldDefault.getInt(null);
+                    editor.putInt(value, defaultValue);
+                    
+                } else if (type.equals("long")) {
+                    
+                    long defaultValue = fieldDefault.getLong(null);
+                    editor.putLong(value, defaultValue);
+                    
+                }
+                
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            } catch (NoSuchFieldException e) {
+                // Ignore, occurrs if a search for field like EMPTY_DEFAULT is started, this isn't there and shall never
+                // be there.
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
         
-        editor.putBoolean(SHOW_VIRTUAL, SHOW_VIRTUAL_DEFAULT);
-        editor.putBoolean(USE_SWIPE, USE_SWIPE_DEFAULT);
-        editor.putBoolean(ONLY_UNREAD, ONLY_UNREAD_DEFAULT);
-        editor.putInt(ARTICLE_LIMIT, ARTICLE_LIMIT_DEFAULT);
-        editor.putBoolean(DISPLAY_ARTICLE_HEADER, DISPLAY_ARTICLE_HEADER_DEFAULT);
-        editor.putBoolean(INVERT_SORT_ARTICLELIST, INVERT_SORT_ARTICLELIST_DEFAULT);
-        editor.putBoolean(INVERT_SORT_FEEDSCATS, INVERT_SORT_FEEDSCATS_DEFAULT);
-        
-        editor.putInt(IMAGE_CACHE_SIZE, IMAGE_CACHE_SIZE_DEFAULT);
-        editor.putBoolean(IMAGE_CACHE_UNREAD, IMAGE_CACHE_UNREAD_DEFAULT);
-        editor.putBoolean(ARTICLE_CACHE_UNREAD, ARTICLE_CACHE_UNREAD_DEFAULT);
-        
-        editor.putInt(DATABASE_VERSION, DATABASE_VERSION_DEFAULT);
-        editor.putLong(LAST_UPDATE_TIME, LAST_UPDATE_TIME_DEFAULT);
-        editor.putString(LAST_VERSION_RUN, LAST_VERSION_RUN_DEFAULT);
+        // Commit when finished
         editor.commit();
     }
 }

@@ -1,6 +1,13 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.9.1 ==
+  * New: Added possibility to send error-reports after a crash
+  * New: Removed donators-limitations, everyone can use the ImageCache now
+  * New: Added Exit-Button to error-dialog to allow completely exiting the app from the dialog
+  * Refurbished the reset of preferences (Preferences -> Menu -> Reset)
+  * Cleanup of preferences
+
 == Version 0.9 ==
   * New: Added check for supported server-version on startup
   * New: Added check for saved crash-report and option to send report by mail

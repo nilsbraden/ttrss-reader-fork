@@ -26,6 +26,8 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 public class PreferencesActivity extends PreferenceActivity {
@@ -43,6 +45,14 @@ public class PreferencesActivity extends PreferenceActivity {
     
     private void updatePreferences() {
         Controller.getInstance().initializeController(this);
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = this.getMenuInflater();
+        inflater.inflate(R.menu.preferences, menu);
+        return true;
     }
     
     private OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
