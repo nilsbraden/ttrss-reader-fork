@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:title="@string/Commons.MarkRead"
+        android:id="@+id/Article_Menu_MarkRead"
+        android:icon="@drawable/ic_menu_mark" />
+    <item
+        android:title="@string/Commons.MarkStar"
+        android:id="@+id/Article_Menu_MarkStar"
+        android:icon="@drawable/ic_menu_star" />
+    <item
+        android:title="@string/Commons.MarkPublish"
+        android:id="@+id/Article_Menu_MarkPublish"
+        android:icon="@drawable/ic_menu_publish" />
+    <item
+        android:title="@string/ArticleActivity.OpenLink"
+        android:id="@+id/Article_Menu_OpenLink"
+        android:icon="@drawable/ic_menu_home" />
+    <item
+        android:title="@string/ArticleActivity.ShareLink"
+        android:id="@+id/Article_Menu_ShareLink"
+        android:icon="@android:drawable/ic_menu_send" />
+    <item
+        android:title="@string/UsageOfflineTitle"
+        android:id="@+id/Article_Menu_WorkOffline"
+        android:icon="@drawable/ic_menu_stop" />
+</menu>

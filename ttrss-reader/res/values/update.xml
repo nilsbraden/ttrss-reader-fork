@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<resources>
+    <string-array name="updates">
+        <item>v0.9: New: Added check for supported server-version on startup, New: Added check for saved crash-report and option to send report by mail, minor changes in network-access, Requests are faster now</item>
+        <item>v0.8.9: New: Added custom title-bar in Article-Display (can be disabled in preferences), New: Added setting to change the display-order of all lists, New: Added long-press option to Category-View, showing list of all articles inside, Addressed connectivity problems</item>
+        <item>v0.8.8: Fixed Issue #49 (FC on launch with wrong password), Fixed Issue #50 (\"New Articles\" now shows only unread articles), Fixed Issue #53 (crashed on new installations), small Fix which prevented new users from starting the app</item>
+        <item>v0.8.7: Performance improvements for ImageCache, minor fixes for retrieving of articles, fixed accidental jump to first feed while browsing</item>
+        <item>v0.8.6: ImageCache download now parallelized into 4 threads (ArticleCache: 8 threads), Some performance tweaks, Fixed Issue #45: (SQL Error because of suhosin-blocked article_id), Added preference to split long GET-Requests due to problems with server-side security scanners like Suhosin</item>
+        <item>v0.8.5: Synchronizing marked articles now also works for complete feeds and categories, when marking feeds/categories as read while beeing offline only local articles can be included, articles that are new on the server but not synchronized to the client cannot, fixed FC on mark article read while beeing offline</item>
+        <item>v0.8.4: Added options for Image-/ArticleCache: cache for unread articles only, caching now independent from online/offline state, added Offline-Synchronisation (article-state, star, published is synchronized later when marked while browsing offline), navigate feeds/articles by keyboard: n for next, b for previous article/feed</item>
+        <item>v0.8.3: Fixed Articles not getting purged according to "Store articles limit", probably fixed OutOfMemory problem while fetching articles</item>
+        <item>v0.8.2: ArticleCache (load all new articles at once) for Donators, Refresh unread-state while browsing unread articles, Scale images to match display-width (for other zoom-factors the original size is restored), Set CSS: text-align:"justify", more useful text when loading content, Minor bugfixes/refactoring</item>
+        <item>v0.8.1: Addressed severe memory-issues, moved menu-definitions from code to xml files, added information to preferences-screen, refactored menus, fixed articles not getting marked as read, fixed offline-setting</item>
+        <item>v0.8: Donators: Added pre-downloading of images for offline viewing (see project page for more information), Fixed several usability issues (Issues 36,37,38,41), Fixed Issue #40 (Better error-handling for disabled API and Not logged in error), Size of Swipe-Area now depends on density and screen-size, Icons got some polishing...</item>
+        <item>v0.7.8: Added HTTP-Authentication (Issue #32), Fixed Issue with display of all articles (Issue #34)</item>
+        <item>v0.7.7: IMPORTANT: Please update your server to 1.5.0 from http://tt-rss.org/ and visit the TTRSS-Reader\'s project-page for full changelog. If you need to stay with server version 1.4.3.1 you should install TTRSS-Reader v0.7.3 from the project-page.</item>
+        <item>v0.7.6: New Application-Icon and Overlay-icons for star/publish, Added support for the star/unstar feature, Added support for the published-feature, Fixed display of fresh/starred/published articles in the virtual feeds, Fixed handling of URLs in Article-View, Fixed problems with marking articles as read/unread</item>
+        <item>v0.7.5: Fixed sorting of categories, Enhanced mediafile download and added notification for finished downloads</item>
+        <item>v0.7.4: Minor bugs fixed, Better fling-support for headline-list and articles, no recommendation when typing URL, Implemented new API-methods from http://tt-rss.org to avoid the manual hacking, added german localisation</item>
+        <item>v0.7.3: Problems with API from 1.4.3.1 are (hopefully) resolved. Please mail me if i am wrong :)</item>
+        <item>v0.7.2: Fixed wrong calculation of unread-counts, Added welcome-dialog for the first-run</item>
+        <item>v0.7.1: Fixed no virtual Categories beeing displayed on first start, fixed two unhandled Exceptions</item>
+        <item>v0.7: Improved updating of locally stored information, faster startup, better restarting of activities, fixed sorting-issues of feeds, fixed double-login, fixed progress-indicator</item>
+        <item>v0.6.8: Fixed only one article beeing displayed, Notification for finished downloads of attachments</item>
+        <item>v0.6.6: Fixed no articles beeing fetched with getArticles and problem with VirtualCategories</item>
+        <item>v0.6.5: Fixed problem with attached images, Changed update-behaviour</item>
+        <item>v0.6.4: Fix for concurrent DB-Access, SDCard not used anymore, smaller memory-footprint, added Changelog</item>
+        <item>v0.6.3: Refactored a lot, fixed some synchronisation issues, better Fling-Recognition</item>
+        <item>v0.6.2: Added the license to all files, added Update-Check</item>
+        <item>v0.6.1: Passwords can contain special characters, Download of attached Audio/Video files)</item>
+        <item>v0.6: Better check for connectivity, show attached videos and play music</item>
+    </string-array>
+</resources>
