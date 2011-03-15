@@ -24,6 +24,7 @@ import android.widget.TextView;
 public class ErrorActivity extends Activity {
     
     public static final int ACTIVITY_SHOW_ERROR = 42;
+    public static final int ACTIVITY_EXIT = 40;
     public static final String ERROR_MESSAGE = "ERROR_MESSAGE";
     
     private String message;
@@ -52,12 +53,24 @@ public class ErrorActivity extends Activity {
             }
         });
         
+        Button exitBtn = (Button) this.findViewById(R.id.ErrorActivity_ExitBtn);
+        exitBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                exitButtonPressed();
+            }
+        });
+        
         Button closeBtn = (Button) this.findViewById(R.id.ErrorActivity_CloseBtn);
         closeBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 closeButtonPressed();
             }
         });
+    }
+    
+    private void exitButtonPressed() {
+        setResult(ACTIVITY_EXIT);
+        finish();
     }
     
     private void closeButtonPressed() {

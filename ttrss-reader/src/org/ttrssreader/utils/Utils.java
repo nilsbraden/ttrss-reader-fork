@@ -160,7 +160,8 @@ public class Utils {
      * Checks if the server is supported by the app, returns true if it is NOT supported.
      */
     public static boolean checkServerVersion(Activity a) {
-        if (Controller.getInstance().getServerVersion() < SERVER_VERSION) {
+        int version = Controller.getInstance().getServerVersion();
+        if (version > 0 && version < SERVER_VERSION) {
             
             // Reset the stored value so it get updated on next run.
             Controller.getInstance().resetServerVersion();

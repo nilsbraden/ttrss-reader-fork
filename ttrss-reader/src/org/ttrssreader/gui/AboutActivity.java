@@ -59,16 +59,12 @@ public class AboutActivity extends Activity {
         });
         
         Button donateBtn = (Button) this.findViewById(R.id.AboutActivity_DonateBtn);
-        // if (Controller.getInstance().isDonator()) {
-        // donateBtn.setVisibility(View.INVISIBLE);
-        // } else {
         donateBtn.setOnClickListener(new View.OnClickListener() {
             
             public void onClick(View view) {
                 donateButtonPressed();
             }
         });
-        // }
     }
     
     private void closeButtonPressed() {

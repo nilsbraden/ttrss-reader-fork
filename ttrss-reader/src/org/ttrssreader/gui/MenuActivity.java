@@ -142,6 +142,8 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
                 doRefresh();
                 doUpdate();
             }
+        } else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
+            finish();
         } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
             if (configChecked || checkConfig()) {
                 doRefresh();
