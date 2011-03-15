@@ -288,12 +288,14 @@ public class CategoryActivity extends MenuActivity {
 
                 builder.setTitle(getResources().getString(R.string.Changelog_Title));
                 final String[] changes = getResources().getStringArray(R.array.updates);
-                final StringBuilder buf = new StringBuilder();
+                final StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < changes.length; i++) {
-                    buf.append("\n\n");
-                    buf.append(changes[i]);
+                    sb.append("\n\n");
+                    sb.append(changes[i]);
+                    if (sb.length() > 4000) // Don't include all messages, nobody reads the old stuff anyway
+                        break;
                 }
-                builder.setMessage(buf.toString().trim());
+                builder.setMessage(sb.toString().trim());
                 builder.setNeutralButton((String) getText(R.string.CategoryActivity_Donate),
                         new DialogInterface.OnClickListener() {
                             @Override

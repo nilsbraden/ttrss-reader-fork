@@ -16,7 +16,8 @@
     not, see <http://www.gnu.org/licenses/>.
 -->
 <menu
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+>
 
     <item
         android:title="@string/Preferences.Reset"

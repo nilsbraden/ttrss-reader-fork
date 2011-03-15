@@ -6,7 +6,9 @@
   * New: Removed donators-limitations, everyone can use the ImageCache now
   * New: Added Exit-Button to error-dialog to allow completely exiting the app from the dialog
   * Refurbished the reset of preferences (Preferences -> Menu -> Reset)
+  * blog.fefe.de now working (fixed relative links but I am unsure whether I have to use full path to article or just the domain-part. Ideas anyone?)
   * Cleanup of preferences
+  * Minor bugfixes
 
 == Version 0.9 ==
   * New: Added check for supported server-version on startup
