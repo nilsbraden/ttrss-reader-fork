@@ -16,18 +16,13 @@
 
 package org.ttrssreader.utils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -93,35 +88,6 @@ public class Utils {
     public static final Pattern findImageUrlsPattern = Pattern.compile("<img.+src=\"([^\"]*)\".*/>",
             Pattern.CASE_INSENSITIVE);
     
-    // TODO: See if this can be and/or needs to be optimized.
-    public static String convertStreamToString(InputStream is) {
-        /*
-         * To convert the InputStream to String we use the BufferedReader.readLine()
-         * method. We iterate until the BufferedReader return null which means
-         * there's no more data to read. Each line will be appended to a StringBuilder
-         * and returned as String.
-         */
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is), 1024 * 10);
-        StringBuilder sb = new StringBuilder();
-        
-        String line = null;
-        try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OutOfMemoryError oome) {
-            oome.printStackTrace();
-        } finally {
-            try {
-                is.close();
-            } catch (Exception e) {
-            }
-        }
-        return sb.toString();
-    }
-    
     /*
      * Check if this is the first run of the app, if yes, returns true.
      */
@@ -133,7 +99,7 @@ public class Utils {
      * Check if a new version of the app was installed, returns true if this is the case.
      */
     public static boolean checkNewVersion(Activity a) {
-        String thisVersion = getVersion(a);
+        String thisVersion = getAppVersion(a);
         String lastVersionRun = Controller.getInstance().getLastVersionRun();
         Controller.getInstance().setLastVersionRun(thisVersion);
         
@@ -177,7 +143,7 @@ public class Utils {
      *            - The Activity to retrieve the current version
      * @return the version-string
      */
-    public static String getVersion(Activity a) {
+    public static String getAppVersion(Activity a) {
         String result = "";
         try {
             PackageManager manager = a.getPackageManager();
@@ -197,12 +163,11 @@ public class Utils {
      * @param cm
      * @return
      */
-    public static boolean isOnline(ConnectivityManager cm) {
-        if (Controller.getInstance().workOffline()) {
+    public static boolean isConnected(ConnectivityManager cm) {
+        if (Controller.getInstance().workOffline())
             return false;
-        } else {
-            return checkConnection(cm);
-        }
+        
+        return checkConnected(cm);
     }
     
     /**
@@ -211,10 +176,9 @@ public class Utils {
      * @param cm
      * @return
      */
-    public static boolean checkConnection(ConnectivityManager cm) {
-        if (cm == null) {
+    public static boolean checkConnected(ConnectivityManager cm) {
+        if (cm == null)
             return false;
-        }
         
         NetworkInfo info = cm.getActiveNetworkInfo();
         
@@ -242,77 +206,6 @@ public class Utils {
         }
         
         return info.isConnected();
-    }
-    
-    /**
-     * Searches for cached versions of the given image and returns the local URL to access the file
-     * 
-     * @param url
-     *            the original URL
-     * @return the local URL or null if not available
-     */
-    private static String getCachedImageUrl(String url) {
-        ImageCache cache = Controller.getInstance().getImageCache(null);
-        if (cache != null && cache.containsKey(url)) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("file://").append(cache.getDiskCacheDirectory()).append(File.separator)
-                    .append(cache.getFileNameForKey(url));
-            return sb.toString();
-        }
-        return null;
-    }
-    
-    /**
-     * Searches the given html code for img-Tags and filters out all src-attributes, beeing URLs to images.
-     * 
-     * @param html
-     *            the html code which is to be searched
-     * @return a set of URLs in their string representation
-     */
-    public static Set<String> findAllImageUrls(String html) {
-        Set<String> ret = new LinkedHashSet<String>();
-        if (html == null || html.length() < 10) {
-            return ret;
-        }
-        
-        for (int i = 0; i < html.length();) {
-            i = html.indexOf("<img", i);
-            if (i == -1) {
-                break;
-            }
-            Matcher m = findImageUrlsPattern.matcher(html.substring(i, html.length()));
-            
-            // Filter out URLs without leading http, we cannot work with relative URLs yet.
-            if (m.find() && m.group(1).startsWith("http://")) {
-                ret.add(m.group(1));
-                i += m.group(1).length();
-            } else {
-                break;
-            }
-        }
-        return ret;
-    }
-    
-    /**
-     * Injects the local path to every image which could be found in the local cache, replacing the original URLs in the
-     * html.
-     * 
-     * @param html
-     *            the original html
-     * @return the altered html with the URLs replaced so they point on local files if available
-     */
-    public static String injectCachedImages(String html) {
-        if (html == null || html.length() < 40)
-            return html;
-        
-        for (String url : findAllImageUrls(html)) {
-            String localUrl = getCachedImageUrl(url);
-            if (localUrl != null) {
-                Log.d(Utils.TAG, "Replacing image: " + localUrl);
-                html = html.replace(url, localUrl);
-            }
-        }
-        return html;
     }
     
     /**

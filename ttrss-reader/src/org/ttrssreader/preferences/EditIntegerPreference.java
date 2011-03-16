@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.utils;
+package org.ttrssreader.preferences;
 
 import android.content.Context;
 import android.preference.EditTextPreference;

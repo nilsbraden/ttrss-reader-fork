@@ -28,7 +28,7 @@ import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.TTRSSJsonConnector;
+import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
@@ -164,12 +164,12 @@ public class FeedHeadlineListActivity extends MenuActivity {
             currentIndex = feedListAdapter.getFeedIds().indexOf(feedId);
         }
         
-        if (TTRSSJsonConnector.hasLastError()) {
+        if (JSONConnector.hasLastError()) {
             if (imageCacher != null) {
                 imageCacher.cancel(true);
                 imageCacher = null;
             }
-            openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
+            openConnectionErrorDialog(JSONConnector.pullLastError());
             return;
         }
         

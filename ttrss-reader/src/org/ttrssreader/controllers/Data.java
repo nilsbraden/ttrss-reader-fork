@@ -103,7 +103,7 @@ public class Data {
     
     // takes about 2.5 seconds on wifi
     public void updateCounters(boolean overrideOffline) {
-        if (Utils.isOnline(cm) || overrideOffline)
+        if (Utils.isConnected(cm) || overrideOffline)
             Controller.getInstance().getConnector().getCounters();
     }
     
@@ -121,7 +121,7 @@ public class Data {
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
-        } else if (Utils.isOnline(cm) || (overrideOffline && Utils.checkConnection(cm))) {
+        } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
             int limit = 30;
             
             switch (feedId) {
@@ -160,7 +160,7 @@ public class Data {
     public Set<FeedItem> updateFeeds(int categoryId, boolean overrideOffline) {
         if (feedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
-        } else if (Utils.isOnline(cm) || (overrideOffline && Utils.checkConnection(cm))) {
+        } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
             Set<FeedItem> feeds = Controller.getInstance().getConnector().getFeeds();
             feedsUpdated = System.currentTimeMillis();
             
@@ -216,7 +216,7 @@ public class Data {
     public Set<CategoryItem> updateCategories(boolean overrideOffline) {
         if (categoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
-        } else if (Utils.isOnline(cm) || overrideOffline) {
+        } else if (Utils.isConnected(cm) || overrideOffline) {
             Set<CategoryItem> categories = Controller.getInstance().getConnector().getCategories();
             categoriesUpdated = System.currentTimeMillis();
             
@@ -231,7 +231,7 @@ public class Data {
     
     public void setArticleRead(Set<Integer> ids, int articleState) {
         boolean erg = false;
-        if (Utils.isOnline(cm))
+        if (Utils.isConnected(cm))
             erg = Controller.getInstance().getConnector().setArticleRead(ids, articleState);
         
         if (!erg)
@@ -243,7 +243,7 @@ public class Data {
         Set<Integer> ids = new HashSet<Integer>();
         ids.add(articleIds);
         
-        if (Utils.isOnline(cm))
+        if (Utils.isConnected(cm))
             erg = Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
         
         if (!erg)
@@ -255,7 +255,7 @@ public class Data {
         Set<Integer> ids = new HashSet<Integer>();
         ids.add(articleIds);
         
-        if (Utils.isOnline(cm))
+        if (Utils.isConnected(cm))
             erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
         
         if (!erg)
@@ -264,7 +264,7 @@ public class Data {
     
     public void setRead(int id, boolean isCategory) {
         boolean erg = false;
-        if (Utils.isOnline(cm))
+        if (Utils.isConnected(cm))
             Controller.getInstance().getConnector().setRead(id, isCategory);
         
         if (!erg) {
@@ -282,19 +282,19 @@ public class Data {
     }
     
     public String getPref(String pref) {
-        if (Utils.isOnline(cm))
+        if (Utils.isConnected(cm))
             return Controller.getInstance().getConnector().getPref(pref);
         return null;
     }
     
     public int getVersion() {
-        if (Utils.isOnline(cm))
+        if (Utils.isConnected(cm))
             return Controller.getInstance().getConnector().getVersion();
         return -1;
     }
     
     public void synchronizeStatus() {
-        if (!Utils.isOnline(cm))
+        if (!Utils.isConnected(cm))
             return;
         
         String[] marks = new String[] { DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH };

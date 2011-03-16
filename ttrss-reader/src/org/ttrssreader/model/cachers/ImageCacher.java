@@ -20,8 +20,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
@@ -69,7 +71,7 @@ public class ImageCacher implements ICacheable {
         
         // Check connectivity
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (!Utils.checkConnection(cm)) {
+        if (!Utils.checkConnected(cm)) {
             Log.w(Utils.TAG, "No connectivity, aborting...");
             return;
         }
@@ -166,7 +168,7 @@ public class ImageCacher implements ICacheable {
                 // Get images included in HTML
                 Set<String> set = new HashSet<String>();
                 
-                for (String url : Utils.findAllImageUrls(c.getString(0))) {
+                for (String url : findAllImageUrls(c.getString(0))) {
                     if (!imageCache.containsKey(url))
                         set.add(url);
                 }
@@ -303,6 +305,55 @@ public class ImageCacher implements ICacheable {
                 }
             }
         }
+    }
+    
+    /**
+     * Searches for cached versions of the given image and returns the local URL to access the file
+     * 
+     * @param url
+     *            the original URL
+     * @return the local URL or null if not available
+     */
+    public static String getCachedImageUrl(String url) {
+        ImageCache cache = Controller.getInstance().getImageCache(null);
+        if (cache != null && cache.containsKey(url)) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("file://").append(cache.getDiskCacheDirectory()).append(File.separator)
+                    .append(cache.getFileNameForKey(url));
+            return sb.toString();
+        }
+        return null;
+    }
+    
+    /**
+     * Searches the given html code for img-Tags and filters out all src-attributes, beeing URLs to images.
+     * 
+     * @param html
+     *            the html code which is to be searched
+     * @return a set of URLs in their string representation
+     */
+    public static Set<String> findAllImageUrls(String html) {
+        Set<String> ret = new LinkedHashSet<String>();
+        if (html == null || html.length() < 10) {
+            return ret;
+        }
+        
+        for (int i = 0; i < html.length();) {
+            i = html.indexOf("<img", i);
+            if (i == -1) {
+                break;
+            }
+            Matcher m = Utils.findImageUrlsPattern.matcher(html.substring(i, html.length()));
+            
+            // Filter out URLs without leading http, we cannot work with relative URLs yet.
+            if (m.find() && m.group(1).startsWith("http://")) {
+                ret.add(m.group(1));
+                i += m.group(1).length();
+            } else {
+                break;
+            }
+        }
+        return ret;
     }
     
 }

@@ -24,7 +24,7 @@ import org.ttrssreader.model.FeedListAdapter;
 import org.ttrssreader.model.pojos.FeedItem;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.TTRSSJsonConnector;
+import org.ttrssreader.net.JSONConnector;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -112,12 +112,12 @@ public class FeedListActivity extends MenuActivity {
         mAdapter.makeQuery();
         mAdapter.notifyDataSetChanged();
         
-        if (TTRSSJsonConnector.hasLastError()) {
+        if (JSONConnector.hasLastError()) {
             if (imageCacher != null) {
                 imageCacher.cancel(true);
                 imageCacher = null;
             }
-            openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
+            openConnectionErrorDialog(JSONConnector.pullLastError());
             return;
         }
         

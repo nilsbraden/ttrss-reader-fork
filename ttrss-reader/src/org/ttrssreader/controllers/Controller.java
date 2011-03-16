@@ -16,7 +16,7 @@
 
 package org.ttrssreader.controllers;
 
-import org.ttrssreader.net.TTRSSJsonConnector;
+import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.ImageCache;
 import android.content.Context;
@@ -32,7 +32,7 @@ public class Controller {
     public final static String JSON_END_URL = "api/";
     
     private boolean initialized = false;
-    private TTRSSJsonConnector ttrssConnector;
+    private JSONConnector ttrssConnector;
     private ImageCache imageCache;
     
     private static final Integer mutex = 0;
@@ -110,7 +110,7 @@ public class Controller {
         trustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
         useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
         keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
-        ttrssConnector = new TTRSSJsonConnector(url, userName, password, httpUserName, httpPassword);
+        ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
         
         // Usage
         automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
@@ -167,7 +167,7 @@ public class Controller {
         this.url = url;
     }
     
-    public TTRSSJsonConnector getConnector() {
+    public JSONConnector getConnector() {
         return ttrssConnector;
     }
     

@@ -171,7 +171,7 @@
                 android:title="@string/SystemPreferenceCategoryTitle"
             >
 
-                <org.ttrssreader.utils.EditIntegerPreference
+                <org.ttrssreader.preferences.EditIntegerPreference
                     android:name="@string/DisplayArticleLimitTitle"
                     android:title="@string/DisplayArticleLimitTitle"
                     android:summary="@string/DisplayArticleLimitSummary"
@@ -186,7 +186,7 @@
                     android:summary="@string/DisplayArticleHeaderSummary"
                     android:key="DisplayArticleHeaderPreference" />
 
-                <org.ttrssreader.utils.EditIntegerPreference
+                <org.ttrssreader.preferences.EditIntegerPreference
                     android:name="@string/StoreImageLimitTitle"
                     android:title="@string/StoreImageLimitTitle"
                     android:summary="@string/StoreImageLimitSummary"

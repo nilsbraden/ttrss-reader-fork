@@ -61,9 +61,8 @@ public class ImageCache extends AbstractCache<String, byte[]> {
             }
         }
         
-        if (!isDiskCacheEnabled) {
+        if (!isDiskCacheEnabled)
             Log.w(Utils.TAG, "Failed creating disk cache directory " + diskCacheDir);
-        }
         
         return isDiskCacheEnabled;
     }
@@ -82,11 +81,10 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     }
     
     public boolean containsKey(String key) {
-        if (cache.containsKey(getFileNameForKey(key))) {
+        if (cache.containsKey(getFileNameForKey(key)))
             return true;
-        } else {
-            return (isDiskCacheEnabled && getCacheFile((String) key).exists());
-        }
+        
+        return (isDiskCacheEnabled && getCacheFile((String) key).exists());
     }
     
     @Override
@@ -96,9 +94,9 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     
     public File getCacheFile(String key) {
         File f = new File(diskCacheDir);
-        if (!f.exists()) {
+        if (!f.exists())
             f.mkdirs();
-        }
+        
         return new File(diskCacheDir + "/" + getFileNameForKey(key));
     }
     

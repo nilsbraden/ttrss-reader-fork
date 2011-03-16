@@ -31,7 +31,7 @@ import org.ttrssreader.model.cachers.ImageCacher;
 import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.TTRSSJsonConnector;
+import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
@@ -140,12 +140,12 @@ public class CategoryActivity extends MenuActivity {
         adapter.makeQuery();
         adapter.notifyDataSetChanged();
         
-        if (TTRSSJsonConnector.hasLastError()) {
+        if (JSONConnector.hasLastError()) {
             if (imageCacher != null) {
                 imageCacher.cancel(true);
                 imageCacher = null;
             }
-            openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
+            openConnectionErrorDialog(JSONConnector.pullLastError());
             return;
         }
         

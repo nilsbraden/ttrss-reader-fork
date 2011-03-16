@@ -20,7 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TTRSSJsonResult {
+public class JSONResult {
     
     private JSONArray names;
     private JSONArray values;
@@ -29,7 +29,7 @@ public class TTRSSJsonResult {
     // this(Utils.convertStreamToString(is));
     // }
     
-    public TTRSSJsonResult(String input) throws JSONException {
+    public JSONResult(String input) throws JSONException {
         
         JSONObject object = new JSONObject(input);
         

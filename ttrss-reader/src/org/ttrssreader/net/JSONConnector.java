@@ -46,7 +46,7 @@ import org.ttrssreader.utils.Utils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class TTRSSJsonConnector {
+public class JSONConnector {
     
     private static String lastError = "";
     private static boolean hasLastError = false;
@@ -111,7 +111,7 @@ public class TTRSSJsonConnector {
     HttpPost post;
     DefaultHttpClient client;
     
-    public TTRSSJsonConnector(String serverUrl, String userName, String password, String httpUser, String httpPw) {
+    public JSONConnector(String serverUrl, String userName, String password, String httpUser, String httpPw) {
         this.serverUrl = serverUrl;
         this.userName = userName;
         this.password = password;
@@ -194,7 +194,7 @@ public class TTRSSJsonConnector {
             return null;
         }
         
-        String strResponse = Utils.convertStreamToString(instream);
+        String strResponse = StringSupport.convertStreamToString(instream);
         
         if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
             Log.w(Utils.TAG, "Not logged in, retrying...");
@@ -235,9 +235,9 @@ public class TTRSSJsonConnector {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
             if (!login())
-                return "";
+                return null;
         if (hasLastError)
-            return "";
+            return null;
         
         if (!url.contains(sidUrl))
             url += sidUrl;
@@ -286,17 +286,17 @@ public class TTRSSJsonConnector {
         return result;
     }
     
-    private TTRSSJsonResult getJSONLoginResponse(String url) {
+    private JSONResult getJSONLoginResponse(String url) {
         // No check with assertLogin here, we are about to login so no need for this.
         // hasLastError = false;
         // lastError = "";
         
-        TTRSSJsonResult result = null;
+        JSONResult result = null;
         String strResponse = doRequest(url, true);
         
         if (!hasLastError) {
             try {
-                result = new TTRSSJsonResult(strResponse);
+                result = new JSONResult(strResponse);
             } catch (Exception e) {
                 hasLastError = true;
                 lastError = "An Error occurred. Message from Server: " + strResponse;
@@ -316,7 +316,7 @@ public class TTRSSJsonConnector {
             sessionId = null;
             
             String url = serverUrl + String.format(OP_LOGIN, userName, password);
-            TTRSSJsonResult jsonResult = getJSONLoginResponse(url);
+            JSONResult jsonResult = getJSONLoginResponse(url);
             
             if (!hasLastError && jsonResult != null) {
                 
@@ -358,7 +358,7 @@ public class TTRSSJsonConnector {
         String mPasswordEncoded = Base64.encodeBytes(bytes);
         
         String url = serverUrl + String.format(OP_LOGIN, userName, mPasswordEncoded);
-        TTRSSJsonResult jsonResult = getJSONLoginResponse(url);
+        JSONResult jsonResult = getJSONLoginResponse(url);
         
         if (!hasLastError && jsonResult != null) {
             int i = 0;
@@ -402,7 +402,7 @@ public class TTRSSJsonConnector {
         try {
             for (int j = 0; j < array.length(); j++) {
                 
-                TTRSSJsonResult att = new TTRSSJsonResult(array.getString(j));
+                JSONResult att = new JSONResult(array.getString(j));
                 JSONArray names = att.getNames();
                 JSONArray values = att.getValues();
                 
@@ -716,7 +716,10 @@ public class TTRSSJsonConnector {
             String url = serverUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 2);
             ret = doRequestNoAnswer(url);
         }
-        return ret.contains(OK);
+        if (ret != null)
+            return ret.contains(OK);
+		
+		return false;
     }
     
     /**
@@ -737,7 +740,10 @@ public class TTRSSJsonConnector {
             String url = serverUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 0);
             ret = doRequestNoAnswer(url);
         }
-        return ret.contains(OK);
+        if (ret != null)
+            return ret.contains(OK);
+		
+		return false;
     }
     
     /**
@@ -758,7 +764,10 @@ public class TTRSSJsonConnector {
             String url = serverUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 1);
             ret = doRequestNoAnswer(url);
         }
-        return ret.contains(OK);
+        if (ret != null)
+            return ret.contains(OK);
+		
+		return false;
     }
     
     /**
@@ -772,7 +781,10 @@ public class TTRSSJsonConnector {
     public boolean setRead(int id, boolean isCategory) {
         String url = serverUrl + String.format(OP_CATCHUP, id, (isCategory ? 1 : 0));
         String ret = doRequestNoAnswer(url);
-        return ret.contains(OK);
+        if (ret != null)
+            return ret.contains(OK);
+		
+		return false;
     }
     
     /**

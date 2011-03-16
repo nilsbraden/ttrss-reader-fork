@@ -23,12 +23,13 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.FeedHeadlineListAdapter;
+import org.ttrssreader.model.cachers.ImageCacher;
 import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.TTRSSJsonConnector;
+import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
@@ -80,6 +81,7 @@ public class ArticleActivity extends Activity {
     private int absWidth;
     private int swipeHeight;
     private int swipeWidth;
+    private String baseUrl = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -235,7 +237,7 @@ public class ArticleActivity extends Activity {
             webview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         }
         
-        if (!TTRSSJsonConnector.hasLastError()) {
+        if (!JSONConnector.hasLastError()) {
             article = DBHelper.getInstance().getArticle(articleId);
             
             if (article != null && article.content != null) {
@@ -248,27 +250,25 @@ public class ArticleActivity extends Activity {
                 }
                 
                 // Store current index in ID-List so we can jump between articles
-                if (feedHeadlineListAdapter == null) {
+                if (feedHeadlineListAdapter == null)
                     feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId);
-                }
-                if (feedHeadlineListAdapter.getFeedItemIds().indexOf(articleId) >= 0) {
+                
+                if (feedHeadlineListAdapter.getFeedItemIds().indexOf(articleId) >= 0)
                     currentIndex = feedHeadlineListAdapter.getFeedItemIds().indexOf(articleId);
-                }
                 
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
                 content = injectAttachments(getApplicationContext(), article.content, article.attachments);
                 
-                if (article.cachedImages) {
-                    content = Utils.injectCachedImages(content);
-                }
+                if (article.cachedImages)
+                    content = injectCachedImages(content);
                 
                 // Load html from Raw-Ressources and insert content
                 String temp = getResources().getString(R.string.INJECT_HTML_HEAD);
                 String text = temp.replace("MARKER", content);
                 
                 // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-                String baseURL = StringSupport.getBaseURL(article.url);
-                webview.loadDataWithBaseURL(baseURL, text, "text/html", "utf-8", "about:blank");
+                baseUrl = StringSupport.getBaseURL(article.url);
+                webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
                 
                 if (article.title != null) {
                     setTitle(article.title);
@@ -276,9 +276,8 @@ public class ArticleActivity extends Activity {
                     setTitle(getResources().getString(R.string.ApplicationName));
                 }
                 
-                if (article.isUnread && Controller.getInstance().automaticMarkRead()) {
+                if (article.isUnread && Controller.getInstance().automaticMarkRead())
                     new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
-                }
                 
                 if (!linkAutoOpened && content.length() < 3) {
                     if (Controller.getInstance().openUrlEmptyArticle()) {
@@ -290,7 +289,7 @@ public class ArticleActivity extends Activity {
                 
             }
         } else {
-            openConnectionErrorDialog(TTRSSJsonConnector.pullLastError());
+            openConnectionErrorDialog(JSONConnector.pullLastError());
         }
         
         setProgressBarIndeterminateVisibility(false);
@@ -301,12 +300,12 @@ public class ArticleActivity extends Activity {
             // Load html from Raw-Ressources and insert content
             String temp = getResources().getString(R.string.INJECT_HTML_HEAD);
             String text = temp.replace("MARKER", content);
-            webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
+            webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
         } else {
             // Load html from Raw-Ressources and insert content
             String temp = getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
             String text = temp.replace("MARKER", content);
-            webview.loadDataWithBaseURL(null, text, "text/html", "utf-8", "about:blank");
+            webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
         }
     }
     
@@ -484,6 +483,28 @@ public class ArticleActivity extends Activity {
             }
         }
         return ret.toString();
+    }
+    
+    /**
+     * Injects the local path to every image which could be found in the local cache, replacing the original URLs in the
+     * html.
+     * 
+     * @param html
+     *            the original html
+     * @return the altered html with the URLs replaced so they point on local files if available
+     */
+    public static String injectCachedImages(String html) {
+        if (html == null || html.length() < 40)
+            return html;
+        
+        for (String url : ImageCacher.findAllImageUrls(html)) {
+            String localUrl = ImageCacher.getCachedImageUrl(url);
+            if (localUrl != null) {
+                Log.d(Utils.TAG, "Replacing image: " + localUrl);
+                html = html.replace(url, localUrl);
+            }
+        }
+        return html;
     }
     
 }
