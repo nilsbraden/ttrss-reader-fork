@@ -207,6 +207,8 @@ public class JSONConnector {
                 url = url.replace(tempSessionId, sessionId);
             }
             strResponse = doRequest(url, false);
+            if (strResponse == null)
+                strResponse = "";
         }
         
         // Check if API is enabled for the user
@@ -244,7 +246,7 @@ public class JSONConnector {
         
         String ret = doRequest(url, true); // Append Session-ID to all calls except login
         
-        if (hasLastError) {
+        if (hasLastError || ret == null) {
             hasLastError = false;
             lastError = "";
             ret = "";
@@ -267,7 +269,7 @@ public class JSONConnector {
         
         String strResponse = doRequest(url, true); // Append Session-ID to all calls except login
         
-        if (hasLastError)
+        if (hasLastError || strResponse == null)
             return null;
         
         JSONArray result = null;
@@ -288,12 +290,12 @@ public class JSONConnector {
     
     private JSONResult getJSONLoginResponse(String url) {
         // No check with assertLogin here, we are about to login so no need for this.
-        // hasLastError = false;
-        // lastError = "";
-        
-        JSONResult result = null;
         String strResponse = doRequest(url, true);
         
+        if (strResponse == null)
+            return null;
+        
+        JSONResult result = null;
         if (!hasLastError) {
             try {
                 result = new JSONResult(strResponse);
@@ -718,8 +720,8 @@ public class JSONConnector {
         }
         if (ret != null)
             return ret.contains(OK);
-		
-		return false;
+        
+        return false;
     }
     
     /**
@@ -742,8 +744,8 @@ public class JSONConnector {
         }
         if (ret != null)
             return ret.contains(OK);
-		
-		return false;
+        
+        return false;
     }
     
     /**
@@ -766,8 +768,8 @@ public class JSONConnector {
         }
         if (ret != null)
             return ret.contains(OK);
-		
-		return false;
+        
+        return false;
     }
     
     /**
@@ -783,8 +785,8 @@ public class JSONConnector {
         String ret = doRequestNoAnswer(url);
         if (ret != null)
             return ret.contains(OK);
-		
-		return false;
+        
+        return false;
     }
     
     /**
