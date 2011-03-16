@@ -718,10 +718,7 @@ public class JSONConnector {
             String url = serverUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 2);
             ret = doRequestNoAnswer(url);
         }
-        if (ret != null)
-            return ret.contains(OK);
-        
-        return false;
+        return (ret != null && ret.contains(OK));
     }
     
     /**
@@ -742,10 +739,7 @@ public class JSONConnector {
             String url = serverUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 0);
             ret = doRequestNoAnswer(url);
         }
-        if (ret != null)
-            return ret.contains(OK);
-        
-        return false;
+        return (ret != null && ret.contains(OK));
     }
     
     /**
@@ -766,10 +760,7 @@ public class JSONConnector {
             String url = serverUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 1);
             ret = doRequestNoAnswer(url);
         }
-        if (ret != null)
-            return ret.contains(OK);
-        
-        return false;
+        return (ret != null && ret.contains(OK));
     }
     
     /**
@@ -783,10 +774,7 @@ public class JSONConnector {
     public boolean setRead(int id, boolean isCategory) {
         String url = serverUrl + String.format(OP_CATCHUP, id, (isCategory ? 1 : 0));
         String ret = doRequestNoAnswer(url);
-        if (ret != null)
-            return ret.contains(OK);
-        
-        return false;
+        return (ret != null && ret.contains(OK));
     }
     
     /**
