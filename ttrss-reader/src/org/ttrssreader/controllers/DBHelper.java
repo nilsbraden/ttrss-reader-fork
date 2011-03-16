@@ -470,12 +470,12 @@ public class DBHelper {
                  * First update, then insert. If row is already there it gets updated and second
                  * call ignores it, if it is not there yet the second call inserts it.
                  */
-                ContentValues cv = new ContentValues();
-                cv.put(mark, isMarked);
-                db.update(TABLE_MARK, cv, "id=", new String[] { id + "" });
+                String sql;
+                sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, isMarked, id);
+                db.execSQL(sql);
                 
-                String sql = String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id,
-                        isMarked);
+                sql = String
+                        .format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id, isMarked);
                 db.execSQL(sql);
             }
         }
@@ -502,8 +502,8 @@ public class DBHelper {
         Set<Integer> set = new HashSet<Integer>();
         Cursor c = null;
         try {
-            c = db.query(TABLE_ARTICLES, new String[] { "id" }, "feedId=? AND isUnread=?", new String[] { id + "",
-                    1 + "" }, null, null, null, null);
+            c = db.query(TABLE_ARTICLES, new String[] { "id" }, "feedId=? AND isUnread=1", new String[] { id + "" },
+                    null, null, null, null);
             
             if (c.isBeforeFirst()) {
                 if (!c.moveToFirst()) {
@@ -627,9 +627,9 @@ public class DBHelper {
     
     public void purgeArticlesNumber(int number) {
         if (isDBAvailable()) {
+            String idList = "select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
             synchronized (TABLE_ARTICLES) {
-                db.delete(TABLE_ARTICLES, "id IN (SELECT id FROM " + TABLE_ARTICLES
-                        + " ORDER BY updateDate DESC LIMIT -1 OFFSET ?)", new String[] { number + "" });
+                db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
             }
         }
     }
@@ -799,8 +799,7 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_MARK, new String[] { "id" }, "?=?", new String[] { mark, status + "" }, null, null,
-                    null, null);
+            c = db.query(TABLE_MARK, new String[] { "id" }, mark + "=" + status, null, null, null, null, null);
             
             if (!c.moveToFirst())
                 return ret;
@@ -828,7 +827,7 @@ public class DBHelper {
             for (String idList : StringSupport.convertListToString(ids)) {
                 ContentValues cv = new ContentValues();
                 cv.putNull(mark);
-                db.update(TABLE_MARK, cv, "id IN (?)", new String[] { idList });
+                db.update(TABLE_MARK, cv, "id IN (" + idList + ")", null);
                 db.delete(TABLE_MARK, "isUnread is null AND isStarred is null AND isPublished is null", null);
             }
         } catch (Exception e) {
