@@ -168,7 +168,7 @@
     <string name="About.project">Project-Page</string>
     <string name="About.project_hint">Information on Development, Changelog etc.</string>
     <string name="About.twitter">Twitter</string>
-    <string name="About.twitter_hint">Follow me on twitter.\nGet update notifications etc.</string>
+    <string name="About.twitter_hint">Contact me on twitter.</string>
     <string name="About.twitter_acc">http://twitter.com/nilsbraden</string>
     <string name="About.mail">nils.braden@web.de</string>
     <string name="About.feedback">Feedback</string>
