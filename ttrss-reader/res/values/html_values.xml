@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * ttrss-reader-fork for Android
+ * 
+ * Copyright (C) 2010 N. Braden.
+ * Copyright (C) 2009-2010 J. Devauchelle.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 3 as published by the Free Software Foundation.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+-->
+<resources>
+    <string
+        name="INJECT_HTML_HEAD"
+        formatted="false">
+            &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+            &lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&gt;
+            &lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+            &lt;head&gt;&lt;style type=&quot;text/css&quot;&gt;* { text-align:justify; } img { max-width : 100%; }&lt;/style&gt;&lt;/head&gt;
+            &lt;body&gt;MARKER&lt;/body&gt;&lt;/html&gt;
+    </string>
+    
+    <string
+        name="INJECT_HTML_HEAD_ZOOM"
+        formatted="false">
+            &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+            &lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&gt;
+            &lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+            &lt;head&gt;&lt;style type=&quot;text/css&quot;&gt;* { text-align:justify; }&lt;/style&gt;&lt;/head&gt;
+            &lt;body&gt;MARKER&lt;/body&gt;&lt;/html&gt;
+    </string>
+    
+</resources>

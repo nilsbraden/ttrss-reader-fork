@@ -1,0 +1,259 @@
+#summary Changelog for all changes since the fork
+
+= Changes =
+== Version 0.9.1 ==
+  * New: Added possibility to send error-reports after a crash
+  * New: Removed donators-limitations, everyone can use the ImageCache now
+  * New: Added Exit-Button to error-dialog to allow completely exiting the app from the dialog
+  * Refurbished the reset of preferences (Preferences -> Menu -> Reset)
+  * blog.fefe.de now working (fixed relative links but I am unsure whether I have to use full path to article or just the domain-part. Ideas anyone?)
+  * Cleanup of preferences
+  * Minor bugfixes
+
+== Version 0.9 ==
+  * New: Added check for supported server-version on startup
+  * New: Added check for saved crash-report and option to send report by mail
+  * Minor changes in network-access, Requests are faster now
+
+== Version 0.8.9 (1) ==
+  * New: Added custom title-bar in Article-Display (can be disabled in preferences)
+  * New: Added setting to change the display-order of all lists
+  * New: Added long-press option to Category-View, showing list of all articles inside (Please note that updating all feeds in a category can take a while but it happens in background anyway)
+  * Addressed connectivity problems (probably no more annoying "could not connect"-messages)
+  * Small bugfixes
+  
+== Version 0.8.8 ==
+  * Fixed Issue #49: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=49 ttrss-reader-fork closes on launch and with wrong password])
+  * Fixed Issue #50: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=50 New Article unread are shown])
+  * Fixed Issue #53: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=53 crashes with "mark all as read"])
+  * Small fix which prevented new users from starting the app
+  * Small fix for a DB-Problem
+
+== Version 0.8.7 ==
+  * Performance improvements for ImageCache
+  * Minor fixes for retrieving of articles
+  * Fixed accidental jump to first feed while browsing
+  
+== Version 0.8.6 ==
+  * ImageCache download now parallelized into 4 threads (ArticleCache: 8 threads)
+  * Some performance tweaks
+  * Fixed Issue #45: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=45 SQL Error because of suhosin-blocked article_id])
+  * Added preference to split long GET-Requests due to problems with server-side security scanners like Suhosin
+
+== Version 0.8.5 ==
+  * Synchronizing marked articles now also works for complete feeds and categories
+  * When marking feeds/categories as read while beeing offline only local articles can be included, articles that are new on the server but not synchronized to the client cannot.
+  * Fixed FC on mark article read while beeing offline
+
+== Version 0.8.4 ==
+  * Added options for Image- and ArticleCache: cache for unread articles only
+  * Caching now works independent from online/offline state
+  * Added Offline-Synchronisation (article-state, star, published is synchronized later when browsing offline)
+  * Navigate by keyboard: n for next, b for previous article/feed
+  
+== Version 0.8.3 ==
+  * Fixed Articles not getting purged according to "Store articles limit"
+  * Probably fixed OutOfMemory problem while fetching articles
+  
+== Version 0.8.2 ==
+  * Added ArticleCache (load all new articles at once) for Donators
+  * Refresh unread-state while browsing unread articles
+  * Scale images in articleActivity so they match the display-width in original zoom (for other zoom-factors the original size is restored)
+  * Set CSS: text-align:"justify" in articleActivity
+  * More useful text when loading content
+  * Fixed ANR-situation
+  * Minor bugfixes/refactoring
+
+== Version 0.8.1 ==
+  * Addressed severe memory-issues
+  * Moved menu-definitions from code to xml files
+  * Added information to preferences-screen
+  * Refactored menus
+  * Fixed articles not getting marked as read
+  * Fixed offline-setting
+
+== Version 0.8 ==
+  * Added support for donations, status is checked once after providing the mailadress used to poste the donation
+  * For donators: Added pre-downloading of images for offline viewing (see project page for more information)
+  * Size of Swipe-Area now depends on density and screen-size and is adjusted accordingly
+  * Fixed Issue #36: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=36 functional - suggestion]) (show read articles for Virtual Categories)
+  * Fixed Issue #37: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=37 display source in view "All Articles"])
+  * Fixed Issue #38: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=38 mark all read in "All Articles"])
+  * Fixed Issue #40: (Better error-handling for disabled API and Not logged in 
+
+== Version 0.7.8 ==
+  * Added HTTP-Authentication. Resolves Issue #32 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=32 If an http 401 (denied) is received, try http authentication])
+  * Fixed Issue 34: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=34 Article refreshing problem]) 
+
+== Version 0.7.7 ==
+  * Now using server-side method for marking feeds/categories as read
+  * Fixed sorting of categories
+  * Tried to add compatibility-mode for old (pre 1.5) servers
+
+== Version 0.7.6 ==
+  * New Application-Icon and Overlay-icons for star/publish 
+  * Added support for the star- and publish-feature. Resolves Issue #23 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=10 Toggle star/unstar of an article])
+  * Fixed display of fresh/starred/published articles in the virtual feeds
+  * Fixed handling of URLs in Article-View
+  * Fixed problems with marking articles as read/unread
+
+== Version 0.7.5 ==
+  * Fixed sorting of categories
+  * Enhanced mediafile-download and notification
+
+== Version 0.7.4 ==
+  * Minor bugs fixed
+  * Better fling-support for headline-list and articles
+  * No recommendation when typing URL
+  * Fixed Bug with unread-counts
+  * Implemented new API-methods from tt-rss.org to avoid the manual hacking
+  * Added german localisation
+  
+== Version 0.7.3 ==
+  * Problems with API from 1.4.3.1 are (hopefully) resolved. Please mail me if i am wrong :)
+
+== Version 0.7.2 ==
+  * Fixed wrong calculation of unread-counts
+  * Added welcome-dialog for the first-run
+
+== Version 0.7.1 ==
+  * Added donate-button to about-dialog
+  * Fixed two unhandled Exceptions
+  * Fixed no virtual Categories beeing displayed on first start
+
+== Version 0.7 ==
+  * Improved updating of locally stored information
+  * Faster startup
+  * Better restarting of activities
+  * Fixed sorting-issues of feeds
+  * Fixed double-login
+  * Fixed progress-indicator
+
+== Version 0.6.8 ==
+  * Fixed: https://code.google.com/p/ttrss-reader-fork/issues/detail?id=30 (Only one article shown when using old API)
+  * Added notification for finished attachment-downloads.
+
+== Version 0.6.6 ==
+  * Fixed no articles beeing fetched if API doesn't support getArticles
+  * Fixed problem with VirtualCategories not beeing displayed
+
+== Version 0.6.5 ==
+  * Fixed problem with attached images
+  * Changed update-behaviour
+
+== Version 0.6.4 ==
+  * Added Changelog with button for the Donations-wikipage
+  * Fixed some concurrent-access-issues with database
+  * No more data on sdcard
+  * Performance boost by removing in-memory-storage of articles
+  * Reduced memory-footprint by reading from DB when needed, not in advance.
+  * Minor fixes and major refactoring
+  * Fixed fling-detection
+
+== Version 0.6.3 ==
+  * Refactored the settings-code
+  * Refactored the JsonConnector and its interface
+  * Rewrote DataController (now: Data) from scratch
+  * Don't request Headlines and Content of Articles seperated, just fetching the full article now
+  * Fixed: Fling in virtual category causing NPE
+  * Fixed: getArticles is now working, even with with virtual categories
+  * Using Sets instead of Lists in backend to avoid having to deal with duplicates. Refactored all occurrences.
+  * Avoiding synchronisation-issues and parallel access in DBHelper
+  * Better Fling-recognition
+
+== Version 0.6.2 (Bugfix-release) ==
+  * Fixed NPE in CategoryActivity
+  * Added Update-Check in main-menu
+  * Resolved Licensing issues
+
+== Version 0.6.1 ==
+  * Passwords are now allowed to contain special characters
+  * Attached Audio/Video files can now be downloaded or directly played
+
+== Version 0.6 ==
+  * No more String-identifiers, everything migrated to int
+  * Most DB-Querys are no raw-querys anymore
+  * isOnline works but is not always handled correctly
+  * We can now display attached Videos in the built-in mediaplayer
+  * Minor bugs fixed
+
+== Version 0.5.12 (Bugfix-release) ==
+  * Resolved Issue #23 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=23 Another FC while using tt-rss-reader])
+  * Resolved Issue #24 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=24 Another FC while using tt-rss-reader])
+  * Resolved Attachments not beeing fetched properly
+  * Resolved FC with empty articles
+  * Stability improvements.
+
+== Version 0.5.11 (Bugfix-release) ==
+  * Fixed Issue #16 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=16 error:NOT_LOGGED_IN if the app idle some time])
+  * Fixed DB beeing closed when onDestroy called but not re-opened when app is beeing used again (leading to FC)
+
+== Version 0.5.10 (Bugfix-release) ==
+  * Fixed Issue #17 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=17 FC while closing app (back button)])
+  * Fixed Issue #20 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=20 long article titles are not readable])
+  * Fixed Issue #21 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=21 FC while open browser, because article content is empty])
+  * Fixed Issue #22 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=22 FC after starting the app])
+
+== Version 0.5.9 ==
+  * Allow own SSL-certificates with own Keystore on SDCard
+  * Created new OnSharedPreferenceChangeListener
+
+== Version 0.5.8 ==
+  * Bugfix-Release: Fixed Issues #14 and #15
+
+== Version 0.5.7 ==
+  * SSL-Connection possible, toggle "Accept all SSL certificates" in preferences
+  * Added functionality to load all new articles since last update on startup, "Update articles with content on startup" in preferences
+  * Shouldn't crash anymore when using non-modified Tiny Tiny RSS API
+  * No more crashing when started first time, use "Refresh" from menu after changing your server-settings
+  * Fixed some NPEs
+
+== Version 0.5.6 ==
+  * Fixed isOnline always returning false on device (does work in emulator though)
+  * Fixed crash on startup if no settings were specified yet
+  * Refactored Main-Activity and put StorageReceiver in seperate class 
+
+== Version 0.5.5 ==
+  * Update unread-counts on startup
+  * Articles on SD-Card, small data like headlines stay in internal storage
+  * Article-content stays only in memory if sdcard not available
+  * DB-update if version changes, at the moment the old DB is just deleted.
+  * DB_VERSION in Preferences-Storage, not settable by user
+  * Better handling for synchronized-Methods in DataController, should lead to less time spent waiting for mutex.
+  * IllegalStateException because Adapter was modified from background-thread instead of beeing changed from the activity.
+
+== Version 0.5.4 ==
+  * Disabled concurrent modifications in Refresher.java and Updater.java because of Exceptions (see comments in source)
+  * forceRefresh not disabled automatically anymore, so we can forceRefresh several Adapters in one step (neccessary for Main-Activity with Categories and FeedHeadlines, see Comment in DataController.java)
+  * Fixed articles not having set their URL and comments-URL
+
+== Version 0.5.3 ==
+  * Fixed several Exceptions
+  * Signed with real key, before it was just for debugging
+  * Fixed history of Activities. You can switch application and always return to the position you were before.
+  * Added local caching in DB for Articles, Feeds and Categories.
+  * HTML content is saved base64-encoded in DB to avoid syntax-problems while inserting
+  * Removed Tabs, they were unneccessary since we have uncategorized feeds as a virtual category now
+  * Added preference for "automatically open url for empty article".
+  * Added preference for "automatically load data of categories below the current level".
+  * Added preference for "use volume-keys to navigate to previous/next articles".
+  * Added preference for "vibrate when first/last articles is reached".
+
+== Version 0.4.0 ==
+  * Mark everything as read button
+  * Share Article-URL via Twitter, Mail...
+  * Zoom-Button for Articles
+
+== Version 0.3.0 ==
+  * Next/previous-Button in Article-View Options-menu
+  * Use Swipe for Previous/Next Article
+  * Preference for "Use Swipe", default on
+  * Swipe only in bottom area of the Article-View, display hint if swiping elsewhere
+  * Added support for virtual-category "uncategorized Feeds" (categoryId=0)
+  * Added Tab on Main-Screen for uncategorized Feeds
+  * Added Option "DisplayOnlyUnread" to hide read articles and feeds without unread articles
+  * Added Option "DisplayOnlyUnread" to Options-Menü
+  * Added Option "Toggle Display Unread" to Main-Menu, FeedList-Menu and FeedHeadlineList-Menu
+  * Show attached images
+  * Automatically open webpage for empty Feed-Entrys
+  * Automatically leave FeedHeadlineView if there are no items (see FeedHeadlineListActivity.java:207)
