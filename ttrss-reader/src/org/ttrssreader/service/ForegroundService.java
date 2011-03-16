@@ -128,7 +128,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
     @Override
     public void onDestroy() {
         // Make sure our notification is gone.
-        stopForegroundCompat(R.string.foreground_service_started);
+        stopForegroundCompat(R.string.Cache_service_started);
     }
     
     // This is the old onStart method that will be called on the pre-2.0
@@ -148,25 +148,31 @@ public class ForegroundService extends Service implements ICacheEndListener {
     }
     
     void handleCommand(Intent intent) {
+        int icon = R.drawable.notification_icon;
+        CharSequence title = "";
+        CharSequence ticker = getText(R.string.Cache_service_started);
+        CharSequence text = getText(R.string.Cache_service_text);
+        
         if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
             imageCacher = new Cacher(this, new ImageCacher(this, false));
             imageCacher.execute();
+            title = getText(R.string.Cache_service_imagecache);
         } else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
             imageCacher = new Cacher(this, new ImageCacher(this, true));
             imageCacher.execute();
+            title = getText(R.string.Cache_service_articlecache);
         }
         
         // Display notification
-        CharSequence text = getText(R.string.foreground_service_started);
-        Notification notification = new Notification(R.drawable.notification_icon, text, System.currentTimeMillis());
+        Notification notification = new Notification(icon, ticker, System.currentTimeMillis());
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(), 0);
-        notification.setLatestEventInfo(this, getText(R.string.local_service_label), text, pendingIntent);
-        startForegroundCompat(R.string.foreground_service_started, notification);
+        notification.setLatestEventInfo(this, title, text, pendingIntent);
+        startForegroundCompat(R.string.Cache_service_started, notification);
     }
     
     @Override
     public void onCacheEnd() {
-        stopForegroundCompat(R.string.foreground_service_started);
+        stopForegroundCompat(R.string.Cache_service_started);
         this.stopSelf();
     }
     

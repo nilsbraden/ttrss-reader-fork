@@ -152,11 +152,6 @@
     <string name="ErrorActivity.ErrorDefault">Ein unbekannter Fehler ist aufgetreten. Sie können versuchen mehr Informationen mittels \"adb logcat\" von einem PC aus (sofern das Android-SDK installiert ist) oder über das Programm aLogcat aus dem Market zu bekommen.</string>
     <string name="ErrorActivity.CloseBtn">Meldung schließen</string>
     <string name="ErrorActivity.ExitBtn">Anwendung beenden</string>
-    
-    <string name="Utils.DownloadFinished">Prozess abgeschlossen.</string>
-    <string name="Utils.DownloadFinishedTime">Prozess in %s Sekunden abgeschlossen.</string>
-    <string name="Utils.DownloadError">Ein Fehler ist aufgetreten.</string>
-    <string name="Utils.DownloadErrorMessage">Ein Fehler ist aufgetreten, der Prozess konnte nicht abgeschlossen werden.</string>
 
     <string name="WebViewClientActivity.Download">Download</string>
     <string name="WebViewClientActivity.Display">Im Mediaplayer anzeigen</string>
@@ -171,5 +166,20 @@
     <string name="About.mail">nils.braden@web.de</string>
     <string name="About.feedback">Feedback</string>
     <string name="About.feedback_hint">Report bugs, request features ...</string>
+    
+    <string name="Utils.DownloadFinishedTitle">Download</string>
+    <string name="Utils.DownloadFinishedTicker">Prozess abgeschlossen.</string>
+    <string name="Utils.DownloadFinishedText">Prozess in %s Sekunden abgeschlossen.</string>
+    <string name="Utils.DownloadRunningTitle">Download läuft...</string>
+    <string name="Utils.DownloadRunningTicker">Download läuft...</string>
+    <string name="Utils.DownloadRunningText"></string>
+    <string name="Utils.DownloadErrorTitle">Error</string>
+    <string name="Utils.DownloadErrorTicker">Ein Fehler ist aufgetreten...</string>
+    <string name="Utils.DownloadErrorText">Ein Fehler ist aufgetreten, der Prozess konnte nicht abgeschlossen werden.</string>  
+    
+    <string name="Cache.service_started">Download gestartet...</string>
+    <string name="Cache.service_text">Download läuft...</string>
+    <string name="Cache.service_imagecache">Bild-Cache</string>
+    <string name="Cache.service_articlecache">Artikel-Cache</string>
 	
 </resources>

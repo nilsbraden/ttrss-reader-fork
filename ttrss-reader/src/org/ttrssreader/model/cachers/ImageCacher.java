@@ -47,7 +47,6 @@ public class ImageCacher implements ICacheable {
     private boolean onlyArticles;
     private boolean onlyUnreadImages;
     private boolean onlyUnreadArticles;
-    private long start;
     private long cacheSizeMax;
     private ImageCache imageCache;
     private long folderSize;
@@ -58,16 +57,15 @@ public class ImageCacher implements ICacheable {
         this.onlyArticles = onlyArticles;
         this.onlyUnreadImages = Controller.getInstance().isImageCacheUnread();
         this.onlyUnreadArticles = Controller.getInstance().isArticleCacheUnread();
-        this.start = System.currentTimeMillis();
         this.cacheSizeMax = Controller.getInstance().getImageCacheSize() * 1048576;
         this.imageCache = Controller.getInstance().getImageCache(context);
-        String settings = "Settings: (onlyArticles: %s), (onlyUnreadImages: %s), (onlyUnreadArticles: %s), (start: %s), (cacheSizeMax: %s)";
-        Log.d(Utils.TAG,
-                String.format(settings, onlyArticles, onlyUnreadImages, onlyUnreadArticles, start, cacheSizeMax));
+        String settings = "Settings: (onlyArticles: %s), (onlyUnreadImages: %s), (onlyUnreadArticles: %s), (cacheSizeMax: %s)";
+        Log.d(Utils.TAG, String.format(settings, onlyArticles, onlyUnreadImages, onlyUnreadArticles, cacheSizeMax));
     }
     
     @Override
     public void cache() {
+        long start = System.currentTimeMillis();
         
         // Check connectivity
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -89,12 +87,8 @@ public class ImageCacher implements ICacheable {
         purgeCache();
         
         int time = (int) (System.currentTimeMillis() - start) / 1000;
-        
-        String content = String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
-                cacheSizeMax / 1048576, time);
-        
-        Utils.showNotification(content, time, false, context);
-        Log.w(Utils.TAG, content);
+        Log.w(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
+                cacheSizeMax / 1048576, time));
     }
     
     private void updateArticles() {
