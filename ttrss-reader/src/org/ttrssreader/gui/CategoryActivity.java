@@ -26,8 +26,6 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.CategoryListAdapter;
-import org.ttrssreader.model.cachers.Cacher;
-import org.ttrssreader.model.cachers.ImageCacher;
 import org.ttrssreader.model.pojos.CategoryItem;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -41,7 +39,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -125,10 +122,10 @@ public class CategoryActivity extends MenuActivity {
             updater.cancel(true);
             updater = null;
         }
-        if (imageCacher != null) {
-            imageCacher.cancel(true);
-            imageCacher = null;
-        }
+        // if (imageCacher != null) {
+        // imageCacher.cancel(true);
+        // imageCacher = null;
+        // }
         adapter.cursor.deactivate();
         adapter.cursor.close();
     }
@@ -141,15 +138,15 @@ public class CategoryActivity extends MenuActivity {
         adapter.notifyDataSetChanged();
         
         if (JSONConnector.hasLastError()) {
-            if (imageCacher != null) {
-                imageCacher.cancel(true);
-                imageCacher = null;
-            }
+            // if (imageCacher != null) {
+            // imageCacher.cancel(true);
+            // imageCacher = null;
+            // }
             openConnectionErrorDialog(JSONConnector.pullLastError());
             return;
         }
         
-        if (updater == null && imageCacher == null) {
+        if (updater == null) { // && imageCacher == null) {
             setProgressBarIndeterminateVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyCategories);
         }
@@ -238,20 +235,20 @@ public class CategoryActivity extends MenuActivity {
             case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(adapter.getCategories())).execute();
                 return true;
-            case R.id.Category_Menu_ImageCache:
-                if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
-                    setProgressBarIndeterminateVisibility(true);
-                    imageCacher = new Cacher(this, new ImageCacher(this, false));
-                    imageCacher.execute();
-                }
-                return true;
-            case R.id.Category_Menu_ArticleCache:
-                if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
-                    setProgressBarIndeterminateVisibility(true);
-                    imageCacher = new Cacher(this, new ImageCacher(this, true));
-                    imageCacher.execute();
-                }
-                return true;
+                // case R.id.Category_Menu_ImageCache:
+                // if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
+                // setProgressBarIndeterminateVisibility(true);
+                // imageCacher = new Cacher(this, new ImageCacher(this, false));
+                // imageCacher.execute();
+                // }
+                // return true;
+                // case R.id.Category_Menu_ArticleCache:
+                // if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
+                // setProgressBarIndeterminateVisibility(true);
+                // imageCacher = new Cacher(this, new ImageCacher(this, true));
+                // imageCacher.execute();
+                // }
+                // return true;
         }
         
         if (ret) {

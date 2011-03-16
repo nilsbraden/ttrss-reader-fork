@@ -322,11 +322,10 @@ public class Utils {
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager mNotMan = (NotificationManager) context.getSystemService(ns);
         
-        long when = System.currentTimeMillis();
         int icon = R.drawable.icon;
         
         PendingIntent intent = PendingIntent.getActivity(context, 0, new Intent(), 0);
-        Notification n = new Notification(icon, ticker, when);
+        Notification n = new Notification(icon, ticker, System.currentTimeMillis());
         n.flags |= Notification.FLAG_AUTO_CANCEL;
         n.setLatestEventInfo(context, title, content, intent);
         
