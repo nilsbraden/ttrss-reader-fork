@@ -4,17 +4,20 @@
     package="org.ttrssreader"
     android:installLocation="auto"
     android:versionName="0.9.1"
-    android:versionCode="912">
+    android:versionCode="912"
+>
 
     <application
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName"
         android:description="@string/ApplicationDescription"
-        android:debuggable="true">
+        android:debuggable="true"
+    >
 
         <activity
             android:name=".gui.CategoryActivity"
-            android:label="@string/ApplicationName">
+            android:label="@string/ApplicationName"
+        >
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />
@@ -38,6 +41,9 @@
             android:name=".gui.AboutActivity"
             android:theme="@android:style/Theme.Dialog"
             android:label="@string/AboutActivity.Title" />
+
+        <service
+            android:name=".service.ForegroundService" />
     </application>
 
     <uses-sdk

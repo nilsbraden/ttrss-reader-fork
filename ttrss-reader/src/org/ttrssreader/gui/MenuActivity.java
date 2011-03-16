@@ -19,10 +19,10 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
-import org.ttrssreader.model.cachers.Cacher;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.service.ForegroundService;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
@@ -44,7 +44,6 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
     protected boolean configChecked = false;
     protected ListView listView;
     protected Updater updater;
-    protected Cacher imageCacher;
     protected TextView notificationTextView;
     
     protected static final int MARK_GROUP = 42;
@@ -82,10 +81,8 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
         MenuItem displayUnread = menu.findItem(R.id.Menu_DisplayOnlyUnread);
         if (Controller.getInstance().displayOnlyUnread()) {
             displayUnread.setTitle(getString(R.string.Commons_DisplayAll));
-            // displayUnread.setIcon(R.drawable.ic_menu_play_clip);
         } else {
             displayUnread.setTitle(getString(R.string.Commons_DisplayOnlyUnread));
-            // displayUnread.setIcon(R.drawable.ic_menu_stop);
         }
         
         return true;
@@ -121,9 +118,26 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
             case R.id.Menu_About:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
+            case R.id.Category_Menu_ArticleCache:
+                startImageCacher(true);
+                return true;
+            case R.id.Category_Menu_ImageCache:
+                startImageCacher(false);
+                return true;
             default:
                 return false;
         }
+    }
+    
+    private void startImageCacher(boolean onlyArticles) {
+        Intent intent;
+        if (onlyArticles) {
+            intent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);
+        } else {
+            intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
+        }
+        intent.setClass(this.getApplicationContext(), ForegroundService.class);
+        startService(intent);
     }
     
     protected boolean checkConfig() {
@@ -177,7 +191,7 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
     
     @Override
     public void onCacheEnd() {
-        imageCacher = null;
         doRefresh();
     }
+    
 }

@@ -130,10 +130,10 @@ public class FeedHeadlineListActivity extends MenuActivity {
             updater.cancel(true);
             updater = null;
         }
-        if (imageCacher != null) {
-            imageCacher.cancel(true);
-            imageCacher = null;
-        }
+        // if (imageCacher != null) {
+        // imageCacher.cancel(true);
+        // imageCacher = null;
+        // }
         adapter.cursor.deactivate();
         adapter.cursor.close();
     }
@@ -165,15 +165,15 @@ public class FeedHeadlineListActivity extends MenuActivity {
         }
         
         if (JSONConnector.hasLastError()) {
-            if (imageCacher != null) {
-                imageCacher.cancel(true);
-                imageCacher = null;
-            }
+            // if (imageCacher != null) {
+            // imageCacher.cancel(true);
+            // imageCacher = null;
+            // }
             openConnectionErrorDialog(JSONConnector.pullLastError());
             return;
         }
         
-        if (updater == null && imageCacher == null) {
+        if (updater == null) { // && imageCacher == null) {
             setProgressBarIndeterminateVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyHeadlines);
         }

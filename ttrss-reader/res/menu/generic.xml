@@ -39,6 +39,14 @@
         android:id="@+id/Menu_WorkOffline"
         android:icon="@drawable/ic_menu_stop" />
     <item
+        android:title="@string/Main.ImageCache"
+        android:id="@+id/Category_Menu_ImageCache"
+        android:icon="@android:drawable/ic_menu_save" />
+    <item
+        android:title="@string/Main.ArticleCache"
+        android:id="@+id/Category_Menu_ArticleCache"
+        android:icon="@android:drawable/ic_menu_save" />
+    <item
         android:title="@string/Main.ShowPreferencesMenu"
         android:id="@+id/Menu_ShowPreferences"
         android:icon="@android:drawable/ic_menu_preferences" />
