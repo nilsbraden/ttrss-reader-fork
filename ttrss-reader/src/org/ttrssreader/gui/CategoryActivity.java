@@ -42,7 +42,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -216,14 +215,6 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.category, menu);
-        return true;
-    }
-    
-    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         boolean ret = super.onOptionsItemSelected(item);
         
@@ -235,20 +226,6 @@ public class CategoryActivity extends MenuActivity {
             case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(adapter.getCategories())).execute();
                 return true;
-                // case R.id.Category_Menu_ImageCache:
-                // if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
-                // setProgressBarIndeterminateVisibility(true);
-                // imageCacher = new Cacher(this, new ImageCacher(this, false));
-                // imageCacher.execute();
-                // }
-                // return true;
-                // case R.id.Category_Menu_ArticleCache:
-                // if (imageCacher == null || imageCacher.getStatus().equals(Status.FINISHED)) {
-                // setProgressBarIndeterminateVisibility(true);
-                // imageCacher = new Cacher(this, new ImageCacher(this, true));
-                // imageCacher.execute();
-                // }
-                // return true;
         }
         
         if (ret) {

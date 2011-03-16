@@ -126,22 +126,23 @@ public class ArticleWebViewClient extends WebViewClient {
     private class AsyncDownloader extends AsyncTask<URL, Void, Void> {
         protected Void doInBackground(URL... urls) {
             
-            String msg = "";
             if (urls.length < 1) {
-                Log.e(Utils.TAG, "No URL given, skipping download...");
                 
-                msg = (String) context.getText(R.string.Utils_DownloadError);
-                Utils.showNotification(msg, 0, false, context);
-                
+                String msg = "No URL given, skipping download...";
+                Log.e(Utils.TAG, msg);
+                Utils.showFinishedNotification(msg, 0, true, context);
                 return null;
+                
             } else if (!externalStorageState()) {
-                Log.e(Utils.TAG, "External Storage not available, skipping download...");
                 
-                msg = (String) context.getText(R.string.Utils_DownloadError);
-                Utils.showNotification(msg, 0, false, context);
-                
+                String msg = "External Storage not available, skipping download...";
+                Log.e(Utils.TAG, msg);
+                Utils.showFinishedNotification(msg, 0, true, context);
                 return null;
+                
             }
+            
+            Utils.showRunningNotification(context, false);
             
             URL url = urls[0];
             long start = System.currentTimeMillis();
@@ -193,12 +194,16 @@ public class ArticleWebViewClient extends WebViewClient {
                 String path = folder + File.separator + name;
                 
                 Log.d(Utils.TAG, "Finished. Path: " + path + " Time: " + time + "s.");
-                Utils.showNotification(path, time, false, context);
+                Utils.showFinishedNotification(path, time, false, context);
                 
             } catch (IOException e) {
-                Log.d(Utils.TAG, "Error while downloading: " + e);
+                String msg = "Error while downloading: " + e;
+                Log.d(Utils.TAG, msg);
+                Utils.showFinishedNotification(msg, 0, true, context);
+            } finally {
+                // Remove "running"-notification
+                Utils.showRunningNotification(context, true);
             }
-            
             return null;
         }
     }

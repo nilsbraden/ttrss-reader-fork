@@ -169,13 +169,19 @@
     <string name="About.feedback">Feedback</string>
     <string name="About.feedback_hint">Report bugs, request features ...</string>
 
-    <!--  ImageCache  -->
-    <string name="Utils.DownloadFinished">Finished.</string>
-    <string name="Utils.DownloadFinishedTime">Process finished in %s seconds.</string>
-    <string name="Utils.DownloadError">An error occurred.</string>
-    <string name="Utils.DownloadErrorMessage">An error occurred, process could not be finished.</string>
-    <string name="foreground_service_started">Service is in the foreground</string>
-    <string name="foreground_service_label">Sample Foreground Service</string>
-    <string name="local_service_label">local_service_label</string>
+    <string name="Utils.DownloadFinishedTitle">Download</string>
+    <string name="Utils.DownloadFinishedTicker">Download finished</string>
+    <string name="Utils.DownloadFinishedText">Process finished in %s seconds.</string>
+    <string name="Utils.DownloadRunningTitle">Download running...</string>
+    <string name="Utils.DownloadRunningTicker">Download running...</string>
+    <string name="Utils.DownloadRunningText"></string>
+    <string name="Utils.DownloadErrorTitle">Error</string>
+    <string name="Utils.DownloadErrorTicker">Error...</string>
+    <string name="Utils.DownloadErrorText">An error occurred, process could not be finished.</string>
+    
+    <string name="Cache.service_started">Download started...</string>
+    <string name="Cache.service_text">Download is running...</string>
+    <string name="Cache.service_imagecache">ImageCache</string>
+    <string name="Cache.service_articlecache">ArticleCache</string>
     
 </resources>

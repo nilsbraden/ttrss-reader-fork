@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.9.2 ==
+  * ImageCache now started as a service, it doesn't get killed anymore by the system
+  * ImageCache accessible from CategoryList, FeedList and FeedHeadlineList
+  * Added notification for running downloads, using a grey icon to indicate the difference
+
 == Version 0.9.1 ==
   * New: Added possibility to send error-reports after a crash
   * New: Removed donators-limitations, everyone can use the ImageCache now

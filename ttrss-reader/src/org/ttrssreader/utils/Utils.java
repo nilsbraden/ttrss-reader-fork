@@ -88,6 +88,9 @@ public class Utils {
     public static final Pattern findImageUrlsPattern = Pattern.compile("<img.+src=\"([^\"]*)\".*/>",
             Pattern.CASE_INSENSITIVE);
     
+    private static final int ID_RUNNING = 4564561;
+    private static final int ID_FINISHED = 7897891;
+    
     /*
      * Check if this is the first run of the app, if yes, returns true.
      */
@@ -304,32 +307,66 @@ public class Utils {
      * @param context
      *            the context
      */
-    public static void showNotification(String content, int time, boolean error, Context context) {
-        if (content == null)
-            return;
+    public static void showFinishedNotification(String content, int time, boolean error, Context context) {
         
-        CharSequence ticker = "";
+        int icon;
         CharSequence title = "";
+        CharSequence ticker = "";
+        CharSequence text = content;
+        if (content == null)
+            text = context.getText(R.string.Utils_DownloadFinishedText);
         
         if (error) {
-            ticker = (String) context.getText(R.string.Utils_DownloadError);
-            title = (String) context.getText(R.string.Utils_DownloadErrorMessage);
+            icon = R.drawable.icon;
+            title = context.getText(R.string.Utils_DownloadErrorTitle);
+            ticker = context.getText(R.string.Utils_DownloadErrorTicker);
         } else {
-            ticker = (String) context.getText(R.string.Utils_DownloadFinished);
-            title = String.format((String) context.getText(R.string.Utils_DownloadFinished), time);
+            icon = R.drawable.icon;
+            title = String.format((String) context.getText(R.string.Utils_DownloadFinishedTitle), time);
+            ticker = context.getText(R.string.Utils_DownloadFinishedTicker);
         }
         
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager mNotMan = (NotificationManager) context.getSystemService(ns);
         
-        int icon = R.drawable.icon;
+        PendingIntent intent = PendingIntent.getActivity(context, 0, new Intent(), 0);
+        Notification n = new Notification(icon, ticker, System.currentTimeMillis());
+        n.flags |= Notification.FLAG_AUTO_CANCEL;
+        n.setLatestEventInfo(context, title, text, intent);
+        
+        mNotMan.notify(ID_FINISHED, n);
+    }
+    
+    /**
+     * Shows a notification indicating that something is running. When called with finished=true it removes the
+     * notification.
+     * 
+     * @param context
+     *            the context
+     * @param finished
+     *            if the notification is to be removed
+     */
+    public static void showRunningNotification(Context context, boolean finished) {
+        String ns = Context.NOTIFICATION_SERVICE;
+        NotificationManager mNotMan = (NotificationManager) context.getSystemService(ns);
+        
+        // if finished remove notification and return, else display notification
+        if (finished) {
+            mNotMan.cancel(ID_RUNNING);
+            return;
+        }
+        
+        int icon = R.drawable.notification_icon;
+        CharSequence title = context.getText(R.string.Utils_DownloadRunningTitle);
+        CharSequence ticker = context.getText(R.string.Utils_DownloadRunningTicker);
+        CharSequence text = context.getText(R.string.Utils_DownloadRunningText);
         
         PendingIntent intent = PendingIntent.getActivity(context, 0, new Intent(), 0);
         Notification n = new Notification(icon, ticker, System.currentTimeMillis());
         n.flags |= Notification.FLAG_AUTO_CANCEL;
-        n.setLatestEventInfo(context, title, content, intent);
+        n.setLatestEventInfo(context, title, text, intent);
         
-        mNotMan.notify(time - 1290000000, n);
+        mNotMan.notify(ID_RUNNING, n);
     }
     
 }
