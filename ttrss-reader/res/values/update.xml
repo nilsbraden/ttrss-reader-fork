@@ -20,6 +20,12 @@
         name="updates"
     >
 
+        <item>v0.9.2:
+            \n * ImageCache now started as a service so it doesn\'t get killed anymore by the system
+            \n * ImageCache accessible in menu of CategoryList, FeedList and FeedHeadlineList
+            \n * Added notification for running downloads, using a grey icon to indicate the difference
+            \n * Fixed DB-Problems which prevented efficient caching</item>
+        
         <item>v0.9.1:
             \n * Added possibility to send error-reports after a crash
             \n * Removed donators-limitations, everyone can use the ImageCache now

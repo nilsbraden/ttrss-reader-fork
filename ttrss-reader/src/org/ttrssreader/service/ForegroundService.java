@@ -148,6 +148,10 @@ public class ForegroundService extends Service implements ICacheEndListener {
     }
     
     void handleCommand(Intent intent) {
+        // Fail-safe
+        if (intent == null || intent.getAction() == null)
+            return;
+        
         int icon = R.drawable.notification_icon;
         CharSequence title = "";
         CharSequence ticker = getText(R.string.Cache_service_started);
