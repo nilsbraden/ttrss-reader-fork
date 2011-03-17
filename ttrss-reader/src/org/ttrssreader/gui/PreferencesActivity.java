@@ -44,7 +44,7 @@ public class PreferencesActivity extends PreferenceActivity {
     }
     
     private void updatePreferences() {
-        Controller.getInstance().initializeController(this);
+        Controller.getInstance().checkAndInitializeController(this, true);
     }
     
     @Override

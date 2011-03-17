@@ -34,7 +34,6 @@ import android.util.Log;
 
 public class DBHelper {
     
-    private static final Long mutex = new Long(1);
     private static DBHelper instance = null;
     private boolean initialized = false;
     
@@ -49,10 +48,6 @@ public class DBHelper {
     public static final String MARK_READ = "isUnread";
     public static final String MARK_STAR = "isStarred";
     public static final String MARK_PUBLISH = "isPublished";
-    
-    // private static final int TYPE_CATEGORY = 1;
-    // private static final int TYPE_FEED = 2;
-    // private static final int TYPE_ARTICLE = 3;
     
     // @formatter:off
     private static final String INSERT_CATEGORY = 
@@ -81,14 +76,29 @@ public class DBHelper {
     private SQLiteStatement insertFeed;
     private SQLiteStatement insertArticle;
     
-    public DBHelper() {
-        context = null;
+    // Singleton
+    private DBHelper() {
+    }
+    
+    public static DBHelper getInstance() {
+        if (instance == null) {
+            synchronized (DBHelper.class) {
+                if (instance == null) {
+                    instance = new DBHelper();
+                }
+            }
+        }
+        return instance;
+    }
+    
+    public synchronized void checkAndInitializeDB(final Context context) {
+        this.context = context;
         
-        db = null;
-        
-        insertCategorie = null;
-        insertFeed = null;
-        insertArticle = null;
+        if (!initialized) {
+            initialized = initializeController();
+        } else if (db == null || !db.isOpen()) {
+            initialized = initializeController();
+        }
     }
     
     private synchronized boolean initializeController() {
@@ -106,27 +116,6 @@ public class DBHelper {
         insertFeed = db.compileStatement(INSERT_FEEDS);
         insertArticle = db.compileStatement(INSERT_ARTICLES);
         return true;
-    }
-    
-    public synchronized void checkAndInitializeDB(Context context) {
-        this.context = context;
-        
-        if (!initialized) {
-            initialized = initializeController();
-        } else if (db == null || !db.isOpen()) {
-            initialized = initializeController();
-        }
-    }
-    
-    public static DBHelper getInstance() {
-        if (instance == null) {
-            synchronized (mutex) {
-                if (instance == null) {
-                    instance = new DBHelper();
-                }
-            }
-        }
-        return instance;
     }
     
     private boolean isDBAvailable() {
