@@ -29,7 +29,6 @@ import android.net.ConnectivityManager;
 
 public class Data {
     
-    private static final String mutex = "";
     private static Data instance = null;
     private static boolean initialized = false;
     private Context context;
@@ -43,9 +42,13 @@ public class Data {
     
     private ConnectivityManager cm;
     
+    // Singleton
+    private Data() {
+    }
+    
     public static Data getInstance() {
         if (instance == null) {
-            synchronized (mutex) {
+            synchronized (Data.class) {
                 if (instance == null)
                     instance = new Data();
             }
@@ -53,8 +56,16 @@ public class Data {
         return instance;
     }
     
-    private synchronized void initializeData(Context context) {
+    public synchronized void checkAndInitializeData(final Context context) {
         this.context = context;
+        
+        if (!initialized) {
+            initializeData();
+            initialized = true;
+        }
+    }
+    
+    private synchronized void initializeData() {
         if (context != null)
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         
@@ -75,13 +86,6 @@ public class Data {
         
         if (categoriesUpdated < newArticlesUpdated)
             categoriesUpdated = newArticlesUpdated;
-    }
-    
-    public synchronized void checkAndInitializeData(final Context context) {
-        if (!initialized) {
-            initializeData(context);
-            initialized = true;
-        }
     }
     
     // *** COUNTERS *********************************************************************

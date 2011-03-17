@@ -32,10 +32,10 @@ public class Controller {
     public final static String JSON_END_URL = "api/";
     
     private boolean initialized = false;
+    private Context context;
     private JSONConnector ttrssConnector;
     private ImageCache imageCache;
     
-    private static final Integer mutex = 0;
     private static Controller instance = null;
     private SharedPreferences prefs = null;
     
@@ -70,9 +70,13 @@ public class Controller {
     private int serverVersion;
     private long serverVersionLastUpdate;
     
+    // Singleton
+    private Controller() {
+    }
+    
     public static Controller getInstance() {
         if (instance == null) {
-            synchronized (mutex) {
+            synchronized (Controller.class) {
                 if (instance == null) {
                     instance = new Controller();
                 }
@@ -81,7 +85,21 @@ public class Controller {
         return instance;
     }
     
-    public synchronized void initializeController(Context context) {
+    public synchronized void checkAndInitializeController(final Context context) {
+        this.context = context;
+        
+        if (!initialized) {
+            initializeController();
+            initialized = true;
+        }
+    }
+    
+    public synchronized void checkAndInitializeController(final Context context, boolean force) {
+        this.initialized = false;
+        checkAndInitializeController(context);
+    }
+    
+    private synchronized void initializeController() {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         
         // Check for new installation
@@ -148,13 +166,6 @@ public class Controller {
         
         // Initialize ImageCache
         getImageCache(context);
-    }
-    
-    public synchronized void checkAndInitializeController(final Context context) {
-        if (!initialized) {
-            initializeController(context);
-            initialized = true;
-        }
     }
     
     // ******* USAGE-Options ****************************
