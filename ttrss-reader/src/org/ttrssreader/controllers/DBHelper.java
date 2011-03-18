@@ -456,8 +456,8 @@ public class DBHelper {
         if (isDBAvailable()) {
             synchronized (TABLE_MARK) {
                 /*
-                 * First update, then insert. If row is already there it gets updated and second
-                 * call ignores it, if it is not there yet the second call inserts it.
+                 * First update, then insert. If row exists it gets updated and second
+                 * call ignores it, else the second call inserts it.
                  */
                 String sql;
                 sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, isMarked, id);
