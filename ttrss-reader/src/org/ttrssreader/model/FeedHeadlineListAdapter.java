@@ -17,7 +17,6 @@
 package org.ttrssreader.model;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -25,51 +24,29 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.pojos.FeedItem;
-import org.ttrssreader.model.updaters.IUpdatable;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
+public class FeedHeadlineListAdapter extends MainAdapter {
     
-    private Context context;
-    public Cursor cursor;
-    
-    private int feedId;
-    private int categoryId;
-    private boolean displayOnlyUnread;
-    private boolean invertSort;
     private boolean selectArticlesForCategory;
-    private int unreadCount = 0;
     
     public FeedHeadlineListAdapter(Context context, int feedId) {
         this(context, feedId, -1, false);
     }
     
     public FeedHeadlineListAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
-        this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
-        this.invertSort = Controller.getInstance().invertSortArticleList();
+        super(context);
         this.selectArticlesForCategory = selectArticlesForCategory;
-        this.context = context;
         this.feedId = feedId;
         this.categoryId = categoryId;
         makeQuery();
-    }
-    
-    @Override
-    public int getCount() {
-        if (cursor.isClosed()) {
-            return 1;
-        }
-        
-        return cursor.getCount();
     }
     
     @Override
@@ -92,42 +69,6 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
             }
         }
         return null;
-    }
-    
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-    
-    public int getFeedItemId(int position) {
-        if (cursor.isClosed()) {
-            return 1;
-        }
-        
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                return cursor.getInt(0);
-            }
-        }
-        return 0;
-    }
-    
-    public ArrayList<Integer> getFeedItemIds() {
-        if (cursor.isClosed()) {
-            return null;
-        }
-        
-        ArrayList<Integer> result = new ArrayList<Integer>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            result.add(cursor.getInt(0));
-            cursor.move(1);
-        }
-        return result;
-    }
-    
-    public int getUnread() {
-        return unreadCount;
     }
     
     private void getImage(ImageView icon, ArticleItem a) {
@@ -197,26 +138,8 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
         return layout;
     }
     
-    private void closeCursor() {
-        if (cursor != null) {
-            cursor.close();
-            cursor = null;
-        }
-    }
-    
-    public synchronized void makeQuery() {
-        // Check if display-settings have changed
-        if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
-            displayOnlyUnread = !displayOnlyUnread;
-            closeCursor();
-        } else if (invertSort != Controller.getInstance().invertSortArticleList()) {
-            invertSort = !invertSort;
-            closeCursor();
-        } else if (cursor != null && !cursor.isClosed()) {
-            cursor.requery();
-        }
-        
-        StringBuffer query = new StringBuffer();
+    protected String buildQuery() {
+        StringBuilder query = new StringBuilder();
         
         query.append("SELECT a.id,a.feedId,a.title,a.isUnread,a.updateDate,a.isStarred,a.isPublished,b.title AS feedTitle FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
@@ -255,36 +178,32 @@ public class FeedHeadlineListAdapter extends BaseAdapter implements IUpdatable {
                     query.append(" AND a.feedId=");
                     query.append(feedId);
                 }
-                if (displayOnlyUnread) {
+                if (displayOnlyUnread)
                     query.append(" AND a.isUnread>0");
-                }
         }
         
         query.append(" ORDER BY a.updateDate ");
         
-        if (invertSort) {
+        if (invertSortArticles) {
             query.append("ASC");
         } else {
             query.append("DESC");
         }
         
-        // Log.v(Utils.TAG, query.toString());
-        if (cursor != null)
-            cursor.close();
-        // Log.d(Utils.TAG, query.toString());
-        cursor = DBHelper.getInstance().query(query.toString(), null);
+        return query.toString();
     }
     
     @Override
     public void update() {
         if (selectArticlesForCategory) {
+            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
             for (FeedItem f : DBHelper.getInstance().getFeeds(categoryId)) {
                 Data.getInstance().updateArticles(f.id, Controller.getInstance().displayOnlyUnread());
             }
         } else {
+            unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
             Data.getInstance().updateArticles(feedId, Controller.getInstance().displayOnlyUnread());
         }
-        unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
     }
     
 }

@@ -16,7 +16,6 @@
 
 package org.ttrssreader.gui;
 
-import java.util.ArrayList;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -68,8 +67,6 @@ public class FeedHeadlineListActivity extends MenuActivity {
     private boolean selectArticlesForCategory = false;
     
     private FeedListAdapter feedListAdapter;
-    private ArrayList<Integer> feedListIds;
-    private ArrayList<String> feedListNames;
     
     private GestureDetector gestureDetector;
     private int absHeight;
@@ -157,23 +154,18 @@ public class FeedHeadlineListActivity extends MenuActivity {
         adapter.notifyDataSetChanged();
         
         // Store current index in ID-List so we can jump between articles
-        if (feedListAdapter == null) {
+        if (feedListAdapter == null)
             feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
-        }
-        if (feedListAdapter.getFeedIds().indexOf(feedId) >= 0) {
-            currentIndex = feedListAdapter.getFeedIds().indexOf(feedId);
-        }
+        
+        if (feedListAdapter.getIds().indexOf(feedId) >= 0)
+            currentIndex = feedListAdapter.getIds().indexOf(feedId);
         
         if (JSONConnector.hasLastError()) {
-            // if (imageCacher != null) {
-            // imageCacher.cancel(true);
-            // imageCacher = null;
-            // }
             openConnectionErrorDialog(JSONConnector.pullLastError());
             return;
         }
         
-        if (updater == null) { // && imageCacher == null) {
+        if (updater == null) {
             setProgressBarIndeterminateVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyHeadlines);
         }
@@ -202,13 +194,13 @@ public class FeedHeadlineListActivity extends MenuActivity {
         super.onListItemClick(l, v, position, id);
         
         Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getFeedItemId(position));
+        i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getItemId(position));
         i.putExtra(ArticleActivity.FEED_ID, feedId);
-        // i.putIntegerArrayListExtra(ArticleActivity.ARTICLE_LIST_ID, mAdapter.getFeedItemIds());
+        i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
         
-        if (!flingDetected) {
+        if (!flingDetected)
             startActivity(i);
-        }
     }
     
     @Override
@@ -289,12 +281,10 @@ public class FeedHeadlineListActivity extends MenuActivity {
         if (feedListAdapter == null)
             feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
         
-        feedListIds = feedListAdapter.getFeedIds();
-        feedListNames = feedListAdapter.getFeedNames();
         int index = currentIndex + direction;
         
         // No more feeds in this direction
-        if (index < 0 || index >= feedListIds.size()) {
+        if (index < 0 || index >= feedListAdapter.getCount()) {
             if (Controller.getInstance().vibrateOnLastArticle()) {
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 v.vibrate(Utils.SHORT_VIBRATE);
@@ -304,8 +294,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         Intent i = new Intent(this, getClass());
         i.putExtra(FEED_CAT_ID, categoryId);
-        i.putExtra(FEED_ID, feedListIds.get(index));
-        i.putExtra(FEED_TITLE, feedListNames.get(index));
+        i.putExtra(FEED_ID, feedListAdapter.getId(index));
+        i.putExtra(FEED_TITLE, feedListAdapter.getTitle(index));
         
         startActivityForResult(i, 0);
         this.finish();
@@ -321,6 +311,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (!Controller.getInstance().useSwipe())
+                return false;
             
             // SWIPE_WIDTH must be more then 50% of the screen
             int SWIPE_WIDTH = (int) (absWidth * 0.5);
@@ -329,20 +321,12 @@ public class FeedHeadlineListActivity extends MenuActivity {
             int dy = (int) (e2.getY() - e1.getY());
             
             if (Math.abs(dy) > (int) (absHeight * 0.2)) {
-                // Too much Y-Movement (20% of screen-height)
-                return false;
-            } else if (!Controller.getInstance().useSwipe()) {
-                return false;
+                return false; // Too much Y-Movement (20% of screen-height)
             }
             
             // don't accept the fling if it's too short as it may conflict with a button push
             if (Math.abs(dx) > SWIPE_WIDTH && Math.abs(velocityX) > Math.abs(velocityY)) {
                 flingDetected = true;
-                
-                // Log.d(Utils.TAG,
-                // String.format("Fling: (%s %s)(%s %s) dx: %s dy: %s (Direction: %s)", e1.getX(), e1.getY(),
-                // e2.getX(), e2.getY(), dx, dy, (velocityX > 0) ? "right" : "left"));
-                // Log.d(Utils.TAG, String.format("SWIPE_WIDTH: %s", SWIPE_WIDTH));
                 
                 if (velocityX > 0) {
                     openNextFeed(-1);

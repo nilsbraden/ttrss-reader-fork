@@ -56,7 +56,7 @@ public class CategoryActivity extends MenuActivity {
     private static final int DIALOG_CRASH = 3;
     private static final int DIALOG_OLD_SERVER = 4;
     
-    protected static final int MARK_ARTICLES = MARK_GROUP + 4;
+    protected static final int SELECT_ARTICLES = MARK_GROUP + 54;
     
     private CategoryListAdapter adapter = null;
     
@@ -172,7 +172,7 @@ public class CategoryActivity extends MenuActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(MARK_GROUP, MARK_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
+        menu.add(MARK_GROUP, SELECT_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
     }
     
     @Override
@@ -180,13 +180,13 @@ public class CategoryActivity extends MenuActivity {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(this, new ReadStateUpdater(adapter.getCategoryId(cmi.position))).execute();
+                new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position))).execute();
                 return true;
-            case MARK_ARTICLES:
+            case SELECT_ARTICLES:
                 Intent i = new Intent(this, FeedHeadlineListActivity.class);
                 i.putExtra(FeedHeadlineListActivity.FEED_ID, FeedHeadlineListActivity.FEED_NO_ID);
-                i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, adapter.getCategoryId(cmi.position));
-                i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getCategoryTitle(cmi.position));
+                i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, adapter.getId(cmi.position));
+                i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getTitle(cmi.position));
                 i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, true);
                 startActivity(i);
         }
@@ -197,19 +197,19 @@ public class CategoryActivity extends MenuActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         
-        int categoryId = adapter.getCategoryId(position);
+        int categoryId = adapter.getId(position);
         Intent i;
         
         if (categoryId < 0 && categoryId >= -4) {
             // Virtual feeds
             i = new Intent(this, FeedHeadlineListActivity.class);
             i.putExtra(FeedHeadlineListActivity.FEED_ID, categoryId);
-            i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getCategoryTitle(position));
+            i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getTitle(position));
         } else {
             // Categories
             i = new Intent(this, FeedListActivity.class);
             i.putExtra(FeedListActivity.CATEGORY_ID, categoryId);
-            i.putExtra(FeedListActivity.CATEGORY_TITLE, adapter.getCategoryTitle(position));
+            i.putExtra(FeedListActivity.CATEGORY_TITLE, adapter.getTitle(position));
         }
         startActivity(i);
     }

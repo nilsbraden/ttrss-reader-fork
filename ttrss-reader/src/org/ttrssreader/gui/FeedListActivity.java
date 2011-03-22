@@ -151,8 +151,8 @@ public class FeedListActivity extends MenuActivity {
         
         Intent i = new Intent(this, FeedHeadlineListActivity.class);
         i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getFeedId(position));
-        i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getFeedTitle(position));
+        i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getId(position));
+        i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getTitle(position));
         
         startActivity(i);
     }
@@ -161,7 +161,7 @@ public class FeedListActivity extends MenuActivity {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (item.getItemId() == MARK_READ) {
-            new Updater(this, new ReadStateUpdater(mAdapter.getFeedId(cmi.position), 42)).execute();
+            new Updater(this, new ReadStateUpdater(mAdapter.getId(cmi.position), 42)).execute();
             return true;
         }
         return false;
