@@ -2,6 +2,7 @@
 
 = Changes =
 == Version 0.9.3 ==
+  * Added French translation, thanks Régis
   * Long-press a category to show all articles in this category in one list
   * "Show all articles" now also allows browsing with volume-keys or swiping
 
