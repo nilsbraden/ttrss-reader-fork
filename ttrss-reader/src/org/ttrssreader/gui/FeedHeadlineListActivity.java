@@ -194,7 +194,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
         super.onListItemClick(l, v, position, id);
         
         Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getItemId(position));
+        i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(position));
         i.putExtra(ArticleActivity.FEED_ID, feedId);
         i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
