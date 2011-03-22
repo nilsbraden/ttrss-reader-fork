@@ -20,6 +20,11 @@
         name="updates"
     >
 
+        <item>v0.9.3:
+            \n * Added French translation, thanks Régis
+            \n * Long-press a category to show all articles in this category in one list
+            \n * "Show all articles" now also allows browsing with volume-keys or swiping</item>
+
         <item>v0.9.2:
             \n * ImageCache now started as a service so it doesn\'t get killed anymore by the system
             \n * ImageCache accessible in menu of CategoryList, FeedList and FeedHeadlineList
