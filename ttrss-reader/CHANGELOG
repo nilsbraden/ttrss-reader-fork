@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.9.3 ==
+  * Long-press a category to show all articles in this category in one list
+  * "Show all articles" now also allows browsing with volume-keys or swiping
+
 == Version 0.9.2 ==
   * ImageCache now started as a service so it doesn't get killed anymore by the system
   * ImageCache accessible in menu of CategoryList, FeedList and FeedHeadlineList
