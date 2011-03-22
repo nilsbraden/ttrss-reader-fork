@@ -71,7 +71,9 @@ public class ArticleActivity extends Activity {
     private ArticleItem article = null;
     private String content;
     private boolean linkAutoOpened;
-    private int currentIndex;
+    private int currentIndex = 0;
+    private int categoryId = -1000;
+    private boolean selectArticlesForCategory = false;
     
     private WebView webview;
     private TextView webviewSwipeText;
@@ -123,10 +125,14 @@ public class ArticleActivity extends Activity {
             articleId = extras.getInt(ARTICLE_ID);
             feedId = extras.getInt(FEED_ID);
             currentIndex = extras.getInt(ARTICLE_INDEX);
+            categoryId = extras.getInt(FeedHeadlineListActivity.FEED_CAT_ID);
+            selectArticlesForCategory = extras.getBoolean(FeedHeadlineListActivity.FEED_SELECT_ARTICLES);
         } else if (instance != null) {
             articleId = instance.getInt(ARTICLE_ID);
             feedId = instance.getInt(FEED_ID);
             currentIndex = instance.getInt(ARTICLE_INDEX);
+            categoryId = instance.getInt(FeedHeadlineListActivity.FEED_CAT_ID);
+            selectArticlesForCategory = instance.getBoolean(FeedHeadlineListActivity.FEED_SELECT_ARTICLES);
         } else {
             articleId = -1;
             feedId = -1;
@@ -151,6 +157,9 @@ public class ArticleActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putInt(ARTICLE_ID, articleId);
         outState.putInt(FEED_ID, feedId);
+        outState.putInt(ARTICLE_INDEX, currentIndex);
+        outState.putInt(FeedHeadlineListActivity.FEED_INDEX, currentIndex);
+        outState.putBoolean(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
     }
     
     @Override
@@ -251,10 +260,11 @@ public class ArticleActivity extends Activity {
                 
                 // Store current index in ID-List so we can jump between articles
                 if (feedHeadlineListAdapter == null)
-                    feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId);
+                    feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
+                            selectArticlesForCategory);
                 
-                if (feedHeadlineListAdapter.getFeedItemIds().indexOf(articleId) >= 0)
-                    currentIndex = feedHeadlineListAdapter.getFeedItemIds().indexOf(articleId);
+                if (feedHeadlineListAdapter.getIds().indexOf(articleId) >= 0)
+                    currentIndex = feedHeadlineListAdapter.getIds().indexOf(articleId);
                 
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
                 content = injectAttachments(getApplicationContext(), article.content, article.attachments);
@@ -312,9 +322,10 @@ public class ArticleActivity extends Activity {
     private void openNextArticle(int direction) {
         
         if (feedHeadlineListAdapter == null)
-            feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId);
+            feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
+                    selectArticlesForCategory);
         
-        articleIds = feedHeadlineListAdapter.getFeedItemIds();
+        articleIds = feedHeadlineListAdapter.getIds();
         int index = currentIndex + direction;
         
         // No more articles in this direction
@@ -329,6 +340,8 @@ public class ArticleActivity extends Activity {
         Intent i = new Intent(this, ArticleActivity.class);
         i.putExtra(ArticleActivity.ARTICLE_ID, articleIds.get(index));
         i.putExtra(ArticleActivity.FEED_ID, feedId);
+        i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
         
         startActivityForResult(i, 0);
         this.finish();

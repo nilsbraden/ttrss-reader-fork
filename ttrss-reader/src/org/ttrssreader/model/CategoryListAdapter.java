@@ -19,43 +19,22 @@ package org.ttrssreader.model;
 import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.CategoryItem;
-import org.ttrssreader.model.updaters.IUpdatable;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
-    
-    private Context context;
-    public Cursor cursor;
-    
-    private boolean displayOnlyUnread;
-    private boolean invertSort;
-    private int unreadCount = 0;
+public class CategoryListAdapter extends MainAdapter {
     
     public CategoryListAdapter(Context context) {
-        this.context = context;
-        makeQuery();
-    }
-    
-    @Override
-    public int getCount() {
-        if (cursor.isClosed()) {
-            return -1;
-        }
-        
-        return cursor.getCount();
+        super(context);
     }
     
     @Override
@@ -76,50 +55,6 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         return ret;
     }
     
-    @Override
-    public long getItemId(int position) {
-        if (cursor.isClosed()) {
-            return -1;
-        }
-        
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                return cursor.getInt(0);
-            }
-        }
-        return 0;
-    }
-    
-    public int getCategoryId(int position) {
-        if (cursor.isClosed()) {
-            return -1;
-        }
-        
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                return cursor.getInt(0);
-            }
-        }
-        return 0;
-    }
-    
-    public String getCategoryTitle(int position) {
-        if (cursor.isClosed()) {
-            return "";
-        }
-        
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                return cursor.getString(1);
-            }
-        }
-        return "";
-    }
-    
-    public int getUnread() {
-        return unreadCount;
-    }
-    
     public List<CategoryItem> getCategories() {
         if (cursor.isClosed()) {
             return null;
@@ -136,14 +71,6 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
             cursor.move(1);
         }
         return result;
-    }
-    
-    private String formatTitle(String title, int unread) {
-        if (unread > 0) {
-            return title + " (" + unread + ")";
-        } else {
-            return title;
-        }
     }
     
     private int getImage(int id, boolean unread) {
@@ -185,7 +112,7 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         icon.setImageResource(getImage(c.id, c.unread > 0));
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(formatTitle(c.title, c.unread));
+        title.setText(super.formatTitle(c.title, c.unread));
         if (c.unread > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
         } else {
@@ -195,46 +122,30 @@ public class CategoryListAdapter extends BaseAdapter implements IUpdatable {
         return layout;
     }
     
-    private void closeCursor() {
-        if (cursor != null) {
-            cursor.close();
-        }
-    }
-    
-    public synchronized void makeQuery() {
-        // Check if display-settings have changed
-        if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
-            displayOnlyUnread = !displayOnlyUnread;
-            closeCursor();
-        } else if (invertSort != Controller.getInstance().invertSortFeedsCats()) {
-            invertSort = !invertSort;
-            closeCursor();
-        } else if (cursor != null && !cursor.isClosed()) {
-            cursor.requery();
-        }
-        
-        StringBuffer query = new StringBuffer();
+    protected String buildQuery() {
+        StringBuilder query = new StringBuilder();
         
         query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
         query.append(" WHERE id<=0 ORDER BY id) AS a UNION SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
         query.append(" WHERE id>0");
+        
         if (displayOnlyUnread) {
             query.append(" AND unread>0");
         }
+        
         query.append(" ORDER BY UPPER(title) ");
-        if (invertSort) {
+        
+        if (invertSortFeedCats) {
             query.append("ASC");
         } else {
             query.append("DESC");
         }
+        
         query.append(") AS b");
         
-        // Log.v(Utils.TAG, query.toString());
-        if (cursor != null)
-            cursor.close();
-        cursor = DBHelper.getInstance().query(query.toString(), null);
+        return query.toString();
     }
     
     @Override

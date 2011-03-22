@@ -16,47 +16,24 @@
 
 package org.ttrssreader.model;
 
-import java.util.ArrayList;
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.FeedItem;
-import org.ttrssreader.model.updaters.IUpdatable;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class FeedListAdapter extends BaseAdapter implements IUpdatable {
-    
-    private Context context;
-    public Cursor cursor;
-    
-    private int categoryId;
-    private boolean displayOnlyUnread;
-    private boolean invertSort;
-    private int unreadCount = 0;
+public class FeedListAdapter extends MainAdapter {
     
     public FeedListAdapter(Context context, int categoryId) {
-        this.context = context;
+        super(context);
         this.categoryId = categoryId;
-        makeQuery();
-    }
-    
-    @Override
-    public int getCount() {
-        if (cursor.isClosed()) {
-            return -1;
-        }
-        
-        return cursor.getCount();
     }
     
     @Override
@@ -75,77 +52,6 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
             }
         }
         return ret;
-    }
-    
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-    
-    public int getFeedId(int position) {
-        if (cursor.isClosed()) {
-            return -1;
-        }
-        
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                return cursor.getInt(0);
-            }
-        }
-        return 0;
-    }
-    
-    public String getFeedTitle(int position) {
-        if (cursor.isClosed()) {
-            return null;
-        }
-        
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                return cursor.getString(1);
-            }
-        }
-        return "";
-    }
-    
-    public ArrayList<Integer> getFeedIds() {
-        if (cursor.isClosed()) {
-            return null;
-        }
-        
-        ArrayList<Integer> result = new ArrayList<Integer>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            result.add(cursor.getInt(0));
-            cursor.move(1);
-        }
-        return result;
-    }
-    
-    public ArrayList<String> getFeedNames() {
-        if (cursor.isClosed()) {
-            return null;
-        }
-        
-        ArrayList<String> result = new ArrayList<String>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            result.add(cursor.getString(1));
-            cursor.move(1);
-        }
-        return result;
-    }
-    
-    public int getUnread() {
-        return unreadCount;
-    }
-    
-    private String formatTitle(String title, int unread) {
-        if (unread > 0) {
-            return title + " (" + unread + ")";
-        } else {
-            return title;
-        }
     }
     
     private int getImage(boolean unread) {
@@ -177,7 +83,7 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
         icon.setImageResource(getImage(f.unread > 0));
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(formatTitle(f.title, f.unread));
+        title.setText(super.formatTitle(f.title, f.unread));
         if (f.unread > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
         } else {
@@ -187,25 +93,8 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
         return layout;
     }
     
-    private void closeCursor() {
-        if (cursor != null) {
-            cursor.close();
-        }
-    }
-    
-    public synchronized void makeQuery() {
-        // Check if display-settings have changed
-        if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
-            displayOnlyUnread = !displayOnlyUnread;
-            closeCursor();
-        } else if (invertSort != Controller.getInstance().invertSortFeedsCats()) {
-            invertSort = !invertSort;
-            closeCursor();
-        } else if (cursor != null && !cursor.isClosed()) {
-            cursor.requery();
-        }
-        
-        StringBuffer query = new StringBuffer();
+    protected String buildQuery() {
+        StringBuilder query = new StringBuilder();
         
         query.append("SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_FEEDS);
@@ -218,16 +107,13 @@ public class FeedListAdapter extends BaseAdapter implements IUpdatable {
         
         query.append(" ORDER BY UPPER(title) ");
         
-        if (invertSort) {
+        if (invertSortFeedCats) {
             query.append("DESC");
         } else {
             query.append("ASC");
         }
         
-        // Log.v(Utils.TAG, query.toString());
-        if (cursor != null)
-            cursor.close();
-        cursor = DBHelper.getInstance().query(query.toString(), null);
+        return query.toString();
     }
     
     @Override
