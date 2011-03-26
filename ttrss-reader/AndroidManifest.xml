@@ -66,10 +66,6 @@
     <uses-permission
         android:name="android.permission.VIBRATE" />
 
-    <!-- Read IMEI to check Donation-Status -->
-    <uses-permission
-        android:name="android.permission.READ_PHONE_STATE" />
-
     <supports-screens
         android:smallScreens="true"
         android:normalScreens="true"
