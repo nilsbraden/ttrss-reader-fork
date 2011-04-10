@@ -1,6 +1,9 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.9.4 ==
+  * Reduced permissions as requested by Issue #58 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=57 Is "Phone Calls" Permission Necessary?])
+
 == Version 0.9.3 ==
   * Added French translation, thanks Régis
   * Long-press a category to show all articles in this category in one list
