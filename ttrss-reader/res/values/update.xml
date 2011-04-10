@@ -19,6 +19,9 @@
     <string-array
         name="updates"
     >
+    
+        <item>v0.9.3:
+            \n * Reduced permissions as requested by Issue #58</item>
 
         <item>v0.9.3:
             \n * Added French translation, thanks Régis
