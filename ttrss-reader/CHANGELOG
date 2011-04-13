@@ -1,6 +1,15 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.9.5 ==
+  * Fixed error-message for API_DISABLED not beeing displayed
+  * Fixed swype-here-notification not beeing displayed
+  * Changed zoom-behaviour (default: Images are scaled, once zoomed: Images are
+displayed in right aspect-ratio)
+  * Fixed broken next/previous article/feed jump when returning from article-view
+  * Images are not fetched from online-sources anymore if browsing in Offline-mode
+  * Some performance-issues fixed and some background-exceptions too
+
 == Version 0.9.4 ==
   * Reduced permissions as requested by Issue #58 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=57 Is "Phone Calls" Permission Necessary?])
 
