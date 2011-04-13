@@ -37,8 +37,8 @@ public class DBHelper {
     private static DBHelper instance = null;
     private boolean initialized = false;
     
-    private static final String DATABASE_NAME = "ttrss.db";
-    private static final int DATABASE_VERSION = 48;
+    public static final String DATABASE_NAME = "ttrss.db";
+    public static final int DATABASE_VERSION = 48;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -108,13 +108,18 @@ public class DBHelper {
             return false;
         }
         
+        if (db != null)
+            db.close();
+        
         OpenHelper openHelper = new OpenHelper(context);
         db = openHelper.getWritableDatabase();
         db.setLockingEnabled(false);
         
-        insertCategorie = db.compileStatement(INSERT_CATEGORY);
-        insertFeed = db.compileStatement(INSERT_FEEDS);
-        insertArticle = db.compileStatement(INSERT_ARTICLES);
+        if (insertCategorie == null) {
+            insertCategorie = db.compileStatement(INSERT_CATEGORY);
+            insertFeed = db.compileStatement(INSERT_FEEDS);
+            insertArticle = db.compileStatement(INSERT_ARTICLES);
+        }
         return true;
     }
     
@@ -302,6 +307,14 @@ public class DBHelper {
      */
     public Cursor query(String sql, String[] selectionArgs) {
         return db.rawQuery(sql, selectionArgs);
+    }
+    
+    /**
+     * @see android.database.sqlite.SQLiteDatabase#close()
+     */
+    public void close() {
+        initialized = false;
+        db.close();
     }
     
     public Cursor queryArticlesForImageCache(boolean onlyUnreadImages) {
@@ -625,6 +638,7 @@ public class DBHelper {
     
     // *******| SELECT |*******************************************************************
     
+    // Takes about 2 to 6 ms on Motorola Milestone
     public ArticleItem getArticle(int id) {
         ArticleItem ret = null;
         if (!isDBAvailable())

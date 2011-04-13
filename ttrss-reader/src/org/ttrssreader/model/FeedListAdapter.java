@@ -20,8 +20,10 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -118,7 +120,9 @@ public class FeedListAdapter extends MainAdapter {
     
     @Override
     public void update() {
+        long time = System.currentTimeMillis();
         Data.getInstance().updateFeeds(categoryId, false);
+        Log.d(Utils.TAG, "Time: " + (System.currentTimeMillis() - time) + "ms");
         unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
     }
     

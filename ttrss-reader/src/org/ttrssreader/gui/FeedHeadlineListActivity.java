@@ -18,7 +18,6 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.FeedHeadlineListAdapter;
 import org.ttrssreader.model.FeedListAdapter;
@@ -35,7 +34,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -44,7 +42,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
@@ -78,12 +75,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.feedheadlinelist);
-        
-        Controller.getInstance().checkAndInitializeController(this);
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        Data.getInstance().checkAndInitializeData(this);
         
         listView = getListView();
         registerForContextMenu(listView);
@@ -114,22 +106,12 @@ public class FeedHeadlineListActivity extends MenuActivity {
     }
     
     @Override
-    protected void onResume() {
-        super.onResume();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
-        doRefresh();
-        doUpdate();
-    }
-    
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        adapter.cursor.deactivate();
-        adapter.cursor.close();
+        if (feedListAdapter != null)
+            feedListAdapter.closeDB();
+        if (adapter != null)
+            adapter.closeDB();
     }
     
     @Override
@@ -276,10 +258,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
             return;
         
         if (feedListAdapter == null) {
-            Log.e(Utils.TAG, "openNextFeed - Adapter was null... (int direction:" + direction + ")");
             feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
         } else if (feedListAdapter.cursor.isClosed()) {
-            Log.e(Utils.TAG, "openNextFeed - Cursor was closed... (int direction:" + direction + ")");
             feedListAdapter.cursor.requery();
         }
         
@@ -298,6 +278,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
         i.putExtra(FEED_CAT_ID, categoryId);
         i.putExtra(FEED_ID, feedListAdapter.getId(index));
         i.putExtra(FEED_TITLE, feedListAdapter.getTitle(index));
+        
+        feedListAdapter.closeDB();
         
         startActivityForResult(i, 0);
         this.finish();
