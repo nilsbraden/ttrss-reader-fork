@@ -18,140 +18,106 @@ package org.ttrssreader.model;
 import java.util.ArrayList;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.updaters.IUpdatable;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-public class MainAdapter extends BaseAdapter implements IUpdatable {
+public abstract class MainAdapter extends BaseAdapter {
     
     protected Context context;
     protected Cursor cursor;
-    protected SQLiteDatabase db;
     
     protected boolean displayOnlyUnread;
     protected boolean invertSortFeedCats;
     protected boolean invertSortArticles;
-    protected int unreadCount = 0;
     protected int categoryId;
     protected int feedId;
     
     public MainAdapter(Context context) {
         this.context = context;
-        openDB();
         
         this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
         this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
         this.invertSortArticles = Controller.getInstance().invertSortArticleList();
-
-        makeQuery();
-    }
-    
-    public void openDB() {
-        closeDB();
         
-        OpenHelper openHelper = new OpenHelper(context);
-        db = openHelper.getWritableDatabase();
-        db.setLockingEnabled(false);
+        makeQuery(true);
     }
     
-    public void closeDB() {
-        if (cursor != null && !cursor.isClosed()) {
-            cursor.close();
+    public final void closeCursor() {
+        synchronized (cursor) {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
         }
-        if (db != null && db.isOpen()) {
-            db.close();
-        }
-    }
-    
-    public boolean isDBOpen() {
-        return db.isOpen();
-    }
-    
-    private static class OpenHelper extends SQLiteOpenHelper {
-        OpenHelper(Context context) {
-            super(context, DBHelper.DATABASE_NAME, null, DBHelper.DATABASE_VERSION);
-        }
-        
-        // @formatter:off
-        @Override public void onCreate(SQLiteDatabase db) { }
-        @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
-        // @formatter:on
     }
     
     @Override
-    public int getCount() {
-        if (cursor.isClosed()) {
-            return -1;
+    public final int getCount() {
+        synchronized (cursor) {
+            if (cursor.isClosed()) {
+                makeQuery();
+            }
+            
+            return cursor.getCount();
         }
-        
-        return cursor.getCount();
     }
     
     @Override
-    public Object getItem(int position) {
-        return null;
-    }
-    
-    @Override
-    public long getItemId(int position) {
+    public final long getItemId(int position) {
         return position;
     }
     
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return null;
-    }
-    
-    @Override
-    public void update() {
-    }
-    
-    public int getId(int position) {
-        if (cursor.isClosed()) {
-            return -1;
-        }
-        
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                return cursor.getInt(0);
+    public final int getId(int position) {
+        int ret = 0;
+        synchronized (cursor) {
+            if (cursor.isClosed()) {
+                makeQuery();
+            }
+            
+            if (cursor.getCount() >= position) {
+                if (cursor.moveToPosition(position)) {
+                    ret = cursor.getInt(0);
+                }
             }
         }
-        return 0;
+        return ret;
     }
     
-    public ArrayList<Integer> getIds() {
-        if (cursor.isClosed()) {
-            return null;
-        }
-        
+    public final ArrayList<Integer> getIds() {
         ArrayList<Integer> result = new ArrayList<Integer>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            result.add(cursor.getInt(0));
-            cursor.move(1);
+        synchronized (cursor) {
+            if (cursor.isClosed()) {
+                makeQuery();
+            }
+            
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                result.add(cursor.getInt(0));
+                cursor.move(1);
+            }
         }
         return result;
     }
     
-    public String getTitle(int position) {
-        if (!cursor.isClosed() && cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                return cursor.getString(1);
+    public final String getTitle(int position) {
+        String ret = "";
+        synchronized (cursor) {
+            if (cursor.isClosed()) {
+                makeQuery();
+            }
+            
+            if (cursor.getCount() >= position) {
+                if (cursor.moveToPosition(position)) {
+                    ret = cursor.getString(1);
+                }
             }
         }
-        return "";
+        return ret;
     }
     
-    public int getUnread() {
-        return unreadCount;
-    }
-    
-    protected String formatTitle(String title, int unread) {
+    public static final String formatTitle(String title, int unread) {
         if (unread > 0) {
             return title + " (" + unread + ")";
         } else {
@@ -159,30 +125,46 @@ public class MainAdapter extends BaseAdapter implements IUpdatable {
         }
     }
     
-    public synchronized void makeQuery() {
-        // Check if display-settings have changed
-        if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
-            displayOnlyUnread = !displayOnlyUnread;
-            cursor.close();
-        } else if (invertSortFeedCats != Controller.getInstance().invertSortFeedsCats()) {
-            invertSortFeedCats = !invertSortFeedCats;
-            cursor.close();
-        } else if (invertSortArticles != Controller.getInstance().invertSortArticleList()) {
-            invertSortArticles = !invertSortArticles;
-            cursor.close();
-        }
-        
-        // Log.v(Utils.TAG, query.toString());
-        if (cursor != null)
-            cursor.close();
-        if (db == null || !db.isOpen())
-            openDB();
-        
-        cursor = db.rawQuery(buildQuery(), null);
+    public final synchronized void makeQuery() {
+        makeQuery(false);
     }
     
-    protected String buildQuery() {
-        return "";
+    /*
+     * Only refresh if forceRefresh is true (called from constructor) or one of the display-attributes changed. 
+     */
+    public final synchronized void makeQuery(boolean forceRefresh) {
+        boolean refresh = false;
+        // Check if display-settings have changed
+        if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
+            refresh = true;
+            displayOnlyUnread = !displayOnlyUnread;
+        }
+        if (invertSortFeedCats != Controller.getInstance().invertSortFeedsCats()) {
+            refresh = true;
+            invertSortFeedCats = !invertSortFeedCats;
+        }
+        if (invertSortArticles != Controller.getInstance().invertSortArticleList()) {
+            refresh = true;
+            invertSortArticles = !invertSortArticles;
+        }
+        
+        // if: sort-order or display-settings changed
+        // if: forced by explicit call with forceRefresh
+        // if: cursor is closed or null
+        if (refresh || forceRefresh || (cursor != null && cursor.isClosed())) {
+            if (cursor != null)
+                closeCursor();
+            
+            cursor = DBHelper.getInstance().query(buildQuery(), null);
+        }
     }
+    
+    @Override
+    public abstract Object getItem(int position);
+    
+    @Override
+    public abstract View getView(int position, View convertView, ViewGroup parent);
+    
+    protected abstract String buildQuery();
     
 }

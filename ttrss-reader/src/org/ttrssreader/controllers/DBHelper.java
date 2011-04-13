@@ -303,18 +303,12 @@ public class DBHelper {
     }
     
     /**
+     * Used by MainAdapter to directly access the DB and get a cursor for the ListViews.
+     * 
      * @see android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])
      */
     public Cursor query(String sql, String[] selectionArgs) {
         return db.rawQuery(sql, selectionArgs);
-    }
-    
-    /**
-     * @see android.database.sqlite.SQLiteDatabase#close()
-     */
-    public void close() {
-        initialized = false;
-        db.close();
     }
     
     public Cursor queryArticlesForImageCache(boolean onlyUnreadImages) {

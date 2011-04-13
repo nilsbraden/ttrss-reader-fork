@@ -20,7 +20,9 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.FeedListAdapter;
+import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.model.updaters.FeedListUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.JSONConnector;
@@ -42,6 +44,7 @@ public class FeedListActivity extends MenuActivity {
     private String categoryTitle;
     
     private FeedListAdapter adapter = null;
+    private FeedListUpdater updateable = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -64,8 +67,16 @@ public class FeedListActivity extends MenuActivity {
             categoryTitle = null;
         }
         
+        updateable = new FeedListUpdater(categoryId);
         adapter = new FeedListAdapter(this, categoryId);
         listView.setAdapter(adapter);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        if (adapter != null)
+            adapter.closeCursor();
+        super.onDestroy();
     }
     
     @Override
@@ -77,12 +88,6 @@ public class FeedListActivity extends MenuActivity {
     }
     
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        adapter.closeDB();
-    }
-    
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(CATEGORY_ID, categoryId);
@@ -91,9 +96,9 @@ public class FeedListActivity extends MenuActivity {
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(String.format("%s (%s)", categoryTitle, adapter.getUnread()));
+        setTitle(MainAdapter.formatTitle(categoryTitle, updateable.unreadCount));
         
-        adapter.makeQuery();
+        adapter.makeQuery(true);
         adapter.notifyDataSetChanged();
         
         if (JSONConnector.hasLastError()) {
@@ -121,7 +126,7 @@ public class FeedListActivity extends MenuActivity {
         setProgressBarIndeterminateVisibility(true);
         notificationTextView.setText(R.string.Loading_Feeds);
         
-        updater = new Updater(this, adapter);
+        updater = new Updater(this, updateable);
         updater.execute();
     }
     
@@ -166,5 +171,5 @@ public class FeedListActivity extends MenuActivity {
         }
         return true;
     }
-    
+
 }
