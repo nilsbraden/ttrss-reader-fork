@@ -302,19 +302,30 @@ public class ImageCacher implements ICacheable {
     }
     
     /**
-     * Searches for cached versions of the given image and returns the local URL to access the file
+     * Searches for cached versions of the given image and returns the local URL to access the file.
      * 
      * @param url
      *            the original URL
-     * @return the local URL or null if not available
+     * @return the local URL or null if no image in cache or if the file couldn't be found.
      */
     public static String getCachedImageUrl(String url) {
         ImageCache cache = Controller.getInstance().getImageCache(null);
         if (cache != null && cache.containsKey(url)) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("file://").append(cache.getDiskCacheDirectory()).append(File.separator)
-                    .append(cache.getFileNameForKey(url));
-            return sb.toString();
+            
+                StringBuffer sb = new StringBuffer();
+                sb.append(cache.getDiskCacheDirectory());
+                sb.append(File.separator);
+                sb.append(cache.getFileNameForKey(url));
+                
+                File file = new File(sb.toString());
+                
+                if (file.exists()) {
+                    sb.insert(0, "file://"); // Add "file:" at the beginning..
+                    return sb.toString();
+                } else {
+                    Log.w(Utils.TAG, "File " + sb.toString() + " is in cache but does not exist.");
+                }
+            
         }
         return null;
     }

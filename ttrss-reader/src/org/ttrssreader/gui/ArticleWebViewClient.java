@@ -106,12 +106,14 @@ public class ArticleWebViewClient extends WebViewClient {
     // original zoom with images scaled to match display-width and other factors to display in original width.
     @Override
     public void onScaleChanged(WebView view, float oldScale, float newScale) {
+        super.onScaleChanged(view, oldScale, newScale);
+        Log.d(Utils.TAG,
+                String.format("originalScale: %s, oldScale: %s, newScale: %s", originalScale, oldScale, newScale));
         if (originalScale == Float.MAX_VALUE) {
             originalScale = oldScale;
+            articleActivity.onZoomChanged(); //originalScale == newScale);
         }
         
-        articleActivity.onZoomChanged(originalScale == newScale);
-        super.onScaleChanged(view, oldScale, newScale);
     }
     
     private boolean externalStorageState() {
