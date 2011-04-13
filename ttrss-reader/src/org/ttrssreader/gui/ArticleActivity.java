@@ -363,30 +363,30 @@ public class ArticleActivity extends Activity {
             int dx = (int) (e2.getX() - e1.getX());
             int dy = (int) (e2.getY() - e1.getY());
             
+            // don't accept the fling if it's too short as it may conflict with a button push
+            boolean isSwype = false;
+            if (Math.abs(dx) > swipeWidth && Math.abs(velocityX) > Math.abs(velocityY)) {
+                isSwype = true;
+            }
+            
             if (Math.abs(dy) > (int) (absHeight * 0.2)) {
-                // Too much Y-Movement (20% of screen-height)
-                return false;
+                
+                return false; // Too much Y-Movement (20% of screen-height)
+                
             } else if (e1.getY() < SWIPE_BOTTOM || e2.getY() < SWIPE_BOTTOM) {
-                // Only accept swipe in SWIPE_AREA so we can use scrolling as usual
-                if (Math.abs(dx) > swipeWidth && Math.abs(velocityX) > Math.abs(velocityY)) {
-                    
+                
+                if (isSwype) {
                     // Display text for swipe-area
                     webviewSwipeText.setVisibility(TextView.VISIBLE);
                     new Handler().postDelayed(timerTask, 1000);
                 }
                 return false;
+
             } else if (!useSwipe) {
                 return false;
             }
             
-            // don't accept the fling if it's too short as it may conflict with a button push
-            if (Math.abs(dx) > swipeHeight && Math.abs(velocityX) > Math.abs(velocityY)) {
-                
-                // Log.d(Utils.TAG
-                // String.format("Fling: (%s %s)(%s %s) dx: %s dy: %s (Direction: %s)", e1.getX(), e1.getY()
-                // e2.getX(), e2.getY(), dx, dy, (velocityX > 0) ? "right" : "left"))
-                // Log.d(Utils.TAG, String.format("SWIPE_HEIGHT: %s SWIPE_WIDTH: %s", swipeHeight, swipeWidth));
-                
+            if (isSwype) {
                 if (velocityX > 0) {
                     openNextArticle(-1);
                 } else {
@@ -403,16 +403,11 @@ public class ArticleActivity extends Activity {
                 webviewSwipeText.setVisibility(TextView.INVISIBLE);
             }
         };
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) { return false; }
-        @Override
-        public boolean onDown(MotionEvent e) { return false; }
-        @Override
-        public void onLongPress(MotionEvent e) { }
-        @Override
-        public void onShowPress(MotionEvent e) { }
+        @Override public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
+        @Override public boolean onSingleTapUp(MotionEvent e) { return false; }
+        @Override public boolean onDown(MotionEvent e) { return false; }
+        @Override public void onLongPress(MotionEvent e) { }
+        @Override public void onShowPress(MotionEvent e) { }
         // @formatter:on
     };
     
