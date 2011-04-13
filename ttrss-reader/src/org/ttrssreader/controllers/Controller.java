@@ -39,36 +39,36 @@ public class Controller {
     private static Controller instance = null;
     private SharedPreferences prefs = null;
     
-    private String url = "";
-    private boolean trustAllSsl;
-    private boolean useKeystore;
-    private String keystorePassword;
+    private String url = null;
+    private Boolean trustAllSsl = null;
+    private Boolean useKeystore = null;
+    private String keystorePassword = null;
     
-    private boolean automaticMarkRead;
-    private boolean openUrlEmptyArticle;
-    private boolean useVolumeKeys;
-    private boolean vibrateOnLastArticle;
-    private boolean workOffline;
+    private Boolean automaticMarkRead = null;
+    private Boolean openUrlEmptyArticle = null;
+    private Boolean useVolumeKeys = null;
+    private Boolean vibrateOnLastArticle = null;
+    private Boolean workOffline = null;
     
-    private boolean displayVirtuals;
-    private boolean useSwipe;
-    private boolean displayOnlyUnread;
-    private int articleLimit;
-    private boolean displayArticleHeader;
-    private boolean invertSortArticleList;
-    private boolean invertSortFeedsCats;
+    private Boolean displayVirtuals = null;
+    private Boolean useSwipe = null;
+    private Boolean displayOnlyUnread = null;
+    private Integer articleLimit = null;
+    private Boolean displayArticleHeader = null;
+    private Boolean invertSortArticleList = null;
+    private Boolean invertSortFeedsCats = null;
     
-    private int imageCacheSize;
-    private boolean imageCacheUnread;
-    private boolean articleCacheUnread;
-    private boolean splitGetRequests;
+    private Integer imageCacheSize = null;
+    private Boolean imageCacheUnread = null;
+    private Boolean articleCacheUnread = null;
+    private Boolean splitGetRequests = null;
     
-    private long lastUpdateTime;
-    private String lastVersionRun;
-    private boolean newInstallation = false;
-    private String freshArticleMaxAge;
-    private int serverVersion;
-    private long serverVersionLastUpdate;
+    private Long lastUpdateTime = null;
+    private String lastVersionRun = null;
+    private Boolean newInstallation = null;
+    private String freshArticleMaxAge = "";
+    private Integer serverVersion = null;
+    private Long serverVersionLastUpdate = null;
     
     // Singleton
     private Controller() {
@@ -129,40 +129,40 @@ public class Controller {
         useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
         keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
         ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
-        
-        // Usage
-        automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
-        openUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
-                Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
-        useVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
-        vibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
-                Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
-        workOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
-        
-        // Display
-        displayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
-        useSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
-        displayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
-        articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
-        displayArticleHeader = prefs.getBoolean(Constants.DISPLAY_ARTICLE_HEADER,
-                Constants.DISPLAY_ARTICLE_HEADER_DEFAULT);
-        invertSortArticleList = prefs.getBoolean(Constants.INVERT_SORT_ARTICLELIST,
-                Constants.INVERT_SORT_ARTICLELIST_DEFAULT);
-        invertSortFeedsCats = prefs
-                .getBoolean(Constants.INVERT_SORT_FEEDSCATS, Constants.INVERT_SORT_FEEDSCATS_DEFAULT);
-        
-        // System
-        imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
-        imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
-        articleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD, Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
-        splitGetRequests = prefs.getBoolean(Constants.SPLIT_GET_REQUESTS, Constants.SPLIT_GET_REQUESTS_DEFAULT);
-        serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
-        serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
-                Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
-        
-        lastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
-        lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
-        freshArticleMaxAge = "";
+        //
+        // // Usage
+        // automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
+        // openUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
+        // Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
+        // useVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
+        // vibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
+        // Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
+        // workOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
+        //
+        // // Display
+        // displayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
+        // useSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
+        // displayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
+        // articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
+        // displayArticleHeader = prefs.getBoolean(Constants.DISPLAY_ARTICLE_HEADER,
+        // Constants.DISPLAY_ARTICLE_HEADER_DEFAULT);
+        // invertSortArticleList = prefs.getBoolean(Constants.INVERT_SORT_ARTICLELIST,
+        // Constants.INVERT_SORT_ARTICLELIST_DEFAULT);
+        // invertSortFeedsCats = prefs
+        // .getBoolean(Constants.INVERT_SORT_FEEDSCATS, Constants.INVERT_SORT_FEEDSCATS_DEFAULT);
+        //
+        // // System
+        // imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
+        // imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
+        // articleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD,
+        // Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
+        // splitGetRequests = prefs.getBoolean(Constants.SPLIT_GET_REQUESTS, Constants.SPLIT_GET_REQUESTS_DEFAULT);
+        // serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
+        // serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
+        // Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
+        //
+        // lastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
+        // lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         
         // Initialize ImageCache
         getImageCache(context);
@@ -219,7 +219,11 @@ public class Controller {
         this.keystorePassword = keystorePassword;
     }
     
+    // USAGE
+    
     public boolean automaticMarkRead() {
+        if (automaticMarkRead == null)
+            automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
         return automaticMarkRead;
     }
     
@@ -229,6 +233,9 @@ public class Controller {
     }
     
     public boolean openUrlEmptyArticle() {
+        if (openUrlEmptyArticle == null)
+            openUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
+                    Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
         return openUrlEmptyArticle;
     }
     
@@ -238,6 +245,8 @@ public class Controller {
     }
     
     public boolean useVolumeKeys() {
+        if (useVolumeKeys == null)
+            useVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
         return useVolumeKeys;
     }
     
@@ -247,6 +256,9 @@ public class Controller {
     }
     
     public boolean vibrateOnLastArticle() {
+        if (vibrateOnLastArticle == null)
+            vibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
+                    Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
         return vibrateOnLastArticle;
     }
     
@@ -256,6 +268,8 @@ public class Controller {
     }
     
     public boolean workOffline() {
+        if (workOffline == null)
+            workOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
         return workOffline;
     }
     
@@ -267,6 +281,8 @@ public class Controller {
     // ******* DISPLAY-Options ****************************
     
     public boolean displayVirtuals() {
+        if (displayVirtuals == null)
+            displayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
         return displayVirtuals;
     }
     
@@ -276,6 +292,8 @@ public class Controller {
     }
     
     public boolean useSwipe() {
+        if (useSwipe == null)
+            useSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
         return useSwipe;
     }
     
@@ -285,6 +303,8 @@ public class Controller {
     }
     
     public boolean displayOnlyUnread() {
+        if (displayOnlyUnread == null)
+            displayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
         return displayOnlyUnread;
     }
     
@@ -294,6 +314,8 @@ public class Controller {
     }
     
     public int getArticleLimit() {
+        if (articleLimit == null)
+            articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
         return articleLimit;
     }
     
@@ -303,6 +325,9 @@ public class Controller {
     }
     
     public boolean displayArticleHeader() {
+        if (displayArticleHeader == null)
+            displayArticleHeader = prefs.getBoolean(Constants.DISPLAY_ARTICLE_HEADER,
+                    Constants.DISPLAY_ARTICLE_HEADER_DEFAULT);
         return displayArticleHeader;
     }
     
@@ -312,6 +337,9 @@ public class Controller {
     }
     
     public boolean invertSortArticleList() {
+        if (invertSortArticleList == null)
+            invertSortArticleList = prefs.getBoolean(Constants.INVERT_SORT_ARTICLELIST,
+                    Constants.INVERT_SORT_ARTICLELIST_DEFAULT);
         return invertSortArticleList;
     }
     
@@ -321,6 +349,9 @@ public class Controller {
     }
     
     public boolean invertSortFeedsCats() {
+        if (invertSortFeedsCats == null)
+            invertSortFeedsCats = prefs.getBoolean(Constants.INVERT_SORT_FEEDSCATS,
+                    Constants.INVERT_SORT_FEEDSCATS_DEFAULT);
         return invertSortFeedsCats;
     }
     
@@ -329,7 +360,11 @@ public class Controller {
         this.invertSortFeedsCats = invertSortFeedsCats;
     }
     
+    // SYSTEM
+    
     public int getImageCacheSize() {
+        if (imageCacheSize == null)
+            imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
         return imageCacheSize;
     }
     
@@ -339,6 +374,8 @@ public class Controller {
     }
     
     public boolean isImageCacheUnread() {
+        if (imageCacheUnread == null)
+            imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
         return imageCacheUnread;
     }
     
@@ -348,6 +385,9 @@ public class Controller {
     }
     
     public boolean isArticleCacheUnread() {
+        if (articleCacheUnread == null)
+            articleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD,
+                    Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
         return articleCacheUnread;
     }
     
@@ -357,6 +397,8 @@ public class Controller {
     }
     
     public boolean splitGetRequests() {
+        if (splitGetRequests == null)
+            splitGetRequests = prefs.getBoolean(Constants.SPLIT_GET_REQUESTS, Constants.SPLIT_GET_REQUESTS_DEFAULT);
         return splitGetRequests;
     }
     
@@ -368,6 +410,8 @@ public class Controller {
     // ******* INTERNAL Data ****************************
     
     public long getLastUpdateTime() {
+        if (lastUpdateTime == null)
+            lastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
         return lastUpdateTime;
     }
     
@@ -377,6 +421,8 @@ public class Controller {
     }
     
     public String getLastVersionRun() {
+        if (lastVersionRun == null)
+            lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         return lastVersionRun;
     }
     
@@ -409,7 +455,7 @@ public class Controller {
     
     public void resetServerVersion() {
         serverVersion = -1;
-        serverVersionLastUpdate = -1;
+        serverVersionLastUpdate = new Long(-1);
     }
     
     public int getServerVersion() {
