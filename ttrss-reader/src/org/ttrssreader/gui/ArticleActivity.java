@@ -251,7 +251,7 @@ public class ArticleActivity extends Activity {
             
             if (article != null && article.content != null) {
                 
-                // Polulate information-bar on top of the webview if enabled
+                // Populate information-bar on top of the webview if enabled
                 if (Controller.getInstance().displayArticleHeader()) {
                     headerContainer.populate(article);
                 } else {
@@ -305,25 +305,23 @@ public class ArticleActivity extends Activity {
         setProgressBarIndeterminateVisibility(false);
     }
     
-    public void onZoomChanged(boolean returnToFirstState) {
-        if (returnToFirstState) {
-            // Load html from Raw-Ressources and insert content
-            String temp = getResources().getString(R.string.INJECT_HTML_HEAD);
-            String text = temp.replace("MARKER", content);
-            webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
-        } else {
-            // Load html from Raw-Ressources and insert content
-            String temp = getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
-            String text = temp.replace("MARKER", content);
-            webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
-        }
+    public void onZoomChanged() {
+        // Load html from Raw-Ressources and insert content
+        String temp = getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
+        String text = temp.replace("MARKER", content);
+        webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
     }
     
     private void openNextArticle(int direction) {
         
-        if (feedHeadlineListAdapter == null)
+        if (feedHeadlineListAdapter == null) {
+            Log.e(Utils.TAG, "openNextArticle - Adapter was null... (int direction:" + direction + ")");
             feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
                     selectArticlesForCategory);
+        } else if (feedHeadlineListAdapter.cursor.isClosed()) {
+            Log.e(Utils.TAG, "openNextArticle - Cursor was closed... (int direction:" + direction + ")");
+            feedHeadlineListAdapter.cursor.requery();
+        }
         
         articleIds = feedHeadlineListAdapter.getIds();
         int index = currentIndex + direction;
@@ -381,7 +379,7 @@ public class ArticleActivity extends Activity {
                     new Handler().postDelayed(timerTask, 1000);
                 }
                 return false;
-
+                
             } else if (!useSwipe) {
                 return false;
             }

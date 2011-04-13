@@ -90,10 +90,6 @@ public class FeedListActivity extends MenuActivity {
             updater.cancel(true);
             updater = null;
         }
-        // if (imageCacher != null) {
-        // imageCacher.cancel(true);
-        // imageCacher = null;
-        // }
         mAdapter.cursor.deactivate();
         mAdapter.cursor.close();
     }
@@ -113,10 +109,6 @@ public class FeedListActivity extends MenuActivity {
         mAdapter.notifyDataSetChanged();
         
         if (JSONConnector.hasLastError()) {
-            // if (imageCacher != null) {
-            // imageCacher.cancel(true);
-            // imageCacher = null;
-            // }
             openConnectionErrorDialog(JSONConnector.pullLastError());
             return;
         }

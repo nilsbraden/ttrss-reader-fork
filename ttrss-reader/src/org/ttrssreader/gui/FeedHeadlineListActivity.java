@@ -35,6 +35,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -127,10 +128,6 @@ public class FeedHeadlineListActivity extends MenuActivity {
             updater.cancel(true);
             updater = null;
         }
-        // if (imageCacher != null) {
-        // imageCacher.cancel(true);
-        // imageCacher = null;
-        // }
         adapter.cursor.deactivate();
         adapter.cursor.close();
     }
@@ -278,8 +275,13 @@ public class FeedHeadlineListActivity extends MenuActivity {
         if (feedId < 0)
             return;
         
-        if (feedListAdapter == null)
+        if (feedListAdapter == null) {
+            Log.e(Utils.TAG, "openNextFeed - Adapter was null... (int direction:" + direction + ")");
             feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
+        } else if (feedListAdapter.cursor.isClosed()) {
+            Log.e(Utils.TAG, "openNextFeed - Cursor was closed... (int direction:" + direction + ")");
+            feedListAdapter.cursor.requery();
+        }
         
         int index = currentIndex + direction;
         

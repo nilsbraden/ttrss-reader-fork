@@ -121,10 +121,6 @@ public class CategoryActivity extends MenuActivity {
             updater.cancel(true);
             updater = null;
         }
-        // if (imageCacher != null) {
-        // imageCacher.cancel(true);
-        // imageCacher = null;
-        // }
         adapter.cursor.deactivate();
         adapter.cursor.close();
     }
@@ -137,10 +133,6 @@ public class CategoryActivity extends MenuActivity {
         adapter.notifyDataSetChanged();
         
         if (JSONConnector.hasLastError()) {
-            // if (imageCacher != null) {
-            // imageCacher.cancel(true);
-            // imageCacher = null;
-            // }
             openConnectionErrorDialog(JSONConnector.pullLastError());
             return;
         }
