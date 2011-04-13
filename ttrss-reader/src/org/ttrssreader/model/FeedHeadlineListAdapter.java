@@ -157,11 +157,9 @@ public class FeedHeadlineListAdapter extends MainAdapter {
                 break;
             
             case -3:
-                long updateDate = Controller.getInstance().getFreshArticleMaxAge();
                 query.append(" AND a.updateDate>");
-                query.append(updateDate);
+                query.append(Controller.getInstance().getFreshArticleMaxAge());
                 query.append(" AND a.isUnread>0");
-                // if (displayOnlyUnread)
                 break;
             
             case -4:

@@ -24,21 +24,13 @@
     <ImageView
         android:id="@+id/icon"
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_marginRight="10dp" />
 
-    <LinearLayout
-        android:id="@+id/textLayout"
+    <TextView
+        android:id="@+id/title"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical"
-        android:gravity="center_vertical" >
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-        
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical" />
     
 </LinearLayout>

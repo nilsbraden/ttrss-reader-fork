@@ -78,7 +78,7 @@ public class FeedListActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
+        DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
         doUpdate();
     }
@@ -113,7 +113,7 @@ public class FeedListActivity extends MenuActivity {
             return;
         }
         
-        if (updater == null) { // && imageCacher == null) {
+        if (updater == null) {
             setProgressBarIndeterminateVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyFeeds);
         }
