@@ -65,7 +65,7 @@ public class Controller {
     
     private Long lastUpdateTime = null;
     private String lastVersionRun = null;
-    private Boolean newInstallation = null;
+    private Boolean newInstallation = false;
     private String freshArticleMaxAge = "";
     private Integer serverVersion = null;
     private Long serverVersionLastUpdate = null;
@@ -129,40 +129,6 @@ public class Controller {
         useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
         keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
         ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
-        //
-        // // Usage
-        // automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
-        // openUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
-        // Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
-        // useVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
-        // vibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
-        // Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
-        // workOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
-        //
-        // // Display
-        // displayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
-        // useSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
-        // displayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
-        // articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
-        // displayArticleHeader = prefs.getBoolean(Constants.DISPLAY_ARTICLE_HEADER,
-        // Constants.DISPLAY_ARTICLE_HEADER_DEFAULT);
-        // invertSortArticleList = prefs.getBoolean(Constants.INVERT_SORT_ARTICLELIST,
-        // Constants.INVERT_SORT_ARTICLELIST_DEFAULT);
-        // invertSortFeedsCats = prefs
-        // .getBoolean(Constants.INVERT_SORT_FEEDSCATS, Constants.INVERT_SORT_FEEDSCATS_DEFAULT);
-        //
-        // // System
-        // imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
-        // imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
-        // articleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD,
-        // Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
-        // splitGetRequests = prefs.getBoolean(Constants.SPLIT_GET_REQUESTS, Constants.SPLIT_GET_REQUESTS_DEFAULT);
-        // serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
-        // serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
-        // Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
-        //
-        // lastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
-        // lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         
         // Initialize ImageCache
         getImageCache(context);
@@ -171,6 +137,7 @@ public class Controller {
     // ******* USAGE-Options ****************************
     
     public String getUrl() {
+        // Initialized inside initializeController();
         return url;
     }
     
@@ -179,6 +146,7 @@ public class Controller {
     }
     
     public JSONConnector getConnector() {
+        // Initialized inside initializeController();
         return ttrssConnector;
     }
     
@@ -193,6 +161,7 @@ public class Controller {
     }
     
     public boolean trustAllSsl() {
+        // Initialized inside initializeController();
         return trustAllSsl;
     }
     
@@ -202,6 +171,7 @@ public class Controller {
     }
     
     public boolean useKeystore() {
+        // Initialized inside initializeController();
         return useKeystore;
     }
     
@@ -211,6 +181,7 @@ public class Controller {
     }
     
     public String getKeystorePassword() {
+        // Initialized inside initializeController();
         return keystorePassword;
     }
     
@@ -432,6 +403,7 @@ public class Controller {
     }
     
     public boolean newInstallation() {
+        // Initialized inside initializeController();
         return newInstallation;
     }
     
@@ -460,6 +432,13 @@ public class Controller {
     
     public int getServerVersion() {
         long oldTime = (System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        
+        if (serverVersion == null)
+            serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
+        
+        if (serverVersionLastUpdate == null)
+            serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
+                    Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
         
         if (serverVersion < 0 || serverVersionLastUpdate < oldTime) {
             
