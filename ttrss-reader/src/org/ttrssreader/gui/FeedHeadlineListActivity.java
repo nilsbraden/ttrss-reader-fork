@@ -22,7 +22,9 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.FeedHeadlineListAdapter;
 import org.ttrssreader.model.FeedListAdapter;
+import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.ArticleItem;
+import org.ttrssreader.model.updaters.FeedHeadlineListUpdater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -65,13 +67,12 @@ public class FeedHeadlineListActivity extends MenuActivity {
     private int currentIndex = 0;
     private boolean selectArticlesForCategory = false;
     
-    private FeedListAdapter feedListAdapter;
-    
     private GestureDetector gestureDetector;
     private int absHeight;
     private int absWidth;
     
     private FeedHeadlineListAdapter adapter = null;
+    private FeedHeadlineListUpdater updateable = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -102,8 +103,21 @@ public class FeedHeadlineListActivity extends MenuActivity {
             currentIndex = instance.getInt(FEED_INDEX);
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
         }
+        
+        if (selectArticlesForCategory) {
+            updateable = new FeedHeadlineListUpdater(selectArticlesForCategory, categoryId);
+        } else {
+            updateable = new FeedHeadlineListUpdater(feedId);
+        }
         adapter = new FeedHeadlineListAdapter(this, feedId, categoryId, selectArticlesForCategory);
         listView.setAdapter(adapter);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        if (adapter != null)
+            adapter.closeCursor();
+        super.onDestroy();
     }
     
     @Override
@@ -112,15 +126,6 @@ public class FeedHeadlineListActivity extends MenuActivity {
         DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
         doUpdate();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (feedListAdapter != null)
-            feedListAdapter.closeDB();
-        if (adapter != null)
-            adapter.closeDB();
     }
     
     @Override
@@ -135,21 +140,20 @@ public class FeedHeadlineListActivity extends MenuActivity {
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(String.format("%s (%s)", feedTitle, adapter.getUnread()));
+        setTitle(MainAdapter.formatTitle(feedTitle, updateable.unreadCount));
         flingDetected = false; // reset fling-status
         
-        adapter.makeQuery();
+        adapter.makeQuery(true);
         adapter.notifyDataSetChanged();
         
-        // Store current index in ID-List so we can jump between articles
-        if (feedListAdapter == null) {
-            feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
-        } else if (!feedListAdapter.isDBOpen()) {
-            feedListAdapter.openDB();
-        }
+        FeedListAdapter feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
+        feedListAdapter.makeQuery(true);
         
+        // Store current index in ID-List so we can jump between articles
         if (feedListAdapter.getIds().indexOf(feedId) >= 0)
             currentIndex = feedListAdapter.getIds().indexOf(feedId);
+        
+        feedListAdapter.closeCursor();
         
         if (JSONConnector.hasLastError()) {
             openConnectionErrorDialog(JSONConnector.pullLastError());
@@ -176,7 +180,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
         setProgressBarIndeterminateVisibility(true);
         notificationTextView.setText(R.string.Loading_Headlines);
         
-        updater = new Updater(this, adapter);
+        updater = new Updater(this, updateable);
         updater.execute();
     }
     
@@ -184,14 +188,15 @@ public class FeedHeadlineListActivity extends MenuActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         
-        Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(position));
-        i.putExtra(ArticleActivity.FEED_ID, feedId);
-        i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        
-        if (!flingDetected)
+        if (!flingDetected) {
+            Intent i = new Intent(this, ArticleActivity.class);
+            i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(position));
+            i.putExtra(ArticleActivity.FEED_ID, feedId);
+            i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
+            i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+            
             startActivity(i);
+        }
     }
     
     @Override
@@ -269,12 +274,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
         if (feedId < 0)
             return;
         
-        if (feedListAdapter == null) {
-            feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
-        } else if (!feedListAdapter.isDBOpen()) {
-            feedListAdapter.openDB();
-        }
-        
+        FeedListAdapter feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
         int index = currentIndex + direction;
         
         // No more feeds in this direction
@@ -291,8 +291,10 @@ public class FeedHeadlineListActivity extends MenuActivity {
         i.putExtra(FEED_ID, feedListAdapter.getId(index));
         i.putExtra(FEED_TITLE, feedListAdapter.getTitle(index));
         
+        feedListAdapter.closeCursor();
+        
         startActivityForResult(i, 0);
-        this.finish();
+        finish();
     }
     
     @Override

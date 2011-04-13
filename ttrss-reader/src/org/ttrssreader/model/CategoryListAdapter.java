@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.CategoryItem;
 import android.content.Context;
 import android.graphics.Typeface;
@@ -40,24 +39,24 @@ public class CategoryListAdapter extends MainAdapter {
     @Override
     public Object getItem(int position) {
         if (cursor.isClosed()) {
-            return null;
+            makeQuery();
         }
         
-        CategoryItem ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = new CategoryItem();
+                CategoryItem ret = new CategoryItem();
                 ret.id = cursor.getInt(0);
                 ret.title = cursor.getString(1);
                 ret.unread = cursor.getInt(2);
+                return ret;
             }
         }
-        return ret;
+        return null;
     }
     
     public List<CategoryItem> getCategories() {
         if (cursor.isClosed()) {
-            return null;
+            makeQuery();
         }
         
         List<CategoryItem> result = new ArrayList<CategoryItem>();
@@ -112,7 +111,7 @@ public class CategoryListAdapter extends MainAdapter {
         icon.setImageResource(getImage(c.id, c.unread > 0));
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(super.formatTitle(c.title, c.unread));
+        title.setText(formatTitle(c.title, c.unread));
         if (c.unread > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
         } else {
@@ -146,14 +145,6 @@ public class CategoryListAdapter extends MainAdapter {
         query.append(") AS b");
         
         return query.toString();
-    }
-    
-    @Override
-    public void update() {
-        Data.getInstance().updateCounters(false);
-        Data.getInstance().updateCategories(false);
-        Data.getInstance().updateVirtualCategories();
-        unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
     }
     
 }

@@ -136,6 +136,8 @@ public class ArticleActivity extends Activity {
             feedId = -1;
             currentIndex = 0;
         }
+        feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
+                selectArticlesForCategory);
     }
     
     @Override
@@ -146,10 +148,15 @@ public class ArticleActivity extends Activity {
     }
     
     @Override
+    protected void onPause() {
+        super.onPause();
+        releaseResources();
+    }
+    
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (feedHeadlineListAdapter != null)
-            feedHeadlineListAdapter.closeDB();
+        releaseResources();
     }
     
     @Override
@@ -214,12 +221,13 @@ public class ArticleActivity extends Activity {
                 openLink();
                 return true;
             case R.id.Article_Menu_ShareLink:
+                String content = (String) getText(R.string.ArticleActivity_ShareSubject);
                 Intent i = new Intent(Intent.ACTION_SEND);
+                i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
                 i.setType("text/plain");
                 i.putExtra(Intent.EXTRA_SUBJECT, article.title);
-                String content = (String) getText(R.string.ArticleActivity_ShareSubject);
-                i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
-                this.startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
+                releaseResources();
+                startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
             default:
                 return false;
@@ -232,6 +240,7 @@ public class ArticleActivity extends Activity {
             if ((url != null) && (url.length() > 0)) {
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
+                releaseResources();
                 startActivity(i);
             }
         }
@@ -259,12 +268,7 @@ public class ArticleActivity extends Activity {
                 }
                 
                 // Store current index in ID-List so we can jump between articles
-                if (feedHeadlineListAdapter == null) {
-                    feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
-                            selectArticlesForCategory);
-                } else if (!feedHeadlineListAdapter.isDBOpen()) {
-                    feedHeadlineListAdapter.openDB();
-                }
+                feedHeadlineListAdapter.makeQuery(true);
                 
                 if (feedHeadlineListAdapter.getIds().indexOf(articleId) >= 0)
                     currentIndex = feedHeadlineListAdapter.getIds().indexOf(articleId);
@@ -296,6 +300,7 @@ public class ArticleActivity extends Activity {
                     if (Controller.getInstance().openUrlEmptyArticle()) {
                         Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
                         linkAutoOpened = true;
+                        releaseResources();
                         openLink();
                     }
                 }
@@ -320,8 +325,8 @@ public class ArticleActivity extends Activity {
         if (feedHeadlineListAdapter == null) {
             feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
                     selectArticlesForCategory);
-        } else if (!feedHeadlineListAdapter.isDBOpen()) {
-            feedHeadlineListAdapter.openDB();
+        } else {
+            feedHeadlineListAdapter.makeQuery(true);
         }
         
         int index = currentIndex + direction;
@@ -340,9 +345,10 @@ public class ArticleActivity extends Activity {
         i.putExtra(ArticleActivity.FEED_ID, feedId);
         i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        
+
+        releaseResources();
         startActivityForResult(i, 0);
-        this.finish();
+        finish();
     }
     
     @Override
@@ -511,6 +517,11 @@ public class ArticleActivity extends Activity {
             }
         }
         return html;
+    }
+    
+    protected void releaseResources() {
+        if (feedHeadlineListAdapter != null)
+            feedHeadlineListAdapter.closeCursor();
     }
     
 }

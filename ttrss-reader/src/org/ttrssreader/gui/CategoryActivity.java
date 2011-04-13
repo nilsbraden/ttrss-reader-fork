@@ -25,7 +25,9 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.CategoryListAdapter;
+import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.CategoryItem;
+import org.ttrssreader.model.updaters.CategoryListUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.JSONConnector;
@@ -57,6 +59,7 @@ public class CategoryActivity extends MenuActivity {
     protected static final int SELECT_ARTICLES = MARK_GROUP + 54;
     
     private CategoryListAdapter adapter = null;
+    private CategoryListUpdater updateable = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -91,8 +94,16 @@ public class CategoryActivity extends MenuActivity {
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
         
+        updateable = new CategoryListUpdater();
         adapter = new CategoryListAdapter(this);
         listView.setAdapter(adapter);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (adapter != null)
+            adapter.closeCursor();
     }
     
     @Override
@@ -106,16 +117,10 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        adapter.closeDB();
-    }
-    
-    @Override
     protected synchronized void doRefresh() {
-        setTitle(String.format("%s (%s)", getResources().getString(R.string.ApplicationName), adapter.getUnread()));
+        setTitle(MainAdapter.formatTitle(getResources().getString(R.string.ApplicationName), updateable.unreadCount));
         
-        adapter.makeQuery();
+        adapter.makeQuery(true);
         adapter.notifyDataSetChanged();
         
         if (JSONConnector.hasLastError()) {
@@ -143,7 +148,7 @@ public class CategoryActivity extends MenuActivity {
         setProgressBarIndeterminateVisibility(true);
         notificationTextView.setText(R.string.Loading_Categories);
         
-        updater = new Updater(this, adapter);
+        updater = new Updater(this, updateable);
         updater.execute();
     }
     

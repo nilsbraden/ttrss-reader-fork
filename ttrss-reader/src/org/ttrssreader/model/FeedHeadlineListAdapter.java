@@ -21,7 +21,6 @@ import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.ArticleItem;
 import org.ttrssreader.model.pojos.FeedItem;
 import android.content.Context;
@@ -46,18 +45,19 @@ public class FeedHeadlineListAdapter extends MainAdapter {
         this.selectArticlesForCategory = selectArticlesForCategory;
         this.feedId = feedId;
         this.categoryId = categoryId;
-        makeQuery();
+        makeQuery(true);
     }
     
     @Override
     public Object getItem(int position) {
         if (cursor.isClosed()) {
-            return null;
+            makeQuery();
         }
         
+        ArticleItem ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ArticleItem ret = new ArticleItem();
+                ret = new ArticleItem();
                 ret.id = cursor.getInt(0);
                 ret.feedId = cursor.getInt(1);
                 ret.title = cursor.getString(2);
@@ -65,10 +65,9 @@ public class FeedHeadlineListAdapter extends MainAdapter {
                 ret.updated = new Date(cursor.getLong(4));
                 ret.isStarred = cursor.getInt(5) != 0;
                 ret.isPublished = cursor.getInt(6) != 0;
-                return ret;
             }
         }
-        return null;
+        return ret;
     }
     
     private void getImage(ImageView icon, ArticleItem a) {
@@ -189,19 +188,6 @@ public class FeedHeadlineListAdapter extends MainAdapter {
         }
         
         return query.toString();
-    }
-    
-    @Override
-    public void update() {
-        if (selectArticlesForCategory) {
-            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
-            for (FeedItem f : DBHelper.getInstance().getFeeds(categoryId)) {
-                Data.getInstance().updateArticles(f.id, Controller.getInstance().displayOnlyUnread());
-            }
-        } else {
-            unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
-            Data.getInstance().updateArticles(feedId, Controller.getInstance().displayOnlyUnread());
-        }
     }
     
 }

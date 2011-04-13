@@ -190,10 +190,6 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         }
     }
     
-    protected abstract void doRefresh();
-    
-    protected abstract void doUpdate();
-    
     protected void openConnectionErrorDialog(String errorMessage) {
         if (updater != null) {
             updater.cancel(true);
@@ -215,5 +211,9 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     public void onCacheEnd() {
         doRefresh();
     }
+    
+    protected abstract void doRefresh();
+    
+    protected abstract void doUpdate();
     
 }

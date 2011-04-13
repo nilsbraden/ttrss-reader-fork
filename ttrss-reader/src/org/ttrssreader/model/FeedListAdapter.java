@@ -18,12 +18,9 @@ package org.ttrssreader.model;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.FeedItem;
-import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,7 +38,7 @@ public class FeedListAdapter extends MainAdapter {
     @Override
     public Object getItem(int position) {
         if (cursor.isClosed()) {
-            return null;
+            makeQuery();
         }
         
         FeedItem ret = null;
@@ -85,7 +82,7 @@ public class FeedListAdapter extends MainAdapter {
         icon.setImageResource(getImage(f.unread > 0));
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(super.formatTitle(f.title, f.unread));
+        title.setText(formatTitle(f.title, f.unread));
         if (f.unread > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
         } else {
@@ -116,14 +113,6 @@ public class FeedListAdapter extends MainAdapter {
         }
         
         return query.toString();
-    }
-    
-    @Override
-    public void update() {
-        long time = System.currentTimeMillis();
-        Data.getInstance().updateFeeds(categoryId, false);
-        Log.d(Utils.TAG, "Time: " + (System.currentTimeMillis() - time) + "ms");
-        unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
     }
     
 }
