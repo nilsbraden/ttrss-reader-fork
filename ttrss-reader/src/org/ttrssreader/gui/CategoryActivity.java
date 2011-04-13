@@ -99,11 +99,16 @@ public class CategoryActivity extends MenuActivity {
         listView.setAdapter(adapter);
     }
     
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void doDestroy() {
         if (adapter != null)
             adapter.closeCursor();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        if (adapter != null)
+            adapter.closeCursor();
+        super.onDestroy();
     }
     
     @Override
