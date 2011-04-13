@@ -18,6 +18,7 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.FeedHeadlineListAdapter;
 import org.ttrssreader.model.FeedListAdapter;
@@ -106,6 +107,14 @@ public class FeedHeadlineListActivity extends MenuActivity {
     }
     
     @Override
+    protected void onResume() {
+        super.onResume();
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        doRefresh();
+        doUpdate();
+    }
+    
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (feedListAdapter != null)
@@ -133,8 +142,11 @@ public class FeedHeadlineListActivity extends MenuActivity {
         adapter.notifyDataSetChanged();
         
         // Store current index in ID-List so we can jump between articles
-        if (feedListAdapter == null)
+        if (feedListAdapter == null) {
             feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
+        } else if (!feedListAdapter.isDBOpen()) {
+            feedListAdapter.openDB();
+        }
         
         if (feedListAdapter.getIds().indexOf(feedId) >= 0)
             currentIndex = feedListAdapter.getIds().indexOf(feedId);
@@ -259,8 +271,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         if (feedListAdapter == null) {
             feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
-        } else if (feedListAdapter.cursor.isClosed()) {
-            feedListAdapter.cursor.requery();
+        } else if (!feedListAdapter.isDBOpen()) {
+            feedListAdapter.openDB();
         }
         
         int index = currentIndex + direction;
@@ -278,8 +290,6 @@ public class FeedHeadlineListActivity extends MenuActivity {
         i.putExtra(FEED_CAT_ID, categoryId);
         i.putExtra(FEED_ID, feedListAdapter.getId(index));
         i.putExtra(FEED_TITLE, feedListAdapter.getTitle(index));
-        
-        feedListAdapter.closeDB();
         
         startActivityForResult(i, 0);
         this.finish();

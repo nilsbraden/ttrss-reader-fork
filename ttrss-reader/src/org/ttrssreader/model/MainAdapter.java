@@ -30,8 +30,8 @@ import android.widget.BaseAdapter;
 public class MainAdapter extends BaseAdapter implements IUpdatable {
     
     protected Context context;
-    public Cursor cursor;
-    private SQLiteDatabase db;
+    protected Cursor cursor;
+    protected SQLiteDatabase db;
     
     protected boolean displayOnlyUnread;
     protected boolean invertSortFeedCats;
@@ -51,12 +51,25 @@ public class MainAdapter extends BaseAdapter implements IUpdatable {
         makeQuery();
     }
     
-    private void openDB() {
+    public void openDB() {
         closeDB();
         
         OpenHelper openHelper = new OpenHelper(context);
         db = openHelper.getWritableDatabase();
         db.setLockingEnabled(false);
+    }
+    
+    public void closeDB() {
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+        if (db != null && db.isOpen()) {
+            db.close();
+        }
+    }
+    
+    public boolean isDBOpen() {
+        return db.isOpen();
     }
     
     private static class OpenHelper extends SQLiteOpenHelper {
@@ -143,15 +156,6 @@ public class MainAdapter extends BaseAdapter implements IUpdatable {
             return title + " (" + unread + ")";
         } else {
             return title;
-        }
-    }
-    
-    public void closeDB() {
-        if (cursor != null && !cursor.isClosed()) {
-            cursor.close();
-        }
-        if (db != null && db.isOpen()) {
-            db.close();
         }
     }
     

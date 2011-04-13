@@ -43,10 +43,9 @@ import android.widget.TextView;
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
  * FeedHeadlineListActivity).
  */
-public class MenuActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
+public abstract class MenuActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
     
     protected boolean configChecked = false;
-    protected boolean resumeDone = false;
     protected ListView listView;
     protected Updater updater;
     protected TextView notificationTextView;
@@ -65,17 +64,6 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
         Controller.getInstance().checkAndInitializeController(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
-    }
-    
-    @Override
-    protected void onResume() {
-        super.onResume();
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        if (configChecked) {
-            doRefresh();
-            doUpdate();
-            resumeDone = true;
-        }
     }
     
     @Override
@@ -202,11 +190,9 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
         }
     }
     
-    protected synchronized void doRefresh() {
-    }
+    protected abstract void doRefresh();
     
-    protected synchronized void doUpdate() {
-    }
+    protected abstract void doUpdate();
     
     protected void openConnectionErrorDialog(String errorMessage) {
         if (updater != null) {
