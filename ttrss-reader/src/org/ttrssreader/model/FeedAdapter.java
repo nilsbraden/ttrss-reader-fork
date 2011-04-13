@@ -18,7 +18,7 @@ package org.ttrssreader.model;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.model.pojos.Feed;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -28,9 +28,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class FeedListAdapter extends MainAdapter {
+public class FeedAdapter extends MainAdapter {
     
-    public FeedListAdapter(Context context, int categoryId) {
+    public FeedAdapter(Context context, int categoryId) {
         super(context);
         this.categoryId = categoryId;
     }
@@ -41,10 +41,10 @@ public class FeedListAdapter extends MainAdapter {
             makeQuery();
         }
         
-        FeedItem ret = null;
+        Feed ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = new FeedItem();
+                ret = new Feed();
                 ret.id = cursor.getInt(0);
                 ret.title = cursor.getString(1);
                 ret.unread = cursor.getInt(2);
@@ -66,7 +66,7 @@ public class FeedListAdapter extends MainAdapter {
         if (position >= getCount() || position < 0)
             return new View(context);
         
-        FeedItem f = (FeedItem) getItem(position);
+        Feed f = (Feed) getItem(position);
         
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;

@@ -24,26 +24,26 @@ import java.util.Set;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.ArticleItem;
-import org.ttrssreader.model.pojos.CategoryItem;
-import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.pojos.Feed;
 
 public class ReadStateUpdater implements IUpdatable {
     
     private int pid = 0;
     private int articleState;
     
-    private Collection<CategoryItem> categories = null;
-    private Collection<FeedItem> feeds = null;
-    private Collection<ArticleItem> articles = null;
+    private Collection<Category> categories = null;
+    private Collection<Feed> feeds = null;
+    private Collection<Article> articles = null;
     
-    public ReadStateUpdater(Collection<CategoryItem> collection) {
-        this.categories = new HashSet<CategoryItem>(collection);
+    public ReadStateUpdater(Collection<Category> collection) {
+        this.categories = new HashSet<Category>(collection);
     }
     
     public ReadStateUpdater(int categoryId) {
-        this.categories = new HashSet<CategoryItem>();
-        CategoryItem ci = DBHelper.getInstance().getCategory(categoryId);
+        this.categories = new HashSet<Category>();
+        Category ci = DBHelper.getInstance().getCategory(categoryId);
         if (ci != null) {
             this.categories.add(ci);
         }
@@ -51,21 +51,21 @@ public class ReadStateUpdater implements IUpdatable {
     
     public ReadStateUpdater(int feedId, int dummy) {
         if (feedId <= 0) { // Virtual Category...
-            this.categories = new HashSet<CategoryItem>();
-            CategoryItem ci = DBHelper.getInstance().getCategory(feedId);
+            this.categories = new HashSet<Category>();
+            Category ci = DBHelper.getInstance().getCategory(feedId);
             if (ci != null)
                 this.categories.add(ci);
         } else {
-            this.feeds = new HashSet<FeedItem>();
-            FeedItem fi = DBHelper.getInstance().getFeed(feedId);
+            this.feeds = new HashSet<Feed>();
+            Feed fi = DBHelper.getInstance().getFeed(feedId);
             if (fi != null)
                 this.feeds.add(fi);
         }
     }
     
     /* articleState: 0 = mark as read, 1 = mark as unread */
-    public ReadStateUpdater(ArticleItem article, int pid, int articleState) {
-        this.articles = new ArrayList<ArticleItem>();
+    public ReadStateUpdater(Article article, int pid, int articleState) {
+        this.articles = new ArrayList<Article>();
         this.articles.add(article);
         this.pid = pid;
         this.articleState = articleState;
@@ -75,7 +75,7 @@ public class ReadStateUpdater implements IUpdatable {
     public void update() {
         if (categories != null) {
             
-            for (CategoryItem ci : categories) {
+            for (Category ci : categories) {
                 if (ci.id >= 0) {
                     Data.getInstance().setRead(ci.id, true);
                 } else {
@@ -89,7 +89,7 @@ public class ReadStateUpdater implements IUpdatable {
             
         } else if (feeds != null) {
             
-            for (FeedItem fi : feeds) {
+            for (Feed fi : feeds) {
                 Data.getInstance().setRead(fi.id, false);
                 DBHelper.getInstance().markFeedRead(fi, true);
             }
@@ -103,7 +103,7 @@ public class ReadStateUpdater implements IUpdatable {
             
             Set<Integer> ids = new HashSet<Integer>();
             
-            for (ArticleItem article : articles) {
+            for (Article article : articles) {
                 if (articleState != 0 && article.isUnread) {
                     continue;
                 } else if (articleState == 0 && !article.isUnread) {
@@ -117,7 +117,7 @@ public class ReadStateUpdater implements IUpdatable {
                 article.isUnread = boolState;
                 
                 int feedId = article.feedId;
-                FeedItem mFeed = DBHelper.getInstance().getFeed(feedId);
+                Feed mFeed = DBHelper.getInstance().getFeed(feedId);
                 int categoryId = mFeed.categoryId;
                 
                 DBHelper.getInstance().updateFeedDeltaUnreadCount(feedId, delta);

@@ -17,19 +17,19 @@ package org.ttrssreader.model.updaters;
 
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.ArticleItem;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
 public class StarredStateUpdater implements IUpdatable {
     
-    private ArticleItem article;
+    private Article article;
     private int articleState;
     
     /**
      * Sets the articles' Starred-Status according to articleState
      */
-    public StarredStateUpdater(ArticleItem article, int articleState) {
+    public StarredStateUpdater(Article article, int articleState) {
         this.article = article;
         this.articleState = articleState;
     }

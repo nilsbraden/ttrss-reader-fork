@@ -121,7 +121,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
                 Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().displayOnlyUnread());
                 return true;
             case R.id.Menu_InvertSort:
-                if (this instanceof FeedHeadlineListActivity) {
+                if (this instanceof FeedHeadlineActivity) {
                     Controller.getInstance()
                             .setInvertSortArticleList(!Controller.getInstance().invertSortArticleList());
                 } else {

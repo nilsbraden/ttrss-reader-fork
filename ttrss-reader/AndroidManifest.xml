@@ -26,9 +26,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".gui.FeedListActivity" />
+            android:name="gui.FeedActivity" />
         <activity
-            android:name=".gui.FeedHeadlineListActivity" />
+            android:name="gui.FeedHeadlineActivity" />
         <activity
             android:name=".gui.ArticleActivity" />
         <activity

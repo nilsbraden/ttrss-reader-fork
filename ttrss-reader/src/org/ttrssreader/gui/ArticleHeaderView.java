@@ -20,8 +20,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.pojos.ArticleItem;
-import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.content.Context;
@@ -49,7 +49,7 @@ public class ArticleHeaderView extends LinearLayout {
     
     private CheckBox starred;
     
-    private ArticleItem article;
+    private Article article;
     
     public ArticleHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -92,11 +92,11 @@ public class ArticleHeaderView extends LinearLayout {
         });
     }
     
-    public void populate(ArticleItem article) {
+    public void populate(Article article) {
         this.article = article;
         this.initializeLayout();
         
-        FeedItem feed = DBHelper.getInstance().getFeed(article.feedId);
+        Feed feed = DBHelper.getInstance().getFeed(article.feedId);
         if (feed != null) {
             feedView.setText(feed.title);
         }

@@ -19,16 +19,19 @@ package org.ttrssreader.model.updaters;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 
-public class CategoryListUpdater implements IUpdatable {
-
+public class FeedUpdater implements IUpdatable {
+    
+    private int categoryId;
     public int unreadCount = 0;
+    
+    public FeedUpdater(int categoryId) {
+        this.categoryId = categoryId;
+    }
     
     @Override
     public void update() {
-        Data.getInstance().updateCounters(false);
-        Data.getInstance().updateCategories(false);
-        Data.getInstance().updateVirtualCategories();
-        unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
+        Data.getInstance().updateFeeds(categoryId, false);
+        unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
     }
     
 }

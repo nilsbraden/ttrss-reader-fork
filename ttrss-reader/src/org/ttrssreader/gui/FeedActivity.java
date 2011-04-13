@@ -19,10 +19,10 @@ package org.ttrssreader.gui;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.FeedListAdapter;
+import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.MainAdapter;
-import org.ttrssreader.model.pojos.FeedItem;
-import org.ttrssreader.model.updaters.FeedListUpdater;
+import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.updaters.FeedUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.JSONConnector;
@@ -35,7 +35,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FeedListActivity extends MenuActivity {
+public class FeedActivity extends MenuActivity {
     
     public static final String CATEGORY_ID = "CATEGORY_ID";
     public static final String CATEGORY_TITLE = "CATEGORY_TITLE";
@@ -43,8 +43,8 @@ public class FeedListActivity extends MenuActivity {
     private int categoryId;
     private String categoryTitle;
     
-    private FeedListAdapter adapter = null;
-    private FeedListUpdater updateable = null;
+    private FeedAdapter adapter = null;
+    private FeedUpdater updateable = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -67,8 +67,8 @@ public class FeedListActivity extends MenuActivity {
             categoryTitle = null;
         }
         
-        updateable = new FeedListUpdater(categoryId);
-        adapter = new FeedListAdapter(this, categoryId);
+        updateable = new FeedUpdater(categoryId);
+        adapter = new FeedAdapter(this, categoryId);
         listView.setAdapter(adapter);
     }
     
@@ -139,10 +139,10 @@ public class FeedListActivity extends MenuActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         
-        Intent i = new Intent(this, FeedHeadlineListActivity.class);
-        i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineListActivity.FEED_ID, adapter.getId(position));
-        i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getTitle(position));
+        Intent i = new Intent(this, FeedHeadlineActivity.class);
+        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineActivity.FEED_ID, adapter.getId(position));
+        i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(position));
         
         startActivity(i);
     }
@@ -163,7 +163,7 @@ public class FeedListActivity extends MenuActivity {
         
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(new FeedItem());
+                Data.getInstance().resetTime(new Feed());
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:

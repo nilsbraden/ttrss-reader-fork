@@ -20,11 +20,11 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.FeedHeadlineListAdapter;
-import org.ttrssreader.model.FeedListAdapter;
+import org.ttrssreader.model.FeedHeadlineAdapter;
+import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.MainAdapter;
-import org.ttrssreader.model.pojos.ArticleItem;
-import org.ttrssreader.model.updaters.FeedHeadlineListUpdater;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.updaters.FeedHeadlineUpdater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -50,7 +50,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class FeedHeadlineListActivity extends MenuActivity {
+public class FeedHeadlineActivity extends MenuActivity {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "FEED_ID";
@@ -71,8 +71,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
     private int absHeight;
     private int absWidth;
     
-    private FeedHeadlineListAdapter adapter = null;
-    private FeedHeadlineListUpdater updateable = null;
+    private FeedHeadlineAdapter adapter = null;
+    private FeedHeadlineUpdater updateable = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -105,11 +105,11 @@ public class FeedHeadlineListActivity extends MenuActivity {
         }
         
         if (selectArticlesForCategory) {
-            updateable = new FeedHeadlineListUpdater(selectArticlesForCategory, categoryId);
+            updateable = new FeedHeadlineUpdater(selectArticlesForCategory, categoryId);
         } else {
-            updateable = new FeedHeadlineListUpdater(feedId);
+            updateable = new FeedHeadlineUpdater(feedId);
         }
-        adapter = new FeedHeadlineListAdapter(this, feedId, categoryId, selectArticlesForCategory);
+        adapter = new FeedHeadlineAdapter(this, feedId, categoryId, selectArticlesForCategory);
         listView.setAdapter(adapter);
     }
     
@@ -151,7 +151,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
         adapter.makeQuery(true);
         adapter.notifyDataSetChanged();
         
-        FeedListAdapter feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
+        FeedAdapter feedListAdapter = new FeedAdapter(getApplicationContext(), categoryId);
         feedListAdapter.makeQuery(true);
         
         // Store current index in ID-List so we can jump between articles
@@ -197,8 +197,8 @@ public class FeedHeadlineListActivity extends MenuActivity {
             Intent i = new Intent(this, ArticleActivity.class);
             i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(position));
             i.putExtra(ArticleActivity.FEED_ID, feedId);
-            i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+            i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+            i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
             
             startActivity(i);
         }
@@ -210,7 +210,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
         
         // Get selected Article
         AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        ArticleItem a = (ArticleItem) adapter.getItem(info.position);
+        Article a = (Article) adapter.getItem(info.position);
         menu.removeItem(MARK_READ); // Remove "Mark read" from super-class
         
         if (a.isUnread) {
@@ -235,7 +235,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        ArticleItem a = (ArticleItem) adapter.getItem(cmi.position);
+        Article a = (Article) adapter.getItem(cmi.position);
         
         if (a == null)
             return false;
@@ -279,7 +279,7 @@ public class FeedHeadlineListActivity extends MenuActivity {
         if (feedId < 0)
             return;
         
-        FeedListAdapter feedListAdapter = new FeedListAdapter(getApplicationContext(), categoryId);
+        FeedAdapter feedListAdapter = new FeedAdapter(getApplicationContext(), categoryId);
         int index = currentIndex + direction;
         
         // No more feeds in this direction

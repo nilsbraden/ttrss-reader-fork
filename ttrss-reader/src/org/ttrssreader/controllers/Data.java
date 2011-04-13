@@ -21,8 +21,8 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.R;
-import org.ttrssreader.model.pojos.CategoryItem;
-import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -94,10 +94,10 @@ public class Data {
         if (o == null)
             return;
         
-        if (o instanceof CategoryItem) {
+        if (o instanceof Category) {
             virtCategoriesUpdated = 0;
             categoriesUpdated = 0;
-        } else if (o instanceof FeedItem) {
+        } else if (o instanceof Feed) {
             feedsUpdated = 0;
         } else if (o instanceof Integer) {
             Integer i = (Integer) o;
@@ -161,19 +161,19 @@ public class Data {
     
     // *** FEEDS ************************************************************************
     
-    public Set<FeedItem> updateFeeds(int categoryId, boolean overrideOffline) {
+    public Set<Feed> updateFeeds(int categoryId, boolean overrideOffline) {
         if (feedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
-            Set<FeedItem> feeds = Controller.getInstance().getConnector().getFeeds();
+            Set<Feed> feeds = Controller.getInstance().getConnector().getFeeds();
             feedsUpdated = System.currentTimeMillis();
             
             // Only delete feeds if we got new feeds...
             if (!feeds.isEmpty())
                 DBHelper.getInstance().deleteFeeds();
             
-            Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
-            for (FeedItem f : feeds) {
+            Set<Feed> ret = new LinkedHashSet<Feed>();
+            for (Feed f : feeds) {
                 if (categoryId == -4 || f.categoryId == categoryId)
                     ret.add(f);
             }
@@ -186,7 +186,7 @@ public class Data {
     
     // *** CATEGORIES *******************************************************************
     
-    public Set<CategoryItem> updateVirtualCategories() {
+    public Set<Category> updateVirtualCategories() {
         if (virtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME)
             return null;
         
@@ -204,12 +204,12 @@ public class Data {
             uncatFeeds = (String) context.getText(R.string.Feed_UncategorizedFeeds);
         }
         
-        Set<CategoryItem> vCats = new LinkedHashSet<CategoryItem>();
-        vCats.add(new CategoryItem(-4, vCatAllArticles, DBHelper.getInstance().getUnreadCount(-4, true)));
-        vCats.add(new CategoryItem(-3, vCatFreshArticles, DBHelper.getInstance().getUnreadCount(-3, true)));
-        vCats.add(new CategoryItem(-2, vCatPublishedArticles, DBHelper.getInstance().getUnreadCount(-2, true)));
-        vCats.add(new CategoryItem(-1, vCatStarredArticles, DBHelper.getInstance().getUnreadCount(-1, true)));
-        vCats.add(new CategoryItem(0, uncatFeeds, DBHelper.getInstance().getUnreadCount(0, true)));
+        Set<Category> vCats = new LinkedHashSet<Category>();
+        vCats.add(new Category(-4, vCatAllArticles, DBHelper.getInstance().getUnreadCount(-4, true)));
+        vCats.add(new Category(-3, vCatFreshArticles, DBHelper.getInstance().getUnreadCount(-3, true)));
+        vCats.add(new Category(-2, vCatPublishedArticles, DBHelper.getInstance().getUnreadCount(-2, true)));
+        vCats.add(new Category(-1, vCatStarredArticles, DBHelper.getInstance().getUnreadCount(-1, true)));
+        vCats.add(new Category(0, uncatFeeds, DBHelper.getInstance().getUnreadCount(0, true)));
         
         DBHelper.getInstance().insertCategories(vCats);
         virtCategoriesUpdated = System.currentTimeMillis();
@@ -217,11 +217,11 @@ public class Data {
         return vCats;
     }
     
-    public Set<CategoryItem> updateCategories(boolean overrideOffline) {
+    public Set<Category> updateCategories(boolean overrideOffline) {
         if (categoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isConnected(cm) || overrideOffline) {
-            Set<CategoryItem> categories = Controller.getInstance().getConnector().getCategories();
+            Set<Category> categories = Controller.getInstance().getConnector().getCategories();
             categoriesUpdated = System.currentTimeMillis();
             
             DBHelper.getInstance().deleteCategories(false);

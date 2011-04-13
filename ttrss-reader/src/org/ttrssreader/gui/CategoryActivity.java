@@ -24,10 +24,10 @@ import java.io.InputStreamReader;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.CategoryListAdapter;
+import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.MainAdapter;
-import org.ttrssreader.model.pojos.CategoryItem;
-import org.ttrssreader.model.updaters.CategoryListUpdater;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.updaters.CategoryUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.net.JSONConnector;
@@ -58,8 +58,8 @@ public class CategoryActivity extends MenuActivity {
     
     protected static final int SELECT_ARTICLES = MARK_GROUP + 54;
     
-    private CategoryListAdapter adapter = null;
-    private CategoryListUpdater updateable = null;
+    private CategoryAdapter adapter = null;
+    private CategoryUpdater updateable = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -94,8 +94,8 @@ public class CategoryActivity extends MenuActivity {
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
         
-        updateable = new CategoryListUpdater();
-        adapter = new CategoryListAdapter(this);
+        updateable = new CategoryUpdater();
+        adapter = new CategoryAdapter(this);
         listView.setAdapter(adapter);
     }
     
@@ -171,11 +171,11 @@ public class CategoryActivity extends MenuActivity {
                 new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position))).execute();
                 return true;
             case SELECT_ARTICLES:
-                Intent i = new Intent(this, FeedHeadlineListActivity.class);
-                i.putExtra(FeedHeadlineListActivity.FEED_ID, FeedHeadlineListActivity.FEED_NO_ID);
-                i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, adapter.getId(cmi.position));
-                i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getTitle(cmi.position));
-                i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, true);
+                Intent i = new Intent(this, FeedHeadlineActivity.class);
+                i.putExtra(FeedHeadlineActivity.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
+                i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, adapter.getId(cmi.position));
+                i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(cmi.position));
+                i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, true);
                 startActivity(i);
         }
         return false;
@@ -190,14 +190,14 @@ public class CategoryActivity extends MenuActivity {
         
         if (categoryId < 0 && categoryId >= -4) {
             // Virtual feeds
-            i = new Intent(this, FeedHeadlineListActivity.class);
-            i.putExtra(FeedHeadlineListActivity.FEED_ID, categoryId);
-            i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getTitle(position));
+            i = new Intent(this, FeedHeadlineActivity.class);
+            i.putExtra(FeedHeadlineActivity.FEED_ID, categoryId);
+            i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(position));
         } else {
             // Categories
-            i = new Intent(this, FeedListActivity.class);
-            i.putExtra(FeedListActivity.CATEGORY_ID, categoryId);
-            i.putExtra(FeedListActivity.CATEGORY_TITLE, adapter.getTitle(position));
+            i = new Intent(this, FeedActivity.class);
+            i.putExtra(FeedActivity.CATEGORY_ID, categoryId);
+            i.putExtra(FeedActivity.CATEGORY_TITLE, adapter.getTitle(position));
         }
         startActivity(i);
     }
@@ -208,7 +208,7 @@ public class CategoryActivity extends MenuActivity {
         
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(new CategoryItem());
+                Data.getInstance().resetTime(new Category());
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
