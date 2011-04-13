@@ -174,7 +174,7 @@ public class JSONConnector {
             tempUrl = tempUrl.substring(0, tempUrl.length() - password.length()) + "*";
         
         long tempTime = System.currentTimeMillis() - start;
-        Log.d(Utils.TAG, String.format("REQUESTING %s ms ( %s )", tempTime, tempUrl));
+        Log.v(Utils.TAG, String.format("REQUESTING %s ms ( %s )", tempTime, tempUrl));
         // End: Log-output
         
         try {
@@ -239,7 +239,7 @@ public class JSONConnector {
         if (strResponse.startsWith("{\"seq"))
             strResponse = parseMetadata(strResponse);
         
-        Log.d(Utils.TAG, String.format("PARSING    %s ms ( %s )", System.currentTimeMillis() - tempTime, tempUrl));
+        Log.v(Utils.TAG, String.format("PARSING    %s ms ( %s )", System.currentTimeMillis() - tempTime, tempUrl));
         return strResponse;
     }
     
