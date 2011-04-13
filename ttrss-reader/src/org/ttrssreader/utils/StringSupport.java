@@ -1,6 +1,8 @@
 package org.ttrssreader.utils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -164,7 +166,7 @@ public class StringSupport {
     }
     
     // TODO: See if this can be and/or needs to be optimized.
-    public static String convertStreamToString(InputStream is) {
+    public static String convertStreamToString_OLD(InputStream is) {
         /*
          * To convert the InputStream to String we use the BufferedReader.readLine()
          * method. We iterate until the BufferedReader return null which means
@@ -190,6 +192,22 @@ public class StringSupport {
             }
         }
         return sb.toString();
+    }
+    
+    public static String convertStreamToString(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        InputStream in = new BufferedInputStream(inputStream, 1024);
+        byte[] buffer = new byte[1024];
+        int n = 0;
+        try {
+            while (-1 != (n = in.read(buffer))) {
+                out.write(buffer, 0, n);
+            }
+        } finally {
+            out.close();
+            in.close();
+        }
+        return out.toString("UTF-8");
     }
     
 }
