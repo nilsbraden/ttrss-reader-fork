@@ -169,11 +169,12 @@ public class JSONConnector {
         }
         
         // Begin: Log-output
-        String tUrl = new String(url);
+        String tempUrl = new String(url);
         if (url.contains(PASSWORD_MATCH))
-            tUrl = tUrl.substring(0, tUrl.length() - password.length()) + "*";
+            tempUrl = tempUrl.substring(0, tempUrl.length() - password.length()) + "*";
         
-        Log.d(Utils.TAG, String.format("Requesting %s (took %s ms)", tUrl, System.currentTimeMillis() - start));
+        long tempTime = System.currentTimeMillis() - start;
+        Log.d(Utils.TAG, String.format("REQUESTING %s ms ( %s )", tempTime, tempUrl));
         // End: Log-output
         
         try {
@@ -194,7 +195,15 @@ public class JSONConnector {
             return null;
         }
         
-        String strResponse = StringSupport.convertStreamToString(instream);
+        String strResponse;
+        try {
+            strResponse = StringSupport.convertStreamToString(instream);
+        } catch (IOException e) {
+            hasLastError = true;
+            lastError = "JSON-Data could not be parsed. Exception: " + e.getMessage() + " (" + e.getCause() + ")";
+            Log.w(Utils.TAG, lastError);
+            return null;
+        }
         
         if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
             Log.w(Utils.TAG, "Not logged in, retrying...");
@@ -220,16 +229,17 @@ public class JSONConnector {
         }
         
         // Check returned string for error-messages
-        if (strResponse.startsWith(ERROR)) {
+        if (strResponse.contains(ERROR)) {
             hasLastError = true;
             lastError = strResponse;
             return null;
         }
         
         // Parse new output with sequence-number and status-codes
-        if (strResponse.contains("{\"seq\":"))
+        if (strResponse.startsWith("{\"seq"))
             strResponse = parseMetadata(strResponse);
         
+        Log.d(Utils.TAG, String.format("PARSING    %s ms ( %s )", System.currentTimeMillis() - tempTime, tempUrl));
         return strResponse;
     }
     
@@ -388,7 +398,7 @@ public class JSONConnector {
         // Cut string from content: to the end: /{"seq":0,"status":0,"content":(.*)}/\1/
         String pattern = "\"content\":";
         int start = str.indexOf(pattern) + pattern.length();
-        int stop = str.length() - 2;
+        int stop = str.length() - 1;
         if (start >= pattern.length() && stop > start) {
             return str.substring(start, stop);
         }
@@ -512,6 +522,7 @@ public class JSONConnector {
      * @return set of Name-Value-Pairs stored in maps
      */
     public void getCounters() {
+        long time = System.currentTimeMillis();
         String url = serverUrl + String.format(OP_GET_COUNTERS);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
@@ -560,6 +571,7 @@ public class JSONConnector {
             lastError = e.getMessage() + ", Method: getCounters() threw Exception";
             e.printStackTrace();
         }
+        Log.v(Utils.TAG, "getCounters: " + (System.currentTimeMillis() - time) + "ms");
     }
     
     /**
@@ -568,6 +580,7 @@ public class JSONConnector {
      * @return a list of categories.
      */
     public Set<CategoryItem> getCategories() {
+        long time = System.currentTimeMillis();
         Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
         
         String url = serverUrl + String.format(OP_GET_CATEGORIES);
@@ -605,6 +618,7 @@ public class JSONConnector {
             e.printStackTrace();
         }
         
+        Log.v(Utils.TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
     
@@ -614,6 +628,7 @@ public class JSONConnector {
      * @return a map of all feeds for every category.
      */
     public Set<FeedItem> getFeeds() {
+        long time = System.currentTimeMillis();
         Set<FeedItem> ret = new LinkedHashSet<FeedItem>();;
         
         // Hardcoded -4 fetches all feeds. See http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
@@ -659,6 +674,7 @@ public class JSONConnector {
             e.printStackTrace();
         }
         
+        Log.v(Utils.TAG, "getFeeds: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
     
@@ -669,6 +685,7 @@ public class JSONConnector {
      *            the ids of the articles.
      */
     public void getArticle(Set<Integer> ids) {
+        long time = System.currentTimeMillis();
         if (ids.size() == 0)
             return;
         
@@ -682,6 +699,7 @@ public class JSONConnector {
             
             parseArticlesAndInsertInDB(jsonResult);
         }
+        Log.v(Utils.TAG, "getArticle: " + (System.currentTimeMillis() - time) + "ms");
     }
     
     /**
@@ -691,13 +709,16 @@ public class JSONConnector {
      *            the ids of the articles.
      */
     public Set<Integer> getHeadlinesToDatabase(int feedId, int limit, int filter, String viewMode, boolean withContent) {
+        long time = System.currentTimeMillis();
         String url = serverUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, withContent ? 1 : 0);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
             return null;
         
-        return parseArticlesAndInsertInDB(jsonResult);
+        Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);
+        Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
+        return ret;
     }
     
     /**
