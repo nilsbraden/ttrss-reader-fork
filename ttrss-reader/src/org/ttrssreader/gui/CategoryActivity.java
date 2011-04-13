@@ -22,8 +22,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.CategoryListAdapter;
 import org.ttrssreader.model.pojos.CategoryItem;
@@ -44,7 +42,6 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -61,18 +58,12 @@ public class CategoryActivity extends MenuActivity {
     private CategoryListAdapter adapter = null;
     
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+    protected void onCreate(Bundle instance) {
+        super.onCreate(instance);
         setContentView(R.layout.categorylist);
         
         // Register our own ExceptionHander
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
-        
-        // Initialize Singletons for Config, Data-Access and DB
-        Controller.getInstance().checkAndInitializeController(this);
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        Data.getInstance().checkAndInitializeData(this);
         
         listView = getListView();
         registerForContextMenu(listView);
@@ -106,23 +97,21 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
-        
-        if (configChecked || checkConfig()) {
-            doRefresh();
-            doUpdate();
+        // Check if already refreshed/updated in super-class
+        if (!resumeDone) {
+            if (configChecked || checkConfig()) {
+                doRefresh();
+                doUpdate();
+            }
         }
+        // reset
+        resumeDone = false;
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        adapter.cursor.deactivate();
-        adapter.cursor.close();
+        adapter.closeDB();
     }
     
     @Override

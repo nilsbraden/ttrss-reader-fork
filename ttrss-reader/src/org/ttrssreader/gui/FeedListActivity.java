@@ -17,8 +17,6 @@
 package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.FeedListAdapter;
 import org.ttrssreader.model.pojos.FeedItem;
@@ -30,7 +28,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -43,17 +40,12 @@ public class FeedListActivity extends MenuActivity {
     private int categoryId;
     private String categoryTitle;
     
-    private FeedListAdapter mAdapter = null;
+    private FeedListAdapter adapter = null;
     
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.feedlist);
-        
-        Controller.getInstance().checkAndInitializeController(this);
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        Data.getInstance().checkAndInitializeData(this);
         
         listView = getListView();
         registerForContextMenu(listView);
@@ -71,27 +63,14 @@ public class FeedListActivity extends MenuActivity {
             categoryTitle = null;
         }
         
-        mAdapter = new FeedListAdapter(this, categoryId);
-        listView.setAdapter(mAdapter);
-    }
-    
-    @Override
-    protected void onResume() {
-        super.onResume();
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        doRefresh();
-        doUpdate();
+        adapter = new FeedListAdapter(this, categoryId);
+        listView.setAdapter(adapter);
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        mAdapter.cursor.deactivate();
-        mAdapter.cursor.close();
+        adapter.closeDB();
     }
     
     @Override
@@ -103,10 +82,10 @@ public class FeedListActivity extends MenuActivity {
     
     @Override
     protected synchronized void doRefresh() {
-        setTitle(String.format("%s (%s)", categoryTitle, mAdapter.getUnread()));
+        setTitle(String.format("%s (%s)", categoryTitle, adapter.getUnread()));
         
-        mAdapter.makeQuery();
-        mAdapter.notifyDataSetChanged();
+        adapter.makeQuery();
+        adapter.notifyDataSetChanged();
         
         if (JSONConnector.hasLastError()) {
             openConnectionErrorDialog(JSONConnector.pullLastError());
@@ -133,7 +112,7 @@ public class FeedListActivity extends MenuActivity {
         setProgressBarIndeterminateVisibility(true);
         notificationTextView.setText(R.string.Loading_Feeds);
         
-        updater = new Updater(this, mAdapter);
+        updater = new Updater(this, adapter);
         updater.execute();
     }
     
@@ -143,8 +122,8 @@ public class FeedListActivity extends MenuActivity {
         
         Intent i = new Intent(this, FeedHeadlineListActivity.class);
         i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineListActivity.FEED_ID, mAdapter.getId(position));
-        i.putExtra(FeedHeadlineListActivity.FEED_TITLE, mAdapter.getTitle(position));
+        i.putExtra(FeedHeadlineListActivity.FEED_ID, adapter.getId(position));
+        i.putExtra(FeedHeadlineListActivity.FEED_TITLE, adapter.getTitle(position));
         
         startActivity(i);
     }
@@ -153,7 +132,7 @@ public class FeedListActivity extends MenuActivity {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (item.getItemId() == MARK_READ) {
-            new Updater(this, new ReadStateUpdater(mAdapter.getId(cmi.position), 42)).execute();
+            new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).execute();
             return true;
         }
         return false;

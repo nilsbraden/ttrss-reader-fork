@@ -21,6 +21,8 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.updaters.IUpdatable;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -29,6 +31,7 @@ public class MainAdapter extends BaseAdapter implements IUpdatable {
     
     protected Context context;
     public Cursor cursor;
+    private SQLiteDatabase db;
     
     protected boolean displayOnlyUnread;
     protected boolean invertSortFeedCats;
@@ -39,10 +42,32 @@ public class MainAdapter extends BaseAdapter implements IUpdatable {
     
     public MainAdapter(Context context) {
         this.context = context;
+        openDB();
+        
         this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
         this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
         this.invertSortArticles = Controller.getInstance().invertSortArticleList();
+
         makeQuery();
+    }
+    
+    private void openDB() {
+        closeDB();
+        
+        OpenHelper openHelper = new OpenHelper(context);
+        db = openHelper.getWritableDatabase();
+        db.setLockingEnabled(false);
+    }
+    
+    private static class OpenHelper extends SQLiteOpenHelper {
+        OpenHelper(Context context) {
+            super(context, DBHelper.DATABASE_NAME, null, DBHelper.DATABASE_VERSION);
+        }
+        
+        // @formatter:off
+        @Override public void onCreate(SQLiteDatabase db) { }
+        @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
+        // @formatter:on
     }
     
     @Override
@@ -121,9 +146,12 @@ public class MainAdapter extends BaseAdapter implements IUpdatable {
         }
     }
     
-    protected void closeCursor() {
-        if (cursor != null) {
+    public void closeDB() {
+        if (cursor != null && !cursor.isClosed()) {
             cursor.close();
+        }
+        if (db != null && db.isOpen()) {
+            db.close();
         }
     }
     
@@ -131,19 +159,22 @@ public class MainAdapter extends BaseAdapter implements IUpdatable {
         // Check if display-settings have changed
         if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
             displayOnlyUnread = !displayOnlyUnread;
-            closeCursor();
+            cursor.close();
         } else if (invertSortFeedCats != Controller.getInstance().invertSortFeedsCats()) {
             invertSortFeedCats = !invertSortFeedCats;
-            closeCursor();
+            cursor.close();
         } else if (invertSortArticles != Controller.getInstance().invertSortArticleList()) {
             invertSortArticles = !invertSortArticles;
-            closeCursor();
+            cursor.close();
         }
         
         // Log.v(Utils.TAG, query.toString());
         if (cursor != null)
             cursor.close();
-        cursor = DBHelper.getInstance().query(buildQuery(), null);
+        if (db == null || !db.isOpen())
+            openDB();
+        
+        cursor = db.rawQuery(buildQuery(), null);
     }
     
     protected String buildQuery() {

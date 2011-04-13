@@ -17,6 +17,8 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
@@ -26,12 +28,14 @@ import org.ttrssreader.service.ForegroundService;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -42,6 +46,7 @@ import android.widget.TextView;
 public class MenuActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
     
     protected boolean configChecked = false;
+    protected boolean resumeDone = false;
     protected ListView listView;
     protected Updater updater;
     protected TextView notificationTextView;
@@ -50,6 +55,37 @@ public class MenuActivity extends ListActivity implements IUpdateEndListener, IC
     protected static final int MARK_READ = MARK_GROUP + 1;
     protected static final int MARK_STAR = MARK_GROUP + 2;
     protected static final int MARK_PUBLISH = MARK_GROUP + 3;
+    
+    @Override
+    protected void onCreate(Bundle instance) {
+        super.onCreate(instance);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        
+        // Initialize Singletons for Config, Data-Access and DB
+        Controller.getInstance().checkAndInitializeController(this);
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        Data.getInstance().checkAndInitializeData(this);
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        if (configChecked) {
+            doRefresh();
+            doUpdate();
+            resumeDone = true;
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+    }
     
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {

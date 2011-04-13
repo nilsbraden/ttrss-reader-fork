@@ -150,6 +150,8 @@ public class ArticleActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (feedHeadlineListAdapter != null)
+            feedHeadlineListAdapter.closeDB();
     }
     
     @Override
@@ -340,6 +342,8 @@ public class ArticleActivity extends Activity {
         i.putExtra(ArticleActivity.FEED_ID, feedId);
         i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        
+        feedHeadlineListAdapter.closeDB();
         
         startActivityForResult(i, 0);
         this.finish();
