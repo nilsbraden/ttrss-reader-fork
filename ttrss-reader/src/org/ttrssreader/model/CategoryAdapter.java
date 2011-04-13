@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.pojos.CategoryItem;
+import org.ttrssreader.model.pojos.Category;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -30,9 +30,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class CategoryListAdapter extends MainAdapter {
+public class CategoryAdapter extends MainAdapter {
     
-    public CategoryListAdapter(Context context) {
+    public CategoryAdapter(Context context) {
         super(context);
     }
     
@@ -44,7 +44,7 @@ public class CategoryListAdapter extends MainAdapter {
         
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                CategoryItem ret = new CategoryItem();
+                Category ret = new Category();
                 ret.id = cursor.getInt(0);
                 ret.title = cursor.getString(1);
                 ret.unread = cursor.getInt(2);
@@ -54,15 +54,15 @@ public class CategoryListAdapter extends MainAdapter {
         return null;
     }
     
-    public List<CategoryItem> getCategories() {
+    public List<Category> getCategories() {
         if (cursor.isClosed()) {
             makeQuery();
         }
         
-        List<CategoryItem> result = new ArrayList<CategoryItem>();
+        List<Category> result = new ArrayList<Category>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            CategoryItem c = new CategoryItem();
+            Category c = new Category();
             c.id = cursor.getInt(0);
             c.title = cursor.getString(1);
             c.unread = cursor.getInt(2);
@@ -95,7 +95,7 @@ public class CategoryListAdapter extends MainAdapter {
         if (position >= getCount() || position < 0)
             return new View(context);
         
-        CategoryItem c = (CategoryItem) getItem(position);
+        Category c = (Category) getItem(position);
         
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;

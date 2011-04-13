@@ -21,9 +21,9 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.FeedHeadlineListAdapter;
+import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.cachers.ImageCacher;
-import org.ttrssreader.model.pojos.ArticleItem;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -63,10 +63,10 @@ public class ArticleActivity extends Activity {
     private int articleId;
     private int feedId;
     
-    private FeedHeadlineListAdapter feedHeadlineListAdapter;
+    private FeedHeadlineAdapter feedHeadlineListAdapter;
     private ArticleHeaderView headerContainer;
     
-    private ArticleItem article = null;
+    private Article article = null;
     private String content;
     private boolean linkAutoOpened;
     private int currentIndex = 0;
@@ -123,20 +123,20 @@ public class ArticleActivity extends Activity {
             articleId = extras.getInt(ARTICLE_ID);
             feedId = extras.getInt(FEED_ID);
             currentIndex = extras.getInt(ARTICLE_INDEX);
-            categoryId = extras.getInt(FeedHeadlineListActivity.FEED_CAT_ID);
-            selectArticlesForCategory = extras.getBoolean(FeedHeadlineListActivity.FEED_SELECT_ARTICLES);
+            categoryId = extras.getInt(FeedHeadlineActivity.FEED_CAT_ID);
+            selectArticlesForCategory = extras.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
         } else if (instance != null) {
             articleId = instance.getInt(ARTICLE_ID);
             feedId = instance.getInt(FEED_ID);
             currentIndex = instance.getInt(ARTICLE_INDEX);
-            categoryId = instance.getInt(FeedHeadlineListActivity.FEED_CAT_ID);
-            selectArticlesForCategory = instance.getBoolean(FeedHeadlineListActivity.FEED_SELECT_ARTICLES);
+            categoryId = instance.getInt(FeedHeadlineActivity.FEED_CAT_ID);
+            selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
         } else {
             articleId = -1;
             feedId = -1;
             currentIndex = 0;
         }
-        feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
+        feedHeadlineListAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId,
                 selectArticlesForCategory);
     }
     
@@ -165,8 +165,8 @@ public class ArticleActivity extends Activity {
         outState.putInt(ARTICLE_ID, articleId);
         outState.putInt(FEED_ID, feedId);
         outState.putInt(ARTICLE_INDEX, currentIndex);
-        outState.putInt(FeedHeadlineListActivity.FEED_INDEX, currentIndex);
-        outState.putBoolean(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        outState.putInt(FeedHeadlineActivity.FEED_INDEX, currentIndex);
+        outState.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
     }
     
     @Override
@@ -323,7 +323,7 @@ public class ArticleActivity extends Activity {
     private void openNextArticle(int direction) {
         
         if (feedHeadlineListAdapter == null) {
-            feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
+            feedHeadlineListAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId,
                     selectArticlesForCategory);
         } else {
             feedHeadlineListAdapter.makeQuery(true);
@@ -343,8 +343,8 @@ public class ArticleActivity extends Activity {
         Intent i = new Intent(this, ArticleActivity.class);
         i.putExtra(ArticleActivity.ARTICLE_ID, feedHeadlineListAdapter.getId(index));
         i.putExtra(ArticleActivity.FEED_ID, feedId);
-        i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
 
         releaseResources();
         startActivityForResult(i, 0);

@@ -16,39 +16,39 @@
 
 package org.ttrssreader.model.pojos;
 
-public class CategoryItem implements Comparable<CategoryItem> {
+public class Feed implements Comparable<Feed> {
     
     public int id;
+    public int categoryId;
     public String title;
+    public String url;
     public int unread;
     
-    public CategoryItem() {
+    public Feed() {
         this.id = 0;
+        this.categoryId = 0;
         this.title = "";
+        this.url = "";
         this.unread = 0;
     }
     
-    public CategoryItem(int id, String title, int unread) {
+    public Feed(int id, int categoryId, String title, String url, int unread) {
         this.id = id;
+        this.categoryId = categoryId;
         this.title = title;
+        this.url = url;
         this.unread = unread;
     }
     
     @Override
-    public int compareTo(CategoryItem ci) {
-        // Sort by Id if Id is 0 or smaller, else sort by Title
-        if (id <= 0 || ci.id <= 0) {
-            Integer thisInt = id;
-            Integer thatInt = ci.id;
-            return thisInt.compareTo(thatInt);
-        }
-        return title.compareToIgnoreCase(ci.title);
+    public int compareTo(Feed fi) {
+        return title.compareToIgnoreCase(fi.title);
     }
     
     @Override
     public boolean equals(Object o) {
-        if (o instanceof CategoryItem) {
-            CategoryItem other = (CategoryItem) o;
+        if (o instanceof Feed) {
+            Feed other = (Feed) o;
             return (id == other.id);
         } else {
             return false;

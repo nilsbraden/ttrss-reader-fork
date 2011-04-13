@@ -37,8 +37,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.pojos.CategoryItem;
-import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.StringSupport;
@@ -579,9 +579,9 @@ public class JSONConnector {
      * 
      * @return a list of categories.
      */
-    public Set<CategoryItem> getCategories() {
+    public Set<Category> getCategories() {
         long time = System.currentTimeMillis();
-        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
+        Set<Category> ret = new LinkedHashSet<Category>();
         
         String url = serverUrl + String.format(OP_GET_CATEGORIES);
         JSONArray jsonResult = getJSONResponseAsArray(url);
@@ -610,7 +610,7 @@ public class JSONConnector {
                     }
                 }
                 
-                ret.add(new CategoryItem(id, title, unread));
+                ret.add(new Category(id, title, unread));
             }
         } catch (Exception e) {
             hasLastError = true;
@@ -627,9 +627,9 @@ public class JSONConnector {
      * 
      * @return a map of all feeds for every category.
      */
-    public Set<FeedItem> getFeeds() {
+    public Set<Feed> getFeeds() {
         long time = System.currentTimeMillis();
-        Set<FeedItem> ret = new LinkedHashSet<FeedItem>();;
+        Set<Feed> ret = new LinkedHashSet<Feed>();;
         
         // Hardcoded -4 fetches all feeds. See http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
         String url = serverUrl + String.format(OP_GET_FEEDS, "-4");
@@ -666,7 +666,7 @@ public class JSONConnector {
                 }
                 
                 if (id > 0)
-                    ret.add(new FeedItem(id, categoryId, title, feedUrl, unread));
+                    ret.add(new Feed(id, categoryId, title, feedUrl, unread));
             }
         } catch (Exception e) {
             hasLastError = true;

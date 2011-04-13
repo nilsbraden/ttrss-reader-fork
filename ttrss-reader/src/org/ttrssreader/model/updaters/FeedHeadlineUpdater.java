@@ -19,9 +19,9 @@ package org.ttrssreader.model.updaters;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.model.pojos.Feed;
 
-public class FeedHeadlineListUpdater implements IUpdatable {
+public class FeedHeadlineUpdater implements IUpdatable {
     
     boolean selectArticlesForCategory;
     int categoryId;
@@ -29,12 +29,12 @@ public class FeedHeadlineListUpdater implements IUpdatable {
     
     public int unreadCount = 0;
     
-    public FeedHeadlineListUpdater(boolean selectArticlesForCategory, int categoryId) {
+    public FeedHeadlineUpdater(boolean selectArticlesForCategory, int categoryId) {
         this.selectArticlesForCategory = selectArticlesForCategory;
         this.categoryId = categoryId;
     }
     
-    public FeedHeadlineListUpdater(int feedId) {
+    public FeedHeadlineUpdater(int feedId) {
         this.feedId = feedId;
     }
     
@@ -42,7 +42,7 @@ public class FeedHeadlineListUpdater implements IUpdatable {
     public void update() {
         if (selectArticlesForCategory) {
             unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
-            for (FeedItem f : DBHelper.getInstance().getFeeds(categoryId)) {
+            for (Feed f : DBHelper.getInstance().getFeeds(categoryId)) {
                 Data.getInstance().updateArticles(f.id, Controller.getInstance().displayOnlyUnread());
             }
         } else {

@@ -19,9 +19,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import org.ttrssreader.model.pojos.ArticleItem;
-import org.ttrssreader.model.pojos.CategoryItem;
-import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.content.ContentValues;
@@ -338,11 +338,11 @@ public class DBHelper {
         }
     }
     
-    public void insertCategories(Set<CategoryItem> set) {
+    public void insertCategories(Set<Category> set) {
         if (set == null)
             return;
         
-        for (CategoryItem c : set) {
+        for (Category c : set) {
             insertCategory(c.id, c.title, c.unread);
         }
     }
@@ -365,18 +365,18 @@ public class DBHelper {
         }
     }
     
-    private void insertFeed(FeedItem f) {
+    private void insertFeed(Feed f) {
         if (f == null)
             return;
         
         insertFeed(f.id, f.categoryId, f.title, f.url, f.unread);
     }
     
-    public void insertFeeds(Set<FeedItem> set) {
+    public void insertFeeds(Set<Feed> set) {
         if (set == null)
             return;
         
-        for (FeedItem f : set) {
+        for (Feed f : set) {
             insertFeed(f);
         }
     }
@@ -399,7 +399,7 @@ public class DBHelper {
             attachments = new LinkedHashSet<String>();
         
         boolean cachedImages = false;
-        ArticleItem a = getArticle(id);
+        Article a = getArticle(id);
         if (a != null) {
             cachedImages = a.cachedImages;
         }
@@ -424,19 +424,19 @@ public class DBHelper {
     
     // *******| UPDATE |*******************************************************************
     
-    public void markCategoryRead(CategoryItem c, boolean recursive) {
+    public void markCategoryRead(Category c, boolean recursive) {
         if (isDBAvailable()) {
             updateCategoryUnreadCount(c.id, 0);
             
             if (recursive) {
-                for (FeedItem f : getFeeds(c.id)) {
+                for (Feed f : getFeeds(c.id)) {
                     markFeedRead(f, recursive);
                 }
             }
         }
     }
     
-    public void markFeedRead(FeedItem f, boolean recursive) {
+    public void markFeedRead(Feed f, boolean recursive) {
         if (isDBAvailable()) {
             updateFeedUnreadCount(f.id, 0);
             
@@ -486,7 +486,7 @@ public class DBHelper {
     }
     
     public void markArticlesReadCategory(int id) {
-        for (FeedItem f : getFeeds(id)) {
+        for (Feed f : getFeeds(id)) {
             markArticlesReadFeed(f.id);
         }
     }
@@ -533,7 +533,7 @@ public class DBHelper {
     }
     
     public void updateCategoryDeltaUnreadCount(int id, int delta) {
-        CategoryItem c = getCategory(id);
+        Category c = getCategory(id);
         int count = c.unread;
         count += delta;
         updateCategoryUnreadCount(id, count);
@@ -551,7 +551,7 @@ public class DBHelper {
     }
     
     public void updateFeedDeltaUnreadCount(int id, int delta) {
-        FeedItem f = getFeed(id);
+        Feed f = getFeed(id);
         int count = f.unread;
         count += delta;
         updateFeedUnreadCount(id, count);
@@ -633,8 +633,8 @@ public class DBHelper {
     // *******| SELECT |*******************************************************************
     
     // Takes about 2 to 6 ms on Motorola Milestone
-    public ArticleItem getArticle(int id) {
-        ArticleItem ret = null;
+    public Article getArticle(int id) {
+        Article ret = null;
         if (!isDBAvailable())
             return ret;
         
@@ -657,8 +657,8 @@ public class DBHelper {
         return ret;
     }
     
-    public FeedItem getFeed(int id) {
-        FeedItem ret = new FeedItem();
+    public Feed getFeed(int id) {
+        Feed ret = new Feed();
         if (!isDBAvailable())
             return ret;
         
@@ -681,8 +681,8 @@ public class DBHelper {
         return ret;
     }
     
-    public CategoryItem getCategory(int id) {
-        CategoryItem ret = new CategoryItem();
+    public Category getCategory(int id) {
+        Category ret = new Category();
         if (!isDBAvailable())
             return ret;
         
@@ -715,8 +715,8 @@ public class DBHelper {
      * @param categoryId
      * @return
      */
-    public Set<FeedItem> getFeeds(int categoryId) {
-        Set<FeedItem> ret = new LinkedHashSet<FeedItem>();
+    public Set<Feed> getFeeds(int categoryId) {
+        Set<Feed> ret = new LinkedHashSet<Feed>();
         if (!isDBAvailable())
             return ret;
         
@@ -743,15 +743,15 @@ public class DBHelper {
         return ret;
     }
     
-    public Set<CategoryItem> getVirtualCategories() {
-        Set<CategoryItem> ret = new LinkedHashSet<CategoryItem>();
+    public Set<Category> getVirtualCategories() {
+        Set<Category> ret = new LinkedHashSet<Category>();
         if (!isDBAvailable())
             return ret;
         
         Cursor c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
         try {
             while (!c.isAfterLast()) {
-                CategoryItem ci = handleCategoryCursor(c);
+                Category ci = handleCategoryCursor(c);
                 ret.add(ci);
                 c.move(1);
             }
@@ -834,8 +834,8 @@ public class DBHelper {
     
     // *******************************************
     
-    private static ArticleItem handleArticleCursor(Cursor c) {
-        ArticleItem ret = null;
+    private static Article handleArticleCursor(Cursor c) {
+        Article ret = null;
         
         if (c.isBeforeFirst()) {
             if (!c.moveToFirst()) {
@@ -844,7 +844,7 @@ public class DBHelper {
         }
         
         // @formatter:off
-        ret = new ArticleItem(
+        ret = new Article(
                 c.getInt(0),                        // id
                 c.getInt(1),                        // feedId
                 c.getString(2),                     // title
@@ -863,8 +863,8 @@ public class DBHelper {
         return ret;
     }
     
-    private static FeedItem handleFeedCursor(Cursor c) {
-        FeedItem ret = null;
+    private static Feed handleFeedCursor(Cursor c) {
+        Feed ret = null;
         
         if (c.isBeforeFirst()) {
             if (!c.moveToFirst()) {
@@ -873,7 +873,7 @@ public class DBHelper {
         }
         
         // @formatter:off
-        ret = new FeedItem(
+        ret = new Feed(
                 c.getInt(0),            // id
                 c.getInt(1),            // categoryId
                 c.getString(2),         // title
@@ -884,8 +884,8 @@ public class DBHelper {
         return ret;
     }
     
-    private static CategoryItem handleCategoryCursor(Cursor c) {
-        CategoryItem ret = null;
+    private static Category handleCategoryCursor(Cursor c) {
+        Category ret = null;
         
         if (c.isBeforeFirst()) {
             if (!c.moveToFirst()) {
@@ -894,7 +894,7 @@ public class DBHelper {
         }
         
         // @formatter:off
-        ret = new CategoryItem(
+        ret = new Category(
                 c.getInt(0),                // id
                 c.getString(1),             // title
                 c.getInt(2));               // unread

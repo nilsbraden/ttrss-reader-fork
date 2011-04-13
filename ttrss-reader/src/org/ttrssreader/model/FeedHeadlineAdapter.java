@@ -21,8 +21,8 @@ import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.pojos.ArticleItem;
-import org.ttrssreader.model.pojos.FeedItem;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Feed;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -32,15 +32,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class FeedHeadlineListAdapter extends MainAdapter {
+public class FeedHeadlineAdapter extends MainAdapter {
     
     private boolean selectArticlesForCategory;
     
-    public FeedHeadlineListAdapter(Context context, int feedId) {
+    public FeedHeadlineAdapter(Context context, int feedId) {
         this(context, feedId, -1, false);
     }
     
-    public FeedHeadlineListAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
+    public FeedHeadlineAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
         super(context);
         this.selectArticlesForCategory = selectArticlesForCategory;
         this.feedId = feedId;
@@ -54,10 +54,10 @@ public class FeedHeadlineListAdapter extends MainAdapter {
             makeQuery();
         }
         
-        ArticleItem ret = null;
+        Article ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
-                ret = new ArticleItem();
+                ret = new Article();
                 ret.id = cursor.getInt(0);
                 ret.feedId = cursor.getInt(1);
                 ret.title = cursor.getString(2);
@@ -70,7 +70,7 @@ public class FeedHeadlineListAdapter extends MainAdapter {
         return ret;
     }
     
-    private void getImage(ImageView icon, ArticleItem a) {
+    private void getImage(ImageView icon, Article a) {
         if (a.isUnread) {
             icon.setBackgroundResource(R.drawable.articleunread48);
         } else {
@@ -98,7 +98,7 @@ public class FeedHeadlineListAdapter extends MainAdapter {
         if (position >= getCount() || position < 0)
             return new View(context);
         
-        ArticleItem a = (ArticleItem) getItem(position);
+        Article a = (Article) getItem(position);
         
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;
@@ -128,7 +128,7 @@ public class FeedHeadlineListAdapter extends MainAdapter {
         TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
         // Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category
         if ((feedId < 0 && feedId >= -4) || (selectArticlesForCategory)) {
-            FeedItem f = DBHelper.getInstance().getFeed(a.feedId);
+            Feed f = DBHelper.getInstance().getFeed(a.feedId);
             if (f != null) {
                 dataSource.setText(f.title);
             }

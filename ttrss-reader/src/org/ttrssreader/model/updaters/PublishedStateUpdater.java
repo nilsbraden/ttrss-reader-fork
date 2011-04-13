@@ -17,19 +17,19 @@ package org.ttrssreader.model.updaters;
 
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.ArticleItem;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
 public class PublishedStateUpdater implements IUpdatable {
     
-    private ArticleItem article;
+    private Article article;
     private int articleState;
     
     /**
      * Sets the articles' Published-Status according to articleState
      */
-    public PublishedStateUpdater(ArticleItem article, int articleState) {
+    public PublishedStateUpdater(Article article, int articleState) {
         this.article = article;
         this.articleState = articleState;
     }

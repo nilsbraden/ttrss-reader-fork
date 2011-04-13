@@ -19,7 +19,7 @@ package org.ttrssreader.model.pojos;
 import java.util.Date;
 import java.util.Set;
 
-public class ArticleItem implements Comparable<ArticleItem> {
+public class Article implements Comparable<Article> {
     
     public int id;
     public String title;
@@ -34,10 +34,10 @@ public class ArticleItem implements Comparable<ArticleItem> {
     public boolean isPublished;
     public boolean cachedImages;
     
-    public ArticleItem() {
+    public Article() {
     }
     
-    public ArticleItem(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
+    public Article(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
             Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished) {
         this.id = id;
         this.title = title;
@@ -57,14 +57,14 @@ public class ArticleItem implements Comparable<ArticleItem> {
     }
     
     @Override
-    public int compareTo(ArticleItem ai) {
+    public int compareTo(Article ai) {
         return ai.updated.compareTo(this.updated);
     }
     
     @Override
     public boolean equals(Object o) {
-        if (o instanceof ArticleItem) {
-            ArticleItem other = (ArticleItem) o;
+        if (o instanceof Article) {
+            Article other = (Article) o;
             return (this.id == other.id);
         } else {
             return false;
