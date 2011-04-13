@@ -127,21 +127,39 @@
             </LinearLayout>
         </org.ttrssreader.gui.ArticleHeaderView>
 
-        <WebView
-            android:id="@+id/webview"
+        <RelativeLayout 
+            android:id="@+id/webview_layout"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
+            android:layout_height="fill_parent"
+        >
+        
+            <WebView
+                android:id="@+id/webview"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_alignParentTop="true"
+                android:layout_above="@+id/webview_swipe_text" />
+            
+            <RelativeLayout 
+                android:id="@+id/webview_swipe_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+            >
 
-        <TextView
-            android:id="@+id/webview_swipe_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dip"
-            android:layout_gravity="center_horizontal|bottom"
-            android:padding="12dip"
-            android:background="#AA000000"
-            android:textColor="#ffffffff"
-            android:text="@string/ArticleActivity.SwipeNotification" />
+                <TextView
+                    android:id="@+id/webview_swipe_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:padding="12dip"
+                    android:background="#AA000000"
+                    android:textColor="#ffffffff"
+                    android:text="@string/ArticleActivity.SwipeNotification" />
 
+            </RelativeLayout>
+            
+        </RelativeLayout>
+    
     </LinearLayout>
 </merge>
