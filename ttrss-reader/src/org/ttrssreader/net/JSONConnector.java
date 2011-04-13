@@ -69,7 +69,7 @@ public class JSONConnector {
     private static final String ERROR = "{\"error\":";
     private static final String NOT_LOGGED_IN = ERROR + "\"NOT_LOGGED_IN\"}";
     private static final String API_DISABLED = ERROR + "\"API_DISABLED\"}";
-    private static final String API_DISABLED_MESSAGE = "Please enable API for this user in its preferences on the Server. (User: %s, URL: %s)";
+    private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
     private static final String OK = "\"status\":\"OK\"";
     
     private static final String SESSION_ID = "session_id";
@@ -213,9 +213,9 @@ public class JSONConnector {
         
         // Check if API is enabled for the user
         if (strResponse.contains(API_DISABLED)) {
-            Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, userName, serverUrl));
+            Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, userName));
             hasLastError = true;
-            lastError = String.format(API_DISABLED_MESSAGE, userName, serverUrl);
+            lastError = String.format(API_DISABLED_MESSAGE, userName);
             return null;
         }
         
@@ -342,7 +342,7 @@ public class JSONConnector {
             }
             
             // Try again with base64-encoded passphrase
-            if (!loginBase64()) {
+            if (!loginBase64() && !hasLastError) {
                 hasLastError = true;
                 lastError = "Couldn't login, please check your settings.";
                 return false;
