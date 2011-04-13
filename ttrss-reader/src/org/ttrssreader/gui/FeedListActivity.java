@@ -72,6 +72,11 @@ public class FeedListActivity extends MenuActivity {
         listView.setAdapter(adapter);
     }
     
+    protected void doDestroy() {
+        if (adapter != null)
+            adapter.closeCursor();
+    }
+    
     @Override
     protected void onDestroy() {
         if (adapter != null)
