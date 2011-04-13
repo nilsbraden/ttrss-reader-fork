@@ -169,12 +169,12 @@ public class JSONConnector {
         }
         
         // Begin: Log-output
-        String tempUrl = new String(url);
-        if (url.contains(PASSWORD_MATCH))
-            tempUrl = tempUrl.substring(0, tempUrl.length() - password.length()) + "*";
-        
-        long tempTime = System.currentTimeMillis() - start;
-        Log.v(Utils.TAG, String.format("REQUESTING %s ms ( %s )", tempTime, tempUrl));
+        // String tempUrl = new String(url);
+        // if (url.contains(PASSWORD_MATCH))
+        // tempUrl = tempUrl.substring(0, tempUrl.length() - password.length()) + "*";
+        //
+        // long tempTime = System.currentTimeMillis() - start;
+        // Log.v(Utils.TAG, String.format("REQUESTING %s ms ( %s )", tempTime, tempUrl));
         // End: Log-output
         
         try {
@@ -239,7 +239,8 @@ public class JSONConnector {
         if (strResponse.startsWith("{\"seq"))
             strResponse = parseMetadata(strResponse);
         
-        Log.v(Utils.TAG, String.format("PARSING    %s ms ( %s )", System.currentTimeMillis() - tempTime, tempUrl));
+        // Log.v(Utils.TAG, String.format("PARSING    %s ms ( %s )", System.currentTimeMillis() - tempTime - start,
+        // tempUrl));
         return strResponse;
     }
     
