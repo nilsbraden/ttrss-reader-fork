@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.CategoryListAdapter;
 import org.ttrssreader.model.pojos.CategoryItem;
@@ -97,15 +98,11 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Check if already refreshed/updated in super-class
-        if (!resumeDone) {
-            if (configChecked || checkConfig()) {
-                doRefresh();
-                doUpdate();
-            }
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        if (configChecked || checkConfig()) {
+            doRefresh();
+            doUpdate();
         }
-        // reset
-        resumeDone = false;
     }
     
     @Override

@@ -17,6 +17,7 @@
 package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.FeedListAdapter;
 import org.ttrssreader.model.pojos.FeedItem;
@@ -65,6 +66,14 @@ public class FeedListActivity extends MenuActivity {
         
         adapter = new FeedListAdapter(this, categoryId);
         listView.setAdapter(adapter);
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        doRefresh();
+        doUpdate();
     }
     
     @Override

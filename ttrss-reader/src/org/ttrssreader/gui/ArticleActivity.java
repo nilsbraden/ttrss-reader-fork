@@ -16,7 +16,6 @@
 
 package org.ttrssreader.gui;
 
-import java.util.ArrayList;
 import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -65,7 +64,6 @@ public class ArticleActivity extends Activity {
     private int feedId;
     
     private FeedHeadlineListAdapter feedHeadlineListAdapter;
-    private ArrayList<Integer> articleIds;
     private ArticleHeaderView headerContainer;
     
     private ArticleItem article = null;
@@ -261,9 +259,12 @@ public class ArticleActivity extends Activity {
                 }
                 
                 // Store current index in ID-List so we can jump between articles
-                if (feedHeadlineListAdapter == null)
+                if (feedHeadlineListAdapter == null) {
                     feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
                             selectArticlesForCategory);
+                } else if (!feedHeadlineListAdapter.isDBOpen()) {
+                    feedHeadlineListAdapter.openDB();
+                }
                 
                 if (feedHeadlineListAdapter.getIds().indexOf(articleId) >= 0)
                     currentIndex = feedHeadlineListAdapter.getIds().indexOf(articleId);
@@ -317,19 +318,16 @@ public class ArticleActivity extends Activity {
     private void openNextArticle(int direction) {
         
         if (feedHeadlineListAdapter == null) {
-            Log.e(Utils.TAG, "openNextArticle - Adapter was null... (int direction:" + direction + ")");
             feedHeadlineListAdapter = new FeedHeadlineListAdapter(getApplicationContext(), feedId, categoryId,
                     selectArticlesForCategory);
-        } else if (feedHeadlineListAdapter.cursor.isClosed()) {
-            Log.e(Utils.TAG, "openNextArticle - Cursor was closed... (int direction:" + direction + ")");
-            feedHeadlineListAdapter.cursor.requery();
+        } else if (!feedHeadlineListAdapter.isDBOpen()) {
+            feedHeadlineListAdapter.openDB();
         }
         
-        articleIds = feedHeadlineListAdapter.getIds();
         int index = currentIndex + direction;
         
         // No more articles in this direction
-        if (index < 0 || index >= articleIds.size()) {
+        if (index < 0 || index >= feedHeadlineListAdapter.getCount()) {
             if (Controller.getInstance().vibrateOnLastArticle()) {
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 v.vibrate(Utils.SHORT_VIBRATE);
@@ -338,12 +336,10 @@ public class ArticleActivity extends Activity {
         }
         
         Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, articleIds.get(index));
+        i.putExtra(ArticleActivity.ARTICLE_ID, feedHeadlineListAdapter.getId(index));
         i.putExtra(ArticleActivity.FEED_ID, feedId);
         i.putExtra(FeedHeadlineListActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineListActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        
-        feedHeadlineListAdapter.closeDB();
         
         startActivityForResult(i, 0);
         this.finish();
