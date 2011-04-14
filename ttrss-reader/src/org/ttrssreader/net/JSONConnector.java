@@ -691,6 +691,8 @@ public class JSONConnector {
             return;
         
         for (String idList : StringSupport.convertListToString(ids)) {
+            if (idList.length() < 2)
+                continue;
             
             String url = serverUrl + String.format(OP_GET_ARTICLE, idList);
             JSONArray jsonResult = getJSONResponseAsArray(url);
