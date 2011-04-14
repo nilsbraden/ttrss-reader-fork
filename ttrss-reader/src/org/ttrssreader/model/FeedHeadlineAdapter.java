@@ -162,30 +162,16 @@ public class FeedHeadlineAdapter extends MainAdapter {
                 break;
             
             case -4:
-                if (displayOnlyUnread)
-                    query.append(" AND a.isUnread>0");
+                query.append(displayOnlyUnread ? " AND a.isUnread>0 " : "");
                 break;
             
             default:
-                if (selectArticlesForCategory) {
-                    // User selected to display all articles of a category directly
-                    query.append(" AND b.categoryId=");
-                    query.append(categoryId);
-                } else {
-                    query.append(" AND a.feedId=");
-                    query.append(feedId);
-                }
-                if (displayOnlyUnread)
-                    query.append(" AND a.isUnread>0");
+                // User selected to display all articles of a category directly
+                query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId) : (" AND a.feedId=" + feedId));
+                query.append(displayOnlyUnread ? " AND a.isUnread>0 " : "" );
         }
-        
         query.append(" ORDER BY a.updateDate ");
-        
-        if (invertSortArticles) {
-            query.append("ASC");
-        } else {
-            query.append("DESC");
-        }
+        query.append(invertSortArticles ? "ASC" : "DESC");
         
         return query.toString();
     }
