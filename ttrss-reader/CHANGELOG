@@ -8,6 +8,8 @@
   * Fixed broken next/previous article/feed jump when returning from article-view
   * Images are not fetched from online-sources anymore if browsing in Offline-mode
   * Some performance-issues fixed and some background-exceptions too
+  * Show read articles when browsing "only unread articles" and entering an empty feed (eg. by returning from the last unread article)
+  * Minor refactoring and changes due to the upcoming release of Tiny Tiny RSS 1.5.3 (POST-Requests, Attachments in getHeadlines)
 
 == Version 0.9.4 ==
   * Reduced permissions as requested by Issue #58 ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=57 Is "Phone Calls" Permission Necessary?])
