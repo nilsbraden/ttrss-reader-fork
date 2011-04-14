@@ -65,7 +65,6 @@ public class JSONConnector {
                                                                                     // (f-feeds, l-labels, c-categories,
                                                                                     // t-tags)
     
-    private static final String PASSWORD_MATCH = "&password=";
     private static final String ERROR = "{\"error\":";
     private static final String NOT_LOGGED_IN = ERROR + "\"NOT_LOGGED_IN\"}";
     private static final String API_DISABLED = ERROR + "\"API_DISABLED\"}";
@@ -129,7 +128,7 @@ public class JSONConnector {
     }
     
     private String doRequest(String url, boolean firstCall) {
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
         
         try {
             post.setURI(new URI(url));
@@ -170,7 +169,7 @@ public class JSONConnector {
         
         // Begin: Log-output
         // String tempUrl = new String(url);
-        // if (url.contains(PASSWORD_MATCH))
+        // if (url.contains("&password="))
         // tempUrl = tempUrl.substring(0, tempUrl.length() - password.length()) + "*";
         //
         // long tempTime = System.currentTimeMillis() - start;
@@ -691,7 +690,7 @@ public class JSONConnector {
             return;
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            if (idList.length() < 2)
+            if (idList.length() == 0)
                 continue;
             
             String url = serverUrl + String.format(OP_GET_ARTICLE, idList);
