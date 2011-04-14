@@ -69,8 +69,8 @@
     <string name="Commons.DisplayAll">Display all</string>
     <string name="Commons.SelectArticles">Show all articles</string>
     <string name="Commons.MarkAllRead">All read</string>
-    <string name="Commons.MarkRead">Read</string>
-    <string name="Commons.MarkUnread">Unread</string>
+    <string name="Commons.MarkRead">Mark as read</string>
+    <string name="Commons.MarkUnread">Mark as unread</string>
     <string name="Commons.MarkStar">Star</string>
     <string name="Commons.MarkUnstar">Un-Star</string>
     <string name="Commons.MarkPublish">Publish</string>
@@ -152,7 +152,7 @@
     <string name="ErrorActivity.UserMessage">I was unable to connect to your Tiny Tiny RSS instance, please check your connection and/or connection settings.</string>
     <string name="ErrorActivity.ErrorTitle">Error details:</string>
     <string name="ErrorActivity.ErrorDefault">An unknown error occurred. You may try to get more information by using aLogcat (from the market) or ADB.</string>
-    <string name="ErrorActivity.CloseBtn">Close</string>
+    <string name="ErrorActivity.CloseBtn">Close message</string>
     <string name="ErrorActivity.ExitBtn">Exit</string>
     
     <string name="WebViewClientActivity.Download">Download</string>
