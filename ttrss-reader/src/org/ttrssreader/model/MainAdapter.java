@@ -157,9 +157,20 @@ public abstract class MainAdapter extends BaseAdapter {
             if (cursor != null)
                 closeCursor();
             
-            String query = buildQuery();
-            Log.d(Utils.TAG, "Query: " + query);
+            String query;
+            
+            query = buildQuery(false);
+            Log.v(Utils.TAG, "Query: " + query);
             cursor = DBHelper.getInstance().query(query, null);
+            
+            // Call again with override enabled if cursor doesn't contain any data
+            if (cursor.getCount() == 0) {
+                
+                query = buildQuery(true);
+                Log.v(Utils.TAG, "Override-Query: " + query);
+                cursor = DBHelper.getInstance().query(query, null);
+                
+            }
         }
     }
     
@@ -169,6 +180,6 @@ public abstract class MainAdapter extends BaseAdapter {
     @Override
     public abstract View getView(int position, View convertView, ViewGroup parent);
     
-    protected abstract String buildQuery();
+    protected abstract String buildQuery(boolean overrideDisplayUnread);
     
 }
