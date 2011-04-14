@@ -105,6 +105,7 @@ public class FeedActivity extends MenuActivity {
         
         adapter.makeQuery(true);
         adapter.notifyDataSetChanged();
+        adapter.deactivateCursor();
         
         if (JSONConnector.hasLastError()) {
             openConnectionErrorDialog(JSONConnector.pullLastError());

@@ -158,12 +158,13 @@ public class Data {
             if (ids != null) {
                 for (Integer i : ids) {
                     Article a = DBHelper.getInstance().getArticle(i);
-                    if (a.attachments == null) {
+                    if (a == null || a.attachments == null) {
                         Log.d(Utils.TAG,
                                 "WARNING: Had to call getArticle since getHeadline didn't fetch attachments. Check if you are running latest server (1.5.3 or newer).");
                         Controller.getInstance().getConnector().getArticle(ids);
                         break;
                     }
+                    break;
                 }
             }
             

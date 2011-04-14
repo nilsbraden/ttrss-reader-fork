@@ -268,7 +268,7 @@ public class ArticleActivity extends Activity {
                 }
                 
                 // Store current index in ID-List so we can jump between articles
-                feedHeadlineListAdapter.makeQuery(true);
+                feedHeadlineListAdapter.makeQuery();
                 
                 if (feedHeadlineListAdapter.getIds().indexOf(articleId) >= 0)
                     currentIndex = feedHeadlineListAdapter.getIds().indexOf(articleId);
@@ -326,7 +326,7 @@ public class ArticleActivity extends Activity {
             feedHeadlineListAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId,
                     selectArticlesForCategory);
         } else {
-            feedHeadlineListAdapter.makeQuery(true);
+            feedHeadlineListAdapter.makeQuery();
         }
         
         int index = currentIndex + direction;
