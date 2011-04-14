@@ -20,15 +20,18 @@
         name="updates"
     >
     
+        <item>v0.9.6:
+            \n * Show read articles when browsing "only unread articles" and entering an empty feed (eg. by returning from the last unread article)
+            \n * Minor refactoring and changes due to the upcoming release of Tiny Tiny RSS 1.5.3 (POST-Requests, Attachments in getHeadlines)
+        </item>
+        
         <item>v0.9.5:
             \n * Fixed error-message for API_DISABLED not beeing displayed
             \n * Fixed swype-here-notification not beeing displayed
             \n * Changed zoom-behaviour (default: Images are scaled, once zoomed: Images are displayed in right aspect-ratio)
             \n * Fixed broken next/previous article/feed jump when returning from article-view
             \n * Images are not fetched from online-sources anymore if browsing in Offline-mode
-            \n * Some performance-issues fixed and some background-exceptions too
-            \n * Show read articles when browsing "only unread articles" and entering an empty feed (eg. by returning from the last unread article)
-            \n * Minor refactoring and changes due to the upcoming release of Tiny Tiny RSS 1.5.3 (POST-Requests, Attachments in getHeadlines)</item>
+            \n * Some performance-issues fixed and some background-exceptions too</item>
     
         <item>v0.9.4:
             \n * Reduced permissions as requested by Issue #58</item>

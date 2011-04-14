@@ -34,18 +34,12 @@ import android.widget.TextView;
 
 public class FeedHeadlineAdapter extends MainAdapter {
     
-    private boolean selectArticlesForCategory;
-    
     public FeedHeadlineAdapter(Context context, int feedId) {
-        this(context, feedId, -1, false);
+        super(context, feedId, -1, false);
     }
     
     public FeedHeadlineAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
-        super(context);
-        this.selectArticlesForCategory = selectArticlesForCategory;
-        this.feedId = feedId;
-        this.categoryId = categoryId;
-        makeQuery(true);
+        super(context, feedId, categoryId, selectArticlesForCategory);
     }
     
     @Override

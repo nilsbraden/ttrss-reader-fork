@@ -150,9 +150,10 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         adapter.makeQuery(true);
         adapter.notifyDataSetChanged();
+        adapter.deactivateCursor();
         
         FeedAdapter feedListAdapter = new FeedAdapter(getApplicationContext(), categoryId);
-        feedListAdapter.makeQuery(true);
+        feedListAdapter.makeQuery();
         
         // Store current index in ID-List so we can jump between articles
         if (feedListAdapter.getIds().indexOf(feedId) >= 0)

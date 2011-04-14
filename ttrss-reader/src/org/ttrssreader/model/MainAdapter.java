@@ -37,6 +37,8 @@ public abstract class MainAdapter extends BaseAdapter {
     protected int categoryId;
     protected int feedId;
     
+    protected boolean selectArticlesForCategory;
+    
     public MainAdapter(Context context) {
         this.context = context;
         
@@ -45,6 +47,27 @@ public abstract class MainAdapter extends BaseAdapter {
         this.invertSortArticles = Controller.getInstance().invertSortArticleList();
         
         makeQuery(true);
+    }
+    
+    public MainAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
+        this.context = context;
+        this.selectArticlesForCategory = selectArticlesForCategory;
+        this.feedId = feedId;
+        this.categoryId = categoryId;
+        
+        this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
+        this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
+        this.invertSortArticles = Controller.getInstance().invertSortArticleList();
+        
+        makeQuery(true);
+    }
+    
+    public final void deactivateCursor() {
+        synchronized (cursor) {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.deactivate();
+            }
+        }
     }
     
     public final void closeCursor() {
@@ -153,13 +176,15 @@ public abstract class MainAdapter extends BaseAdapter {
         // if: sort-order or display-settings changed
         // if: forced by explicit call with forceRefresh
         // if: cursor is closed or null
+        
+        if (cursor != null)
+            cursor.requery();
+        
         if (refresh || forceRefresh || (cursor != null && cursor.isClosed())) {
             if (cursor != null)
                 closeCursor();
             
-            String query;
-            
-            query = buildQuery(false);
+            String query = buildQuery(false);
             Log.v(Utils.TAG, "Query: " + query);
             cursor = DBHelper.getInstance().query(query, null);
             
