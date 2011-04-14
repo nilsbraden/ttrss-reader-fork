@@ -124,25 +124,28 @@ public class CategoryAdapter extends MainAdapter {
     protected String buildQuery() {
         StringBuilder query = new StringBuilder();
         
+        // Virtual Feeds
         query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id<=0 ORDER BY id) AS a UNION SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
+        query.append(" WHERE id<0 ORDER BY id) AS a ");
+        query.append(" UNION ");
+        
+        // "Uncetegorized Feeds"
+        query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id>0");
+        query.append(" WHERE id=0 ");
+        query.append(displayOnlyUnread ? " AND unread>0 " : "");
+        query.append(" ) AS b ");
+        query.append(" UNION ");
         
-        if (displayOnlyUnread) {
-            query.append(" AND unread>0");
-        }
-        
+        // Categories
+        query.append(" SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
+        query.append(DBHelper.TABLE_CATEGORIES);
+        query.append(" WHERE id>0 ");
+        query.append(displayOnlyUnread ? " AND unread>0 " : "");
         query.append(" ORDER BY UPPER(title) ");
-        
-        if (invertSortFeedCats) {
-            query.append("ASC");
-        } else {
-            query.append("DESC");
-        }
-        
-        query.append(") AS b");
+        query.append(invertSortFeedCats ? "ASC" : "DESC");
+        query.append(") AS c");
         
         return query.toString();
     }

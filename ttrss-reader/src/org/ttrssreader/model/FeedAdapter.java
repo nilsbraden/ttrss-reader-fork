@@ -99,18 +99,9 @@ public class FeedAdapter extends MainAdapter {
         query.append(DBHelper.TABLE_FEEDS);
         query.append(" WHERE categoryId=");
         query.append(categoryId);
-        
-        if (displayOnlyUnread) {
-            query.append(" AND unread>0");
-        }
-        
+        query.append(displayOnlyUnread ? " AND unread>0 " : "");
         query.append(" ORDER BY UPPER(title) ");
-        
-        if (invertSortFeedCats) {
-            query.append("DESC");
-        } else {
-            query.append("ASC");
-        }
+        query.append(invertSortFeedCats ? "DESC" : "ASC");
         
         return query.toString();
     }

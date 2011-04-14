@@ -18,8 +18,10 @@ package org.ttrssreader.model;
 import java.util.ArrayList;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -155,7 +157,9 @@ public abstract class MainAdapter extends BaseAdapter {
             if (cursor != null)
                 closeCursor();
             
-            cursor = DBHelper.getInstance().query(buildQuery(), null);
+            String query = buildQuery();
+            Log.d(Utils.TAG, "Query: " + query);
+            cursor = DBHelper.getInstance().query(query, null);
         }
     }
     
