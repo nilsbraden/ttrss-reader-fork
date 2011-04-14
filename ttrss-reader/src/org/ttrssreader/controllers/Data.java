@@ -27,6 +27,7 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 public class Data {
     
@@ -153,12 +154,13 @@ public class Data {
             Set<Integer> ids = Controller.getInstance().getConnector()
                     .getHeadlinesToDatabase(feedId, limit, 0, viewMode);
             
-            
             // Check if there are new articles, then check if attachments are there, else fetch them separately
             if (ids != null) {
                 for (Integer i : ids) {
                     Article a = DBHelper.getInstance().getArticle(i);
                     if (a.attachments == null) {
+                        Log.d(Utils.TAG,
+                                "WARNING: Had to call getArticle since getHeadline didn't fetch attachments. Check if you are running latest server (1.5.3 or newer).");
                         Controller.getInstance().getConnector().getArticle(ids);
                         break;
                     }
