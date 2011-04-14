@@ -121,7 +121,7 @@ public class CategoryAdapter extends MainAdapter {
         return layout;
     }
     
-    protected String buildQuery() {
+    protected String buildQuery(boolean overrideDisplayUnread) {
         StringBuilder query = new StringBuilder();
         
         // Virtual Feeds

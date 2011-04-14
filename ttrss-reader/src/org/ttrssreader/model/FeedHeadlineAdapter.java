@@ -137,8 +137,12 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return layout;
     }
     
-    protected String buildQuery() {
+    protected String buildQuery(boolean overrideDisplayUnread) {
         StringBuilder query = new StringBuilder();
+
+        boolean displayUnread = displayOnlyUnread;
+        if (overrideDisplayUnread)
+            displayUnread = false;
         
         query.append("SELECT a.id,a.feedId,a.title,a.isUnread,a.updateDate,a.isStarred,a.isPublished,b.title AS feedTitle FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
@@ -162,13 +166,13 @@ public class FeedHeadlineAdapter extends MainAdapter {
                 break;
             
             case -4:
-                query.append(displayOnlyUnread ? " AND a.isUnread>0 " : "");
+                query.append(displayUnread ? " AND a.isUnread>0 " : "");
                 break;
             
             default:
                 // User selected to display all articles of a category directly
                 query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId) : (" AND a.feedId=" + feedId));
-                query.append(displayOnlyUnread ? " AND a.isUnread>0 " : "" );
+                query.append(displayUnread ? " AND a.isUnread>0 " : "" );
         }
         query.append(" ORDER BY a.updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");

@@ -92,14 +92,18 @@ public class FeedAdapter extends MainAdapter {
         return layout;
     }
     
-    protected String buildQuery() {
+    protected String buildQuery(boolean overrideDisplayUnread) {
         StringBuilder query = new StringBuilder();
+        
+        boolean displayUnread = displayOnlyUnread;
+        if (overrideDisplayUnread)
+            displayUnread = false;
         
         query.append("SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_FEEDS);
         query.append(" WHERE categoryId=");
         query.append(categoryId);
-        query.append(displayOnlyUnread ? " AND unread>0 " : "");
+        query.append(displayUnread ? " AND unread>0 " : "");
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         
