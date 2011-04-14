@@ -21,6 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.R;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
@@ -150,10 +151,19 @@ public class Data {
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
             Set<Integer> ids = Controller.getInstance().getConnector()
-                    .getHeadlinesToDatabase(feedId, limit, 0, viewMode, false); // false = Disable fetching of content
-                                                                                // here
-            if (ids != null)
-                Controller.getInstance().getConnector().getArticle(ids);
+                    .getHeadlinesToDatabase(feedId, limit, 0, viewMode);
+            
+            
+            // Check if there are new articles, then check if attachments are there, else fetch them separately
+            if (ids != null) {
+                for (Integer i : ids) {
+                    Article a = DBHelper.getInstance().getArticle(i);
+                    if (a.attachments == null) {
+                        Controller.getInstance().getConnector().getArticle(ids);
+                        break;
+                    }
+                }
+            }
             
             articlesUpdated.put(feedId, System.currentTimeMillis());
         }

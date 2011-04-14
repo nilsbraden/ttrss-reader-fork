@@ -55,7 +55,10 @@ public class JSONConnector {
     private static final String OP_GET_CATEGORIES = "?op=getCategories";
     private static final String OP_GET_FEEDS = "?op=getFeeds&cat_id=%s";
     private static final String OP_GET_ARTICLE = "?op=getArticle&article_id=%s";
-    private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&feed_id=%s&limit=%s&view_mode=%s&show_content=%s";
+    
+    // include_attachments available since 1.5.3 but is ignored on older versions
+    private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&feed_id=%s&limit=%s&view_mode=%s&show_content=1&include_attachments=1";
+
     private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&article_ids=%s&mode=%s&field=%s";
     private static final String OP_CATCHUP = "?op=catchupFeed&feed_id=%s&is_cat=%s";
     private static final String OP_GET_PREF = "?op=getPref&pref_name=%s";
@@ -710,9 +713,9 @@ public class JSONConnector {
      * @param articleIds
      *            the ids of the articles.
      */
-    public Set<Integer> getHeadlinesToDatabase(int feedId, int limit, int filter, String viewMode, boolean withContent) {
+    public Set<Integer> getHeadlinesToDatabase(int feedId, int limit, int filter, String viewMode) {
         long time = System.currentTimeMillis();
-        String url = serverUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, withContent ? 1 : 0);
+        String url = serverUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
