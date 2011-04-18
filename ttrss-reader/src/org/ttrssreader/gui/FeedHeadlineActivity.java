@@ -170,6 +170,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         if (adapter != null) {
             adapter.makeQuery(true);
             adapter.notifyDataSetChanged();
+            adapter.closeCursor();
         }
         
         FeedAdapter feedListAdapter = new FeedAdapter(getApplicationContext(), categoryId);
