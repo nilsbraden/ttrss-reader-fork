@@ -4,6 +4,7 @@
 == Version 0.9.6 ==
   * Show read articles when browsing "only unread articles" and entering an empty feed (eg. by returning from the last unread article)
   * Minor refactoring and changes due to the upcoming release of Tiny Tiny RSS 1.5.3 (POST-Requests, Attachments in getHeadlines)
+  * Fixed DB-Exceptions
 
 == Version 0.9.5 ==
   * Fixed error-message for API_DISABLED not beeing displayed

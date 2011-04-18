@@ -86,15 +86,17 @@ public class ArticleActivity extends Activity {
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        
+        Controller.getInstance().checkAndInitializeController(this);
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        Data.getInstance().checkAndInitializeData(this);
+        
+        // Need to request this setting after initializing the Controller, else settings will throw NPE
         if (Controller.getInstance().displayArticleHeader())
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         setContentView(R.layout.articleitem);
         headerContainer = (ArticleHeaderView) findViewById(R.id.article_header_container);
-        
-        Controller.getInstance().checkAndInitializeController(this);
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        Data.getInstance().checkAndInitializeData(this);
         
         webview = (WebView) findViewById(R.id.webview);
         webview.getSettings().setJavaScriptEnabled(true);
