@@ -90,25 +90,12 @@ public class CategoryActivity extends MenuActivity {
             showDialog(DIALOG_OLD_SERVER);
         
         // Check if we have a server specified
-        if (!checkConfig()) {
+        if (!checkConfig())
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
-        }
         
         updateable = new CategoryUpdater();
         adapter = new CategoryAdapter(this);
         listView.setAdapter(adapter);
-    }
-    
-    protected void doDestroy() {
-        if (adapter != null)
-            adapter.closeCursor();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        if (adapter != null)
-            adapter.closeCursor();
-        super.onDestroy();
     }
     
     @Override
@@ -122,19 +109,51 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
+    protected void onPause() {
+        synchronized (this) {
+            if (adapter != null) {
+                adapter.closeCursor();
+            }
+        }
+        super.onPause();
+    }
+    
+    @Override
+    protected void onStop() {
+        synchronized (this) {
+            if (adapter != null) {
+                adapter.closeCursor();
+            }
+        }
+        super.onStop();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        synchronized (this) {
+            if (adapter != null) {
+                adapter.closeCursor();
+                adapter = null;
+            }
+        }
+        super.onDestroy();
+    }
+    
+    @Override
     protected synchronized void doRefresh() {
         setTitle(MainAdapter.formatTitle(getResources().getString(R.string.ApplicationName), updateable.unreadCount));
         
-        adapter.makeQuery(true);
-        adapter.notifyDataSetChanged();
-        adapter.deactivateCursor();
+        if (adapter != null) {
+            adapter.makeQuery(true);
+            adapter.notifyDataSetChanged();
+        }
         
         if (JSONConnector.hasLastError()) {
             openConnectionErrorDialog(JSONConnector.pullLastError());
             return;
         }
         
-        if (updater == null) { // && imageCacher == null) {
+        if (updater == null) {
             setProgressBarIndeterminateVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyCategories);
         }

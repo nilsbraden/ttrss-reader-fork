@@ -205,10 +205,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     public void onUpdateEnd() {
         updater = null;
         doRefresh();
-        doDestroy();
     }
-    
-    protected abstract void doDestroy();
     
     @Override
     public void onCacheEnd() {

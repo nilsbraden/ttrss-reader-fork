@@ -72,18 +72,6 @@ public class FeedActivity extends MenuActivity {
         listView.setAdapter(adapter);
     }
     
-    protected void doDestroy() {
-        if (adapter != null)
-            adapter.closeCursor();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        if (adapter != null)
-            adapter.closeCursor();
-        super.onDestroy();
-    }
-    
     @Override
     protected void onResume() {
         super.onResume();
@@ -93,19 +81,51 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
+    protected void onPause() {
+        synchronized (this) {
+            if (adapter != null) {
+                adapter.closeCursor();
+            }
+        }
+        super.onPause();
+    }
+    
+    @Override
+    protected void onStop() {
+        synchronized (this) {
+            if (adapter != null) {
+                adapter.closeCursor();
+            }
+        }
+        super.onStop();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        synchronized (this) {
+            if (adapter != null) {
+                adapter.closeCursor();
+                adapter = null;
+            }
+        }
+        super.onDestroy();
+    }
+    
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putInt(CATEGORY_ID, categoryId);
         outState.putString(CATEGORY_TITLE, categoryTitle);
+        super.onSaveInstanceState(outState);
     }
     
     @Override
     protected synchronized void doRefresh() {
         setTitle(MainAdapter.formatTitle(categoryTitle, updateable.unreadCount));
         
-        adapter.makeQuery(true);
-        adapter.notifyDataSetChanged();
-        adapter.deactivateCursor();
+        if (adapter != null) {
+            adapter.makeQuery(true);
+            adapter.notifyDataSetChanged();
+        }
         
         if (JSONConnector.hasLastError()) {
             openConnectionErrorDialog(JSONConnector.pullLastError());
@@ -177,5 +197,5 @@ public class FeedActivity extends MenuActivity {
         }
         return true;
     }
-
+    
 }

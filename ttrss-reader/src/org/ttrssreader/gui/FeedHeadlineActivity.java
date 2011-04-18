@@ -20,8 +20,8 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.FeedAdapter;
+import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.updaters.FeedHeadlineUpdater;
@@ -113,18 +113,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         listView.setAdapter(adapter);
     }
     
-    protected void doDestroy() {
-        if (adapter != null)
-            adapter.closeCursor();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        if (adapter != null)
-            adapter.closeCursor();
-        super.onDestroy();
-    }
-    
     @Override
     protected void onResume() {
         super.onResume();
@@ -134,13 +122,44 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
     
     @Override
+    protected void onPause() {
+        synchronized (this) {
+            if (adapter != null) {
+                adapter.closeCursor();
+            }
+        }
+        super.onPause();
+    }
+    
+    @Override
+    protected void onStop() {
+        synchronized (this) {
+            if (adapter != null) {
+                adapter.closeCursor();
+            }
+        }
+        super.onStop();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        synchronized (this) {
+            if (adapter != null) {
+                adapter.closeCursor();
+                adapter = null;
+            }
+        }
+        super.onDestroy();
+    }
+    
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putInt(FEED_CAT_ID, categoryId);
         outState.putInt(FEED_ID, feedId);
         outState.putString(FEED_TITLE, feedTitle);
         outState.putInt(FEED_INDEX, currentIndex);
         outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        super.onSaveInstanceState(outState);
     }
     
     @Override
@@ -148,9 +167,10 @@ public class FeedHeadlineActivity extends MenuActivity {
         setTitle(MainAdapter.formatTitle(feedTitle, updateable.unreadCount));
         flingDetected = false; // reset fling-status
         
-        adapter.makeQuery(true);
-        adapter.notifyDataSetChanged();
-        adapter.deactivateCursor();
+        if (adapter != null) {
+            adapter.makeQuery(true);
+            adapter.notifyDataSetChanged();
+        }
         
         FeedAdapter feedListAdapter = new FeedAdapter(getApplicationContext(), categoryId);
         feedListAdapter.makeQuery();
@@ -160,6 +180,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             currentIndex = feedListAdapter.getIds().indexOf(feedId);
         
         feedListAdapter.closeCursor();
+        feedListAdapter = null;
         
         if (JSONConnector.hasLastError()) {
             openConnectionErrorDialog(JSONConnector.pullLastError());
@@ -289,15 +310,19 @@ public class FeedHeadlineActivity extends MenuActivity {
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 v.vibrate(Utils.SHORT_VIBRATE);
             }
+            
+            feedListAdapter.closeCursor();
             return;
         }
         
+        int id = feedListAdapter.getId(index);
+        String title = feedListAdapter.getTitle(index);
+        feedListAdapter.closeCursor();
+        
         Intent i = new Intent(this, getClass());
         i.putExtra(FEED_CAT_ID, categoryId);
-        i.putExtra(FEED_ID, feedListAdapter.getId(index));
-        i.putExtra(FEED_TITLE, feedListAdapter.getTitle(index));
-        
-        feedListAdapter.closeCursor();
+        i.putExtra(FEED_ID, id);
+        i.putExtra(FEED_TITLE, title);
         
         startActivityForResult(i, 0);
         finish();

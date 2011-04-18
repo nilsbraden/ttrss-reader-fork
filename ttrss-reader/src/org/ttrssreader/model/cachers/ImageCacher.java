@@ -60,7 +60,7 @@ public class ImageCacher implements ICacheable {
         this.cacheSizeMax = Controller.getInstance().getImageCacheSize() * 1048576;
         this.imageCache = Controller.getInstance().getImageCache(context);
         String settings = "Settings: (onlyArticles: %s), (onlyUnreadImages: %s), (onlyUnreadArticles: %s), (cacheSizeMax: %s)";
-        Log.d(Utils.TAG, String.format(settings, onlyArticles, onlyUnreadImages, onlyUnreadArticles, cacheSizeMax));
+        Log.i(Utils.TAG, String.format(settings, onlyArticles, onlyUnreadImages, onlyUnreadArticles, cacheSizeMax));
     }
     
     @Override
@@ -87,12 +87,12 @@ public class ImageCacher implements ICacheable {
         purgeCache();
         
         int time = (int) (System.currentTimeMillis() - start) / 1000;
-        Log.w(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
+        Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
                 cacheSizeMax / 1048576, time));
     }
     
     private void updateArticles() {
-        Log.w(Utils.TAG, "Updating articles...");
+        Log.i(Utils.TAG, "Updating articles...");
         long time = System.currentTimeMillis();
         UpdateArticlesTask[] tasks = new UpdateArticlesTask[DOWNLOAD_ARTICLES_THREADS];
         
@@ -213,7 +213,7 @@ public class ImageCacher implements ICacheable {
     }
     
     private void purgeCache() {
-        Log.w(Utils.TAG, "Purging cache...");
+        Log.i(Utils.TAG, "Purging cache...");
         long time = System.currentTimeMillis();
         File cacheFolder = new File(imageCache.getDiskCacheDirectory());
         
@@ -223,7 +223,7 @@ public class ImageCacher implements ICacheable {
         }
         
         if (folderSize > cacheSizeMax) {
-            Log.d(Utils.TAG, String.format("Before - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
+            Log.i(Utils.TAG, String.format("Before - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
             
             // Sort list of files by last access date
             List<File> list = Arrays.asList(cacheFolder.listFiles());
@@ -247,9 +247,9 @@ public class ImageCacher implements ICacheable {
                 folderSize -= f.length();
                 f.delete();
             }
-            Log.d(Utils.TAG, String.format("After - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
+            Log.i(Utils.TAG, String.format("After - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
         }
-        Log.w(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
+        Log.i(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     private void retrieveResult(DownloadImageTask t) {
