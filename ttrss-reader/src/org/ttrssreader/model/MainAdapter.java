@@ -178,8 +178,6 @@ public abstract class MainAdapter extends BaseAdapter {
             String query = buildQuery(false);
             cursor = DBHelper.getInstance().query(query, null);
             
-            Log.d(Utils.TAG, "Query created! " + getClass().getCanonicalName());
-            
             // Call again with override enabled if cursor doesn't contain any data
             if (cursor.getCount() == 0) {
                 
