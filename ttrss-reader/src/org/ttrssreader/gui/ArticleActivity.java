@@ -63,7 +63,6 @@ public class ArticleActivity extends Activity {
     private int articleId;
     private int feedId;
     
-    private FeedHeadlineAdapter feedHeadlineListAdapter;
     private ArticleHeaderView headerContainer;
     
     private Article article = null;
@@ -136,8 +135,6 @@ public class ArticleActivity extends Activity {
             feedId = -1;
             currentIndex = 0;
         }
-        feedHeadlineListAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId,
-                selectArticlesForCategory);
     }
     
     @Override
@@ -150,13 +147,6 @@ public class ArticleActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        releaseResources();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        releaseResources();
     }
     
     @Override
@@ -226,7 +216,6 @@ public class ArticleActivity extends Activity {
                 i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
                 i.setType("text/plain");
                 i.putExtra(Intent.EXTRA_SUBJECT, article.title);
-                releaseResources();
                 startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
             default:
@@ -240,7 +229,6 @@ public class ArticleActivity extends Activity {
             if ((url != null) && (url.length() > 0)) {
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
-                releaseResources();
                 startActivity(i);
             }
         }
@@ -268,10 +256,17 @@ public class ArticleActivity extends Activity {
                 }
                 
                 // Store current index in ID-List so we can jump between articles
-                feedHeadlineListAdapter.makeQuery();
-                
-                if (feedHeadlineListAdapter.getIds().indexOf(articleId) >= 0)
-                    currentIndex = feedHeadlineListAdapter.getIds().indexOf(articleId);
+                {
+                    FeedHeadlineAdapter feedHeadlineListAdapter = new FeedHeadlineAdapter(getApplicationContext(),
+                            feedId, categoryId, selectArticlesForCategory);
+                    
+                    feedHeadlineListAdapter.makeQuery();
+                    
+                    if (feedHeadlineListAdapter.getIds().indexOf(articleId) >= 0)
+                        currentIndex = feedHeadlineListAdapter.getIds().indexOf(articleId);
+                    
+                    feedHeadlineListAdapter.closeCursor();
+                }
                 
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
                 content = injectAttachments(getApplicationContext(), article.content, article.attachments);
@@ -300,7 +295,6 @@ public class ArticleActivity extends Activity {
                     if (Controller.getInstance().openUrlEmptyArticle()) {
                         Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
                         linkAutoOpened = true;
-                        releaseResources();
                         openLink();
                     }
                 }
@@ -322,12 +316,8 @@ public class ArticleActivity extends Activity {
     
     private void openNextArticle(int direction) {
         
-        if (feedHeadlineListAdapter == null) {
-            feedHeadlineListAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId,
-                    selectArticlesForCategory);
-        } else {
-            feedHeadlineListAdapter.makeQuery();
-        }
+        FeedHeadlineAdapter feedHeadlineListAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId,
+                categoryId, selectArticlesForCategory);
         
         int index = currentIndex + direction;
         
@@ -337,16 +327,20 @@ public class ArticleActivity extends Activity {
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 v.vibrate(Utils.SHORT_VIBRATE);
             }
+            
+            feedHeadlineListAdapter.closeCursor();
             return;
         }
         
+        int id = feedHeadlineListAdapter.getId(index);
+        feedHeadlineListAdapter.closeCursor();
+        
         Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, feedHeadlineListAdapter.getId(index));
+        i.putExtra(ArticleActivity.ARTICLE_ID, id);
         i.putExtra(ArticleActivity.FEED_ID, feedId);
         i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-
-        releaseResources();
+        
         startActivityForResult(i, 0);
         finish();
     }
@@ -517,11 +511,6 @@ public class ArticleActivity extends Activity {
             }
         }
         return html;
-    }
-    
-    protected void releaseResources() {
-        if (feedHeadlineListAdapter != null)
-            feedHeadlineListAdapter.closeCursor();
     }
     
 }

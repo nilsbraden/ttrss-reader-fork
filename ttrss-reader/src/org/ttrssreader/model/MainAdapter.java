@@ -62,14 +62,6 @@ public abstract class MainAdapter extends BaseAdapter {
         makeQuery(true);
     }
     
-    public final void deactivateCursor() {
-        synchronized (cursor) {
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.deactivate();
-            }
-        }
-    }
-    
     public final void closeCursor() {
         synchronized (cursor) {
             if (cursor != null && !cursor.isClosed()) {
@@ -154,8 +146,10 @@ public abstract class MainAdapter extends BaseAdapter {
         makeQuery(false);
     }
     
-    /*
-     * Only refresh if forceRefresh is true (called from constructor) or one of the display-attributes changed. 
+    /**
+     * Only refresh if forceRefresh is true (called from constructor) or one of the display-attributes changed.
+     * 
+     * @param forceRefresh Discards the current cursor and forces a refresh, including a newly built SQL-Query.
      */
     public final synchronized void makeQuery(boolean forceRefresh) {
         boolean refresh = false;
@@ -177,26 +171,26 @@ public abstract class MainAdapter extends BaseAdapter {
         // if: forced by explicit call with forceRefresh
         // if: cursor is closed or null
         
-        if (cursor != null)
-            cursor.requery();
-        
         if (refresh || forceRefresh || (cursor != null && cursor.isClosed())) {
             if (cursor != null)
                 closeCursor();
             
             String query = buildQuery(false);
-            Log.v(Utils.TAG, "Query: " + query);
             cursor = DBHelper.getInstance().query(query, null);
+            
+            Log.d(Utils.TAG, "Query created! " + getClass().getCanonicalName());
             
             // Call again with override enabled if cursor doesn't contain any data
             if (cursor.getCount() == 0) {
                 
                 query = buildQuery(true);
-                Log.v(Utils.TAG, "Override-Query: " + query);
                 cursor = DBHelper.getInstance().query(query, null);
                 
             }
+        } else if (cursor != null) {
+            cursor.requery();
         }
+        
     }
     
     @Override
@@ -205,6 +199,14 @@ public abstract class MainAdapter extends BaseAdapter {
     @Override
     public abstract View getView(int position, View convertView, ViewGroup parent);
     
+    /**
+     * Builds the query for this adapter as a string and returns it to be invoked on a database object.
+     * 
+     * @param overrideDisplayUnread
+     *            if true unread articles/feeds/anything won't be filtered as specified by the setting but will be
+     *            included in the result.
+     * @return a valid SQL-Query string for this adapter.
+     */
     protected abstract String buildQuery(boolean overrideDisplayUnread);
     
 }
