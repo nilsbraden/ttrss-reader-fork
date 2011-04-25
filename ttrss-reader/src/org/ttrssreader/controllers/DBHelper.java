@@ -113,7 +113,9 @@ public class DBHelper {
                 // Try to access the DB
                 Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_FEEDS, null);
                 c.getCount();
-                c.getInt(0);
+                if (c.moveToFirst())
+                    c.getInt(0);
+                
             } catch (Exception e) {
                 Toast.makeText(context, "Database was corrupted, creating a new one...", Toast.LENGTH_LONG);
                 

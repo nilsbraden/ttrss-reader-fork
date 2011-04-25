@@ -70,6 +70,9 @@ public class Controller {
     private Integer serverVersion = null;
     private Long serverVersionLastUpdate = null;
     
+    public volatile Integer lastOpenedFeed = null;
+    public volatile Integer lastOpenedArticle = null;
+    
     // Singleton
     private Controller() {
     }

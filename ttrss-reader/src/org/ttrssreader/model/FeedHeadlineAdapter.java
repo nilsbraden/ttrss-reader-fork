@@ -133,10 +133,12 @@ public class FeedHeadlineAdapter extends MainAdapter {
     
     protected String buildQuery(boolean overrideDisplayUnread) {
         StringBuilder query = new StringBuilder();
-
+        
         boolean displayUnread = displayOnlyUnread;
         if (overrideDisplayUnread)
             displayUnread = false;
+        
+        query.append("SELECT id,feedId,title,isUnread AS unread,updateDate,isStarred,isPublished,feedTitle FROM (");
         
         query.append("SELECT a.id,a.feedId,a.title,a.isUnread,a.updateDate,a.isStarred,a.isPublished,b.title AS feedTitle FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
@@ -160,15 +162,23 @@ public class FeedHeadlineAdapter extends MainAdapter {
                 break;
             
             case -4:
-                query.append(displayUnread ? " AND a.isUnread>0 " : "");
+                query.append(displayUnread ? " AND a.isUnread>0" : "");
                 break;
             
             default:
                 // User selected to display all articles of a category directly
-                query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId) : (" AND a.feedId=" + feedId));
-                query.append(displayUnread ? " AND a.isUnread>0 " : "" );
+                query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId)
+                        : (" AND a.feedId=" + feedId));
+                query.append(displayUnread ? " AND a.isUnread>0" : "");
         }
-        query.append(" ORDER BY a.updateDate ");
+        
+        if (Controller.getInstance().lastOpenedArticle != null) {
+            query.append(" UNION SELECT c.id,c.feedId,c.title,c.isUnread,c.updateDate,c.isStarred,c.isPublished,c.title AS feedTitle");
+            query.append(" FROM articles c, feeds d WHERE c.feedId=d.id AND c.id=");
+            query.append(Controller.getInstance().lastOpenedArticle);
+        }
+        
+        query.append(") ORDER BY updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
         
         return query.toString();

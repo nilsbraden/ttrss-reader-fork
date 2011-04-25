@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.CategoryAdapter;
@@ -101,6 +102,10 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        Controller.getInstance().lastOpenedFeed = null;
+        Controller.getInstance().lastOpenedArticle = null;
+        
         DBHelper.getInstance().checkAndInitializeDB(this);
         if (configChecked || checkConfig()) {
             doRefresh();
