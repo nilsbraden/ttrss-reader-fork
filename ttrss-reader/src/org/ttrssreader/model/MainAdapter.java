@@ -18,8 +18,10 @@ package org.ttrssreader.model;
 import java.util.ArrayList;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -44,7 +46,7 @@ public abstract class MainAdapter extends BaseAdapter {
         this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
         this.invertSortArticles = Controller.getInstance().invertSortArticleList();
         
-        makeQuery(true);
+        makeQuery();
     }
     
     public MainAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
@@ -57,7 +59,7 @@ public abstract class MainAdapter extends BaseAdapter {
         this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
         this.invertSortArticles = Controller.getInstance().invertSortArticleList();
         
-        makeQuery(true);
+        makeQuery();
     }
     
     public final void closeCursor() {
@@ -107,10 +109,11 @@ public abstract class MainAdapter extends BaseAdapter {
                 makeQuery();
             }
             
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                result.add(cursor.getInt(0));
-                cursor.move(1);
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    result.add(cursor.getInt(0));
+                    cursor.move(1);
+                }
             }
         }
         return result;
@@ -147,7 +150,8 @@ public abstract class MainAdapter extends BaseAdapter {
     /**
      * Only refresh if forceRefresh is true (called from constructor) or one of the display-attributes changed.
      * 
-     * @param forceRefresh Discards the current cursor and forces a refresh, including a newly built SQL-Query.
+     * @param forceRefresh
+     *            Discards the current cursor and forces a refresh, including a newly built SQL-Query.
      */
     public final synchronized void makeQuery(boolean forceRefresh) {
         boolean refresh = false;
@@ -169,17 +173,19 @@ public abstract class MainAdapter extends BaseAdapter {
         // if: forced by explicit call with forceRefresh
         // if: cursor is closed or null
         
-        if (refresh || forceRefresh || (cursor != null && cursor.isClosed())) {
+        if (refresh || forceRefresh || (cursor != null && cursor.isClosed()) || cursor == null) {
             if (cursor != null)
                 closeCursor();
             
             String query = buildQuery(false);
+            Log.v(Utils.TAG, query);
             cursor = DBHelper.getInstance().query(query, null);
             
             // Call again with override enabled if cursor doesn't contain any data
-            if (cursor.getCount() == 0) {
+            if (!checkUnread(cursor)) {
                 
                 query = buildQuery(true);
+                Log.v(Utils.TAG, query);
                 cursor = DBHelper.getInstance().query(query, null);
                 
             }
@@ -187,6 +193,30 @@ public abstract class MainAdapter extends BaseAdapter {
             cursor.requery();
         }
         
+    }
+    
+    private boolean checkUnread(Cursor c) {
+        if (c == null || c.isClosed())
+            return false;
+        
+        boolean gotUnread = false;
+        if (c.moveToFirst()) {
+            int col = c.getColumnIndex("unread");
+            if (col > -1) {
+                while (!c.isAfterLast()) {
+                    int unread = c.getInt(col);
+                    if (unread > 0) {
+                        gotUnread = true;
+                        break;
+                    }
+                    c.move(1);
+                }
+            }
+            
+        }
+        
+        c.moveToFirst();
+        return gotUnread;
     }
     
     @Override

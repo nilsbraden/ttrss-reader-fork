@@ -60,14 +60,15 @@ public class CategoryAdapter extends MainAdapter {
         }
         
         List<Category> result = new ArrayList<Category>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            Category c = new Category();
-            c.id = cursor.getInt(0);
-            c.title = cursor.getString(1);
-            c.unread = cursor.getInt(2);
-            result.add(c);
-            cursor.move(1);
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Category c = new Category();
+                c.id = cursor.getInt(0);
+                c.title = cursor.getString(1);
+                c.unread = cursor.getInt(2);
+                result.add(c);
+                cursor.move(1);
+            }
         }
         return result;
     }
@@ -123,7 +124,7 @@ public class CategoryAdapter extends MainAdapter {
     
     protected String buildQuery(boolean overrideDisplayUnread) {
         StringBuilder query = new StringBuilder();
-
+        
         boolean displayUnread = displayOnlyUnread;
         if (overrideDisplayUnread)
             displayUnread = false;

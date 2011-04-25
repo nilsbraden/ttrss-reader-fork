@@ -17,6 +17,7 @@
 package org.ttrssreader.model;
 
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Feed;
 import android.content.Context;
@@ -99,12 +100,20 @@ public class FeedAdapter extends MainAdapter {
         if (overrideDisplayUnread)
             displayUnread = false;
         
+        query.append("SELECT id,title,unread FROM (");
+        
         query.append("SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_FEEDS);
         query.append(" WHERE categoryId=");
         query.append(categoryId);
-        query.append(displayUnread ? " AND unread>0 " : "");
-        query.append(" ORDER BY UPPER(title) ");
+        query.append(displayUnread ? " AND unread>0" : "");
+        
+        if (Controller.getInstance().lastOpenedFeed != null) {
+            query.append(" UNION SELECT id,title,unread FROM feeds WHERE id=");
+            query.append(Controller.getInstance().lastOpenedFeed);
+        }
+        
+        query.append(") ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         
         return query.toString();

@@ -37,6 +37,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -64,7 +65,6 @@ public class FeedHeadlineActivity extends MenuActivity {
     private int categoryId = -1000;
     private int feedId = -1000;
     private String feedTitle = null;
-    private int currentIndex = 0;
     private boolean selectArticlesForCategory = false;
     
     private GestureDetector gestureDetector;
@@ -73,6 +73,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     private FeedHeadlineAdapter adapter = null;
     private FeedHeadlineUpdater updateable = null;
+    private FeedAdapter parentAdapter = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -94,13 +95,11 @@ public class FeedHeadlineActivity extends MenuActivity {
             categoryId = extras.getInt(FEED_CAT_ID);
             feedId = extras.getInt(FEED_ID);
             feedTitle = extras.getString(FEED_TITLE);
-            currentIndex = extras.getInt(FEED_INDEX);
             selectArticlesForCategory = extras.getBoolean(FEED_SELECT_ARTICLES);
         } else if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
             feedId = instance.getInt(FEED_ID);
             feedTitle = instance.getString(FEED_TITLE);
-            currentIndex = instance.getInt(FEED_INDEX);
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
         }
         
@@ -116,6 +115,10 @@ public class FeedHeadlineActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        Controller.getInstance().lastOpenedFeed = feedId;
+        Controller.getInstance().lastOpenedArticle = null;
+        
         DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
         doUpdate();
@@ -157,7 +160,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         outState.putInt(FEED_CAT_ID, categoryId);
         outState.putInt(FEED_ID, feedId);
         outState.putString(FEED_TITLE, feedTitle);
-        outState.putInt(FEED_INDEX, currentIndex);
         outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
         super.onSaveInstanceState(outState);
     }
@@ -167,21 +169,14 @@ public class FeedHeadlineActivity extends MenuActivity {
         setTitle(MainAdapter.formatTitle(feedTitle, updateable.unreadCount));
         flingDetected = false; // reset fling-status
         
+        if (parentAdapter == null)
+            parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
+        
         if (adapter != null) {
             adapter.makeQuery(true);
             adapter.notifyDataSetChanged();
             adapter.closeCursor();
         }
-        
-        FeedAdapter feedListAdapter = new FeedAdapter(getApplicationContext(), categoryId);
-        feedListAdapter.makeQuery();
-        
-        // Store current index in ID-List so we can jump between articles
-        if (feedListAdapter.getIds().indexOf(feedId) >= 0)
-            currentIndex = feedListAdapter.getIds().indexOf(feedId);
-        
-        feedListAdapter.closeCursor();
-        feedListAdapter = null;
         
         if (JSONConnector.hasLastError()) {
             openConnectionErrorDialog(JSONConnector.pullLastError());
@@ -302,28 +297,28 @@ public class FeedHeadlineActivity extends MenuActivity {
         if (feedId < 0)
             return;
         
-        FeedAdapter feedListAdapter = new FeedAdapter(getApplicationContext(), categoryId);
+        int currentIndex = -2; // -2 so index is still -1 if direction is +1, avoids moving when no move possible
+        if (parentAdapter.getIds().indexOf(feedId) >= 0)
+            currentIndex = parentAdapter.getIds().indexOf(feedId);
+        
         int index = currentIndex + direction;
         
         // No more feeds in this direction
-        if (index < 0 || index >= feedListAdapter.getCount()) {
-            if (Controller.getInstance().vibrateOnLastArticle()) {
-                Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                v.vibrate(Utils.SHORT_VIBRATE);
-            }
-            
-            feedListAdapter.closeCursor();
+        if (index < 0 || index >= parentAdapter.getCount()) {
+            Log.d(Utils.TAG, String.format("No more feeds in this direction. (Index: %s, ID: %s)", index, feedId));
+            if (Controller.getInstance().vibrateOnLastArticle())
+                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
         
-        int id = feedListAdapter.getId(index);
-        String title = feedListAdapter.getTitle(index);
-        feedListAdapter.closeCursor();
+        int id = parentAdapter.getId(index);
+        String title = parentAdapter.getTitle(index);
+        parentAdapter.closeCursor();
         
         Intent i = new Intent(this, getClass());
-        i.putExtra(FEED_CAT_ID, categoryId);
         i.putExtra(FEED_ID, id);
         i.putExtra(FEED_TITLE, title);
+        i.putExtra(FEED_CAT_ID, categoryId);
         
         startActivityForResult(i, 0);
         finish();

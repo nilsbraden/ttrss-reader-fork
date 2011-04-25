@@ -58,7 +58,6 @@ public class ArticleActivity extends Activity {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_ID = "FEED_ID";
-    public static final String ARTICLE_INDEX = "INDEX";
     
     private int articleId;
     private int feedId;
@@ -68,7 +67,6 @@ public class ArticleActivity extends Activity {
     private Article article = null;
     private String content;
     private boolean linkAutoOpened;
-    private int currentIndex = 0;
     private int categoryId = -1000;
     private boolean selectArticlesForCategory = false;
     
@@ -81,6 +79,8 @@ public class ArticleActivity extends Activity {
     private int swipeHeight;
     private int swipeWidth;
     private String baseUrl = null;
+    
+    private FeedHeadlineAdapter parentAdapter = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -123,25 +123,25 @@ public class ArticleActivity extends Activity {
         if (extras != null) {
             articleId = extras.getInt(ARTICLE_ID);
             feedId = extras.getInt(FEED_ID);
-            currentIndex = extras.getInt(ARTICLE_INDEX);
             categoryId = extras.getInt(FeedHeadlineActivity.FEED_CAT_ID);
             selectArticlesForCategory = extras.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
         } else if (instance != null) {
             articleId = instance.getInt(ARTICLE_ID);
             feedId = instance.getInt(FEED_ID);
-            currentIndex = instance.getInt(ARTICLE_INDEX);
             categoryId = instance.getInt(FeedHeadlineActivity.FEED_CAT_ID);
             selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
         } else {
             articleId = -1;
             feedId = -1;
-            currentIndex = 0;
         }
     }
     
     @Override
     protected void onResume() {
         super.onResume();
+        
+        Controller.getInstance().lastOpenedArticle = articleId;
+        
         DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
         doRefresh();
     }
@@ -156,8 +156,6 @@ public class ArticleActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putInt(ARTICLE_ID, articleId);
         outState.putInt(FEED_ID, feedId);
-        outState.putInt(ARTICLE_INDEX, currentIndex);
-        outState.putInt(FeedHeadlineActivity.FEED_INDEX, currentIndex);
         outState.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
     }
     
@@ -239,6 +237,10 @@ public class ArticleActivity extends Activity {
     private void doRefresh() {
         setProgressBarIndeterminateVisibility(true);
         
+        if (parentAdapter == null)
+            parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId,
+                    selectArticlesForCategory);
+        
         if (Controller.getInstance().workOffline()) {
             webview.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
         } else {
@@ -255,19 +257,6 @@ public class ArticleActivity extends Activity {
                     headerContainer.populate(article);
                 } else {
                     headerContainer.setVisibility(View.GONE);
-                }
-                
-                // Store current index in ID-List so we can jump between articles
-                {
-                    FeedHeadlineAdapter feedHeadlineListAdapter = new FeedHeadlineAdapter(getApplicationContext(),
-                            feedId, categoryId, selectArticlesForCategory);
-                    
-                    feedHeadlineListAdapter.makeQuery();
-                    
-                    if (feedHeadlineListAdapter.getIds().indexOf(articleId) >= 0)
-                        currentIndex = feedHeadlineListAdapter.getIds().indexOf(articleId);
-                    
-                    feedHeadlineListAdapter.closeCursor();
                 }
                 
                 // Inject the specific code for attachments, <img> for images, http-link for Videos
@@ -318,28 +307,26 @@ public class ArticleActivity extends Activity {
     
     private void openNextArticle(int direction) {
         
-        FeedHeadlineAdapter feedHeadlineListAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId,
-                categoryId, selectArticlesForCategory);
+        int currentIndex = -2; // -2 so index is still -1 if direction is +1, avoids moving when no move possible
+        if (parentAdapter.getIds().indexOf(articleId) >= 0)
+            currentIndex = parentAdapter.getIds().indexOf(articleId);
         
         int index = currentIndex + direction;
         
         // No more articles in this direction
-        if (index < 0 || index >= feedHeadlineListAdapter.getCount()) {
-            if (Controller.getInstance().vibrateOnLastArticle()) {
-                Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                v.vibrate(Utils.SHORT_VIBRATE);
-            }
-            
-            feedHeadlineListAdapter.closeCursor();
+        if (index < 0 || index >= parentAdapter.getCount()) {
+            Log.d(Utils.TAG, String.format("No more articles in this direction. (Index: %s, ID: %s)", index, articleId));
+            if (Controller.getInstance().vibrateOnLastArticle())
+                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
         
-        int id = feedHeadlineListAdapter.getId(index);
-        feedHeadlineListAdapter.closeCursor();
+        int id = parentAdapter.getId(index);
+        parentAdapter.closeCursor();
         
         Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, id);
-        i.putExtra(ArticleActivity.FEED_ID, feedId);
+        i.putExtra(ARTICLE_ID, id);
+        i.putExtra(FEED_ID, feedId);
         i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
         
