@@ -15,13 +15,19 @@
 
 package org.ttrssreader.controllers;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.content.ContentValues;
@@ -31,6 +37,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
+import android.widget.Toast;
 
 public class DBHelper {
     
@@ -38,6 +45,7 @@ public class DBHelper {
     private boolean initialized = false;
     
     public static final String DATABASE_NAME = "ttrss.db";
+    public static final String DATABASE_BACKUP_NAME = "_backup_";
     public static final int DATABASE_VERSION = 48;
     
     public static final String TABLE_CATEGORIES = "categories";
@@ -99,6 +107,50 @@ public class DBHelper {
         } else if (db == null || !db.isOpen()) {
             initialized = initializeController();
         }
+        
+        if (initialized) {
+            try {
+                // Try to access the DB
+                Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_FEEDS, null);
+                c.getCount();
+                c.getInt(0);
+            } catch (Exception e) {
+                Toast.makeText(context, "Database was corrupted, creating a new one...", Toast.LENGTH_LONG);
+                
+                // Close DB
+                db.close();
+                db = null;
+                
+                // Delete DB-File
+                File f = context.getDatabasePath(DATABASE_NAME);
+                f.renameTo(new File(f.getAbsolutePath() + DATABASE_BACKUP_NAME + System.currentTimeMillis()));
+                f.setReadable(true, false);
+                
+                // Check if there are too many old backups
+                FilenameFilter fnf = new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String filename) {
+                        if (filename.contains(DATABASE_BACKUP_NAME))
+                            return true;
+                        return false;
+                    }
+                };
+                File[] backups = f.getParentFile().listFiles(fnf);
+                if (backups != null && backups.length > 3) {
+                    // Sort list of files by last access date
+                    List<File> list = Arrays.asList(backups);
+                    Collections.sort(list, new FileDateComparator());
+                    
+                    for (int i = list.size(); i > 2; i++) {
+                        // Delete all except the 2 newest backups
+                        list.get(i).delete();
+                    }
+                }
+                
+                // Initialize again...
+                initialized = initializeController();
+            }
+        }
     }
     
     private synchronized boolean initializeController() {
@@ -120,6 +172,7 @@ public class DBHelper {
             insertFeed = db.compileStatement(INSERT_FEEDS);
             insertArticle = db.compileStatement(INSERT_ARTICLES);
         }
+        
         return true;
     }
     

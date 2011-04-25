@@ -18,7 +18,6 @@ package org.ttrssreader.model.cachers;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,6 +27,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -227,19 +227,7 @@ public class ImageCacher implements ICacheable {
             
             // Sort list of files by last access date
             List<File> list = Arrays.asList(cacheFolder.listFiles());
-            Collections.sort(list, new Comparator<File>() {
-                @Override
-                public int compare(File f1, File f2) {
-                    long size1 = f1.lastModified();
-                    long size2 = f2.lastModified();
-                    if (size1 < size2) {
-                        return -1;
-                    } else if (size1 > size2) {
-                        return 1;
-                    }
-                    return 0; // equal
-                }
-            });
+            Collections.sort(list, new FileDateComparator());
             
             int i = 0;
             while (folderSize > cacheSizeMax) {
