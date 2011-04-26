@@ -21,8 +21,11 @@
     >
     
         <item>v0.9.6:
-            \n * Show read articles when browsing "only unread articles" and entering an empty feed (eg. by returning from the last unread article)
-            \n * Minor refactoring and changes due to the upcoming release of Tiny Tiny RSS 1.5.3 (POST-Requests, Attachments in getHeadlines)
+            \n * Show read articles when browsing "only unread articles" and entering an empty feed
+            \n * Minor refactoring and changes due to release of Tiny Tiny RSS 1.5.3
+            \n * Added check for corrupted DB, it is moved to a backup-file and a new DB will be created
+            \n * Show last-opened article/feed when returning from child-view, even if read content is filtered
+            \n * Fixed DB-Exceptions
         </item>
         
         <item>v0.9.5:
@@ -50,7 +53,7 @@
         <item>v0.9.1:
             \n * Added possibility to send error-reports after a crash
             \n * Removed donators-limitations, everyone can use the ImageCache now
-            \n * blog.fefe.de now working (fixed relative links but I am unsure whether I have to use full path to article or just the domain-part. Ideas anyone?)
+            \n * blog.fefe.de now working (fixed relative links)
             \n * Added Exit-Button to error-dialog to allow completely exiting the app from the dialog
             \n * Refurbished the reset of preferences (Preferences -> Menu -> Reset)
             \n * Cleanup of preferences</item>
