@@ -109,9 +109,10 @@ public class DBHelper {
         }
         
         if (initialized) {
+            Cursor c = null;
             try {
                 // Try to access the DB
-                Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_FEEDS, null);
+                c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_FEEDS, null);
                 c.getCount();
                 if (c.moveToFirst())
                     c.getInt(0);
@@ -151,6 +152,9 @@ public class DBHelper {
                 
                 // Initialize again...
                 initialized = initializeController();
+            } finally {
+                if (c != null)
+                    c.close();
             }
         }
     }

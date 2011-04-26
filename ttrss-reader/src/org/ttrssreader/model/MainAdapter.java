@@ -48,6 +48,17 @@ public abstract class MainAdapter extends BaseAdapter {
         makeQuery();
     }
     
+    public MainAdapter(Context context, int categoryId) {
+        this.context = context;
+        this.categoryId = categoryId;
+        
+        this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
+        this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
+        this.invertSortArticles = Controller.getInstance().invertSortArticleList();
+        
+        makeQuery();
+    }
+    
     public MainAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
         this.context = context;
         this.selectArticlesForCategory = selectArticlesForCategory;
@@ -63,7 +74,7 @@ public abstract class MainAdapter extends BaseAdapter {
     
     public final void closeCursor() {
         synchronized (cursor) {
-            if (cursor != null && !cursor.isClosed()) {
+            if (cursor != null) {
                 cursor.close();
             }
         }
@@ -182,6 +193,7 @@ public abstract class MainAdapter extends BaseAdapter {
             
             // Call again with override enabled if cursor doesn't contain any data
             if (!checkUnread(cursor)) {
+                closeCursor();
                 
                 query = buildQuery(true);
                 // Log.v(Utils.TAG, query);

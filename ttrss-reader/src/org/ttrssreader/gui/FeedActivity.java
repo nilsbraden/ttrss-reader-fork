@@ -80,35 +80,29 @@ public class FeedActivity extends MenuActivity {
         doUpdate();
     }
     
+    private void closeCursor() {
+        if (adapter != null) {
+            adapter.closeCursor();
+        }
+    }
+    
     @Override
     protected void onPause() {
-        synchronized (this) {
-            if (adapter != null) {
-                adapter.closeCursor();
-            }
-        }
+        // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
         super.onPause();
+        closeCursor();
     }
     
     @Override
     protected void onStop() {
-        synchronized (this) {
-            if (adapter != null) {
-                adapter.closeCursor();
-            }
-        }
         super.onStop();
+        closeCursor();
     }
     
     @Override
     protected void onDestroy() {
-        synchronized (this) {
-            if (adapter != null) {
-                adapter.closeCursor();
-                adapter = null;
-            }
-        }
         super.onDestroy();
+        closeCursor();
     }
     
     @Override

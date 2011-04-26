@@ -32,8 +32,7 @@ import android.widget.TextView;
 public class FeedAdapter extends MainAdapter {
     
     public FeedAdapter(Context context, int categoryId) {
-        super(context);
-        this.categoryId = categoryId;
+        super(context, categoryId);
     }
     
     @Override

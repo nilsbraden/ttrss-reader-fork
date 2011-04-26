@@ -108,6 +108,8 @@ public class FeedHeadlineActivity extends MenuActivity {
         } else {
             updateable = new FeedHeadlineUpdater(feedId);
         }
+
+        parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
         adapter = new FeedHeadlineAdapter(this, feedId, categoryId, selectArticlesForCategory);
         listView.setAdapter(adapter);
     }
@@ -124,35 +126,32 @@ public class FeedHeadlineActivity extends MenuActivity {
         doUpdate();
     }
     
+    private void closeCursor() {
+        if (adapter != null) {
+            adapter.closeCursor();
+        }
+        if (parentAdapter != null) {
+            parentAdapter.closeCursor();
+        }
+    }
+    
     @Override
     protected void onPause() {
-        synchronized (this) {
-            if (adapter != null) {
-                adapter.closeCursor();
-            }
-        }
+        // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
         super.onPause();
+        closeCursor();
     }
     
     @Override
     protected void onStop() {
-        synchronized (this) {
-            if (adapter != null) {
-                adapter.closeCursor();
-            }
-        }
         super.onStop();
+        closeCursor();
     }
     
     @Override
     protected void onDestroy() {
-        synchronized (this) {
-            if (adapter != null) {
-                adapter.closeCursor();
-                adapter = null;
-            }
-        }
         super.onDestroy();
+        closeCursor();
     }
     
     @Override
@@ -169,13 +168,9 @@ public class FeedHeadlineActivity extends MenuActivity {
         setTitle(MainAdapter.formatTitle(feedTitle, updateable.unreadCount));
         flingDetected = false; // reset fling-status
         
-        if (parentAdapter == null)
-            parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
-        
         if (adapter != null) {
             adapter.makeQuery(true);
             adapter.notifyDataSetChanged();
-            adapter.closeCursor();
         }
         
         if (JSONConnector.hasLastError()) {
@@ -217,7 +212,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             i.putExtra(ArticleActivity.FEED_ID, feedId);
             i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
             i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-            
+
             startActivity(i);
         }
     }
@@ -298,8 +293,9 @@ public class FeedHeadlineActivity extends MenuActivity {
             return;
         
         int currentIndex = -2; // -2 so index is still -1 if direction is +1, avoids moving when no move possible
-        if (parentAdapter.getIds().indexOf(feedId) >= 0)
-            currentIndex = parentAdapter.getIds().indexOf(feedId);
+        int tempIndex = parentAdapter.getIds().indexOf(feedId);
+        if (tempIndex >= 0)
+            currentIndex = tempIndex;
         
         int index = currentIndex + direction;
         
@@ -313,7 +309,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         int id = parentAdapter.getId(index);
         String title = parentAdapter.getTitle(index);
-        parentAdapter.closeCursor();
         
         Intent i = new Intent(this, getClass());
         i.putExtra(FEED_ID, id);

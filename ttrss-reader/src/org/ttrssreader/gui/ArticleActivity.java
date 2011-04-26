@@ -134,6 +134,9 @@ public class ArticleActivity extends Activity {
             articleId = -1;
             feedId = -1;
         }
+        
+        parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId,
+                selectArticlesForCategory);
     }
     
     @Override
@@ -146,9 +149,29 @@ public class ArticleActivity extends Activity {
         doRefresh();
     }
     
+    private void closeCursor() {
+        if (parentAdapter != null) {
+            parentAdapter.closeCursor();
+        }
+    }
+    
     @Override
     protected void onPause() {
+        // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
         super.onPause();
+        closeCursor();
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        closeCursor();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        closeCursor();
     }
     
     @Override
@@ -237,10 +260,6 @@ public class ArticleActivity extends Activity {
     private void doRefresh() {
         setProgressBarIndeterminateVisibility(true);
         
-        if (parentAdapter == null)
-            parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId,
-                    selectArticlesForCategory);
-        
         if (Controller.getInstance().workOffline()) {
             webview.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
         } else {
@@ -308,8 +327,9 @@ public class ArticleActivity extends Activity {
     private void openNextArticle(int direction) {
         
         int currentIndex = -2; // -2 so index is still -1 if direction is +1, avoids moving when no move possible
-        if (parentAdapter.getIds().indexOf(articleId) >= 0)
-            currentIndex = parentAdapter.getIds().indexOf(articleId);
+        int tempIndex = parentAdapter.getIds().indexOf(articleId);
+        if (tempIndex >= 0)
+            currentIndex = tempIndex;
         
         int index = currentIndex + direction;
         
@@ -321,11 +341,9 @@ public class ArticleActivity extends Activity {
             return;
         }
         
-        int id = parentAdapter.getId(index);
-        parentAdapter.closeCursor();
         
         Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ARTICLE_ID, id);
+        i.putExtra(ARTICLE_ID, parentAdapter.getId(index));
         i.putExtra(FEED_ID, feedId);
         i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
