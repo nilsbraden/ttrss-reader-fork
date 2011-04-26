@@ -783,7 +783,7 @@ public class JSONPOSTConnector implements Connector {
         params.add(new BasicNameValuePair(PARAM_VIEWMODE, viewMode));
         params.add(new BasicNameValuePair(PARAM_SHOW_CONTENT, "1"));
         params.add(new BasicNameValuePair(PARAM_INC_ATTACHMENTS, "1"));
-        params.add(new BasicNameValuePair(PARAM_IS_CAT, isCategory + ""));
+        params.add(new BasicNameValuePair(PARAM_IS_CAT, (isCategory ? "1" : "0")));
         
         JSONArray jsonResult = getJSONResponseAsArray(params);
         
