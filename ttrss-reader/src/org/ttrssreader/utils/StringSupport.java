@@ -123,26 +123,28 @@ public class StringSupport {
             maxCount = 50;
         
         Set<String> ret = new HashSet<String>();
-        int count = 0;
-        
         Iterator<Integer> it = ids.iterator();
         StringBuilder idList = new StringBuilder();
+
+        int count = 0;
         while (it.hasNext()) {
+            
             idList.append(it.next());
-            if (it.hasNext() && count < maxCount) {
-                idList.append(",");
-            }
-            if (count >= maxCount) {
+            
+            if (count == maxCount) {
                 ret.add(idList.toString());
                 idList = new StringBuilder();
                 count = 0;
             } else {
                 count++;
             }
+            
+            if (it.hasNext())
+                idList.append(",");
+            
         }
         
         ret.add(idList.toString());
-        
         return ret;
     }
     
