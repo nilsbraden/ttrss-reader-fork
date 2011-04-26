@@ -16,6 +16,7 @@
 package org.ttrssreader.model;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.utils.Utils;
@@ -102,8 +103,8 @@ public abstract class MainAdapter extends BaseAdapter {
         return ret;
     }
     
-    public final ArrayList<Integer> getIds() {
-        ArrayList<Integer> result = new ArrayList<Integer>();
+    public final List<Integer> getIds() {
+        List<Integer> result = new ArrayList<Integer>();
         synchronized (cursor) {
             if (cursor.isClosed()) {
                 makeQuery();
