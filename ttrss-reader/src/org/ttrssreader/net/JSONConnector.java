@@ -57,8 +57,8 @@ public class JSONConnector implements Connector {
     private static final String OP_GET_ARTICLE = "?op=getArticle&article_id=%s";
     
     // include_attachments available since 1.5.3 but is ignored on older versions
-    private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&feed_id=%s&limit=%s&view_mode=%s&show_content=1&include_attachments=1";
-
+    private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&feed_id=%s&limit=%s&view_mode=%s&show_content=1&include_attachments=1&is_cat=%s";
+    
     private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&article_ids=%s&mode=%s&field=%s";
     private static final String OP_CATCHUP = "?op=catchupFeed&feed_id=%s&is_cat=%s";
     private static final String OP_GET_PREF = "?op=getPref&pref_name=%s";
@@ -131,7 +131,9 @@ public class JSONConnector implements Connector {
     }
     
     private String doRequest(String url, boolean firstCall) {
-//        long start = System.currentTimeMillis();
+        // long start = System.currentTimeMillis();
+        
+        Log.v(Utils.TAG, "Request: " + url);
         
         try {
             post.setURI(new URI(url));
@@ -518,7 +520,9 @@ public class JSONConnector implements Connector {
     
     // ***************** Retrieve-Data-Methods **************************************************
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#getCounters()
      */
     @Override
@@ -575,7 +579,9 @@ public class JSONConnector implements Connector {
         Log.v(Utils.TAG, "getCounters: " + (System.currentTimeMillis() - time) + "ms");
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#getCategories()
      */
     @Override
@@ -622,7 +628,9 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#getFeeds()
      */
     @Override
@@ -677,11 +685,13 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#getArticle(java.util.Set)
      */
     @Override
-    public void getArticle(Set<Integer> ids) {
+    public void getArticlesToDatabase(Set<Integer> ids) {
         long time = System.currentTimeMillis();
         if (ids.size() == 0)
             return;
@@ -701,13 +711,15 @@ public class JSONConnector implements Connector {
         Log.v(Utils.TAG, "getArticle: " + (System.currentTimeMillis() - time) + "ms");
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#getHeadlinesToDatabase(Integer, int, int, java.lang.String)
      */
     @Override
-    public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, int filter, String viewMode) {
+    public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory) {
         long time = System.currentTimeMillis();
-        String url = serverUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode);
+        String url = serverUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, isCategory);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
@@ -718,7 +730,9 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#setArticleRead(java.util.Set, int)
      */
     @Override
@@ -735,7 +749,9 @@ public class JSONConnector implements Connector {
         return (ret != null && ret.contains(OK));
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#setArticleStarred(java.util.Set, int)
      */
     @Override
@@ -752,7 +768,9 @@ public class JSONConnector implements Connector {
         return (ret != null && ret.contains(OK));
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#setArticlePublished(java.util.Set, int)
      */
     @Override
@@ -769,7 +787,9 @@ public class JSONConnector implements Connector {
         return (ret != null && ret.contains(OK));
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#setRead(int, boolean)
      */
     @Override
@@ -779,7 +799,9 @@ public class JSONConnector implements Connector {
         return (ret != null && ret.contains(OK));
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#getPref(java.lang.String)
      */
     @Override
@@ -811,7 +833,9 @@ public class JSONConnector implements Connector {
         return null;
     }
     
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.ttrssreader.net.Connector2#getVersion()
      */
     @Override
