@@ -173,7 +173,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         }
         
         if (Controller.getInstance().lastOpenedArticle != null) {
-            query.append(" UNION SELECT c.id,c.feedId,c.title,c.isUnread,c.updateDate,c.isStarred,c.isPublished,c.title AS feedTitle");
+            query.append(" UNION SELECT c.id,c.feedId,c.title,c.isUnread,c.updateDate,c.isStarred,c.isPublished,d.title AS feedTitle");
             query.append(" FROM articles c, feeds d WHERE c.feedId=d.id AND c.id=");
             query.append(Controller.getInstance().lastOpenedArticle);
         }
