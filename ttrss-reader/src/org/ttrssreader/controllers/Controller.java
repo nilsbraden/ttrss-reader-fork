@@ -16,7 +16,9 @@
 
 package org.ttrssreader.controllers;
 
+import org.ttrssreader.net.Connector;
 import org.ttrssreader.net.JSONConnector;
+import org.ttrssreader.net.JSONPOSTConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.ImageCache;
 import android.content.Context;
@@ -33,7 +35,8 @@ public class Controller {
     
     private boolean initialized = false;
     private Context context;
-    private JSONConnector ttrssConnector;
+    private Connector ttrssConnector;
+    private Connector ttrssPostConnector;
     private ImageCache imageCache;
     
     private static Controller instance = null;
@@ -131,7 +134,16 @@ public class Controller {
         trustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
         useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
         keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
-        ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
+        
+        
+        int version = getServerVersion();
+        if (version >= 153) {
+            ttrssPostConnector = new JSONPOSTConnector(url, userName, password, httpUserName, httpPassword);
+            ttrssConnector = null;
+        } else {
+            ttrssPostConnector = null;
+            ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
+        }
         
         // Initialize ImageCache
         getImageCache(context);
@@ -148,9 +160,13 @@ public class Controller {
         this.url = url;
     }
     
-    public JSONConnector getConnector() {
+    public Connector getConnector() {
         // Initialized inside initializeController();
-        return ttrssConnector;
+        if (ttrssPostConnector != null) {
+            return ttrssPostConnector;
+        } else {
+            return ttrssConnector;
+        }
     }
     
     public ImageCache getImageCache(Context context) {
@@ -445,13 +461,14 @@ public class Controller {
         
         if (serverVersion < 0 || serverVersionLastUpdate < oldTime) {
             
-            serverVersion = Data.getInstance().getVersion();
-            serverVersionLastUpdate = System.currentTimeMillis();
+            if (ttrssConnector != null || ttrssPostConnector != null) {
+                serverVersion = Data.getInstance().getVersion();
+                serverVersionLastUpdate = System.currentTimeMillis();
+                put(Constants.SERVER_VERSION, serverVersion);
+                put(Constants.SERVER_VERSION_LAST_UPDATE, serverVersionLastUpdate);
+            }
             
         }
-        
-        put(Constants.SERVER_VERSION, serverVersion);
-        put(Constants.SERVER_VERSION_LAST_UPDATE, serverVersionLastUpdate);
         
         return serverVersion;
     }
