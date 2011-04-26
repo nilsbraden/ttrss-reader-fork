@@ -21,9 +21,11 @@ import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.net.JSONPOSTConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.ImageCache;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
@@ -135,12 +137,13 @@ public class Controller {
         useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
         keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
         
-        
         int version = getServerVersion();
         if (version >= 153) {
+            Log.d(Utils.TAG, "Server-version seems to be above 1.5.3, using new JSONPOSTConnector.");
             ttrssPostConnector = new JSONPOSTConnector(url, userName, password, httpUserName, httpPassword);
             ttrssConnector = null;
         } else {
+            Log.d(Utils.TAG, "Server-version seems to be lower then 1.5.3, using old JSONConnector.");
             ttrssPostConnector = null;
             ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
         }
@@ -450,6 +453,7 @@ public class Controller {
     }
     
     public int getServerVersion() {
+        // Refresh only once ever 24 hours or if no serverVersion is stored in preferences
         long oldTime = (System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         
         if (serverVersion == null)

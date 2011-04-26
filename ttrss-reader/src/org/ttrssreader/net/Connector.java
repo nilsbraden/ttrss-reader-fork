@@ -59,9 +59,11 @@ public interface Connector {
      * @param viewMode
      *            indicates wether only unread articles should be included (Possible values: all_articles, unread,
      *            adaptive, marked, updated)
+     * @param isCategory
+     *            indicates if we are dealing with a category or a feed
      * @return a set of ids of the received articles.
      */
-    public abstract Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode);
+    public abstract Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory);
     
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.

@@ -115,11 +115,11 @@ public class Data {
     
     // *** ARTICLES *********************************************************************
     
-    public void updateArticles(int feedId, boolean displayOnlyUnread) {
-        updateArticles(feedId, displayOnlyUnread, false);
+    public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCategory) {
+        updateArticles(feedId, displayOnlyUnread, isCategory, false);
     }
     
-    public void updateArticles(int feedId, boolean displayOnlyUnread, boolean overrideOffline) {
+    public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCategory, boolean overrideOffline) {
         
         Long time = articlesUpdated.get(feedId);
         if (time == null)
@@ -131,37 +131,36 @@ public class Data {
             int limit = 30;
             
             switch (feedId) {
-                case -1:
-                case -2:
+                case -1: // Starred
+                case -2: // Published
                     limit = DBHelper.getInstance().getUnreadCount(feedId, false);
                     displayOnlyUnread = false;
                     break;
                 
-                case -3:
+                case -3: // Fresh
                     limit = DBHelper.getInstance().getUnreadCount(feedId, false);
                     break;
                 
-                case -4:
+                case -4: // All Articles
                     limit = DBHelper.getInstance().getUnreadCount(feedId, true);
                     break;
                 
-                default:
+                default: // Normal categories
                     int l = DBHelper.getInstance().getUnreadCount(feedId, false);
                     limit = (l > limit ? l : 30);
             }
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
-            Set<Integer> ids = Controller.getInstance().getConnector()
-                    .getHeadlinesToDatabase(feedId, limit, 0, viewMode);
+            Set<Integer> ids = Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
             
             // Check if there are new articles, then check if attachments are there, else fetch them separately
             if (ids != null) {
                 for (Integer i : ids) {
                     Article a = DBHelper.getInstance().getArticle(i);
                     if (a == null || a.attachments == null) {
-                        Log.d(Utils.TAG,
-                                "WARNING: Had to call getArticle since getHeadline didn't fetch attachments. Check if you are running latest server (1.5.3 or newer).");
-                        Controller.getInstance().getConnector().getArticle(ids);
+                        Log.d(Utils.TAG, "WARNING: Had to call getArticle since getHeadline didn't fetch attachments. "
+                                + "Check if you are running latest server (1.5.3 or newer).");
+                        Controller.getInstance().getConnector().getArticlesToDatabase(ids);
                         break;
                     }
                     break;

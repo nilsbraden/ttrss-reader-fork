@@ -19,35 +19,41 @@ package org.ttrssreader.model.updaters;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.Feed;
 
 public class FeedHeadlineUpdater implements IUpdatable {
     
-    boolean selectArticlesForCategory;
+    boolean selectArticlesForCategory = false;
     int categoryId;
     int feedId;
+    boolean isCategory;
     
     public int unreadCount = 0;
     
     public FeedHeadlineUpdater(boolean selectArticlesForCategory, int categoryId) {
         this.selectArticlesForCategory = selectArticlesForCategory;
         this.categoryId = categoryId;
+        this.isCategory = true;
     }
     
     public FeedHeadlineUpdater(int feedId) {
         this.feedId = feedId;
+        this.isCategory = feedId <= 0 ? true : false;
     }
     
     @Override
     public void update() {
+        boolean displayUnread = Controller.getInstance().displayOnlyUnread();
+        
         if (selectArticlesForCategory) {
+            
             unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
-            for (Feed f : DBHelper.getInstance().getFeeds(categoryId)) {
-                Data.getInstance().updateArticles(f.id, Controller.getInstance().displayOnlyUnread());
-            }
+            Data.getInstance().updateArticles(categoryId, displayUnread, isCategory);
+            
         } else {
+            
             unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
-            Data.getInstance().updateArticles(feedId, Controller.getInstance().displayOnlyUnread());
+            Data.getInstance().updateArticles(feedId, displayUnread, isCategory);
+            
         }
     }
     
