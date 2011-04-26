@@ -52,7 +52,7 @@ import org.ttrssreader.utils.Utils;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class JSONPOSTConnector {
+public class JSONPOSTConnector implements Connector {
     
     private static String lastError = "";
     private static boolean hasLastError = false;
@@ -560,12 +560,10 @@ public class JSONPOSTConnector {
     
     // ***************** Retrieve-Data-Methods **************************************************
     
-    /**
-     * Retrieves a Set of Maps which map Strings to the information, e.g. "id" -> 42, containing the counters for every
-     * category and feed.
-     * 
-     * @return set of Name-Value-Pairs stored in maps
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#getCounters()
      */
+    @Override
     public void getCounters() {
         long time = System.currentTimeMillis();
         
@@ -622,11 +620,10 @@ public class JSONPOSTConnector {
         Log.v(Utils.TAG, "getCounters: " + (System.currentTimeMillis() - time) + "ms");
     }
     
-    /**
-     * Retrieves all categories.
-     * 
-     * @return a list of categories.
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#getCategories()
      */
+    @Override
     public Set<Category> getCategories() {
         long time = System.currentTimeMillis();
         Set<Category> ret = new LinkedHashSet<Category>();
@@ -671,11 +668,10 @@ public class JSONPOSTConnector {
         return ret;
     }
     
-    /**
-     * Retrieves all feeds, mapped to their categories.
-     * 
-     * @return a map of all feeds for every category.
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#getFeeds()
      */
+    @Override
     public Set<Feed> getFeeds() {
         long time = System.currentTimeMillis();
         Set<Feed> ret = new LinkedHashSet<Feed>();;
@@ -729,12 +725,10 @@ public class JSONPOSTConnector {
         return ret;
     }
     
-    /**
-     * Retrieves the specified articles and inserts them into the Database
-     * 
-     * @param articleIds
-     *            the ids of the articles.
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#getArticle(java.util.Set)
      */
+    @Override
     public void getArticle(Set<Integer> ids) {
         long time = System.currentTimeMillis();
         if (ids.size() == 0)
@@ -757,12 +751,10 @@ public class JSONPOSTConnector {
         Log.v(Utils.TAG, "getArticle: " + (System.currentTimeMillis() - time) + "ms");
     }
     
-    /**
-     * Retrieves the specified articles and directly stores them in the database.
-     * 
-     * @param articleIds
-     *            the ids of the articles.
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#getHeadlinesToDatabase(java.lang.Integer, int, int, java.lang.String)
      */
+    @Override
     public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, int filter, String viewMode) {
         long time = System.currentTimeMillis();
         
@@ -783,14 +775,10 @@ public class JSONPOSTConnector {
         return ret;
     }
     
-    /**
-     * Marks the given list of article-Ids as read/unread depending on int articleState.
-     * 
-     * @param articlesIds
-     *            the list of ids.
-     * @param articleState
-     *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#setArticleRead(java.util.Set, int)
      */
+    @Override
     public boolean setArticleRead(Set<Integer> ids, int articleState) {
         if (ids.size() == 0)
             return true;
@@ -808,14 +796,10 @@ public class JSONPOSTConnector {
         return (ret != null && ret.contains(OK));
     }
     
-    /**
-     * Marks the given Article as "starred"/"not starred" depending on int articleState.
-     * 
-     * @param articlesId
-     *            the article.
-     * @param articleState
-     *            the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#setArticleStarred(java.util.Set, int)
      */
+    @Override
     public boolean setArticleStarred(Set<Integer> ids, int articleState) {
         if (ids.size() == 0)
             return true;
@@ -833,14 +817,10 @@ public class JSONPOSTConnector {
         return (ret != null && ret.contains(OK));
     }
     
-    /**
-     * Marks the given Article as "published"/"not published" depending on int articleState.
-     * 
-     * @param articlesId
-     *            the article.
-     * @param articleState
-     *            the new state of the article (0 -> not published; 1 -> published; 2 -> toggle).
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#setArticlePublished(java.util.Set, int)
      */
+    @Override
     public boolean setArticlePublished(Set<Integer> ids, int articleState) {
         if (ids.size() == 0)
             return true;
@@ -858,14 +838,10 @@ public class JSONPOSTConnector {
         return (ret != null && ret.contains(OK));
     }
     
-    /**
-     * Marks a feed or a category with all its feeds as read.
-     * 
-     * @param id
-     *            the feed-id/category-id.
-     * @param isCategory
-     *            indicates whether id refers to a feed or a category.
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#setRead(int, boolean)
      */
+    @Override
     public boolean setRead(int id, boolean isCategory) {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair(PARAM_OP, VALUE_CATCHUP));
@@ -875,13 +851,10 @@ public class JSONPOSTConnector {
         return (ret != null && ret.contains(OK));
     }
     
-    /**
-     * Returns the value for the given preference-name as a string.
-     * 
-     * @param pref
-     *            the preferences name
-     * @return the value of the preference or null if it ist not set or unknown
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#getPref(java.lang.String)
      */
+    @Override
     public String getPref(String pref) {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair(PARAM_OP, VALUE_GET_PREF));
@@ -912,11 +885,10 @@ public class JSONPOSTConnector {
         return null;
     }
     
-    /**
-     * Returns the version of the server-installation as integer (version without dots)
-     * 
-     * @return the version
+    /* (non-Javadoc)
+     * @see org.ttrssreader.net.Connector#getVersion()
      */
+    @Override
     public int getVersion() {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair(PARAM_OP, VALUE_GET_VERSION));
