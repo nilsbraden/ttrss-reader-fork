@@ -36,7 +36,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -85,11 +84,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         notificationTextView = (TextView) findViewById(R.id.notification);
         gestureDetector = new GestureDetector(onGestureListener);
         
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        absHeight = metrics.heightPixels;
-        absWidth = metrics.widthPixels;
-        
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             categoryId = extras.getInt(FEED_CAT_ID);
@@ -108,7 +102,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         } else {
             updateable = new FeedHeadlineUpdater(feedId);
         }
-
+        
         parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
         adapter = new FeedHeadlineAdapter(this, feedId, categoryId, selectArticlesForCategory);
         listView.setAdapter(adapter);
@@ -164,7 +158,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
     
     @Override
-    protected synchronized void doRefresh() {
+    protected void doRefresh() {
         setTitle(MainAdapter.formatTitle(feedTitle, updateable.unreadCount));
         flingDetected = false; // reset fling-status
         
@@ -185,7 +179,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
     
     @Override
-    protected synchronized void doUpdate() {
+    protected void doUpdate() {
         // Only update if no updater already running
         if (updater != null) {
             if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -212,7 +206,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             i.putExtra(ArticleActivity.FEED_ID, feedId);
             i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
             i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-
+            
             startActivity(i);
         }
     }

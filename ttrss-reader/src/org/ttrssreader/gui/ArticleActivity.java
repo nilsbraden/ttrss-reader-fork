@@ -59,8 +59,8 @@ public class ArticleActivity extends Activity {
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_ID = "FEED_ID";
     
-    private int articleId;
-    private int feedId;
+    private int articleId = -1;
+    private int feedId = -1;
     
     private ArticleHeaderView headerContainer;
     
@@ -74,10 +74,7 @@ public class ArticleActivity extends Activity {
     private TextView webviewSwipeText;
     private GestureDetector mGestureDetector;
     private boolean useSwipe;
-    private int absHeight;
-    private int absWidth;
-    private int swipeHeight;
-    private int swipeWidth;
+    
     private String baseUrl = null;
     
     private FeedHeadlineAdapter parentAdapter = null;
@@ -88,10 +85,10 @@ public class ArticleActivity extends Activity {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         Controller.getInstance().checkAndInitializeController(this);
+        Controller.initializeArticleViewStuff(getWindowManager().getDefaultDisplay(), new DisplayMetrics());
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
-        // Need to request this setting after initializing the Controller, else settings will throw NPE
         if (Controller.getInstance().displayArticleHeader())
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         
@@ -106,17 +103,9 @@ public class ArticleActivity extends Activity {
         mGestureDetector = new GestureDetector(onGestureListener);
         webview.setOnKeyListener(keyListener);
         
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        absHeight = metrics.heightPixels;
-        absWidth = metrics.widthPixels;
-        swipeHeight = (int) (absHeight * 0.25); // 25% height
-        swipeWidth = (int) (absWidth * 0.5); // 50% width
-        int padding = (int) ((swipeHeight / 2) - (16 * metrics.density));
-        
         webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
         webviewSwipeText.setVisibility(TextView.INVISIBLE);
-        webviewSwipeText.setPadding(16, padding, 16, padding);
+        webviewSwipeText.setPadding(16, Controller.padding, 16, Controller.padding);
         useSwipe = Controller.getInstance().useSwipe();
         
         Bundle extras = getIntent().getExtras();
@@ -130,22 +119,16 @@ public class ArticleActivity extends Activity {
             feedId = instance.getInt(FEED_ID);
             categoryId = instance.getInt(FeedHeadlineActivity.FEED_CAT_ID);
             selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
-        } else {
-            articleId = -1;
-            feedId = -1;
         }
         
-        parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId,
-                selectArticlesForCategory);
+        parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
-        
         Controller.getInstance().lastOpenedArticle = articleId;
-        
-        DBHelper.getInstance().checkAndInitializeDB(getApplicationContext());
+        DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
     }
     
@@ -174,11 +157,67 @@ public class ArticleActivity extends Activity {
         closeCursor();
     }
     
+    private void doRefresh() {
+        setProgressBarIndeterminateVisibility(true);
+        
+        if (Controller.getInstance().workOffline()) {
+            webview.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+        } else {
+            webview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+        }
+        
+        if (!JSONConnector.hasLastError()) {
+            article = DBHelper.getInstance().getArticle(articleId);
+            
+            if (article != null && article.content != null) {
+                
+                // Populate information-bar on top of the webview if enabled
+                if (Controller.getInstance().displayArticleHeader()) {
+                    headerContainer.populate(article);
+                } else {
+                    headerContainer.setVisibility(View.GONE);
+                }
+                
+                // Inject the specific code for attachments, <img> for images, http-link for Videos
+                content = injectAttachments(getApplicationContext(), article.content, article.attachments);
+                
+                if (article.cachedImages)
+                    content = injectCachedImages(content);
+                
+                // Load html from Controller and insert content
+                String text = Controller.htmlHeader.replace("MARKER", content);
+                
+                // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
+                baseUrl = StringSupport.getBaseURL(article.url);
+                webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
+                
+                setTitle(article.title);
+                
+                if (article.isUnread && Controller.getInstance().automaticMarkRead())
+                    new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+                
+                if (!linkAutoOpened && content.length() < 3) {
+                    if (Controller.getInstance().openUrlEmptyArticle()) {
+                        Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+                        linkAutoOpened = true;
+                        openLink();
+                    }
+                }
+                
+            }
+        } else {
+            openConnectionErrorDialog(JSONConnector.pullLastError());
+        }
+        
+        setProgressBarIndeterminateVisibility(false);
+    }
+    
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(ARTICLE_ID, articleId);
         outState.putInt(FEED_ID, feedId);
+        outState.putInt(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         outState.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
     }
     
@@ -257,66 +296,6 @@ public class ArticleActivity extends Activity {
         }
     }
     
-    private void doRefresh() {
-        setProgressBarIndeterminateVisibility(true);
-        
-        if (Controller.getInstance().workOffline()) {
-            webview.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
-        } else {
-            webview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-        }
-        
-        if (!JSONConnector.hasLastError()) {
-            article = DBHelper.getInstance().getArticle(articleId);
-            
-            if (article != null && article.content != null) {
-                
-                // Populate information-bar on top of the webview if enabled
-                if (Controller.getInstance().displayArticleHeader()) {
-                    headerContainer.populate(article);
-                } else {
-                    headerContainer.setVisibility(View.GONE);
-                }
-                
-                // Inject the specific code for attachments, <img> for images, http-link for Videos
-                content = injectAttachments(getApplicationContext(), article.content, article.attachments);
-                
-                if (article.cachedImages)
-                    content = injectCachedImages(content);
-                
-                // Load html from Raw-Ressources and insert content
-                String temp = getResources().getString(R.string.INJECT_HTML_HEAD);
-                String text = temp.replace("MARKER", content);
-                
-                // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-                baseUrl = StringSupport.getBaseURL(article.url);
-                webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
-                
-                if (article.title != null) {
-                    setTitle(article.title);
-                } else {
-                    setTitle(getResources().getString(R.string.ApplicationName));
-                }
-                
-                if (article.isUnread && Controller.getInstance().automaticMarkRead())
-                    new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
-                
-                if (!linkAutoOpened && content.length() < 3) {
-                    if (Controller.getInstance().openUrlEmptyArticle()) {
-                        Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
-                        linkAutoOpened = true;
-                        openLink();
-                    }
-                }
-                
-            }
-        } else {
-            openConnectionErrorDialog(JSONConnector.pullLastError());
-        }
-        
-        setProgressBarIndeterminateVisibility(false);
-    }
-    
     public void onZoomChanged() {
         // Load html from Raw-Ressources and insert content
         String temp = getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
@@ -341,7 +320,6 @@ public class ArticleActivity extends Activity {
             return;
         }
         
-        
         Intent i = new Intent(this, ArticleActivity.class);
         i.putExtra(ARTICLE_ID, parentAdapter.getId(index));
         i.putExtra(FEED_ID, feedId);
@@ -363,18 +341,18 @@ public class ArticleActivity extends Activity {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             
-            int SWIPE_BOTTOM = webview.getHeight() - swipeHeight;
+            int SWIPE_BOTTOM = webview.getHeight() - Controller.swipeHeight;
             
             int dx = (int) (e2.getX() - e1.getX());
             int dy = (int) (e2.getY() - e1.getY());
             
             // don't accept the fling if it's too short as it may conflict with a button push
             boolean isSwype = false;
-            if (Math.abs(dx) > swipeWidth && Math.abs(velocityX) > Math.abs(velocityY)) {
+            if (Math.abs(dx) > Controller.swipeWidth && Math.abs(velocityX) > Math.abs(velocityY)) {
                 isSwype = true;
             }
             
-            if (Math.abs(dy) > (int) (absHeight * 0.2)) {
+            if (Math.abs(dy) > (int) (Controller.absHeight * 0.2)) {
                 
                 return false; // Too much Y-Movement (20% of screen-height)
                 

@@ -29,6 +29,7 @@ import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -62,6 +63,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         
         // Initialize Singletons for Config, Data-Access and DB
         Controller.getInstance().checkAndInitializeController(this);
+        Controller.initializeArticleViewStuff(getWindowManager().getDefaultDisplay(), new DisplayMetrics());
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
     }
