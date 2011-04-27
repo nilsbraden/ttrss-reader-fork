@@ -113,7 +113,7 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    protected synchronized void doRefresh() {
+    protected void doRefresh() {
         setTitle(MainAdapter.formatTitle(categoryTitle, updateable.unreadCount));
         
         if (adapter != null) {
@@ -133,7 +133,7 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    protected synchronized void doUpdate() {
+    protected void doUpdate() {
         // Only update if no updater already running
         if (updater != null) {
             if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {

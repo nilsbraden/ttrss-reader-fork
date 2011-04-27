@@ -16,6 +16,7 @@
 
 package org.ttrssreader.controllers;
 
+import org.ttrssreader.R;
 import org.ttrssreader.net.Connector;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.net.JSONPOSTConnector;
@@ -25,7 +26,9 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 
 /**
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
@@ -77,6 +80,14 @@ public class Controller {
     
     public volatile Integer lastOpenedFeed = null;
     public volatile Integer lastOpenedArticle = null;
+    
+    // Article-View-Stuff
+    public static String htmlHeader = "";
+    public static int absHeight = -1;
+    public static int absWidth = -1;
+    public static int swipeHeight = -1;
+    public static int swipeWidth = -1;
+    public static int padding = -1;
     
     // Singleton
     private Controller() {
@@ -148,8 +159,22 @@ public class Controller {
             ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
         }
         
+        // Article-Prefetch-Stuff from Raw-Ressources and System
+        htmlHeader = context.getResources().getString(R.string.INJECT_HTML_HEAD);
+        
         // Initialize ImageCache
         getImageCache(context);
+    }
+    
+    public static void initializeArticleViewStuff(Display display, DisplayMetrics metrics) {
+        if (absHeight <= 0) {
+            display.getMetrics(metrics);
+            absHeight = metrics.heightPixels;
+            absWidth = metrics.widthPixels;
+            swipeHeight = (int) (absHeight * 0.25); // 25% height
+            swipeWidth = (int) (absWidth * 0.5); // 50% width
+            padding = (int) ((swipeHeight / 2) - (16 * metrics.density));
+        }
     }
     
     // ******* USAGE-Options ****************************

@@ -145,7 +145,7 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    protected synchronized void doRefresh() {
+    protected void doRefresh() {
         setTitle(MainAdapter.formatTitle(getResources().getString(R.string.ApplicationName), updateable.unreadCount));
         
         if (adapter != null) {
@@ -165,7 +165,7 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    protected synchronized void doUpdate() {
+    protected void doUpdate() {
         // Only update if no updater already running
         if (updater != null) {
             if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
