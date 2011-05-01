@@ -21,6 +21,7 @@
     >
     
         <item>v0.9.6:
+            If you encounter problems with categories not beeing displayed sometimes try enabling categories in the webinterface.
             \n * Show read articles when browsing "only unread articles" and entering an empty feed
             \n * Minor refactoring and changes due to release of Tiny Tiny RSS 1.5.3
             \n * Added check for corrupted DB, it is moved to a backup-file and a new DB will be created

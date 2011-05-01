@@ -824,6 +824,28 @@ public class DBHelper {
         return ret;
     }
     
+    public Set<Category> getCategoriesIncludingUncategorized() {
+        Set<Category> ret = new LinkedHashSet<Category>();
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = db.query(TABLE_CATEGORIES, null, "id>=0", null, null, null, "title ASC");
+        try {
+            while (!c.isAfterLast()) {
+                Category ci = handleCategoryCursor(c);
+                ret.add(ci);
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        return ret;
+    }
+    
     public int getUnreadCount(int id, boolean isCat) {
         int ret = 0;
         if (!isDBAvailable())

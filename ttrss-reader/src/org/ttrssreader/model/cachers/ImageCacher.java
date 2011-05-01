@@ -26,7 +26,7 @@ import java.util.regex.Matcher;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.StringSupport;
@@ -100,8 +100,8 @@ public class ImageCacher implements ICacheable {
         Data.getInstance().updateCategories(true);
         Data.getInstance().updateFeeds(-4, true);
         
-        for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
-            if (f.unread == 0)
+        for (Category c : DBHelper.getInstance().getCategoriesIncludingUncategorized()) {
+            if (c.unread == 0)
                 continue;
             
             boolean done = false;
@@ -112,7 +112,7 @@ public class ImageCacher implements ICacheable {
                     UpdateArticlesTask t = tasks[i];
                     if (t == null || t.getStatus().equals(AsyncTask.Status.FINISHED)) {
                         t = new UpdateArticlesTask(onlyUnreadArticles);
-                        t.execute(f.id);
+                        t.execute(c.id);
                         tasks[i] = t;
                         done = true;
                         break;

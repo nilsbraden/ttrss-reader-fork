@@ -36,6 +36,7 @@ import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -62,9 +63,17 @@ public class CategoryActivity extends MenuActivity {
     private CategoryAdapter adapter = null;
     private CategoryUpdater updateable = null;
     
+    private ProgressDialog startupDialog;
+    
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
+        
+        startupDialog = new ProgressDialog( this );
+        startupDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        startupDialog.setMessage("Loading...");
+        startupDialog.setCancelable(false);
+        
         setContentView(R.layout.categorylist);
         
         // Register our own ExceptionHander
@@ -162,6 +171,9 @@ public class CategoryActivity extends MenuActivity {
             setProgressBarIndeterminateVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyCategories);
         }
+        
+        if (startupDialog != null && startupDialog.isShowing())
+            startupDialog.dismiss();
     }
     
     @Override

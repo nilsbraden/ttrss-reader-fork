@@ -28,8 +28,9 @@ public class UpdateArticlesTask extends AsyncTask<Integer, Void, Void> {
     
     @Override
     protected Void doInBackground(Integer... params) {
-        for (Integer i : params) {
-            Data.getInstance().updateArticles(i, onlyUnread, true); // true to override offline-check
+        for (Integer id : params) {
+            // id is a categoryId so we update articles for a category because it is faster then updating all feeds separately..
+            Data.getInstance().updateArticles(id, onlyUnread, true, true); // seconds "true" to override offline-check
         }
         return null;
     }

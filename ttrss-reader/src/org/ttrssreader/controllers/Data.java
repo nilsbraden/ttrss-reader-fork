@@ -128,17 +128,17 @@ public class Data {
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
-            int limit = 30;
+            int limit = 40;
             
             switch (feedId) {
                 case -1: // Starred
                 case -2: // Published
-                    limit = DBHelper.getInstance().getUnreadCount(feedId, false);
+                    limit = DBHelper.getInstance().getUnreadCount(feedId, true);
                     displayOnlyUnread = false;
                     break;
                 
                 case -3: // Fresh
-                    limit = DBHelper.getInstance().getUnreadCount(feedId, false);
+                    limit = DBHelper.getInstance().getUnreadCount(feedId, true);
                     break;
                 
                 case -4: // All Articles
@@ -146,8 +146,8 @@ public class Data {
                     break;
                 
                 default: // Normal categories
-                    int l = DBHelper.getInstance().getUnreadCount(feedId, false);
-                    limit = (l > limit ? l : 30);
+                    int l = DBHelper.getInstance().getUnreadCount(feedId, isCategory);
+                    limit = (l > limit ? l : limit);
             }
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
