@@ -725,6 +725,12 @@ public class JSONConnector implements Connector {
         if (jsonResult == null)
             return null;
         
+        if (feedId == -1 && isCategory)
+            DBHelper.getInstance().purgeStarredArticles();
+        
+        if (feedId == -2 && isCategory)
+            DBHelper.getInstance().purgePublishedArticles();
+        
         Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);
         Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
