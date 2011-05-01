@@ -121,13 +121,15 @@ public class ArticleActivity extends Activity {
             selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
         }
         
+        Controller.getInstance().lastOpenedFeed = feedId;
+        Controller.getInstance().lastOpenedArticle = articleId;
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
-        Controller.getInstance().lastOpenedArticle = articleId;
+        
         DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
     }
@@ -155,6 +157,15 @@ public class ArticleActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         closeCursor();
+    }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(ARTICLE_ID, articleId);
+        outState.putInt(FEED_ID, feedId);
+        outState.putInt(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+        outState.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
     }
     
     private void doRefresh() {
@@ -210,15 +221,6 @@ public class ArticleActivity extends Activity {
         }
         
         setProgressBarIndeterminateVisibility(false);
-    }
-    
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(ARTICLE_ID, articleId);
-        outState.putInt(FEED_ID, feedId);
-        outState.putInt(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-        outState.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
     }
     
     @Override
