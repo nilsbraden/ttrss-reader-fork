@@ -7,6 +7,7 @@
   * Added check for corrupted DB, it is moved to a backup-file and a new DB will be created
   * Show last-opened article/feed when returning from child-view, even if read content is filtered
   * Improved speed of update when using long-press on category -> "Show all articles"
+  * Cleanup of old starred/published articles when refreshing
   * Fixed DB-Exceptions
 
 == Version 0.9.5 ==

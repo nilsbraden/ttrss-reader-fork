@@ -689,6 +689,22 @@ public class DBHelper {
         }
     }
     
+    public void purgePublishedArticles() {
+        if (isDBAvailable()) {
+            synchronized (TABLE_ARTICLES) {
+                db.delete(TABLE_ARTICLES, "isPublished> 0", null);
+            }
+        }
+    }
+    
+    public void purgeStarredArticles() {
+        if (isDBAvailable()) {
+            synchronized (TABLE_ARTICLES) {
+                db.delete(TABLE_ARTICLES, "isStarred  > 0", null);
+            }
+        }
+    }
+    
     // *******| SELECT |*******************************************************************
     
     // Takes about 2 to 6 ms on Motorola Milestone

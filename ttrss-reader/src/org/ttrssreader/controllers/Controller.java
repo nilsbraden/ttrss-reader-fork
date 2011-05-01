@@ -94,7 +94,7 @@ public class Controller {
     }
     
     public static Controller getInstance() {
-        if (instance == null) {
+        if (instance == null || instance.prefs == null) {
             synchronized (Controller.class) {
                 if (instance == null) {
                     instance = new Controller();
