@@ -140,44 +140,44 @@ public class FeedHeadlineAdapter extends MainAdapter {
             displayUnread = false;
         
         if (lastOpenedArticle != null) {
-            query.append("SELECT id,feedId,title,isUnread AS unread,updateDate,isStarred,isPublished,feedTitle FROM (");
+            query.append("SELECT id,feedId,title,isUnread AS unread,updateDate,isStarred,isPublished FROM (");
         }
         
-        query.append("SELECT a.id,a.feedId,a.title,a.isUnread,a.updateDate,a.isStarred,a.isPublished,b.title AS feedTitle FROM ");
+        query.append("SELECT a.id,feedId,a.title,isUnread,updateDate,isStarred,isPublished FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
         query.append(" a, ");
         query.append(DBHelper.TABLE_FEEDS);
-        query.append(" b WHERE a.feedId=b.id");
+        query.append(" b WHERE feedId=b.id");
         
         switch (feedId) {
             case -1:
-                query.append(" AND a.isStarred=1");
+                query.append(" AND isStarred=1");
                 break;
             
             case -2:
-                query.append(" AND a.isPublished=1");
+                query.append(" AND isPublished=1");
                 break;
             
             case -3:
-                query.append(" AND a.updateDate>");
+                query.append(" AND updateDate>");
                 query.append(Controller.getInstance().getFreshArticleMaxAge());
-                query.append(" AND a.isUnread>0");
+                query.append(" AND isUnread>0");
                 break;
             
             case -4:
-                query.append(displayUnread ? " AND a.isUnread>0" : "");
+                query.append(displayUnread ? " AND isUnread>0" : "");
                 break;
             
             default:
                 // User selected to display all articles of a category directly
-                query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId)
-                        : (" AND a.feedId=" + feedId));
+                query.append(selectArticlesForCategory ? (" AND categoryId=" + categoryId)
+                        : (" AND feedId=" + feedId));
                 query.append(displayUnread ? " AND a.isUnread>0" : "");
         }
         
         if (lastOpenedArticle != null) {
-            query.append(" UNION SELECT c.id,c.feedId,c.title,c.isUnread,c.updateDate,c.isStarred,c.isPublished,d.title AS feedTitle");
-            query.append(" FROM articles c, feeds d WHERE c.feedId=d.id AND c.id=");
+            query.append(" UNION SELECT c.id,feedId,c.title,isUnread,updateDate,isStarred,isPublished");
+            query.append(" FROM articles c, feeds d WHERE feedId=d.id AND c.id=");
             query.append(lastOpenedArticle);
             query.append(")");
         }
