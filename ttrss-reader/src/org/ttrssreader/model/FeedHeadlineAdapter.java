@@ -140,7 +140,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
             displayUnread = false;
         
         if (lastOpenedArticle != null) {
-            query.append("SELECT id,feedId,title,isUnread AS unread,updateDate,isStarred,isPublished FROM (");
+            query.append("SELECT id,feedId,title,unread,updateDate,isStarred,isPublished FROM (");
         }
         
         query.append("SELECT a.id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
@@ -161,18 +161,18 @@ public class FeedHeadlineAdapter extends MainAdapter {
             case -3:
                 query.append(" AND updateDate>");
                 query.append(Controller.getInstance().getFreshArticleMaxAge());
-                query.append(" AND unread>0");
+                query.append(" AND isUnread>0");
                 break;
             
             case -4:
-                query.append(displayUnread ? " AND unread>0" : "");
+                query.append(displayUnread ? " AND isUnread>0" : "");
                 break;
             
             default:
                 // User selected to display all articles of a category directly
                 query.append(selectArticlesForCategory ? (" AND categoryId=" + categoryId)
                         : (" AND feedId=" + feedId));
-                query.append(displayUnread ? " AND unread>0" : "");
+                query.append(displayUnread ? " AND isUnread>0" : "");
         }
         
         if (lastOpenedArticle != null) {
