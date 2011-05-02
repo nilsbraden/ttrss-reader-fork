@@ -17,6 +17,7 @@ package org.ttrssreader.controllers;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -32,6 +33,7 @@ import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -127,7 +129,14 @@ public class DBHelper {
                 // Delete DB-File
                 File f = context.getDatabasePath(DATABASE_NAME);
                 f.renameTo(new File(f.getAbsolutePath() + DATABASE_BACKUP_NAME + System.currentTimeMillis()));
-                f.setReadable(true, false);
+
+				// Find setReadble method in old api
+                try {
+                    Class<?> cls = SharedPreferences.Editor.class;
+                    Method m = cls.getMethod("setReadble");
+                    m.invoke(f, true, false);
+                } catch (Exception e1) {
+                }
                 
                 // Check if there are too many old backups
                 FilenameFilter fnf = new FilenameFilter() {

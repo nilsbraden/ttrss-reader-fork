@@ -19,8 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -188,7 +190,7 @@ public abstract class MainAdapter extends BaseAdapter {
                 closeCursor();
             
             String query = buildQuery(false);
-            // Log.v(Utils.TAG, query);
+            Log.v(Utils.TAG, query);
             cursor = DBHelper.getInstance().query(query, null);
             
             // Call again with override enabled if cursor doesn't contain any data
@@ -196,7 +198,7 @@ public abstract class MainAdapter extends BaseAdapter {
                 closeCursor();
                 
                 query = buildQuery(true);
-                // Log.v(Utils.TAG, query);
+                Log.v(Utils.TAG, query);
                 cursor = DBHelper.getInstance().query(query, null);
                 
             }

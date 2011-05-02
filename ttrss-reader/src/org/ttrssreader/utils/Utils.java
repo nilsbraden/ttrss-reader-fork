@@ -26,6 +26,7 @@ import java.net.URLConnection;
 import java.util.regex.Pattern;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.preferences.Constants;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -92,14 +93,14 @@ public class Utils {
     private static final int ID_FINISHED = 7897891;
     
     /*
-     * Check if this is the first run of the app, if yes, returns true.
+     * Check if this is the first run of the app, if yes, returns false.
      */
     public static boolean checkFirstRun(Activity a) {
-        return Controller.getInstance().newInstallation();
+        return !(Controller.getInstance().newInstallation());
     }
     
     /*
-     * Check if a new version of the app was installed, returns true if this is the case.
+     * Check if a new version of the app was installed, returns false if this is the case.
      */
     public static boolean checkNewVersion(Activity a) {
         String thisVersion = getAppVersion(a);
@@ -107,26 +108,26 @@ public class Utils {
         Controller.getInstance().setLastVersionRun(thisVersion);
         
         if (thisVersion.equals(lastVersionRun)) {
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
     
     /*
-     * Check if crashreport-file exists, returns true if it exists.
+     * Check if crashreport-file exists, returns false if it exists.
      */
     public static boolean checkCrashReport(Activity a) {
         try {
             a.openFileInput(TopExceptionHandler.FILE);
-            return true;
-        } catch (FileNotFoundException e) {
             return false;
+        } catch (FileNotFoundException e) {
+            return true;
         }
     }
     
     /*
-     * Checks if the server is supported by the app, returns true if it is NOT supported.
+     * Checks if the server is supported by the app, returns true if it is supported.
      */
     public static boolean checkServerVersion(Activity a) {
         int version = Controller.getInstance().getServerVersion();
@@ -134,9 +135,20 @@ public class Utils {
             
             // Reset the stored value so it get updated on next run.
             Controller.getInstance().resetServerVersion();
-            return true;
+            return false;
         }
-        return false;
+        return true;
+    }
+    
+    /*
+     * Checks the config for a user-defined server, returns true if a server has been defined
+     */
+    public static boolean checkConfig() {
+        String url = Controller.getInstance().getUrl();
+        if (url.equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
+            return false;
+        }
+        return true;
     }
     
     /**

@@ -95,11 +95,14 @@ public class FeedAdapter extends MainAdapter {
     protected String buildQuery(boolean overrideDisplayUnread) {
         StringBuilder query = new StringBuilder();
         
+        Integer lastOpenedFeed = Controller.getInstance().lastOpenedFeed;
         boolean displayUnread = displayOnlyUnread;
         if (overrideDisplayUnread)
             displayUnread = false;
         
-        query.append("SELECT id,title,unread FROM (");
+        if (lastOpenedFeed != null) {
+            query.append("SELECT id,title,unread FROM (");
+        }
         
         query.append("SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_FEEDS);
@@ -107,12 +110,13 @@ public class FeedAdapter extends MainAdapter {
         query.append(categoryId);
         query.append(displayUnread ? " AND unread>0" : "");
         
-        if (Controller.getInstance().lastOpenedFeed != null) {
+        if (lastOpenedFeed != null) {
             query.append(" UNION SELECT id,title,unread FROM feeds WHERE id=");
-            query.append(Controller.getInstance().lastOpenedFeed);
+            query.append(lastOpenedFeed);
+            query.append(")");
         }
         
-        query.append(") ORDER BY UPPER(title) ");
+        query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         
         return query.toString();

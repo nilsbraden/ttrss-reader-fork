@@ -76,23 +76,23 @@ public class CategoryActivity extends MenuActivity {
         notificationTextView = (TextView) findViewById(R.id.notification);
         
         // Check for new installation
-        if (Utils.checkFirstRun(this))
+        if (!Utils.checkFirstRun(this))
             showDialog(DIALOG_WELCOME);
         
         // Check for update
-        if (Utils.checkNewVersion(this))
+        if (!Utils.checkNewVersion(this))
             showDialog(DIALOG_UPDATE);
         
         // Check for crash-reports
-        if (Utils.checkCrashReport(this))
+        if (!Utils.checkCrashReport(this))
             showDialog(DIALOG_CRASH);
         
         // Check if the server-version is supported
-        if (Utils.checkServerVersion(this))
+        if (!Utils.checkServerVersion(this))
             showDialog(DIALOG_OLD_SERVER);
         
         // Check if we have a server specified
-        if (!checkConfig())
+        if (!Utils.checkConfig())
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         
         Controller.getInstance().lastOpenedFeed = null;
@@ -108,10 +108,6 @@ public class CategoryActivity extends MenuActivity {
         super.onResume();
         
         DBHelper.getInstance().checkAndInitializeDB(this);
-        if (configChecked || checkConfig()) {
-            doRefresh();
-            doUpdate();
-        }
     }
     
     @Override
