@@ -143,7 +143,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
             query.append("SELECT id,feedId,title,isUnread AS unread,updateDate,isStarred,isPublished FROM (");
         }
         
-        query.append("SELECT a.id,feedId,a.title,isUnread,updateDate,isStarred,isPublished FROM ");
+        query.append("SELECT a.id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
         query.append(" a, ");
         query.append(DBHelper.TABLE_FEEDS);
@@ -161,22 +161,22 @@ public class FeedHeadlineAdapter extends MainAdapter {
             case -3:
                 query.append(" AND updateDate>");
                 query.append(Controller.getInstance().getFreshArticleMaxAge());
-                query.append(" AND isUnread>0");
+                query.append(" AND unread>0");
                 break;
             
             case -4:
-                query.append(displayUnread ? " AND isUnread>0" : "");
+                query.append(displayUnread ? " AND unread>0" : "");
                 break;
             
             default:
                 // User selected to display all articles of a category directly
                 query.append(selectArticlesForCategory ? (" AND categoryId=" + categoryId)
                         : (" AND feedId=" + feedId));
-                query.append(displayUnread ? " AND a.isUnread>0" : "");
+                query.append(displayUnread ? " AND unread>0" : "");
         }
         
         if (lastOpenedArticle != null) {
-            query.append(" UNION SELECT c.id,feedId,c.title,isUnread,updateDate,isStarred,isPublished");
+            query.append(" UNION SELECT c.id,feedId,c.title,isUnread AS unread,updateDate,isStarred,isPublished");
             query.append(" FROM articles c, feeds d WHERE feedId=d.id AND c.id=");
             query.append(lastOpenedArticle);
             query.append(")");

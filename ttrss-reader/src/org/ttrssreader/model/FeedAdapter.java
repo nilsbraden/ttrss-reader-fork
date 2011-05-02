@@ -111,7 +111,8 @@ public class FeedAdapter extends MainAdapter {
         query.append(displayUnread ? " AND unread>0" : "");
         
         if (lastOpenedFeed != null) {
-            query.append(" UNION SELECT id,title,unread FROM feeds WHERE id=");
+            query.append(" UNION SELECT id,title,unread");
+            query.append(" FROM feeds WHERE id=");
             query.append(lastOpenedFeed);
             query.append(")");
         }

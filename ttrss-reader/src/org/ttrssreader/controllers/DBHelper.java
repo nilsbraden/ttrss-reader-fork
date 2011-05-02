@@ -91,11 +91,9 @@ public class DBHelper {
     }
     
     public static DBHelper getInstance() {
-        if (instance == null) {
-            synchronized (DBHelper.class) {
-                if (instance == null) {
-                    instance = new DBHelper();
-                }
+        synchronized (DBHelper.class) {
+            if (instance == null) {
+                instance = new DBHelper();
             }
         }
         return instance;
@@ -129,8 +127,8 @@ public class DBHelper {
                 // Delete DB-File
                 File f = context.getDatabasePath(DATABASE_NAME);
                 f.renameTo(new File(f.getAbsolutePath() + DATABASE_BACKUP_NAME + System.currentTimeMillis()));
-
-				// Find setReadble method in old api
+                
+                // Find setReadble method in old api
                 try {
                     Class<?> cls = SharedPreferences.Editor.class;
                     Method m = cls.getMethod("setReadble");

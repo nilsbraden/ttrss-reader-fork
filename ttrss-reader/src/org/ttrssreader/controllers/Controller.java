@@ -97,11 +97,9 @@ public class Controller {
     }
     
     public static Controller getInstance() {
-        if (instance == null || instance.prefs == null) {
-            synchronized (Controller.class) {
-                if (instance == null) {
-                    instance = new Controller();
-                }
+        synchronized (Controller.class) {
+            if (instance == null || instance.prefs == null) {
+                instance = new Controller();
             }
         }
         return instance;
@@ -465,7 +463,7 @@ public class Controller {
         if (freshArticleMaxAge == null) {
             return ret;
         } else if (freshArticleMaxAge.equals("")) {
-
+            
             // Only start task if none existing yet
             if (task == null) {
                 task = new AsyncTask<Void, Void, Void>() {
