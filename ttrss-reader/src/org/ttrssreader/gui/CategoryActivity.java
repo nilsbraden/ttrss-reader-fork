@@ -42,6 +42,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -64,6 +65,9 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     protected void onCreate(Bundle instance) {
+        // TODO
+//        StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
+//        StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX);
         super.onCreate(instance);
         
         setContentView(R.layout.categorylist);

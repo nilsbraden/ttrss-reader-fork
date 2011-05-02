@@ -154,6 +154,10 @@ public class Controller {
             Log.d(Utils.TAG, "Server-version seems to be above 1.5.3, using new JSONPOSTConnector.");
             ttrssPostConnector = new JSONPOSTConnector(url, userName, password, httpUserName, httpPassword);
             ttrssConnector = null;
+        } else if (version <= 0) {
+            // Silently use old connector, version is fetched in the background
+            ttrssPostConnector = null;
+            ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
         } else {
             Log.d(Utils.TAG, "Server-version seems to be lower then 1.5.3, using old JSONConnector.");
             ttrssPostConnector = null;
@@ -506,10 +510,22 @@ public class Controller {
         if (serverVersion < 0 || serverVersionLastUpdate < oldTime) {
             
             if (ttrssConnector != null || ttrssPostConnector != null) {
-                serverVersion = Data.getInstance().getVersion();
-                serverVersionLastUpdate = System.currentTimeMillis();
-                put(Constants.SERVER_VERSION, serverVersion);
-                put(Constants.SERVER_VERSION_LAST_UPDATE, serverVersionLastUpdate);
+                
+                // Load server-version in background so we got it on next run
+                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        Log.d(Utils.TAG, "Retrieving Server-Version information...");
+                        serverVersion = Data.getInstance().getVersion();
+                        serverVersionLastUpdate = System.currentTimeMillis();
+                        put(Constants.SERVER_VERSION, serverVersion);
+                        put(Constants.SERVER_VERSION_LAST_UPDATE, serverVersionLastUpdate);
+                        Log.d(Utils.TAG, "Server is running v" + serverVersion);
+                        return null;
+                    }
+                };
+                task.execute();
+                
             }
             
         }
