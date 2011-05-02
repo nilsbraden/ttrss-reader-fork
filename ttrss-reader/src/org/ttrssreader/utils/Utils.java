@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -95,15 +94,15 @@ public class Utils {
     /*
      * Check if this is the first run of the app, if yes, returns false.
      */
-    public static boolean checkFirstRun(Activity a) {
+    public static boolean checkFirstRun(Context a) {
         return !(Controller.getInstance().newInstallation());
     }
     
     /*
      * Check if a new version of the app was installed, returns false if this is the case.
      */
-    public static boolean checkNewVersion(Activity a) {
-        String thisVersion = getAppVersion(a);
+    public static boolean checkNewVersion(Context c) {
+        String thisVersion = getAppVersion(c);
         String lastVersionRun = Controller.getInstance().getLastVersionRun();
         Controller.getInstance().setLastVersionRun(thisVersion);
         
@@ -117,9 +116,9 @@ public class Utils {
     /*
      * Check if crashreport-file exists, returns false if it exists.
      */
-    public static boolean checkCrashReport(Activity a) {
+    public static boolean checkCrashReport(Context c) {
         try {
-            a.openFileInput(TopExceptionHandler.FILE);
+            c.openFileInput(TopExceptionHandler.FILE);
             return false;
         } catch (FileNotFoundException e) {
             return true;
@@ -129,7 +128,7 @@ public class Utils {
     /*
      * Checks if the server is supported by the app, returns true if it is supported.
      */
-    public static boolean checkServerVersion(Activity a) {
+    public static boolean checkServerVersion(Context c) {
         int version = Controller.getInstance().getServerVersion();
         if (version > 0 && version < SERVER_VERSION) {
             
@@ -154,15 +153,15 @@ public class Utils {
     /**
      * Retrieves the packaged version of the application
      * 
-     * @param a
+     * @param c
      *            - The Activity to retrieve the current version
      * @return the version-string
      */
-    public static String getAppVersion(Activity a) {
+    public static String getAppVersion(Context c) {
         String result = "";
         try {
-            PackageManager manager = a.getPackageManager();
-            PackageInfo info = manager.getPackageInfo(a.getPackageName(), 0);
+            PackageManager manager = c.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(c.getPackageName(), 0);
             result = info.versionName;
         } catch (NameNotFoundException e) {
             Log.w(TAG, "Unable to get application version: " + e.getMessage());
