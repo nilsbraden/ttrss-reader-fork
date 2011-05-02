@@ -15,7 +15,6 @@
 -->
 <resources>
 
-    <string name="ApplicationName">Tiny Tiny RSS Reader</string>
     <string name="ApplicationDescription">Tiny Tiny RSS Reader ist eine Anwendung um RSS-Feeds aus einer Tiny Tiny RSS-Installation zu lesen.</string>
     
     <string name="Main.ShowPreferencesMenu">Optionen</string>
@@ -30,7 +29,6 @@
     <string name="Preferences.Btn">Optionen</string>
     
     <string name="Changelog.Title">Changelog</string>
-    <string name="DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>
     <string name="Welcome.Title">Willkommen</string>
     <string name="Welcome.Message">Willkommen zum TTRSS-Reader!\n\nBitte beachten Sie, dass dieser Reader nur mit einem \"Tiny Tiny RSS\" Server arbeiten kann.\n\nWenn dies der erste Start dieser Anwendung ist sollten Sie Ihre Server- und Benutzer-Einstellungen setzen. Drücken Sie \"Einstellungen\" um fortzufahren.</string>
     <string name="Check.OldVersion">Der angegebene Tiny Tiny RSS Server liegt in einer nicht unterstützten Version vor. Bitte aktualisieren Sie den Server.</string>
@@ -40,7 +38,6 @@
     <string name="AboutActivity.CloseBtn">Schließen</string>
     <string name="AboutActivity.DonateBtn">Möchten Sie spenden?</string>
     <string name="AboutActivity.VersionText">Version:</string>
-    <string name="AboutActivity.UrlTextValue">https://code.google.com/p/ttrss-reader-fork/</string>
     <string name="AboutActivity.LicenseText">Lizenz:</string>
     <string name="AboutActivity.LicenseTextValue">GPL v3</string>
     
@@ -90,9 +87,6 @@
     <string name="ConnectionUsernamePreferenceSummary">Der Benutzername für Ihren Tiny Tiny RSS-Account.</string>
     <string name="ConnectionPasswordPreferenceTitle">Passwort</string>
     <string name="ConnectionPasswordPreferenceSummary">Das Passwort für Ihren Tiny Tiny RSS-Account.</string>
-    
-    <string name="DonatorMailPreferenceTitle">Donator E-Mail</string>
-    <string name="DonatorMailPreferenceSummary">Falls Sie etwas gespendet haben tragen Sie ihre Mail-Adresse bitte hier ein.</string>
     
     <string name="ConnectionSslPreferenceCategoryTitle">SSL Einstellungen</string>
     <string name="ConnectionSslPreferenceTitle">SSL</string>
@@ -162,8 +156,6 @@
     <string name="About.project_hint">Informationen zur Entwicklung, dem Changelog etc.</string>
 	<string name="About.twitter">Twitter</string>
     <string name="About.twitter_hint">Contact me on twitter.</string>
-    <string name="About.twitter_acc">http://twitter.com/nilsbraden</string>
-    <string name="About.mail">nils.braden@web.de</string>
     <string name="About.feedback">Feedback</string>
     <string name="About.feedback_hint">Report bugs, request features ...</string>
     
