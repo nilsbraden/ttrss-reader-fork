@@ -141,16 +141,16 @@ public class CategoryAdapter extends MainAdapter {
         // "Uncetegorized Feeds"
         query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id=0 ");
-        query.append(displayUnread ? " AND unread>0 " : "");
+        query.append(" WHERE id=0");
+        query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ) AS b ");
         query.append(" UNION ");
         
         // Categories
         query.append(" SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id>0 ");
-        query.append(displayUnread ? " AND unread>0 " : "");
+        query.append(" WHERE id>0");
+        query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "ASC" : "DESC");
         query.append(") AS c");

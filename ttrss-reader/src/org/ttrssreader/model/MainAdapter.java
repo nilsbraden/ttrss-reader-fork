@@ -40,37 +40,31 @@ public abstract class MainAdapter extends BaseAdapter {
     
     protected boolean selectArticlesForCategory;
     
-    public MainAdapter(Context context) {
-        this.context = context;
-        
+    public MainAdapter() {
         this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
         this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
         this.invertSortArticles = Controller.getInstance().invertSortArticleList();
-        
+    }
+    
+    public MainAdapter(Context context) {
+        this();
+        this.context = context;
         makeQuery();
     }
     
     public MainAdapter(Context context, int categoryId) {
+        this();
         this.context = context;
         this.categoryId = categoryId;
-        
-        this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
-        this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
-        this.invertSortArticles = Controller.getInstance().invertSortArticleList();
-        
         makeQuery();
     }
     
     public MainAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
+        this();
         this.context = context;
-        this.selectArticlesForCategory = selectArticlesForCategory;
         this.feedId = feedId;
         this.categoryId = categoryId;
-        
-        this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
-        this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
-        this.invertSortArticles = Controller.getInstance().invertSortArticleList();
-        
+        this.selectArticlesForCategory = selectArticlesForCategory;
         makeQuery();
     }
     
