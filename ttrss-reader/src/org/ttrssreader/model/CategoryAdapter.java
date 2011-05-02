@@ -19,6 +19,7 @@ package org.ttrssreader.model;
 import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Category;
 import android.content.Context;
@@ -130,10 +131,12 @@ public class CategoryAdapter extends MainAdapter {
             displayUnread = false;
         
         // Virtual Feeds
-        query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
-        query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id<0 ORDER BY id) AS a ");
-        query.append(" UNION ");
+        if (Controller.getInstance().displayVirtuals()) {
+            query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
+            query.append(DBHelper.TABLE_CATEGORIES);
+            query.append(" WHERE id<0 ORDER BY id) AS a ");
+            query.append(" UNION ");
+        }
         
         // "Uncetegorized Feeds"
         query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");

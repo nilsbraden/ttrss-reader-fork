@@ -23,7 +23,6 @@ import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.service.ForegroundService;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
@@ -46,7 +45,6 @@ import android.widget.TextView;
  */
 public abstract class MenuActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
     
-    protected boolean configChecked = false;
     protected ListView listView;
     protected Updater updater;
     protected TextView notificationTextView;
@@ -166,29 +164,14 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         startService(intent);
     }
     
-    protected boolean checkConfig() {
-        String url = Controller.getInstance().getUrl();
-        if (url.equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
-            return false;
-        }
-        configChecked = true;
-        return true;
-    }
-    
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(Utils.TAG, "onActivityResult. requestCode: " + requestCode + " resultCode: " + resultCode);
         if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-            if (configChecked || checkConfig()) {
-                doRefresh();
-                doUpdate();
-            }
+            refreshAndUpdate();
         } else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
             finish();
         } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
-            if (configChecked || checkConfig()) {
-                doRefresh();
-                doUpdate();
-            }
+            refreshAndUpdate();
         }
     }
     
@@ -201,6 +184,14 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
+        finish();
+    }
+    
+    protected void refreshAndUpdate() {
+        if (Utils.checkConfig()) {
+            doRefresh();
+            doUpdate();
+        }
     }
     
     @Override

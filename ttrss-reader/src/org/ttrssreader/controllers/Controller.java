@@ -16,6 +16,8 @@
 
 package org.ttrssreader.controllers;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import org.ttrssreader.R;
 import org.ttrssreader.net.Connector;
 import org.ttrssreader.net.JSONConnector;
@@ -25,6 +27,7 @@ import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -454,13 +457,27 @@ public class Controller {
         return newInstallation;
     }
     
+    private AsyncTask<Void, Void, Void> task;
+    
     public long getFreshArticleMaxAge() {
         int ret = 24 * 60 * 60 * 1000;
         
         if (freshArticleMaxAge == null) {
             return ret;
         } else if (freshArticleMaxAge.equals("")) {
-            freshArticleMaxAge = Data.getInstance().getPref("FRESH_ARTICLE_MAX_AGE");
+
+            // Only start task if none existing yet
+            if (task == null) {
+                task = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        freshArticleMaxAge = Data.getInstance().getPref("FRESH_ARTICLE_MAX_AGE");
+                        return null;
+                    }
+                };
+                task.execute();
+            }
+            
         }
         
         try {
@@ -516,7 +533,49 @@ public class Controller {
         } else if (o instanceof Boolean) {
             editor.putBoolean(constant, (Boolean) o);
         }
+        
+        /*
+         * The following Code is extracted from
+         * https://code.google.com/p/zippy-android/source/browse/trunk/examples/SharedPreferencesCompat.java
+         * 
+         * Copyright (C) 2010 The Android Open Source Project
+         * 
+         * Licensed under the Apache License, Version 2.0 (the "License");
+         * you may not use this file except in compliance with the License.
+         * You may obtain a copy of the License at
+         * 
+         * http://www.apache.org/licenses/LICENSE-2.0
+         * 
+         * Unless required by applicable law or agreed to in writing, software
+         * distributed under the License is distributed on an "AS IS" BASIS,
+         * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         * See the License for the specific language governing permissions and
+         * limitations under the License.
+         */
+        // Uses faster apply() instead of commit() if method is available
+        if (sApplyMethod != null) {
+            try {
+                sApplyMethod.invoke(editor);
+                return;
+            } catch (InvocationTargetException unused) {
+                // fall through
+            } catch (IllegalAccessException unused) {
+                // fall through
+            }
+        }
         editor.commit();
+    }
+    
+    private static final Method sApplyMethod = findApplyMethod();
+    
+    private static Method findApplyMethod() {
+        try {
+            Class<?> cls = SharedPreferences.Editor.class;
+            return cls.getMethod("apply");
+        } catch (NoSuchMethodException unused) {
+            // fall through
+        }
+        return null;
     }
     
 }

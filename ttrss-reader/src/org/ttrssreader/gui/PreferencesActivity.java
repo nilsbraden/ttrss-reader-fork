@@ -19,10 +19,12 @@ package org.ttrssreader.gui;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.Utils;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
@@ -33,18 +35,40 @@ import android.view.MenuItem;
 public class PreferencesActivity extends PreferenceActivity {
     
     public static final int ACTIVITY_SHOW_PREFERENCES = 43;
+    private Context context;
+    private static AsyncTask<Void, Void, Void> init;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getApplicationContext();
         addPreferencesFromResource(R.layout.preferences);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(mListener);
         setResult(ACTIVITY_SHOW_PREFERENCES);
     }
     
-    private void updatePreferences() {
-        Controller.getInstance().checkAndInitializeController(this, true);
+    @Override
+    protected void onStop() {
+        if (init != null) {
+            init.cancel(true);
+            init = null;
+        }
+        
+        if (Utils.checkConfig()) {
+            init = new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    Controller.getInstance().checkAndInitializeController(context, true);
+                    return null;
+                }
+            };
+            init.execute();
+        }
+        super.onStop();
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
     
     @Override
@@ -54,15 +78,6 @@ public class PreferencesActivity extends PreferenceActivity {
         inflater.inflate(R.menu.preferences, menu);
         return true;
     }
-    
-    private OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (Constants.getConstants().contains(key)) {
-                updatePreferences();
-            }
-        }
-    };
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {

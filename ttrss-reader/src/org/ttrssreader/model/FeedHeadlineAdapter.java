@@ -134,11 +134,14 @@ public class FeedHeadlineAdapter extends MainAdapter {
     protected String buildQuery(boolean overrideDisplayUnread) {
         StringBuilder query = new StringBuilder();
         
+        Integer lastOpenedArticle = Controller.getInstance().lastOpenedArticle;
         boolean displayUnread = displayOnlyUnread;
         if (overrideDisplayUnread)
             displayUnread = false;
         
-        query.append("SELECT id,feedId,title,isUnread AS unread,updateDate,isStarred,isPublished,feedTitle FROM (");
+        if (lastOpenedArticle != null) {
+            query.append("SELECT id,feedId,title,isUnread AS unread,updateDate,isStarred,isPublished,feedTitle FROM (");
+        }
         
         query.append("SELECT a.id,a.feedId,a.title,a.isUnread,a.updateDate,a.isStarred,a.isPublished,b.title AS feedTitle FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
@@ -172,13 +175,14 @@ public class FeedHeadlineAdapter extends MainAdapter {
                 query.append(displayUnread ? " AND a.isUnread>0" : "");
         }
         
-        if (Controller.getInstance().lastOpenedArticle != null) {
+        if (lastOpenedArticle != null) {
             query.append(" UNION SELECT c.id,c.feedId,c.title,c.isUnread,c.updateDate,c.isStarred,c.isPublished,d.title AS feedTitle");
             query.append(" FROM articles c, feeds d WHERE c.feedId=d.id AND c.id=");
-            query.append(Controller.getInstance().lastOpenedArticle);
+            query.append(lastOpenedArticle);
+            query.append(")");
         }
         
-        query.append(") ORDER BY updateDate ");
+        query.append(" ORDER BY updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
         
         return query.toString();
