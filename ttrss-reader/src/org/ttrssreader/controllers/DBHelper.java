@@ -518,11 +518,15 @@ public class DBHelper {
     // *******| UPDATE |*******************************************************************
     
     public void markCategoryRead(Category c, boolean recursive) {
+        markCategoryRead(c.id, recursive);
+    }
+    
+    public void markCategoryRead(int categoryId, boolean recursive) {
         if (isDBAvailable()) {
-            updateCategoryUnreadCount(c.id, 0);
+            updateCategoryUnreadCount(categoryId, 0);
             
             if (recursive) {
-                for (Feed f : getFeeds(c.id)) {
+                for (Feed f : getFeeds(categoryId)) {
                     markFeedRead(f, recursive);
                 }
             }
@@ -530,14 +534,18 @@ public class DBHelper {
     }
     
     public void markFeedRead(Feed f, boolean recursive) {
+        markFeedRead(f.id, recursive);
+    }
+    
+    public void markFeedRead(int feedId, boolean recursive) {
         if (isDBAvailable()) {
-            updateFeedUnreadCount(f.id, 0);
+            updateFeedUnreadCount(feedId, 0);
             
             if (recursive) {
                 ContentValues cv = new ContentValues();
                 cv.put("isUnread", 0);
                 synchronized (TABLE_ARTICLES) {
-                    db.update(TABLE_ARTICLES, cv, "feedId=" + f.id, null);
+                    db.update(TABLE_ARTICLES, cv, "isUnread=1 AND feedId=" + feedId, null);
                 }
             }
         }
@@ -545,14 +553,19 @@ public class DBHelper {
     
     public void markArticlesRead(Set<Integer> iDlist, int articleState) {
         if (isDBAvailable()) {
+            markArticles(iDlist, "unread", articleState);
+        }
+    }
+    
+    public void markArticles(Set<Integer> iDlist, String mark, int state) {
+        if (isDBAvailable()) {
             for (Integer id : iDlist) {
-                boolean isUnread = articleState == 1 ? true : false;
-                updateArticleUnread(id, isUnread);
+                markArticle(id, mark, state);
             }
         }
     }
     
-    private void markArticle(int id, String mark, int isMarked) {
+    public void markArticle(int id, String mark, int isMarked) {
         if (isDBAvailable()) {
             synchronized (TABLE_MARK) {
                 /*
@@ -568,50 +581,6 @@ public class DBHelper {
                 db.execSQL(sql);
             }
         }
-    }
-    
-    public void markArticles(Set<Integer> iDlist, String mark, int state) {
-        if (isDBAvailable()) {
-            for (Integer id : iDlist) {
-                markArticle(id, mark, state);
-            }
-        }
-    }
-    
-    public void markArticlesReadCategory(int id) {
-        for (Feed f : getFeeds(id)) {
-            markArticlesReadFeed(f.id);
-        }
-    }
-    
-    public void markArticlesReadFeed(int id) {
-        if (!isDBAvailable())
-            return;
-        
-        Set<Integer> set = new HashSet<Integer>();
-        Cursor c = null;
-        try {
-            c = db.query(TABLE_ARTICLES, new String[] { "id" }, "feedId=? AND isUnread=1", new String[] { id + "" },
-                    null, null, null, null);
-            
-            if (c.isBeforeFirst()) {
-                if (!c.moveToFirst()) {
-                    return;
-                }
-            }
-            
-            while (!c.isAfterLast()) {
-                set.add(c.getInt(0));
-                c.move(1);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (c != null)
-                c.close();
-        }
-        
-        markArticles(set, MARK_READ, 0);
     }
     
     public void updateCategoryUnreadCount(int id, int count) {
@@ -648,39 +617,6 @@ public class DBHelper {
         int count = f.unread;
         count += delta;
         updateFeedUnreadCount(id, count);
-    }
-    
-    private void updateArticleUnread(int id, boolean isUnread) {
-        if (isDBAvailable()) {
-            ContentValues cv = new ContentValues();
-            
-            cv.put("isUnread", isUnread);
-            synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "id=?", new String[] { id + "" });
-            }
-        }
-    }
-    
-    public void updateArticleStarred(int id, boolean isStarred) {
-        if (isDBAvailable()) {
-            ContentValues cv = new ContentValues();
-            
-            cv.put("isStarred", isStarred);
-            synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "id=?", new String[] { id + "" });
-            }
-        }
-    }
-    
-    public void updateArticlePublished(int id, boolean isPublished) {
-        if (isDBAvailable()) {
-            ContentValues cv = new ContentValues();
-            
-            cv.put("isPublished", isPublished);
-            synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "id=?", new String[] { id + "" });
-            }
-        }
     }
     
     public void updateAllArticlesCachedImages(boolean isCachedImages) {

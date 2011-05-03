@@ -285,13 +285,13 @@ public class Data {
         
         if (!erg) {
             if (isCategory) {
-                DBHelper.getInstance().markArticlesReadCategory(id);
+                DBHelper.getInstance().markCategoryRead(id, true);
             } else {
                 if (id < 0) { // Filter Virtual Categories AGAIN. Why are we doing this weird stuff. Thanks to the guy
                               // who started developing the reader...
-                    DBHelper.getInstance().markArticlesReadCategory(id);
+                    DBHelper.getInstance().markCategoryRead(id, true);
                 } else {
-                    DBHelper.getInstance().markArticlesReadFeed(id);
+                    DBHelper.getInstance().markFeedRead(id, true);
                 }
             }
         }
