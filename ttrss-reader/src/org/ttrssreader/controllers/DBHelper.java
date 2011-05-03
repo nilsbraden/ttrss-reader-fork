@@ -553,7 +553,7 @@ public class DBHelper {
     
     public void markArticlesRead(Set<Integer> iDlist, int articleState) {
         if (isDBAvailable()) {
-            markArticles(iDlist, "unread", articleState);
+            markArticles(iDlist, "isUnread", articleState);
         }
     }
     
