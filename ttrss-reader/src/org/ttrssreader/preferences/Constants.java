@@ -95,10 +95,12 @@ public class Constants {
     public static String DATABASE_VERSION = "DatabaseVersion";
     public static String LAST_UPDATE_TIME = "LastUpdateTime";
     public static String LAST_VERSION_RUN = "LastVersionRun";
+    public static String LAST_VACUUM_DATE = "lastVacuumDate";
     // Internal Default Values
     public static int DATABASE_VERSION_DEFAULT = 1;
     public static long LAST_UPDATE_TIME_DEFAULT = 1;
     public static String LAST_VERSION_RUN_DEFAULT = "1";
+    public static long LAST_VACUUM_DATE_DEFAULT = 0;
     
     /*
      * Returns a list of the values of all constants in this class which represent preferences. Allows for easier
