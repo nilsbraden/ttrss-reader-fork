@@ -73,6 +73,8 @@ public class Controller {
     private Boolean imageCacheUnread = null;
     private Boolean articleCacheUnread = null;
     private Boolean splitGetRequests = null;
+    private Boolean isDeleteDBScheduled = null;
+    private Boolean isDeleteDBOnStartup = null;
     
     private Long lastUpdateTime = null;
     private String lastVersionRun = null;
@@ -428,6 +430,37 @@ public class Controller {
     public void setSplitGetRequests(boolean splitGetRequests) {
         put(Constants.SPLIT_GET_REQUESTS, splitGetRequests);
         this.splitGetRequests = splitGetRequests;
+    }
+    
+    public boolean isDeleteDBScheduled() {
+        if (isDeleteDBScheduled == null)
+            isDeleteDBScheduled = prefs.getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
+        return isDeleteDBScheduled;
+    }
+    
+    public void setDeleteDBScheduled(boolean isDeleteDBScheduled) {
+        put(Constants.DELETE_DB_SCHEDULED, isDeleteDBScheduled);
+        this.isDeleteDBScheduled = isDeleteDBScheduled;
+    }
+    
+    // Reset to false if preference to delete on every start is not set
+    public void resetDeleteDBScheduled() {
+        if (!isDeleteDBOnStartup()) {
+            put(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
+            this.isDeleteDBScheduled = Constants.DELETE_DB_SCHEDULED_DEFAULT;
+        }
+    }
+    
+    public boolean isDeleteDBOnStartup() {
+        if (isDeleteDBOnStartup == null)
+            isDeleteDBOnStartup = prefs.getBoolean(Constants.DELETE_DB_ON_STARTUP, Constants.DELETE_DB_ON_STARTUP_DEFAULT);
+        return isDeleteDBOnStartup;
+    }
+    
+    public void setDeleteDBOnStartup(boolean isDeleteDBOnStartup) {
+        put(Constants.DELETE_DB_ON_STARTUP, isDeleteDBOnStartup);
+        this.isDeleteDBOnStartup = isDeleteDBOnStartup;
+        setDeleteDBScheduled(isDeleteDBOnStartup);
     }
     
     // ******* INTERNAL Data ****************************

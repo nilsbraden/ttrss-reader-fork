@@ -18,6 +18,7 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 import android.content.ComponentName;
@@ -85,15 +86,26 @@ public class PreferencesActivity extends PreferenceActivity {
             case R.id.Preferences_Menu_Reset:
                 resetPreferences();
                 return true;
-            default:
-                return false;
+            case R.id.Preferences_Menu_ResetDatabase:
+                resetDB();
+                return true;
         }
+        return false;
     }
     
     private void resetPreferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Constants.resetPreferences(prefs);
         this.finish();
+        ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
+        startActivity(new Intent().setComponent(comp));
+    }
+    
+    private void resetDB() {
+        Controller.getInstance().setDeleteDBScheduled(true);
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        
+        // TODO: Does this reload the application?
         ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
         startActivity(new Intent().setComponent(comp));
     }

@@ -77,6 +77,8 @@ public class Constants {
     public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesPreference";
     public static String ARTICLE_CACHE_UNREAD = "CacheUnreadArticlesPreference";
     public static String SPLIT_GET_REQUESTS = "SplitLongGetRequestsPreference";
+    public static String DELETE_DB_SCHEDULED = "DeleteDBScheduledPreference";
+    public static String DELETE_DB_ON_STARTUP = "DeleteDBOnStartupPreference";
     public static String SERVER_VERSION = "ServerVersion";
     public static String SERVER_VERSION_LAST_UPDATE = "ServerVersionLastUpdate";
     // Display Default Values
@@ -84,6 +86,8 @@ public class Constants {
     public static boolean IMAGE_CACHE_UNREAD_DEFAULT = true;
     public static boolean ARTICLE_CACHE_UNREAD_DEFAULT = true;
     public static boolean SPLIT_GET_REQUESTS_DEFAULT = false;
+    public static boolean DELETE_DB_SCHEDULED_DEFAULT = false;
+    public static boolean DELETE_DB_ON_STARTUP_DEFAULT = false;
     public static int SERVER_VERSION_DEFAULT = -1;
     public static long SERVER_VERSION_LAST_UPDATE_DEFAULT = -1;
     

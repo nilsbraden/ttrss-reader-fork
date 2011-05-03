@@ -26,6 +26,7 @@
     <string name="Main.ArticleCache">Artikel herunterladen</string>
     
     <string name="Preferences.Reset">Einstellungen zurücksetzen</string>
+    <string name="Preferences.ResetDatabase">Datenbank zurücksetzen</string>
     <string name="Preferences.Btn">Optionen</string>
     
     <string name="Changelog.Title">Changelog</string>
@@ -139,6 +140,10 @@
     <string name="CacheUnreadArticlesSummary">Gibt an ob im Artikel-Cache nur ungelesene Artikeln gespeichert werden sollen.</string>
     <string name="SplitLongGetRequestsTitle">Lange GET-Anfragen splitten?</string>
     <string name="SplitLongGetRequestsSummary">Nur bei Problemen mit Sicherheits-Systemen wie Suhosin verwenden. Splittet lange Requests in mehrere kurze auf.</string>
+    <string name="DeleteDBOnNextStartupTitle">Datenbank beim nächsten Start löschen?</string>
+    <string name="DeleteDBOnNextStartupSummary">Löscht die Datenbank beim nächsten Start der Anwendung.</string>
+    <string name="DeleteDBOnStartupTitle">Datenbank bei jedem Start löschen?</string>
+    <string name="DeleteDBOnStartupSummary">Löscht die Datenbank bei jedem Start der Anwendung.</string>
     
     <string name="ErrorActivity.Title">Fehler</string>
     <string name="ErrorActivity.UserMessage">Konnte nicht zu Ihrer Tiny Tiny RSS-Installation verbinden, bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
