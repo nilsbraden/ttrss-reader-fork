@@ -692,6 +692,7 @@ public class DBHelper {
             String idList = "select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
+                vacuum();
             }
         }
     }
@@ -700,6 +701,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "isPublished> 0", null);
+                vacuum();
             }
         }
     }
@@ -708,6 +710,17 @@ public class DBHelper {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "isStarred  > 0", null);
+                vacuum();
+            }
+        }
+    }
+    
+    private void vacuum() {
+        synchronized (TABLE_ARTICLES) {
+            try {
+                db.execSQL("vacuum");
+            } catch (Exception e) {
+                Log.w(Utils.TAG, "SQLite VACUUM failed: " + e.getMessage() + " " + e.getCause());
             }
         }
     }
