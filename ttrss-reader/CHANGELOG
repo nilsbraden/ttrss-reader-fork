@@ -1,6 +1,13 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 0.9.7 ==
+  * Fixed some bugs introduced with 0.9.6
+  * Added compatibility-fixes for Android 3.0
+  * Changed some DB-Operations, added SQLite-Vacuum to free space
+  * Added preferences to delete Database on startup
+  * Hopefully no more stale articles, unread-state should be completely synchronized now
+
 == Version 0.9.6 ==
   * Show read articles when browsing "only unread articles" and entering an empty feed (eg. by returning from the last unread article)
   * Minor refactoring and changes due to release of Tiny Tiny RSS 1.5.3 (POST-Requests, Attachments in getHeadlines)

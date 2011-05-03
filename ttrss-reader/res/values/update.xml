@@ -20,6 +20,14 @@
         name="updates"
     >
     
+    <item>v0.9.7:
+            \n * Fixed some bugs introduced with 0.9.6
+            \n * Added compatibility-fixes for Android 3.0
+            \n * Changed some DB-Operations, added SQLite-Vacuum to free space
+            \n * Added preferences to delete Database on startup
+            \n * Hopefully no more stale articles, unread-state should be completely synchronized now
+        </item>
+    
         <item>v0.9.6:
             If you encounter problems with categories not beeing displayed sometimes try enabling categories in the webinterface.
             \n * Show read articles when browsing "only unread articles" and entering an empty feed

@@ -112,7 +112,7 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        
+        refreshAndUpdate();
         DBHelper.getInstance().checkAndInitializeDB(this);
     }
     
