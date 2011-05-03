@@ -106,6 +106,7 @@ public class PreferencesActivity extends PreferenceActivity {
         DBHelper.getInstance().checkAndInitializeDB(this);
         
         // TODO: Does this reload the application?
+        this.finish();
         ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
         startActivity(new Intent().setComponent(comp));
     }
