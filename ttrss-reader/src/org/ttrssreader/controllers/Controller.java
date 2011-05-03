@@ -82,6 +82,7 @@ public class Controller {
     private String freshArticleMaxAge = "";
     private Integer serverVersion = null;
     private Long serverVersionLastUpdate = null;
+    private Long lastVacuumDate = null;
     
     public volatile Integer lastOpenedFeed = null;
     public volatile Integer lastOpenedArticle = null;
@@ -490,6 +491,18 @@ public class Controller {
     public boolean newInstallation() {
         // Initialized inside initializeController();
         return newInstallation;
+    }
+    
+    public void setLastVacuumDate() {
+        long time = System.currentTimeMillis();
+        put(Constants.LAST_VACUUM_DATE, time);
+        this.lastVacuumDate = time;
+    }
+    
+    public long lastVacuumDate() {
+        if (lastVacuumDate == null)
+            lastVacuumDate = prefs.getLong(Constants.LAST_VACUUM_DATE, Constants.LAST_VACUUM_DATE_DEFAULT);
+        return lastVacuumDate;
     }
     
     private AsyncTask<Void, Void, Void> task;

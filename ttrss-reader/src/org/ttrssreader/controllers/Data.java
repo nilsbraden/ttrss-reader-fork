@@ -251,7 +251,7 @@ public class Data {
             erg = Controller.getInstance().getConnector().setArticleRead(ids, articleState);
         
         if (!erg)
-            DBHelper.getInstance().markArticles(ids, DBHelper.MARK_READ, articleState);
+            DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, articleState);
     }
     
     public void setArticleStarred(int articleIds, int articleState) {
@@ -263,7 +263,7 @@ public class Data {
             erg = Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
         
         if (!erg)
-            DBHelper.getInstance().markArticles(ids, DBHelper.MARK_STAR, articleState);
+            DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, articleState);
     }
     
     public void setArticlePublished(int articleIds, int articleState) {
@@ -275,7 +275,7 @@ public class Data {
             erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
         
         if (!erg)
-            DBHelper.getInstance().markArticles(ids, DBHelper.MARK_PUBLISH, articleState);
+            DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_PUBLISH, articleState);
     }
     
     public void setRead(int id, boolean isCategory) {

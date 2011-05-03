@@ -133,7 +133,7 @@ public class ReadStateUpdater implements IUpdatable {
             
             if (ids.size() > 0) {
                 Data.getInstance().setArticleRead(ids, articleState);
-                DBHelper.getInstance().markArticlesRead(ids, articleState);
+                DBHelper.getInstance().markArticles(ids, "isUnread", articleState);
                 
                 // If on a virtual category also update article state in it.
                 if (pid < 0 && pid > -4) {

@@ -551,12 +551,6 @@ public class DBHelper {
         }
     }
     
-    public void markArticlesRead(Set<Integer> iDlist, int articleState) {
-        if (isDBAvailable()) {
-            markArticles(iDlist, "isUnread", articleState);
-        }
-    }
-    
     public void markArticles(Set<Integer> iDlist, String mark, int state) {
         if (isDBAvailable()) {
             for (Integer id : iDlist) {
@@ -565,7 +559,24 @@ public class DBHelper {
         }
     }
     
-    public void markArticle(int id, String mark, int isMarked) {
+    public void markArticle(int id, String mark, int state) {
+        if (isDBAvailable()) {
+            synchronized (TABLE_ARTICLES) {
+                String sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_ARTICLES, mark, state, id);
+                db.execSQL(sql);
+            }
+        }
+    }
+    
+    public void markUnsynchronizedStates(Set<Integer> iDlist, String mark, int state) {
+        if (isDBAvailable()) {
+            for (Integer id : iDlist) {
+                markUnsynchronizedState(id, mark, state);
+            }
+        }
+    }
+    
+    public void markUnsynchronizedState(int id, String mark, int state) {
         if (isDBAvailable()) {
             synchronized (TABLE_MARK) {
                 /*
@@ -573,11 +584,10 @@ public class DBHelper {
                  * call ignores it, else the second call inserts it.
                  */
                 String sql;
-                sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, isMarked, id);
+                sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id);
                 db.execSQL(sql);
                 
-                sql = String
-                        .format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id, isMarked);
+                sql = String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id, state);
                 db.execSQL(sql);
             }
         }
@@ -655,33 +665,37 @@ public class DBHelper {
             String idList = "select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
-                vacuum();
             }
+            vacuum();
         }
     }
     
     public void purgePublishedArticles() {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
-                db.delete(TABLE_ARTICLES, "isPublished> 0", null);
-                vacuum();
+                db.delete(TABLE_ARTICLES, "isPublished>0", null);
             }
+            vacuum();
         }
     }
     
     public void purgeStarredArticles() {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
-                db.delete(TABLE_ARTICLES, "isStarred  > 0", null);
-                vacuum();
+                db.delete(TABLE_ARTICLES, "isStarred>0", null);
             }
+            vacuum();
         }
     }
     
     private void vacuum() {
-        synchronized (TABLE_ARTICLES) {
+        long twentyFourHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+        
+        if (Controller.getInstance().lastVacuumDate() < twentyFourHoursAgo) {
             try {
                 db.execSQL("vacuum");
+                Controller.getInstance().setLastVacuumDate();
+                Log.i(Utils.TAG, "SQLite VACUUM succeeded.");
             } catch (Exception e) {
                 Log.w(Utils.TAG, "SQLite VACUUM failed: " + e.getMessage() + " " + e.getCause());
             }
