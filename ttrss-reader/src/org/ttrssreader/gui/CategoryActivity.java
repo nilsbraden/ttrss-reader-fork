@@ -99,6 +99,9 @@ public class CategoryActivity extends MenuActivity {
         if (!Utils.checkConfig())
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         
+        // Delete DB if requested
+        Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
+        
         Controller.getInstance().lastOpenedFeed = null;
         Controller.getInstance().lastOpenedArticle = null;
         
