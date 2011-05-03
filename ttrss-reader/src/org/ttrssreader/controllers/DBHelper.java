@@ -103,7 +103,7 @@ public class DBHelper {
         this.context = context;
         
         // Check if deleteDB is scheduled or if DeleteOnStartup is set
-        if (Controller.getInstance().isDeleteDBScheduled() || Controller.getInstance().isDeleteDBOnStartup()) {
+        if (Controller.getInstance().isDeleteDBScheduled()) {
             if (deleteDB()) {
                 initialized = initializeController();
                 Controller.getInstance().resetDeleteDBScheduled();
@@ -191,11 +191,9 @@ public class DBHelper {
         db = openHelper.getWritableDatabase();
         db.setLockingEnabled(false);
         
-        if (insertCategorie == null) {
-            insertCategorie = db.compileStatement(INSERT_CATEGORY);
-            insertFeed = db.compileStatement(INSERT_FEEDS);
-            insertArticle = db.compileStatement(INSERT_ARTICLES);
-        }
+        insertCategorie = db.compileStatement(INSERT_CATEGORY);
+        insertFeed = db.compileStatement(INSERT_FEEDS);
+        insertArticle = db.compileStatement(INSERT_ARTICLES);
         
         return true;
     }
