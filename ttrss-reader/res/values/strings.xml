@@ -28,6 +28,7 @@
     <string name="Main.ArticleCache">Cache articles</string>
     
     <string name="Preferences.Reset">Reset Preferences</string>
+    <string name="Preferences.ResetDatabase">Reset Database</string>
     <string name="Preferences.Btn">Preferences</string>
     
     <string name="Changelog.Title">Changelog</string>
@@ -144,6 +145,10 @@
     <string name="CacheUnreadArticlesSummary">Cache unread articles only?</string>
     <string name="SplitLongGetRequestsTitle">Split long GET-Requests</string>
     <string name="SplitLongGetRequestsSummary">Only use if you got problems with server-side security-scanners like Suhosin. Splits long requests into several small ones.</string>
+    <string name="DeleteDBOnNextStartupTitle">Delete DB on next startup</string>
+    <string name="DeleteDBOnNextStartupSummary">If set to true the internal Database will be deleted only on the next start of the application.</string>
+    <string name="DeleteDBOnStartupTitle">Delete DB on startup</string>
+    <string name="DeleteDBOnStartupSummary">If set to true the internal Database will be deleted on EVERY start of the application.</string>
     
     <string name="ErrorActivity.Title">Error</string>
     <string name="ErrorActivity.UserMessage">I was unable to connect to your Tiny Tiny RSS instance, please check your connection and/or connection settings.</string>

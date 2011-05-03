@@ -23,5 +23,10 @@
         android:title="@string/Preferences.Reset"
         android:id="@+id/Preferences_Menu_Reset"
         android:icon="@android:drawable/ic_menu_revert" />
+        
+    <item
+        android:title="@string/Preferences.ResetDatabase"
+        android:id="@+id/Preferences_Menu_ResetDatabase"
+        android:icon="@android:drawable/ic_menu_revert" />
 
 </menu>

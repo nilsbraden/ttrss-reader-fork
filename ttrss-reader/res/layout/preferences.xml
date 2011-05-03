@@ -212,7 +212,19 @@
                     android:defaultValue="false"
                     android:summary="@string/SplitLongGetRequestsSummary"
                     android:key="SplitLongGetRequestsPreference" />
-            </PreferenceCategory>
+
+                <CheckBoxPreference
+                    android:title="@string/DeleteDBOnStartupTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/DeleteDBOnStartupSummary"
+                    android:key="DeleteDBOnStartupPreference" />
+
+                <CheckBoxPreference
+                    android:title="@string/DeleteDBOnNextStartupTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/DeleteDBOnNextStartupSummary"
+                    android:key="DeleteDBScheduledPreference" />
+           </PreferenceCategory>
         </PreferenceScreen>
 
     </PreferenceCategory>

@@ -102,12 +102,23 @@ public class DBHelper {
     public synchronized void checkAndInitializeDB(final Context context) {
         this.context = context;
         
+        // Check if deleteDB is scheduled or if DeleteOnStartup is set
+        if (Controller.getInstance().isDeleteDBScheduled() || Controller.getInstance().isDeleteDBOnStartup()) {
+            if (deleteDB()) {
+                initialized = initializeController();
+                Controller.getInstance().resetDeleteDBScheduled();
+                return; // Don't need to check if DB is corrupted, it is NEW!
+            }
+        }
+        
+        // Initialize DB
         if (!initialized) {
             initialized = initializeController();
         } else if (db == null || !db.isOpen()) {
             initialized = initializeController();
         }
         
+        // Test if DB is accessible, backup and delete if not
         if (initialized) {
             Cursor c = null;
             try {
@@ -124,7 +135,7 @@ public class DBHelper {
                 db.close();
                 db = null;
                 
-                // Delete DB-File
+                // Move DB-File to backup
                 File f = context.getDatabasePath(DATABASE_NAME);
                 f.renameTo(new File(f.getAbsolutePath() + DATABASE_BACKUP_NAME + System.currentTimeMillis()));
                 
@@ -187,6 +198,24 @@ public class DBHelper {
         }
         
         return true;
+    }
+    
+    private boolean deleteDB() {
+        if (context == null)
+            return false;
+        
+        if (db != null) {
+            // Close DB
+            db.close();
+            db = null;
+        }
+        
+        Log.i(Utils.TAG, "Deleting Database as requested by preferences.");
+        File f = context.getDatabasePath(DATABASE_NAME);
+        if (f.exists())
+            return f.delete();
+        
+        return false;
     }
     
     private boolean isDBAvailable() {
