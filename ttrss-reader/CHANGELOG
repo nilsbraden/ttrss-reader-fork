@@ -10,6 +10,7 @@
   * Fixed Error-Messages not beeing displayed with Server v1.5.3
   * Fixed POST-Data not beeing interpreted correctly by the server, now sending JSON-encoded data
   * Two more bugs with starred/published articles fixed
+  * Fixed OutOfMemoryException when opening virtual categories
 
 == Version 0.9.6 ==
   * Show read articles when browsing "only unread articles" and entering an empty feed (eg. by returning from the last unread article)
