@@ -150,8 +150,12 @@ public class Data {
                     limit = (l > limit ? l : limit);
             }
             
-            if (limit > 500)
-                limit = 500;
+            if (limit <= 0 && displayOnlyUnread)
+                return; // No unread articles, do nothing
+            if (limit <= 0)
+                limit = 100; // No unread, fetch some to make sure we are at least a bit up-to-date
+            if (limit > 300)
+                limit = 300; // Lots of unread articles, fetch the first 300
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
             Set<Integer> ids = Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
