@@ -128,12 +128,12 @@ public class Data {
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
-            int limit = 40;
+            int limit = 50;
             
             switch (feedId) {
                 case -1: // Starred
                 case -2: // Published
-                    limit = 0;
+                    limit = 300;
                     displayOnlyUnread = false;
                     break;
                 
@@ -149,6 +149,9 @@ public class Data {
                     int l = DBHelper.getInstance().getUnreadCount(feedId, isCategory);
                     limit = (l > limit ? l : limit);
             }
+            
+            if (limit > 500)
+                limit = 500;
             
             String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
             Set<Integer> ids = Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
