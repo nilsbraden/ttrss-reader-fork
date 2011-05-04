@@ -37,7 +37,7 @@ public class FeedHeadlineUpdater implements IUpdatable {
     
     public FeedHeadlineUpdater(int feedId) {
         this.feedId = feedId;
-        this.isCategory = feedId <= 0 ? true : false;
+        this.isCategory = false;
     }
     
     @Override
