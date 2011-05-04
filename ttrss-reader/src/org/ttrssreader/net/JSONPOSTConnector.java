@@ -20,23 +20,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -154,27 +152,25 @@ public class JSONPOSTConnector implements Connector {
         post = new HttpPost();
     }
     
-    private String doRequest(List<NameValuePair> nameValuePairs, boolean firstCall) {
+    private String doRequest(Map<String, String> map, boolean firstCall) {
         // long start = System.currentTimeMillis();
-        
-        // Build Log-Output
-        StringBuilder paramString = new StringBuilder();
-        for (NameValuePair nvp : nameValuePairs) {
-            if (!SESSION_ID.equals(nvp.getName()) && !PARAM_PW.equals(nvp.getName()))
-                paramString.append("(" + nvp.getName() + ": " + nvp.getValue() + "),");
-        }
-        paramString.deleteCharAt(paramString.lastIndexOf(","));
-        Log.v(Utils.TAG, "Request: " + paramString.toString());
         
         try {
             // Set Address
             post.setURI(serverUrl);
             
             // Add POST data
-            post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            JSONObject json = new JSONObject(map);
+            StringEntity jsonData = new StringEntity(json.toString(), "UTF-8");
+            jsonData.setContentType("application/json");
+            post.setEntity(jsonData);
+            
+            // LOG-Output
+            Object paramPw = json.remove(PARAM_PW);
+            Log.i(Utils.TAG, "Request: " + json);
+            json.put(PARAM_PW, paramPw);
             
             HttpParams params = post.getParams();
-            
             if (client == null) {
                 client = HttpClientFactory.getInstance().getHttpClient(params);
             } else {
@@ -254,15 +250,15 @@ public class JSONPOSTConnector implements Connector {
             lastError = NOT_LOGGED_IN;
             
             // Login and post request again
-            List<NameValuePair> newPostData = new ArrayList<NameValuePair>();
-            for (NameValuePair nvp : nameValuePairs) {
-                if (nvp.getName().equals(SESSION_ID)) {
-                    newPostData.add(new BasicNameValuePair(SESSION_ID, new String(sessionId)));
+            Map<String, String> newMap = new HashMap<String, String>();
+            for (String key : map.keySet()) {
+                if (key.equals(SESSION_ID)) {
+                    newMap.put(SESSION_ID, new String(sessionId));
                 } else {
-                    newPostData.add(nvp);
+                    newMap.put(key, map.get(key));
                 }
             }
-            strResponse = doRequest(newPostData, false);
+            strResponse = doRequest(newMap, false);
             if (strResponse == null)
                 strResponse = "";
             
@@ -293,7 +289,7 @@ public class JSONPOSTConnector implements Connector {
         return strResponse;
     }
     
-    private String doRequestNoAnswer(List<NameValuePair> nvpList) {
+    private String doRequestNoAnswer(Map<String, String> map) {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
             if (!login())
@@ -302,9 +298,9 @@ public class JSONPOSTConnector implements Connector {
             return null;
         
         // Add Session-ID
-        nvpList.add(new BasicNameValuePair(SESSION_ID, sessionId));
+        map.put(SESSION_ID, sessionId);
         
-        String ret = doRequest(nvpList, true); // Append Session-ID to all calls except login
+        String ret = doRequest(map, true); // Append Session-ID to all calls except login
         
         if (hasLastError || ret == null) {
             hasLastError = false;
@@ -315,7 +311,7 @@ public class JSONPOSTConnector implements Connector {
         return ret;
     }
     
-    private JSONArray getJSONResponseAsArray(List<NameValuePair> nvpList) {
+    private JSONArray getJSONResponseAsArray(Map<String, String> map) {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN)) {
             if (!login())
@@ -325,9 +321,9 @@ public class JSONPOSTConnector implements Connector {
             return null;
         
         // Add Session-ID
-        nvpList.add(new BasicNameValuePair(SESSION_ID, sessionId));
+        map.put(SESSION_ID, sessionId);
         
-        String strResponse = doRequest(nvpList, true); // Append Session-ID to all calls except login
+        String strResponse = doRequest(map, true); // Append Session-ID to all calls except login
         
         if (hasLastError || strResponse == null)
             return null;
@@ -348,9 +344,9 @@ public class JSONPOSTConnector implements Connector {
         return result;
     }
     
-    private JSONResult getJSONLoginResponse(List<NameValuePair> nvpList) {
+    private JSONResult getJSONLoginResponse(Map<String, String> map) {
         // No check with assertLogin here, we are about to login so no need for this.
-        String strResponse = doRequest(nvpList, true);
+        String strResponse = doRequest(map, true);
         
         if (strResponse == null)
             return null;
@@ -377,10 +373,10 @@ public class JSONPOSTConnector implements Connector {
             
             sessionId = null;
             
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair(PARAM_OP, VALUE_LOGIN));
-            params.add(new BasicNameValuePair(PARAM_USER, userName));
-            params.add(new BasicNameValuePair(PARAM_PW, password));
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_LOGIN);
+            params.put(PARAM_USER, userName);
+            params.put(PARAM_PW, password);
             
             JSONResult jsonResult = getJSONLoginResponse(params);
             
@@ -419,10 +415,10 @@ public class JSONPOSTConnector implements Connector {
         Log.d(Utils.TAG, "login() didn't work, trying loginBase64()...");
         sessionId = null;
         
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(PARAM_OP, VALUE_LOGIN));
-        params.add(new BasicNameValuePair(PARAM_USER, userName));
-        params.add(new BasicNameValuePair(PARAM_PW, Base64.encodeBytes(password.getBytes())));
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_LOGIN);
+        params.put(PARAM_USER, userName);
+        params.put(PARAM_PW, Base64.encodeBytes(password.getBytes()));
         
         JSONResult jsonResult = getJSONLoginResponse(params);
         
@@ -577,9 +573,9 @@ public class JSONPOSTConnector implements Connector {
     public void getCounters() {
         long time = System.currentTimeMillis();
         
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(PARAM_OP, VALUE_GET_COUNTERS));
-        params.add(new BasicNameValuePair(PARAM_OUTPUT_MODE, "fc"));
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_COUNTERS);
+        params.put(PARAM_OUTPUT_MODE, "fc");
         JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
@@ -609,7 +605,9 @@ public class JSONPOSTConnector implements Connector {
                             id = values.getInt(j);
                         }
                     } else if (names.getString(j).equals(COUNTER_COUNTER)) {
-                        counter = values.getInt(j);
+                        // Check if null because of an API-bug
+                        if (!values.getString(j).equals("null"))
+                            counter = values.getInt(j);
                     }
                 }
                 
@@ -640,8 +638,8 @@ public class JSONPOSTConnector implements Connector {
         long time = System.currentTimeMillis();
         Set<Category> ret = new LinkedHashSet<Category>();
         
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(PARAM_OP, VALUE_GET_CATEGORIES));
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_CATEGORIES);
         JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
@@ -690,10 +688,10 @@ public class JSONPOSTConnector implements Connector {
         long time = System.currentTimeMillis();
         Set<Feed> ret = new LinkedHashSet<Feed>();;
         
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(PARAM_OP, VALUE_GET_FEEDS));
-        params.add(new BasicNameValuePair(PARAM_CAT_ID, "-4")); // Hardcoded -4 fetches all feeds. See
-                                                                // http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_FEEDS);
+        params.put(PARAM_CAT_ID, "-4"); // Hardcoded -4 fetches all feeds. See
+                                        // http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
         JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
@@ -754,9 +752,9 @@ public class JSONPOSTConnector implements Connector {
             if (idList.length() == 0)
                 continue;
             
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair(PARAM_OP, VALUE_GET_ARTICLE));
-            params.add(new BasicNameValuePair(PARAM_ARTICLE_ID, idList));
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_GET_ARTICLE);
+            params.put(PARAM_ARTICLE_ID, idList);
             JSONArray jsonResult = getJSONResponseAsArray(params);
             
             if (jsonResult == null)
@@ -776,14 +774,14 @@ public class JSONPOSTConnector implements Connector {
     public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory) {
         long time = System.currentTimeMillis();
         
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(PARAM_OP, VALUE_GET_HEADLINES));
-        params.add(new BasicNameValuePair(PARAM_FEED_ID, feedId + ""));
-        params.add(new BasicNameValuePair(PARAM_LIMIT, limit + ""));
-        params.add(new BasicNameValuePair(PARAM_VIEWMODE, viewMode));
-        params.add(new BasicNameValuePair(PARAM_SHOW_CONTENT, "1"));
-        params.add(new BasicNameValuePair(PARAM_INC_ATTACHMENTS, "1"));
-        params.add(new BasicNameValuePair(PARAM_IS_CAT, (isCategory ? "1" : "0")));
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_HEADLINES);
+        params.put(PARAM_FEED_ID, feedId + "");
+        params.put(PARAM_LIMIT, limit + "");
+        params.put(PARAM_VIEWMODE, viewMode);
+        params.put(PARAM_SHOW_CONTENT, "1");
+        params.put(PARAM_INC_ATTACHMENTS, "1");
+        params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
         
         JSONArray jsonResult = getJSONResponseAsArray(params);
         
@@ -798,7 +796,7 @@ public class JSONPOSTConnector implements Connector {
         
         // Check if viewmode=unread and feedId>=0 so we can safely mark all other articles as read
         // TODO: Store list of marked articles so we can restore the state if parseArticlesAndInsertInDB() fails?
-        if (viewMode.equals("unread") && feedId>= 0)
+        if (viewMode.equals("unread") && feedId >= 0)
             DBHelper.getInstance().markFeedRead(feedId, true);
         
         Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);
@@ -819,11 +817,11 @@ public class JSONPOSTConnector implements Connector {
         String ret = "";
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair(PARAM_OP, VALUE_UPDATE_ARTICLE));
-            params.add(new BasicNameValuePair(PARAM_ARTICLE_IDS, idList));
-            params.add(new BasicNameValuePair(PARAM_MODE, articleState + ""));
-            params.add(new BasicNameValuePair(PARAM_FIELD, "2"));
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+            params.put(PARAM_ARTICLE_IDS, idList);
+            params.put(PARAM_MODE, articleState + "");
+            params.put(PARAM_FIELD, "2");
             ret = doRequestNoAnswer(params);
         }
         return (ret != null && ret.contains(OK));
@@ -842,11 +840,11 @@ public class JSONPOSTConnector implements Connector {
         String ret = "";
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair(PARAM_OP, VALUE_UPDATE_ARTICLE));
-            params.add(new BasicNameValuePair(PARAM_ARTICLE_IDS, idList));
-            params.add(new BasicNameValuePair(PARAM_MODE, articleState + ""));
-            params.add(new BasicNameValuePair(PARAM_FIELD, "0"));
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+            params.put(PARAM_ARTICLE_IDS, idList);
+            params.put(PARAM_MODE, articleState + "");
+            params.put(PARAM_FIELD, "0");
             ret = doRequestNoAnswer(params);
         }
         return (ret != null && ret.contains(OK));
@@ -865,11 +863,11 @@ public class JSONPOSTConnector implements Connector {
         String ret = "";
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair(PARAM_OP, VALUE_UPDATE_ARTICLE));
-            params.add(new BasicNameValuePair(PARAM_ARTICLE_IDS, idList));
-            params.add(new BasicNameValuePair(PARAM_MODE, articleState + ""));
-            params.add(new BasicNameValuePair(PARAM_FIELD, "1"));
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+            params.put(PARAM_ARTICLE_IDS, idList);
+            params.put(PARAM_MODE, articleState + "");
+            params.put(PARAM_FIELD, "1");
             ret = doRequestNoAnswer(params);
         }
         return (ret != null && ret.contains(OK));
@@ -882,10 +880,10 @@ public class JSONPOSTConnector implements Connector {
      */
     @Override
     public boolean setRead(int id, boolean isCategory) {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(PARAM_OP, VALUE_CATCHUP));
-        params.add(new BasicNameValuePair(PARAM_FEED_ID, id + ""));
-        params.add(new BasicNameValuePair(PARAM_IS_CAT, (isCategory ? "1" : "0")));
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_CATCHUP);
+        params.put(PARAM_FEED_ID, id + "");
+        params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
         String ret = doRequestNoAnswer(params);
         return (ret != null && ret.contains(OK));
     }
@@ -897,9 +895,9 @@ public class JSONPOSTConnector implements Connector {
      */
     @Override
     public String getPref(String pref) {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(PARAM_OP, VALUE_GET_PREF));
-        params.add(new BasicNameValuePair(PARAM_PREF, pref));
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_PREF);
+        params.put(PARAM_PREF, pref);
         JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
@@ -933,8 +931,8 @@ public class JSONPOSTConnector implements Connector {
      */
     @Override
     public int getVersion() {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair(PARAM_OP, VALUE_GET_VERSION));
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_VERSION);
         JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
@@ -970,21 +968,23 @@ public class JSONPOSTConnector implements Connector {
         return -1;
     }
     
-    /**
-     * Returns true if there was an error.
+    /*
+     * (non-Javadoc)
      * 
-     * @return true if there was an error.
+     * @see org.ttrssreader.net.Connector#hasLastError()
      */
-    public static boolean hasLastError() {
+    @Override
+    public boolean hasLastError() {
         return hasLastError;
     }
     
-    /**
-     * Returns the last error-message and resets the error-state of the connector.
+    /*
+     * (non-Javadoc)
      * 
-     * @return a string with the last error-message.
+     * @see org.ttrssreader.net.Connector#pullLastError()
      */
-    public static String pullLastError() {
+    @Override
+    public String pullLastError() {
         String ret = new String(lastError);
         lastError = "";
         hasLastError = false;

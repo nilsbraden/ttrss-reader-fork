@@ -25,21 +25,21 @@ public interface Connector {
      * Retrieves a set of maps which map strings to the information, e.g. "id" -> 42, containing the counters for every
      * category and feed. The retrieved information is directly inserted into the database.
      */
-    public abstract void getCounters();
+    public void getCounters();
     
     /**
      * Retrieves all categories.
      * 
      * @return a list of categories.
      */
-    public abstract Set<Category> getCategories();
+    public Set<Category> getCategories();
     
     /**
      * Retrieves all feeds, mapped to their categories.
      * 
      * @return a map of all feeds mapped to the categories.
      */
-    public abstract Set<Feed> getFeeds();
+    public Set<Feed> getFeeds();
     
     /**
      * Retrieves the specified articles and directly inserts them into the Database
@@ -47,7 +47,7 @@ public interface Connector {
      * @param articleIds
      *            the ids of the articles.
      */
-    public abstract void getArticlesToDatabase(Set<Integer> ids);
+    public void getArticlesToDatabase(Set<Integer> ids);
     
     /**
      * Retrieves the specified articles and directly stores them in the database.
@@ -63,7 +63,7 @@ public interface Connector {
      *            indicates if we are dealing with a category or a feed
      * @return a set of ids of the received articles.
      */
-    public abstract Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory);
+    public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory);
     
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
@@ -73,7 +73,7 @@ public interface Connector {
      * @param articleState
      *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
      */
-    public abstract boolean setArticleRead(Set<Integer> ids, int articleState);
+    public boolean setArticleRead(Set<Integer> ids, int articleState);
     
     /**
      * Marks the given Article as "starred"/"not starred" depending on int articleState.
@@ -84,7 +84,7 @@ public interface Connector {
      *            the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
      * @return true if the operation succeeded.
      */
-    public abstract boolean setArticleStarred(Set<Integer> ids, int articleState);
+    public boolean setArticleStarred(Set<Integer> ids, int articleState);
     
     /**
      * Marks the given Articles as "published"/"not published" depending on articleState.
@@ -95,7 +95,7 @@ public interface Connector {
      *            the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
      * @return true if the operation succeeded.
      */
-    public abstract boolean setArticlePublished(Set<Integer> ids, int articleState);
+    public boolean setArticlePublished(Set<Integer> ids, int articleState);
     
     /**
      * Marks a feed or a category with all its feeds as read.
@@ -106,7 +106,7 @@ public interface Connector {
      *            indicates whether id refers to a feed or a category.
      * @return true if the operation succeeded.
      */
-    public abstract boolean setRead(int id, boolean isCategory);
+    public boolean setRead(int id, boolean isCategory);
     
     /**
      * Returns the value for the given preference-name as a string.
@@ -115,13 +115,27 @@ public interface Connector {
      *            the preferences name
      * @return the value of the preference or null if it ist not set or unknown
      */
-    public abstract String getPref(String pref);
+    public String getPref(String pref);
     
     /**
      * Returns the version of the server-installation as integer (version-string without dots)
      * 
      * @return the version
      */
-    public abstract int getVersion();
+    public int getVersion();
+
+    /**
+     * Returns true if there was an error.
+     * 
+     * @return true if there was an error.
+     */
+    public boolean hasLastError();
+    
+    /**
+     * Returns the last error-message and resets the error-state of the connector.
+     * 
+     * @return a string with the last error-message.
+     */
+    public String pullLastError();
     
 }

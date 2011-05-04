@@ -29,7 +29,6 @@ import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
@@ -168,10 +167,8 @@ public class FeedHeadlineActivity extends MenuActivity {
             adapter.notifyDataSetChanged();
         }
         
-        if (JSONConnector.hasLastError()) {
-            openConnectionErrorDialog(JSONConnector.pullLastError());
-            return;
-        }
+        if (Controller.getInstance().getConnector().hasLastError())
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         
         if (updater == null) {
             setProgressBarIndeterminateVisibility(false);

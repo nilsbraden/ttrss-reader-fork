@@ -523,7 +523,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#getCounters()
+     * @see org.ttrssreader.net.Connector#getCounters()
      */
     @Override
     public void getCounters() {
@@ -582,7 +582,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#getCategories()
+     * @see org.ttrssreader.net.Connector#getCategories()
      */
     @Override
     public Set<Category> getCategories() {
@@ -631,7 +631,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#getFeeds()
+     * @see org.ttrssreader.net.Connector#getFeeds()
      */
     @Override
     public Set<Feed> getFeeds() {
@@ -688,7 +688,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#getArticle(java.util.Set)
+     * @see org.ttrssreader.net.Connector#getArticle(java.util.Set)
      */
     @Override
     public void getArticlesToDatabase(Set<Integer> ids) {
@@ -714,7 +714,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#getHeadlinesToDatabase(Integer, int, int, java.lang.String)
+     * @see org.ttrssreader.net.Connector#getHeadlinesToDatabase(Integer, int, int, java.lang.String)
      */
     @Override
     public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory) {
@@ -744,7 +744,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#setArticleRead(java.util.Set, int)
+     * @see org.ttrssreader.net.Connector#setArticleRead(java.util.Set, int)
      */
     @Override
     public boolean setArticleRead(Set<Integer> ids, int articleState) {
@@ -763,7 +763,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#setArticleStarred(java.util.Set, int)
+     * @see org.ttrssreader.net.Connector#setArticleStarred(java.util.Set, int)
      */
     @Override
     public boolean setArticleStarred(Set<Integer> ids, int articleState) {
@@ -782,7 +782,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#setArticlePublished(java.util.Set, int)
+     * @see org.ttrssreader.net.Connector#setArticlePublished(java.util.Set, int)
      */
     @Override
     public boolean setArticlePublished(Set<Integer> ids, int articleState) {
@@ -801,7 +801,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#setRead(int, boolean)
+     * @see org.ttrssreader.net.Connector#setRead(int, boolean)
      */
     @Override
     public boolean setRead(int id, boolean isCategory) {
@@ -813,7 +813,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#getPref(java.lang.String)
+     * @see org.ttrssreader.net.Connector#getPref(java.lang.String)
      */
     @Override
     public String getPref(String pref) {
@@ -847,7 +847,7 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector2#getVersion()
+     * @see org.ttrssreader.net.Connector#getVersion()
      */
     @Override
     public int getVersion() {
@@ -887,21 +887,23 @@ public class JSONConnector implements Connector {
         return -1;
     }
     
-    /**
-     * Returns true if there was an error.
+    /*
+     * (non-Javadoc)
      * 
-     * @return true if there was an error.
+     * @see org.ttrssreader.net.Connector#hasLastError()
      */
-    public static boolean hasLastError() {
+    @Override
+    public boolean hasLastError() {
         return hasLastError;
     }
     
-    /**
-     * Returns the last error-message and resets the error-state of the connector.
+    /*
+     * (non-Javadoc)
      * 
-     * @return a string with the last error-message.
+     * @see org.ttrssreader.net.Connector#pullLastError()
      */
-    public static String pullLastError() {
+    @Override
+    public String pullLastError() {
         String ret = new String(lastError);
         lastError = "";
         hasLastError = false;

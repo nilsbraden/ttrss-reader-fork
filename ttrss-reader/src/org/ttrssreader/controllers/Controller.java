@@ -154,7 +154,7 @@ public class Controller {
         
         int version = getServerVersion();
         if (version >= 153) {
-            Log.d(Utils.TAG, "Server-version seems to be above 1.5.3, using new JSONPOSTConnector.");
+            Log.d(Utils.TAG, "Server-version seems to be 1.5.3 or above, using new JSONPOSTConnector.");
             ttrssPostConnector = new JSONPOSTConnector(url, userName, password, httpUserName, httpPassword);
             ttrssConnector = null;
         } else if (version <= 0) {

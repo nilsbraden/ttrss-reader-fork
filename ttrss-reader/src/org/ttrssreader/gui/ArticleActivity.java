@@ -28,7 +28,6 @@ import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
@@ -177,7 +176,7 @@ public class ArticleActivity extends Activity {
             webview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         }
         
-        if (!JSONConnector.hasLastError()) {
+        if (!Controller.getInstance().getConnector().hasLastError()) {
             article = DBHelper.getInstance().getArticle(articleId);
             
             if (article != null && article.content != null) {
@@ -217,7 +216,7 @@ public class ArticleActivity extends Activity {
                 
             }
         } else {
-            openConnectionErrorDialog(JSONConnector.pullLastError());
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         }
         
         setProgressBarIndeterminateVisibility(false);
