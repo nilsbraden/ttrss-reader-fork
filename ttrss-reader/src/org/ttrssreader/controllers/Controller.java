@@ -561,12 +561,10 @@ public class Controller {
                 AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... params) {
-                        Log.d(Utils.TAG, "Retrieving Server-Version information...");
                         serverVersion = Data.getInstance().getVersion();
                         serverVersionLastUpdate = System.currentTimeMillis();
                         put(Constants.SERVER_VERSION, serverVersion);
                         put(Constants.SERVER_VERSION_LAST_UPDATE, serverVersionLastUpdate);
-                        Log.d(Utils.TAG, "Server is running v" + serverVersion);
                         return null;
                     }
                 };
