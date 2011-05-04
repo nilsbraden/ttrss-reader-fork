@@ -133,7 +133,7 @@ public class Data {
             switch (feedId) {
                 case -1: // Starred
                 case -2: // Published
-                    limit = DBHelper.getInstance().getUnreadCount(feedId, true);
+                    limit = 0;
                     displayOnlyUnread = false;
                     break;
                 

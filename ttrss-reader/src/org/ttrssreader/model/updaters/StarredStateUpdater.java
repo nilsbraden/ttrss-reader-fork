@@ -41,13 +41,13 @@ public class StarredStateUpdater implements IUpdatable {
         if (articleState >= 0) {
             // mArticle.isStarred() ? 0 : 1
             Data.getInstance().setArticleStarred(article.id, articleState);
-            DBHelper.getInstance().markUnsynchronizedState(article.id, "isStarred", articleState);
+            DBHelper.getInstance().markArticle(article.id, "isStarred", articleState);
             
             article.isStarred = articleState > 0 ? true : false;
         } else {
             // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
             Data.getInstance().setArticleStarred(article.id, article.isStarred ? 0 : 1);
-            DBHelper.getInstance().markUnsynchronizedState(article.id, "isStarred", article.isStarred ? 0 : 1);
+            DBHelper.getInstance().markArticle(article.id, "isStarred", article.isStarred ? 0 : 1);
             
             article.isStarred = !article.isStarred;
         }
