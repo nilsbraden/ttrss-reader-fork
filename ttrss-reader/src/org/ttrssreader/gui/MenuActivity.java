@@ -184,7 +184,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
-        finish();
+//        finish();
     }
     
     protected void refreshAndUpdate() {

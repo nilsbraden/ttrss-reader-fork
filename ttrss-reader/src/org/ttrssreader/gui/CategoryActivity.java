@@ -31,7 +31,6 @@ import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.CategoryUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
@@ -156,10 +155,8 @@ public class CategoryActivity extends MenuActivity {
             adapter.notifyDataSetChanged();
         }
         
-        if (JSONConnector.hasLastError()) {
-            openConnectionErrorDialog(JSONConnector.pullLastError());
-            return;
-        }
+        if (Controller.getInstance().getConnector().hasLastError())
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         
         if (updater == null) {
             setProgressBarIndeterminateVisibility(false);
@@ -245,7 +242,7 @@ public class CategoryActivity extends MenuActivity {
         }
         
         if (ret) {
-            doRefresh();
+            refreshAndUpdate();
         }
         return true;
     }

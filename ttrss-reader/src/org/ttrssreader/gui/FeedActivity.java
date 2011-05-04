@@ -17,6 +17,7 @@
 package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.FeedAdapter;
@@ -25,7 +26,6 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.FeedUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.net.JSONConnector;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -121,10 +121,8 @@ public class FeedActivity extends MenuActivity {
             adapter.notifyDataSetChanged();
         }
         
-        if (JSONConnector.hasLastError()) {
-            openConnectionErrorDialog(JSONConnector.pullLastError());
-            return;
-        }
+        if (Controller.getInstance().getConnector().hasLastError())
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         
         if (updater == null) {
             setProgressBarIndeterminateVisibility(false);

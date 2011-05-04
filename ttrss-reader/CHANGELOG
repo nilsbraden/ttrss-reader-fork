@@ -7,6 +7,8 @@
   * Changed some DB-Operations, added SQLite-Vacuum to free space
   * Added preferences to delete Database on startup
   * Hopefully no more stale articles, unread-state should be completely synchronized now
+  * Fixed Error-Messages not beeing displayed with Server v1.5.3
+  * Fixed POST-Data not beeing interpreted correctly by the server, now sending JSON-encoded data
 
 == Version 0.9.6 ==
   * Show read articles when browsing "only unread articles" and entering an empty feed (eg. by returning from the last unread article)

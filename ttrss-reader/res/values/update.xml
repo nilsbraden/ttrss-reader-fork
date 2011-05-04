@@ -26,6 +26,8 @@
             \n * Changed some DB-Operations, added SQLite-Vacuum to free space
             \n * Added preferences to delete Database on startup
             \n * Hopefully no more stale articles, unread-state should be completely synchronized now
+            \n * Fixed Error-Messages not beeing displayed with Server v1.5.3
+            \n * Fixed POST-Data not beeing interpreted correctly by the server, now sending JSON-encoded data
         </item>
     
         <item>v0.9.6:
