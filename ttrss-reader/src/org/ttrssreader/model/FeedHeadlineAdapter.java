@@ -139,9 +139,9 @@ public class FeedHeadlineAdapter extends MainAdapter {
         if (overrideDisplayUnread)
             displayUnread = false;
         
-        if (lastOpenedArticle != null) {
-            query.append("SELECT id,feedId,title,unread,updateDate,isStarred,isPublished FROM (");
-        }
+//        if (lastOpenedArticle != null) {
+//            query.append("SELECT id,feedId,title,unread,updateDate,isStarred,isPublished FROM (");
+//        }
         
         query.append("SELECT a.id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
@@ -179,11 +179,12 @@ public class FeedHeadlineAdapter extends MainAdapter {
             query.append(" UNION SELECT c.id,feedId,c.title,isUnread AS unread,updateDate,isStarred,isPublished");
             query.append(" FROM articles c, feeds d WHERE feedId=d.id AND c.id=");
             query.append(lastOpenedArticle);
-            query.append(")");
+//            query.append(")");
         }
         
         query.append(" ORDER BY updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
+        query.append(" LIMIT 1000"); // TODO: Does a hard limit make sense here?
         
         return query.toString();
     }
