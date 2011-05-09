@@ -148,12 +148,18 @@ public class ArticleActivity extends Activity {
     
     @Override
     protected void onStop() {
+        // Check again to make sure it didnt get updated and marked as unread again in the background
+        if (article.isUnread && Controller.getInstance().automaticMarkRead())
+            new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
         super.onStop();
         closeCursor();
     }
     
     @Override
     protected void onDestroy() {
+        // Check again to make sure it didnt get updated and marked as unread again in the background
+        if (article.isUnread && Controller.getInstance().automaticMarkRead())
+            new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
         super.onDestroy();
         closeCursor();
     }
