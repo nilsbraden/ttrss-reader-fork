@@ -154,6 +154,7 @@ public class CategoryAdapter extends MainAdapter {
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "ASC" : "DESC");
         query.append(") AS c");
+        query.append(" LIMIT 1000"); // TODO: Does a hard limit make sense here?
         
         return query.toString();
     }

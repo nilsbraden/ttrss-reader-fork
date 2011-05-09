@@ -85,7 +85,7 @@ public class Utils {
     /**
      * The Pattern to match image-urls inside HTML img-tags.
      */
-    public static final Pattern findImageUrlsPattern = Pattern.compile("<img.+src=\"([^\"]*)\".*/>",
+    public static final Pattern findImageUrlsPattern = Pattern.compile("<img.+src=\"([^\\\"]*)\".*>",
             Pattern.CASE_INSENSITIVE);
     
     private static final int ID_RUNNING = 4564561;
