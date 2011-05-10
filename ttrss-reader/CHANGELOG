@@ -11,6 +11,7 @@
   * Fixed POST-Data not beeing interpreted correctly by the server, now sending JSON-encoded data
   * Two more bugs with starred/published articles fixed
   * Fixed OutOfMemoryException when opening virtual categories
+  * Fixed ImageCache with non-standard HTML, fixed SQLiteException with broken SQLite on some Devices
 
 == Version 0.9.6 ==
   * Show read articles when browsing "only unread articles" and entering an empty feed (eg. by returning from the last unread article)
