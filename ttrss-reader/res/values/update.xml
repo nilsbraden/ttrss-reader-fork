@@ -30,6 +30,7 @@
             \n * Fixed POST-Data not beeing interpreted correctly by the server, now sending JSON-encoded data
             \n * Two more bugs with starred/published articles fixed
             \n * Fixed OutOfMemoryException when opening virtual categories
+            \n * Fixed ImageCache with non-standard HTML, fixed SQLiteException with broken SQLite on some Devices
         </item>
     
         <item>v0.9.6:
