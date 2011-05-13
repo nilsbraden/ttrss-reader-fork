@@ -123,7 +123,7 @@ public class CategoryAdapter extends MainAdapter {
         return layout;
     }
     
-    protected String buildQuery(boolean overrideDisplayUnread) {
+    protected String buildQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         StringBuilder query = new StringBuilder();
         
         boolean displayUnread = displayOnlyUnread;
@@ -154,7 +154,7 @@ public class CategoryAdapter extends MainAdapter {
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "ASC" : "DESC");
         query.append(") AS c");
-        query.append(" LIMIT 1000"); // TODO: Does a hard limit make sense here?
+        query.append(buildSafeQuery ? " LIMIT 100" : " LIMIT 1000"); // TODO: Does a hard limit make sense here?
         
         return query.toString();
     }

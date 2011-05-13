@@ -551,6 +551,17 @@ public class DBHelper {
         }
     }
     
+    // Marks only the articles as read so the JSONConnector can retrieve new articles and overwrite the old articles
+    public void markFeedOnlyArticlesRead(int feedId) {
+        if (isDBAvailable()) {
+            ContentValues cv = new ContentValues();
+            cv.put("isUnread", 0);
+            synchronized (TABLE_ARTICLES) {
+                db.update(TABLE_ARTICLES, cv, "isUnread=1 AND feedId=" + feedId, null);
+            }
+        }
+    }
+    
     public void markArticles(Set<Integer> iDlist, String mark, int state) {
         if (isDBAvailable()) {
             for (Integer id : iDlist) {
