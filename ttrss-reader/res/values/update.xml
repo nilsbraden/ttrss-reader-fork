@@ -20,6 +20,14 @@
         name="updates"
     >
     
+    <item>v1.0
+            Think we are in a pretty stable state now so I switched to Version 1.0
+            \n * Added versionCode to StackTrace-Mails
+            \n * Added safety-queries for failed DB operations
+            \n * Fixed Feeds beeing displayed as read after opening
+            \n * Fixed NPE when using old (pre 2.0) Service-API
+            </item>
+    
     <item>v0.9.7:
             \n * Fixed some bugs introduced with 0.9.6
             \n * Added compatibility-fixes for Android 3.0

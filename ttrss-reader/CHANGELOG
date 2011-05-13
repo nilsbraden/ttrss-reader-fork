@@ -1,6 +1,13 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.0 ==
+  * Added versionCode to StackTrace-Mails
+  * Added safety-queries for failed DB operations
+  * Fixed Feeds beeing displayed as read after opening
+  * Fixed NPE when using old (pre 2.0) Service-API
+  * Think we are in a pretty stable state now so I switched to Version 1.0
+
 == Version 0.9.7 ==
   * Fixed some bugs introduced with 0.9.6
   * Added compatibility-fixes for Android 3.0
