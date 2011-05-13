@@ -51,7 +51,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
     
     void invokeMethod(Method method, Object[] args) {
         try {
-            mStartForeground.invoke(this, mStartForegroundArgs);
+            method.invoke(this, mStartForegroundArgs);
         } catch (InvocationTargetException e) {
             // Should not happen.
             Log.w(Utils.TAG, "Unable to invoke method", e);
