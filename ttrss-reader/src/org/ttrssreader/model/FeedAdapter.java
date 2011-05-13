@@ -92,7 +92,7 @@ public class FeedAdapter extends MainAdapter {
         return layout;
     }
     
-    protected String buildQuery(boolean overrideDisplayUnread) {
+    protected String buildQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         StringBuilder query = new StringBuilder();
         
         Integer lastOpenedFeed = Controller.getInstance().lastOpenedFeed;
@@ -100,7 +100,7 @@ public class FeedAdapter extends MainAdapter {
         if (overrideDisplayUnread)
             displayUnread = false;
         
-        if (lastOpenedFeed != null) {
+        if (lastOpenedFeed != null && !buildSafeQuery) {
             query.append("SELECT id,title,unread FROM (");
         }
         
@@ -110,7 +110,7 @@ public class FeedAdapter extends MainAdapter {
         query.append(categoryId);
         query.append(displayUnread ? " AND unread>0" : "");
         
-        if (lastOpenedFeed != null) {
+        if (lastOpenedFeed != null && !buildSafeQuery) {
             query.append(" UNION SELECT id,title,unread");
             query.append(" FROM feeds WHERE id=");
             query.append(lastOpenedFeed);
@@ -119,7 +119,7 @@ public class FeedAdapter extends MainAdapter {
         
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
-        query.append(" LIMIT 1000"); // TODO: Does a hard limit make sense here?
+        query.append(buildSafeQuery ? " LIMIT 100" : " LIMIT 1000"); // TODO: Does a hard limit make sense here?
         
         return query.toString();
     }

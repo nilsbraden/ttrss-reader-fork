@@ -1,10 +1,11 @@
 package org.ttrssreader.utils;
 
 import java.io.FileOutputStream;
-import java.io.IOException;
 import org.ttrssreader.controllers.Controller;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 
 /**
@@ -55,7 +56,7 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
             
             sb.append("------------------------------\n\n");
         }
-
+        
         sb.append("--------- Device -------------\n");
         sb.append("Brand: " + Build.BRAND + "\n");
         sb.append("Device: " + Build.DEVICE + "\n");
@@ -69,17 +70,24 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
         sb.append("Release: " + Build.VERSION.RELEASE + "\n");
         sb.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n");
         sb.append("------------------------------\n\n");
-
+        
+        PackageManager pm = app.getPackageManager();
+        PackageInfo pi = null;
+        try {
+            pi = pm.getPackageInfo(app.getPackageName(), 0);
+        } catch (Exception ex) {
+        }
+        
         sb.append("--------- Application --------\n");
         sb.append("Version: " + Controller.getInstance().getLastVersionRun() + "\n");
+        sb.append("Version-Code: " + (pi != null ? pi.versionCode : "null") + "\n");
         sb.append("------------------------------\n\n");
         
         try {
             FileOutputStream trace = app.openFileOutput(FILE, Context.MODE_PRIVATE);
             trace.write(sb.toString().getBytes());
             trace.close();
-        } catch (IOException ioe) {
-            // ...
+        } catch (Exception ioe) {
         }
         
         handler.uncaughtException(t, e);

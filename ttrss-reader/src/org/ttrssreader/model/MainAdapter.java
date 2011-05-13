@@ -69,9 +69,11 @@ public abstract class MainAdapter extends BaseAdapter {
     }
     
     public final void closeCursor() {
-        synchronized (cursor) {
-            if (cursor != null) {
-                cursor.close();
+        if (cursor != null) {
+            synchronized (cursor) {
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
         }
     }
@@ -178,28 +180,31 @@ public abstract class MainAdapter extends BaseAdapter {
         // if: sort-order or display-settings changed
         // if: forced by explicit call with forceRefresh
         // if: cursor is closed or null
-        
         if (refresh || forceRefresh || (cursor != null && cursor.isClosed()) || cursor == null) {
             if (cursor != null)
                 closeCursor();
             
-            String query = buildQuery(false);
-            Log.v(Utils.TAG, query);
-            cursor = DBHelper.getInstance().query(query, null);
-            
-            // Call again with override enabled if cursor doesn't contain any data
-            if (!checkUnread(cursor)) {
-                closeCursor();
+            try {
+                cursor = executeQuery(false, false); // normal query
                 
-                query = buildQuery(true);
-                Log.v(Utils.TAG, query);
-                cursor = DBHelper.getInstance().query(query, null);
+                if (!checkUnread(cursor))
+                    cursor = executeQuery(true, false); // Override unread if query was empty
                 
+            } catch (Exception e) {
+                cursor = executeQuery(false, true); // Fail-safe-query
             }
+            
         } else if (cursor != null) {
             cursor.requery();
         }
         
+    }
+    
+    private Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+        String query = buildQuery(overrideDisplayUnread, buildSafeQuery);
+        Log.v(Utils.TAG, query);
+        closeCursor();
+        return DBHelper.getInstance().query(query, null);
     }
     
     private boolean checkUnread(Cursor c) {
@@ -240,6 +245,6 @@ public abstract class MainAdapter extends BaseAdapter {
      *            included in the result.
      * @return a valid SQL-Query string for this adapter.
      */
-    protected abstract String buildQuery(boolean overrideDisplayUnread);
+    protected abstract String buildQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
     
 }
