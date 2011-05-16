@@ -19,10 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -202,7 +200,6 @@ public abstract class MainAdapter extends BaseAdapter {
     
     private Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         String query = buildQuery(overrideDisplayUnread, buildSafeQuery);
-        Log.v(Utils.TAG, query);
         closeCursor();
         return DBHelper.getInstance().query(query, null);
     }
