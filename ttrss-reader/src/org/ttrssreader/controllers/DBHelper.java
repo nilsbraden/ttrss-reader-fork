@@ -82,7 +82,7 @@ public class DBHelper {
     private Context context;
     public SQLiteDatabase db;
     
-    private SQLiteStatement insertCategorie;
+    private SQLiteStatement insertCategory;
     private SQLiteStatement insertFeed;
     private SQLiteStatement insertArticle;
     
@@ -131,9 +131,7 @@ public class DBHelper {
             } catch (Exception e) {
                 Toast.makeText(context, "Database was corrupted, creating a new one...", Toast.LENGTH_LONG);
                 
-                // Close DB
-                db.close();
-                db = null;
+                closeDB();
                 
                 // Move DB-File to backup
                 File f = context.getDatabasePath(DATABASE_NAME);
@@ -185,13 +183,13 @@ public class DBHelper {
         }
         
         if (db != null)
-            db.close();
+            closeDB();
         
         OpenHelper openHelper = new OpenHelper(context);
         db = openHelper.getWritableDatabase();
         db.setLockingEnabled(false);
         
-        insertCategorie = db.compileStatement(INSERT_CATEGORY);
+        insertCategory = db.compileStatement(INSERT_CATEGORY);
         insertFeed = db.compileStatement(INSERT_FEEDS);
         insertArticle = db.compileStatement(INSERT_ARTICLES);
         
@@ -203,9 +201,7 @@ public class DBHelper {
             return false;
         
         if (db != null) {
-            // Close DB
-            db.close();
-            db = null;
+            closeDB();
         }
         
         Log.i(Utils.TAG, "Deleting Database as requested by preferences.");
@@ -214,6 +210,20 @@ public class DBHelper {
             return f.delete();
         
         return false;
+    }
+    
+    private void closeDB() {
+        // Close DB, acquire all locks to make sure no other threads have write-access to the DB right now.
+        synchronized (TABLE_ARTICLES) {
+            synchronized (TABLE_FEEDS) {
+                synchronized (TABLE_CATEGORIES) {
+                    synchronized (TABLE_MARK) {
+                        db.close();
+                        db = null;
+                    }
+                }
+            }
+        }
     }
     
     private boolean isDBAvailable() {
@@ -424,10 +434,10 @@ public class DBHelper {
             title = "";
         
         synchronized (TABLE_CATEGORIES) {
-            insertCategorie.bindLong(1, id);
-            insertCategorie.bindString(2, title);
-            insertCategorie.bindLong(3, unread);
-            insertCategorie.execute();
+            insertCategory.bindLong(1, id);
+            insertCategory.bindString(2, title);
+            insertCategory.bindLong(3, unread);
+            insertCategory.execute();
         }
     }
     

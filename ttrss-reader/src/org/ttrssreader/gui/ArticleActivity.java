@@ -149,7 +149,7 @@ public class ArticleActivity extends Activity {
     @Override
     protected void onStop() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
-        if (article.isUnread && Controller.getInstance().automaticMarkRead())
+        if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
         super.onStop();
         closeCursor();
@@ -306,6 +306,8 @@ public class ArticleActivity extends Activity {
     public void onZoomChanged() {
         // Load html from Raw-Ressources and insert content
         String temp = getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
+        if (content == null)
+            content = "";
         String text = temp.replace("MARKER", content);
         webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
     }
@@ -451,6 +453,9 @@ public class ArticleActivity extends Activity {
     }
     
     private static String injectAttachments(Context context, String content, Set<String> attachments) {
+        if (content == null)
+            content = "";
+        
         StringBuilder ret = new StringBuilder(content);
         
         for (String url : attachments) {
