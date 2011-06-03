@@ -26,6 +26,7 @@
             \n * Added safety-queries for failed DB operations
             \n * Fixed Feeds beeing displayed as read after opening
             \n * Fixed NPE when using old (pre 2.0) Service-API
+            \n * New: Fixed some more bugs which lead to FCs. I won\'t develop much the next weeks, haven\'t got enough time right now.
             </item>
     
     <item>v0.9.7:

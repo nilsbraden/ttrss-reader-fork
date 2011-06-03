@@ -154,6 +154,7 @@ public class JSONPOSTConnector implements Connector {
     
     private String doRequest(Map<String, String> map, boolean firstCall) {
         // long start = System.currentTimeMillis();
+        String currentRequest = "";
         
         try {
             // Set Address
@@ -168,6 +169,7 @@ public class JSONPOSTConnector implements Connector {
             // LOG-Output
             Object paramPw = json.remove(PARAM_PW);
             Log.i(Utils.TAG, "Request: " + json);
+            currentRequest = new String(json.toString());
             json.put(PARAM_PW, paramPw);
             
             HttpParams params = post.getParams();
@@ -211,21 +213,14 @@ public class JSONPOSTConnector implements Connector {
             return null;
         }
         
-        // Begin: Log-output
-        // String tempUrl = new String(url);
-        // if (url.contains("&password="))
-        // tempUrl = tempUrl.substring(0, tempUrl.length() - password.length()) + "*";
-        //
-        // long tempTime = System.currentTimeMillis() - start;
-        // Log.v(Utils.TAG, String.format("REQUESTING %s ms ( %s )", tempTime, tempUrl));
-        // End: Log-output
-        
         String strResponse;
+        long length = -1;
         try {
             
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 instream = entity.getContent();
+                length = entity.getContentLength();
             }
             
             if (instream == null) {
@@ -239,6 +234,12 @@ public class JSONPOSTConnector implements Connector {
         } catch (IOException e) {
             hasLastError = true;
             lastError = "JSON-Data could not be parsed. Exception: " + e.getMessage() + " (" + e.getCause() + ")";
+            Log.w(Utils.TAG, lastError);
+            return null;
+        } catch (OutOfMemoryError e2) {
+            hasLastError = true;
+            lastError = "Run out of memory when trying to fetch " + (length > 0 ? length + "" : "an unknown amount of")
+                    + " bytes from " + currentRequest;
             Log.w(Utils.TAG, lastError);
             return null;
         }
