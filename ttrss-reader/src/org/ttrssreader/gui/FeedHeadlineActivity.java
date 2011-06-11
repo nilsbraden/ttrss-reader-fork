@@ -67,8 +67,6 @@ public class FeedHeadlineActivity extends MenuActivity {
     private boolean selectArticlesForCategory = false;
     
     private GestureDetector gestureDetector;
-    private int absHeight;
-    private int absWidth;
     
     private FeedHeadlineAdapter adapter = null;
     private FeedHeadlineUpdater updateable = null;
@@ -328,18 +326,15 @@ public class FeedHeadlineActivity extends MenuActivity {
             if (!Controller.getInstance().useSwipe())
                 return false;
             
-            // SWIPE_WIDTH must be more then 50% of the screen
-            int SWIPE_WIDTH = (int) (absWidth * 0.5);
-            
             int dx = (int) (e2.getX() - e1.getX());
             int dy = (int) (e2.getY() - e1.getY());
             
-            if (Math.abs(dy) > (int) (absHeight * 0.2)) {
+            if (Math.abs(dy) > (int) (Controller.absHeight * 0.2)) {
                 return false; // Too much Y-Movement (20% of screen-height)
             }
             
             // don't accept the fling if it's too short as it may conflict with a button push
-            if (Math.abs(dx) > SWIPE_WIDTH && Math.abs(velocityX) > Math.abs(velocityY)) {
+            if (Math.abs(dx) > Controller.swipeWidth && Math.abs(velocityX) > Math.abs(velocityY)) {
                 flingDetected = true;
                 
                 if (velocityX > 0) {

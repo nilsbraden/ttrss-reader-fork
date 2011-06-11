@@ -23,6 +23,7 @@
     <item>v1.01
             \n * Automatically fetch all new articles for all feeds on startup, can take a moment but you can just start browsing anyway
             \n * Improved marking articles as read, not sure if everything is fixed but counts should be allright most of the time now
+            \n * Fixed swipe in Headline-List (go to next/previous feed by swipe or volume-button)
             \n * Minor improvements
             </item>
     
