@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.01 ==
+  * Automatically fetch all new articles for all feeds on startup, can take a moment but you can just start browsing anyway
+  * Improved marking articles as read, not sure if everything is fixed but counts should be allright most of the time now
+  * Minor improvements
+
 == Version 1.0 ==
   * Added versionCode to StackTrace-Mails
   * Added safety-queries for failed DB operations

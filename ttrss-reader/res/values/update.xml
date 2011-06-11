@@ -20,6 +20,12 @@
         name="updates"
     >
     
+    <item>v1.01
+            \n * Automatically fetch all new articles for all feeds on startup, can take a moment but you can just start browsing anyway
+            \n * Improved marking articles as read, not sure if everything is fixed but counts should be allright most of the time now
+            \n * Minor improvements
+            </item>
+    
     <item>v1.0
             Think we are in a pretty stable state now so I switched to Version 1.0
             \n * Added versionCode to StackTrace-Mails

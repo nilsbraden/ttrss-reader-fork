@@ -16,8 +16,10 @@
 
 package org.ttrssreader.model.updaters;
 
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Category;
 
 public class FeedUpdater implements IUpdatable {
     
@@ -30,8 +32,18 @@ public class FeedUpdater implements IUpdatable {
     
     @Override
     public void update() {
+        
         Data.getInstance().updateFeeds(categoryId, false);
         unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
+        
+        Category c = DBHelper.getInstance().getCategory(categoryId);
+        if (c.unread == 0)
+            return;
+        
+        // Update articles for current category
+        boolean onlyUnreadArticles = Controller.getInstance().displayOnlyUnread();
+        Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true, true);
+        
     }
     
 }

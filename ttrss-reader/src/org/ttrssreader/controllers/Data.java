@@ -110,7 +110,10 @@ public class Data {
     // takes about 2.5 seconds on wifi
     public void updateCounters(boolean overrideOffline) {
         if (Utils.isConnected(cm) || overrideOffline)
-            Controller.getInstance().getConnector().getCounters();
+            try {
+                Controller.getInstance().getConnector().getCounters();
+            } catch (NotInitializedException e) {
+            }
     }
     
     // *** ARTICLES *********************************************************************
@@ -156,22 +159,28 @@ public class Data {
                 limit = 100; // No unread, fetch some to make sure we are at least a bit up-to-date
             if (limit > 300)
                 limit = 300; // Lots of unread articles, fetch the first 300
-            
-            String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
-            Set<Integer> ids = Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
-            
-            // Check if there are new articles, then check if attachments are there, else fetch them separately
-            if (ids != null) {
-                for (Integer i : ids) {
-                    Article a = DBHelper.getInstance().getArticle(i);
-                    if (a == null || a.attachments == null) {
-                        Log.d(Utils.TAG, "WARNING: Had to call getArticle since getHeadline didn't fetch attachments. "
-                                + "Check if you are running latest server (1.5.3 or newer).");
-                        Controller.getInstance().getConnector().getArticlesToDatabase(ids);
+                
+            try {
+                String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
+                Set<Integer> ids = Controller.getInstance().getConnector()
+                        .getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
+                
+                // Check if there are new articles, then check if attachments are there, else fetch them separately
+                if (ids != null) {
+                    for (Integer i : ids) {
+                        Article a = DBHelper.getInstance().getArticle(i);
+                        if (a == null || a.attachments == null) {
+                            Log.d(Utils.TAG,
+                                    "WARNING: Had to call getArticle since getHeadline didn't fetch attachments. "
+                                            + "Check if you are running latest server (1.5.3 or newer).");
+                            Controller.getInstance().getConnector().getArticlesToDatabase(ids);
+                            break;
+                        }
                         break;
                     }
-                    break;
                 }
+            } catch (NotInitializedException e) {
+                return;
             }
             
             articlesUpdated.put(feedId, System.currentTimeMillis());
@@ -184,21 +193,24 @@ public class Data {
         if (feedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
-            Set<Feed> feeds = Controller.getInstance().getConnector().getFeeds();
-            feedsUpdated = System.currentTimeMillis();
-            
-            // Only delete feeds if we got new feeds...
-            if (!feeds.isEmpty())
-                DBHelper.getInstance().deleteFeeds();
-            
-            Set<Feed> ret = new LinkedHashSet<Feed>();
-            for (Feed f : feeds) {
-                if (categoryId == -4 || f.categoryId == categoryId)
-                    ret.add(f);
+            try {
+                Set<Feed> feeds = Controller.getInstance().getConnector().getFeeds();
+                feedsUpdated = System.currentTimeMillis();
+                
+                // Only delete feeds if we got new feeds...
+                if (!feeds.isEmpty())
+                    DBHelper.getInstance().deleteFeeds();
+                
+                Set<Feed> ret = new LinkedHashSet<Feed>();
+                for (Feed f : feeds) {
+                    if (categoryId == -4 || f.categoryId == categoryId)
+                        ret.add(f);
+                }
+                DBHelper.getInstance().insertFeeds(feeds);
+                
+                return ret;
+            } catch (NotInitializedException e) {
             }
-            DBHelper.getInstance().insertFeeds(feeds);
-            
-            return ret;
         }
         return null;
     }
@@ -240,12 +252,16 @@ public class Data {
         if (categoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isConnected(cm) || overrideOffline) {
-            Set<Category> categories = Controller.getInstance().getConnector().getCategories();
-            categoriesUpdated = System.currentTimeMillis();
-            
-            DBHelper.getInstance().deleteCategories(false);
-            DBHelper.getInstance().insertCategories(categories);
-            return categories;
+            try {
+                Set<Category> categories = Controller.getInstance().getConnector().getCategories();
+                
+                categoriesUpdated = System.currentTimeMillis();
+                
+                DBHelper.getInstance().deleteCategories(false);
+                DBHelper.getInstance().insertCategories(categories);
+                return categories;
+            } catch (NotInitializedException e) {
+            }
         }
         return null;
     }
@@ -255,7 +271,11 @@ public class Data {
     public void setArticleRead(Set<Integer> ids, int articleState) {
         boolean erg = false;
         if (Utils.isConnected(cm))
-            erg = Controller.getInstance().getConnector().setArticleRead(ids, articleState);
+            try {
+                erg = Controller.getInstance().getConnector().setArticleRead(ids, articleState);
+            } catch (NotInitializedException e) {
+                return;
+            }
         
         if (!erg)
             DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, articleState);
@@ -267,7 +287,11 @@ public class Data {
         ids.add(articleIds);
         
         if (Utils.isConnected(cm))
-            erg = Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
+            try {
+                erg = Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
+            } catch (NotInitializedException e) {
+                return;
+            }
         
         if (!erg)
             DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, articleState);
@@ -279,7 +303,11 @@ public class Data {
         ids.add(articleIds);
         
         if (Utils.isConnected(cm))
-            erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
+            try {
+                erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
+            } catch (NotInitializedException e) {
+                return;
+            }
         
         if (!erg)
             DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_PUBLISH, articleState);
@@ -288,7 +316,11 @@ public class Data {
     public void setRead(int id, boolean isCategory) {
         boolean erg = false;
         if (Utils.isConnected(cm))
-            Controller.getInstance().getConnector().setRead(id, isCategory);
+            try {
+                Controller.getInstance().getConnector().setRead(id, isCategory);
+            } catch (NotInitializedException e) {
+                return;
+            }
         
         if (!erg) {
             if (isCategory) {
@@ -306,13 +338,21 @@ public class Data {
     
     public String getPref(String pref) {
         if (Utils.isConnected(cm))
-            return Controller.getInstance().getConnector().getPref(pref);
+            try {
+                return Controller.getInstance().getConnector().getPref(pref);
+            } catch (NotInitializedException e) {
+                return null;
+            }
         return null;
     }
     
     public int getVersion() {
         if (Utils.isConnected(cm))
-            return Controller.getInstance().getConnector().getVersion();
+            try {
+                return Controller.getInstance().getConnector().getVersion();
+            } catch (NotInitializedException e) {
+                return -1;
+            }
         return -1;
     }
     
@@ -325,26 +365,30 @@ public class Data {
             Set<Integer> idsMark = DBHelper.getInstance().getMarked(mark, 1);
             Set<Integer> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
             
-            if (DBHelper.MARK_READ.equals(mark)) {
-                if (Controller.getInstance().getConnector().setArticleRead(idsMark, 1))
-                    DBHelper.getInstance().setMarked(idsMark, mark);
-                
-                if (Controller.getInstance().getConnector().setArticleRead(idsUnmark, 0))
-                    DBHelper.getInstance().setMarked(idsUnmark, mark);
-            }
-            if (DBHelper.MARK_STAR.equals(mark)) {
-                if (Controller.getInstance().getConnector().setArticleStarred(idsMark, 1))
-                    DBHelper.getInstance().setMarked(idsMark, mark);
-                
-                if (Controller.getInstance().getConnector().setArticleStarred(idsUnmark, 0))
-                    DBHelper.getInstance().setMarked(idsUnmark, mark);
-            }
-            if (DBHelper.MARK_PUBLISH.equals(mark)) {
-                if (Controller.getInstance().getConnector().setArticlePublished(idsMark, 1))
-                    DBHelper.getInstance().setMarked(idsMark, mark);
-                
-                if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0))
-                    DBHelper.getInstance().setMarked(idsUnmark, mark);
+            try {
+                if (DBHelper.MARK_READ.equals(mark)) {
+                    if (Controller.getInstance().getConnector().setArticleRead(idsMark, 1))
+                        DBHelper.getInstance().setMarked(idsMark, mark);
+                    
+                    if (Controller.getInstance().getConnector().setArticleRead(idsUnmark, 0))
+                        DBHelper.getInstance().setMarked(idsUnmark, mark);
+                }
+                if (DBHelper.MARK_STAR.equals(mark)) {
+                    if (Controller.getInstance().getConnector().setArticleStarred(idsMark, 1))
+                        DBHelper.getInstance().setMarked(idsMark, mark);
+                    
+                    if (Controller.getInstance().getConnector().setArticleStarred(idsUnmark, 0))
+                        DBHelper.getInstance().setMarked(idsUnmark, mark);
+                }
+                if (DBHelper.MARK_PUBLISH.equals(mark)) {
+                    if (Controller.getInstance().getConnector().setArticlePublished(idsMark, 1))
+                        DBHelper.getInstance().setMarked(idsMark, mark);
+                    
+                    if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0))
+                        DBHelper.getInstance().setMarked(idsUnmark, mark);
+                }
+            } catch (NotInitializedException e) {
+                return;
             }
         }
     }
