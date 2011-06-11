@@ -20,6 +20,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.MainAdapter;
@@ -167,8 +168,11 @@ public class FeedHeadlineActivity extends MenuActivity {
             adapter.notifyDataSetChanged();
         }
         
-        if (Controller.getInstance().getConnector().hasLastError())
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+        try {
+            if (Controller.getInstance().getConnector().hasLastError())
+                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+        } catch (NotInitializedException e) {
+        }
         
         if (updater == null) {
             setProgressBarIndeterminateVisibility(false);

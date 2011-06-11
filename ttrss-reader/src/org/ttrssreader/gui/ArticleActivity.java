@@ -21,6 +21,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.cachers.ImageCacher;
 import org.ttrssreader.model.pojos.Article;
@@ -158,7 +159,7 @@ public class ArticleActivity extends Activity {
     @Override
     protected void onDestroy() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
-        if (article.isUnread && Controller.getInstance().automaticMarkRead())
+        if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
         super.onDestroy();
         closeCursor();
@@ -182,47 +183,51 @@ public class ArticleActivity extends Activity {
             webview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         }
         
-        if (!Controller.getInstance().getConnector().hasLastError()) {
-            article = DBHelper.getInstance().getArticle(articleId);
-            
-            if (article != null && article.content != null) {
+        try {
+            if (!Controller.getInstance().getConnector().hasLastError()) {
+                article = DBHelper.getInstance().getArticle(articleId);
                 
-                // Populate information-bar on top of the webview if enabled
-                if (Controller.getInstance().displayArticleHeader()) {
-                    headerContainer.populate(article);
-                } else {
-                    headerContainer.setVisibility(View.GONE);
-                }
-                
-                // Inject the specific code for attachments, <img> for images, http-link for Videos
-                content = injectAttachments(getApplicationContext(), article.content, article.attachments);
-                
-                if (article.cachedImages)
-                    content = injectCachedImages(content);
-                
-                // Load html from Controller and insert content
-                String text = Controller.htmlHeader.replace("MARKER", content);
-                
-                // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-                baseUrl = StringSupport.getBaseURL(article.url);
-                webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
-                
-                setTitle(article.title);
-                
-                if (article.isUnread && Controller.getInstance().automaticMarkRead())
-                    new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
-                
-                if (!linkAutoOpened && content.length() < 3) {
-                    if (Controller.getInstance().openUrlEmptyArticle()) {
-                        Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
-                        linkAutoOpened = true;
-                        openLink();
+                if (article != null && article.content != null) {
+                    
+                    // Populate information-bar on top of the webview if enabled
+                    if (Controller.getInstance().displayArticleHeader()) {
+                        headerContainer.populate(article);
+                    } else {
+                        headerContainer.setVisibility(View.GONE);
                     }
+                    
+                    // Inject the specific code for attachments, <img> for images, http-link for Videos
+                    content = injectAttachments(getApplicationContext(), article.content, article.attachments);
+                    
+                    if (article.cachedImages)
+                        content = injectCachedImages(content);
+                    
+                    // Load html from Controller and insert content
+                    String text = Controller.htmlHeader.replace("MARKER", content);
+                    
+                    // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in
+                    // html).
+                    baseUrl = StringSupport.getBaseURL(article.url);
+                    webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
+                    
+                    setTitle(article.title);
+                    
+                    if (article.isUnread && Controller.getInstance().automaticMarkRead())
+                        new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+                    
+                    if (!linkAutoOpened && content.length() < 3) {
+                        if (Controller.getInstance().openUrlEmptyArticle()) {
+                            Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+                            linkAutoOpened = true;
+                            openLink();
+                        }
+                    }
+                    
                 }
-                
+            } else {
+                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
             }
-        } else {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+        } catch (NotInitializedException e) {
         }
         
         setProgressBarIndeterminateVisibility(false);

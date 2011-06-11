@@ -16,8 +16,10 @@
 
 package org.ttrssreader.model.updaters;
 
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Category;
 
 public class CategoryUpdater implements IUpdatable {
 
@@ -25,9 +27,21 @@ public class CategoryUpdater implements IUpdatable {
     
     @Override
     public void update() {
+        
         Data.getInstance().updateCounters(false);
         Data.getInstance().updateCategories(false);
         Data.getInstance().updateVirtualCategories();
+        Data.getInstance().updateFeeds(-4, true);
+        
+        // Refresh articles for all categories on startup
+        for (Category c : DBHelper.getInstance().getCategoriesIncludingUncategorized()) {
+            if (c.unread == 0)
+                continue;
+            
+            boolean onlyUnreadArticles = Controller.getInstance().displayOnlyUnread();
+            Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true, true);
+        }
+        
         unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
     }
     

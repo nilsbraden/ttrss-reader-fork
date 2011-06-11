@@ -797,7 +797,9 @@ public class JSONPOSTConnector implements Connector {
         
         // Check if viewmode=unread and feedId>=0 so we can safely mark all other articles as read
         // TODO: Store list of marked articles so we can restore the state if parseArticlesAndInsertInDB() fails?
-        if (viewMode.equals("unread") && feedId >= 0)
+        // New: People are complaining about not all articles beeing marked the right way, so just overwrite all unread
+        // states and fetch new articles...
+        if (feedId >= 0) // && viewMode.equals("unread"))
             DBHelper.getInstance().markFeedOnlyArticlesRead(feedId);
         
         Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);

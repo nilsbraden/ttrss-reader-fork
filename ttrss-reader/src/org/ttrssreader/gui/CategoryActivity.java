@@ -25,6 +25,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
@@ -64,8 +65,8 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onCreate(Bundle instance) {
         // TODO
-//        StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
-//        StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX);
+        // StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
+        // StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX);
         super.onCreate(instance);
         
         setContentView(R.layout.categorylist);
@@ -155,8 +156,11 @@ public class CategoryActivity extends MenuActivity {
             adapter.notifyDataSetChanged();
         }
         
-        if (Controller.getInstance().getConnector().hasLastError())
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+        try {
+            if (Controller.getInstance().getConnector().hasLastError())
+                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+        } catch (NotInitializedException e) {
+        }
         
         if (updater == null) {
             setProgressBarIndeterminateVisibility(false);

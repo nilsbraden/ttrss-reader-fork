@@ -196,12 +196,14 @@ public class Controller {
         this.url = url;
     }
     
-    public Connector getConnector() {
+    public Connector getConnector() throws NotInitializedException {
         // Initialized inside initializeController();
         if (ttrssPostConnector != null) {
             return ttrssPostConnector;
-        } else {
+        } if (ttrssConnector != null) {
             return ttrssConnector;
+        } else {
+            throw new NotInitializedException(new NullPointerException());
         }
     }
     
