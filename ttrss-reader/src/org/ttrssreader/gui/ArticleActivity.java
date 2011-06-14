@@ -245,6 +245,9 @@ public class ArticleActivity extends Activity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         
+        if (article == null)
+            return true;
+        
         MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
         if (article.isUnread) {
             read.setTitle(getString(R.string.Commons_MarkRead));
@@ -264,6 +267,15 @@ public class ArticleActivity extends Activity {
             star.setTitle(getString(R.string.Commons_MarkUnpublish));
         } else {
             star.setTitle(getString(R.string.Commons_MarkPublish));
+        }
+        
+        MenuItem offline = menu.findItem(R.id.Menu_WorkOffline);
+        if (Controller.getInstance().workOffline()) {
+            offline.setTitle(getString(R.string.UsageOnlineTitle));
+            offline.setIcon(R.drawable.ic_menu_play_clip);
+        } else {
+            offline.setTitle(getString(R.string.UsageOfflineTitle));
+            offline.setIcon(R.drawable.ic_menu_stop);
         }
         
         return true;
@@ -287,9 +299,13 @@ public class ArticleActivity extends Activity {
             case R.id.Article_Menu_ShareLink:
                 String content = (String) getText(R.string.ArticleActivity_ShareSubject);
                 Intent i = new Intent(Intent.ACTION_SEND);
-                i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
                 i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_SUBJECT, article.title);
+                
+                if (article != null) {
+                    i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
+                    i.putExtra(Intent.EXTRA_SUBJECT, article.title);
+                }
+                
                 startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
             default:
@@ -299,10 +315,9 @@ public class ArticleActivity extends Activity {
     
     private void openLink() {
         if (article != null) {
-            String url = article.url;
-            if ((url != null) && (url.length() > 0)) {
+            if ((article.url != null) && (article.url.length() > 0)) {
                 Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
+                i.setData(Uri.parse(article.url));
                 startActivity(i);
             }
         }

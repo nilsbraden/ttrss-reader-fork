@@ -145,11 +145,13 @@ public class FeedActivity extends MenuActivity {
             }
         }
         
-        setProgressBarIndeterminateVisibility(true);
-        notificationTextView.setText(R.string.Loading_Feeds);
-        
-        updater = new Updater(this, updateable);
-        updater.execute();
+        if (!Controller.getInstance().cacheRunning()) {
+            setProgressBarIndeterminateVisibility(true);
+            notificationTextView.setText(R.string.Loading_Feeds);
+            
+            updater = new Updater(this, updateable);
+            updater.execute();
+        }
     }
     
     @Override

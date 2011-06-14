@@ -20,6 +20,11 @@
         name="updates"
     >
     
+    <item>v1.02
+            \n * Added preference to automatically start ImageCache/ArticleCache on startup
+            \n * No other updates will be started while Cache is running
+            </item>
+    
     <item>v1.01
             \n * Automatically fetch all new articles for all feeds on startup, can take a moment but you can just start browsing anyway
             \n * Improved marking articles as read, not sure if everything is fixed but counts should be allright most of the time now
