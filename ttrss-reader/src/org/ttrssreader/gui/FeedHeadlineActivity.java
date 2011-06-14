@@ -189,7 +189,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             }
         }
         
-        if (!Controller.getInstance().cacheRunning()) {
+        if (!isCacherRunning()) {
             setProgressBarIndeterminateVisibility(true);
             notificationTextView.setText(R.string.Loading_Headlines);
             

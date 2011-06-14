@@ -83,7 +83,7 @@ public class Constants {
     public static String SERVER_VERSION_LAST_UPDATE = "ServerVersionLastUpdate";
     public static String CACHE_ON_STARTUP = "CacheOnStartupPreference";
     public static String CACHE_IMAGES_ON_STARTUP = "CacheImagesOnStartupPreference";
-    // Display Default Values
+    // System Default Values
     public static int IMAGE_CACHE_SIZE_DEFAULT = 100;
     public static boolean IMAGE_CACHE_UNREAD_DEFAULT = true;
     public static boolean ARTICLE_CACHE_UNREAD_DEFAULT = true;

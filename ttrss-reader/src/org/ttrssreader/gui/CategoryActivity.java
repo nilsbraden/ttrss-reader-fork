@@ -42,7 +42,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,6 +61,7 @@ public class CategoryActivity extends MenuActivity {
     
     private CategoryAdapter adapter = null;
     private CategoryUpdater updateable = null;
+    private boolean cacherStarted = false;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -104,8 +104,10 @@ public class CategoryActivity extends MenuActivity {
         
         // Start caching if requested, only cache articles if not caching images
         if (Controller.getInstance().cacheImagesOnStartup()) {
+            cacherStarted = true;
             doCache(false); // images
         } else if (Controller.getInstance().cacheOnStartup()) {
+            cacherStarted = true;
             doCache(true); // articles
         }
         
@@ -186,8 +188,8 @@ public class CategoryActivity extends MenuActivity {
                 return;
             }
         }
-        
-        if (!Controller.getInstance().cacheRunning()) {
+
+        if (!isCacherRunning() && !cacherStarted) {
             setProgressBarIndeterminateVisibility(true);
             notificationTextView.setText(R.string.Loading_Categories);
             
@@ -248,6 +250,7 @@ public class CategoryActivity extends MenuActivity {
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
                 Data.getInstance().resetTime(new Category());
+                cacherStarted = false;
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:

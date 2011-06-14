@@ -19,7 +19,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -43,7 +42,7 @@ import android.widget.TextView;
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
  * FeedHeadlineListActivity).
  */
-public abstract class MenuActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
+public abstract class MenuActivity extends ListActivity implements IUpdateEndListener {
     
     protected ListView listView;
     protected Updater updater;
@@ -64,6 +63,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         Controller.initializeArticleViewStuff(getWindowManager().getDefaultDisplay(), new DisplayMetrics());
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
+        Controller.getInstance().registerActivity(this);
     }
     
     @Override
@@ -73,6 +73,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
             updater.cancel(true);
             updater = null;
         }
+        Controller.getInstance().unregisterActivity(this);
     }
     
     @Override
@@ -189,10 +190,12 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         doRefresh();
     }
     
-    @Override
     public void onCacheEnd() {
-        Controller.getInstance().setCacheRunning(false);
         doRefresh();
+    }
+    
+    protected boolean isCacherRunning() {
+        return ForegroundService.isInstanceCreated();
     }
     
     protected abstract void doRefresh();
@@ -200,19 +203,18 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     protected abstract void doUpdate();
     
     protected void doCache(boolean onlyArticles) {
-        if (!Controller.getInstance().cacheRunning()) {
-            Controller.getInstance().setCacheRunning(true);
-
-            Intent intent;
-            if (onlyArticles) {
-                intent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);
-            } else {
-                intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
-            }
-            intent.setClass(this.getApplicationContext(), ForegroundService.class);
-            
-            startService(intent);
+        if (isCacherRunning())
+            return;
+        
+        Intent intent;
+        if (onlyArticles) {
+            intent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);
+        } else {
+            intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
         }
+        intent.setClass(this.getApplicationContext(), ForegroundService.class);
+        
+        startService(intent);
     }
     
 }

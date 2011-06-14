@@ -19,6 +19,7 @@ package org.ttrssreader.service;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.model.cachers.Cacher;
 import org.ttrssreader.model.cachers.ImageCacher;
@@ -48,6 +49,11 @@ public class ForegroundService extends Service implements ICacheEndListener {
     public static final String ACTION_LOAD_ARTICLES = "load_articles";
     
     private Cacher imageCacher;
+    private static ForegroundService instance = null;
+    
+    public static boolean isInstanceCreated() {
+        return instance != null;
+    }
     
     void invokeMethod(Method method, Object[] args) {
         try {
@@ -109,6 +115,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
     
     @Override
     public void onCreate() {
+        instance = this;
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         try {
             mStartForeground = getClass().getMethod("startForeground", mStartForegroundSignature);
@@ -127,8 +134,12 @@ public class ForegroundService extends Service implements ICacheEndListener {
     
     @Override
     public void onDestroy() {
-        // Make sure our notification is gone.
+        // Call all activities
+        Controller.getInstance().notifyActivities();
+        
+        // Remove the notification
         stopForegroundCompat(R.string.Cache_service_started);
+        instance = null;
     }
     
     // This is the old onStart method that will be called on the pre-2.0
