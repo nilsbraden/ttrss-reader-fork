@@ -54,10 +54,7 @@ public class ImageCacher implements ICacheable {
     public ImageCacher(Context context, boolean onlyArticles) {
         this.context = context;
         this.onlyArticles = onlyArticles;
-        this.onlyUnreadImages = Controller.getInstance().isImageCacheUnread();
         this.onlyUnreadArticles = Controller.getInstance().isArticleCacheUnread();
-        this.cacheSizeMax = Controller.getInstance().getImageCacheSize() * 1048576;
-        this.imageCache = Controller.getInstance().getImageCache(context);
     }
     
     @Override
@@ -75,7 +72,11 @@ public class ImageCacher implements ICacheable {
         updateArticles();
         if (onlyArticles) // We are done here..
             return;
-        
+
+        // Initialize other preferences
+        this.cacheSizeMax = Controller.getInstance().getImageCacheSize() * 1048576;
+        this.onlyUnreadImages = Controller.getInstance().isImageCacheUnread();
+        this.imageCache = Controller.getInstance().getImageCache(context);
         if (imageCache == null)
             return;
         

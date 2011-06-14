@@ -144,8 +144,8 @@ public class FeedActivity extends MenuActivity {
                 return;
             }
         }
-        
-        if (!Controller.getInstance().cacheRunning()) {
+
+        if (!isCacherRunning()) {
             setProgressBarIndeterminateVisibility(true);
             notificationTextView.setText(R.string.Loading_Feeds);
             

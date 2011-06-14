@@ -18,7 +18,10 @@ package org.ttrssreader.controllers;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import org.ttrssreader.R;
+import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.net.Connector;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.net.JSONPOSTConnector;
@@ -75,6 +78,8 @@ public class Controller {
     private Boolean splitGetRequests = null;
     private Boolean isDeleteDBScheduled = null;
     private Boolean isDeleteDBOnStartup = null;
+    private Boolean cacheOnStartup = null;
+    private Boolean cacheImagesOnStartup = null;
     
     private Long lastUpdateTime = null;
     private String lastVersionRun = null;
@@ -83,9 +88,6 @@ public class Controller {
     private Integer serverVersion = null;
     private Long serverVersionLastUpdate = null;
     private Long lastVacuumDate = null;
-    private Boolean cacheOnStartup = null;
-    private Boolean cacheImagesOnStartup = null;
-    private Boolean cacheRunning = false;
     
     public volatile Integer lastOpenedFeed = null;
     public volatile Integer lastOpenedArticle = null;
@@ -485,7 +487,8 @@ public class Controller {
     
     public boolean cacheImagesOnStartup() {
         if (cacheImagesOnStartup == null)
-            cacheImagesOnStartup = prefs.getBoolean(Constants.CACHE_IMAGES_ON_STARTUP, Constants.CACHE_IMAGES_ON_STARTUP_DEFAULT);
+            cacheImagesOnStartup = prefs.getBoolean(Constants.CACHE_IMAGES_ON_STARTUP,
+                    Constants.CACHE_IMAGES_ON_STARTUP_DEFAULT);
         return cacheImagesOnStartup;
     }
     
@@ -607,19 +610,6 @@ public class Controller {
         return serverVersion;
     }
     
-    public boolean cacheRunning() {
-        // Doesn't need to be initialized
-        synchronized (cacheRunning) {
-            return cacheRunning;
-        }
-    }
-    
-    public void setCacheRunning(boolean cacheRunning) {
-        synchronized (this.cacheRunning) {
-            this.cacheRunning = cacheRunning;
-        }
-    }
-    
     /*
      * Generic method to insert values into the preferences store
      */
@@ -677,6 +667,38 @@ public class Controller {
             // fall through
         }
         return null;
+    }
+    
+    // ------------------------------
+    // Call all registered instances of MenuActivity when caching is done
+    private List<MenuActivity> callbacks = new ArrayList<MenuActivity>();
+    
+    public void notifyActivities() {
+        synchronized (callbacks) {
+            for (MenuActivity m : callbacks) {
+                m.onCacheEnd();
+            }
+            callbacks = new ArrayList<MenuActivity>();
+        }
+    }
+    
+    public void registerActivity(MenuActivity activity) {
+        synchronized (callbacks) {
+            callbacks.add(activity);
+            
+            // Reduce size to maximum of 3 activities
+            if (callbacks.size() > 3) {
+                List<MenuActivity> temp = new ArrayList<MenuActivity>();
+                temp.addAll(callbacks.subList(callbacks.size() - 3, callbacks.size()));
+                callbacks = temp;
+            }
+        }
+    }
+    
+    public void unregisterActivity(MenuActivity activity) {
+        synchronized (callbacks) {
+            callbacks.remove(activity);
+        }
     }
     
 }
