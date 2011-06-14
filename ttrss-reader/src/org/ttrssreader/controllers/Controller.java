@@ -83,6 +83,9 @@ public class Controller {
     private Integer serverVersion = null;
     private Long serverVersionLastUpdate = null;
     private Long lastVacuumDate = null;
+    private Boolean cacheOnStartup = null;
+    private Boolean cacheImagesOnStartup = null;
+    private Boolean cacheRunning = false;
     
     public volatile Integer lastOpenedFeed = null;
     public volatile Integer lastOpenedArticle = null;
@@ -200,7 +203,8 @@ public class Controller {
         // Initialized inside initializeController();
         if (ttrssPostConnector != null) {
             return ttrssPostConnector;
-        } if (ttrssConnector != null) {
+        }
+        if (ttrssConnector != null) {
             return ttrssConnector;
         } else {
             throw new NotInitializedException(new NullPointerException());
@@ -437,7 +441,8 @@ public class Controller {
     
     public boolean isDeleteDBScheduled() {
         if (isDeleteDBScheduled == null)
-            isDeleteDBScheduled = prefs.getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
+            isDeleteDBScheduled = prefs
+                    .getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
         return isDeleteDBScheduled;
     }
     
@@ -456,7 +461,8 @@ public class Controller {
     
     public boolean isDeleteDBOnStartup() {
         if (isDeleteDBOnStartup == null)
-            isDeleteDBOnStartup = prefs.getBoolean(Constants.DELETE_DB_ON_STARTUP, Constants.DELETE_DB_ON_STARTUP_DEFAULT);
+            isDeleteDBOnStartup = prefs.getBoolean(Constants.DELETE_DB_ON_STARTUP,
+                    Constants.DELETE_DB_ON_STARTUP_DEFAULT);
         return isDeleteDBOnStartup;
     }
     
@@ -464,6 +470,28 @@ public class Controller {
         put(Constants.DELETE_DB_ON_STARTUP, isDeleteDBOnStartup);
         this.isDeleteDBOnStartup = isDeleteDBOnStartup;
         setDeleteDBScheduled(isDeleteDBOnStartup);
+    }
+    
+    public boolean cacheOnStartup() {
+        if (cacheOnStartup == null)
+            cacheOnStartup = prefs.getBoolean(Constants.CACHE_ON_STARTUP, Constants.CACHE_ON_STARTUP_DEFAULT);
+        return cacheOnStartup;
+    }
+    
+    public void setCacheOnStartup(boolean cacheOnStartup) {
+        put(Constants.CACHE_ON_STARTUP, cacheOnStartup);
+        this.cacheOnStartup = cacheOnStartup;
+    }
+    
+    public boolean cacheImagesOnStartup() {
+        if (cacheImagesOnStartup == null)
+            cacheImagesOnStartup = prefs.getBoolean(Constants.CACHE_IMAGES_ON_STARTUP, Constants.CACHE_IMAGES_ON_STARTUP_DEFAULT);
+        return cacheImagesOnStartup;
+    }
+    
+    public void setCacheImagesOnStartup(boolean cacheImagesOnStartup) {
+        put(Constants.CACHE_IMAGES_ON_STARTUP, cacheImagesOnStartup);
+        this.cacheImagesOnStartup = cacheImagesOnStartup;
     }
     
     // ******* INTERNAL Data ****************************
@@ -577,6 +605,19 @@ public class Controller {
         }
         
         return serverVersion;
+    }
+    
+    public boolean cacheRunning() {
+        // Doesn't need to be initialized
+        synchronized (cacheRunning) {
+            return cacheRunning;
+        }
+    }
+    
+    public void setCacheRunning(boolean cacheRunning) {
+        synchronized (this.cacheRunning) {
+            this.cacheRunning = cacheRunning;
+        }
     }
     
     /*

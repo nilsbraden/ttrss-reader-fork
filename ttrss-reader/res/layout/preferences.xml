@@ -170,6 +170,17 @@
             <PreferenceCategory
                 android:title="@string/SystemPreferenceCategoryTitle"
             >
+                <CheckBoxPreference
+                    android:title="@string/CacheOnStartupTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/CacheOnStartupSummary"
+                    android:key="CacheOnStartupPreference" />
+                    
+                <CheckBoxPreference
+                    android:title="@string/CacheImagesOnStartupTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/CacheImagesOnStartupSummary"
+                    android:key="CacheImagesOnStartupPreference" />
 
                 <org.ttrssreader.preferences.EditIntegerPreference
                     android:name="@string/DisplayArticleLimitTitle"

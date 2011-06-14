@@ -42,6 +42,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -100,6 +101,13 @@ public class CategoryActivity extends MenuActivity {
         
         // Delete DB if requested
         Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
+        
+        // Start caching if requested, only cache articles if not caching images
+        if (Controller.getInstance().cacheImagesOnStartup()) {
+            doCache(false); // images
+        } else if (Controller.getInstance().cacheOnStartup()) {
+            doCache(true); // articles
+        }
         
         Controller.getInstance().lastOpenedFeed = null;
         Controller.getInstance().lastOpenedArticle = null;
@@ -179,11 +187,13 @@ public class CategoryActivity extends MenuActivity {
             }
         }
         
-        setProgressBarIndeterminateVisibility(true);
-        notificationTextView.setText(R.string.Loading_Categories);
-        
-        updater = new Updater(this, updateable);
-        updater.execute();
+        if (!Controller.getInstance().cacheRunning()) {
+            setProgressBarIndeterminateVisibility(true);
+            notificationTextView.setText(R.string.Loading_Categories);
+            
+            updater = new Updater(this, updateable);
+            updater.execute();
+        }
     }
     
     @Override

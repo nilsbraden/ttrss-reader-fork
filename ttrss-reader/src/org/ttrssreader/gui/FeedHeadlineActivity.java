@@ -189,11 +189,13 @@ public class FeedHeadlineActivity extends MenuActivity {
             }
         }
         
-        setProgressBarIndeterminateVisibility(true);
-        notificationTextView.setText(R.string.Loading_Headlines);
-        
-        updater = new Updater(this, updateable);
-        updater.execute();
+        if (!Controller.getInstance().cacheRunning()) {
+            setProgressBarIndeterminateVisibility(true);
+            notificationTextView.setText(R.string.Loading_Headlines);
+            
+            updater = new Updater(this, updateable);
+            updater.execute();
+        }
     }
     
     @Override

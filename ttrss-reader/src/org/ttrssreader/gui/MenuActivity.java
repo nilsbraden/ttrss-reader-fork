@@ -143,35 +143,24 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
             case R.id.Category_Menu_ArticleCache:
-                startImageCacher(true);
+                doCache(true);
                 return true;
             case R.id.Category_Menu_ImageCache:
-                startImageCacher(false);
+                doCache(false);
                 return true;
             default:
                 return false;
         }
     }
     
-    private void startImageCacher(boolean onlyArticles) {
-        Intent intent;
-        if (onlyArticles) {
-            intent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);
-        } else {
-            intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
-        }
-        intent.setClass(this.getApplicationContext(), ForegroundService.class);
-        startService(intent);
-    }
-    
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(Utils.TAG, "onActivityResult. requestCode: " + requestCode + " resultCode: " + resultCode);
         if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
             refreshAndUpdate();
-        } else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
-            finish();
         } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
             refreshAndUpdate();
+        } else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
+            finish();
         }
     }
     
@@ -184,7 +173,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
-//        finish();
+        // finish();
     }
     
     protected void refreshAndUpdate() {
@@ -202,11 +191,28 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     
     @Override
     public void onCacheEnd() {
+        Controller.getInstance().setCacheRunning(false);
         doRefresh();
     }
     
     protected abstract void doRefresh();
     
     protected abstract void doUpdate();
+    
+    protected void doCache(boolean onlyArticles) {
+        if (!Controller.getInstance().cacheRunning()) {
+            Controller.getInstance().setCacheRunning(true);
+
+            Intent intent;
+            if (onlyArticles) {
+                intent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);
+            } else {
+                intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
+            }
+            intent.setClass(this.getApplicationContext(), ForegroundService.class);
+            
+            startService(intent);
+        }
+    }
     
 }
