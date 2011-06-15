@@ -1,9 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.02 ==
+== Version 1.02 (1) ==
   * Added preference to automatically start ImageCache/ArticleCache on startup
   * No other updates will be started while Cache is running
+  * Fixed some Bugs
 
 == Version 1.01 ==
   * Automatically fetch all new articles for all feeds on startup, can take a moment but you can just start browsing anyway

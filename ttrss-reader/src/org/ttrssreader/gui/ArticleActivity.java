@@ -22,12 +22,14 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
+import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.cachers.ImageCacher;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
+import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -54,7 +56,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-public class ArticleActivity extends Activity {
+public class ArticleActivity extends Activity implements IUpdateEndListener {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_ID = "FEED_ID";
@@ -269,7 +271,7 @@ public class ArticleActivity extends Activity {
             star.setTitle(getString(R.string.Commons_MarkPublish));
         }
         
-        MenuItem offline = menu.findItem(R.id.Menu_WorkOffline);
+        MenuItem offline = menu.findItem(R.id.Article_Menu_WorkOffline);
         if (Controller.getInstance().workOffline()) {
             offline.setTitle(getString(R.string.UsageOnlineTitle));
             offline.setIcon(R.drawable.ic_menu_play_clip);
@@ -292,6 +294,13 @@ public class ArticleActivity extends Activity {
                 return true;
             case R.id.Article_Menu_MarkPublish:
                 new Updater(null, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).execute();
+                return true;
+            case R.id.Article_Menu_WorkOffline:
+                Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
+                if (!Controller.getInstance().workOffline()) {
+                    // Synchronize status of articles with server
+                    new Updater(this, new StateSynchronisationUpdater()).execute((Void[]) null);
+                }
                 return true;
             case R.id.Article_Menu_OpenLink:
                 openLink();
@@ -528,6 +537,11 @@ public class ArticleActivity extends Activity {
             }
         }
         return html;
+    }
+
+    @Override
+    public void onUpdateEnd() {
+        // Do we need to do anything here? Synchronisation of marked articles happens without any notification in the GUI.
     }
     
 }
