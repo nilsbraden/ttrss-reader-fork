@@ -185,21 +185,7 @@ public class JSONConnector implements Connector {
         String strResponse;
         long length = -1;
         try {
-            
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                instream = entity.getContent();
-                length = entity.getContentLength();
-            }
-            
-            if (instream == null) {
-                hasLastError = true;
-                lastError = "Couldn't get InputStream in Method doRequest(String url) [instream was null]";
-                return null;
-            }
-            
             strResponse = StringSupport.convertStreamToString(instream);
-            
         } catch (IOException e) {
             hasLastError = true;
             lastError = "JSON-Data could not be parsed. Exception: " + e.getMessage() + " (" + e.getCause() + ")";
