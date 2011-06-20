@@ -153,7 +153,6 @@ public class JSONPOSTConnector implements Connector {
     }
     
     private String doRequest(Map<String, String> map, boolean firstCall) {
-        // long start = System.currentTimeMillis();
         String currentRequest = "";
         
         try {
@@ -285,8 +284,6 @@ public class JSONPOSTConnector implements Connector {
         if (strResponse.startsWith("{\"seq"))
             strResponse = parseMetadata(strResponse);
         
-        // Log.v(Utils.TAG, String.format("PARSING    %s ms ( %s )", System.currentTimeMillis() - tempTime - start,
-        // tempUrl));
         return strResponse;
     }
     
