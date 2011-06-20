@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -67,11 +68,17 @@ public abstract class MainAdapter extends BaseAdapter {
     }
     
     public final void closeCursor() {
-        if (cursor != null) {
-            synchronized (cursor) {
-                if (cursor != null) {
-                    cursor.close();
-                }
+        if (cursor == null)
+            return;
+        
+        synchronized (cursor) {
+            if (cursor == null)
+                return;
+            
+            // Catch all SQLiteExceptions to make sure no "unable to close due to unfinalised statements" errors arise
+            try {
+                cursor.close();
+            } catch (SQLiteException e) {
             }
         }
     }
@@ -187,7 +194,7 @@ public abstract class MainAdapter extends BaseAdapter {
                 
                 if (!checkUnread(cursor))
                     cursor = executeQuery(true, false); // Override unread if query was empty
-                
+                    
             } catch (Exception e) {
                 cursor = executeQuery(false, true); // Fail-safe-query
             }

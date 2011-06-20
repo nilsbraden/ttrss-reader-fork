@@ -131,8 +131,6 @@ public class JSONConnector implements Connector {
     }
     
     private String doRequest(String url, boolean firstCall) {
-        // long start = System.currentTimeMillis();
-        
         Log.v(Utils.TAG, "Request: " + url);
         
         try {
@@ -172,15 +170,6 @@ public class JSONConnector implements Connector {
             return null;
         }
         
-        // Begin: Log-output
-        // String tempUrl = new String(url);
-        // if (url.contains("&password="))
-        // tempUrl = tempUrl.substring(0, tempUrl.length() - password.length()) + "*";
-        //
-        // long tempTime = System.currentTimeMillis() - start;
-        // Log.v(Utils.TAG, String.format("REQUESTING %s ms ( %s )", tempTime, tempUrl));
-        // End: Log-output
-        
         try {
             HttpEntity entity = response.getEntity();
             if (entity != null) {
@@ -193,18 +182,33 @@ public class JSONConnector implements Connector {
             return null;
         }
         
-        if (instream == null) {
-            hasLastError = true;
-            lastError = "Couldn't get InputStream in Method doRequest(String url) [instream was null]";
-            return null;
-        }
-        
         String strResponse;
+        long length = -1;
         try {
+            
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                instream = entity.getContent();
+                length = entity.getContentLength();
+            }
+            
+            if (instream == null) {
+                hasLastError = true;
+                lastError = "Couldn't get InputStream in Method doRequest(String url) [instream was null]";
+                return null;
+            }
+            
             strResponse = StringSupport.convertStreamToString(instream);
+            
         } catch (IOException e) {
             hasLastError = true;
             lastError = "JSON-Data could not be parsed. Exception: " + e.getMessage() + " (" + e.getCause() + ")";
+            Log.w(Utils.TAG, lastError);
+            return null;
+        } catch (OutOfMemoryError e2) {
+            hasLastError = true;
+            lastError = "Run out of memory when trying to fetch " + (length > 0 ? length + "" : "an unknown amount of")
+                    + " bytes from " + url;
             Log.w(Utils.TAG, lastError);
             return null;
         }
@@ -733,7 +737,7 @@ public class JSONConnector implements Connector {
         
         // Check if viewmode=unread and feedId>=0 so we can safely mark all other articles as read
         // TODO: Store list of marked articles so we can restore the state if parseArticlesAndInsertInDB() fails?
-        if (viewMode.equals("unread") && feedId>= 0)
+        if (viewMode.equals("unread") && feedId >= 0)
             DBHelper.getInstance().markFeedOnlyArticlesRead(feedId);
         
         Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);
