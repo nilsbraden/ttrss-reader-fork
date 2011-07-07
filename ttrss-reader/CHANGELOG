@@ -1,6 +1,13 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.03 ==
+  * Fixed Issue #67: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=67 Date & time settings not honoured])
+  * New preferences allow you to change date and time formatting
+  * Fixed Issue #68: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=68 Justified (Blocksatz) looks awkward in some articles])
+  * New preference allows you to change display of articles (justified or flush left)
+  * Fixed reloading of preferences after changes
+
 == Version 1.02 (2) ==
   * Added preference to automatically start ImageCache/ArticleCache on startup
   * No other updates will be started while Cache is running

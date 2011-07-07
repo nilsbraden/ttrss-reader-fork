@@ -49,6 +49,8 @@ public class PreferencesActivity extends PreferenceActivity {
     
     @Override
     protected void onStop() {
+        super.onStop();
+        
         if (init != null) {
             init.cancel(true);
             init = null;
@@ -58,13 +60,12 @@ public class PreferencesActivity extends PreferenceActivity {
             init = new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
-                    Controller.getInstance().checkAndInitializeController(context, true);
+                    Controller.checkAndInitializeController(context, (0 != 1));
                     return null;
                 }
             };
             init.execute();
         }
-        super.onStop();
     }
     
     @Override

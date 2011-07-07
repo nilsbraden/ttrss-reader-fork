@@ -16,13 +16,13 @@
 
 package org.ttrssreader.model;
 
-import java.text.DateFormat;
 import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.utils.DateUtils;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -116,7 +116,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         }
         
         TextView updateDate = (TextView) layout.findViewById(R.id.updateDate);
-        String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(a.updated);
+        String date = DateUtils.getDateTime(context, a.updated);
         updateDate.setText(date);
         
         TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);

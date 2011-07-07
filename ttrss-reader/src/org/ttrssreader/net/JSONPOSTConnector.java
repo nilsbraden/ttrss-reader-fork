@@ -253,7 +253,7 @@ public class JSONPOSTConnector implements Connector {
             Map<String, String> newMap = new HashMap<String, String>();
             for (String key : map.keySet()) {
                 if (key.equals(SESSION_ID)) {
-                    newMap.put(SESSION_ID, new String(sessionId));
+                    newMap.put(SESSION_ID, new String(sessionId)); // TODO: sessionId kann null sein. Sollte eig. nicht vorkommen.
                 } else {
                     newMap.put(key, map.get(key));
                 }

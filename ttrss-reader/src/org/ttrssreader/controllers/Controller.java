@@ -71,6 +71,10 @@ public class Controller {
     private Boolean displayArticleHeader = null;
     private Boolean invertSortArticleList = null;
     private Boolean invertSortFeedsCats = null;
+    private Boolean alignFlushLeft = null;
+    private Boolean dateTimeSystem = null;
+    private String dateString = null;
+    private String timeString = null;
     
     private Integer imageCacheSize = null;
     private Boolean imageCacheUnread = null;
@@ -122,9 +126,9 @@ public class Controller {
         }
     }
     
-    public synchronized void checkAndInitializeController(final Context context, boolean force) {
-        this.initialized = false;
-        checkAndInitializeController(context);
+    public static synchronized void checkAndInitializeController(final Context context, boolean force_dummy_parameter) {
+        Controller.instance = null;
+        Controller.getInstance().checkAndInitializeController(context);
     }
     
     private synchronized void initializeController() {
@@ -174,6 +178,17 @@ public class Controller {
         
         // Article-Prefetch-Stuff from Raw-Ressources and System
         htmlHeader = context.getResources().getString(R.string.INJECT_HTML_HEAD);
+        
+        // Replace marker with the requested layout, align:left or justified
+        String alignMarker = "TEXT_ALIGN_MARKER";
+        String replacement = "";
+        if (alignFlushLeft()) {
+            replacement = context.getResources().getString(R.string.ALIGN_LEFT);
+            htmlHeader = htmlHeader.replace(alignMarker, replacement);
+        } else {
+            replacement = context.getResources().getString(R.string.ALIGN_JUSTIFY);
+            htmlHeader = htmlHeader.replace(alignMarker, replacement);
+        }
         
         // Initialize ImageCache
         getImageCache(context);
@@ -392,6 +407,50 @@ public class Controller {
     public void setInvertSortFeedsCats(boolean invertSortFeedsCats) {
         put(Constants.INVERT_SORT_FEEDSCATS, invertSortFeedsCats);
         this.invertSortFeedsCats = invertSortFeedsCats;
+    }
+    
+    public boolean alignFlushLeft() {
+        if (alignFlushLeft == null)
+            alignFlushLeft = prefs.getBoolean(Constants.ALIGN_FLUSH_LEFT, Constants.ALIGN_FLUSH_LEFT_DEFAULT);
+        return alignFlushLeft;
+    }
+    
+    public void setAlignFlushLeft(boolean alignFlushLeft) {
+        put(Constants.ALIGN_FLUSH_LEFT, alignFlushLeft);
+        this.alignFlushLeft = alignFlushLeft;
+    }
+    
+    public boolean dateTimeSystem() {
+        if (dateTimeSystem == null)
+            dateTimeSystem = prefs.getBoolean(Constants.DATE_TIME_SYSTEM, Constants.DATE_TIME_SYSTEM_DEFAULT);
+        return dateTimeSystem;
+    }
+    
+    public void setDateTimeSystem(boolean dateTimeSystem) {
+        put(Constants.DATE_TIME_SYSTEM, dateTimeSystem);
+        this.dateTimeSystem = dateTimeSystem;
+    }
+    
+    public String dateString() {
+        if (dateString == null)
+            dateString = prefs.getString(Constants.DATE_STRING, Constants.DATE_STRING_DEFAULT);
+        return dateString;
+    }
+    
+    public void setDateString(String dateString) {
+        put(Constants.DATE_STRING, dateString);
+        this.dateString = dateString;
+    }
+    
+    public String timeString() {
+        if (timeString == null)
+            timeString = prefs.getString(Constants.TIME_STRING, Constants.TIME_STRING_DEFAULT);
+        return timeString;
+    }
+    
+    public void setTimeString(String timeString) {
+        put(Constants.TIME_STRING, timeString);
+        this.timeString = timeString;
     }
     
     // SYSTEM
