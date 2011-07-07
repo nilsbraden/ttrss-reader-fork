@@ -63,6 +63,10 @@ public class Constants {
     public static String DISPLAY_ARTICLE_HEADER = "DisplayArticleHeaderPreference";
     public static String INVERT_SORT_ARTICLELIST = "InvertSortArticlelistPreference";
     public static String INVERT_SORT_FEEDSCATS = "InvertSortFeedscatsPreference";
+    public static String ALIGN_FLUSH_LEFT = "DisplayAlignFlushLeftPreference";
+    public static String DATE_TIME_SYSTEM = "DisplayDateTimeFormatSystemPreference";
+    public static String DATE_STRING = "DisplayDateFormatPreference";
+    public static String TIME_STRING = "DisplayTimeFormatPreference";
     // Display Default Values
     public static boolean SHOW_VIRTUAL_DEFAULT = true;
     public static boolean USE_SWIPE_DEFAULT = true;
@@ -71,6 +75,10 @@ public class Constants {
     public static boolean DISPLAY_ARTICLE_HEADER_DEFAULT = true;
     public static boolean INVERT_SORT_ARTICLELIST_DEFAULT = false;
     public static boolean INVERT_SORT_FEEDSCATS_DEFAULT = false;
+    public static boolean ALIGN_FLUSH_LEFT_DEFAULT = false;
+    public static boolean DATE_TIME_SYSTEM_DEFAULT = true;
+    public static String DATE_STRING_DEFAULT = "dd.MM.yyyy";
+    public static String TIME_STRING_DEFAULT = "kk:mm";
     
     // System
     public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";

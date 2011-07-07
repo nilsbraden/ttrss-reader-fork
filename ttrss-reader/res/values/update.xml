@@ -20,6 +20,12 @@
         name="updates"
     >
     
+    <item>v1.03
+            \n * Fixed Issue #67: New preferences allow you to change date and time formatting
+            \n * Fixed Issue #68: New preference allows you to change display of articletext (justified or flush left)
+            \n * Fixed reloading of preferences after changes
+            </item>
+            
     <item>v1.02
             \n * Added preference to automatically start ImageCache/ArticleCache on startup
             \n * No other updates will be started while Cache is running

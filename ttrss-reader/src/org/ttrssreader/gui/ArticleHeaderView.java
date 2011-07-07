@@ -16,7 +16,6 @@
 
 package org.ttrssreader.gui;
 
-import java.text.DateFormat;
 import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.DBHelper;
@@ -24,6 +23,7 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.DateUtils;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -40,22 +40,21 @@ import android.widget.TextView;
  * 
  */
 public class ArticleHeaderView extends LinearLayout {
+    
     private TextView feedView;
     private TextView dateView;
     private TextView timeView;
     private TextView titleView;
-    private DateFormat dateFormat;
-    private DateFormat timeFormat;
     
     private CheckBox starred;
     
     private Article article;
+    private Context context;
     
     public ArticleHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.timeFormat = android.text.format.DateFormat.getTimeFormat(context); // 12/24 date format
-        this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
         this.setBackgroundColor(Color.WHITE);
+        this.context = context;
     }
     
     private void initializeLayout() {
@@ -104,8 +103,8 @@ public class ArticleHeaderView extends LinearLayout {
         titleView.setText(article.title);
         
         Date updated = article.updated;
-        dateView.setText(dateFormat.format(updated));
-        timeView.setText(timeFormat.format(updated));
+        dateView.setText(DateUtils.getDate(context, updated));
+        timeView.setText(DateUtils.getTime(context, updated));
         starred.setChecked(article.isStarred);
     }
     

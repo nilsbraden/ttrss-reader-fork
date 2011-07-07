@@ -163,6 +163,44 @@
                     android:key="DisplayShowVirtualPreference" />
             </PreferenceCategory>
         </PreferenceScreen>
+        
+        <PreferenceScreen
+            android:title="@string/DisplayPreferenceCategoryTitle"
+        >
+            <PreferenceCategory
+                android:title="@string/DisplayPreferenceCategoryTitle"
+            >
+
+                <CheckBoxPreference
+                    android:title="@string/DisplayAlignFlushLeftTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/DisplayAlignFlushLeftSummary"
+                    android:key="DisplayAlignFlushLeftPreference" />
+
+                <CheckBoxPreference
+                    android:title="@string/DisplayDateTimeFormatSystemTitle"
+                    android:defaultValue="true"
+                    android:summary="@string/DisplayDateTimeFormatSystemSummary"
+                    android:key="DisplayDateTimeFormatSystemPreference" />
+
+                <EditTextPreference
+                    android:name="@string/DisplayDateFormatTitle"
+                    android:summary="@string/DisplayDateFormatSummary"
+                    android:defaultValue="@string/DisplayDateFormatDefault"
+                    android:title="@string/DisplayDateFormatTitle"
+                    android:key="DisplayDateFormatPreference" 
+                    android:inputType="textFilter" />
+
+                <EditTextPreference
+                    android:name="@string/DisplayTimeFormatTitle"
+                    android:summary="@string/DisplayTimeFormatSummary"
+                    android:defaultValue="@string/DisplayTimeFormatDefault"
+                    android:title="@string/DisplayTimeFormatTitle"
+                    android:key="DisplayTimeFormatPreference" 
+                    android:inputType="textFilter" />
+
+            </PreferenceCategory>
+        </PreferenceScreen>
 
         <PreferenceScreen
             android:title="@string/SystemPreferenceCategoryTitle"
