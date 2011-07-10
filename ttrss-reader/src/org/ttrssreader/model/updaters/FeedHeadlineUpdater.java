@@ -42,7 +42,7 @@ public class FeedHeadlineUpdater implements IUpdatable {
     
     @Override
     public void update() {
-        boolean displayUnread = Controller.getInstance().displayOnlyUnread();
+        boolean displayUnread = Controller.getInstance().onlyUnread();
         
         if (selectArticlesForCategory) {
             

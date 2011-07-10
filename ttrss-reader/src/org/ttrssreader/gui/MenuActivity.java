@@ -104,7 +104,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         }
         
         MenuItem displayUnread = menu.findItem(R.id.Menu_DisplayOnlyUnread);
-        if (Controller.getInstance().displayOnlyUnread()) {
+        if (Controller.getInstance().onlyUnread()) {
             displayUnread.setTitle(getString(R.string.Commons_DisplayAll));
         } else {
             displayUnread.setTitle(getString(R.string.Commons_DisplayOnlyUnread));
@@ -119,14 +119,14 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         
         switch (item.getItemId()) {
             case R.id.Menu_DisplayOnlyUnread:
-                Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().displayOnlyUnread());
+                Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().onlyUnread());
                 return true;
             case R.id.Menu_InvertSort:
                 if (this instanceof FeedHeadlineActivity) {
                     Controller.getInstance()
-                            .setInvertSortArticleList(!Controller.getInstance().invertSortArticleList());
+                            .setInvertSortArticleList(!Controller.getInstance().invertSortArticlelist());
                 } else {
-                    Controller.getInstance().setInvertSortFeedsCats(!Controller.getInstance().invertSortFeedsCats());
+                    Controller.getInstance().setInvertSortFeedsCats(!Controller.getInstance().invertSortFeedscats());
                 }
                 return true;
             case R.id.Menu_WorkOffline:

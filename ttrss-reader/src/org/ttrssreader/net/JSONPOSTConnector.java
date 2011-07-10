@@ -18,8 +18,6 @@ package org.ttrssreader.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -114,9 +112,6 @@ public class JSONPOSTConnector implements Connector {
     private static final String COUNTER_ID = "id";
     private static final String COUNTER_COUNTER = "counter";
     
-    private URI serverUrl;
-    private String userName;
-    private String password;
     private String httpUserName;
     private String httpPassword;
     
@@ -129,27 +124,37 @@ public class JSONPOSTConnector implements Connector {
     HttpPost post;
     DefaultHttpClient client;
     
-    public JSONPOSTConnector(String serverUrl, String userName, String password, String httpUser, String httpPw) {
-        try {
-            this.serverUrl = new URI(serverUrl);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        this.userName = userName;
-        this.password = password;
+    public JSONPOSTConnector() {
         this.sessionId = null;
-        this.httpUserName = httpUser;
-        this.httpPassword = httpPw;
+        refreshHTTPAuth();
+        this.post = new HttpPost();
+    }
+    
+    private void refreshHTTPAuth() {
+        boolean refreshNeeded = false;
         
-        if (!httpUserName.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
-            
-            this.credProvider = new BasicCredentialsProvider();
-            this.credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                    new UsernamePasswordCredentials(httpUserName, httpPassword));
-            
+        if (httpUserName == null || !httpUserName.equals(Controller.getInstance().httpUsername())) {
+            refreshNeeded = true;
+            httpUserName = Controller.getInstance().httpUsername();
         }
         
-        post = new HttpPost();
+        if (httpPassword == null || !httpPassword.equals(Controller.getInstance().httpPassword())) {
+            refreshNeeded = true;
+            httpPassword = Controller.getInstance().httpPassword();
+        }
+        
+        if (!refreshNeeded)
+            return;
+        
+        if (Controller.getInstance().useHttpAuth()) {
+            // Refresh Credentials-Provider
+            if (!httpUserName.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
+                this.credProvider = new BasicCredentialsProvider();
+                this.credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                        new UsernamePasswordCredentials(httpUserName, httpPassword));
+            }
+            
+        }
     }
     
     private String doRequest(Map<String, String> map, boolean firstCall) {
@@ -157,7 +162,7 @@ public class JSONPOSTConnector implements Connector {
         
         try {
             // Set Address
-            post.setURI(serverUrl);
+            post.setURI(Controller.getInstance().url());
             
             // Add POST data
             JSONObject json = new JSONObject(map);
@@ -253,7 +258,8 @@ public class JSONPOSTConnector implements Connector {
             Map<String, String> newMap = new HashMap<String, String>();
             for (String key : map.keySet()) {
                 if (key.equals(SESSION_ID)) {
-                    newMap.put(SESSION_ID, new String(sessionId)); // TODO: sessionId kann null sein. Sollte eig. nicht vorkommen.
+                    newMap.put(SESSION_ID, new String(sessionId)); // TODO: sessionId kann null sein. Sollte eig. nicht
+                                                                   // vorkommen.
                 } else {
                     newMap.put(key, map.get(key));
                 }
@@ -266,10 +272,10 @@ public class JSONPOSTConnector implements Connector {
         
         // Check if API is enabled for the user
         if (strResponse.contains(API_DISABLED)) {
-            Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, userName));
+            Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, Controller.getInstance().username()));
             
             hasLastError = true;
-            lastError = String.format(API_DISABLED_MESSAGE, userName);
+            lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
             return null;
         }
         
@@ -373,8 +379,8 @@ public class JSONPOSTConnector implements Connector {
             
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_LOGIN);
-            params.put(PARAM_USER, userName);
-            params.put(PARAM_PW, password);
+            params.put(PARAM_USER, Controller.getInstance().username());
+            params.put(PARAM_PW, Controller.getInstance().password());
             
             JSONResult jsonResult = getJSONLoginResponse(params);
             
@@ -415,8 +421,8 @@ public class JSONPOSTConnector implements Connector {
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_LOGIN);
-        params.put(PARAM_USER, userName);
-        params.put(PARAM_PW, Base64.encodeBytes(password.getBytes()));
+        params.put(PARAM_USER, Controller.getInstance().username());
+        params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
         
         JSONResult jsonResult = getJSONLoginResponse(params);
         

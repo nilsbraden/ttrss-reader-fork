@@ -16,8 +16,12 @@
 
 package org.ttrssreader.controllers;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
@@ -30,6 +34,7 @@ import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
@@ -40,7 +45,7 @@ import android.view.Display;
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
  * isn't one in here but it's called like that and I don't have a better name so we stay with it.
  */
-public class Controller {
+public class Controller implements OnSharedPreferenceChangeListener {
     
     public final static String JSON_END_URL = "api/";
     
@@ -54,6 +59,11 @@ public class Controller {
     private SharedPreferences prefs = null;
     
     private String url = null;
+    private String username = null;
+    private String password = null;
+    private String httpUsername = null;
+    private String httpPassword = null;
+    private Boolean useHttpAuth = null;
     private Boolean trustAllSsl = null;
     private Boolean useKeystore = null;
     private String keystorePassword = null;
@@ -64,13 +74,13 @@ public class Controller {
     private Boolean vibrateOnLastArticle = null;
     private Boolean workOffline = null;
     
-    private Boolean displayVirtuals = null;
+    private Boolean showVirtual = null;
     private Boolean useSwipe = null;
-    private Boolean displayOnlyUnread = null;
+    private Boolean onlyUnread = null;
     private Integer articleLimit = null;
     private Boolean displayArticleHeader = null;
-    private Boolean invertSortArticleList = null;
-    private Boolean invertSortFeedsCats = null;
+    private Boolean invertSortArticlelist = null;
+    private Boolean invertSortFeedscats = null;
     private Boolean alignFlushLeft = null;
     private Boolean dateTimeSystem = null;
     private String dateString = null;
@@ -139,41 +149,19 @@ public class Controller {
             newInstallation = true;
         }
         
-        url = prefs.getString(Constants.URL, "http://localhost/");
-        if (!url.endsWith(JSON_END_URL)) {
-            if (!url.endsWith("/")) {
-                url += "/";
-            }
-            url += JSON_END_URL;
-        }
-        String userName = prefs.getString(Constants.USERNAME, Constants.EMPTY);
-        String password = prefs.getString(Constants.PASSWORD, Constants.EMPTY);
-        
-        String httpUserName = Constants.EMPTY;
-        String httpPassword = Constants.EMPTY;
-        boolean useHttpAuth = prefs.getBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
-        if (useHttpAuth) {
-            httpUserName = prefs.getString(Constants.HTTP_USERNAME, Constants.EMPTY);
-            httpPassword = prefs.getString(Constants.HTTP_PASSWORD, Constants.EMPTY);
-        }
-        
-        trustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
-        useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
-        keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
-        
         int version = getServerVersion();
         if (version >= 153) {
             Log.d(Utils.TAG, "Server-version seems to be 1.5.3 or above, using new JSONPOSTConnector.");
-            ttrssPostConnector = new JSONPOSTConnector(url, userName, password, httpUserName, httpPassword);
+            ttrssPostConnector = new JSONPOSTConnector();
             ttrssConnector = null;
         } else if (version <= 0) {
             // Silently use old connector, version is fetched in the background
             ttrssPostConnector = null;
-            ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
+            ttrssConnector = new JSONConnector();
         } else {
             Log.d(Utils.TAG, "Server-version seems to be lower then 1.5.3, using old JSONConnector.");
             ttrssPostConnector = null;
-            ttrssConnector = new JSONConnector(url, userName, password, httpUserName, httpPassword);
+            ttrssConnector = new JSONConnector();
         }
         
         // Article-Prefetch-Stuff from Raw-Ressources and System
@@ -205,15 +193,67 @@ public class Controller {
         }
     }
     
-    // ******* USAGE-Options ****************************
+    // ******* CONNECTION-Options ****************************
     
-    public String getUrl() {
-        // Initialized inside initializeController();
-        return url;
+    public URI url() {
+        if (url == null)
+            url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
+        
+        if (!url.endsWith(JSON_END_URL)) {
+            if (!url.endsWith("/")) {
+                url += "/";
+            }
+            url += JSON_END_URL;
+        }
+        
+        try {
+            return new URI(url);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
-    public void setUrl(String url) {
-        this.url = url;
+    public String username() {
+        if (username == null)
+            username = prefs.getString(Constants.USERNAME, Constants.EMPTY);
+        return username;
+    }
+    
+    public String password() {
+        if (password == null)
+            password = prefs.getString(Constants.PASSWORD, Constants.EMPTY);
+        return password;
+    }
+    
+    public boolean useHttpAuth() {
+        if (useHttpAuth == null)
+            useHttpAuth = prefs.getBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
+        return useHttpAuth;
+    }
+    
+    public String httpUsername() {
+        if (httpUsername == null)
+            httpUsername = prefs.getString(Constants.HTTP_USERNAME, Constants.EMPTY);
+        return httpUsername;
+    }
+    
+    public String httpPassword() {
+        if (httpPassword == null)
+            httpPassword = prefs.getString(Constants.HTTP_PASSWORD, Constants.EMPTY);
+        return httpPassword;
+    }
+    
+    public boolean useKeystore() {
+        if (useKeystore == null)
+            useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
+        return useKeystore;
+    }
+    
+    public boolean trustAllSsl() {
+        if (trustAllSsl == null)
+            trustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
+        return trustAllSsl;
     }
     
     public Connector getConnector() throws NotInitializedException {
@@ -238,37 +278,12 @@ public class Controller {
         return imageCache;
     }
     
-    public boolean trustAllSsl() {
-        // Initialized inside initializeController();
-        return trustAllSsl;
-    }
-    
-    public void setTrustAllSsl(boolean trustAllSsl) {
-        put(Constants.TRUST_ALL_SSL, trustAllSsl);
-        this.trustAllSsl = trustAllSsl;
-    }
-    
-    public boolean useKeystore() {
-        // Initialized inside initializeController();
-        return useKeystore;
-    }
-    
-    public void setUseKeystore(boolean useKeystore) {
-        put(Constants.USE_KEYSTORE, useKeystore);
-        this.useKeystore = useKeystore;
-    }
-    
     public String getKeystorePassword() {
         // Initialized inside initializeController();
         return keystorePassword;
     }
     
-    public void setKeystorePassword(String keystorePassword) {
-        put(Constants.KEYSTORE_PASSWORD, keystorePassword);
-        this.keystorePassword = keystorePassword;
-    }
-    
-    // USAGE
+    // ******* USAGE-Options ****************************
     
     public boolean automaticMarkRead() {
         if (automaticMarkRead == null)
@@ -329,15 +344,15 @@ public class Controller {
     
     // ******* DISPLAY-Options ****************************
     
-    public boolean displayVirtuals() {
-        if (displayVirtuals == null)
-            displayVirtuals = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
-        return displayVirtuals;
+    public boolean showVirtual() {
+        if (showVirtual == null)
+            showVirtual = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
+        return showVirtual;
     }
     
     public void setDisplayVirtuals(boolean displayVirtuals) {
         put(Constants.SHOW_VIRTUAL, displayVirtuals);
-        this.displayVirtuals = displayVirtuals;
+        this.showVirtual = displayVirtuals;
     }
     
     public boolean useSwipe() {
@@ -351,15 +366,15 @@ public class Controller {
         this.useSwipe = useSwipe;
     }
     
-    public boolean displayOnlyUnread() {
-        if (displayOnlyUnread == null)
-            displayOnlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
-        return displayOnlyUnread;
+    public boolean onlyUnread() {
+        if (onlyUnread == null)
+            onlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
+        return onlyUnread;
     }
     
     public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
         put(Constants.ONLY_UNREAD, displayOnlyUnread);
-        this.displayOnlyUnread = displayOnlyUnread;
+        this.onlyUnread = displayOnlyUnread;
     }
     
     public int getArticleLimit() {
@@ -385,28 +400,28 @@ public class Controller {
         this.displayArticleHeader = displayArticleHeader;
     }
     
-    public boolean invertSortArticleList() {
-        if (invertSortArticleList == null)
-            invertSortArticleList = prefs.getBoolean(Constants.INVERT_SORT_ARTICLELIST,
+    public boolean invertSortArticlelist() {
+        if (invertSortArticlelist == null)
+            invertSortArticlelist = prefs.getBoolean(Constants.INVERT_SORT_ARTICLELIST,
                     Constants.INVERT_SORT_ARTICLELIST_DEFAULT);
-        return invertSortArticleList;
+        return invertSortArticlelist;
     }
     
     public void setInvertSortArticleList(boolean invertSortArticleList) {
         put(Constants.INVERT_SORT_ARTICLELIST, invertSortArticleList);
-        this.invertSortArticleList = invertSortArticleList;
+        this.invertSortArticlelist = invertSortArticleList;
     }
     
-    public boolean invertSortFeedsCats() {
-        if (invertSortFeedsCats == null)
-            invertSortFeedsCats = prefs.getBoolean(Constants.INVERT_SORT_FEEDSCATS,
+    public boolean invertSortFeedscats() {
+        if (invertSortFeedscats == null)
+            invertSortFeedscats = prefs.getBoolean(Constants.INVERT_SORT_FEEDSCATS,
                     Constants.INVERT_SORT_FEEDSCATS_DEFAULT);
-        return invertSortFeedsCats;
+        return invertSortFeedscats;
     }
     
     public void setInvertSortFeedsCats(boolean invertSortFeedsCats) {
         put(Constants.INVERT_SORT_FEEDSCATS, invertSortFeedsCats);
-        this.invertSortFeedsCats = invertSortFeedsCats;
+        this.invertSortFeedscats = invertSortFeedsCats;
     }
     
     public boolean alignFlushLeft() {
@@ -757,6 +772,44 @@ public class Controller {
     public void unregisterActivity(MenuActivity activity) {
         synchronized (callbacks) {
             callbacks.remove(activity);
+        }
+    }
+    
+    /**
+     * If provided "key" resembles a setting as declared in Constants.java the corresponding variable in this class will
+     * be reset to null. Variable-Name ist built from the name of the field in Contants.java which holds the value from
+     * "key" which was changed lately.
+     */
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        
+        for (Field field : Constants.class.getDeclaredFields()) {
+            
+            // No default-values
+            if (field.getName().endsWith(Constants.APPENDED_DEFAULT))
+                continue;
+            
+            // Only use public static fields
+            if (Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers())) {
+                
+                try {
+                    Object f = field.get(this);
+                    if (!(f instanceof String))
+                        continue;
+                    
+                    if (key.equals((String) f)) {
+                        // reset variable, it will be re-read on next access
+                        String fieldName = Constants.constant2Var(field.getName());
+                        Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
+                                                                                      // fields are returned
+                        Log.v(Utils.TAG, "Field " + fieldName + " successfully reset to null.");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                
+            }
+            
         }
     }
     

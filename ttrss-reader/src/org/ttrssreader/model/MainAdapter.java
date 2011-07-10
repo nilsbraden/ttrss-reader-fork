@@ -40,9 +40,9 @@ public abstract class MainAdapter extends BaseAdapter {
     protected boolean selectArticlesForCategory;
     
     public MainAdapter() {
-        this.displayOnlyUnread = Controller.getInstance().displayOnlyUnread();
-        this.invertSortFeedCats = Controller.getInstance().invertSortFeedsCats();
-        this.invertSortArticles = Controller.getInstance().invertSortArticleList();
+        this.displayOnlyUnread = Controller.getInstance().onlyUnread();
+        this.invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
+        this.invertSortArticles = Controller.getInstance().invertSortArticlelist();
     }
     
     public MainAdapter(Context context) {
@@ -169,15 +169,15 @@ public abstract class MainAdapter extends BaseAdapter {
     public final synchronized void makeQuery(boolean forceRefresh) {
         boolean refresh = false;
         // Check if display-settings have changed
-        if (displayOnlyUnread != Controller.getInstance().displayOnlyUnread()) {
+        if (displayOnlyUnread != Controller.getInstance().onlyUnread()) {
             refresh = true;
             displayOnlyUnread = !displayOnlyUnread;
         }
-        if (invertSortFeedCats != Controller.getInstance().invertSortFeedsCats()) {
+        if (invertSortFeedCats != Controller.getInstance().invertSortFeedscats()) {
             refresh = true;
             invertSortFeedCats = !invertSortFeedCats;
         }
-        if (invertSortArticles != Controller.getInstance().invertSortArticleList()) {
+        if (invertSortArticles != Controller.getInstance().invertSortArticlelist()) {
             refresh = true;
             invertSortArticles = !invertSortArticles;
         }

@@ -45,6 +45,17 @@ public class PreferencesActivity extends PreferenceActivity {
         context = getApplicationContext();
         addPreferencesFromResource(R.layout.preferences);
         setResult(ACTIVITY_SHOW_PREFERENCES);
+
+        // Set up a listener whenever a key changes            
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(Controller.getInstance());
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Unregister the listener whenever a key changes            
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(Controller.getInstance());
     }
     
     @Override

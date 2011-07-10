@@ -23,7 +23,8 @@
     <item>v1.03
             \n * Fixed Issue #67: New preferences allow you to change date and time formatting
             \n * Fixed Issue #68: New preference allows you to change display of articletext (justified or flush left)
-            \n * Fixed reloading of preferences after changes
+            \n * Fixed reloading of preferences after changes, completely revamped the way preferences are handled and reloaded after beeing changed
+            \n Please contact me if this update introduced new issues with the HTTP-Auth, I can\'t test this here so I have to rely on your feedback. \n
             </item>
             
     <item>v1.02
