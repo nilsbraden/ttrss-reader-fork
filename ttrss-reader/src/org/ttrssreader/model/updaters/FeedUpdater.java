@@ -41,7 +41,7 @@ public class FeedUpdater implements IUpdatable {
             return;
         
         // Update articles for current category
-        boolean onlyUnreadArticles = Controller.getInstance().displayOnlyUnread();
+        boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
         Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true, true);
         
     }

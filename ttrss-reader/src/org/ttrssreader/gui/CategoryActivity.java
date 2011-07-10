@@ -79,25 +79,17 @@ public class CategoryActivity extends MenuActivity {
         registerForContextMenu(listView);
         notificationTextView = (TextView) findViewById(R.id.notification);
         
-        // Check for new installation
-        if (!Utils.checkFirstRun(this))
+        if (!Utils.checkFirstRun(this)) { // Check for new installation
             showDialog(DIALOG_WELCOME);
-        
-        // Check for update
-        if (!Utils.checkNewVersion(this))
+        } else if (!Utils.checkNewVersion(this)) { // Check for update
             showDialog(DIALOG_UPDATE);
-        
-        // Check for crash-reports
-        if (!Utils.checkCrashReport(this))
+        } else if (!Utils.checkCrashReport(this)) { // Check for crash-reports
             showDialog(DIALOG_CRASH);
-        
-        // Check if the server-version is supported
-        if (!Utils.checkServerVersion(this))
+        } else if (!Utils.checkServerVersion(this)) { // Check if the server-version is supported
             showDialog(DIALOG_OLD_SERVER);
-        
-        // Check if we have a server specified
-        if (!Utils.checkConfig())
+        } else if (!Utils.checkConfig()) {// Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
+        }
         
         // Delete DB if requested
         Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
@@ -188,7 +180,7 @@ public class CategoryActivity extends MenuActivity {
                 return;
             }
         }
-
+        
         if (!isCacherRunning() && !cacherStarted) {
             setProgressBarIndeterminateVisibility(true);
             notificationTextView.setText(R.string.Loading_Categories);
@@ -269,7 +261,6 @@ public class CategoryActivity extends MenuActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setIcon(android.R.drawable.ic_dialog_info);
         builder.setCancelable(true);
-        builder.setPositiveButton(android.R.string.ok, null);
         
         final Context context = this;
         
@@ -300,6 +291,7 @@ public class CategoryActivity extends MenuActivity {
                         break;
                 }
                 builder.setMessage(sb.toString().trim());
+                builder.setPositiveButton(android.R.string.ok, null);
                 builder.setNeutralButton((String) getText(R.string.CategoryActivity_Donate),
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -333,7 +325,7 @@ public class CategoryActivity extends MenuActivity {
 
                 builder.setTitle(getResources().getString(R.string.ErrorActivity_Title));
                 builder.setMessage(getResources().getString(R.string.Check_OldVersion));
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface d, final int which) {
                         finish();

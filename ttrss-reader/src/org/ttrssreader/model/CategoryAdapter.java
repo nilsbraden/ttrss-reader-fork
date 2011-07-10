@@ -131,7 +131,7 @@ public class CategoryAdapter extends MainAdapter {
             displayUnread = false;
         
         // Virtual Feeds
-        if (Controller.getInstance().displayVirtuals()) {
+        if (Controller.getInstance().showVirtual()) {
             query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
             query.append(" WHERE id<0 ORDER BY id) AS a ");

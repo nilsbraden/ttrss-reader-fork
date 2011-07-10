@@ -24,7 +24,7 @@ import android.content.SharedPreferences;
 public class Constants {
     
     public static String EMPTY = "";
-    private static String APPENDED_DEFAULT = "_DEFAULT";
+    public static String APPENDED_DEFAULT = "_DEFAULT";
     
     // Connection
     public static String URL = "ConnectionUrlPreference";
@@ -197,4 +197,19 @@ public class Constants {
         // Commit when finished
         editor.commit();
     }
+    
+    public static String constant2Var(String s) {
+        String[] parts = s.split("_");
+        String camelCaseString = "";
+        for (String part : parts) {
+            camelCaseString = camelCaseString + toProperCase(part);
+        }
+        // We want the String to starrt with a lower-case letter...
+        return camelCaseString.substring(0, 1).toLowerCase() + camelCaseString.substring(1);
+    }
+    
+    static String toProperCase(String s) {
+        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
+    }
+    
 }

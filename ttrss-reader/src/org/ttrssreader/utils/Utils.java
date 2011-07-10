@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.regex.Pattern;
@@ -143,8 +144,8 @@ public class Utils {
      * Checks the config for a user-defined server, returns true if a server has been defined
      */
     public static boolean checkConfig() {
-        String url = Controller.getInstance().getUrl();
-        if (url.equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
+        URI uri = Controller.getInstance().url();
+        if (uri.toASCIIString().equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
             return false;
         }
         return true;

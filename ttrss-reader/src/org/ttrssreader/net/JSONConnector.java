@@ -97,9 +97,6 @@ public class JSONConnector implements Connector {
     private static final String COUNTER_ID = "id";
     private static final String COUNTER_COUNTER = "counter";
     
-    private String serverUrl;
-    private String userName;
-    private String password;
     private String httpUserName;
     private String httpPassword;
     
@@ -113,21 +110,37 @@ public class JSONConnector implements Connector {
     HttpPost post;
     DefaultHttpClient client;
     
-    public JSONConnector(String serverUrl, String userName, String password, String httpUser, String httpPw) {
-        this.serverUrl = serverUrl;
-        this.userName = userName;
-        this.password = password;
+    public JSONConnector() {
         this.sessionId = null;
-        this.httpUserName = httpUser;
-        this.httpPassword = httpPw;
+        refreshHTTPAuth();
+        this.post = new HttpPost();
+    }
+    
+    private void refreshHTTPAuth() {
+        boolean refreshNeeded = false;
         
-        if (!httpUserName.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
-            this.credProvider = new BasicCredentialsProvider();
-            this.credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                    new UsernamePasswordCredentials(httpUserName, httpPassword));
+        if (httpUserName == null || !httpUserName.equals(Controller.getInstance().httpUsername())) {
+            refreshNeeded = true;
+            httpUserName = Controller.getInstance().httpUsername();
         }
         
-        post = new HttpPost();
+        if (httpPassword == null || !httpPassword.equals(Controller.getInstance().httpPassword())) {
+            refreshNeeded = true;
+            httpPassword = Controller.getInstance().httpPassword();
+        }
+        
+        if (!refreshNeeded)
+            return;
+        
+        if (Controller.getInstance().useHttpAuth()) {
+            // Refresh Credentials-Provider
+            if (!httpUserName.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
+                this.credProvider = new BasicCredentialsProvider();
+                this.credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                        new UsernamePasswordCredentials(httpUserName, httpPassword));
+            }
+            
+        }
     }
     
     private String doRequest(String url, boolean firstCall) {
@@ -216,9 +229,9 @@ public class JSONConnector implements Connector {
         
         // Check if API is enabled for the user
         if (strResponse.contains(API_DISABLED)) {
-            Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, userName));
+            Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, Controller.getInstance().username()));
             hasLastError = true;
-            lastError = String.format(API_DISABLED_MESSAGE, userName);
+            lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
             return null;
         }
         
@@ -322,7 +335,7 @@ public class JSONConnector implements Connector {
             
             sessionId = null;
             
-            String url = serverUrl + String.format(OP_LOGIN, userName, password);
+            String url = Controller.getInstance().url() + String.format(OP_LOGIN, Controller.getInstance().username(), Controller.getInstance().password());
             JSONResult jsonResult = getJSONLoginResponse(url);
             
             if (!hasLastError && jsonResult != null) {
@@ -361,10 +374,10 @@ public class JSONConnector implements Connector {
         Log.d(Utils.TAG, "login() didn't work, trying loginBase64()...");
         sessionId = null;
         
-        byte[] bytes = password.getBytes();
+        byte[] bytes = Controller.getInstance().password().getBytes();
         String mPasswordEncoded = Base64.encodeBytes(bytes);
         
-        String url = serverUrl + String.format(OP_LOGIN, userName, mPasswordEncoded);
+        String url = Controller.getInstance().url() + String.format(OP_LOGIN, Controller.getInstance().username(), mPasswordEncoded);
         JSONResult jsonResult = getJSONLoginResponse(url);
         
         if (!hasLastError && jsonResult != null) {
@@ -518,7 +531,7 @@ public class JSONConnector implements Connector {
     @Override
     public void getCounters() {
         long time = System.currentTimeMillis();
-        String url = serverUrl + String.format(OP_GET_COUNTERS);
+        String url = Controller.getInstance().url() + String.format(OP_GET_COUNTERS);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
@@ -579,7 +592,7 @@ public class JSONConnector implements Connector {
         long time = System.currentTimeMillis();
         Set<Category> ret = new LinkedHashSet<Category>();
         
-        String url = serverUrl + String.format(OP_GET_CATEGORIES);
+        String url = Controller.getInstance().url() + String.format(OP_GET_CATEGORIES);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
@@ -629,7 +642,7 @@ public class JSONConnector implements Connector {
         Set<Feed> ret = new LinkedHashSet<Feed>();;
         
         // Hardcoded -4 fetches all feeds. See http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
-        String url = serverUrl + String.format(OP_GET_FEEDS, "-4");
+        String url = Controller.getInstance().url() + String.format(OP_GET_FEEDS, "-4");
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
@@ -690,7 +703,7 @@ public class JSONConnector implements Connector {
             if (idList.length() == 0)
                 continue;
             
-            String url = serverUrl + String.format(OP_GET_ARTICLE, idList);
+            String url = Controller.getInstance().url() + String.format(OP_GET_ARTICLE, idList);
             JSONArray jsonResult = getJSONResponseAsArray(url);
             
             if (jsonResult == null)
@@ -709,7 +722,7 @@ public class JSONConnector implements Connector {
     @Override
     public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory) {
         long time = System.currentTimeMillis();
-        String url = serverUrl + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, isCategory);
+        String url = Controller.getInstance().url() + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, isCategory);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
@@ -744,7 +757,7 @@ public class JSONConnector implements Connector {
         String ret = "";
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            String url = serverUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 2);
+            String url = Controller.getInstance().url() + String.format(OP_UPDATE_ARTICLE, idList, articleState, 2);
             ret = doRequestNoAnswer(url);
         }
         return (ret != null && ret.contains(OK));
@@ -763,7 +776,7 @@ public class JSONConnector implements Connector {
         String ret = "";
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            String url = serverUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 0);
+            String url = Controller.getInstance().url() + String.format(OP_UPDATE_ARTICLE, idList, articleState, 0);
             ret = doRequestNoAnswer(url);
         }
         return (ret != null && ret.contains(OK));
@@ -782,7 +795,7 @@ public class JSONConnector implements Connector {
         String ret = "";
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            String url = serverUrl + String.format(OP_UPDATE_ARTICLE, idList, articleState, 1);
+            String url = Controller.getInstance().url() + String.format(OP_UPDATE_ARTICLE, idList, articleState, 1);
             ret = doRequestNoAnswer(url);
         }
         return (ret != null && ret.contains(OK));
@@ -795,7 +808,7 @@ public class JSONConnector implements Connector {
      */
     @Override
     public boolean setRead(int id, boolean isCategory) {
-        String url = serverUrl + String.format(OP_CATCHUP, id, (isCategory ? 1 : 0));
+        String url = Controller.getInstance().url() + String.format(OP_CATCHUP, id, (isCategory ? 1 : 0));
         String ret = doRequestNoAnswer(url);
         return (ret != null && ret.contains(OK));
     }
@@ -807,7 +820,7 @@ public class JSONConnector implements Connector {
      */
     @Override
     public String getPref(String pref) {
-        String url = serverUrl + String.format(OP_GET_PREF, pref);
+        String url = Controller.getInstance().url() + String.format(OP_GET_PREF, pref);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)
@@ -841,7 +854,7 @@ public class JSONConnector implements Connector {
      */
     @Override
     public int getVersion() {
-        String url = serverUrl + OP_GET_VERSION;
+        String url = Controller.getInstance().url() + OP_GET_VERSION;
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)

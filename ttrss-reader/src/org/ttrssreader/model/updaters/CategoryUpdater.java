@@ -38,7 +38,7 @@ public class CategoryUpdater implements IUpdatable {
             if (c.unread == 0)
                 continue;
             
-            boolean onlyUnreadArticles = Controller.getInstance().displayOnlyUnread();
+            boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
             Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true, true);
         }
         
