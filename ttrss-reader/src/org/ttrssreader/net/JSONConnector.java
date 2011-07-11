@@ -97,7 +97,7 @@ public class JSONConnector implements Connector {
     private static final String COUNTER_ID = "id";
     private static final String COUNTER_COUNTER = "counter";
     
-    private String httpUserName;
+    private String httpUsername;
     private String httpPassword;
     
     private String sessionId;
@@ -119,25 +119,27 @@ public class JSONConnector implements Connector {
     private void refreshHTTPAuth() {
         boolean refreshNeeded = false;
         
-        if (httpUserName == null || !httpUserName.equals(Controller.getInstance().httpUsername())) {
+        if (httpUsername == null || !httpUsername.equals(Controller.getInstance().httpUsername())) {
             refreshNeeded = true;
-            httpUserName = Controller.getInstance().httpUsername();
         }
         
         if (httpPassword == null || !httpPassword.equals(Controller.getInstance().httpPassword())) {
             refreshNeeded = true;
-            httpPassword = Controller.getInstance().httpPassword();
         }
         
         if (!refreshNeeded)
             return;
         
         if (Controller.getInstance().useHttpAuth()) {
+            // Refresh data
+            httpUsername = Controller.getInstance().httpUsername();
+            httpPassword = Controller.getInstance().httpPassword();
+            
             // Refresh Credentials-Provider
-            if (!httpUserName.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
-                this.credProvider = new BasicCredentialsProvider();
-                this.credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                        new UsernamePasswordCredentials(httpUserName, httpPassword));
+            if (!httpUsername.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
+                credProvider = new BasicCredentialsProvider();
+                credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                        new UsernamePasswordCredentials(httpUsername, httpPassword));
             }
             
         }
@@ -147,6 +149,9 @@ public class JSONConnector implements Connector {
         Log.v(Utils.TAG, "Request: " + url);
         
         try {
+            // check if http-Auth-Settings have changed, reload values if necessary
+            refreshHTTPAuth();
+            
             post.setURI(new URI(url));
             HttpParams params = post.getParams();
             if (client == null) {

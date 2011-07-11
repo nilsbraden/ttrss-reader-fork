@@ -4,7 +4,7 @@
     package="org.ttrssreader"
     android:installLocation="auto"
     android:versionName="1.03"
-    android:versionCode="1031"
+    android:versionCode="1032"
 >
 
     <application
