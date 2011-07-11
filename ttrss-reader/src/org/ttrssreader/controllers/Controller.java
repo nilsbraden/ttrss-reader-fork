@@ -151,7 +151,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         
         int version = getServerVersion();
         if (version >= 153) {
-            Log.d(Utils.TAG, "Server-version seems to be 1.5.3 or above, using new JSONPOSTConnector.");
             ttrssPostConnector = new JSONPOSTConnector();
             ttrssConnector = null;
         } else if (version <= 0) {
@@ -802,7 +801,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
                         String fieldName = Constants.constant2Var(field.getName());
                         Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
                                                                                       // fields are returned
-                        Log.v(Utils.TAG, "Field " + fieldName + " successfully reset to null.");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

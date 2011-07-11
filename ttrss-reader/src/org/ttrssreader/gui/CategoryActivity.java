@@ -65,11 +65,7 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     protected void onCreate(Bundle instance) {
-        // TODO
-        // StrictMode.setVmPolicy(StrictMode.VmPolicy.LAX);
-        // StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.LAX);
         super.onCreate(instance);
-        
         setContentView(R.layout.categorylist);
         
         // Register our own ExceptionHander
@@ -275,6 +271,7 @@ public class CategoryActivity extends MenuActivity {
                             public void onClick(final DialogInterface d, final int which) {
                                 Intent i = new Intent(context, PreferencesActivity.class);
                                 startActivity(i);
+                                d.dismiss();
                             }
                         });
                 break;
@@ -298,6 +295,7 @@ public class CategoryActivity extends MenuActivity {
                             public void onClick(final DialogInterface d, final int which) {
                                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
                                         R.string.DonateUrl))));
+                                d.dismiss();
                             }
                         });
                 break;
@@ -337,6 +335,7 @@ public class CategoryActivity extends MenuActivity {
                             public void onClick(final DialogInterface d, final int which) {
                                 Intent i = new Intent(context, PreferencesActivity.class);
                                 startActivity(i);
+                                d.dismiss();
                             }
                         });
                 break;
