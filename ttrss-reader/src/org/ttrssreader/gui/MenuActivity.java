@@ -203,8 +203,12 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     protected abstract void doUpdate();
     
     protected void doCache(boolean onlyArticles) {
-        if (isCacherRunning())
-            return;
+        if (isCacherRunning()) {
+            if (!onlyArticles)
+                ForegroundService.loadImagesToo();
+            else
+                return;
+        }
         
         Intent intent;
         if (onlyArticles) {

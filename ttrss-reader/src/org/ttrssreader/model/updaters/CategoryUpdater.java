@@ -39,7 +39,7 @@ public class CategoryUpdater implements IUpdatable {
                 continue;
             
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
-            Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true, true);
+            Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true); // Don't force update, offline *means* offline!
         }
         
         unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);

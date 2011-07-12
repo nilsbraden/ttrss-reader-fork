@@ -55,6 +55,13 @@ public class ForegroundService extends Service implements ICacheEndListener {
         return instance != null;
     }
     
+    private boolean imageCache = false;
+    
+    public static void loadImagesToo() {
+        if (instance != null)
+            instance.imageCache = true;
+    }
+    
     void invokeMethod(Method method, Object[] args) {
         try {
             method.invoke(this, mStartForegroundArgs);
@@ -187,8 +194,15 @@ public class ForegroundService extends Service implements ICacheEndListener {
     
     @Override
     public void onCacheEnd() {
-        stopForegroundCompat(R.string.Cache_service_started);
-        this.stopSelf();
+        // Start a new cacher if images have been requested
+        if (imageCache) {
+            imageCache = false;
+            imageCacher = new Cacher(this, new ImageCacher(this, false));
+            imageCacher.execute();
+        } else {
+            stopForegroundCompat(R.string.Cache_service_started);
+            this.stopSelf();
+        }
     }
     
     @Override
