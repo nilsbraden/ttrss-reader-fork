@@ -99,9 +99,6 @@ public class CategoryActivity extends MenuActivity {
             doCache(true); // articles
         }
         
-        Controller.getInstance().lastOpenedFeed = null;
-        Controller.getInstance().lastOpenedArticle = null;
-        
         updateable = new CategoryUpdater();
         adapter = new CategoryAdapter(this);
         listView.setAdapter(adapter);
@@ -110,6 +107,10 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        Controller.getInstance().lastOpenedFeed = null;
+        Controller.getInstance().lastOpenedArticle = null;
+        
         refreshAndUpdate();
         DBHelper.getInstance().checkAndInitializeDB(this);
     }

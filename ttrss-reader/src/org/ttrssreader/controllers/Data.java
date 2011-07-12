@@ -99,6 +99,7 @@ public class Data {
         if (o instanceof Category) {
             virtCategoriesUpdated = 0;
             categoriesUpdated = 0;
+            countersUpdated = 0;
         } else if (o instanceof Feed) {
             feedsUpdated = 0;
         } else if (o instanceof Integer) {
@@ -108,12 +109,16 @@ public class Data {
     }
     
     // takes about 2.5 seconds on wifi
+    // TODO: Why hasnt there been a check here for the last time data was fetched??
     public void updateCounters(boolean overrideOffline) {
-        if (Utils.isConnected(cm) || overrideOffline)
+        if (countersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+            return;
+        } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
                 Controller.getInstance().getConnector().getCounters();
             } catch (NotInitializedException e) {
             }
+        }
     }
     
     // *** ARTICLES *********************************************************************
