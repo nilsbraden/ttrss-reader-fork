@@ -373,83 +373,48 @@ public class JSONPOSTConnector implements Connector {
         return result;
     }
     
+    /**
+     * Tries to login to the ttrss-server with the base64-encoded password.
+     * 
+     * @return true on success, false otherwise
+     */
     private boolean login() {
         // Just login once, check if already logged in after acquiring the lock on mSessionId
         synchronized (loginLock) {
-            if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN))) {
+            if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN)))
                 return true; // Login done while we were waiting for the lock
-            }
             
             sessionId = null;
             
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_LOGIN);
             params.put(PARAM_USER, Controller.getInstance().username());
-            params.put(PARAM_PW, Controller.getInstance().password());
+            params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
             
             JSONResult jsonResult = getJSONLoginResponse(params);
             
             if (!hasLastError && jsonResult != null) {
-                
                 int i = 0;
+                
                 try {
-                    
                     while (i < jsonResult.getNames().length()) {
                         if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
                             sessionId = jsonResult.getValues().getString(i);
                             return true;
+                        } else {
+                            i++;
                         }
-                        i++;
                     }
                 } catch (Exception e) {
                     hasLastError = true;
                     lastError = e.getMessage() + ", Method: login(String url) threw Exception";
                     e.printStackTrace();
                 }
-                
             }
             
-            // Try again with base64-encoded passphrase
-            if (!loginBase64() && !hasLastError) {
-                hasLastError = true;
-                lastError = "Couldn't login, please check your settings.";
-                return false;
-            } else {
-                return true;
-            }
+            // Login didnt succeed
+            return false;
         }
-    }
-    
-    private boolean loginBase64() {
-        Log.d(Utils.TAG, "login() didn't work, trying loginBase64()...");
-        sessionId = null;
-        
-        Map<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_OP, VALUE_LOGIN);
-        params.put(PARAM_USER, Controller.getInstance().username());
-        params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
-        
-        JSONResult jsonResult = getJSONLoginResponse(params);
-        
-        if (!hasLastError && jsonResult != null) {
-            int i = 0;
-            
-            try {
-                while (i < jsonResult.getNames().length()) {
-                    if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
-                        sessionId = jsonResult.getValues().getString(i);
-                        return true;
-                    } else {
-                        i++;
-                    }
-                }
-            } catch (Exception e) {
-                hasLastError = true;
-                lastError = e.getMessage() + ", Method: login(String url) threw Exception";
-                e.printStackTrace();
-            }
-        }
-        return false;
     }
     
     private String parseMetadata(String str) {

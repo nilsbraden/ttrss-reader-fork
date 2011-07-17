@@ -111,8 +111,8 @@ public class CategoryActivity extends MenuActivity {
         Controller.getInstance().lastOpenedFeed = null;
         Controller.getInstance().lastOpenedArticle = null;
         
-        refreshAndUpdate();
         DBHelper.getInstance().checkAndInitializeDB(this);
+        refreshAndUpdate();
     }
     
     @Override
