@@ -260,11 +260,14 @@ public class JSONPOSTConnector implements Connector {
             lastError = NOT_LOGGED_IN;
             
             // Login and post request again
+            login();
+            // TODO: Verify behavior, login() was removed with revision 4827ca8f7edaa449ca637134f62f212b03bae6c8 See:
+            // https://code.google.com/p/ttrss-reader-fork/source/browse/ttrss-reader/src/org/ttrssreader/net/TTRSSJsonConnector.java?r=4827ca8f7edaa449ca637134f62f212b03bae6c8
+            
             Map<String, String> newMap = new HashMap<String, String>();
             for (String key : map.keySet()) {
                 if (key.equals(SESSION_ID)) {
-                    newMap.put(SESSION_ID, new String(sessionId)); // TODO: sessionId kann null sein. Sollte eig. nicht
-                                                                   // vorkommen.
+                    newMap.put(SESSION_ID, new String(sessionId));
                 } else {
                     newMap.put(key, map.get(key));
                 }
@@ -383,7 +386,7 @@ public class JSONPOSTConnector implements Connector {
         synchronized (loginLock) {
             if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN)))
                 return true; // Login done while we were waiting for the lock
-            
+                
             sessionId = null;
             
             Map<String, String> params = new HashMap<String, String>();

@@ -200,7 +200,7 @@ public class JSONConnector implements Connector {
             return null;
         }
         
-        String strResponse;
+        String strResponse = "";
         long length = -1;
         try {
             strResponse = StringSupport.convertStreamToString(instream);
@@ -223,7 +223,12 @@ public class JSONConnector implements Connector {
             lastError = NOT_LOGGED_IN;
             
             // Login and post request again
-            String tempSessionId = new String(sessionId);
+            String tempSessionId = (sessionId != null ? new String(sessionId) : "__TEST__");
+            
+            login();
+            // TODO: Verify behavior, login() was removed with revision 4827ca8f7edaa449ca637134f62f212b03bae6c8 See:
+            // https://code.google.com/p/ttrss-reader-fork/source/browse/ttrss-reader/src/org/ttrssreader/net/TTRSSJsonConnector.java?r=4827ca8f7edaa449ca637134f62f212b03bae6c8
+            
             if (url.contains(tempSessionId)) {
                 url = url.replace(tempSessionId, sessionId);
             }
