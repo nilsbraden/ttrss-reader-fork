@@ -123,7 +123,7 @@ public class DBHelper {
             Cursor c = null;
             try {
                 // Try to access the DB
-                c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_FEEDS, null);
+                c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_CATEGORIES, null);
                 c.getCount();
                 if (c.moveToFirst())
                     c.getInt(0);

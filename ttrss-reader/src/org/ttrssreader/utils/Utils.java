@@ -145,7 +145,7 @@ public class Utils {
      */
     public static boolean checkConfig() {
         URI uri = Controller.getInstance().url();
-        if (uri.toASCIIString().equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
+        if (uri == null || uri.toASCIIString().equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
             return false;
         }
         return true;
