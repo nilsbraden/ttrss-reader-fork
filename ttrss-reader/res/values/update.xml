@@ -19,6 +19,11 @@
     <string-array
         name="updates"
     >
+    <item>v1.04
+            \n * Do VACUUM only once a month or manually from preferences
+            \n * Fixed encoding of passwords with special characters
+            \n * Tried to fix bug due to wrong server-version detected
+    </item>
     
     <item>v1.03
             \n * Fixed Issue #67: New preferences allow you to change date and time formatting

@@ -682,9 +682,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public int getServerVersion() {
-        // Refresh only once ever 12 hours or if no serverVersion is stored in preferences
-        long oldTime = (System.currentTimeMillis() - 12 * 60 * 60 * 1000);
-        
         if (serverVersion == null)
             serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
         
@@ -692,7 +689,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
             serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
                     Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
         
-        // Only check if <0 or (<153 and 12 hours ago)
+        // Refresh only once ever 12 hours or if no serverVersion is stored in preferences
+        long oldTime = (System.currentTimeMillis() - 12 * 60 * 60 * 1000L); // "L" to make sure we are working on long values here
         if (serverVersion < 0 || (serverVersion < 153 && serverVersionLastUpdate < oldTime)) {
             
             if (ttrssConnector != null || ttrssPostConnector != null) {
@@ -709,9 +707,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                     }
                 };
                 task.execute();
-                
             }
-            
         }
         
         return serverVersion;
