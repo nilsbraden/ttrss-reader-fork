@@ -31,7 +31,6 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
-import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -41,7 +40,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
-import android.widget.Toast;
 
 public class DBHelper {
     
@@ -133,7 +131,7 @@ public class DBHelper {
                     c.getInt(0);
                 
             } catch (Exception e) {
-                Toast.makeText(context, "Database was corrupted, creating a new one...", Toast.LENGTH_LONG);
+                Log.d(Utils.TAG, "Database was corrupted, creating a new one...");
                 
                 closeDB();
                 backupAndRemoveDB();
@@ -147,8 +145,7 @@ public class DBHelper {
             
             // Do VACUUM if necessary and hasn't been done yet 
             if (Controller.getInstance().isVacuumDBScheduled() && !vacuumDone) {
-                ProgressDialog dialog = ProgressDialog.show(context, "VACUUM", 
-                        "Please wait while vacuuming the DB...", true);
+                Log.d(Utils.TAG, "Doing VACUUM, this can take a while...");
                 
                 // Reset scheduling-data
                 Controller.getInstance().setVacuumDBScheduled(false);
@@ -156,8 +153,6 @@ public class DBHelper {
                 
                 // call vacuum
                 vacuum();
-
-                dialog.dismiss();
             }
             
         }
