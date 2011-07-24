@@ -261,6 +261,18 @@
                     android:defaultValue="false"
                     android:summary="@string/SplitLongGetRequestsSummary"
                     android:key="SplitLongGetRequestsPreference" />
+                    
+                <CheckBoxPreference
+                    android:title="@string/LogSensitiveDataTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/LogSensitiveDataSummary"
+                    android:key="LogSensitiveDataPreference" />
+                    
+                <CheckBoxPreference
+                    android:title="@string/VacuumDBOnNextStartupTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/VacuumDBOnNextStartupSummary"
+                    android:key="VacuumDBScheduledPreference" />
 
                 <CheckBoxPreference
                     android:title="@string/DeleteDBOnStartupTitle"

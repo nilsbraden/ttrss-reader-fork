@@ -90,10 +90,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean imageCacheUnread = null;
     private Boolean articleCacheUnread = null;
     private Boolean splitGetRequests = null;
+    private Boolean isVacuumDBScheduled = null;
     private Boolean isDeleteDBScheduled = null;
     private Boolean isDeleteDBOnStartup = null;
     private Boolean cacheOnStartup = null;
     private Boolean cacheImagesOnStartup = null;
+    private Boolean logSensitiveData = null;
     
     private Long lastUpdateTime = null;
     private String lastVersionRun = null;
@@ -514,6 +516,24 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.splitGetRequests = splitGetRequests;
     }
     
+    public boolean isVacuumDBScheduled() {
+        long time = System.currentTimeMillis();
+        long thirtyDays = 30 * 24 * 60 * 60 * 1000L; // Note "L" for explicit cast to long
+
+        if (lastVacuumDate() < (time - thirtyDays))
+            return true;
+        
+        if (isVacuumDBScheduled == null)
+            isVacuumDBScheduled = prefs
+                    .getBoolean(Constants.VACUUM_DB_SCHEDULED, Constants.VACUUM_DB_SCHEDULED_DEFAULT);
+        return isVacuumDBScheduled;
+    }
+    
+    public void setVacuumDBScheduled(boolean isVacuumDBScheduled) {
+        put(Constants.VACUUM_DB_SCHEDULED, isVacuumDBScheduled);
+        this.isVacuumDBScheduled = isVacuumDBScheduled;
+    }
+    
     public boolean isDeleteDBScheduled() {
         if (isDeleteDBScheduled == null)
             isDeleteDBScheduled = prefs
@@ -568,6 +588,19 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setCacheImagesOnStartup(boolean cacheImagesOnStartup) {
         put(Constants.CACHE_IMAGES_ON_STARTUP, cacheImagesOnStartup);
         this.cacheImagesOnStartup = cacheImagesOnStartup;
+    }
+    
+    // logSensitiveData
+    
+    public boolean logSensitiveData() {
+        if (logSensitiveData == null)
+            logSensitiveData = prefs.getBoolean(Constants.LOG_SENSITIVE_DATA, Constants.LOG_SENSITIVE_DATA_DEFAULT);
+        return logSensitiveData;
+    }
+    
+    public void setLogSensitiveData(boolean logSensitiveData) {
+        put(Constants.LOG_SENSITIVE_DATA, logSensitiveData);
+        this.logSensitiveData = logSensitiveData;
     }
     
     // ******* INTERNAL Data ****************************
@@ -649,8 +682,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public int getServerVersion() {
-        // Refresh only once ever 24 hours or if no serverVersion is stored in preferences
-        long oldTime = (System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        // Refresh only once ever 12 hours or if no serverVersion is stored in preferences
+        long oldTime = (System.currentTimeMillis() - 12 * 60 * 60 * 1000);
         
         if (serverVersion == null)
             serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
@@ -659,7 +692,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
             serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
                     Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
         
-        if (serverVersion < 0 || serverVersionLastUpdate < oldTime) {
+        // Only check if <0 or (<153 and 12 hours ago)
+        if (serverVersion < 0 || (serverVersion < 153 && serverVersionLastUpdate < oldTime)) {
             
             if (ttrssConnector != null || ttrssPostConnector != null) {
                 

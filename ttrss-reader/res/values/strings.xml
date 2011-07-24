@@ -160,6 +160,10 @@
     <string name="CacheUnreadArticlesSummary">Cache unread articles only?</string>
     <string name="SplitLongGetRequestsTitle">Split long GET-Requests</string>
     <string name="SplitLongGetRequestsSummary">Only use if you got problems with server-side security-scanners like Suhosin. Splits long requests into several small ones.</string>
+    <string name="LogSensitiveDataTitle">Log sensitive data?</string>
+    <string name="LogSensitiveDataSummary">If enabled the log-output of this application may contain sensitive information such as passwords or session-ids from your configuration. Only enable if necessary, should be for debugging purposes only.</string>
+    <string name="VacuumDBOnNextStartupTitle">VACUUM DB on next startup</string>
+    <string name="VacuumDBOnNextStartupSummary">Removes unnecessary data from DB-File to decrease file-size. This is done automatically every 30 days and can take up to a minute.</string>
     <string name="DeleteDBOnNextStartupTitle">Delete DB on next startup</string>
     <string name="DeleteDBOnNextStartupSummary">If set to true the internal Database will be deleted only on the next start of the application.</string>
     <string name="DeleteDBOnStartupTitle">Delete DB on startup</string>
