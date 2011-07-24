@@ -167,7 +167,13 @@ public class JSONPOSTConnector implements Connector {
             refreshHTTPAuth();
             
             // Set Address
-            post.setURI(Controller.getInstance().url());
+            if (Controller.getInstance().url() != null) {
+                post.setURI(Controller.getInstance().url());
+            } else {
+                hasLastError = true;
+                lastError = "Server-URL could not be parsed, please check your preferences.";
+                return null;
+            }
             
             // Add POST data
             JSONObject json = new JSONObject(map);
