@@ -524,7 +524,7 @@ public class JSONConnector implements Connector {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
-                DBHelper.getInstance().purgeArticlesNumber(Controller.getInstance().getArticleLimit());
+                DBHelper.getInstance().purgeArticlesNumber();
             }
         }
         

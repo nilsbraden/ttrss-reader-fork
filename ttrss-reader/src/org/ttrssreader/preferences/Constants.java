@@ -85,23 +85,27 @@ public class Constants {
     public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesPreference";
     public static String ARTICLE_CACHE_UNREAD = "CacheUnreadArticlesPreference";
     public static String SPLIT_GET_REQUESTS = "SplitLongGetRequestsPreference";
+    public static String VACUUM_DB_SCHEDULED = "VacuumDBScheduledPreference";
     public static String DELETE_DB_SCHEDULED = "DeleteDBScheduledPreference";
     public static String DELETE_DB_ON_STARTUP = "DeleteDBOnStartupPreference";
     public static String SERVER_VERSION = "ServerVersion";
     public static String SERVER_VERSION_LAST_UPDATE = "ServerVersionLastUpdate";
     public static String CACHE_ON_STARTUP = "CacheOnStartupPreference";
     public static String CACHE_IMAGES_ON_STARTUP = "CacheImagesOnStartupPreference";
+    public static String LOG_SENSITIVE_DATA = "LogSensitiveDataPreference";
     // System Default Values
     public static int IMAGE_CACHE_SIZE_DEFAULT = 100;
     public static boolean IMAGE_CACHE_UNREAD_DEFAULT = true;
     public static boolean ARTICLE_CACHE_UNREAD_DEFAULT = true;
     public static boolean SPLIT_GET_REQUESTS_DEFAULT = false;
+    public static boolean VACUUM_DB_SCHEDULED_DEFAULT = false;
     public static boolean DELETE_DB_SCHEDULED_DEFAULT = false;
     public static boolean DELETE_DB_ON_STARTUP_DEFAULT = false;
     public static int SERVER_VERSION_DEFAULT = -1;
     public static long SERVER_VERSION_LAST_UPDATE_DEFAULT = -1;
     public static boolean CACHE_ON_STARTUP_DEFAULT = false;
     public static boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
+    public static boolean LOG_SENSITIVE_DATA_DEFAULT = false;
     
     // Internal
     public static String DATABASE_VERSION = "DatabaseVersion";

@@ -31,10 +31,12 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
@@ -45,6 +47,7 @@ public class DBHelper {
     
     private static DBHelper instance = null;
     private boolean initialized = false;
+    private boolean vacuumDone = false;
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
@@ -105,7 +108,7 @@ public class DBHelper {
         // Check if deleteDB is scheduled or if DeleteOnStartup is set
         if (Controller.getInstance().isDeleteDBScheduled()) {
             if (deleteDB()) {
-                initialized = initializeController();
+                initialized = initializeDBHelper();
                 Controller.getInstance().resetDeleteDBScheduled();
                 return; // Don't need to check if DB is corrupted, it is NEW!
             }
@@ -113,13 +116,14 @@ public class DBHelper {
         
         // Initialize DB
         if (!initialized) {
-            initialized = initializeController();
+            initialized = initializeDBHelper();
         } else if (db == null || !db.isOpen()) {
-            initialized = initializeController();
+            initialized = initializeDBHelper();
         }
         
-        // Test if DB is accessible, backup and delete if not
+        // Test if DB is accessible, backup and delete if not, else do the vacuuming
         if (initialized) {
+            
             Cursor c = null;
             try {
                 // Try to access the DB
@@ -132,50 +136,69 @@ public class DBHelper {
                 Toast.makeText(context, "Database was corrupted, creating a new one...", Toast.LENGTH_LONG);
                 
                 closeDB();
-                
-                // Move DB-File to backup
-                File f = context.getDatabasePath(DATABASE_NAME);
-                f.renameTo(new File(f.getAbsolutePath() + DATABASE_BACKUP_NAME + System.currentTimeMillis()));
-                
-                // Find setReadble method in old api
-                try {
-                    Class<?> cls = SharedPreferences.Editor.class;
-                    Method m = cls.getMethod("setReadble");
-                    m.invoke(f, true, false);
-                } catch (Exception e1) {
-                }
-                
-                // Check if there are too many old backups
-                FilenameFilter fnf = new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String filename) {
-                        if (filename.contains(DATABASE_BACKUP_NAME))
-                            return true;
-                        return false;
-                    }
-                };
-                File[] backups = f.getParentFile().listFiles(fnf);
-                if (backups != null && backups.length > 3) {
-                    // Sort list of files by last access date
-                    List<File> list = Arrays.asList(backups);
-                    Collections.sort(list, new FileDateComparator());
-                    
-                    for (int i = list.size(); i > 2; i++) {
-                        // Delete all except the 2 newest backups
-                        list.get(i).delete();
-                    }
-                }
+                backupAndRemoveDB();
                 
                 // Initialize again...
-                initialized = initializeController();
+                initialized = initializeDBHelper();
             } finally {
                 if (c != null)
                     c.close();
             }
+            
+            // Do VACUUM if necessary and hasn't been done yet 
+            if (Controller.getInstance().isVacuumDBScheduled() && !vacuumDone) {
+                ProgressDialog dialog = ProgressDialog.show(context, "VACUUM", 
+                        "Please wait while vacuuming the DB...", true);
+                
+                // Reset scheduling-data
+                Controller.getInstance().setVacuumDBScheduled(false);
+                Controller.getInstance().setLastVacuumDate();
+                
+                // call vacuum
+                vacuum();
+
+                dialog.dismiss();
+            }
+            
         }
     }
     
-    private synchronized boolean initializeController() {
+    private synchronized void backupAndRemoveDB() {
+        // Move DB-File to backup
+        File f = context.getDatabasePath(DATABASE_NAME);
+        f.renameTo(new File(f.getAbsolutePath() + DATABASE_BACKUP_NAME + System.currentTimeMillis()));
+        
+        // Find setReadble method in old api
+        try {
+            Class<?> cls = SharedPreferences.Editor.class;
+            Method m = cls.getMethod("setReadble");
+            m.invoke(f, true, false);
+        } catch (Exception e1) {
+        }
+        
+        // Check if there are too many old backups
+        FilenameFilter fnf = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                if (filename.contains(DATABASE_BACKUP_NAME))
+                    return true;
+                return false;
+            }
+        };
+        File[] backups = f.getParentFile().listFiles(fnf);
+        if (backups != null && backups.length > 3) {
+            // Sort list of files by last access date
+            List<File> list = Arrays.asList(backups);
+            Collections.sort(list, new FileDateComparator());
+            
+            for (int i = list.size(); i > 2; i++) {
+                // Delete all except the 2 newest backups
+                list.get(i).delete();
+            }
+        }
+    }
+    
+    private synchronized boolean initializeDBHelper() {
         
         if (context == null) {
             Log.e(Utils.TAG, "Can't handle internal DB without Context-Object.");
@@ -236,7 +259,7 @@ public class DBHelper {
             return initialized;
         } else {
             Log.w(Utils.TAG, "Controller not initialized, trying to do that now...");
-            initialized = initializeController();
+            initialized = initializeDBHelper();
             return initialized;
         }
     }
@@ -681,45 +704,49 @@ public class DBHelper {
         }
     }
     
-    public void purgeArticlesNumber(int number) {
+    public static final int PURGE_ARTICLES = -1;
+    
+    public void purgeArticlesNumber() {
         if (isDBAvailable()) {
+            int number = Controller.getInstance().getArticleLimit();
             String idList = "select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
             }
-            vacuum();
         }
     }
+    
+    public static final int PURGE_PUBLISHED_ARTICLES = -2;
     
     public void purgePublishedArticles() {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "isPublished>0", null);
             }
-            vacuum();
         }
     }
+    
+    public static final int PURGE_STARRED_ARTICLES = -3;
     
     public void purgeStarredArticles() {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "isStarred>0", null);
             }
-            vacuum();
         }
     }
     
-    private void vacuum() {
-        long twentyFourHoursAgo = System.currentTimeMillis() - (24 * 60 * 60 * 1000);
+    public void vacuum() {
+        if (vacuumDone)
+            return;
         
-        if (Controller.getInstance().lastVacuumDate() < twentyFourHoursAgo) {
-            try {
-                db.execSQL("vacuum");
-                Controller.getInstance().setLastVacuumDate();
-                Log.i(Utils.TAG, "SQLite VACUUM succeeded.");
-            } catch (Exception e) {
-                Log.w(Utils.TAG, "SQLite VACUUM failed: " + e.getMessage() + " " + e.getCause());
-            }
+        try {
+            long time = System.currentTimeMillis();
+            db.execSQL("vacuum");
+            vacuumDone = true;
+            Log.d(Utils.TAG, "SQLite VACUUM took " + (System.currentTimeMillis() - time) + " ms.");
+        } catch (SQLException e) {
+            Log.w(Utils.TAG, "SQLite VACUUM failed: " + e.getMessage() + " " + e.getCause());
         }
     }
     

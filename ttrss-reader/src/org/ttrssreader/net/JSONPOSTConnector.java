@@ -176,10 +176,18 @@ public class JSONPOSTConnector implements Connector {
             post.setEntity(jsonData);
             
             // LOG-Output
-            Object paramPw = json.remove(PARAM_PW);
-            Log.i(Utils.TAG, "Request: " + json);
-            currentRequest = new String(json.toString());
-            json.put(PARAM_PW, paramPw);
+            if (!Controller.getInstance().logSensitiveData()) {
+                // Filter password and session-id
+                Object paramPw = json.remove(PARAM_PW);
+                Object paramSID = json.remove(SESSION_ID);
+                Log.i(Utils.TAG, "Request: " + json);
+                currentRequest = new String(json.toString());
+                json.put(PARAM_PW, paramPw);
+                json.put(SESSION_ID, paramSID);
+            } else {
+                Log.i(Utils.TAG, "Request: " + json);
+                currentRequest = new String(json.toString());
+            }
             
             HttpParams params = post.getParams();
             if (client == null) {
@@ -256,10 +264,8 @@ public class JSONPOSTConnector implements Connector {
         if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
             
             Log.w(Utils.TAG, "Not logged in, retrying...");
-            hasLastError = true;
-            lastError = NOT_LOGGED_IN;
-            
             // Login and post request again
+            sessionId = null; // Reset SID
             login();
             // TODO: Verify behavior, login() was removed with revision 4827ca8f7edaa449ca637134f62f212b03bae6c8 See:
             // https://code.google.com/p/ttrss-reader-fork/source/browse/ttrss-reader/src/org/ttrssreader/net/TTRSSJsonConnector.java?r=4827ca8f7edaa449ca637134f62f212b03bae6c8
@@ -356,26 +362,6 @@ public class JSONPOSTConnector implements Connector {
         return result;
     }
     
-    private JSONResult getJSONLoginResponse(Map<String, String> map) {
-        // No check with assertLogin here, we are about to login so no need for this.
-        String strResponse = doRequest(map, true);
-        
-        if (strResponse == null)
-            return null;
-        
-        JSONResult result = null;
-        if (!hasLastError) {
-            try {
-                result = new JSONResult(strResponse);
-            } catch (Exception e) {
-                hasLastError = true;
-                lastError = "An Error occurred. Message from Server: " + strResponse;
-            }
-        }
-        
-        return result;
-    }
-    
     /**
      * Tries to login to the ttrss-server with the base64-encoded password.
      * 
@@ -394,25 +380,35 @@ public class JSONPOSTConnector implements Connector {
             params.put(PARAM_USER, Controller.getInstance().username());
             params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
             
-            JSONResult jsonResult = getJSONLoginResponse(params);
+            // No check with assertLogin here, we are about to login so no need for this.
+            String strResponse = doRequest(params, true);
+            if (strResponse == null || hasLastError)
+                return false;
             
-            if (!hasLastError && jsonResult != null) {
+            JSONResult jsonResult = null;
+            try {
+                jsonResult = new JSONResult(strResponse);
+            } catch (Exception e) {
+                // Shorten the message so we dont need to print 1MB of data in error-message
+                String messageFromServer = (strResponse.length() > 200 ? strResponse.substring(0, 200) : strResponse);
+                hasLastError = true;
+                lastError = "An Error occurred: " + e.getMessage() + ". Message from Server: " + messageFromServer;
+                return false;
+            }
+            
+            try {
                 int i = 0;
-                
-                try {
-                    while (i < jsonResult.getNames().length()) {
-                        if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
-                            sessionId = jsonResult.getValues().getString(i);
-                            return true;
-                        } else {
-                            i++;
-                        }
+                while (i < jsonResult.getNames().length()) {
+                    if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
+                        sessionId = jsonResult.getValues().getString(i);
+                        return true;
                     }
-                } catch (Exception e) {
-                    hasLastError = true;
-                    lastError = e.getMessage() + ", Method: login(String url) threw Exception";
-                    e.printStackTrace();
+                    i++;
                 }
+            } catch (Exception e) {
+                hasLastError = true;
+                lastError = e.getMessage() + ", Method: login(String url) threw Exception";
+                e.printStackTrace();
             }
             
             // Login didnt succeed
@@ -532,7 +528,8 @@ public class JSONPOSTConnector implements Connector {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
-                DBHelper.getInstance().purgeArticlesNumber(Controller.getInstance().getArticleLimit());
+
+                DBHelper.getInstance().purgeArticlesNumber();
             }
         }
         
@@ -765,11 +762,14 @@ public class JSONPOSTConnector implements Connector {
         if (jsonResult == null)
             return null;
         
-        if (feedId == -1 && isCategory)
+        if (feedId == -1 && isCategory) {
+            // Purge Articles in background
             DBHelper.getInstance().purgeStarredArticles();
+        }
         
-        if (feedId == -2 && isCategory)
+        if (feedId == -2 && isCategory) {
             DBHelper.getInstance().purgePublishedArticles();
+        }
         
         // Check if viewmode=unread and feedId>=0 so we can safely mark all other articles as read
         // TODO: Store list of marked articles so we can restore the state if parseArticlesAndInsertInDB() fails?
