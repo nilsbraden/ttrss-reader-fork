@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.04 ==
+== Version 1.04 (1) ==
   * Do VACUUM only once a month or manually from preferences
   * Fixed encoding of passwords with special characters
   * Tried to fix bug due to wrong server-version detected
