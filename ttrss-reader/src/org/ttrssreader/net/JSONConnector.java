@@ -747,7 +747,7 @@ public class JSONConnector implements Connector {
         // Check if viewmode=unread and feedId>=0 so we can safely mark all other articles as read
         // TODO: Store list of marked articles so we can restore the state if parseArticlesAndInsertInDB() fails?
         if (viewMode.equals("unread") && feedId >= 0)
-            DBHelper.getInstance().markFeedOnlyArticlesRead(feedId);
+            DBHelper.getInstance().markFeedOnlyArticlesRead(feedId, isCategory);
         
         Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);
         Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");

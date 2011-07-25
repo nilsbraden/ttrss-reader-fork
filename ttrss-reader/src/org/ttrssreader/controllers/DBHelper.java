@@ -143,7 +143,7 @@ public class DBHelper {
                     c.close();
             }
             
-            // Do VACUUM if necessary and hasn't been done yet 
+            // Do VACUUM if necessary and hasn't been done yet
             if (Controller.getInstance().isVacuumDBScheduled() && !vacuumDone) {
                 Log.d(Utils.TAG, "Doing VACUUM, this can take a while...");
                 
@@ -580,12 +580,22 @@ public class DBHelper {
     }
     
     // Marks only the articles as read so the JSONConnector can retrieve new articles and overwrite the old articles
-    public void markFeedOnlyArticlesRead(int feedId) {
+    public void markFeedOnlyArticlesRead(int feedId, boolean isCat) {
+        
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
             cv.put("isUnread", 0);
+            
+            // Mark all articles from feed or category as read, depending on isCat. Just use idList with only one feedId
+            // if it is just a feed, else create a list of feedIds.
+            String idList = "";
+            if (isCat)
+                idList = "SELECT id FROM " + TABLE_FEEDS + " WHERE categoryId=" + feedId;
+            else
+                idList = feedId + "";
+            
             synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "isUnread=1 AND feedId=" + feedId, null);
+                db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId in(" + idList + ")", null);
             }
         }
     }

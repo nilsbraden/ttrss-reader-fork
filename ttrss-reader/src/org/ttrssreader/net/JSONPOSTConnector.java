@@ -196,16 +196,15 @@ public class JSONPOSTConnector implements Connector {
             }
             
             HttpParams params = post.getParams();
-            if (client == null) {
+            if (client == null)
                 client = HttpClientFactory.getInstance().getHttpClient(params);
-            } else {
+            else
                 client.setParams(params);
-            }
+            
             
             // Add SSL-Stuff
-            if (credProvider != null) {
+            if (credProvider != null)
                 client.setCredentialsProvider(credProvider);
-            }
             
         } catch (Exception e) {
             hasLastError = true;
@@ -225,7 +224,7 @@ public class JSONPOSTConnector implements Connector {
             lastError = e.getMessage()
                     + ", Method: doRequest(String url) threw ClientProtocolException on httpclient.execute(httpPost)"
                     + " [ " + e.getCause() + " ]";
-            
+            Log.w(Utils.TAG, lastError);
             return null;
         } catch (IOException e) {
             /*
@@ -268,13 +267,10 @@ public class JSONPOSTConnector implements Connector {
         }
         
         if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
-            
             Log.w(Utils.TAG, "Not logged in, retrying...");
             // Login and post request again
             sessionId = null; // Reset SID
             login();
-            // TODO: Verify behavior, login() was removed with revision 4827ca8f7edaa449ca637134f62f212b03bae6c8 See:
-            // https://code.google.com/p/ttrss-reader-fork/source/browse/ttrss-reader/src/org/ttrssreader/net/TTRSSJsonConnector.java?r=4827ca8f7edaa449ca637134f62f212b03bae6c8
             
             Map<String, String> newMap = new HashMap<String, String>();
             for (String key : map.keySet()) {
@@ -287,7 +283,6 @@ public class JSONPOSTConnector implements Connector {
             strResponse = doRequest(newMap, false);
             if (strResponse == null)
                 strResponse = "";
-            
         }
         
         // Check if API is enabled for the user
@@ -374,6 +369,8 @@ public class JSONPOSTConnector implements Connector {
      * @return true on success, false otherwise
      */
     private boolean login() {
+        long time = System.currentTimeMillis();
+        
         // Just login once, check if already logged in after acquiring the lock on mSessionId
         synchronized (loginLock) {
             if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN)))
@@ -403,17 +400,17 @@ public class JSONPOSTConnector implements Connector {
             }
             
             try {
-                int i = 0;
-                while (i < jsonResult.getNames().length()) {
+                for (int i = 0; i < jsonResult.getNames().length(); i++) {
                     if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
                         sessionId = jsonResult.getValues().getString(i);
+
+                        Log.v(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
                         return true;
                     }
-                    i++;
                 }
-            } catch (Exception e) {
+            } catch (JSONException e) {
                 hasLastError = true;
-                lastError = e.getMessage() + ", Method: login(String url) threw Exception";
+                lastError = e.getMessage() + ", Method: login(String url) threw JSONException";
                 e.printStackTrace();
             }
             
@@ -423,15 +420,14 @@ public class JSONPOSTConnector implements Connector {
     }
     
     private String parseMetadata(String str) {
-        // Cut string from content: to the end: /{"seq":0,"status":0,"content":(.*)}/\1/
+        // Cut string from content: to the end: sed 's/{"seq":0,"status":0,"content":(.*)}/\1/'
         String pattern = "\"content\":";
         int start = str.indexOf(pattern) + pattern.length();
         int stop = str.length() - 1;
-        if (start >= pattern.length() && stop > start) {
+        if (start >= pattern.length() && stop > start)
             return str.substring(start, stop);
-        }
         
-        return "";
+        return str;
     }
     
     // ***************** Helper-Methods **************************************************
@@ -768,21 +764,16 @@ public class JSONPOSTConnector implements Connector {
         if (jsonResult == null)
             return null;
         
-        if (feedId == -1 && isCategory) {
-            // Purge Articles in background
+        if (feedId == -1 && isCategory)
             DBHelper.getInstance().purgeStarredArticles();
-        }
         
-        if (feedId == -2 && isCategory) {
+        if (feedId == -2 && isCategory)
             DBHelper.getInstance().purgePublishedArticles();
-        }
         
         // Check if viewmode=unread and feedId>=0 so we can safely mark all other articles as read
-        // TODO: Store list of marked articles so we can restore the state if parseArticlesAndInsertInDB() fails?
         // New: People are complaining about not all articles beeing marked the right way, so just overwrite all unread
         // states and fetch new articles...
-        if (feedId >= 0) // && viewMode.equals("unread"))
-            DBHelper.getInstance().markFeedOnlyArticlesRead(feedId);
+        DBHelper.getInstance().markFeedOnlyArticlesRead(feedId, isCategory);
         
         Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);
         Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
