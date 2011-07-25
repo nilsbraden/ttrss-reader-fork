@@ -5,6 +5,7 @@
   * Do VACUUM only once a month or manually from preferences
   * Fixed encoding of passwords with special characters
   * Tried to fix bug due to wrong server-version detected
+  * Fixed a problem with articles beeing marked as read only when opening the feed
 
 == Version 1.03 (2) ==
   * Fixed Issue #67: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=67 Date & time settings not honoured])
