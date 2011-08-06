@@ -394,18 +394,24 @@ public class CategoryActivity extends MenuActivity {
         
         @Override
         protected Void doInBackground(Void... params) {
+            boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
             Set<Category> cats = DBHelper.getInstance().getCategoriesIncludingUncategorized();
+            
             taskCount = DEFAULT_TASK_COUNT + cats.size();
             
             int progress = 0;
             unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
             publishProgress(++progress); // Move progress forward
+            
             Data.getInstance().updateCounters(false);
             publishProgress(++progress); // Move progress forward
+            
             Data.getInstance().updateCategories(false);
             publishProgress(++progress); // Move progress forward
+            
             Data.getInstance().updateVirtualCategories();
             publishProgress(++progress); // Move progress forward
+            
             Data.getInstance().updateFeeds(-4, false);
             
             // Refresh articles for all categories on startup
@@ -415,7 +421,6 @@ public class CategoryActivity extends MenuActivity {
                 if (c.unread == 0)
                     continue;
                 
-                boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
                 Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true);
             }
             
@@ -428,9 +433,10 @@ public class CategoryActivity extends MenuActivity {
             if (values[0] == taskCount) {
                 setProgressBarIndeterminateVisibility(false);
                 setProgressBarVisibility(false);
+                doRefresh();
                 return;
             }
-
+            
             setProgress((10000 / (taskCount + 1)) * values[0]);
             doRefresh();
         }

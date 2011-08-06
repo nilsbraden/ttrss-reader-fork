@@ -98,6 +98,18 @@ public class Data {
     
     public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCategory, boolean overrideOffline) {
         
+        // Check if unread-count and actual number of unread articles match, if not do a seperate call with
+        // displayOnlyUnread=true
+        boolean needUnreadUpdate = false;
+        if (!isCategory && !displayOnlyUnread) {
+            int unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
+            int actualUnread = DBHelper.getInstance().getUnreadArticles(feedId).size();
+            if (unreadCount > actualUnread) {
+                needUnreadUpdate = true;
+                articlesUpdated.put(feedId, System.currentTimeMillis() - Utils.UPDATE_TIME - 10);
+            }
+        }
+        
         Long time = articlesUpdated.get(feedId);
         if (time == null)
             time = new Long(0);
@@ -124,9 +136,6 @@ public class Data {
                 
                 default: // Normal categories
                     limit = DBHelper.getInstance().getUnreadCount(feedId, isCategory);
-                    if (displayOnlyUnread)
-                        limit = limit + 20; // Add some so we have a chance of getting not only the newest and possibly
-                                            // read articles but also older ones.
             }
             
             if (limit <= 0 && displayOnlyUnread)
@@ -136,10 +145,23 @@ public class Data {
             if (limit > 300)
                 limit = 300; // Lots of unread articles, fetch the first 300
                 
+            if (limit < 300) {
+                if (isCategory)
+                    limit = limit + 50; // Add some so we have a chance of getting not only the newest and possibly read
+                                        // articles but also older ones.
+                else
+                    limit = limit + 15; // Less on feed, more on category...
+            }
+            
             try {
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
+                
                 Set<Integer> ids = Controller.getInstance().getConnector()
                         .getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
+                
+                // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
+                if (needUnreadUpdate && !displayOnlyUnread)
+                    Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, "unread", isCategory);
                 
                 // Check if there are new articles, then check if attachments are there, else fetch them separately
                 if (ids != null) {

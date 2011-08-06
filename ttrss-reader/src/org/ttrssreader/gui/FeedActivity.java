@@ -217,6 +217,7 @@ public class FeedActivity extends MenuActivity {
             int progress = 0;
             unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
             publishProgress(++progress); // Move progress forward
+            
             Data.getInstance().updateFeeds(categoryId, false);
             publishProgress(++progress); // Move progress forward
             
@@ -233,6 +234,7 @@ public class FeedActivity extends MenuActivity {
             if (values[0] == taskCount) {
                 setProgressBarIndeterminateVisibility(false);
                 setProgressBarVisibility(false);
+                doRefresh();
                 return;
             }
 
