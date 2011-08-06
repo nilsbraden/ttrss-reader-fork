@@ -19,6 +19,17 @@
     <string-array
         name="updates"
     >
+    
+    <item>Version 1.05
+            \n Will remove support for server-versions prior to 1.5.3 in next release, please make sure you keep your server up-to-date!
+            \n
+            \n * Refreshing more often during update, show progress
+            \n * Reduced the number of updates beeing done, every piece of data is updated only once in 2 minutes if necessary or if you do refresh manually (via menu).
+            \n * Store articles marked as read also for whole feeds/categoires. You can mark a feed as read while working offline, all articles in it the moment you marked it read will be synchronized with the server when you get online next time.
+            \n * Refactored ImageCache, removed unused abstractions
+            \n * Fixed some bugs
+            </item>
+            
     <item>Version 1.04
             \n * Do VACUUM only once a month or manually from preferences
             \n * Fixed encoding of passwords with special characters
@@ -46,7 +57,8 @@
             </item>
     
     <item>Version 1.0
-            Think we are in a pretty stable state now so I switched to Version 1.0
+            \n Think we are in a pretty stable state now so I switched to Version 1.0
+            \n
             \n * Added versionCode to StackTrace-Mails
             \n * Added safety-queries for failed DB operations
             \n * Fixed Feeds beeing displayed as read after opening

@@ -201,7 +201,6 @@ public class JSONPOSTConnector implements Connector {
             else
                 client.setParams(params);
             
-            
             // Add SSL-Stuff
             if (credProvider != null)
                 client.setCredentialsProvider(credProvider);
@@ -403,9 +402,11 @@ public class JSONPOSTConnector implements Connector {
                 for (int i = 0; i < jsonResult.getNames().length(); i++) {
                     if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
                         sessionId = jsonResult.getValues().getString(i);
-
-                        Log.v(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
-                        return true;
+                        
+                        if (sessionId != null) {
+                            Log.v(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+                            return true;
+                        }
                     }
                 }
             } catch (JSONException e) {
@@ -530,7 +531,7 @@ public class JSONPOSTConnector implements Connector {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
-
+                
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }

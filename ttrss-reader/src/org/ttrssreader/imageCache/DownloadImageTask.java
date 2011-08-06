@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model.cachers;
+package org.ttrssreader.imageCache;
 
 import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.Utils;

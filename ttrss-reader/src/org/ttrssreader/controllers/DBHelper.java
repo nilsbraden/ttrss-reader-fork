@@ -617,27 +617,50 @@ public class DBHelper {
         }
     }
     
-    public void markUnsynchronizedStates(Set<Integer> iDlist, String mark, int state) {
-        if (isDBAvailable()) {
-            for (Integer id : iDlist) {
-                markUnsynchronizedState(id, mark, state);
+    public void markUnsynchronizedStatesCategory(int categoryId) {
+        Set<Integer> ids = new HashSet<Integer>();
+        for (Feed f : getFeeds(categoryId)) {
+            if (f.unread > 0) {
+                for (Article a : getUnreadArticles(f.id)) {
+                    ids.add(a.id);
+                }
             }
+        }
+        markUnsynchronizedStates(ids, MARK_READ, 0);
+    }
+    
+    public void markUnsynchronizedStatesFeed(int feedId) {
+        Feed f = getFeed(feedId);
+        if (f != null && f.unread > 0) {
+            Set<Integer> ids = new HashSet<Integer>();
+            for (Article a : getUnreadArticles(f.id)) {
+                ids.add(a.id);
+            }
+            markUnsynchronizedStates(ids, MARK_READ, 0);
         }
     }
     
-    public void markUnsynchronizedState(int id, String mark, int state) {
-        if (isDBAvailable()) {
-            synchronized (TABLE_MARK) {
-                /*
-                 * First update, then insert. If row exists it gets updated and second
-                 * call ignores it, else the second call inserts it.
-                 */
-                String sql;
-                sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id);
-                db.execSQL(sql);
-                
-                sql = String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id, state);
-                db.execSQL(sql);
+    public void markUnsynchronizedStates(Set<Integer> ids, String mark, int state) {
+        if (!isDBAvailable())
+            return;
+        
+        // Disabled until further testing and proper SQL has been built. Tries to do the UPDATE and INSERT without
+        // looping over the ids but instead with a list of ids:
+        // Set<String> idList = StringSupport.convertListToString(ids);
+        // for (String s : idList) {
+        // db.execSQL(String.format("UPDATE %s SET %s=%s WHERE id in %s", TABLE_MARK, mark, state, s));
+        // db.execSQL(String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id, state));
+        // <- WRONG!
+        // }
+        
+        synchronized (TABLE_MARK) {
+            for (Integer id : ids) {
+                Log.d(Utils.TAG, "markUnsynchronizedState(id:" + id + ", mark: " + mark + ", state: " + state + ")");
+                // First update, then insert. If row exists it gets updated and second call ignores it, else the second
+                // call inserts it.
+                db.execSQL(String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id));
+                db.execSQL(String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id,
+                        state));
             }
         }
     }
@@ -818,6 +841,29 @@ public class DBHelper {
             while (!c.isAfterLast()) {
                 ret = handleCategoryCursor(c);
                 
+                c.move(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        return ret;
+    }
+    
+    public Set<Article> getUnreadArticles(int feedId) {
+        Set<Article> ret = new LinkedHashSet<Article>();
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = null;
+        try {// TODO Query geht nicht!
+            c = db.query(TABLE_ARTICLES, null, "feedId=? AND isUnread>0", new String[] { feedId + "" }, null, null, null, null);
+            
+            while (!c.isAfterLast()) {
+                ret.add(handleArticleCursor(c));
                 c.move(1);
             }
         } catch (Exception e) {

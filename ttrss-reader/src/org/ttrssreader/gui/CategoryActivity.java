@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -29,7 +30,6 @@ import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
-import org.ttrssreader.model.updaters.CategoryUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.TopExceptionHandler;
@@ -60,8 +60,9 @@ public class CategoryActivity extends MenuActivity {
     protected static final int SELECT_ARTICLES = MARK_GROUP + 54;
     
     private CategoryAdapter adapter = null;
-    private CategoryUpdater updateable = null;
+    private CategoryUpdater categoryUpdater = null;
     private boolean cacherStarted = false;
+    private String applicationName = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -99,7 +100,6 @@ public class CategoryActivity extends MenuActivity {
             doCache(true); // articles
         }
         
-        updateable = new CategoryUpdater();
         adapter = new CategoryAdapter(this);
         listView.setAdapter(adapter);
     }
@@ -148,7 +148,10 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     protected void doRefresh() {
-        setTitle(MainAdapter.formatTitle(getResources().getString(R.string.ApplicationName), updateable.unreadCount));
+        if (applicationName == null)
+            applicationName = getResources().getString(R.string.ApplicationName);
+        int unreadCount = (categoryUpdater != null ? categoryUpdater.unreadCount : 0);
+        setTitle(MainAdapter.formatTitle(applicationName, unreadCount));
         
         if (adapter != null) {
             adapter.makeQuery(true);
@@ -161,18 +164,19 @@ public class CategoryActivity extends MenuActivity {
         } catch (NotInitializedException e) {
         }
         
-        if (updater == null) {
+        if (categoryUpdater == null) {
             setProgressBarIndeterminateVisibility(false);
+            setProgressBarVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyCategories);
         }
     }
     
     @Override
     protected void doUpdate() {
-        // Only update if no updater already running
-        if (updater != null) {
-            if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                updater = null;
+        // Only update if no categoryUpdater already running
+        if (categoryUpdater != null) {
+            if (categoryUpdater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                categoryUpdater = null;
             } else {
                 return;
             }
@@ -180,10 +184,11 @@ public class CategoryActivity extends MenuActivity {
         
         if (!isCacherRunning() && !cacherStarted) {
             setProgressBarIndeterminateVisibility(true);
+            setProgressBarVisibility(true);
             notificationTextView.setText(R.string.Loading_Categories);
             
-            updater = new Updater(this, updateable);
-            updater.execute();
+            categoryUpdater = new CategoryUpdater();
+            categoryUpdater.execute();
         }
     }
     
@@ -238,7 +243,7 @@ public class CategoryActivity extends MenuActivity {
         
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(new Category());
+                Data.getInstance().resetTime(-1, true, false, false);
                 cacherStarted = false;
                 doUpdate();
                 return true;
@@ -373,6 +378,63 @@ public class CategoryActivity extends MenuActivity {
         startActivity(Intent.createChooser(sendIntent, "Title:"));
         
         deleteFile(TopExceptionHandler.FILE);
+    }
+    
+    /**
+     * 
+     * 
+     * @author n
+     * 
+     */
+    public class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
+        
+        public int unreadCount = 0;
+        private int taskCount = 0;
+        private static final int DEFAULT_TASK_COUNT = 5;
+        
+        @Override
+        protected Void doInBackground(Void... params) {
+            Set<Category> cats = DBHelper.getInstance().getCategoriesIncludingUncategorized();
+            taskCount = DEFAULT_TASK_COUNT + cats.size();
+            
+            int progress = 0;
+            unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
+            publishProgress(++progress); // Move progress forward
+            Data.getInstance().updateCounters(false);
+            publishProgress(++progress); // Move progress forward
+            Data.getInstance().updateCategories(false);
+            publishProgress(++progress); // Move progress forward
+            Data.getInstance().updateVirtualCategories();
+            publishProgress(++progress); // Move progress forward
+            Data.getInstance().updateFeeds(-4, false);
+            
+            // Refresh articles for all categories on startup
+            for (Category c : cats) {
+                publishProgress(++progress); // Move progress forward
+                
+                if (c.unread == 0)
+                    continue;
+                
+                boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
+                Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true);
+            }
+            
+            publishProgress(taskCount); // Move progress forward to 100%
+            return null;
+        }
+        
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            if (values[0] == taskCount) {
+                setProgressBarIndeterminateVisibility(false);
+                setProgressBarVisibility(false);
+                return;
+            }
+
+            setProgress((10000 / (taskCount + 1)) * values[0]);
+            doRefresh();
+        }
+        
     }
     
 }

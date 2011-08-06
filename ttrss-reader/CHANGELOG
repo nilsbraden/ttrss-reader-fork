@@ -1,6 +1,14 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.05 ==
+  * Refreshing more often during update, show progress
+  * Reduced the number of updates beeing done, every piece of data is updated only once in 2 minutes if necessary or if you do refresh manually (via menu).
+  * Store articles marked as read also for whole feeds/categoires. You can mark a feed as read while working offline, all articles in it the moment you marked it read will be synchronized with the server when you get online next time.
+  * Refactored ImageCache, removed unused abstractions
+  * Fixed some bugs
+  * Will remove support for server-versions prior to 1.5.3 in next release 
+
 == Version 1.04 (1) ==
   * Do VACUUM only once a month or manually from preferences
   * Fixed encoding of passwords with special characters

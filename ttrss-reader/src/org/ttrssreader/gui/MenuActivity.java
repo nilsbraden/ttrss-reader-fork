@@ -20,9 +20,9 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
+import org.ttrssreader.imageCache.ForegroundService;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.service.ForegroundService;
 import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
@@ -57,6 +57,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        requestWindowFeature(Window.FEATURE_PROGRESS);
         
         // Initialize Singletons for Config, Data-Access and DB
         Controller.getInstance().checkAndInitializeController(this);
