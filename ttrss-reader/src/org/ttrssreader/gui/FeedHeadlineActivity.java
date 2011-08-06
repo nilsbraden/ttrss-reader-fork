@@ -405,10 +405,12 @@ public class FeedHeadlineActivity extends MenuActivity {
             if (selectArticlesForCategory) {
                 unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
                 publishProgress(++progress); // Move progress forward
+                
                 Data.getInstance().updateArticles(categoryId, displayUnread, true);
             } else {
                 unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
                 publishProgress(++progress); // Move progress forward
+                
                 Data.getInstance().updateArticles(feedId, displayUnread, false);
             }
             
@@ -421,6 +423,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             if (values[0] == taskCount) {
                 setProgressBarIndeterminateVisibility(false);
                 setProgressBarVisibility(false);
+                doRefresh();
                 return;
             }
             
