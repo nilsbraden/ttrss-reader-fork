@@ -27,13 +27,13 @@
             \n * Refreshing more often during update, show progress
             \n * Reduced the number of updates beeing done, every piece of data is updated only once in 2 minutes if necessary or if you do refresh manually (via menu).
             \n * Store articles marked as read also for whole feeds/categoires. You can mark a feed as read while working offline, all articles in it the moment you marked it read will be synchronized with the server when you get online next time.
+            \n * Fixed a problem with articles beeing marked as read only when opening the feed
             </item>
             
     <item>Version 1.04
             \n * Do VACUUM only once a month or manually from preferences
             \n * Fixed encoding of passwords with special characters
             \n * Tried to fix bug due to wrong server-version detected
-            \n * Fixed a problem with articles beeing marked as read only when opening the feed
             </item>
     
     <item>Version 1.03

@@ -7,13 +7,13 @@
   * Store articles marked as read also for whole feeds/categoires. You can mark a feed as read while working offline, all articles in it the moment you marked it read will be synchronized with the server when you get online next time.
   * Refactored ImageCache, removed unused abstractions
   * Fixed some bugs
+  * Fixed a problem with articles beeing marked as read only when opening the feed
   * Will remove support for server-versions prior to 1.5.3 in next release 
 
-== Version 1.04 (1) ==
+== Version 1.04 ==
   * Do VACUUM only once a month or manually from preferences
   * Fixed encoding of passwords with special characters
   * Tried to fix bug due to wrong server-version detected
-  * Fixed a problem with articles beeing marked as read only when opening the feed
 
 == Version 1.03 (2) ==
   * Fixed Issue #67: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=67 Date & time settings not honoured])
