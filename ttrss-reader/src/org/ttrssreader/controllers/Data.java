@@ -32,15 +32,13 @@ import android.util.Log;
 public class Data {
     
     private static Data instance = null;
-    private static boolean initialized = false;
     private Context context;
     
     private long countersUpdated = 0;
     private Map<Integer, Long> articlesUpdated = new HashMap<Integer, Long>();
-    private long feedsUpdated = 0;
+    private Map<Integer, Long> feedsUpdated = new HashMap<Integer, Long>();
     private long virtCategoriesUpdated = 0;
     private long categoriesUpdated = 0;
-    private long newArticlesUpdated = 0;
     
     private ConnectivityManager cm;
     
@@ -60,52 +58,22 @@ public class Data {
     
     public synchronized void checkAndInitializeData(final Context context) {
         this.context = context;
-        
-        if (!initialized) {
-            initializeData();
-            initialized = true;
-        }
-    }
-    
-    private synchronized void initializeData() {
         if (context != null)
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        
-        // Set new update-time if necessary
-        if (countersUpdated < newArticlesUpdated)
-            countersUpdated = newArticlesUpdated;
-        
-        for (int article : articlesUpdated.keySet()) {
-            if (articlesUpdated.get(article) < newArticlesUpdated)
-                articlesUpdated.put(article, newArticlesUpdated);
-        }
-        
-        if (feedsUpdated < newArticlesUpdated)
-            feedsUpdated = newArticlesUpdated;
-        
-        if (virtCategoriesUpdated < newArticlesUpdated)
-            virtCategoriesUpdated = newArticlesUpdated;
-        
-        if (categoriesUpdated < newArticlesUpdated)
-            categoriesUpdated = newArticlesUpdated;
     }
     
     // *** COUNTERS *********************************************************************
     
-    public void resetTime(Object o) {
-        if (o == null)
-            return;
-        
-        if (o instanceof Category) {
+    public void resetTime(int id, boolean isCat, boolean isFeed, boolean isArticle) {
+        if (isCat) { // id doesn't matter
             virtCategoriesUpdated = 0;
             categoriesUpdated = 0;
             countersUpdated = 0;
-        } else if (o instanceof Feed) {
-            feedsUpdated = 0;
-        } else if (o instanceof Integer) {
-            Integer i = (Integer) o;
-            articlesUpdated.put(i, new Long(0));
         }
+        if (isFeed)
+            feedsUpdated.put(id, new Long(0)); // id == categoryId
+        if (isArticle)
+            articlesUpdated.put(id, new Long(0)); // id == feedId
     }
     
     // takes about 2.5 seconds on wifi
@@ -116,6 +84,7 @@ public class Data {
         } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
                 Controller.getInstance().getConnector().getCounters();
+                countersUpdated = System.currentTimeMillis();
             } catch (NotInitializedException e) {
             }
         }
@@ -154,8 +123,10 @@ public class Data {
                     break;
                 
                 default: // Normal categories
-                    int l = DBHelper.getInstance().getUnreadCount(feedId, isCategory);
-                    limit = (l > limit ? l : limit);
+                    limit = DBHelper.getInstance().getUnreadCount(feedId, isCategory);
+                    if (displayOnlyUnread)
+                        limit = limit + 20; // Add some so we have a chance of getting not only the newest and possibly
+                                            // read articles but also older ones.
             }
             
             if (limit <= 0 && displayOnlyUnread)
@@ -175,11 +146,10 @@ public class Data {
                     for (Integer i : ids) {
                         Article a = DBHelper.getInstance().getArticle(i);
                         if (a == null || a.attachments == null) {
-                            Log.d(Utils.TAG,
-                                    "WARNING: Had to call getArticle since getHeadline didn't fetch attachments. "
+                            Log.w(Utils.TAG,
+                                    "WARNING: Had to call getArticles since getHeadline didn't fetch attachments. "
                                             + "Check if you are running latest server (1.5.3 or newer).");
                             Controller.getInstance().getConnector().getArticlesToDatabase(ids);
-                            break;
                         }
                         break;
                     }
@@ -188,19 +158,30 @@ public class Data {
                 return;
             }
             
+            // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
+            // requested
             articlesUpdated.put(feedId, System.currentTimeMillis());
+            if (isCategory) {
+                for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
+                    articlesUpdated.put(f.id, System.currentTimeMillis());
+                }
+            }
         }
     }
     
     // *** FEEDS ************************************************************************
     
     public Set<Feed> updateFeeds(int categoryId, boolean overrideOffline) {
-        if (feedsUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        
+        Long time = feedsUpdated.get(categoryId);
+        if (time == null)
+            time = new Long(0);
+        
+        if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
             try {
                 Set<Feed> feeds = Controller.getInstance().getConnector().getFeeds();
-                feedsUpdated = System.currentTimeMillis();
                 
                 // Only delete feeds if we got new feeds...
                 if (!feeds.isEmpty())
@@ -212,6 +193,12 @@ public class Data {
                         ret.add(f);
                 }
                 DBHelper.getInstance().insertFeeds(feeds);
+                
+                // Store requested category-id and ids of all received feeds
+                feedsUpdated.put(categoryId, System.currentTimeMillis());
+                for (Feed f : feeds) {
+                    feedsUpdated.put(f.categoryId, System.currentTimeMillis());
+                }
                 
                 return ret;
             } catch (NotInitializedException e) {
@@ -259,11 +246,10 @@ public class Data {
         } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
                 Set<Category> categories = Controller.getInstance().getConnector().getCategories();
-                
-                categoriesUpdated = System.currentTimeMillis();
-                
                 DBHelper.getInstance().deleteCategories(false);
                 DBHelper.getInstance().insertCategories(categories);
+                categoriesUpdated = System.currentTimeMillis();
+                
                 return categories;
             } catch (NotInitializedException e) {
             }
@@ -320,24 +306,26 @@ public class Data {
     
     public void setRead(int id, boolean isCategory) {
         boolean erg = false;
-        if (Utils.isConnected(cm))
+        if (Utils.isConnected(cm)) {
             try {
-                Controller.getInstance().getConnector().setRead(id, isCategory);
+                erg = Controller.getInstance().getConnector().setRead(id, isCategory);
             } catch (NotInitializedException e) {
                 return;
             }
+        }
         
-        if (!erg) {
-            if (isCategory) {
-                DBHelper.getInstance().markCategoryRead(id, true);
-            } else {
-                if (id < 0) { // Filter Virtual Categories AGAIN. Why are we doing this weird stuff. Thanks to the guy
-                              // who started developing the reader...
-                    DBHelper.getInstance().markCategoryRead(id, true);
-                } else {
-                    DBHelper.getInstance().markFeedRead(id, true);
-                }
-            }
+        if (isCategory || id < 0) {
+            
+            if (!erg)
+                DBHelper.getInstance().markUnsynchronizedStatesCategory(id);
+            DBHelper.getInstance().markCategoryRead(id, true);
+            
+        } else {
+            
+            if (!erg)
+                DBHelper.getInstance().markUnsynchronizedStatesFeed(id);
+            DBHelper.getInstance().markFeedRead(id, true);
+            
         }
     }
     

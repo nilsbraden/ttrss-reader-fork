@@ -72,6 +72,7 @@ public class JSONConnector implements Connector {
     private static final String NOT_LOGGED_IN = ERROR + "\"NOT_LOGGED_IN\"}";
     private static final String API_DISABLED = ERROR + "\"API_DISABLED\"}";
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
+    private static final String LOGIN_FAILED_MESSAGE = "Login to the server failed, please check your connection and the provided credentials.";
     private static final String OK = "\"status\":\"OK\"";
     
     private static final String SESSION_ID = "session_id";
@@ -229,6 +230,13 @@ public class JSONConnector implements Connector {
             // TODO: Verify behavior, login() was removed with revision 4827ca8f7edaa449ca637134f62f212b03bae6c8 See:
             // https://code.google.com/p/ttrss-reader-fork/source/browse/ttrss-reader/src/org/ttrssreader/net/TTRSSJsonConnector.java?r=4827ca8f7edaa449ca637134f62f212b03bae6c8
             
+            if (sessionId == null) {
+                Log.w(Utils.TAG, LOGIN_FAILED_MESSAGE);
+                hasLastError = true;
+                lastError = LOGIN_FAILED_MESSAGE;
+                return null;
+            }
+            
             if (url.contains(tempSessionId)) {
                 url = url.replace(tempSessionId, sessionId);
             }
@@ -345,7 +353,8 @@ public class JSONConnector implements Connector {
             
             sessionId = null;
             
-            String url = Controller.getInstance().url() + String.format(OP_LOGIN, Controller.getInstance().username(), Controller.getInstance().password());
+            String url = Controller.getInstance().url()
+                    + String.format(OP_LOGIN, Controller.getInstance().username(), Controller.getInstance().password());
             JSONResult jsonResult = getJSONLoginResponse(url);
             
             if (!hasLastError && jsonResult != null) {
@@ -387,7 +396,8 @@ public class JSONConnector implements Connector {
         byte[] bytes = Controller.getInstance().password().getBytes();
         String mPasswordEncoded = Base64.encodeBytes(bytes);
         
-        String url = Controller.getInstance().url() + String.format(OP_LOGIN, Controller.getInstance().username(), mPasswordEncoded);
+        String url = Controller.getInstance().url()
+                + String.format(OP_LOGIN, Controller.getInstance().username(), mPasswordEncoded);
         JSONResult jsonResult = getJSONLoginResponse(url);
         
         if (!hasLastError && jsonResult != null) {
@@ -732,7 +742,8 @@ public class JSONConnector implements Connector {
     @Override
     public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory) {
         long time = System.currentTimeMillis();
-        String url = Controller.getInstance().url() + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, isCategory);
+        String url = Controller.getInstance().url()
+                + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, isCategory);
         JSONArray jsonResult = getJSONResponseAsArray(url);
         
         if (jsonResult == null)

@@ -151,19 +151,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
             newInstallation = true;
         }
         
-        int version = getServerVersion();
-        if (version >= 153) {
-            ttrssPostConnector = new JSONPOSTConnector();
-            ttrssConnector = null;
-        } else if (version <= 0) {
-            // Silently use old connector, version is fetched in the background
-            ttrssPostConnector = null;
-            ttrssConnector = new JSONConnector();
-        } else {
-            Log.d(Utils.TAG, "Server-version seems to be lower then 1.5.3, using old JSONConnector.");
-            ttrssPostConnector = null;
-            ttrssConnector = new JSONConnector();
-        }
+        // Refresh stored serverVersion if necessary
+        getServerVersion();
         
         // Article-Prefetch-Stuff from Raw-Ressources and System
         htmlHeader = context.getResources().getString(R.string.INJECT_HTML_HEAD);
@@ -181,6 +170,21 @@ public class Controller implements OnSharedPreferenceChangeListener {
         
         // Initialize ImageCache
         getImageCache(context);
+        
+        // Initialize the Connector depending on serverVersion
+        if (serverVersion != null && serverVersion >= 153) {
+            ttrssPostConnector = new JSONPOSTConnector();
+            ttrssConnector = null;
+        } else if (serverVersion != null && serverVersion <= 0) {
+            // Silently use old connector, version is fetched in the background
+            ttrssPostConnector = null;
+            ttrssConnector = new JSONConnector();
+        } else {
+            // TODO Display some kind of message!
+            Log.d(Utils.TAG, "Server-version seems to be lower then 1.5.3, using old JSONConnector.");
+            ttrssPostConnector = null;
+            ttrssConnector = new JSONConnector();
+        }
     }
     
     public static void initializeArticleViewStuff(Display display, DisplayMetrics metrics) {
@@ -519,7 +523,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public boolean isVacuumDBScheduled() {
         long time = System.currentTimeMillis();
         long thirtyDays = 30 * 24 * 60 * 60 * 1000L; // Note "L" for explicit cast to long
-
+        
         if (lastVacuumDate() < (time - thirtyDays))
             return true;
         
@@ -676,9 +680,18 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return ret;
     }
     
+    public void setServerVersion(int serverVersion) {
+        if (serverVersion != -1) {
+            this.serverVersion = serverVersion;
+            put(Constants.SERVER_VERSION, serverVersion);
+            this.serverVersionLastUpdate = System.currentTimeMillis();
+            put(Constants.SERVER_VERSION_LAST_UPDATE, System.currentTimeMillis());
+        }
+    }
+    
     public void resetServerVersion() {
-        serverVersion = -1;
-        serverVersionLastUpdate = new Long(-1);
+        serverVersion = null;
+        serverVersionLastUpdate = null;
     }
     
     public int getServerVersion() {
@@ -689,9 +702,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
             serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
                     Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
         
-        // Refresh only once ever 12 hours or if no serverVersion is stored in preferences
-        long oldTime = (System.currentTimeMillis() - 12 * 60 * 60 * 1000L); // "L" to make sure we are working on long values here
-        if (serverVersion < 0 || (serverVersion < 153 && serverVersionLastUpdate < oldTime)) {
+        // Refresh only once ever hour or if no serverVersion is stored in preferences
+        long time = (System.currentTimeMillis() - 60 * 60 * 1000L); // "L" to make sure we are working on long values here
+        if (serverVersion < 0 || (serverVersion < 153 && serverVersionLastUpdate < time)) {
             
             if (ttrssConnector != null || ttrssPostConnector != null) {
                 
@@ -699,10 +712,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... params) {
-                        serverVersion = Data.getInstance().getVersion();
-                        serverVersionLastUpdate = System.currentTimeMillis();
-                        put(Constants.SERVER_VERSION, serverVersion);
-                        put(Constants.SERVER_VERSION_LAST_UPDATE, serverVersionLastUpdate);
+                        setServerVersion(Data.getInstance().getVersion());
                         return null;
                     }
                 };

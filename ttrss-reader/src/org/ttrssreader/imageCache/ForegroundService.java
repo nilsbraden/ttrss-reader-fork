@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package org.ttrssreader.service;
+package org.ttrssreader.imageCache;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
-import org.ttrssreader.model.cachers.Cacher;
-import org.ttrssreader.model.cachers.ImageCacher;
 import org.ttrssreader.utils.Utils;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -47,8 +45,8 @@ public class ForegroundService extends Service implements ICacheEndListener {
     
     public static final String ACTION_LOAD_IMAGES = "load_images";
     public static final String ACTION_LOAD_ARTICLES = "load_articles";
-    
-    private Cacher imageCacher;
+
+    private ImageCacher imageCacher;
     private static ForegroundService instance = null;
     
     public static boolean isInstanceCreated() {
@@ -176,11 +174,11 @@ public class ForegroundService extends Service implements ICacheEndListener {
         CharSequence text = getText(R.string.Cache_service_text);
         
         if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
-            imageCacher = new Cacher(this, new ImageCacher(this, false));
+            imageCacher = new ImageCacher(this, this, false);
             imageCacher.execute();
             title = getText(R.string.Cache_service_imagecache);
         } else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
-            imageCacher = new Cacher(this, new ImageCacher(this, true));
+            imageCacher = new ImageCacher(this, this, true);
             imageCacher.execute();
             title = getText(R.string.Cache_service_articlecache);
         }
@@ -197,7 +195,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
         // Start a new cacher if images have been requested
         if (imageCache) {
             imageCache = false;
-            imageCacher = new Cacher(this, new ImageCacher(this, false));
+            imageCacher = new ImageCacher(this, this, false);
             imageCacher.execute();
         } else {
             stopForegroundCompat(R.string.Cache_service_started);

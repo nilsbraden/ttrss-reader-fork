@@ -25,7 +25,6 @@ import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.updaters.FeedHeadlineUpdater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -69,7 +68,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     private GestureDetector gestureDetector;
     
     private FeedHeadlineAdapter adapter = null;
-    private FeedHeadlineUpdater updateable = null;
+    private FeedHeadlineUpdater headlineUpdater = null;
     private FeedAdapter parentAdapter = null;
     
     @Override
@@ -93,12 +92,6 @@ public class FeedHeadlineActivity extends MenuActivity {
             feedId = instance.getInt(FEED_ID);
             feedTitle = instance.getString(FEED_TITLE);
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
-        }
-        
-        if (selectArticlesForCategory) {
-            updateable = new FeedHeadlineUpdater(selectArticlesForCategory, categoryId);
-        } else {
-            updateable = new FeedHeadlineUpdater(feedId);
         }
         
         Controller.getInstance().lastOpenedFeed = feedId;
@@ -158,7 +151,8 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     @Override
     protected void doRefresh() {
-        setTitle(MainAdapter.formatTitle(feedTitle, updateable.unreadCount));
+        int unreadCount = (headlineUpdater != null ? headlineUpdater.unreadCount : 0);
+        setTitle(MainAdapter.formatTitle(feedTitle, unreadCount));
         flingDetected = false; // reset fling-status
         
         if (adapter != null) {
@@ -172,18 +166,19 @@ public class FeedHeadlineActivity extends MenuActivity {
         } catch (NotInitializedException e) {
         }
         
-        if (updater == null) {
+        if (headlineUpdater == null) {
             setProgressBarIndeterminateVisibility(false);
+            setProgressBarVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyHeadlines);
         }
     }
     
     @Override
     protected void doUpdate() {
-        // Only update if no updater already running
-        if (updater != null) {
-            if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                updater = null;
+        // Only update if no headlineUpdater already running
+        if (headlineUpdater != null) {
+            if (headlineUpdater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                headlineUpdater = null;
             } else {
                 return;
             }
@@ -191,10 +186,11 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         if (!isCacherRunning()) {
             setProgressBarIndeterminateVisibility(true);
+            setProgressBarVisibility(false);
             notificationTextView.setText(R.string.Loading_Headlines);
             
-            updater = new Updater(this, updateable);
-            updater.execute();
+            headlineUpdater = new FeedHeadlineUpdater();
+            headlineUpdater.execute();
         }
     }
     
@@ -269,7 +265,11 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(feedId);
+                if (selectArticlesForCategory) {
+                    Data.getInstance().resetTime(categoryId, false, true, false);
+                } else {
+                    Data.getInstance().resetTime(feedId, false, true, false);
+                }
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
@@ -381,6 +381,53 @@ public class FeedHeadlineActivity extends MenuActivity {
             }
         }
         return super.onKeyUp(keyCode, event);
+    }
+    
+    /**
+     * 
+     * 
+     * @author n
+     * 
+     */
+    public class FeedHeadlineUpdater extends AsyncTask<Void, Integer, Void> {
+        
+        public int unreadCount = 0;
+        private int taskCount = 0;
+        private static final int DEFAULT_TASK_COUNT = 2;
+        
+        @Override
+        protected Void doInBackground(Void... params) {
+            taskCount = DEFAULT_TASK_COUNT;
+            
+            int progress = 0;
+            boolean displayUnread = Controller.getInstance().onlyUnread();
+            
+            if (selectArticlesForCategory) {
+                unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
+                publishProgress(++progress); // Move progress forward
+                Data.getInstance().updateArticles(categoryId, displayUnread, true);
+            } else {
+                unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
+                publishProgress(++progress); // Move progress forward
+                Data.getInstance().updateArticles(feedId, displayUnread, false);
+            }
+            
+            publishProgress(taskCount); // Move progress forward to 100%
+            return null;
+        }
+        
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            if (values[0] == taskCount) {
+                setProgressBarIndeterminateVisibility(false);
+                setProgressBarVisibility(false);
+                return;
+            }
+            
+            setProgress((10000 / (taskCount + 1)) * values[0]);
+            doRefresh();
+        }
+        
     }
     
 }

@@ -23,8 +23,7 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.MainAdapter;
-import org.ttrssreader.model.pojos.Feed;
-import org.ttrssreader.model.updaters.FeedUpdater;
+import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.content.Intent;
@@ -45,7 +44,7 @@ public class FeedActivity extends MenuActivity {
     private String categoryTitle;
     
     private FeedAdapter adapter = null;
-    private FeedUpdater updateable = null;
+    private FeedUpdater feedUpdater = null;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -68,7 +67,6 @@ public class FeedActivity extends MenuActivity {
             categoryTitle = null;
         }
         
-        updateable = new FeedUpdater(categoryId);
         adapter = new FeedAdapter(this, categoryId);
         listView.setAdapter(adapter);
     }
@@ -115,7 +113,8 @@ public class FeedActivity extends MenuActivity {
     
     @Override
     protected void doRefresh() {
-        setTitle(MainAdapter.formatTitle(categoryTitle, updateable.unreadCount));
+        int unreadCount = (feedUpdater != null ? feedUpdater.unreadCount : 0);
+        setTitle(MainAdapter.formatTitle(categoryTitle, unreadCount));
         
         if (adapter != null) {
             adapter.makeQuery(true);
@@ -128,29 +127,31 @@ public class FeedActivity extends MenuActivity {
         } catch (NotInitializedException e) {
         }
         
-        if (updater == null) {
+        if (feedUpdater == null) {
             setProgressBarIndeterminateVisibility(false);
+            setProgressBarVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyFeeds);
         }
     }
     
     @Override
     protected void doUpdate() {
-        // Only update if no updater already running
-        if (updater != null) {
-            if (updater.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                updater = null;
+        // Only update if no feedUpdater already running
+        if (feedUpdater != null) {
+            if (feedUpdater.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                feedUpdater = null;
             } else {
                 return;
             }
         }
-
+        
         if (!isCacherRunning()) {
             setProgressBarIndeterminateVisibility(true);
+            setProgressBarVisibility(false);
             notificationTextView.setText(R.string.Loading_Feeds);
             
-            updater = new Updater(this, updateable);
-            updater.execute();
+            feedUpdater = new FeedUpdater();
+            feedUpdater.execute();
         }
     }
     
@@ -182,7 +183,7 @@ public class FeedActivity extends MenuActivity {
         
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(new Feed());
+                Data.getInstance().resetTime(categoryId, false, true, false);
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
@@ -194,6 +195,51 @@ public class FeedActivity extends MenuActivity {
             doRefresh();
         }
         return true;
+    }
+    
+    /**
+     * 
+     * 
+     * @author n
+     * 
+     */
+    public class FeedUpdater extends AsyncTask<Void, Integer, Void> {
+        
+        public int unreadCount = 0;
+        private int taskCount = 0;
+        private static final int DEFAULT_TASK_COUNT = 2;
+        
+        @Override
+        protected Void doInBackground(Void... params) {
+            Category c = DBHelper.getInstance().getCategory(categoryId);
+            taskCount = DEFAULT_TASK_COUNT + (c.unread != 0 ? 1 : 0);
+            
+            int progress = 0;
+            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
+            publishProgress(++progress); // Move progress forward
+            Data.getInstance().updateFeeds(categoryId, false);
+            publishProgress(++progress); // Move progress forward
+            
+            // Update articles for current category
+            if (c.unread != 0)
+                Data.getInstance().updateArticles(c.id, Controller.getInstance().onlyUnread(), true);
+            
+            publishProgress(taskCount); // Move progress forward to 100%
+            return null;
+        }
+        
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            if (values[0] == taskCount) {
+                setProgressBarIndeterminateVisibility(false);
+                setProgressBarVisibility(false);
+                return;
+            }
+
+            setProgress((10000 / (taskCount + 1)) * values[0]);
+            doRefresh();
+        }
+        
     }
     
 }

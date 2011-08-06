@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model.cachers;
+package org.ttrssreader.imageCache;
 
 import java.io.File;
 import java.util.Arrays;
@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.ImageCache;
@@ -35,14 +36,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
-public class ImageCacher implements ICacheable {
+public class ImageCacher extends AsyncTask<Void, Void, Void> {
     
     private static final long maxFileSize = 1024 * 1024 * 6; // Max size for one image is 6 MB
     private static final int DOWNLOAD_IMAGES_THREADS = 4;
-    
+
+    private ICacheEndListener parent;
     private Context context;
+    
     private boolean onlyArticles;
     private boolean onlyUnreadImages;
     private boolean onlyUnreadArticles;
@@ -51,43 +56,60 @@ public class ImageCacher implements ICacheable {
     private long folderSize;
     private long downloaded = 0;
     
-    public ImageCacher(Context context, boolean onlyArticles) {
+    public ImageCacher(ICacheEndListener parent, Context context, boolean onlyArticles) {
+        this.parent = parent;
         this.context = context;
         this.onlyArticles = onlyArticles;
         this.onlyUnreadArticles = Controller.getInstance().isArticleCacheUnread();
     }
     
     @Override
-    public void cache() {
+    protected Void doInBackground(Void... params) {
         long start = System.currentTimeMillis();
         
-        // Check connectivity
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (!Utils.checkConnected(cm)) {
-            Log.w(Utils.TAG, "No connectivity, aborting...");
-            return;
+        while (true) {
+            // Check connectivity
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (!Utils.checkConnected(cm)) {
+                Log.w(Utils.TAG, "No connectivity, aborting...");
+                break;
+            }
+            
+            // Update all articles
+            updateArticles();
+            if (onlyArticles) // We are done here..
+                break;
+            
+            // Initialize other preferences
+            this.cacheSizeMax = Controller.getInstance().getImageCacheSize() * 1048576;
+            this.onlyUnreadImages = Controller.getInstance().isImageCacheUnread();
+            this.imageCache = Controller.getInstance().getImageCache(context);
+            if (imageCache == null)
+                break;
+            
+            imageCache.fillMemoryCacheFromDisk();
+            downloadImages();
+            DBHelper.getInstance().updateAllArticlesCachedImages(true);
+            purgeCache();
+            
+            Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
+                    cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / 1000));
+            break; // Always break in the end, "while" is just useful for the different places in which we leave the loop...
         }
         
-        // Update all articles
-        updateArticles();
-        if (onlyArticles) // We are done here..
-            return;
-
-        // Initialize other preferences
-        this.cacheSizeMax = Controller.getInstance().getImageCacheSize() * 1048576;
-        this.onlyUnreadImages = Controller.getInstance().isImageCacheUnread();
-        this.imageCache = Controller.getInstance().getImageCache(context);
-        if (imageCache == null)
-            return;
-        
-        imageCache.fillMemoryCacheFromDisk();
-        downloadImages();
-        DBHelper.getInstance().updateAllArticlesCachedImages(true);
-        purgeCache();
-        
-        Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
-                cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / 1000));
+        handler.sendEmptyMessage(0);
+        return null;
     }
+    
+    private Handler handler = new Handler() {
+        
+        @Override
+        public void handleMessage(Message msg) {
+            if (parent != null) {
+                parent.onCacheEnd();
+            }
+        }
+    };
     
     private void updateArticles() {
         long time = System.currentTimeMillis();
