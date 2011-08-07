@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.06 ==
+  * Removed support for server-versions lower then 1.5.3 (it's 4 months old now, please update your server if you still use an old version)
+  * 
+
 == Version 1.05 ==
   * Refreshing more often during update, show progress
   * Reduced the number of updates beeing done, every piece of data is updated only once in 2 minutes if necessary or if you do refresh manually (via menu).
