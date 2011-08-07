@@ -161,7 +161,7 @@ public class CategoryActivity extends MenuActivity {
         } catch (NotInitializedException e) {
         }
         
-        if (categoryUpdater == null) {
+        if (categoryUpdater == null && !isCacherRunning()) {
             setProgressBarIndeterminateVisibility(false);
             setProgressBarVisibility(false);
             notificationTextView.setText(R.string.Loading_EmptyCategories);

@@ -137,7 +137,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     protected void onProgressUpdate(Integer... values) {
         if (values[0] == taskCount)
             return;
-        parent.onCacheProgress(taskCount, values[0]);
+        if (parent != null)
+            parent.onCacheProgress(taskCount, values[0]);
     }
     
     private void downloadImages() {
