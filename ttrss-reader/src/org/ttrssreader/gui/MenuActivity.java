@@ -194,13 +194,14 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     
     @Override
     public void onCacheEnd() {
-        setProgressBarIndeterminateVisibility(false);
         setProgressBarVisibility(false);
         doRefresh();
     }
     
     @Override
     public void onCacheProgress(int taskCount, int progress) {
+        if (taskCount == progress)
+            setProgressBarVisibility(false);
         setProgress((10000 / (taskCount + 1)) * progress);
         doRefresh();
     }
@@ -233,6 +234,7 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         }
         intent.setClass(this.getApplicationContext(), ForegroundService.class);
         
+        setProgressBarVisibility(true);
         startService(intent);
     }
     
