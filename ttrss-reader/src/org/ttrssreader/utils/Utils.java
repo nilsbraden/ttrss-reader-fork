@@ -125,22 +125,6 @@ public class Utils {
             return true;
         }
     }
-    
-    /*
-     * Removed because check for server-version is not used at the moment.
-     * 
-     * Checks if the server is supported by the app, returns true if it is supported.
-     * public static boolean checkServerVersion(Context c) {
-     * int version = Controller.getInstance().getServerVersion();
-     * if (version > 0 && version < SERVER_VERSION) {
-     * 
-     * // Reset the stored value so it get updated on next run.
-     * Controller.getInstance().resetServerVersion();
-     * return false;
-     * }
-     * return true;
-     * }
-     */
 
     /*
      * Checks the config for a user-defined server, returns true if a server has been defined
