@@ -3,6 +3,7 @@
 = Changes =
 == Version 1.06 ==
   * Removed support for server-versions lower then 1.5.3 (it's 4 months old now, please update your server if you still use an old version)
+  * Added progress-information and UI-refresh to ImageCache but only while articles are fetched
   * 
 
 == Version 1.05 ==
