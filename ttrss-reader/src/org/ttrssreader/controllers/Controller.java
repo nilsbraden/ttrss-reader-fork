@@ -97,8 +97,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String lastVersionRun = null;
     private Boolean newInstallation = false;
     private String freshArticleMaxAge = "";
-//    private Integer serverVersion = null;
-//    private Long serverVersionLastUpdate = null;
     private Long lastVacuumDate = null;
     
     public volatile Integer lastOpenedFeed = null;
@@ -656,55 +654,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         
         return ret;
     }
-    
-    /*
-     * Removed because check for server-version is not used at the moment.
-     * 
-     * public void setServerVersion(int serverVersion) {
-     * if (serverVersion != -1) {
-     * this.serverVersion = serverVersion;
-     * put(Constants.SERVER_VERSION, serverVersion);
-     * this.serverVersionLastUpdate = System.currentTimeMillis();
-     * put(Constants.SERVER_VERSION_LAST_UPDATE, System.currentTimeMillis());
-     * }
-     * }
-     * 
-     * public void resetServerVersion() {
-     * serverVersion = null;
-     * serverVersionLastUpdate = null;
-     * }
-     * 
-     * public int getServerVersion() {
-     * if (serverVersion == null)
-     * serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
-     * 
-     * if (serverVersionLastUpdate == null)
-     * serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
-     * Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
-     * 
-     * // Refresh only once ever hour or if no serverVersion is stored in preferences
-     * long time = (System.currentTimeMillis() - 60 * 60 * 1000L); // "L" to make sure we are working on long values
-     * // here
-     * if (serverVersion < 0 || (serverVersion < 153 && serverVersionLastUpdate < time)) {
-     * 
-     * if (ttrssConnector != null || ttrssConnector != null) {
-     * 
-     * // Load server-version in background so we got it on next run
-     * AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-     * 
-     * @Override
-     * protected Void doInBackground(Void... params) {
-     * setServerVersion(Data.getInstance().getVersion());
-     * return null;
-     * }
-     * };
-     * task.execute();
-     * }
-     * }
-     * 
-     * return serverVersion;
-     * }
-     */
     
     /*
      * Generic method to insert values into the preferences store

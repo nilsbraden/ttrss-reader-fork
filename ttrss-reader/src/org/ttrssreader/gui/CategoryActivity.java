@@ -55,7 +55,6 @@ public class CategoryActivity extends MenuActivity {
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
     private static final int DIALOG_CRASH = 3;
-    // private static final int DIALOG_OLD_SERVER = 4;
     
     protected static final int SELECT_ARTICLES = MARK_GROUP + 54;
     
@@ -82,8 +81,6 @@ public class CategoryActivity extends MenuActivity {
             showDialog(DIALOG_UPDATE);
         } else if (!Utils.checkCrashReport(this)) { // Check for crash-reports
             showDialog(DIALOG_CRASH);
-            // } else if (!Utils.checkServerVersion(this)) { // Check if the server-version is supported
-            // showDialog(DIALOG_OLD_SERVER);
         } else if (!Utils.checkConfig()) {// Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
@@ -324,33 +321,6 @@ public class CategoryActivity extends MenuActivity {
                     }
                 });
                 break;
-            /*
-             * Removed because check for server-version is not used at the moment.
-             * 
-             * case DIALOG_OLD_SERVER:
-             * 
-             * builder.setTitle(getResources().getString(R.string.ErrorActivity_Title));
-             * builder.setMessage(getResources().getString(R.string.Check_OldVersion));
-             * builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-             * 
-             * @Override
-             * public void onClick(final DialogInterface d, final int which) {
-             * finish();
-             * }
-             * });
-             * builder.setNeutralButton((String) getText(R.string.Preferences_Btn),
-             * new DialogInterface.OnClickListener() {
-             * 
-             * @Override
-             * public void onClick(final DialogInterface d, final int which) {
-             * Intent i = new Intent(context, PreferencesActivity.class);
-             * startActivity(i);
-             * d.dismiss();
-             * }
-             * });
-             * break;
-             */
-
         }
         return builder.create();
     }
