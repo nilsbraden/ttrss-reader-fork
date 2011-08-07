@@ -28,17 +28,14 @@ import org.ttrssreader.R;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.net.Connector;
 import org.ttrssreader.net.JSONConnector;
-import org.ttrssreader.net.JSONPOSTConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.ImageCache;
-import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 
 /**
@@ -52,7 +49,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private boolean initialized = false;
     private Context context;
     private Connector ttrssConnector;
-    private Connector ttrssPostConnector;
     private ImageCache imageCache;
     
     private static Controller instance = null;
@@ -101,8 +97,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String lastVersionRun = null;
     private Boolean newInstallation = false;
     private String freshArticleMaxAge = "";
-    private Integer serverVersion = null;
-    private Long serverVersionLastUpdate = null;
+//    private Integer serverVersion = null;
+//    private Long serverVersionLastUpdate = null;
     private Long lastVacuumDate = null;
     
     public volatile Integer lastOpenedFeed = null;
@@ -151,8 +147,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             newInstallation = true;
         }
         
-        // Refresh stored serverVersion if necessary
-        getServerVersion();
+        ttrssConnector = new JSONConnector();
         
         // Article-Prefetch-Stuff from Raw-Ressources and System
         htmlHeader = context.getResources().getString(R.string.INJECT_HTML_HEAD);
@@ -170,21 +165,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         
         // Initialize ImageCache
         getImageCache(context);
-        
-        // Initialize the Connector depending on serverVersion
-        if (serverVersion != null && serverVersion >= 153) {
-            ttrssPostConnector = new JSONPOSTConnector();
-            ttrssConnector = null;
-        } else if (serverVersion != null && serverVersion <= 0) {
-            // Silently use old connector, version is fetched in the background
-            ttrssPostConnector = null;
-            ttrssConnector = new JSONConnector();
-        } else {
-            // TODO Display some kind of message!
-            Log.d(Utils.TAG, "Server-version seems to be lower then 1.5.3, using old JSONConnector.");
-            ttrssPostConnector = null;
-            ttrssConnector = new JSONConnector();
-        }
     }
     
     public static void initializeArticleViewStuff(Display display, DisplayMetrics metrics) {
@@ -263,9 +243,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public Connector getConnector() throws NotInitializedException {
         // Initialized inside initializeController();
-        if (ttrssPostConnector != null) {
-            return ttrssPostConnector;
-        }
         if (ttrssConnector != null) {
             return ttrssConnector;
         } else {
@@ -680,48 +657,54 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return ret;
     }
     
-    public void setServerVersion(int serverVersion) {
-        if (serverVersion != -1) {
-            this.serverVersion = serverVersion;
-            put(Constants.SERVER_VERSION, serverVersion);
-            this.serverVersionLastUpdate = System.currentTimeMillis();
-            put(Constants.SERVER_VERSION_LAST_UPDATE, System.currentTimeMillis());
-        }
-    }
-    
-    public void resetServerVersion() {
-        serverVersion = null;
-        serverVersionLastUpdate = null;
-    }
-    
-    public int getServerVersion() {
-        if (serverVersion == null)
-            serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
-        
-        if (serverVersionLastUpdate == null)
-            serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
-                    Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
-        
-        // Refresh only once ever hour or if no serverVersion is stored in preferences
-        long time = (System.currentTimeMillis() - 60 * 60 * 1000L); // "L" to make sure we are working on long values here
-        if (serverVersion < 0 || (serverVersion < 153 && serverVersionLastUpdate < time)) {
-            
-            if (ttrssConnector != null || ttrssPostConnector != null) {
-                
-                // Load server-version in background so we got it on next run
-                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        setServerVersion(Data.getInstance().getVersion());
-                        return null;
-                    }
-                };
-                task.execute();
-            }
-        }
-        
-        return serverVersion;
-    }
+    /*
+     * Removed because check for server-version is not used at the moment.
+     * 
+     * public void setServerVersion(int serverVersion) {
+     * if (serverVersion != -1) {
+     * this.serverVersion = serverVersion;
+     * put(Constants.SERVER_VERSION, serverVersion);
+     * this.serverVersionLastUpdate = System.currentTimeMillis();
+     * put(Constants.SERVER_VERSION_LAST_UPDATE, System.currentTimeMillis());
+     * }
+     * }
+     * 
+     * public void resetServerVersion() {
+     * serverVersion = null;
+     * serverVersionLastUpdate = null;
+     * }
+     * 
+     * public int getServerVersion() {
+     * if (serverVersion == null)
+     * serverVersion = prefs.getInt(Constants.SERVER_VERSION, Constants.SERVER_VERSION_DEFAULT);
+     * 
+     * if (serverVersionLastUpdate == null)
+     * serverVersionLastUpdate = prefs.getLong(Constants.SERVER_VERSION_LAST_UPDATE,
+     * Constants.SERVER_VERSION_LAST_UPDATE_DEFAULT);
+     * 
+     * // Refresh only once ever hour or if no serverVersion is stored in preferences
+     * long time = (System.currentTimeMillis() - 60 * 60 * 1000L); // "L" to make sure we are working on long values
+     * // here
+     * if (serverVersion < 0 || (serverVersion < 153 && serverVersionLastUpdate < time)) {
+     * 
+     * if (ttrssConnector != null || ttrssConnector != null) {
+     * 
+     * // Load server-version in background so we got it on next run
+     * AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+     * 
+     * @Override
+     * protected Void doInBackground(Void... params) {
+     * setServerVersion(Data.getInstance().getVersion());
+     * return null;
+     * }
+     * };
+     * task.execute();
+     * }
+     * }
+     * 
+     * return serverVersion;
+     * }
+     */
     
     /*
      * Generic method to insert values into the preferences store

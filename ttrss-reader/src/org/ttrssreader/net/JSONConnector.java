@@ -18,9 +18,10 @@ package org.ttrssreader.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -29,6 +30,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpParams;
@@ -51,28 +53,41 @@ public class JSONConnector implements Connector {
     private static String lastError = "";
     private static boolean hasLastError = false;
     
-    private static final String OP_LOGIN = "?op=login&user=%s&password=%s";
-    private static final String OP_GET_CATEGORIES = "?op=getCategories";
-    private static final String OP_GET_FEEDS = "?op=getFeeds&cat_id=%s";
-    private static final String OP_GET_ARTICLE = "?op=getArticle&article_id=%s";
+    private static final String PARAM_OP = "op";
+    private static final String PARAM_USER = "user";
+    private static final String PARAM_PW = "password";
+    private static final String PARAM_CAT_ID = "cat_id";
+    private static final String PARAM_FEED_ID = "feed_id";
+    private static final String PARAM_ARTICLE_ID = "article_id";
+    private static final String PARAM_ARTICLE_IDS = "article_ids";
+    private static final String PARAM_LIMIT = "limit";
+    private static final String PARAM_VIEWMODE = "view_mode";
+    private static final String PARAM_SHOW_CONTENT = "show_content";
+    private static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
+                                                                               // 1.5.3 but is ignored on older versions
+    private static final String PARAM_MODE = "mode";
+    private static final String PARAM_FIELD = "field";
+    private static final String PARAM_IS_CAT = "is_cat";
+    private static final String PARAM_PREF = "pref_name";
+    private static final String PARAM_OUTPUT_MODE = "output_mode"; // output_mode (default: flc) - what kind of
+                                                                   // information to return (f-feeds, l-labels,
+                                                                   // c-categories, t-tags)
     
-    // include_attachments available since 1.5.3 but is ignored on older versions
-    private static final String OP_GET_FEEDHEADLINES = "?op=getHeadlines&feed_id=%s&limit=%s&view_mode=%s&show_content=1&include_attachments=1&is_cat=%s";
-    
-    private static final String OP_UPDATE_ARTICLE = "?op=updateArticle&article_ids=%s&mode=%s&field=%s";
-    private static final String OP_CATCHUP = "?op=catchupFeed&feed_id=%s&is_cat=%s";
-    private static final String OP_GET_PREF = "?op=getPref&pref_name=%s";
-    private static final String OP_GET_VERSION = "?op=getVersion";
-    private static final String OP_GET_COUNTERS = "?op=getCounters&output_mode=fc"; // output_mode (default: flc) - what
-                                                                                    // kind of information to return
-                                                                                    // (f-feeds, l-labels, c-categories,
-                                                                                    // t-tags)
+    private static final String VALUE_LOGIN = "login";
+    private static final String VALUE_GET_CATEGORIES = "getCategories";
+    private static final String VALUE_GET_FEEDS = "getFeeds";
+    private static final String VALUE_GET_ARTICLE = "getArticle";
+    private static final String VALUE_GET_HEADLINES = "getHeadlines";
+    private static final String VALUE_UPDATE_ARTICLE = "updateArticle";
+    private static final String VALUE_CATCHUP = "catchupFeed";
+    private static final String VALUE_GET_PREF = "getPref";
+    private static final String VALUE_GET_VERSION = "getVersion";
+    private static final String VALUE_GET_COUNTERS = "getCounters";
     
     private static final String ERROR = "{\"error\":";
     private static final String NOT_LOGGED_IN = ERROR + "\"NOT_LOGGED_IN\"}";
     private static final String API_DISABLED = ERROR + "\"API_DISABLED\"}";
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
-    private static final String LOGIN_FAILED_MESSAGE = "Login to the server failed, please check your connection and the provided credentials.";
     private static final String OK = "\"status\":\"OK\"";
     
     private static final String SESSION_ID = "session_id";
@@ -91,7 +106,6 @@ public class JSONConnector implements Connector {
     private static final String PUBLISHED = "published";
     private static final String VALUE = "value";
     private static final String VERSION = "version";
-    private static final String SID_APPEND = "&sid=%s";
     
     private static final String COUNTER_KIND = "kind";
     private static final String COUNTER_CAT = "cat";
@@ -102,7 +116,6 @@ public class JSONConnector implements Connector {
     private String httpPassword;
     
     private String sessionId;
-    private String sidUrl;
     private String loginLock = "";
     
     private CredentialsProvider credProvider = null;
@@ -146,23 +159,52 @@ public class JSONConnector implements Connector {
         }
     }
     
-    private String doRequest(String url, boolean firstCall) {
-        Log.v(Utils.TAG, "Request: " + url);
+    private String doRequest(Map<String, String> map, boolean firstCall) {
+        String currentRequest = "";
         
         try {
             // check if http-Auth-Settings have changed, reload values if necessary
             refreshHTTPAuth();
             
-            post.setURI(new URI(url));
-            HttpParams params = post.getParams();
-            if (client == null) {
-                client = HttpClientFactory.getInstance().getHttpClient(params);
+            // Set Address
+            if (Controller.getInstance().url() != null) {
+                post.setURI(Controller.getInstance().url());
             } else {
+                hasLastError = true;
+                lastError = "Server-URL could not be parsed, please check your preferences.";
+                return null;
+            }
+            
+            // Add POST data
+            JSONObject json = new JSONObject(map);
+            StringEntity jsonData = new StringEntity(json.toString(), "UTF-8");
+            jsonData.setContentType("application/json");
+            post.setEntity(jsonData);
+            
+            // LOG-Output
+            if (!Controller.getInstance().logSensitiveData()) {
+                // Filter password and session-id
+                Object paramPw = json.remove(PARAM_PW);
+                Object paramSID = json.remove(SESSION_ID);
+                Log.i(Utils.TAG, "Request: " + json);
+                currentRequest = new String(json.toString());
+                json.put(PARAM_PW, paramPw);
+                json.put(SESSION_ID, paramSID);
+            } else {
+                Log.i(Utils.TAG, "Request: " + json);
+                currentRequest = new String(json.toString());
+            }
+            
+            HttpParams params = post.getParams();
+            if (client == null)
+                client = HttpClientFactory.getInstance().getHttpClient(params);
+            else
                 client.setParams(params);
-            }
-            if (credProvider != null) {
+            
+            // Add SSL-Stuff
+            if (credProvider != null)
                 client.setCredentialsProvider(credProvider);
-            }
+            
         } catch (Exception e) {
             hasLastError = true;
             lastError = "Error creating HTTP-Connection: " + e.getMessage() + " [ " + e.getCause() + " ]";
@@ -173,12 +215,15 @@ public class JSONConnector implements Connector {
         InputStream instream = null;
         
         try {
+            // Execute the request
             response = client.execute(post);
+            
         } catch (ClientProtocolException e) {
             hasLastError = true;
             lastError = e.getMessage()
                     + ", Method: doRequest(String url) threw ClientProtocolException on httpclient.execute(httpPost)"
                     + " [ " + e.getCause() + " ]";
+            Log.w(Utils.TAG, lastError);
             return null;
         } catch (IOException e) {
             /*
@@ -189,22 +234,24 @@ public class JSONConnector implements Connector {
             return null;
         }
         
+        String strResponse;
+        long length = -1;
         try {
+            
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 instream = entity.getContent();
+                length = entity.getContentLength();
             }
-        } catch (IOException e) {
-            hasLastError = true;
-            lastError = e.getMessage() + ", Method: doRequest(String url) threw IOException on entity.getContent()"
-                    + " [ " + e.getCause() + " ]";
-            return null;
-        }
-        
-        String strResponse = "";
-        long length = -1;
-        try {
+            
+            if (instream == null) {
+                hasLastError = true;
+                lastError = "Couldn't get InputStream in Method doRequest(String url) [instream was null]";
+                return null;
+            }
+            
             strResponse = StringSupport.convertStreamToString(instream);
+            
         } catch (IOException e) {
             hasLastError = true;
             lastError = "JSON-Data could not be parsed. Exception: " + e.getMessage() + " (" + e.getCause() + ")";
@@ -213,34 +260,26 @@ public class JSONConnector implements Connector {
         } catch (OutOfMemoryError e2) {
             hasLastError = true;
             lastError = "Run out of memory when trying to fetch " + (length > 0 ? length + "" : "an unknown amount of")
-                    + " bytes from " + url;
+                    + " bytes from " + currentRequest;
             Log.w(Utils.TAG, lastError);
             return null;
         }
         
         if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
             Log.w(Utils.TAG, "Not logged in, retrying...");
-            hasLastError = true;
-            lastError = NOT_LOGGED_IN;
-            
             // Login and post request again
-            String tempSessionId = (sessionId != null ? new String(sessionId) : "__TEST__");
-            
+            sessionId = null; // Reset SID
             login();
-            // TODO: Verify behavior, login() was removed with revision 4827ca8f7edaa449ca637134f62f212b03bae6c8 See:
-            // https://code.google.com/p/ttrss-reader-fork/source/browse/ttrss-reader/src/org/ttrssreader/net/TTRSSJsonConnector.java?r=4827ca8f7edaa449ca637134f62f212b03bae6c8
             
-            if (sessionId == null) {
-                Log.w(Utils.TAG, LOGIN_FAILED_MESSAGE);
-                hasLastError = true;
-                lastError = LOGIN_FAILED_MESSAGE;
-                return null;
+            Map<String, String> newMap = new HashMap<String, String>();
+            for (String key : map.keySet()) {
+                if (key.equals(SESSION_ID)) {
+                    newMap.put(SESSION_ID, new String(sessionId));
+                } else {
+                    newMap.put(key, map.get(key));
+                }
             }
-            
-            if (url.contains(tempSessionId)) {
-                url = url.replace(tempSessionId, sessionId);
-            }
-            strResponse = doRequest(url, false);
+            strResponse = doRequest(newMap, false);
             if (strResponse == null)
                 strResponse = "";
         }
@@ -248,6 +287,7 @@ public class JSONConnector implements Connector {
         // Check if API is enabled for the user
         if (strResponse.contains(API_DISABLED)) {
             Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, Controller.getInstance().username()));
+            
             hasLastError = true;
             lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
             return null;
@@ -264,12 +304,10 @@ public class JSONConnector implements Connector {
         if (strResponse.startsWith("{\"seq"))
             strResponse = parseMetadata(strResponse);
         
-        // Log.v(Utils.TAG, String.format("PARSING    %s ms ( %s )", System.currentTimeMillis() - tempTime - start,
-        // tempUrl));
         return strResponse;
     }
     
-    private String doRequestNoAnswer(String url) {
+    private String doRequestNoAnswer(Map<String, String> map) {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
             if (!login())
@@ -277,10 +315,10 @@ public class JSONConnector implements Connector {
         if (hasLastError)
             return null;
         
-        if (!url.contains(sidUrl))
-            url += sidUrl;
+        // Add Session-ID
+        map.put(SESSION_ID, sessionId);
         
-        String ret = doRequest(url, true); // Append Session-ID to all calls except login
+        String ret = doRequest(map, true); // Append Session-ID to all calls except login
         
         if (hasLastError || ret == null) {
             hasLastError = false;
@@ -291,7 +329,7 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    private JSONArray getJSONResponseAsArray(String url) {
+    private JSONArray getJSONResponseAsArray(Map<String, String> map) {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN)) {
             if (!login())
@@ -300,10 +338,10 @@ public class JSONConnector implements Connector {
         if (hasLastError)
             return null;
         
-        if (!url.contains(sidUrl))
-            url += sidUrl;
+        // Add Session-ID
+        map.put(SESSION_ID, sessionId);
         
-        String strResponse = doRequest(url, true); // Append Session-ID to all calls except login
+        String strResponse = doRequest(map, true); // Append Session-ID to all calls except login
         
         if (hasLastError || strResponse == null)
             return null;
@@ -324,114 +362,73 @@ public class JSONConnector implements Connector {
         return result;
     }
     
-    private JSONResult getJSONLoginResponse(String url) {
-        // No check with assertLogin here, we are about to login so no need for this.
-        String strResponse = doRequest(url, true);
-        
-        if (strResponse == null)
-            return null;
-        
-        JSONResult result = null;
-        if (!hasLastError) {
-            try {
-                result = new JSONResult(strResponse);
-            } catch (Exception e) {
-                hasLastError = true;
-                lastError = "An Error occurred. Message from Server: " + strResponse;
-            }
-        }
-        
-        return result;
-    }
-    
+    /**
+     * Tries to login to the ttrss-server with the base64-encoded password.
+     * 
+     * @return true on success, false otherwise
+     */
     private boolean login() {
+        long time = System.currentTimeMillis();
+        
         // Just login once, check if already logged in after acquiring the lock on mSessionId
         synchronized (loginLock) {
-            if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN))) {
+            if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN)))
                 return true; // Login done while we were waiting for the lock
-            }
-            
+                
             sessionId = null;
             
-            String url = Controller.getInstance().url()
-                    + String.format(OP_LOGIN, Controller.getInstance().username(), Controller.getInstance().password());
-            JSONResult jsonResult = getJSONLoginResponse(url);
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_LOGIN);
+            params.put(PARAM_USER, Controller.getInstance().username());
+            params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
             
-            if (!hasLastError && jsonResult != null) {
-                
-                int i = 0;
-                try {
-                    
-                    while (i < jsonResult.getNames().length()) {
-                        if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
-                            sessionId = jsonResult.getValues().getString(i);
-                            sidUrl = String.format(SID_APPEND, sessionId);
-                            return true;
-                        }
-                        i++;
-                    }
-                } catch (Exception e) {
-                    hasLastError = true;
-                    lastError = e.getMessage() + ", Method: login(String url) threw Exception";
-                    e.printStackTrace();
-                }
-                
-            }
-            
-            // Try again with base64-encoded passphrase
-            if (!loginBase64() && !hasLastError) {
-                hasLastError = true;
-                lastError = "Couldn't login, please check your settings.";
+            // No check with assertLogin here, we are about to login so no need for this.
+            String strResponse = doRequest(params, true);
+            if (strResponse == null || hasLastError)
                 return false;
-            } else {
-                return true;
+            
+            JSONResult jsonResult = null;
+            try {
+                jsonResult = new JSONResult(strResponse);
+            } catch (Exception e) {
+                // Shorten the message so we dont need to print 1MB of data in error-message
+                String messageFromServer = (strResponse.length() > 200 ? strResponse.substring(0, 200) : strResponse);
+                hasLastError = true;
+                lastError = "An Error occurred: " + e.getMessage() + ". Message from Server: " + messageFromServer;
+                return false;
             }
-        }
-    }
-    
-    private boolean loginBase64() {
-        Log.d(Utils.TAG, "login() didn't work, trying loginBase64()...");
-        sessionId = null;
-        
-        byte[] bytes = Controller.getInstance().password().getBytes();
-        String mPasswordEncoded = Base64.encodeBytes(bytes);
-        
-        String url = Controller.getInstance().url()
-                + String.format(OP_LOGIN, Controller.getInstance().username(), mPasswordEncoded);
-        JSONResult jsonResult = getJSONLoginResponse(url);
-        
-        if (!hasLastError && jsonResult != null) {
-            int i = 0;
             
             try {
-                while (i < jsonResult.getNames().length()) {
+                for (int i = 0; i < jsonResult.getNames().length(); i++) {
                     if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
                         sessionId = jsonResult.getValues().getString(i);
-                        sidUrl = String.format(SID_APPEND, sessionId);
-                        return true;
-                    } else {
-                        i++;
+                        
+                        if (sessionId != null) {
+                            Log.v(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+                            return true;
+                        }
                     }
                 }
-            } catch (Exception e) {
+            } catch (JSONException e) {
                 hasLastError = true;
-                lastError = e.getMessage() + ", Method: login(String url) threw Exception";
+                lastError = e.getMessage() + ", Method: login(String url) threw JSONException";
                 e.printStackTrace();
             }
+            
+            // Login didnt succeed
+            return false;
         }
-        return false;
     }
     
     private String parseMetadata(String str) {
-        // Cut string from content: to the end: /{"seq":0,"status":0,"content":(.*)}/\1/
+        // Cut string from content: to the end: sed 's/{"seq":0,"status":0,"content":(.*)}/\1/'
         String pattern = "\"content\":";
         int start = str.indexOf(pattern) + pattern.length();
         int stop = str.length() - 1;
-        if (start >= pattern.length() && stop > start) {
+        if (start >= pattern.length() && stop > start)
             return str.substring(start, stop);
-        }
         
-        return "";
+        return str;
     }
     
     // ***************** Helper-Methods **************************************************
@@ -534,6 +531,7 @@ public class JSONConnector implements Connector {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
+                
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }
@@ -551,8 +549,11 @@ public class JSONConnector implements Connector {
     @Override
     public void getCounters() {
         long time = System.currentTimeMillis();
-        String url = Controller.getInstance().url() + String.format(OP_GET_COUNTERS);
-        JSONArray jsonResult = getJSONResponseAsArray(url);
+        
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_COUNTERS);
+        params.put(PARAM_OUTPUT_MODE, "fc");
+        JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
             return;
@@ -581,7 +582,9 @@ public class JSONConnector implements Connector {
                             id = values.getInt(j);
                         }
                     } else if (names.getString(j).equals(COUNTER_COUNTER)) {
-                        counter = values.getInt(j);
+                        // Check if null because of an API-bug
+                        if (!values.getString(j).equals("null"))
+                            counter = values.getInt(j);
                     }
                 }
                 
@@ -612,8 +615,9 @@ public class JSONConnector implements Connector {
         long time = System.currentTimeMillis();
         Set<Category> ret = new LinkedHashSet<Category>();
         
-        String url = Controller.getInstance().url() + String.format(OP_GET_CATEGORIES);
-        JSONArray jsonResult = getJSONResponseAsArray(url);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_CATEGORIES);
+        JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
             return ret;
@@ -661,9 +665,11 @@ public class JSONConnector implements Connector {
         long time = System.currentTimeMillis();
         Set<Feed> ret = new LinkedHashSet<Feed>();;
         
-        // Hardcoded -4 fetches all feeds. See http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
-        String url = Controller.getInstance().url() + String.format(OP_GET_FEEDS, "-4");
-        JSONArray jsonResult = getJSONResponseAsArray(url);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_FEEDS);
+        params.put(PARAM_CAT_ID, "-4"); // Hardcoded -4 fetches all feeds. See
+                                        // http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
+        JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
             return ret;
@@ -723,8 +729,10 @@ public class JSONConnector implements Connector {
             if (idList.length() == 0)
                 continue;
             
-            String url = Controller.getInstance().url() + String.format(OP_GET_ARTICLE, idList);
-            JSONArray jsonResult = getJSONResponseAsArray(url);
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_GET_ARTICLE);
+            params.put(PARAM_ARTICLE_ID, idList);
+            JSONArray jsonResult = getJSONResponseAsArray(params);
             
             if (jsonResult == null)
                 continue;
@@ -737,14 +745,22 @@ public class JSONConnector implements Connector {
     /*
      * (non-Javadoc)
      * 
-     * @see org.ttrssreader.net.Connector#getHeadlinesToDatabase(Integer, int, int, java.lang.String)
+     * @see org.ttrssreader.net.Connector#getHeadlinesToDatabase(java.lang.Integer, int, int, java.lang.String)
      */
     @Override
     public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory) {
         long time = System.currentTimeMillis();
-        String url = Controller.getInstance().url()
-                + String.format(OP_GET_FEEDHEADLINES, feedId, limit, viewMode, isCategory);
-        JSONArray jsonResult = getJSONResponseAsArray(url);
+        
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_HEADLINES);
+        params.put(PARAM_FEED_ID, feedId + "");
+        params.put(PARAM_LIMIT, limit + "");
+        params.put(PARAM_VIEWMODE, viewMode);
+        params.put(PARAM_SHOW_CONTENT, "1");
+        params.put(PARAM_INC_ATTACHMENTS, "1");
+        params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
+        
+        JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
             return null;
@@ -756,9 +772,9 @@ public class JSONConnector implements Connector {
             DBHelper.getInstance().purgePublishedArticles();
         
         // Check if viewmode=unread and feedId>=0 so we can safely mark all other articles as read
-        // TODO: Store list of marked articles so we can restore the state if parseArticlesAndInsertInDB() fails?
-        if (viewMode.equals("unread") && feedId >= 0)
-            DBHelper.getInstance().markFeedOnlyArticlesRead(feedId, isCategory);
+        // New: People are complaining about not all articles beeing marked the right way, so just overwrite all unread
+        // states and fetch new articles...
+        DBHelper.getInstance().markFeedOnlyArticlesRead(feedId, isCategory);
         
         Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);
         Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
@@ -778,8 +794,12 @@ public class JSONConnector implements Connector {
         String ret = "";
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            String url = Controller.getInstance().url() + String.format(OP_UPDATE_ARTICLE, idList, articleState, 2);
-            ret = doRequestNoAnswer(url);
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+            params.put(PARAM_ARTICLE_IDS, idList);
+            params.put(PARAM_MODE, articleState + "");
+            params.put(PARAM_FIELD, "2");
+            ret = doRequestNoAnswer(params);
         }
         return (ret != null && ret.contains(OK));
     }
@@ -797,8 +817,12 @@ public class JSONConnector implements Connector {
         String ret = "";
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            String url = Controller.getInstance().url() + String.format(OP_UPDATE_ARTICLE, idList, articleState, 0);
-            ret = doRequestNoAnswer(url);
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+            params.put(PARAM_ARTICLE_IDS, idList);
+            params.put(PARAM_MODE, articleState + "");
+            params.put(PARAM_FIELD, "0");
+            ret = doRequestNoAnswer(params);
         }
         return (ret != null && ret.contains(OK));
     }
@@ -816,8 +840,12 @@ public class JSONConnector implements Connector {
         String ret = "";
         
         for (String idList : StringSupport.convertListToString(ids)) {
-            String url = Controller.getInstance().url() + String.format(OP_UPDATE_ARTICLE, idList, articleState, 1);
-            ret = doRequestNoAnswer(url);
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+            params.put(PARAM_ARTICLE_IDS, idList);
+            params.put(PARAM_MODE, articleState + "");
+            params.put(PARAM_FIELD, "1");
+            ret = doRequestNoAnswer(params);
         }
         return (ret != null && ret.contains(OK));
     }
@@ -829,8 +857,11 @@ public class JSONConnector implements Connector {
      */
     @Override
     public boolean setRead(int id, boolean isCategory) {
-        String url = Controller.getInstance().url() + String.format(OP_CATCHUP, id, (isCategory ? 1 : 0));
-        String ret = doRequestNoAnswer(url);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_CATCHUP);
+        params.put(PARAM_FEED_ID, id + "");
+        params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
+        String ret = doRequestNoAnswer(params);
         return (ret != null && ret.contains(OK));
     }
     
@@ -841,8 +872,10 @@ public class JSONConnector implements Connector {
      */
     @Override
     public String getPref(String pref) {
-        String url = Controller.getInstance().url() + String.format(OP_GET_PREF, pref);
-        JSONArray jsonResult = getJSONResponseAsArray(url);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_PREF);
+        params.put(PARAM_PREF, pref);
+        JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
             return null;
@@ -875,8 +908,9 @@ public class JSONConnector implements Connector {
      */
     @Override
     public int getVersion() {
-        String url = Controller.getInstance().url() + OP_GET_VERSION;
-        JSONArray jsonResult = getJSONResponseAsArray(url);
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_VERSION);
+        JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
             return -1;
