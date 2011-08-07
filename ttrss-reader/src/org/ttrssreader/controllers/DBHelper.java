@@ -894,7 +894,7 @@ public class DBHelper {
         Cursor c = null;
         try {
             String where = "categoryId=" + categoryId;
-            if (categoryId < 0) {
+            if (categoryId < 0 && categoryId != -2) {
                 where = null;
             }
             

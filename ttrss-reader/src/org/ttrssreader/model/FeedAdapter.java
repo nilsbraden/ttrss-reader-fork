@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Feed;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -92,7 +93,7 @@ public class FeedAdapter extends MainAdapter {
         return layout;
     }
     
-    protected String buildQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         StringBuilder query = new StringBuilder();
         
         Integer lastOpenedFeed = Controller.getInstance().lastOpenedFeed;
@@ -120,8 +121,9 @@ public class FeedAdapter extends MainAdapter {
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         query.append(buildSafeQuery ? " LIMIT 100" : " LIMIT 1000"); // TODO: Does a hard limit make sense here?
-        
-        return query.toString();
+
+        closeCursor();
+        return DBHelper.getInstance().query(query.toString(), null);
     }
     
 }

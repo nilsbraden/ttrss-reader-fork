@@ -22,8 +22,14 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,6 +89,12 @@ public class CategoryAdapter extends MainAdapter {
             return R.drawable.fresh48;
         } else if (id == -4) {
             return R.drawable.all48;
+        } else if (id < -10) {
+            if (unread) {
+                return R.drawable.label;
+            } else {
+                return R.drawable.label_read;
+            }
         } else {
             if (unread) {
                 return R.drawable.categoryunread48;
@@ -123,40 +135,103 @@ public class CategoryAdapter extends MainAdapter {
         return layout;
     }
     
-    protected String buildQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
-        StringBuilder query = new StringBuilder();
+    protected synchronized Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+        if (db != null)
+            db.close();
+        
+        OpenHelper openHelper = new OpenHelper(context);
+        db = openHelper.getWritableDatabase();
+        insert = db.compileStatement(INSERT);
         
         boolean displayUnread = displayOnlyUnread;
         if (overrideDisplayUnread)
             displayUnread = false;
         
+        StringBuilder query;
+        
         // Virtual Feeds
         if (Controller.getInstance().showVirtual()) {
-            query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
+            query = new StringBuilder();
+            query.append("SELECT id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
-            query.append(" WHERE id<0 ORDER BY id) AS a ");
-            query.append(" UNION ");
+            query.append(" WHERE id>=-4 AND id<0 ORDER BY id");
+            insertValues(DBHelper.getInstance().query(query.toString(), null));
         }
         
-        // "Uncetegorized Feeds"
-        query.append("SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
+        // Labels
+        query = new StringBuilder();
+        query.append("SELECT id,title,unread FROM ");
+        query.append(DBHelper.TABLE_FEEDS);
+        query.append(" WHERE id<-10 ORDER BY UPPER(title) ASC");
+        insertValues(DBHelper.getInstance().query(query.toString(), null));
+        
+        // "Uncategorized Feeds"
+        query = new StringBuilder();
+        query.append("SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
         query.append(" WHERE id=0");
         query.append(displayUnread ? " AND unread>0" : "");
-        query.append(" ) AS b ");
-        query.append(" UNION ");
+        insertValues(DBHelper.getInstance().query(query.toString(), null));
         
         // Categories
-        query.append(" SELECT id,title,unread FROM (SELECT id,title,unread FROM ");
+        query = new StringBuilder();
+        query.append("SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
         query.append(" WHERE id>0");
         query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ORDER BY UPPER(title) ");
-        query.append(invertSortFeedCats ? "ASC" : "DESC");
-        query.append(") AS c");
-        query.append(buildSafeQuery ? " LIMIT 100" : " LIMIT 1000"); // TODO: Does a hard limit make sense here?
+        query.append(invertSortFeedCats ? "DESC" : "ASC"); // TODO: Is that the right way round?
+        insertValues(DBHelper.getInstance().query(query.toString(), null));
         
-        return query.toString();
+        closeCursor();
+        String[] columns = { "id", "title", "unread" };
+        Cursor c = db.query(TABLE_NAME, columns, null, null, null, null, "sortId");
+        return c;
     }
     
+    /*
+     * This is quite a hack. Since partial-sorting of sql-results is not possible I wasn't able to sort virtual
+     * categories by id, Labels by title, insert uncategorized feeds there and sort categories by title again.
+     * No I insert these results one by one in a memory-table in the right order, add an auto-increment-column
+     * ("sortId INTEGER PRIMARY KEY") and afterwards select everything from this memory-table sorted by sortId.
+     * Works fine!
+     */
+    private static final String TABLE_NAME = "categories_memory_db";
+    private static final String INSERT = "REPLACE INTO " + TABLE_NAME
+            + "(id, title, unread, sortId) VALUES (?, ?, ?, null)";
+    private SQLiteDatabase db;
+    private SQLiteStatement insert;
+    
+    private static class OpenHelper extends SQLiteOpenHelper {
+        OpenHelper(Context context) {
+            super(context, null, null, 1);
+        }
+        
+        /**
+         * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
+         */
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + TABLE_NAME
+                    + " (id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
+        }
+        
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
+    }
+    
+    private void insertValues(Cursor c) {
+        if (c.isBeforeFirst() && !c.moveToFirst())
+            return;
+        
+        while (true) {
+            insert.bindLong(1, c.getInt(0)); // id
+            insert.bindString(2, c.getString(1)); // title
+            insert.bindLong(3, c.getInt(2)); // unread
+            insert.executeInsert();
+            if (!c.moveToNext())
+                break;
+        }
+    }
 }

@@ -225,6 +225,12 @@ public class CategoryActivity extends MenuActivity {
             i = new Intent(this, FeedHeadlineActivity.class);
             i.putExtra(FeedHeadlineActivity.FEED_ID, categoryId);
             i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(position));
+        } else if (categoryId < -10) {
+            // Label
+            i = new Intent(this, FeedHeadlineActivity.class);
+            i.putExtra(FeedHeadlineActivity.FEED_ID, categoryId);
+            i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, -2);
+            i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(position));
         } else {
             // Categories
             i = new Intent(this, FeedActivity.class);

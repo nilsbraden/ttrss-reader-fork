@@ -49,6 +49,9 @@ public class AboutActivity extends Activity {
         
         TextView urlText = (TextView) this.findViewById(R.id.AboutActivity_UrlText);
         urlText.setText(this.getString(R.string.AboutActivity_UrlTextValue));
+
+        TextView thanksText = (TextView) this.findViewById(R.id.AboutActivity_ThanksText);
+        thanksText.setText(this.getString(R.string.AboutActivity_ThanksTextValue));
         
         Button closeBtn = (Button) this.findViewById(R.id.AboutActivity_CloseBtn);
         closeBtn.setOnClickListener(new View.OnClickListener() {

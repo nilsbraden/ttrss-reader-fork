@@ -19,7 +19,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="15dip"
+    android:padding="5dip"
     android:background="@color/about_background">
 
     <LinearLayout
@@ -85,6 +85,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:autoLink="web" />
+                <TextView
+                    android:id="@+id/AboutActivity.ThanksText"
+                    android:text="@+id/AboutActivity.ThanksText"
+                    android:textSize="11.0sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
         </LinearLayout>
 
