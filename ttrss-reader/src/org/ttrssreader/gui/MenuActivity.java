@@ -19,6 +19,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
@@ -42,7 +43,7 @@ import android.widget.TextView;
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
  * FeedHeadlineListActivity).
  */
-public abstract class MenuActivity extends ListActivity implements IUpdateEndListener {
+public abstract class MenuActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
     
     protected ListView listView;
     protected Updater updater;
@@ -191,7 +192,16 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         doRefresh();
     }
     
+    @Override
     public void onCacheEnd() {
+        setProgressBarIndeterminateVisibility(false);
+        setProgressBarVisibility(false);
+        doRefresh();
+    }
+    
+    @Override
+    public void onCacheProgress(int taskCount, int progress) {
+        setProgress((10000 / (taskCount + 1)) * progress);
         doRefresh();
     }
     
@@ -204,13 +214,17 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     protected abstract void doUpdate();
     
     protected void doCache(boolean onlyArticles) {
+        // Register for progress-updates
+        ForegroundService.registerCallback(this);
+        
         if (isCacherRunning()) {
-            if (!onlyArticles)
+            if (!onlyArticles) // Tell cacher to do images too
                 ForegroundService.loadImagesToo();
-            else
+            else // Running and already caching images, no need to do anything
                 return;
         }
         
+        // Start new cacher
         Intent intent;
         if (onlyArticles) {
             intent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);

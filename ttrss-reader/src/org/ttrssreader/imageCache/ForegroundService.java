@@ -48,6 +48,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
 
     private ImageCacher imageCacher;
     private static ForegroundService instance = null;
+    private static ICacheEndListener parent;
     
     public static boolean isInstanceCreated() {
         return instance != null;
@@ -58,6 +59,10 @@ public class ForegroundService extends Service implements ICacheEndListener {
     public static void loadImagesToo() {
         if (instance != null)
             instance.imageCache = true;
+    }
+    
+    public static void registerCallback(ICacheEndListener parentGUI) {
+        parent = parentGUI;
     }
     
     void invokeMethod(Method method, Object[] args) {
@@ -201,6 +206,12 @@ public class ForegroundService extends Service implements ICacheEndListener {
             stopForegroundCompat(R.string.Cache_service_started);
             this.stopSelf();
         }
+    }
+
+    @Override
+    public void onCacheProgress(int taskCount, int progress) {
+        if (parent != null)
+            parent.onCacheProgress(taskCount, progress);
     }
     
     @Override

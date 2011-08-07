@@ -40,11 +40,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-public class ImageCacher extends AsyncTask<Void, Void, Void> {
+public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
     private static final long maxFileSize = 1024 * 1024 * 6; // Max size for one image is 6 MB
     private static final int DOWNLOAD_IMAGES_THREADS = 4;
-
+    private static final int DEFAULT_TASK_COUNT = 3;
+    
     private ICacheEndListener parent;
     private Context context;
     
@@ -55,6 +56,7 @@ public class ImageCacher extends AsyncTask<Void, Void, Void> {
     private ImageCache imageCache;
     private long folderSize;
     private long downloaded = 0;
+    private int taskCount = 0;
     
     public ImageCacher(ICacheEndListener parent, Context context, boolean onlyArticles) {
         this.parent = parent;
@@ -68,7 +70,6 @@ public class ImageCacher extends AsyncTask<Void, Void, Void> {
         long start = System.currentTimeMillis();
         
         while (true) {
-            // Check connectivity
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (!Utils.checkConnected(cm)) {
                 Log.w(Utils.TAG, "No connectivity, aborting...");
@@ -76,7 +77,29 @@ public class ImageCacher extends AsyncTask<Void, Void, Void> {
             }
             
             // Update all articles
-            updateArticles();
+            long timeArticles = System.currentTimeMillis();
+            // Only use progress-updates and callbacks for downloading articles, images are done in background
+            // completely
+            Set<Category> cats = DBHelper.getInstance().getCategoriesIncludingUncategorized();
+            taskCount = DEFAULT_TASK_COUNT + cats.size();
+            
+            int progress = 0;
+            Data.getInstance().updateCounters(true);
+            publishProgress(++progress); // Move progress forward
+            Data.getInstance().updateCategories(true);
+            publishProgress(++progress); // Move progress forward
+            Data.getInstance().updateFeeds(-4, true);
+            
+            for (Category c : cats) {
+                if (c.unread == 0)
+                    continue;
+                publishProgress(++progress); // Move progress forward
+                Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true, true);
+            }
+            
+            publishProgress(taskCount); // Move progress forward
+            Log.i(Utils.TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
+            
             if (onlyArticles) // We are done here..
                 break;
             
@@ -94,7 +117,8 @@ public class ImageCacher extends AsyncTask<Void, Void, Void> {
             
             Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
                     cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / 1000));
-            break; // Always break in the end, "while" is just useful for the different places in which we leave the loop...
+            break; // Always break in the end, "while" is just useful for the different places in which we leave the
+                   // loop
         }
         
         handler.sendEmptyMessage(0);
@@ -102,32 +126,18 @@ public class ImageCacher extends AsyncTask<Void, Void, Void> {
     }
     
     private Handler handler = new Handler() {
-        
         @Override
         public void handleMessage(Message msg) {
-            if (parent != null) {
+            if (parent != null)
                 parent.onCacheEnd();
-            }
         }
     };
     
-    private void updateArticles() {
-        long time = System.currentTimeMillis();
-        
-        Data.getInstance().updateCounters(true);
-        Data.getInstance().updateCategories(true);
-        Data.getInstance().updateFeeds(-4, true);
-        
-        for (Category c : DBHelper.getInstance().getCategoriesIncludingUncategorized()) {
-            if (c.unread == 0)
-                continue;
-            
-            boolean isCategory = true;
-            boolean overrideOffline = true;
-            Data.getInstance().updateArticles(c.id, onlyUnreadArticles, isCategory, overrideOffline);
-        }
-        
-        Log.i(Utils.TAG, "Updating articles took " + (System.currentTimeMillis() - time) + "ms");
+    @Override
+    protected void onProgressUpdate(Integer... values) {
+        if (values[0] == taskCount)
+            return;
+        parent.onCacheProgress(taskCount, values[0]);
     }
     
     private void downloadImages() {
