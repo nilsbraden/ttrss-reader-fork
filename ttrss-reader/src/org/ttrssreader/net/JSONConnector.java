@@ -83,6 +83,7 @@ public class JSONConnector implements Connector {
     private static final String VALUE_GET_PREF = "getPref";
     private static final String VALUE_GET_VERSION = "getVersion";
     private static final String VALUE_GET_COUNTERS = "getCounters";
+    private static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
     
     private static final String ERROR = "{\"error\":";
     private static final String NOT_LOGGED_IN = ERROR + "\"NOT_LOGGED_IN\"}";
@@ -552,7 +553,7 @@ public class JSONConnector implements Connector {
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_COUNTERS);
-        params.put(PARAM_OUTPUT_MODE, "fc");
+        params.put(PARAM_OUTPUT_MODE, VALUE_OUTPUT_MODE);
         JSONArray jsonResult = getJSONResponseAsArray(params);
         
         if (jsonResult == null)
@@ -565,7 +566,7 @@ public class JSONConnector implements Connector {
                 JSONArray names = object.names();
                 JSONArray values = object.toJSONArray(names);
                 
-                // Ignore "updated" and "description", we don't need it...
+                // Ignore "updated" and "has_img", we don't need it...
                 boolean cat = false;
                 int id = 0;
                 int counter = 0;
@@ -578,9 +579,9 @@ public class JSONConnector implements Connector {
                         if (values.getString(j).equals("global-unread")
                                 || values.getString(j).equals("subscribed-feeds")) {
                             continue;
-                        } else {
-                            id = values.getInt(j);
                         }
+                        id = values.getInt(j);
+                        
                     } else if (names.getString(j).equals(COUNTER_COUNTER)) {
                         // Check if null because of an API-bug
                         if (!values.getString(j).equals("null"))
@@ -593,6 +594,8 @@ public class JSONConnector implements Connector {
                 } else if (!cat && id < 0) { // Virtual Category
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 } else if (!cat && id > 0) { // Feed
+                    DBHelper.getInstance().updateFeedUnreadCount(id, counter);
+                } else if (!cat && id < -10) { // Label
                     DBHelper.getInstance().updateFeedUnreadCount(id, counter);
                 }
                 
@@ -701,8 +704,9 @@ public class JSONConnector implements Connector {
                     }
                 }
                 
-                if (id > 0)
+                if (id > 0 || categoryId == -2) // normal feed (>0) or label (-2)
                     ret.add(new Feed(id, categoryId, title, feedUrl, unread));
+                
             }
         } catch (Exception e) {
             hasLastError = true;
@@ -748,12 +752,12 @@ public class JSONConnector implements Connector {
      * @see org.ttrssreader.net.Connector#getHeadlinesToDatabase(java.lang.Integer, int, int, java.lang.String)
      */
     @Override
-    public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory) {
+    public Set<Integer> getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
         long time = System.currentTimeMillis();
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_HEADLINES);
-        params.put(PARAM_FEED_ID, feedId + "");
+        params.put(PARAM_FEED_ID, id + "");
         params.put(PARAM_LIMIT, limit + "");
         params.put(PARAM_VIEWMODE, viewMode);
         params.put(PARAM_SHOW_CONTENT, "1");
@@ -765,16 +769,16 @@ public class JSONConnector implements Connector {
         if (jsonResult == null)
             return null;
         
-        if (feedId == -1 && isCategory)
+        if (id == -1 && isCategory)
             DBHelper.getInstance().purgeStarredArticles();
         
-        if (feedId == -2 && isCategory)
+        if (id == -2 && isCategory)
             DBHelper.getInstance().purgePublishedArticles();
         
         // Check if viewmode=unread and feedId>=0 so we can safely mark all other articles as read
         // New: People are complaining about not all articles beeing marked the right way, so just overwrite all unread
         // states and fetch new articles...
-        DBHelper.getInstance().markFeedOnlyArticlesRead(feedId, isCategory);
+        DBHelper.getInstance().markFeedOnlyArticlesRead(id, isCategory);
         
         Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);
         Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");

@@ -18,7 +18,6 @@ package org.ttrssreader.model;
 import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
@@ -205,12 +204,6 @@ public abstract class MainAdapter extends BaseAdapter {
         
     }
     
-    private Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
-        String query = buildQuery(overrideDisplayUnread, buildSafeQuery);
-        closeCursor();
-        return DBHelper.getInstance().query(query, null);
-    }
-    
     private boolean checkUnread(Cursor c) {
         if (c == null || c.isClosed())
             return false;
@@ -249,6 +242,6 @@ public abstract class MainAdapter extends BaseAdapter {
      *            included in the result.
      * @return a valid SQL-Query string for this adapter.
      */
-    protected abstract String buildQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
+    protected abstract Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
     
 }

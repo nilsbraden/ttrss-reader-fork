@@ -42,7 +42,7 @@
     <string name="AboutActivity.CloseBtn">Close</string>
     <string name="AboutActivity.DonateBtn">Want to Donate?</string>
     <string name="AboutActivity.VersionText">Version:</string>
-    <string name="AboutActivity.UrlTextValue">https://code.google.com/p/ttrss-reader-fork/</string>
+    <string name="AboutActivity.UrlTextValue">https://ttrss-reader-fork.googlecode.com/</string>
     <string name="AboutActivity.LicenseText">License:</string>
     <string name="AboutActivity.LicenseTextValue">GPL v3</string>
     

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * ttrss-reader-fork for Android
+ * 
+ * Copyright (C) 2010 N. Braden.
+ * Copyright (C) 2009-2010 J. Devauchelle.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 3 as published by the Free Software Foundation.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+-->
+<resources>
+    <string
+        name="AboutActivity.ThanksTextValue"
+        formatted="false">
+            Special thanks to: \n 
+            \n - Andrew Dolgov for TT-RSS (http://tt-rss.org/)
+            \n - Google Inc. for some Code (Apache License)
+            \n - The Android Open Source Project for some Code (Apache License)
+            \n - Matthias Kaeppler for his implementation of an AbstractCache (Apache License)
+            \n - Jayesh for his implementation of TopExceptionHandler
+            \n - The Apache Software foundation
+            \n - J.Devauchelle for starting this project
+            \n - http://hubpic.com/ for some images (Creative Commons License)
+    </string>
+    
+</resources>

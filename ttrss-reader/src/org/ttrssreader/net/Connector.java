@@ -52,8 +52,8 @@ public interface Connector {
     /**
      * Retrieves the specified articles and directly stores them in the database.
      * 
-     * @param feedId
-     *            the id of the feed
+     * @param id
+     *            the id of the feed/category
      * @param limit
      *            the maximum number of articles to be fetched
      * @param viewMode
@@ -63,7 +63,7 @@ public interface Connector {
      *            indicates if we are dealing with a category or a feed
      * @return a set of ids of the received articles.
      */
-    public Set<Integer> getHeadlinesToDatabase(Integer feedId, int limit, String viewMode, boolean isCategory);
+    public Set<Integer> getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory);
     
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
