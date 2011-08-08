@@ -256,7 +256,7 @@ public class JSONConnector implements Connector {
             }
             
             strResponse = StringSupport.convertStreamToString(instream);
-            
+
         } catch (IOException e) {
             hasLastError = true;
             lastError = "JSON-Data could not be parsed. Exception: " + e.getMessage() + " (" + e.getCause() + ")";

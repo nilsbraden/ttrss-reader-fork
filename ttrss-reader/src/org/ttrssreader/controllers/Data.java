@@ -21,13 +21,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.R;
-import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.util.Log;
 
 public class Data {
     
@@ -156,7 +154,8 @@ public class Data {
             try {
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
                 
-                Set<Integer> ids = Controller.getInstance().getConnector()
+                // Set<Integer> ids = // <-- Not needed
+                Controller.getInstance().getConnector()
                         .getHeadlinesToDatabase(feedId, limit, viewMode, isCategory, (feedId < -10));
                 
                 // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
@@ -164,19 +163,20 @@ public class Data {
                     Controller.getInstance().getConnector()
                             .getHeadlinesToDatabase(feedId, limit, "unread", isCategory, (feedId < -10));
                 
+                // The following should not be necessary anymore
                 // Check if there are new articles, then check if attachments are there, else fetch them separately
-                if (ids != null) {
-                    for (Integer i : ids) {
-                        Article a = DBHelper.getInstance().getArticle(i);
-                        if (a == null || a.attachments == null) {
-                            Log.w(Utils.TAG,
-                                    "WARNING: Had to call getArticles since getHeadline didn't fetch attachments. "
-                                            + "Check if you are running latest server (1.5.3 or newer).");
-                            Controller.getInstance().getConnector().getArticlesToDatabase(ids);
-                        }
-                        break;
-                    }
-                }
+                // if (ids != null) {
+                // for (Integer i : ids) {
+                // Article a = DBHelper.getInstance().getArticle(i);
+                // if (a == null || a.attachments == null) {
+                // Log.w(Utils.TAG,
+                // "WARNING: Had to call getArticles since getHeadline didn't fetch attachments. "
+                // + "Check if you are running latest server (1.5.3 or newer).");
+                // Controller.getInstance().getConnector().getArticlesToDatabase(ids);
+                // }
+                // break;
+                // }
+                // }
             } catch (NotInitializedException e) {
                 return;
             }

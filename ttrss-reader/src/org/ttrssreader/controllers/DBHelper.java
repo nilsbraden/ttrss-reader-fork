@@ -77,10 +77,12 @@ public class DBHelper {
         + " VALUES (?, ?, ?, ?, ?)";
     
     private static final String INSERT_ARTICLE = 
-        "UPDATE OR REPLACE "
+        "INSERT OR REPLACE INTO "
         + TABLE_ARTICLES
-        + " SET id=?, feedId=?, title=?, isUnread=?, articleUrl=?, articleCommentUrl=?, updateDate=?, content=?, attachments=?, isStarred=?, isPublished=?"
-        + " WHERE id=?";
+        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages)" 
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (select cachedImages from " + TABLE_ARTICLES + " where id=?))";
+    // This should insert new values or replace existing values but should always keep an already inserted value for "cachedImages".
+    // When inserting it is set to the default value which is 0 (not "NULL").
     
     private static final String INSERT_LABEL = 
         "REPLACE INTO "
