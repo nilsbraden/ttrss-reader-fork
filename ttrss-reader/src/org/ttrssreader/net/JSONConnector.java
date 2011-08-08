@@ -45,6 +45,7 @@ import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
+import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -214,10 +215,9 @@ public class JSONConnector implements Connector {
         
         HttpResponse response = null;
         InputStream instream = null;
-        
         try {
             // Execute the request
-            response = client.execute(post);
+            response = client.execute(post); // TODO: This takes the longest time.
             
         } catch (ClientProtocolException e) {
             hasLastError = true;
@@ -536,12 +536,55 @@ public class JSONConnector implements Connector {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
-                
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }
         
         return ret;
+    }
+    
+    private void parseCounterData(SQLiteDatabase db, JSONArray jsonResult) throws JSONException {
+        for (int i = 0; i < jsonResult.length(); i++) {
+            JSONObject object = jsonResult.getJSONObject(i);
+            
+            JSONArray names = object.names();
+            JSONArray values = object.toJSONArray(names);
+            
+            // Ignore "updated" and "has_img", we don't need it...
+            boolean cat = false;
+            int id = 0;
+            int counter = 0;
+            
+            for (int j = 0; j < names.length(); j++) {
+                if (names.getString(j).equals(COUNTER_KIND)) {
+                    cat = values.getString(j).equals(COUNTER_CAT);
+                } else if (names.getString(j).equals(COUNTER_ID)) {
+                    // Check if id is a string, then it would be a global counter
+                    if (values.getString(j).equals("global-unread") || values.getString(j).equals("subscribed-feeds")) {
+                        continue;
+                    }
+                    id = values.getInt(j);
+                    
+                } else if (names.getString(j).equals(COUNTER_COUNTER)) {
+                    // Check if null because of an API-bug
+                    if (!values.getString(j).equals("null"))
+                        counter = values.getInt(j);
+                }
+            }
+            
+            ContentValues cv = new ContentValues();
+            cv.put("unread", counter);
+            
+            if (cat && id >= 0) { // Category
+                db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+            } else if (!cat && id < 0 && id >= -4) { // Virtual Category
+                db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+            } else if (!cat && id > 0) { // Feed
+                db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
+            } else if (!cat && id < -10) { // Label
+                db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
+            }
+        }
     }
     
     // ***************** Retrieve-Data-Methods **************************************************
@@ -554,7 +597,6 @@ public class JSONConnector implements Connector {
     @Override
     public void getCounters() {
         long time = System.currentTimeMillis();
-        
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_COUNTERS);
         params.put(PARAM_OUTPUT_MODE, VALUE_OUTPUT_MODE);
@@ -563,51 +605,26 @@ public class JSONConnector implements Connector {
         if (jsonResult == null)
             return;
         
+        /*
+         * This directly inserts all values in the database in a transaction, this is quite fast compared to 30 or more
+         * single transactions as it was before.
+         */
+        SQLiteDatabase db = DBHelper.getInstance().db;
+        
         try {
-            for (int i = 0; i < jsonResult.length(); i++) {
-                JSONObject object = jsonResult.getJSONObject(i);
-                
-                JSONArray names = object.names();
-                JSONArray values = object.toJSONArray(names);
-                
-                // Ignore "updated" and "has_img", we don't need it...
-                boolean cat = false;
-                int id = 0;
-                int counter = 0;
-                
-                for (int j = 0; j < names.length(); j++) {
-                    if (names.getString(j).equals(COUNTER_KIND)) {
-                        cat = values.getString(j).equals(COUNTER_CAT);
-                    } else if (names.getString(j).equals(COUNTER_ID)) {
-                        // Check if id is a string, then it would be a global counter
-                        if (values.getString(j).equals("global-unread")
-                                || values.getString(j).equals("subscribed-feeds")) {
-                            continue;
-                        }
-                        id = values.getInt(j);
-                        
-                    } else if (names.getString(j).equals(COUNTER_COUNTER)) {
-                        // Check if null because of an API-bug
-                        if (!values.getString(j).equals("null"))
-                            counter = values.getInt(j);
-                    }
+            synchronized (DBHelper.TABLE_CATEGORIES) {
+                synchronized (DBHelper.TABLE_FEEDS) {
+                    db.beginTransaction();
+                    parseCounterData(db, jsonResult);
+                    db.setTransactionSuccessful();
                 }
-                
-                if (cat && id >= 0) { // Category
-                    DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
-                } else if (!cat && id < 0 && id >= -4) { // Virtual Category
-                    DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
-                } else if (!cat && id > 0) { // Feed
-                    DBHelper.getInstance().updateFeedUnreadCount(id, counter);
-                } else if (!cat && id < -10) { // Label
-                    DBHelper.getInstance().updateFeedUnreadCount(id, counter);
-                }
-                
             }
         } catch (Exception e) {
             hasLastError = true;
             lastError = e.getMessage() + ", Method: getCounters() threw Exception";
             e.printStackTrace();
+        } finally {
+            db.endTransaction();
         }
         Log.v(Utils.TAG, "getCounters: " + (System.currentTimeMillis() - time) + "ms");
     }

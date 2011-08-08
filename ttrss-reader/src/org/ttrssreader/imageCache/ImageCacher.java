@@ -322,10 +322,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
      */
     public static Set<String> findAllImageUrls(String html) {
         Set<String> ret = new LinkedHashSet<String>();
-        if (html == null || html.length() < 10) {
-            Log.w(Utils.TAG, "Empty HTML!");
+        if (html == null || html.length() < 10)
             return ret;
-        }
         
         for (int i = 0; i < html.length();) {
             i = html.indexOf("<img", i);
@@ -345,7 +343,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 i++;
                 continue;
             } else {
-                Log.w(Utils.TAG, "URL not found. i=" + i);
                 i++;
                 continue;
             }

@@ -76,10 +76,10 @@ public class DBHelper {
         + " VALUES (?, ?, ?, ?, ?)";
     
     private static final String INSERT_ARTICLE = 
-        "REPLACE INTO "
+        "UPDATE OR REPLACE "
         + TABLE_ARTICLES
-        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages)" 
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        + " SET id=?, feedId=?, title=?, isUnread=?, articleUrl=?, articleCommentUrl=?, updateDate=?, content=?, attachments=?, isStarred=?, isPublished=?"
+        + " WHERE id=?";
     
     private static final String INSERT_LABEL = 
         "REPLACE INTO "
@@ -545,15 +545,9 @@ public class DBHelper {
         if (articleCommentUrl == null)
             articleCommentUrl = "";
         if (updateDate == null)
-            updateDate = new Date(System.currentTimeMillis());
+            updateDate = new Date();
         if (attachments == null)
             attachments = new LinkedHashSet<String>();
-        
-        boolean cachedImages = false;
-        Article a = getArticle(id);
-        if (a != null) {
-            cachedImages = a.cachedImages;
-        }
         
         long retId = -1;
         synchronized (TABLE_ARTICLES) {
@@ -568,7 +562,7 @@ public class DBHelper {
             insertArticle.bindString(9, parseAttachmentSet(attachments));
             insertArticle.bindLong(10, (isStarred ? 1 : 0));
             insertArticle.bindLong(11, (isPublished ? 1 : 0));
-            insertArticle.bindLong(12, (cachedImages ? 1 : 0));
+            insertArticle.bindLong(12, id); // ID again for the where-clause
             retId = insertArticle.executeInsert();
         }
         
