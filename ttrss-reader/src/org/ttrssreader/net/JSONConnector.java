@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -33,7 +35,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -133,31 +134,29 @@ public class JSONConnector implements Connector {
     }
     
     private void refreshHTTPAuth() {
+        if (!Controller.getInstance().useHttpAuth())
+            return;
+        
         boolean refreshNeeded = false;
         
-        if (httpUsername == null || !httpUsername.equals(Controller.getInstance().httpUsername())) {
+        if (httpUsername == null || !httpUsername.equals(Controller.getInstance().httpUsername()))
             refreshNeeded = true;
-        }
         
-        if (httpPassword == null || !httpPassword.equals(Controller.getInstance().httpPassword())) {
+        if (httpPassword == null || !httpPassword.equals(Controller.getInstance().httpPassword()))
             refreshNeeded = true;
-        }
         
         if (!refreshNeeded)
             return;
         
-        if (Controller.getInstance().useHttpAuth()) {
-            // Refresh data
-            httpUsername = Controller.getInstance().httpUsername();
-            httpPassword = Controller.getInstance().httpPassword();
-            
-            // Refresh Credentials-Provider
-            if (!httpUsername.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
-                credProvider = new BasicCredentialsProvider();
-                credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                        new UsernamePasswordCredentials(httpUsername, httpPassword));
-            }
-            
+        // Refresh data
+        httpUsername = Controller.getInstance().httpUsername();
+        httpPassword = Controller.getInstance().httpPassword();
+        
+        // Refresh Credentials-Provider
+        if (!httpUsername.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
+            credProvider = new BasicCredentialsProvider();
+            credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                    new UsernamePasswordCredentials(httpUsername, httpPassword));
         }
     }
     
@@ -171,6 +170,7 @@ public class JSONConnector implements Connector {
             // Set Address
             if (Controller.getInstance().url() != null) {
                 post.setURI(Controller.getInstance().url());
+                post.addHeader("Accept-Encoding", "gzip");
             } else {
                 hasLastError = true;
                 lastError = "Server-URL could not be parsed, please check your preferences.";
@@ -197,11 +197,10 @@ public class JSONConnector implements Connector {
                 currentRequest = new String(json.toString());
             }
             
-            HttpParams params = post.getParams();
             if (client == null)
-                client = HttpClientFactory.getInstance().getHttpClient(params);
+                client = HttpClientFactory.getInstance().getHttpClient(post.getParams());
             else
-                client.setParams(params);
+                client.setParams(post.getParams());
             
             // Add SSL-Stuff
             if (credProvider != null)
@@ -214,7 +213,6 @@ public class JSONConnector implements Connector {
         }
         
         HttpResponse response = null;
-        InputStream instream = null;
         try {
             // Execute the request
             response = client.execute(post); // TODO: This takes the longest time.
@@ -232,18 +230,24 @@ public class JSONConnector implements Connector {
              * case but which is it? The Reference (http://developer.android.com/reference/java/io/IOException.html)
              * lists lots of subclasses.
              */
+            Log.w(Utils.TAG, "IOException (" + e.getMessage() + ") occurred in doRequest()...");
             return null;
         }
         
         String strResponse;
         long length = -1;
         try {
-            
+            InputStream instream = null;
             HttpEntity entity = response.getEntity();
-            if (entity != null) {
+            if (entity != null)
                 instream = entity.getContent();
-                length = entity.getContentLength();
+            
+            // Try to decode gzipped instream, if it is not gzip we stay to normal reading
+            Header contentEncoding = response.getFirstHeader("Content-Encoding");
+            if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+                instream = new GZIPInputStream(instream);
             }
+            length = entity.getContentLength();
             
             if (instream == null) {
                 hasLastError = true;
@@ -332,10 +336,9 @@ public class JSONConnector implements Connector {
     
     private JSONArray getJSONResponseAsArray(Map<String, String> map) {
         // Make sure we are logged in
-        if (sessionId == null || lastError.equals(NOT_LOGGED_IN)) {
+        if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
             if (!login())
                 return null;
-        }
         if (hasLastError)
             return null;
         

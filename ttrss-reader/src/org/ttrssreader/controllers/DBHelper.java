@@ -54,7 +54,8 @@ public class DBHelper {
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
     public static final String TABLE_ARTICLES = "articles";
-    public static final String TABLE_ARTICLES2LABELS = "articles2labels";
+    public static final String TABLE_ARTICLES2LABELS = "articles2labels"; // Careful with locking, we don't lock on this
+                                                                          // table but instead on TABLE_ARTICLES
     public static final String TABLE_LABELS = "labels";
     public static final String TABLE_MARK = "marked";
     
@@ -566,18 +567,18 @@ public class DBHelper {
             retId = insertArticle.executeInsert();
         }
         
-        if (retId > 0 && label < -10)
+        if (retId > 0)
             insertLabel(id, label);
         
     }
     
     private void insertLabel(int articleId, int label) {
-        if (label > -11)
-            return;
-        synchronized (TABLE_ARTICLES2LABELS) {
-            insertLabel.bindLong(1, articleId);
-            insertLabel.bindLong(2, label);
-            insertLabel.executeInsert();
+        if (label < -10) {
+            synchronized (TABLE_ARTICLES) {
+                insertLabel.bindLong(1, articleId);
+                insertLabel.bindLong(2, label);
+                insertLabel.executeInsert();
+            }
         }
     }
     
@@ -800,8 +801,8 @@ public class DBHelper {
             String idList = "select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
+                purgeLabels();
             }
-            purgeLabels();
         }
     }
     
@@ -811,8 +812,8 @@ public class DBHelper {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "isPublished>0", null);
+                purgeLabels();
             }
-            purgeLabels();
         }
     }
     
@@ -822,8 +823,8 @@ public class DBHelper {
         if (isDBAvailable()) {
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "isStarred>0", null);
+                purgeLabels();
             }
-            purgeLabels();
         }
     }
     
@@ -839,7 +840,7 @@ public class DBHelper {
             + TABLE_FEEDS + " as f"
             + " on a2l.labelId = f.id where f.id is null";
         // @formatter:on
-        synchronized (TABLE_ARTICLES2LABELS) {
+        synchronized (TABLE_ARTICLES) {
             db.delete(TABLE_ARTICLES2LABELS, "articleId in(" + idsArticles + ")", null);
             db.delete(TABLE_ARTICLES2LABELS, "labelId in(" + idsFeeds + ")", null);
         }

@@ -3,7 +3,7 @@
 = Changes =
 == Version 1.07 ==
   * Improved speed of getCounters-API-call and database-access in method insertArticle()
-  * 
+  * Allow receiving of gzip-compressed data
 
 == Version 1.06 ==
   * Removed support for server-versions lower then 1.5.3
