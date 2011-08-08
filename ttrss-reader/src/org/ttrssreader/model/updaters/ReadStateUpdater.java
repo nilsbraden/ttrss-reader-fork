@@ -50,7 +50,7 @@ public class ReadStateUpdater implements IUpdatable {
     }
     
     public ReadStateUpdater(int feedId, int dummy) {
-        if (feedId <= 0) { // Virtual Category...
+        if (feedId <= 0 && feedId >= -4) { // Virtual Category...
             this.categories = new HashSet<Category>();
             Category ci = DBHelper.getInstance().getCategory(feedId);
             if (ci != null)
@@ -138,6 +138,9 @@ public class ReadStateUpdater implements IUpdatable {
                 // If on a virtual category also update article state in it.
                 if (pid < 0 && pid > -4) {
                     DBHelper.getInstance().updateCategoryDeltaUnreadCount(pid, deltaUnread);
+                } else if (pid < -10) {
+                    // Article belongs to a label, modify that count too
+                    DBHelper.getInstance().updateFeedDeltaUnreadCount(pid, deltaUnread);
                 }
                 DBHelper.getInstance().updateCategoryDeltaUnreadCount(-4, deltaUnread);
             }
