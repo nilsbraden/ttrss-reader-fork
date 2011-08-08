@@ -106,7 +106,7 @@ public class Data {
             int actualUnread = DBHelper.getInstance().getUnreadArticles(feedId).size();
             if (unreadCount > actualUnread) {
                 needUnreadUpdate = true;
-                articlesUpdated.put(feedId, System.currentTimeMillis() - Utils.UPDATE_TIME - 10);
+                articlesUpdated.put(feedId, System.currentTimeMillis() - Utils.UPDATE_TIME - 1000);
             }
         }
         
@@ -139,10 +139,10 @@ public class Data {
             }
             
             if (limit <= 0 && displayOnlyUnread)
-                return; // No unread articles, do nothing
-            if (limit <= 0)
+                limit = 50; // No unread articles, fetch some stuff
+            else if (limit <= 0)
                 limit = 100; // No unread, fetch some to make sure we are at least a bit up-to-date
-            if (limit > 300)
+            else if (limit > 300)
                 limit = 300; // Lots of unread articles, fetch the first 300
                 
             if (limit < 300) {
@@ -157,11 +157,12 @@ public class Data {
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
                 
                 Set<Integer> ids = Controller.getInstance().getConnector()
-                        .getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
+                        .getHeadlinesToDatabase(feedId, limit, viewMode, isCategory, (feedId < -10));
                 
                 // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
                 if (needUnreadUpdate && !displayOnlyUnread)
-                    Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, "unread", isCategory);
+                    Controller.getInstance().getConnector()
+                            .getHeadlinesToDatabase(feedId, limit, "unread", isCategory, (feedId < -10));
                 
                 // Check if there are new articles, then check if attachments are there, else fetch them separately
                 if (ids != null) {

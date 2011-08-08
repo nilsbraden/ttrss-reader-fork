@@ -113,7 +113,7 @@ public class FeedActivity extends MenuActivity {
     
     @Override
     protected void doRefresh() {
-        int unreadCount = (feedUpdater != null ? feedUpdater.unreadCount : 0);
+        int unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
         setTitle(MainAdapter.formatTitle(categoryTitle, unreadCount));
         
         if (adapter != null) {
@@ -205,7 +205,6 @@ public class FeedActivity extends MenuActivity {
      */
     public class FeedUpdater extends AsyncTask<Void, Integer, Void> {
         
-        public int unreadCount = 0;
         private int taskCount = 0;
         private static final int DEFAULT_TASK_COUNT = 2;
         
@@ -215,7 +214,6 @@ public class FeedActivity extends MenuActivity {
             taskCount = DEFAULT_TASK_COUNT + (c.unread != 0 ? 1 : 0);
             
             int progress = 0;
-            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
             publishProgress(++progress); // Move progress forward
             
             Data.getInstance().updateFeeds(categoryId, false);

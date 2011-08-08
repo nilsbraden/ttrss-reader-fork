@@ -133,17 +133,23 @@ public class FeedHeadlineAdapter extends MainAdapter {
     }
     
     protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
-        StringBuilder query = new StringBuilder();
+        String query;
+        if (feedId > -10)
+            query = buildFeedQuery(overrideDisplayUnread, buildSafeQuery);
+        else
+            query = buildLabelQuery(overrideDisplayUnread, buildSafeQuery);
         
+        closeCursor();
+        return DBHelper.getInstance().query(query, null);
+    }
+    
+    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         Integer lastOpenedArticle = Controller.getInstance().lastOpenedArticle;
         boolean displayUnread = displayOnlyUnread;
         if (overrideDisplayUnread)
             displayUnread = false;
         
-//        if (lastOpenedArticle != null) {
-//            query.append("SELECT id,feedId,title,unread,updateDate,isStarred,isPublished FROM (");
-//        }
-        
+        StringBuilder query = new StringBuilder();
         query.append("SELECT a.id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
         query.append(" a, ");
@@ -170,25 +176,53 @@ public class FeedHeadlineAdapter extends MainAdapter {
                 break;
             
             default:
+
                 // User selected to display all articles of a category directly
-                query.append(selectArticlesForCategory ? (" AND categoryId=" + categoryId)
-                        : (" AND feedId=" + feedId));
+                query.append(selectArticlesForCategory ? (" AND categoryId=" + categoryId) : (" AND feedId=" + feedId));
                 query.append(displayUnread ? " AND isUnread>0" : "");
         }
         
         if (lastOpenedArticle != null && !buildSafeQuery) {
-            query.append(" UNION SELECT c.id,feedId,c.title,isUnread AS unread,updateDate,isStarred,isPublished");
-            query.append(" FROM articles c, feeds d WHERE feedId=d.id AND c.id=");
+            query.append(" UNION SELECT c.id,feedId,c.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
+            query.append(DBHelper.TABLE_ARTICLES);
+            query.append(" c, feeds d WHERE feedId=d.id AND c.id=");
             query.append(lastOpenedArticle);
-//            query.append(")");
         }
         
         query.append(" ORDER BY updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
-        query.append(buildSafeQuery ? " LIMIT 100" : " LIMIT 1000"); // TODO: Does a hard limit make sense here?
-
-        closeCursor();
-        return DBHelper.getInstance().query(query.toString(), null);
+        return query.toString();
+    }
+    
+    private String buildLabelQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+        Integer lastOpenedArticle = Controller.getInstance().lastOpenedArticle;
+        boolean displayUnread = displayOnlyUnread;
+        if (overrideDisplayUnread)
+            displayUnread = false;
+        
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT a.id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
+        query.append(DBHelper.TABLE_ARTICLES);
+        query.append(" a, ");
+        query.append(DBHelper.TABLE_ARTICLES2LABELS);
+        query.append(" a2l, ");
+        query.append(DBHelper.TABLE_FEEDS);
+        query.append(" l WHERE a2l.labelId=l.id AND a2l.articleId=a.id");
+        query.append(" AND a2l.labelId=" + feedId);
+        query.append(displayUnread ? " AND isUnread>0" : "");
+        
+        if (lastOpenedArticle != null && !buildSafeQuery) {
+            query.append(" UNION SELECT b.id,feedId,b.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
+            query.append(DBHelper.TABLE_ARTICLES);
+            query.append(" b, ");
+            query.append(DBHelper.TABLE_ARTICLES2LABELS);
+            query.append(" b2m, ");
+            query.append(DBHelper.TABLE_FEEDS);
+            query.append(" m WHERE b2m.labelId=m.id AND b2m.articleId=b.id");
+            query.append(" AND b.id=" + lastOpenedArticle);
+        }
+        
+        return query.toString();
     }
     
 }

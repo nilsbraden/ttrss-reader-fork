@@ -61,9 +61,11 @@ public interface Connector {
      *            adaptive, marked, updated)
      * @param isCategory
      *            indicates if we are dealing with a category or a feed
+     * @param isLabel
+     *            indicates if this is a label (id < -10)
      * @return a set of ids of the received articles.
      */
-    public Set<Integer> getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory);
+    public Set<Integer> getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, boolean isLabel);
     
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
@@ -123,7 +125,7 @@ public interface Connector {
      * @return the version
      */
     public int getVersion();
-
+    
     /**
      * Returns true if there was an error.
      * 

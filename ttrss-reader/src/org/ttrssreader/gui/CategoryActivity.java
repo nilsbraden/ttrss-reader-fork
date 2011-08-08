@@ -30,6 +30,7 @@ import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.TopExceptionHandler;
@@ -147,7 +148,7 @@ public class CategoryActivity extends MenuActivity {
     protected void doRefresh() {
         if (applicationName == null)
             applicationName = getResources().getString(R.string.ApplicationName);
-        int unreadCount = (categoryUpdater != null ? categoryUpdater.unreadCount : 0);
+        int unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
         setTitle(MainAdapter.formatTitle(applicationName, unreadCount));
         
         if (adapter != null) {
@@ -369,19 +370,18 @@ public class CategoryActivity extends MenuActivity {
      */
     public class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
         
-        public int unreadCount = 0;
         private int taskCount = 0;
         private static final int DEFAULT_TASK_COUNT = 5;
         
         @Override
         protected Void doInBackground(Void... params) {
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
+
             Set<Category> cats = DBHelper.getInstance().getCategoriesIncludingUncategorized();
-            
-            taskCount = DEFAULT_TASK_COUNT + cats.size();
+            Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
+            taskCount = DEFAULT_TASK_COUNT + cats.size() + labels.size();
             
             int progress = 0;
-            unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
             publishProgress(++progress); // Move progress forward
             
             Data.getInstance().updateCounters(false);
@@ -395,14 +395,20 @@ public class CategoryActivity extends MenuActivity {
             
             Data.getInstance().updateFeeds(-4, false);
             
-            // Refresh articles for all categories on startup
+            // Refresh articles for all categories
             for (Category c : cats) {
-                publishProgress(++progress); // Move progress forward
-                
-                if (c.unread == 0)
+                if (c.unread == 0 && onlyUnreadArticles)
                     continue;
-                
+                publishProgress(++progress); // Move progress forward
                 Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true);
+            }
+            
+            // Refresh articles for all labels
+            for (Feed f : labels) {
+                if (f.unread == 0 && onlyUnreadArticles)
+                    continue;
+                publishProgress(++progress); // Move progress forward
+                Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false);
             }
             
             publishProgress(taskCount); // Move progress forward to 100%

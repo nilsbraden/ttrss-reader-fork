@@ -470,6 +470,10 @@ public class JSONConnector implements Connector {
     }
     
     private Set<Integer> parseArticlesAndInsertInDB(JSONArray jsonResult) {
+        return parseArticlesAndInsertInDB(jsonResult, false, -1);
+    }
+    
+    private Set<Integer> parseArticlesAndInsertInDB(JSONArray jsonResult, boolean isLabel, int labelId) {
         Set<Integer> ret = new LinkedHashSet<Integer>();
         
         SQLiteDatabase db = DBHelper.getInstance().db;
@@ -522,7 +526,7 @@ public class JSONConnector implements Connector {
                     }
                     
                     DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
-                            articleCommentUrl, updated, content, attachments, isStarred, isPublished);
+                            articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId);
                     ret.add(id);
                 }
                 db.setTransactionSuccessful();
@@ -591,7 +595,7 @@ public class JSONConnector implements Connector {
                 
                 if (cat && id >= 0) { // Category
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
-                } else if (!cat && id < 0) { // Virtual Category
+                } else if (!cat && id < 0 && id >= -4) { // Virtual Category
                     DBHelper.getInstance().updateCategoryUnreadCount(id, counter);
                 } else if (!cat && id > 0) { // Feed
                     DBHelper.getInstance().updateFeedUnreadCount(id, counter);
@@ -752,7 +756,7 @@ public class JSONConnector implements Connector {
      * @see org.ttrssreader.net.Connector#getHeadlinesToDatabase(java.lang.Integer, int, int, java.lang.String)
      */
     @Override
-    public Set<Integer> getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
+    public Set<Integer> getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, boolean isLabel) {
         long time = System.currentTimeMillis();
         
         Map<String, String> params = new HashMap<String, String>();
@@ -775,12 +779,11 @@ public class JSONConnector implements Connector {
         if (id == -2 && isCategory)
             DBHelper.getInstance().purgePublishedArticles();
         
-        // Check if viewmode=unread and feedId>=0 so we can safely mark all other articles as read
-        // New: People are complaining about not all articles beeing marked the right way, so just overwrite all unread
+        // People are complaining about not all articles beeing marked the right way, so just overwrite all unread
         // states and fetch new articles...
         DBHelper.getInstance().markFeedOnlyArticlesRead(id, isCategory);
         
-        Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult);
+        Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult, isLabel, id);
         Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }

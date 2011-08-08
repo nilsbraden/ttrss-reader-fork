@@ -49,11 +49,13 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 48;
+    public static final int DATABASE_VERSION = 49;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
     public static final String TABLE_ARTICLES = "articles";
+    public static final String TABLE_ARTICLES2LABELS = "articles2labels";
+    public static final String TABLE_LABELS = "labels";
     public static final String TABLE_MARK = "marked";
     
     public static final String MARK_READ = "isUnread";
@@ -67,17 +69,23 @@ public class DBHelper {
         + " (id, title, unread)"
         + " VALUES (?, ?, ?)";
     
-    private static final String INSERT_FEEDS = 
+    private static final String INSERT_FEED = 
         "REPLACE INTO "
         + TABLE_FEEDS
         + " (id, categoryId, title, url, unread)"
         + " VALUES (?, ?, ?, ?, ?)";
     
-    private static final String INSERT_ARTICLES = 
+    private static final String INSERT_ARTICLE = 
         "REPLACE INTO "
         + TABLE_ARTICLES
         + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages)" 
         + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+    private static final String INSERT_LABEL = 
+        "REPLACE INTO "
+        + TABLE_ARTICLES2LABELS
+        + " (articleId, labelId)"
+        + " VALUES (?, ?)";
     // @formatter:on
     
     private Context context;
@@ -86,6 +94,7 @@ public class DBHelper {
     private SQLiteStatement insertCategory;
     private SQLiteStatement insertFeed;
     private SQLiteStatement insertArticle;
+    private SQLiteStatement insertLabel;
     
     // Singleton
     private DBHelper() {
@@ -208,8 +217,9 @@ public class DBHelper {
         db.setLockingEnabled(false);
         
         insertCategory = db.compileStatement(INSERT_CATEGORY);
-        insertFeed = db.compileStatement(INSERT_FEEDS);
-        insertArticle = db.compileStatement(INSERT_ARTICLES);
+        insertFeed = db.compileStatement(INSERT_FEED);
+        insertArticle = db.compileStatement(INSERT_ARTICLE);
+        insertLabel = db.compileStatement(INSERT_LABEL);
         
         return true;
     }
@@ -302,6 +312,12 @@ public class DBHelper {
                     + " isStarred INTEGER,"
                     + " isPublished INTEGER,"
                     + " cachedImages INTEGER DEFAULT 0)");
+            
+            db.execSQL(
+                    "CREATE TABLE " 
+                    + TABLE_ARTICLES2LABELS
+                    + " (articleId INTEGER," 
+                    + " labelId INTEGER, PRIMARY KEY(articleId, labelId))");
             
             db.execSQL("CREATE TABLE "
                     + TABLE_MARK
@@ -411,6 +427,21 @@ public class DBHelper {
                 didUpgrade = true;
             }
             
+            if (oldVersion < 49) {
+                // @formatter:off
+                String sql = "CREATE TABLE " 
+                        + TABLE_ARTICLES2LABELS
+                        + " (articleId INTEGER," 
+                        + " labelId INTEGER, PRIMARY KEY(articleId, labelId))";
+                // @formatter:on
+                
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to 49.", oldVersion));
+                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                
+                db.execSQL(sql);
+                didUpgrade = true;
+            }
+            
             if (didUpgrade == false) {
                 Log.w(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
@@ -435,9 +466,8 @@ public class DBHelper {
     public Cursor queryArticlesForImageCache(boolean onlyUnreadImages) {
         // Add where-clause for only unread articles
         String where = "cachedImages=0";
-        if (onlyUnreadImages) {
+        if (onlyUnreadImages)
             where += " AND isUnread>0";
-        }
         
         return db.query(DBHelper.TABLE_ARTICLES, new String[] { "content", "attachments" }, where, null, null, null,
                 null);
@@ -502,7 +532,7 @@ public class DBHelper {
         }
     }
     
-    public void insertArticle(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished) {
+    public void insertArticle(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label) {
         
         if (!isDBAvailable())
             return;
@@ -525,6 +555,7 @@ public class DBHelper {
             cachedImages = a.cachedImages;
         }
         
+        long retId = -1;
         synchronized (TABLE_ARTICLES) {
             insertArticle.bindLong(1, id);
             insertArticle.bindLong(2, feedId);
@@ -538,9 +569,22 @@ public class DBHelper {
             insertArticle.bindLong(10, (isStarred ? 1 : 0));
             insertArticle.bindLong(11, (isPublished ? 1 : 0));
             insertArticle.bindLong(12, (cachedImages ? 1 : 0));
-            insertArticle.executeInsert();
+            retId = insertArticle.executeInsert();
         }
         
+        if (retId > 0 && label < -10)
+            insertLabel(id, label);
+        
+    }
+    
+    private void insertLabel(int articleId, int label) {
+        if (label > -11)
+            return;
+        synchronized (TABLE_ARTICLES2LABELS) {
+            insertLabel.bindLong(1, articleId);
+            insertLabel.bindLong(2, label);
+            insertLabel.executeInsert();
+        }
     }
     
     // *******| UPDATE |*******************************************************************
@@ -569,11 +613,28 @@ public class DBHelper {
         if (isDBAvailable()) {
             updateFeedUnreadCount(feedId, 0);
             
-            if (recursive) {
+            synchronized (TABLE_ARTICLES) {
+                if (recursive && feedId < -10) {
+                    markLabelRead(feedId);
+                } else if (recursive) {
+                    ContentValues cv = new ContentValues();
+                    cv.put("isUnread", 0);
+                    db.update(TABLE_ARTICLES, cv, "isUnread=1 AND feedId=" + feedId, null);
+                }
+            }
+        }
+    }
+    
+    public void markLabelRead(int labelId) {
+        if (isDBAvailable()) {
+            synchronized (TABLE_ARTICLES) {
                 ContentValues cv = new ContentValues();
                 cv.put("isUnread", 0);
+                String idList = "SELECT id FROM " + TABLE_ARTICLES + " as a, " + TABLE_ARTICLES2LABELS
+                        + " as l WHERE a.id=l.articleId AND l.labelId=" + labelId;
+                
                 synchronized (TABLE_ARTICLES) {
-                    db.update(TABLE_ARTICLES, cv, "isUnread=1 AND feedId=" + feedId, null);
+                    db.update(TABLE_ARTICLES, cv, "isUnread>0 AND id in(" + idList + ")", null);
                 }
             }
         }
@@ -581,6 +642,11 @@ public class DBHelper {
     
     // Marks only the articles as read so the JSONConnector can retrieve new articles and overwrite the old articles
     public void markFeedOnlyArticlesRead(int feedId, boolean isCat) {
+        
+        if (!isCat && feedId < -10) {
+            markLabelRead(feedId);
+            return;
+        }
         
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
@@ -741,6 +807,7 @@ public class DBHelper {
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
             }
+            purgeLabels();
         }
     }
     
@@ -751,6 +818,7 @@ public class DBHelper {
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "isPublished>0", null);
             }
+            purgeLabels();
         }
     }
     
@@ -761,6 +829,25 @@ public class DBHelper {
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "isStarred>0", null);
             }
+            purgeLabels();
+        }
+    }
+    
+    private void purgeLabels() {
+        // @formatter:off
+        String idsArticles = "select a2l.articleId from "
+            + TABLE_ARTICLES2LABELS + " as a2l LEFT OUTER JOIN "
+            + TABLE_ARTICLES + " as a"
+            + " on a2l.articleId = a.id where a.id is null";
+
+        String idsFeeds = "select a2l.labelId from "
+            + TABLE_ARTICLES2LABELS + " as a2l LEFT OUTER JOIN "
+            + TABLE_FEEDS + " as f"
+            + " on a2l.labelId = f.id where f.id is null";
+        // @formatter:on
+        synchronized (TABLE_ARTICLES2LABELS) {
+            db.delete(TABLE_ARTICLES2LABELS, "articleId in(" + idsArticles + ")", null);
+            db.delete(TABLE_ARTICLES2LABELS, "labelId in(" + idsFeeds + ")", null);
         }
     }
     
@@ -859,8 +946,9 @@ public class DBHelper {
             return ret;
         
         Cursor c = null;
-        try {// TODO Query geht nicht!
-            c = db.query(TABLE_ARTICLES, null, "feedId=? AND isUnread>0", new String[] { feedId + "" }, null, null, null, null);
+        try {
+            c = db.query(TABLE_ARTICLES, null, "feedId=? AND isUnread>0", new String[] { feedId + "" }, null, null,
+                    null, null);
             
             while (!c.isAfterLast()) {
                 ret.add(handleArticleCursor(c));
@@ -1028,16 +1116,11 @@ public class DBHelper {
     // *******************************************
     
     private static Article handleArticleCursor(Cursor c) {
-        Article ret = null;
-        
-        if (c.isBeforeFirst()) {
-            if (!c.moveToFirst()) {
-                return ret;
-            }
-        }
+        if (c.isBeforeFirst() && !c.moveToFirst())
+            return null;
         
         // @formatter:off
-        ret = new Article(
+        Article ret = new Article(
                 c.getInt(0),                        // id
                 c.getInt(1),                        // feedId
                 c.getString(2),                     // title
@@ -1052,47 +1135,34 @@ public class DBHelper {
         );
         ret.cachedImages = (c.getInt(11) != 0);
         // @formatter:on
-        
         return ret;
     }
     
     private static Feed handleFeedCursor(Cursor c) {
-        Feed ret = null;
-        
-        if (c.isBeforeFirst()) {
-            if (!c.moveToFirst()) {
-                return ret;
-            }
-        }
+        if (c.isBeforeFirst() && !c.moveToFirst())
+            return null;
         
         // @formatter:off
-        ret = new Feed(
+        Feed ret = new Feed(
                 c.getInt(0),            // id
                 c.getInt(1),            // categoryId
                 c.getString(2),         // title
                 c.getString(3),         // url
                 c.getInt(4));           // unread
         // @formatter:on
-        
         return ret;
     }
     
     private static Category handleCategoryCursor(Cursor c) {
-        Category ret = null;
-        
-        if (c.isBeforeFirst()) {
-            if (!c.moveToFirst()) {
-                return ret;
-            }
-        }
+        if (c.isBeforeFirst() && !c.moveToFirst())
+            return null;
         
         // @formatter:off
-        ret = new Category(
+        Category ret = new Category(
                 c.getInt(0),                // id
                 c.getString(1),             // title
                 c.getInt(2));               // unread
         // @formatter:on
-        
         return ret;
     }
     

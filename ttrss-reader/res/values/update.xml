@@ -20,6 +20,12 @@
         name="updates"
     >
     
+    <item>Version 1.06
+            \n * Removed support for server-versions lower then 1.5.3
+            \n * Added progress-information and UI-refresh to ImageCache but only while articles are fetched
+            \n * Added support for Labels
+            </item>
+    
     <item>Version 1.05
             \n Support for server-versions prior to 1.5.3 will be removed with the next release, please make sure you keep your server up-to-date!
             \n

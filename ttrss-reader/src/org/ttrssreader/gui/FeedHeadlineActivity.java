@@ -151,7 +151,12 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     @Override
     protected void doRefresh() {
-        int unreadCount = (headlineUpdater != null ? headlineUpdater.unreadCount : 0);
+        int unreadCount = 0;
+        if (selectArticlesForCategory)
+            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
+        else
+            unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
+            
         setTitle(MainAdapter.formatTitle(feedTitle, unreadCount));
         flingDetected = false; // reset fling-status
         
@@ -248,15 +253,18 @@ public class FeedHeadlineActivity extends MenuActivity {
         switch (item.getItemId()) {
             case MARK_READ:
                 new Updater(this, new ReadStateUpdater(a, feedId, a.isUnread ? 0 : 1)).execute();
-                return true;
+                break;
             case MARK_STAR:
                 new Updater(this, new StarredStateUpdater(a, a.isStarred ? 0 : 1)).execute();
-                return true;
+                break;
             case MARK_PUBLISH:
                 new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).execute();
-                return true;
+                break;
+            default:
+                return false;
         }
-        return false;
+        doRefresh();
+        return true;
     }
     
     @Override
@@ -268,12 +276,12 @@ public class FeedHeadlineActivity extends MenuActivity {
                 if (selectArticlesForCategory) {
                     Data.getInstance().resetTime(categoryId, false, true, false);
                 } else {
-                    Data.getInstance().resetTime(feedId, false, true, false);
+                    Data.getInstance().resetTime(feedId, false, false, true);
                 }
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
-                if (feedId >= 0)
+                if (feedId >= 0 || feedId < -10)
                     new Updater(this, new ReadStateUpdater(feedId, 0)).execute();
                 return true;
         }
@@ -390,8 +398,7 @@ public class FeedHeadlineActivity extends MenuActivity {
      * 
      */
     public class FeedHeadlineUpdater extends AsyncTask<Void, Integer, Void> {
-        
-        public int unreadCount = 0;
+
         private int taskCount = 0;
         private static final int DEFAULT_TASK_COUNT = 2;
         
@@ -403,12 +410,10 @@ public class FeedHeadlineActivity extends MenuActivity {
             boolean displayUnread = Controller.getInstance().onlyUnread();
             
             if (selectArticlesForCategory) {
-                unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
                 publishProgress(++progress); // Move progress forward
                 
                 Data.getInstance().updateArticles(categoryId, displayUnread, true);
             } else {
-                unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
                 publishProgress(++progress); // Move progress forward
                 
                 Data.getInstance().updateArticles(feedId, displayUnread, false);
