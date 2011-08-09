@@ -35,21 +35,25 @@ public class PublishedStateUpdater implements IUpdatable {
     }
     
     @Override
-    public void update() {
+    public void update(Updater parent) {
         Log.i(Utils.TAG, "Updating Article-Published-Status...");
         
         if (articleState >= 0) {
-            // article.isPublished() ? 0 : 1
+            article.isPublished = articleState > 0 ? true : false;
+
             Data.getInstance().setArticlePublished(article.id, articleState);
+            parent.progress();
             DBHelper.getInstance().markArticle(article.id, "isPublished", articleState);
             
-            article.isPublished = articleState > 0 ? true : false;
         } else {
             // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
-            Data.getInstance().setArticlePublished(article.id, article.isPublished ? 0 : 1);
-            DBHelper.getInstance().markArticle(article.id, "isPublished", article.isPublished ? 0 : 1);
-            
+            int pub = article.isPublished ? 0 : 1;
             article.isPublished = !article.isPublished;
+                    
+            Data.getInstance().setArticlePublished(article.id, pub);
+            parent.progress();
+            DBHelper.getInstance().markArticle(article.id, "isPublished", pub);
+            
         }
     }
     

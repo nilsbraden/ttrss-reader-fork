@@ -193,6 +193,11 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     }
     
     @Override
+    public void onUpdateProgress() {
+        doRefresh();
+    }
+    
+    @Override
     public void onCacheEnd() {
         setProgressBarVisibility(false);
         doRefresh();

@@ -541,7 +541,11 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
 
     @Override
     public void onUpdateEnd() {
-        // Do we need to do anything here? Synchronisation of marked articles happens without any notification in the GUI.
+        // Not necessary here
+    }
+    @Override
+    public void onUpdateProgress() {
+        // Not necessary here
     }
     
 }

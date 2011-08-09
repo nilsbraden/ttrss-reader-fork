@@ -72,7 +72,7 @@ public class ReadStateUpdater implements IUpdatable {
     }
     
     @Override
-    public void update() {
+    public void update(Updater parent) {
         if (categories != null) {
             
             for (Category ci : categories) {
@@ -83,6 +83,7 @@ public class ReadStateUpdater implements IUpdatable {
                     // to false here
                     Data.getInstance().setRead(ci.id, false);
                 }
+                parent.progress();
                 DBHelper.getInstance().markCategoryRead(ci.id);
             }
             
@@ -90,6 +91,9 @@ public class ReadStateUpdater implements IUpdatable {
             
             for (Feed fi : feeds) {
                 Data.getInstance().setRead(fi.id, false);
+            }
+            parent.progress();
+            for (Feed fi : feeds) {
                 DBHelper.getInstance().markFeedRead(fi.id);
             }
             
@@ -133,9 +137,8 @@ public class ReadStateUpdater implements IUpdatable {
                 if (article.isPublished && pid != Data.VCAT_PUB)
                     DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_PUB, delta);
             }
-            
+
             if (ids.size() > 0) {
-                Data.getInstance().setArticleRead(ids, articleState);
                 DBHelper.getInstance().markArticles(ids, "isUnread", articleState);
                 
                 int deltaUnread = articleState == 1 ? ids.size() : -ids.size();
@@ -147,6 +150,9 @@ public class ReadStateUpdater implements IUpdatable {
                     // Article belongs to a label, modify that count too
                     DBHelper.getInstance().updateFeedDeltaUnreadCount(pid, deltaUnread);
                 }
+                
+                parent.progress();
+                Data.getInstance().setArticleRead(ids, articleState);
             }
             
             Data.getInstance().updateCounters(false);

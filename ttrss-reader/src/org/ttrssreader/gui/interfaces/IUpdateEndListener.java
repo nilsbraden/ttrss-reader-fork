@@ -19,5 +19,6 @@ package org.ttrssreader.gui.interfaces;
 public interface IUpdateEndListener {
     
     public void onUpdateEnd();
+    public void onUpdateProgress();
     
 }
