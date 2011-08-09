@@ -76,8 +76,10 @@ public class HttpClientFactory {
     }
     
     public static HttpClientFactory getInstance() {
-        if (instance == null) {
-            instance = new HttpClientFactory();
+        synchronized (HttpClientFactory.class) {
+            if (instance == null) {
+                instance = new HttpClientFactory();
+            }
         }
         return instance;
     }
