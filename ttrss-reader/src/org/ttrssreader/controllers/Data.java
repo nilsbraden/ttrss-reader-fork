@@ -156,27 +156,13 @@ public class Data {
                 
                 // Set<Integer> ids = // <-- Not needed
                 Controller.getInstance().getConnector()
-                        .getHeadlinesToDatabase(feedId, limit, viewMode, isCategory, (feedId < -10));
+                        .getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
                 
                 // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
                 if (needUnreadUpdate && !displayOnlyUnread)
                     Controller.getInstance().getConnector()
-                            .getHeadlinesToDatabase(feedId, limit, "unread", isCategory, (feedId < -10));
+                            .getHeadlinesToDatabase(feedId, limit, "unread", isCategory);
                 
-                // The following should not be necessary anymore
-                // Check if there are new articles, then check if attachments are there, else fetch them separately
-                // if (ids != null) {
-                // for (Integer i : ids) {
-                // Article a = DBHelper.getInstance().getArticle(i);
-                // if (a == null || a.attachments == null) {
-                // Log.w(Utils.TAG,
-                // "WARNING: Had to call getArticles since getHeadline didn't fetch attachments. "
-                // + "Check if you are running latest server (1.5.3 or newer).");
-                // Controller.getInstance().getConnector().getArticlesToDatabase(ids);
-                // }
-                // break;
-                // }
-                // }
             } catch (NotInitializedException e) {
                 return;
             }
