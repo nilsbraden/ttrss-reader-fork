@@ -19,6 +19,6 @@ package org.ttrssreader.model.updaters;
 
 public interface IUpdatable {
     
-    public void update();
+    public void update(Updater parent);
     
 }

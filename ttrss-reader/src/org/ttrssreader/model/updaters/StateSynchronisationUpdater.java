@@ -22,8 +22,8 @@ import android.util.Log;
 public class StateSynchronisationUpdater implements IUpdatable {
     
     @Override
-    public void update() {
-        Log.i(Utils.TAG, "Synchronizing status of articles...");
+    public void update(Updater parent) {
+        Log.i(Utils.TAG, "Went online, now synchronizing status of articles...");
         Data.getInstance().synchronizeStatus();
     }
     

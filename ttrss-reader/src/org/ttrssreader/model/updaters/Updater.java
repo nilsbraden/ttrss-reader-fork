@@ -23,6 +23,8 @@ import android.os.Message;
 
 public class Updater extends AsyncTask<Void, Void, Void> {
     
+    private static final int END = 0;
+    private static final int PROGRESS = 1;
     private IUpdateEndListener parent;
     private IUpdatable updatable;
     
@@ -36,16 +38,23 @@ public class Updater extends AsyncTask<Void, Void, Void> {
         @Override
         public void handleMessage(Message msg) {
             if (parent != null) {
-                parent.onUpdateEnd();
+                if (msg.what == END)
+                    parent.onUpdateEnd();
+                if (msg.what == PROGRESS)
+                    parent.onUpdateProgress();
             }
         }
     };
     
     @Override
     protected Void doInBackground(Void... params) {
-        updatable.update();
-        handler.sendEmptyMessage(0);
+        updatable.update(this);
+        handler.sendEmptyMessage(END);
         return null;
+    }
+    
+    public void progress() {
+        handler.sendEmptyMessage(PROGRESS);
     }
     
 }
