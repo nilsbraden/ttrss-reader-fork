@@ -592,10 +592,10 @@ public class JSONConnector implements Connector {
     
     @Override
     public void getCounters() {
-        long time = System.currentTimeMillis();
         if (!sessionAlive())
             return;
         
+        long time = System.currentTimeMillis();
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_COUNTERS);
         params.put(PARAM_OUTPUT_MODE, VALUE_OUTPUT_MODE);

@@ -161,7 +161,9 @@ public class CategoryAdapter extends MainAdapter {
         query = new StringBuilder();
         query.append("SELECT id,title,unread FROM ");
         query.append(DBHelper.TABLE_FEEDS);
-        query.append(" WHERE id<-10 ORDER BY UPPER(title) ASC");
+        query.append(" WHERE id<-10");
+        query.append(displayUnread ? " AND unread>0" : "");
+        query.append(" ORDER BY UPPER(title) ASC");
         insertValues(DBHelper.getInstance().query(query.toString(), null));
         
         // "Uncategorized Feeds"
@@ -179,7 +181,7 @@ public class CategoryAdapter extends MainAdapter {
         query.append(" WHERE id>0");
         query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ORDER BY UPPER(title) ");
-        query.append(invertSortFeedCats ? "DESC" : "ASC"); // TODO: Is that the right way round?
+        query.append(invertSortFeedCats ? "DESC" : "ASC");
         insertValues(DBHelper.getInstance().query(query.toString(), null));
         
         closeCursor();
