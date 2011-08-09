@@ -600,7 +600,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             
             String[] cols = new String[] { "isStarred", "isPublished", "updateDate" };
-            Cursor c = db.query(TABLE_ARTICLES, cols, "WHERE isUnread>0 AND feedId=" + feedId, null, null, null, null);
+            Cursor c = db.query(TABLE_ARTICLES, cols, "isUnread>0 AND feedId=" + feedId, null, null, null, null);
             
             int countStar = 0;
             int countPub = 0;
@@ -610,24 +610,29 @@ public class DBHelper {
             Date maxAge = new Date(ms);
             
             if (c.moveToFirst()) {
-                while (c.move(1)) {
+                while (true) {
                     countAll++;
-                    Date d = new Date(c.getLong(0));
                     
-                    if (d.after(maxAge))
+                    if (c.getInt(0) > 0)
                         countStar++;
+                    
                     if (c.getInt(1) > 0)
                         countPub++;
-                    if (c.getInt(2) > 0)
+                    
+                    Date d = new Date(c.getLong(2));
+                    if (d.after(maxAge))
                         countFresh++;
+                    
+                    if (!c.move(1))
+                        break;
                 }
             }
             c.close();
             
-            updateCategoryDeltaUnreadCount(Data.VCAT_STAR, countStar);
-            updateCategoryDeltaUnreadCount(Data.VCAT_PUB, countPub);
-            updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, countFresh);
-            updateCategoryDeltaUnreadCount(Data.VCAT_ALL, countAll);
+            updateCategoryDeltaUnreadCount(Data.VCAT_STAR, countStar * -1);
+            updateCategoryDeltaUnreadCount(Data.VCAT_PUB, countPub * -1);
+            updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, countFresh * -1);
+            updateCategoryDeltaUnreadCount(Data.VCAT_ALL, countAll * -1);
             
             updateFeedUnreadCount(feedId, 0);
             
