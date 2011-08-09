@@ -42,14 +42,6 @@ public interface Connector {
     public Set<Feed> getFeeds();
     
     /**
-     * Retrieves the specified articles and directly inserts them into the Database
-     * 
-     * @param articleIds
-     *            the ids of the articles.
-     */
-    public void getArticlesToDatabase(Set<Integer> ids);
-    
-    /**
      * Retrieves the specified articles and directly stores them in the database.
      * 
      * @param id
