@@ -18,8 +18,10 @@ package org.ttrssreader.net;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +37,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
@@ -49,6 +50,8 @@ import org.ttrssreader.utils.Utils;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 
 public class JSONConnector implements Connector {
     
@@ -87,11 +90,11 @@ public class JSONConnector implements Connector {
     private static final String VALUE_GET_COUNTERS = "getCounters";
     private static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
     
-    private static final String ERROR = "{\"error\":";
-    private static final String NOT_LOGGED_IN = ERROR + "\"NOT_LOGGED_IN\"}";
-    private static final String API_DISABLED = ERROR + "\"API_DISABLED\"}";
+    private static final String ERROR = "error";
+    private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
+    private static final String API_DISABLED = "API_DISABLED";
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
-    private static final String OK = "\"status\":\"OK\"";
+    private static final String OK = "OK";
     
     private static final String SESSION_ID = "session_id";
     private static final String ID = "id";
@@ -105,6 +108,7 @@ public class JSONConnector implements Connector {
     private static final String FEED_URL = "feed_url";
     private static final String COMMENT_URL = "comments";
     private static final String ATTACHMENTS = "attachments";
+    private static final String CONTENT_URL = "content_url";
     private static final String STARRED = "marked";
     private static final String PUBLISHED = "published";
     private static final String VALUE = "value";
@@ -122,14 +126,12 @@ public class JSONConnector implements Connector {
     private String loginLock = "";
     
     private CredentialsProvider credProvider = null;
-    
-    // HTTP-Stuff
-    HttpPost post;
-    DefaultHttpClient client;
+    private HttpPost post;
+    private DefaultHttpClient client;
     
     public JSONConnector() {
-        this.sessionId = null;
         refreshHTTPAuth();
+        this.sessionId = null;
         this.post = new HttpPost();
     }
     
@@ -160,10 +162,11 @@ public class JSONConnector implements Connector {
         }
     }
     
-    private String doRequest(Map<String, String> map, boolean firstCall) {
-        String currentRequest = "";
-        
+    private InputStream doRequest(Map<String, String> map, boolean firstCall) {
         try {
+            if (sessionId != null)
+                map.put(SESSION_ID, sessionId);
+            
             // check if http-Auth-Settings have changed, reload values if necessary
             refreshHTTPAuth();
             
@@ -189,12 +192,10 @@ public class JSONConnector implements Connector {
                 Object paramPw = json.remove(PARAM_PW);
                 Object paramSID = json.remove(SESSION_ID);
                 Log.i(Utils.TAG, "Request: " + json);
-                currentRequest = new String(json.toString());
                 json.put(PARAM_PW, paramPw);
                 json.put(SESSION_ID, paramSID);
             } else {
                 Log.i(Utils.TAG, "Request: " + json);
-                currentRequest = new String(json.toString());
             }
             
             if (client == null)
@@ -214,15 +215,10 @@ public class JSONConnector implements Connector {
         
         HttpResponse response = null;
         try {
-            // Execute the request
-            response = client.execute(post); // TODO: This takes the longest time.
-            
+            response = client.execute(post); // Execute the request
         } catch (ClientProtocolException e) {
             hasLastError = true;
-            lastError = e.getMessage()
-                    + ", Method: doRequest(String url) threw ClientProtocolException on httpclient.execute(httpPost)"
-                    + " [ " + e.getCause() + " ]";
-            Log.w(Utils.TAG, lastError);
+            lastError = "ClientProtocolException on client.execute(httpPost) [ " + e.getCause() + " ]";
             return null;
         } catch (IOException e) {
             /*
@@ -234,136 +230,96 @@ public class JSONConnector implements Connector {
             return null;
         }
         
-        String strResponse;
-        long length = -1;
+        InputStream instream = null;
         try {
-            InputStream instream = null;
             HttpEntity entity = response.getEntity();
             if (entity != null)
                 instream = entity.getContent();
             
             // Try to decode gzipped instream, if it is not gzip we stay to normal reading
             Header contentEncoding = response.getFirstHeader("Content-Encoding");
-            if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip")) {
+            if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip"))
                 instream = new GZIPInputStream(instream);
-            }
-            length = entity.getContentLength();
             
             if (instream == null) {
                 hasLastError = true;
                 lastError = "Couldn't get InputStream in Method doRequest(String url) [instream was null]";
                 return null;
             }
-            
-            strResponse = StringSupport.convertStreamToString(instream);
-
-        } catch (IOException e) {
+        } catch (Exception e) {
             hasLastError = true;
-            lastError = "JSON-Data could not be parsed. Exception: " + e.getMessage() + " (" + e.getCause() + ")";
-            Log.w(Utils.TAG, lastError);
-            return null;
-        } catch (OutOfMemoryError e2) {
-            hasLastError = true;
-            lastError = "Run out of memory when trying to fetch " + (length > 0 ? length + "" : "an unknown amount of")
-                    + " bytes from " + currentRequest;
-            Log.w(Utils.TAG, lastError);
+            lastError = "Exception: " + e.getMessage();
             return null;
         }
         
-        if (strResponse.contains(NOT_LOGGED_IN) && firstCall) {
-            Log.w(Utils.TAG, "Not logged in, retrying...");
-            // Login and post request again
-            sessionId = null; // Reset SID
-            login();
-            
-            Map<String, String> newMap = new HashMap<String, String>();
-            for (String key : map.keySet()) {
-                if (key.equals(SESSION_ID)) {
-                    newMap.put(SESSION_ID, new String(sessionId));
-                } else {
-                    newMap.put(key, map.get(key));
-                }
+        return instream;
+    }
+    
+    private boolean handleError(JsonReader reader) throws IOException, NotLoggedInException {
+        reader.beginObject();
+        if (reader.nextName().equals(ERROR)) {
+            String message = reader.nextString();
+            if (message.contains(NOT_LOGGED_IN)) {
+                sessionId = null;
+                login();
+                throw new NotLoggedInException("");
             }
-            strResponse = doRequest(newMap, false);
-            if (strResponse == null)
-                strResponse = "";
-        }
-        
-        // Check if API is enabled for the user
-        if (strResponse.contains(API_DISABLED)) {
-            Log.w(Utils.TAG, String.format(API_DISABLED_MESSAGE, Controller.getInstance().username()));
+            
+            if (message.contains(API_DISABLED)) {
+                hasLastError = true;
+                lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
+                return false;
+            }
             
             hasLastError = true;
-            lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
-            return null;
+            lastError = message;
         }
-        
-        // Check returned string for error-messages
-        if (strResponse.contains(ERROR)) {
-            hasLastError = true;
-            lastError = strResponse;
-            return null;
-        }
-        
-        // Parse new output with sequence-number and status-codes
-        if (strResponse.startsWith("{\"seq"))
-            strResponse = parseMetadata(strResponse);
-        
-        return strResponse;
+        return false;
+    }
+    
+    private boolean sessionAlive() {
+        // Make sure we are logged in
+        if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
+            if (!login())
+                return false;
+        if (hasLastError)
+            return false;
+        return true;
     }
     
     private String doRequestNoAnswer(Map<String, String> map) {
-        // Make sure we are logged in
-        if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
-            if (!login())
-                return null;
-        if (hasLastError)
-            return null;
+        if (!sessionAlive())
+            return ERROR;
         
-        // Add Session-ID
-        map.put(SESSION_ID, sessionId);
-        
-        String ret = doRequest(map, true); // Append Session-ID to all calls except login
-        
-        if (hasLastError || ret == null) {
-            hasLastError = false;
-            lastError = "";
-            ret = "";
-        }
-        
-        return ret;
-    }
-    
-    private JSONArray getJSONResponseAsArray(Map<String, String> map) {
-        // Make sure we are logged in
-        if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
-            if (!login())
-                return null;
-        if (hasLastError)
-            return null;
-        
-        // Add Session-ID
-        map.put(SESSION_ID, sessionId);
-        
-        String strResponse = doRequest(map, true); // Append Session-ID to all calls except login
-        
-        if (hasLastError || strResponse == null)
-            return null;
-        
-        JSONArray result = null;
-        if (strResponse != null && strResponse.length() > 0) {
-            try {
-                result = new JSONArray(strResponse);
-            } catch (Exception e) {
-                try {
-                    result = new JSONArray("[" + strResponse + "]");
-                } catch (Exception e1) {
-                    hasLastError = true;
-                    lastError = "An Error occurred. Message from Server: " + strResponse;
+        try {
+            JsonReader reader = prepareReader(map);
+            
+            if (reader == null) {
+                // TODO
+            }
+            
+            reader.beginArray();
+            while (reader.hasNext()) {
+                
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String name = reader.nextName();
+                    if (name.equals(OK)) {
+                        return OK;
+                    } else {
+                        reader.skipValue();
+                    }
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return result;
+        
+        if (hasLastError) {
+            hasLastError = false;
+            lastError = "";
+        }
+        return ERROR;
     }
     
     /**
@@ -379,43 +335,40 @@ public class JSONConnector implements Connector {
             if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN)))
                 return true; // Login done while we were waiting for the lock
                 
-            sessionId = null;
-            
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_LOGIN);
             params.put(PARAM_USER, Controller.getInstance().username());
             params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
             
             // No check with assertLogin here, we are about to login so no need for this.
-            String strResponse = doRequest(params, true);
-            if (strResponse == null || hasLastError)
-                return false;
-            
-            JSONResult jsonResult = null;
-            try {
-                jsonResult = new JSONResult(strResponse);
-            } catch (Exception e) {
-                // Shorten the message so we dont need to print 1MB of data in error-message
-                String messageFromServer = (strResponse.length() > 200 ? strResponse.substring(0, 200) : strResponse);
-                hasLastError = true;
-                lastError = "An Error occurred: " + e.getMessage() + ". Message from Server: " + messageFromServer;
-                return false;
-            }
+            sessionId = null;
             
             try {
-                for (int i = 0; i < jsonResult.getNames().length(); i++) {
-                    if (jsonResult.getNames().getString(i).equals(SESSION_ID)) {
-                        sessionId = jsonResult.getValues().getString(i);
-                        
-                        if (sessionId != null) {
-                            Log.v(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
-                            return true;
-                        }
+                JsonReader reader = prepareReader(params, true, true);
+                
+                if (reader == null) {
+                    // TODO
+                }
+                
+                // No beginArray() here since API gives Object here, login isnt wrapped in an Array. Errors too?
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String name = reader.nextName();
+                    if (name.equals(SESSION_ID)) {
+                        sessionId = reader.nextString();
+                        Log.v(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+                        return true;
+                    } else if (name.equals(ERROR)) {
+                        String error = reader.nextString();
+                        error = (error.length() > 200 ? error.substring(0, 200) : error);
+                        hasLastError = true;
+                        lastError = "An Error occurred: " + error;
+                        return false;
+                    } else {
+                        reader.skipValue();
                     }
                 }
-            } catch (JSONException e) {
-                hasLastError = true;
-                lastError = e.getMessage() + ", Method: login(String url) threw JSONException";
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             
@@ -424,70 +377,158 @@ public class JSONConnector implements Connector {
         }
     }
     
-    private String parseMetadata(String str) {
-        // Cut string from content: to the end: sed 's/{"seq":0,"status":0,"content":(.*)}/\1/'
-        String pattern = "\"content\":";
-        int start = str.indexOf(pattern) + pattern.length();
-        int stop = str.length() - 1;
-        if (start >= pattern.length() && stop > start)
-            return str.substring(start, stop);
-        
-        return str;
-    }
-    
     // ***************** Helper-Methods **************************************************
     
-    private static Set<String> parseDataForAttachments(JSONArray array) {
-        Set<String> ret = new LinkedHashSet<String>();
-        
-        try {
-            for (int j = 0; j < array.length(); j++) {
-                
-                JSONResult att = new JSONResult(array.getString(j));
-                JSONArray names = att.getNames();
-                JSONArray values = att.getValues();
-                
-                String attId = null;
-                String attUrl = null;
-                
-                // Filter for id and content_url, other fields are not necessary
-                for (int k = 0; k < names.length(); k++) {
-                    String s = names.getString(k);
-                    if (s.equals("id")) {
-                        attId = values.getString(k);
-                    } else if (s.equals("content_url")) {
-                        attUrl = values.getString(k);
-                    }
-                }
-                
-                // Add only if both, id and url, are found
-                if (attId != null && attUrl != null) {
-                    ret.add(attUrl);
-                }
-            }
-        } catch (JSONException je) {
-            je.printStackTrace();
-        }
-        
-        return ret;
-    }
-    
-    private Set<Integer> parseArticlesAndInsertInDB(JSONArray jsonResult) {
-        return parseArticlesAndInsertInDB(jsonResult, false, -1);
-    }
-    
-    private Set<Integer> parseArticlesAndInsertInDB(JSONArray jsonResult, boolean isLabel, int labelId) {
-        Set<Integer> ret = new LinkedHashSet<Integer>();
-        
+    private boolean parseCounterData(Map<String, String> params) throws JSONException {
         SQLiteDatabase db = DBHelper.getInstance().db;
         synchronized (DBHelper.TABLE_ARTICLES) {
             db.beginTransaction();
             try {
                 
-                for (int j = 0; j < jsonResult.length(); j++) {
-                    JSONObject object = jsonResult.getJSONObject(j);
-                    JSONArray names = object.names();
-                    JSONArray values = object.toJSONArray(names);
+                JsonReader reader = prepareReader(params);
+                
+                if (reader == null) {
+                    // TODO
+                }
+                
+                reader.beginArray();
+                while (reader.hasNext()) {
+                    
+                    boolean cat = false;
+                    int id = 0;
+                    int counter = 0;
+                    
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        
+                        if (name.equals(COUNTER_KIND)) {
+                            cat = reader.nextString().equals(COUNTER_CAT);
+                        } else if (name.equals(COUNTER_ID)) {
+                            // Check if id is a string, then it would be a global counter
+                            String value = reader.nextString();
+                            if (value.equals("global-unread") || value.equals("subscribed-feeds")) {
+                                continue;
+                            }
+                            id = Integer.parseInt(value);
+                            
+                        } else if (name.equals(COUNTER_COUNTER)) {
+                            // Check if null because of an API-bug
+                            String value = reader.nextString();
+                            if (value.equals("null"))
+                                counter = Integer.parseInt(value);
+                        } else {
+                            reader.skipValue();
+                        }
+                    }
+                    reader.endObject();
+                    
+                    ContentValues cv = new ContentValues();
+                    cv.put("unread", counter);
+                    
+                    if (cat && id >= 0) { // Category
+                        db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+                    } else if (!cat && id < 0 && id >= -4) { // Virtual Category
+                        db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+                    } else if (!cat && id > 0) { // Feed
+                        db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
+                    } else if (!cat && id < -10) { // Label
+                        db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
+                    }
+                    
+                }
+                reader.endArray();
+                
+                db.setTransactionSuccessful();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                db.endTransaction();
+                DBHelper.getInstance().purgeArticlesNumber();
+            }
+        }
+        return true; // Everything went fine
+    }
+    
+    private Set<String> parseAttachments(JsonReader reader) throws IOException {
+        Set<String> ret = new HashSet<String>();
+        reader.beginArray();
+        while (reader.hasNext()) {
+            
+            String attId = null;
+            String attUrl = null;
+            
+            reader.beginObject();
+            while (reader.hasNext()) {
+                
+                String name = reader.nextName();
+                if (name.equals(CONTENT_URL)) {
+                    attUrl = reader.nextString();
+                } else if (name.equals(ID)) {
+                    attId = reader.nextString();
+                } else {
+                    reader.skipValue();
+                }
+                
+            }
+            
+            if (attId != null && attUrl != null)
+                ret.add(attUrl);
+        }
+        return ret;
+    }
+    
+    private JsonReader prepareReader(Map<String, String> params) throws IOException {
+        return prepareReader(params, false, true);
+    }
+    
+    private JsonReader prepareReader(Map<String, String> params, boolean login, boolean firstCall) throws IOException {
+        try {
+            InputStream in = doRequest(params, true);
+            JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
+            
+            // Check if content contains array or object, array indicates login-response or error, object is content
+            
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                if (name.equals("content")) {
+                    JsonToken t = reader.peek();
+                    
+                    if (t.equals(JsonToken.BEGIN_OBJECT)) {
+                        if (login) {
+                            return reader;
+                        } else {
+                            // Error
+                            handleError(reader);
+                        }
+                    }
+                    
+                    // We should have an BEGIN_ARRAY here...
+                    return reader;
+                } else {
+                    reader.skipValue();
+                }
+            }
+        } catch (NotLoggedInException nlie) {
+            if (firstCall)
+                prepareReader(params, login, false);
+            else {
+                hasLastError = true;
+                lastError = "Login geht nicht!";
+            }
+        }
+        return null;
+    }
+    
+    private boolean parseArticle(JsonReader reader, int labelId) throws NotLoggedInException {
+        
+        SQLiteDatabase db = DBHelper.getInstance().db;
+        synchronized (DBHelper.TABLE_ARTICLES) {
+            db.beginTransaction();
+            try {
+                reader.beginArray();
+                while (reader.hasNext()) {
                     
                     int id = 0;
                     String title = null;
@@ -501,93 +542,50 @@ public class JSONConnector implements Connector {
                     boolean isStarred = false;
                     boolean isPublished = false;
                     
-                    for (int i = 0; i < names.length(); i++) {
-                        String s = names.getString(i);
-                        if (s.equals(ID)) {
-                            id = values.getInt(i);
-                        } else if (s.equals(TITLE)) {
-                            title = values.getString(i);
-                        } else if (s.equals(UNREAD)) {
-                            isUnread = values.getBoolean(i);
-                        } else if (s.equals(UPDATED)) {
-                            updated = new Date(new Long(values.getString(i) + "000").longValue());
-                        } else if (s.equals(FEED_ID)) {
-                            realFeedId = values.getInt(i);
-                        } else if (s.equals(CONTENT)) {
-                            content = values.getString(i);
-                        } else if (s.equals(URL)) {
-                            articleUrl = values.getString(i);
-                        } else if (s.equals(COMMENT_URL)) {
-                            articleCommentUrl = values.getString(i);
-                        } else if (s.equals(ATTACHMENTS)) {
-                            attachments = parseDataForAttachments((JSONArray) values.get(i));
-                        } else if (s.equals(STARRED)) {
-                            isStarred = values.getBoolean(i);
-                        } else if (s.equals(PUBLISHED)) {
-                            isPublished = values.getBoolean(i);
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        
+                        if (name.equals(ID)) {
+                            id = reader.nextInt();
+                        } else if (name.equals(TITLE)) {
+                            title = reader.nextString();
+                        } else if (name.equals(UNREAD)) {
+                            isUnread = reader.nextBoolean();
+                        } else if (name.equals(UPDATED)) {
+                            updated = new Date(new Long(reader.nextString() + "000").longValue());
+                        } else if (name.equals(FEED_ID)) {
+                            realFeedId = reader.nextInt();
+                        } else if (name.equals(CONTENT)) {
+                            content = reader.nextString();
+                        } else if (name.equals(URL)) {
+                            articleUrl = reader.nextString();
+                        } else if (name.equals(COMMENT_URL)) {
+                            articleCommentUrl = reader.nextString();
+                        } else if (name.equals(ATTACHMENTS)) {
+                            attachments = parseAttachments(reader);
+                        } else if (name.equals(STARRED)) {
+                            isStarred = reader.nextBoolean();
+                        } else if (name.equals(PUBLISHED)) {
+                            isPublished = reader.nextBoolean();
                         }
+                        
                     }
-                    
+                    reader.endObject();
                     DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
                             articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId);
-                    ret.add(id);
                 }
+                reader.endArray();
+                
                 db.setTransactionSuccessful();
-            } catch (Exception e) {
-                hasLastError = true;
-                lastError = e.getMessage() + ", Method: parseArticlesAndInsertInDB(...) threw Exception";
+            } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }
-        
-        return ret;
-    }
-    
-    private void parseCounterData(SQLiteDatabase db, JSONArray jsonResult) throws JSONException {
-        for (int i = 0; i < jsonResult.length(); i++) {
-            JSONObject object = jsonResult.getJSONObject(i);
-            
-            JSONArray names = object.names();
-            JSONArray values = object.toJSONArray(names);
-            
-            // Ignore "updated" and "has_img", we don't need it...
-            boolean cat = false;
-            int id = 0;
-            int counter = 0;
-            
-            for (int j = 0; j < names.length(); j++) {
-                if (names.getString(j).equals(COUNTER_KIND)) {
-                    cat = values.getString(j).equals(COUNTER_CAT);
-                } else if (names.getString(j).equals(COUNTER_ID)) {
-                    // Check if id is a string, then it would be a global counter
-                    if (values.getString(j).equals("global-unread") || values.getString(j).equals("subscribed-feeds")) {
-                        continue;
-                    }
-                    id = values.getInt(j);
-                    
-                } else if (names.getString(j).equals(COUNTER_COUNTER)) {
-                    // Check if null because of an API-bug
-                    if (!values.getString(j).equals("null"))
-                        counter = values.getInt(j);
-                }
-            }
-            
-            ContentValues cv = new ContentValues();
-            cv.put("unread", counter);
-            
-            if (cat && id >= 0) { // Category
-                db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
-            } else if (!cat && id < 0 && id >= -4) { // Virtual Category
-                db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
-            } else if (!cat && id > 0) { // Feed
-                db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
-            } else if (!cat && id < -10) { // Label
-                db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
-            }
-        }
+        return true; // Everything went fine
     }
     
     // ***************** Retrieve-Data-Methods **************************************************
@@ -600,34 +598,17 @@ public class JSONConnector implements Connector {
     @Override
     public void getCounters() {
         long time = System.currentTimeMillis();
+        if (!sessionAlive())
+            return;
+        
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_COUNTERS);
         params.put(PARAM_OUTPUT_MODE, VALUE_OUTPUT_MODE);
-        JSONArray jsonResult = getJSONResponseAsArray(params);
-        
-        if (jsonResult == null)
-            return;
-        
-        /*
-         * This directly inserts all values in the database in a transaction, this is quite fast compared to 30 or more
-         * single transactions as it was before.
-         */
-        SQLiteDatabase db = DBHelper.getInstance().db;
         
         try {
-            synchronized (DBHelper.TABLE_CATEGORIES) {
-                synchronized (DBHelper.TABLE_FEEDS) {
-                    db.beginTransaction();
-                    parseCounterData(db, jsonResult);
-                    db.setTransactionSuccessful();
-                }
-            }
-        } catch (Exception e) {
-            hasLastError = true;
-            lastError = e.getMessage() + ", Method: getCounters() threw Exception";
+            boolean ret = parseCounterData(params);
+        } catch (JSONException e) {
             e.printStackTrace();
-        } finally {
-            db.endTransaction();
         }
         Log.v(Utils.TAG, "getCounters: " + (System.currentTimeMillis() - time) + "ms");
     }
@@ -640,41 +621,46 @@ public class JSONConnector implements Connector {
     @Override
     public Set<Category> getCategories() {
         long time = System.currentTimeMillis();
+        if (!sessionAlive())
+            return null;
+        
         Set<Category> ret = new LinkedHashSet<Category>();
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_CATEGORIES);
-        JSONArray jsonResult = getJSONResponseAsArray(params);
-        
-        if (jsonResult == null)
-            return ret;
         
         try {
-            for (int i = 0; i < jsonResult.length(); i++) {
-                JSONObject object = jsonResult.getJSONObject(i);
-                JSONArray names = object.names();
-                JSONArray values = object.toJSONArray(names);
+            JsonReader reader = prepareReader(params);
+            
+            if (reader == null) {
+                // TODO
+            }
+            
+            reader.beginArray();
+            while (reader.hasNext()) {
                 
                 int id = 0;
                 String title = "";
                 int unread = 0;
                 
-                for (int j = 0; j < names.length(); j++) {
-                    String s = names.getString(j);
-                    if (s.equals(ID)) {
-                        id = values.getInt(j);
-                    } else if (s.equals(TITLE)) {
-                        title = values.getString(j);
-                    } else if (s.equals(UNREAD)) {
-                        unread = values.getInt(j);
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String name = reader.nextName();
+                    
+                    if (name.equals(ID)) {
+                        id = reader.nextInt();
+                    } else if (name.equals(TITLE)) {
+                        title = reader.nextString();
+                    } else if (name.equals(UNREAD)) {
+                        unread = reader.nextInt();
                     }
+                    
                 }
-                
+                reader.endObject();
                 ret.add(new Category(id, title, unread));
             }
-        } catch (Exception e) {
-            hasLastError = true;
-            lastError = e.getMessage() + ", Method: getCategories() threw Exception";
+            reader.endArray();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         
@@ -690,22 +676,25 @@ public class JSONConnector implements Connector {
     @Override
     public Set<Feed> getFeeds() {
         long time = System.currentTimeMillis();
+        if (!sessionAlive())
+            return null;
+        
         Set<Feed> ret = new LinkedHashSet<Feed>();;
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_FEEDS);
         params.put(PARAM_CAT_ID, "-4"); // Hardcoded -4 fetches all feeds. See
                                         // http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
-        JSONArray jsonResult = getJSONResponseAsArray(params);
-        
-        if (jsonResult == null)
-            return ret;
         
         try {
-            for (int i = 0; i < jsonResult.length(); i++) {
-                JSONObject object = jsonResult.getJSONObject(i);
-                JSONArray names = object.names();
-                JSONArray values = object.toJSONArray(names);
+            JsonReader reader = prepareReader(params);
+            
+            if (reader == null) {
+                // TODO
+            }
+            
+            reader.beginArray();
+            while (reader.hasNext()) {
                 
                 int categoryId = 0;
                 int id = 0;
@@ -713,28 +702,29 @@ public class JSONConnector implements Connector {
                 String feedUrl = "";
                 int unread = 0;
                 
-                for (int j = 0; j < names.length(); j++) {
-                    String s = names.getString(j);
-                    if (s.equals(ID)) {
-                        id = values.getInt(j);
-                    } else if (s.equals(CAT_ID)) {
-                        categoryId = values.getInt(j);
-                    } else if (s.equals(TITLE)) {
-                        title = values.getString(j);
-                    } else if (s.equals(FEED_URL)) {
-                        feedUrl = values.getString(j);
-                    } else if (s.equals(UNREAD)) {
-                        unread = values.getInt(j);
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String name = reader.nextName();
+                    
+                    if (name.equals(ID)) {
+                        id = reader.nextInt();
+                    } else if (name.equals(CAT_ID)) {
+                        categoryId = reader.nextInt();
+                    } else if (name.equals(TITLE)) {
+                        title = reader.nextString();
+                    } else if (name.equals(FEED_URL)) {
+                        feedUrl = reader.nextString();
+                    } else if (name.equals(UNREAD)) {
+                        unread = reader.nextInt();
                     }
+                    
                 }
-                
+                reader.endObject();
                 if (id > 0 || categoryId == -2) // normal feed (>0) or label (-2)
                     ret.add(new Feed(id, categoryId, title, feedUrl, unread));
-                
             }
-        } catch (Exception e) {
-            hasLastError = true;
-            lastError = e.getMessage() + ", Method: getSubsribedFeeds() threw Exception";
+            reader.endArray();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         
@@ -752,6 +742,8 @@ public class JSONConnector implements Connector {
         long time = System.currentTimeMillis();
         if (ids.size() == 0)
             return;
+        if (!sessionAlive())
+            return;
         
         for (String idList : StringSupport.convertListToString(ids)) {
             if (idList.length() == 0)
@@ -760,12 +752,21 @@ public class JSONConnector implements Connector {
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_GET_ARTICLE);
             params.put(PARAM_ARTICLE_ID, idList);
-            JSONArray jsonResult = getJSONResponseAsArray(params);
             
-            if (jsonResult == null)
-                continue;
-            
-            parseArticlesAndInsertInDB(jsonResult);
+            try {
+                
+                JsonReader reader = prepareReader(params);
+                
+                if (reader == null) {
+                    // TODO
+                }
+                
+                boolean ret = parseArticle(reader, -1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NotLoggedInException e) {
+                e.printStackTrace();
+            }
         }
         Log.v(Utils.TAG, "getArticle: " + (System.currentTimeMillis() - time) + "ms");
     }
@@ -776,8 +777,11 @@ public class JSONConnector implements Connector {
      * @see org.ttrssreader.net.Connector#getHeadlinesToDatabase(java.lang.Integer, int, int, java.lang.String)
      */
     @Override
-    public Set<Integer> getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, boolean isLabel) {
+    public void getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
         long time = System.currentTimeMillis();
+        
+        if (!sessionAlive())
+            return;
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_HEADLINES);
@@ -787,11 +791,6 @@ public class JSONConnector implements Connector {
         params.put(PARAM_SHOW_CONTENT, "1");
         params.put(PARAM_INC_ATTACHMENTS, "1");
         params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
-        
-        JSONArray jsonResult = getJSONResponseAsArray(params);
-        
-        if (jsonResult == null)
-            return null;
         
         if (id == -1 && isCategory)
             DBHelper.getInstance().purgeStarredArticles();
@@ -803,9 +802,22 @@ public class JSONConnector implements Connector {
         // states and fetch new articles...
         DBHelper.getInstance().markFeedOnlyArticlesRead(id, isCategory);
         
-        Set<Integer> ret = parseArticlesAndInsertInDB(jsonResult, isLabel, id);
+        try {
+            
+            JsonReader reader = prepareReader(params);
+            
+            if (reader == null) {
+                // TODO
+            }
+            
+            boolean ret = parseArticle(reader, -1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NotLoggedInException e) {
+            e.printStackTrace();
+        }
+        
         Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
-        return ret;
     }
     
     /*
@@ -899,30 +911,33 @@ public class JSONConnector implements Connector {
      */
     @Override
     public String getPref(String pref) {
+        if (!sessionAlive())
+            return null;
+        
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_PREF);
         params.put(PARAM_PREF, pref);
-        JSONArray jsonResult = getJSONResponseAsArray(params);
-        
-        if (jsonResult == null)
-            return null;
         
         try {
-            for (int i = 0; i < jsonResult.length(); i++) {
-                JSONObject object = jsonResult.getJSONObject(i);
-                JSONArray names = object.names();
-                JSONArray values = object.toJSONArray(names);
+            JsonReader reader = prepareReader(params);
+            
+            if (reader == null) {
+                // TODO
+            }
+            
+            reader.beginArray();
+            while (reader.hasNext()) {
                 
-                for (int j = 0; j < names.length(); j++) {
-                    String s = names.getString(j);
-                    if (s.equals(VALUE)) {
-                        return values.getString(j);
-                    }
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String name = reader.nextName();
+                    
+                    if (name.equals(VALUE))
+                        return reader.nextString();
+                    
                 }
             }
-        } catch (Exception e) {
-            hasLastError = true;
-            lastError = e.getMessage() + ", Method: getPref() threw Exception";
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
@@ -935,34 +950,33 @@ public class JSONConnector implements Connector {
      */
     @Override
     public int getVersion() {
+        if (!sessionAlive())
+            return -1;
+        
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_VERSION);
-        JSONArray jsonResult = getJSONResponseAsArray(params);
-        
-        if (jsonResult == null)
-            return -1;
         
         String ret = "";
         try {
-            for (int i = 0; i < jsonResult.length(); i++) {
-                JSONObject object = jsonResult.getJSONObject(i);
-                JSONArray names = object.names();
-                JSONArray values = object.toJSONArray(names);
+            JsonReader reader = prepareReader(params);
+            
+            if (reader == null) {
+                // TODO
+            }
+            
+            reader.beginArray();
+            while (reader.hasNext()) {
                 
-                for (int j = 0; j < names.length(); j++) {
-                    String s = names.getString(j);
-                    if (s.equals(VERSION)) {
-                        ret = values.getString(j);
-                    }
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String name = reader.nextName();
+                    
+                    if (name.equals(VERSION))
+                        ret = reader.nextString();
+                    
                 }
             }
-        } catch (Exception e) {
-            hasLastError = true;
-            lastError = e.getMessage() + ", Method: getVersion() threw Exception";
-            e.printStackTrace();
-        }
-        
-        try {
+            
             // Replace dots, parse integer
             return Integer.parseInt(ret.replace(".", ""));
         } catch (Exception e) {
