@@ -626,7 +626,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private AsyncTask<Void, Void, Void> task;
     
     public long getFreshArticleMaxAge() {
-        int ret = 24 * 60 * 60 * 1000;
+        int ret = 48 * 60 * 60 * 1000; // Refreshed every two days only
         
         if (freshArticleMaxAge == null) {
             return ret;

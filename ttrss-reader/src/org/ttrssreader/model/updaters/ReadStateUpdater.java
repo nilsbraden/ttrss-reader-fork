@@ -83,32 +83,28 @@ public class ReadStateUpdater implements IUpdatable {
                     // to false here
                     Data.getInstance().setRead(ci.id, false);
                 }
-                DBHelper.getInstance().markCategoryRead(ci, true);
+                DBHelper.getInstance().markCategoryRead(ci.id);
             }
-            Data.getInstance().updateCounters(false);
             
         } else if (feeds != null) {
             
             for (Feed fi : feeds) {
                 Data.getInstance().setRead(fi.id, false);
-                DBHelper.getInstance().markFeedRead(fi, true);
+                DBHelper.getInstance().markFeedRead(fi.id);
             }
-            Data.getInstance().updateCounters(false);
             
         } else if (articles != null) {
             
             boolean boolState = articleState == 1 ? true : false;
             int delta = articleState == 1 ? 1 : -1;
-            int deltaUnread = articleState == 1 ? articles.size() : -articles.size();
             
             Set<Integer> ids = new HashSet<Integer>();
             
             for (Article article : articles) {
-                if (articleState != 0 && article.isUnread) {
+                if (articleState != 0 && article.isUnread)
                     continue;
-                } else if (articleState == 0 && !article.isUnread) {
+                if (articleState == 0 && !article.isUnread)
                     continue;
-                }
                 
                 // Build a list of article ids to update.
                 ids.add(article.id);
@@ -125,25 +121,35 @@ public class ReadStateUpdater implements IUpdatable {
                 
                 // Check if is a fresh article and modify that count too
                 long ms = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
-                Date d = new Date(ms);
-                if (article.updated.after(d)) {
-                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(-3, deltaUnread);
-                }
+                Date maxAge = new Date(ms);
+                if (article.updated.after(maxAge))
+                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, delta);
+                
+                // Check if it is a starred article and modify that count too
+                if (article.isStarred && pid != Data.VCAT_STAR)
+                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_STAR, delta);
+                
+                // Check if it is a published article and modify that count too
+                if (article.isPublished && pid != Data.VCAT_PUB)
+                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_PUB, delta);
             }
             
             if (ids.size() > 0) {
                 Data.getInstance().setArticleRead(ids, articleState);
                 DBHelper.getInstance().markArticles(ids, "isUnread", articleState);
                 
-                // If on a virtual category also update article state in it.
-                if (pid < 0 && pid > -4) {
+                int deltaUnread = articleState == 1 ? ids.size() : -ids.size();
+                DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_ALL, deltaUnread);
+                if (pid < 0 && pid >= -3) {
+                    // If on a virtual category also update article state in it.
                     DBHelper.getInstance().updateCategoryDeltaUnreadCount(pid, deltaUnread);
                 } else if (pid < -10) {
                     // Article belongs to a label, modify that count too
                     DBHelper.getInstance().updateFeedDeltaUnreadCount(pid, deltaUnread);
                 }
-                DBHelper.getInstance().updateCategoryDeltaUnreadCount(-4, deltaUnread);
             }
+            
+            Data.getInstance().updateCounters(false);
             
         }
     }

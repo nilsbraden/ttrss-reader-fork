@@ -72,6 +72,7 @@ public class Utils {
      * The time after which data will be fetched again from the server if asked for the data
      */
     public static final int UPDATE_TIME = 120000;
+    public static final int HALF_UPDATE_TIME = UPDATE_TIME / 2;
     
     /**
      * Path on sdcard to store files (DB, Certificates, ...)

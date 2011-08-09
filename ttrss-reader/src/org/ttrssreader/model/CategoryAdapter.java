@@ -21,6 +21,7 @@ import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Category;
 import android.content.Context;
 import android.database.Cursor;
@@ -79,13 +80,13 @@ public class CategoryAdapter extends MainAdapter {
     }
     
     private int getImage(int id, boolean unread) {
-        if (id == -1) {
+        if (id == Data.VCAT_STAR) {
             return R.drawable.star48;
-        } else if (id == -2) {
+        } else if (id == Data.VCAT_PUB) {
             return R.drawable.published48;
-        } else if (id == -3) {
+        } else if (id == Data.VCAT_FRESH) {
             return R.drawable.fresh48;
-        } else if (id == -4) {
+        } else if (id == Data.VCAT_ALL) {
             return R.drawable.all48;
         } else if (id < -10) {
             if (unread) {
