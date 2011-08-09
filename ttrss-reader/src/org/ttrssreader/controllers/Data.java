@@ -29,6 +29,12 @@ import android.net.ConnectivityManager;
 
 public class Data {
     
+    public static final int VCAT_UNCAT = 0;
+    public static final int VCAT_STAR = -1;
+    public static final int VCAT_PUB = -2;
+    public static final int VCAT_FRESH = -3;
+    public static final int VCAT_ALL = -4;
+    
     private static Data instance = null;
     private Context context;
     
@@ -74,10 +80,8 @@ public class Data {
             articlesUpdated.put(id, new Long(0)); // id == feedId
     }
     
-    // takes about 2.5 seconds on wifi
-    // TODO: Why hasnt there been a check here for the last time data was fetched??
     public void updateCounters(boolean overrideOffline) {
-        if (countersUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        if (countersUpdated > System.currentTimeMillis() - Utils.HALF_UPDATE_TIME) { // Update counters more often..
             return;
         } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
@@ -118,17 +122,17 @@ public class Data {
             int limit = 50;
             
             switch (feedId) {
-                case -1: // Starred
-                case -2: // Published
+                case VCAT_STAR: // Starred
+                case VCAT_PUB: // Published
                     limit = 300;
                     displayOnlyUnread = false;
                     break;
                 
-                case -3: // Fresh
+                case VCAT_FRESH: // Fresh
                     limit = DBHelper.getInstance().getUnreadCount(feedId, true);
                     break;
                 
-                case -4: // All Articles
+                case VCAT_ALL: // All Articles
                     limit = DBHelper.getInstance().getUnreadCount(feedId, true);
                     break;
                 
@@ -155,13 +159,11 @@ public class Data {
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
                 
                 // Set<Integer> ids = // <-- Not needed
-                Controller.getInstance().getConnector()
-                        .getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
+                Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
                 
                 // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
                 if (needUnreadUpdate && !displayOnlyUnread)
-                    Controller.getInstance().getConnector()
-                            .getHeadlinesToDatabase(feedId, limit, "unread", isCategory);
+                    Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, "unread", isCategory);
                 
             } catch (NotInitializedException e) {
                 return;
@@ -198,7 +200,7 @@ public class Data {
                 
                 Set<Feed> ret = new LinkedHashSet<Feed>();
                 for (Feed f : feeds) {
-                    if (categoryId == -4 || f.categoryId == categoryId)
+                    if (categoryId == VCAT_ALL || f.categoryId == categoryId)
                         ret.add(f);
                 }
                 DBHelper.getInstance().insertFeeds(feeds);
@@ -237,11 +239,11 @@ public class Data {
         }
         
         Set<Category> vCats = new LinkedHashSet<Category>();
-        vCats.add(new Category(-4, vCatAllArticles, DBHelper.getInstance().getUnreadCount(-4, true)));
-        vCats.add(new Category(-3, vCatFreshArticles, DBHelper.getInstance().getUnreadCount(-3, true)));
-        vCats.add(new Category(-2, vCatPublishedArticles, DBHelper.getInstance().getUnreadCount(-2, true)));
-        vCats.add(new Category(-1, vCatStarredArticles, DBHelper.getInstance().getUnreadCount(-1, true)));
-        vCats.add(new Category(0, uncatFeeds, DBHelper.getInstance().getUnreadCount(0, true)));
+        vCats.add(new Category(VCAT_ALL, vCatAllArticles, DBHelper.getInstance().getUnreadCount(VCAT_ALL, true)));
+        vCats.add(new Category(VCAT_FRESH, vCatFreshArticles, DBHelper.getInstance().getUnreadCount(VCAT_FRESH, true)));
+        vCats.add(new Category(VCAT_PUB, vCatPublishedArticles, DBHelper.getInstance().getUnreadCount(VCAT_PUB, true)));
+        vCats.add(new Category(VCAT_STAR, vCatStarredArticles, DBHelper.getInstance().getUnreadCount(VCAT_STAR, true)));
+        vCats.add(new Category(VCAT_UNCAT, uncatFeeds, DBHelper.getInstance().getUnreadCount(VCAT_UNCAT, true)));
         
         DBHelper.getInstance().insertCategories(vCats);
         virtCategoriesUpdated = System.currentTimeMillis();
@@ -327,13 +329,13 @@ public class Data {
             
             if (!erg)
                 DBHelper.getInstance().markUnsynchronizedStatesCategory(id);
-            DBHelper.getInstance().markCategoryRead(id, true);
+            DBHelper.getInstance().markCategoryRead(id);
             
         } else {
             
             if (!erg)
                 DBHelper.getInstance().markUnsynchronizedStatesFeed(id);
-            DBHelper.getInstance().markFeedRead(id, true);
+            DBHelper.getInstance().markFeedRead(id);
             
         }
     }

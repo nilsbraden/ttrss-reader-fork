@@ -90,7 +90,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             publishProgress(++progress); // Move progress forward
             Data.getInstance().updateCategories(true);
             publishProgress(++progress); // Move progress forward
-            Data.getInstance().updateFeeds(-4, true);
+            Data.getInstance().updateFeeds(Data.VCAT_ALL, true);
             
             for (Category c : cats) {
                 if (c.unread == 0 && onlyUnreadArticles)

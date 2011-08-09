@@ -80,7 +80,7 @@ public class DBHelper {
         "INSERT OR REPLACE INTO "
         + TABLE_ARTICLES
         + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages)" 
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (select cachedImages from " + TABLE_ARTICLES + " where id=?))";
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE id=?))";
     // This should insert new values or replace existing values but should always keep an already inserted value for "cachedImages".
     // When inserting it is set to the default value which is 0 (not "NULL").
     
@@ -586,37 +586,58 @@ public class DBHelper {
     
     // *******| UPDATE |*******************************************************************
     
-    public void markCategoryRead(Category c, boolean recursive) {
-        markCategoryRead(c.id, recursive);
-    }
-    
-    public void markCategoryRead(int categoryId, boolean recursive) {
+    public void markCategoryRead(int categoryId) {
         if (isDBAvailable()) {
             updateCategoryUnreadCount(categoryId, 0);
             
-            if (recursive) {
-                for (Feed f : getFeeds(categoryId)) {
-                    markFeedRead(f, recursive);
-                }
+            for (Feed f : getFeeds(categoryId)) {
+                markFeedRead(f.id);
             }
         }
     }
     
-    public void markFeedRead(Feed f, boolean recursive) {
-        markFeedRead(f.id, recursive);
-    }
-    
-    public void markFeedRead(int feedId, boolean recursive) {
+    public void markFeedRead(int feedId) {
         if (isDBAvailable()) {
+            
+            String[] cols = new String[] { "isStarred", "isPublished", "updateDate" };
+            Cursor c = db.query(TABLE_ARTICLES, cols, "WHERE isUnread>0 AND feedId=" + feedId, null, null, null, null);
+            
+            int countStar = 0;
+            int countPub = 0;
+            int countFresh = 0;
+            int countAll = 0;
+            long ms = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
+            Date maxAge = new Date(ms);
+            
+            if (c.moveToFirst()) {
+                while (c.move(1)) {
+                    countAll++;
+                    Date d = new Date(c.getLong(0));
+                    
+                    if (d.after(maxAge))
+                        countStar++;
+                    if (c.getInt(1) > 0)
+                        countPub++;
+                    if (c.getInt(2) > 0)
+                        countFresh++;
+                }
+            }
+            c.close();
+            
+            updateCategoryDeltaUnreadCount(Data.VCAT_STAR, countStar);
+            updateCategoryDeltaUnreadCount(Data.VCAT_PUB, countPub);
+            updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, countFresh);
+            updateCategoryDeltaUnreadCount(Data.VCAT_ALL, countAll);
+            
             updateFeedUnreadCount(feedId, 0);
             
             synchronized (TABLE_ARTICLES) {
-                if (recursive && feedId < -10) {
+                if (feedId < -10) {
                     markLabelRead(feedId);
-                } else if (recursive) {
+                } else {
                     ContentValues cv = new ContentValues();
                     cv.put("isUnread", 0);
-                    db.update(TABLE_ARTICLES, cv, "isUnread=1 AND feedId=" + feedId, null);
+                    db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId=" + feedId, null);
                 }
             }
         }
@@ -627,11 +648,11 @@ public class DBHelper {
             synchronized (TABLE_ARTICLES) {
                 ContentValues cv = new ContentValues();
                 cv.put("isUnread", 0);
-                String idList = "SELECT id FROM " + TABLE_ARTICLES + " as a, " + TABLE_ARTICLES2LABELS
+                String idList = "SELECT id FROM " + TABLE_ARTICLES + " AS a, " + TABLE_ARTICLES2LABELS
                         + " as l WHERE a.id=l.articleId AND l.labelId=" + labelId;
                 
                 synchronized (TABLE_ARTICLES) {
-                    db.update(TABLE_ARTICLES, cv, "isUnread>0 AND id in(" + idList + ")", null);
+                    db.update(TABLE_ARTICLES, cv, "isUnread>0 AND id IN(" + idList + ")", null);
                 }
             }
         }
@@ -658,7 +679,7 @@ public class DBHelper {
                 idList = feedId + "";
             
             synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId in(" + idList + ")", null);
+                db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ")", null);
             }
         }
     }
@@ -726,6 +747,9 @@ public class DBHelper {
                         state));
             }
         }
+    }
+    
+    public void updateCategoryUnreadCount(int id) {
     }
     
     public void updateCategoryUnreadCount(int id, int count) {
@@ -800,7 +824,7 @@ public class DBHelper {
     public void purgeArticlesNumber() {
         if (isDBAvailable()) {
             int number = Controller.getInstance().getArticleLimit();
-            String idList = "select id from " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
+            String idList = "SELECT id FROM " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
                 purgeLabels();
@@ -832,19 +856,19 @@ public class DBHelper {
     
     private void purgeLabels() {
         // @formatter:off
-        String idsArticles = "select a2l.articleId from "
-            + TABLE_ARTICLES2LABELS + " as a2l LEFT OUTER JOIN "
-            + TABLE_ARTICLES + " as a"
-            + " on a2l.articleId = a.id where a.id is null";
+        String idsArticles = "SELECT a2l.articleId FROM "
+            + TABLE_ARTICLES2LABELS + " AS a2l LEFT OUTER JOIN "
+            + TABLE_ARTICLES + " AS a"
+            + " ON a2l.articleId = a.id WHERE a.id IS null";
 
-        String idsFeeds = "select a2l.labelId from "
-            + TABLE_ARTICLES2LABELS + " as a2l LEFT OUTER JOIN "
-            + TABLE_FEEDS + " as f"
-            + " on a2l.labelId = f.id where f.id is null";
+        String idsFeeds = "SELECT a2l.labelId FROM "
+            + TABLE_ARTICLES2LABELS + " AS a2l LEFT OUTER JOIN "
+            + TABLE_FEEDS + " AS f"
+            + " ON a2l.labelId = f.id WHERE f.id IS null";
         // @formatter:on
         synchronized (TABLE_ARTICLES) {
-            db.delete(TABLE_ARTICLES2LABELS, "articleId in(" + idsArticles + ")", null);
-            db.delete(TABLE_ARTICLES2LABELS, "labelId in(" + idsFeeds + ")", null);
+            db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
+            db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
         }
     }
     
@@ -854,7 +878,7 @@ public class DBHelper {
         
         try {
             long time = System.currentTimeMillis();
-            db.execSQL("vacuum");
+            db.execSQL("VACUUM");
             vacuumDone = true;
             Log.d(Utils.TAG, "SQLite VACUUM took " + (System.currentTimeMillis() - time) + " ms.");
         } catch (SQLException e) {
@@ -983,7 +1007,7 @@ public class DBHelper {
                 where = null;
             }
             
-            c = db.query(TABLE_FEEDS, null, where, null, null, null, "upper(title) ASC");
+            c = db.query(TABLE_FEEDS, null, where, null, null, null, "UPPER(title) ASC");
             
             while (!c.isAfterLast()) {
                 ret.add(handleFeedCursor(c));
@@ -1102,8 +1126,8 @@ public class DBHelper {
             for (String idList : StringSupport.convertListToString(ids)) {
                 ContentValues cv = new ContentValues();
                 cv.putNull(mark);
-                db.update(TABLE_MARK, cv, "id IN (" + idList + ")", null);
-                db.delete(TABLE_MARK, "isUnread is null AND isStarred is null AND isPublished is null", null);
+                db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
+                db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
             }
         } catch (Exception e) {
             e.printStackTrace();

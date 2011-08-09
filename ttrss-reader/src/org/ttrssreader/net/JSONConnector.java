@@ -40,6 +40,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.preferences.Constants;
@@ -687,8 +688,8 @@ public class JSONConnector implements Connector {
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_FEEDS);
-        params.put(PARAM_CAT_ID, "-4"); // Hardcoded -4 fetches all feeds. See
-                                        // http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
+        params.put(PARAM_CAT_ID, Data.VCAT_ALL + ""); // Hardcoded -4 fetches all feeds. See
+                                                      // http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
         
         JsonReader reader = null;
         try {
@@ -760,10 +761,10 @@ public class JSONConnector implements Connector {
         params.put(PARAM_INC_ATTACHMENTS, "1");
         params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
         
-        if (id == -1 && isCategory)
+        if (id == Data.VCAT_STAR && isCategory)
             DBHelper.getInstance().purgeStarredArticles();
         
-        if (id == -2 && isCategory)
+        if (id == Data.VCAT_PUB && isCategory)
             DBHelper.getInstance().purgePublishedArticles();
         
         // People are complaining about not all articles beeing marked the right way, so just overwrite all unread
@@ -876,18 +877,19 @@ public class JSONConnector implements Connector {
     
     @Override
     public int getVersion() {
+        int ret = -1;
         if (!sessionAlive())
-            return -1;
+            return ret;
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_VERSION);
         
-        String ret = "";
+        String response = "";
         JsonReader reader = null;
         try {
             reader = prepareReader(params);
             if (reader == null)
-                return -1;
+                return ret;
             
             reader.beginArray();
             while (reader.hasNext()) {
@@ -897,7 +899,7 @@ public class JSONConnector implements Connector {
                     String name = reader.nextName();
                     
                     if (name.equals(VERSION)) {
-                        ret = reader.nextString();
+                        response = reader.nextString();
                     } else {
                         reader.skipValue();
                     }
@@ -905,9 +907,8 @@ public class JSONConnector implements Connector {
                 }
             }
             
-            reader.close();
             // Replace dots, parse integer
-            return Integer.parseInt(ret.replace(".", ""));
+            ret = Integer.parseInt(response.replace(".", ""));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -918,7 +919,7 @@ public class JSONConnector implements Connector {
                 }
         }
         
-        return -1;
+        return ret;
     }
     
     @Override

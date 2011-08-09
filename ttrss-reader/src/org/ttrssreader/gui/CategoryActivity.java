@@ -148,7 +148,7 @@ public class CategoryActivity extends MenuActivity {
     protected void doRefresh() {
         if (applicationName == null)
             applicationName = getResources().getString(R.string.ApplicationName);
-        int unreadCount = DBHelper.getInstance().getUnreadCount(-4, true);
+        int unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
         setTitle(MainAdapter.formatTitle(applicationName, unreadCount));
         
         if (adapter != null) {
@@ -393,7 +393,7 @@ public class CategoryActivity extends MenuActivity {
             Data.getInstance().updateVirtualCategories();
             publishProgress(++progress); // Move progress forward
             
-            Data.getInstance().updateFeeds(-4, false);
+            Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
             
             // Refresh articles for all categories
             for (Category c : cats) {

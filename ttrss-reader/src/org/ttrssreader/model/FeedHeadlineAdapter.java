@@ -20,6 +20,7 @@ import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
@@ -157,21 +158,21 @@ public class FeedHeadlineAdapter extends MainAdapter {
         query.append(" b WHERE feedId=b.id");
         
         switch (feedId) {
-            case -1:
+            case Data.VCAT_STAR:
                 query.append(" AND isStarred=1");
                 break;
             
-            case -2:
+            case Data.VCAT_PUB:
                 query.append(" AND isPublished=1");
                 break;
             
-            case -3:
+            case Data.VCAT_FRESH:
                 query.append(" AND updateDate>");
                 query.append(Controller.getInstance().getFreshArticleMaxAge());
                 query.append(" AND isUnread>0");
                 break;
             
-            case -4:
+            case Data.VCAT_ALL:
                 query.append(displayUnread ? " AND isUnread>0" : "");
                 break;
             
