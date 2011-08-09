@@ -451,7 +451,7 @@ public class JSONConnector implements Connector {
                         } else if (name.equals(COUNTER_COUNTER)) {
                             String value = reader.nextString();
                             // Check if null because of an API-bug
-                            if (value.equals("null"))
+                            if (!value.equals("null"))
                                 counter = Integer.parseInt(value);
                         } else {
                             reader.skipValue();
