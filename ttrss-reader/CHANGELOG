@@ -1,13 +1,14 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.07 ==
+== Version 1.07 (1) ==
   * Improved speed of getCounters-API-call and database-access in method insertArticle()
   * Allow receiving of gzip-compressed data
   * Removed more unnecessary code due to dropped support of servers below 1.5.3
   * Wrote new Connector with new JSON-parser "GSON" from google (included in Android since API-lvl 11)
   * Fixed some problems with the counters for Fresh/Starred/Published articles
   * Faster refresh of the UI when marking anything
+  * Bugfixes
 
 == Version 1.06 ==
   * Removed support for server-versions lower then 1.5.3
