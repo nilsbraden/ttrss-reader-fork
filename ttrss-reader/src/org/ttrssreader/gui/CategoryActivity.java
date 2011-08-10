@@ -376,7 +376,7 @@ public class CategoryActivity extends MenuActivity {
         @Override
         protected Void doInBackground(Void... params) {
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
-
+            
             Set<Category> cats = DBHelper.getInstance().getCategoriesIncludingUncategorized();
             Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
             taskCount = DEFAULT_TASK_COUNT + cats.size() + labels.size();
@@ -385,15 +385,6 @@ public class CategoryActivity extends MenuActivity {
             publishProgress(++progress); // Move progress forward
             
             Data.getInstance().updateCounters(false);
-            publishProgress(++progress); // Move progress forward
-            
-            Data.getInstance().updateCategories(false);
-            publishProgress(++progress); // Move progress forward
-            
-            Data.getInstance().updateVirtualCategories();
-            publishProgress(++progress); // Move progress forward
-            
-            Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
             
             // Refresh articles for all categories
             for (Category c : cats) {
@@ -412,6 +403,16 @@ public class CategoryActivity extends MenuActivity {
             }
             
             publishProgress(taskCount); // Move progress forward to 100%
+            
+            // This stuff will be done in background without UI-notification, but the progress-calls will be done anyway
+            // to ensure the UI is refreshed properly. ProgressBar is rendered invisible with the call to
+            // publishProgress(taskCount).
+            Data.getInstance().updateCategories(false);
+            publishProgress(0);
+            Data.getInstance().updateVirtualCategories();
+            publishProgress(0);
+            Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
+            
             return null;
         }
         
