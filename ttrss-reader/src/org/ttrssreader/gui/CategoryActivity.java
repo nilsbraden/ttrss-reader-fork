@@ -371,7 +371,7 @@ public class CategoryActivity extends MenuActivity {
     public class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
         
         private int taskCount = 0;
-        private static final int DEFAULT_TASK_COUNT = 5;
+        private static final int DEFAULT_TASK_COUNT = 2;
         
         @Override
         protected Void doInBackground(Void... params) {
