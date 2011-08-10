@@ -262,6 +262,8 @@ public class JSONConnector implements Connector {
     
     private String readResult(Map<String, String> params, boolean login, boolean firstCall) throws IOException {
         InputStream in = doRequest(params, true);
+        if (in == null)
+            return null;
         JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
         String ret = "";
         
@@ -309,6 +311,8 @@ public class JSONConnector implements Connector {
     
     private JsonReader prepareReader(Map<String, String> params, boolean firstCall) throws IOException {
         InputStream in = doRequest(params, true);
+        if (in == null)
+            return null;
         JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
         
         // Check if content contains array or object, array indicates login-response or error, object is content
