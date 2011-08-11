@@ -8,6 +8,7 @@
   * Wrote new Connector with new JSON-parser "GSON" from google (included in Android since API-lvl 11)
   * Fixed some problems with the counters for Fresh/Starred/Published articles
   * Faster refresh of the UI when marking anything
+  * Fixed small bug which rendered the ImageCache unusable
   * Bugfixes
 
 == Version 1.06 ==

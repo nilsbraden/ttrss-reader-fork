@@ -49,7 +49,7 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 49;
+    public static final int DATABASE_VERSION = 50;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -80,7 +80,7 @@ public class DBHelper {
         "INSERT OR REPLACE INTO "
         + TABLE_ARTICLES
         + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages)" 
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE id=?))";
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE id=?), 0))";
     // This should insert new values or replace existing values but should always keep an already inserted value for "cachedImages".
     // When inserting it is set to the default value which is 0 (not "NULL").
     
@@ -442,6 +442,14 @@ public class DBHelper {
                 Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
+                didUpgrade = true;
+            }
+            
+            if (oldVersion < 50) {
+                Log.w(Utils.TAG, String.format("Upgrading database from %s to 50.", oldVersion));
+                ContentValues cv = new ContentValues();
+                cv.put("cachedImages", 0);
+                db.update(TABLE_ARTICLES, cv, "cachedImages IS null", null);
                 didUpgrade = true;
             }
             
