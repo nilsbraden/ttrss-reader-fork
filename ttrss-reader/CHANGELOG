@@ -1,6 +1,9 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.08 ==
+  * Fixed labels
+
 == Version 1.07 (2) ==
   * Improved speed of getCounters-API-call and database-access in method insertArticle()
   * Allow receiving of gzip-compressed data
