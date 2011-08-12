@@ -781,7 +781,7 @@ public class JSONConnector implements Connector {
             if (reader == null)
                 return;
             
-            parseArticle(reader, -1);
+            parseArticle(reader, (!isCategory && id < -10 ? id : -1));
             
         } catch (IOException e) {
             e.printStackTrace();
