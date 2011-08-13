@@ -25,6 +25,7 @@
             \n * Allow receiving of gzip-compressed data
             \n * New faster and stream-based JSON-parser
             \n * Fixed some problems with counters and faster refresh of the UI
+            \n * Fixed Labels, should be fine now
             </item>
     
     <item>Version 1.06
