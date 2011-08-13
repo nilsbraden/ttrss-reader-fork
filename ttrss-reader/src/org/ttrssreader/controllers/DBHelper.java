@@ -470,18 +470,32 @@ public class DBHelper {
      * 
      * @see android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])
      */
-    public Cursor query(String sql, String[] selectionArgs) {
-        return db.rawQuery(sql, selectionArgs);
+    public Cursor query(String sql, String[] selectionArgs, String mutex) {
+        synchronized (mutex) {
+            return db.rawQuery(sql, selectionArgs);
+        }
+    }
+    
+    /**
+     * Same as above but with a second mutex for queries which access multiple tables
+     * 
+     * @see org.ttrssreader.controllers.DBHelper#query(String, String[], String)
+     */
+    public Cursor query(String sql, String[] selectionArgs, String mutex, String secondMutex) {
+        synchronized (secondMutex) {
+            return query(sql, selectionArgs, mutex);
+        }
     }
     
     public Cursor queryArticlesForImageCache(boolean onlyUnreadImages) {
-        // Add where-clause for only unread articles
-        String where = "cachedImages=0";
-        if (onlyUnreadImages)
-            where += " AND isUnread>0";
-        
-        return db.query(DBHelper.TABLE_ARTICLES, new String[] { "content", "attachments" }, where, null, null, null,
-                null);
+        synchronized (TABLE_ARTICLES) {
+            // Add where-clause for only unread articles
+            String where = "cachedImages=0";
+            if (onlyUnreadImages)
+                where += " AND isUnread>0";
+            
+            return db.query(TABLE_ARTICLES, new String[] { "content", "attachments" }, where, null, null, null, null);
+        }
     }
     
     // *******| INSERT |*******************************************************************

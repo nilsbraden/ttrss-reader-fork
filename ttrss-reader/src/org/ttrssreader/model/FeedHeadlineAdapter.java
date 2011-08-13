@@ -141,7 +141,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
             query = buildLabelQuery(overrideDisplayUnread, buildSafeQuery);
         
         closeCursor();
-        return DBHelper.getInstance().query(query, null);
+        return DBHelper.getInstance().query(query, null, DBHelper.TABLE_FEEDS, DBHelper.TABLE_ARTICLES);
     }
     
     private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {

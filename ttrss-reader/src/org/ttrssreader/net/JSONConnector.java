@@ -436,51 +436,55 @@ public class JSONConnector implements Connector {
             try {
                 reader.beginArray();
                 while (reader.hasNext()) {
-                    
-                    boolean cat = false;
-                    int id = 0;
-                    int counter = 0;
-                    
-                    reader.beginObject();
-                    while (reader.hasNext()) {
-                        String name = reader.nextName();
+                    try {
                         
-                        if (name.equals(COUNTER_KIND)) {
-                            cat = reader.nextString().equals(COUNTER_CAT);
-                        } else if (name.equals(COUNTER_ID)) {
-                            String value = reader.nextString();
-                            // Check if id is a string, then it would be a global counter
-                            if (value.equals("global-unread") || value.equals("subscribed-feeds"))
-                                continue;
-                            id = Integer.parseInt(value);
-                        } else if (name.equals(COUNTER_COUNTER)) {
-                            String value = reader.nextString();
-                            // Check if null because of an API-bug
-                            if (!value.equals("null"))
-                                counter = Integer.parseInt(value);
-                        } else {
-                            reader.skipValue();
+                        boolean cat = false;
+                        int id = 0;
+                        int counter = 0;
+                        
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            String name = reader.nextName();
+                            
+                            if (name.equals(COUNTER_KIND)) {
+                                cat = reader.nextString().equals(COUNTER_CAT);
+                            } else if (name.equals(COUNTER_ID)) {
+                                String value = reader.nextString();
+                                // Check if id is a string, then it would be a global counter
+                                if (value.equals("global-unread") || value.equals("subscribed-feeds"))
+                                    continue;
+                                id = Integer.parseInt(value);
+                            } else if (name.equals(COUNTER_COUNTER)) {
+                                String value = reader.nextString();
+                                // Check if null because of an API-bug
+                                if (!value.equals("null"))
+                                    counter = Integer.parseInt(value);
+                            } else {
+                                reader.skipValue();
+                            }
                         }
+                        reader.endObject();
+                        
+                        ContentValues cv = new ContentValues();
+                        cv.put("unread", counter);
+                        
+                        if (cat && id >= 0) {
+                            // Category
+                            db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+                        } else if (!cat && id < 0 && id >= -4) {
+                            // Virtual Category
+                            db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+                        } else if (!cat && id > 0) {
+                            // Feed
+                            db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
+                        } else if (!cat && id < -10) {
+                            // Label
+                            db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
+                        }
+                        
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
                     }
-                    reader.endObject();
-                    
-                    ContentValues cv = new ContentValues();
-                    cv.put("unread", counter);
-                    
-                    if (cat && id >= 0) {
-                        // Category
-                        db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
-                    } else if (!cat && id < 0 && id >= -4) {
-                        // Virtual Category
-                        db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
-                    } else if (!cat && id > 0) {
-                        // Feed
-                        db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
-                    } else if (!cat && id < -10) {
-                        // Label
-                        db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
-                    }
-                    
                 }
                 reader.endArray();
                 
@@ -498,6 +502,7 @@ public class JSONConnector implements Connector {
         Set<String> ret = new HashSet<String>();
         reader.beginArray();
         while (reader.hasNext()) {
+            // No Try-Catch here, we catch Exceptions in the calling method (parseArticle())
             
             String attId = null;
             String attUrl = null;
@@ -532,53 +537,57 @@ public class JSONConnector implements Connector {
             try {
                 reader.beginArray();
                 while (reader.hasNext()) {
-                    
-                    int id = 0;
-                    String title = null;
-                    boolean isUnread = false;
-                    Date updated = null;
-                    int realFeedId = 0;
-                    String content = null;
-                    String articleUrl = null;
-                    String articleCommentUrl = null;
-                    Set<String> attachments = null;
-                    boolean isStarred = false;
-                    boolean isPublished = false;
-                    
-                    reader.beginObject();
-                    while (reader.hasNext()) {
-                        String name = reader.nextName();
+                    try {
                         
-                        if (name.equals(ID)) {
-                            id = reader.nextInt();
-                        } else if (name.equals(TITLE)) {
-                            title = reader.nextString();
-                        } else if (name.equals(UNREAD)) {
-                            isUnread = reader.nextBoolean();
-                        } else if (name.equals(UPDATED)) {
-                            updated = new Date(new Long(reader.nextString() + "000").longValue());
-                        } else if (name.equals(FEED_ID)) {
-                            realFeedId = reader.nextInt();
-                        } else if (name.equals(CONTENT)) {
-                            content = reader.nextString();
-                        } else if (name.equals(URL)) {
-                            articleUrl = reader.nextString();
-                        } else if (name.equals(COMMENT_URL)) {
-                            articleCommentUrl = reader.nextString();
-                        } else if (name.equals(ATTACHMENTS)) {
-                            attachments = parseAttachments(reader);
-                        } else if (name.equals(STARRED)) {
-                            isStarred = reader.nextBoolean();
-                        } else if (name.equals(PUBLISHED)) {
-                            isPublished = reader.nextBoolean();
-                        } else {
-                            reader.skipValue();
+                        int id = 0;
+                        String title = null;
+                        boolean isUnread = false;
+                        Date updated = null;
+                        int realFeedId = 0;
+                        String content = null;
+                        String articleUrl = null;
+                        String articleCommentUrl = null;
+                        Set<String> attachments = null;
+                        boolean isStarred = false;
+                        boolean isPublished = false;
+                        
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            String name = reader.nextName();
+                            
+                            if (name.equals(ID)) {
+                                id = reader.nextInt();
+                            } else if (name.equals(TITLE)) {
+                                title = reader.nextString();
+                            } else if (name.equals(UNREAD)) {
+                                isUnread = reader.nextBoolean();
+                            } else if (name.equals(UPDATED)) {
+                                updated = new Date(new Long(reader.nextString() + "000").longValue());
+                            } else if (name.equals(FEED_ID)) {
+                                realFeedId = reader.nextInt();
+                            } else if (name.equals(CONTENT)) {
+                                content = reader.nextString();
+                            } else if (name.equals(URL)) {
+                                articleUrl = reader.nextString();
+                            } else if (name.equals(COMMENT_URL)) {
+                                articleCommentUrl = reader.nextString();
+                            } else if (name.equals(ATTACHMENTS)) {
+                                attachments = parseAttachments(reader);
+                            } else if (name.equals(STARRED)) {
+                                isStarred = reader.nextBoolean();
+                            } else if (name.equals(PUBLISHED)) {
+                                isPublished = reader.nextBoolean();
+                            } else {
+                                reader.skipValue();
+                            }
+                            
                         }
-                        
+                        reader.endObject();
+                        DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
+                                articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId);
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
                     }
-                    reader.endObject();
-                    DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
-                            articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId);
                 }
                 reader.endArray();
                 
@@ -645,28 +654,33 @@ public class JSONConnector implements Connector {
             
             reader.beginArray();
             while (reader.hasNext()) {
-                
-                int id = 0;
-                String title = "";
-                int unread = 0;
-                
-                reader.beginObject();
-                while (reader.hasNext()) {
-                    String name = reader.nextName();
+                try {
                     
-                    if (name.equals(ID)) {
-                        id = reader.nextInt();
-                    } else if (name.equals(TITLE)) {
-                        title = reader.nextString();
-                    } else if (name.equals(UNREAD)) {
-                        unread = reader.nextInt();
-                    } else {
-                        reader.skipValue();
+                    int id = 0;
+                    String title = "";
+                    int unread = 0;
+                    
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        
+                        if (name.equals(ID)) {
+                            id = reader.nextInt();
+                        } else if (name.equals(TITLE)) {
+                            title = reader.nextString();
+                        } else if (name.equals(UNREAD)) {
+                            unread = reader.nextInt();
+                        } else {
+                            reader.skipValue();
+                        }
+                        
                     }
+                    reader.endObject();
+                    ret.add(new Category(id, title, unread));
                     
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
                 }
-                reader.endObject();
-                ret.add(new Category(id, title, unread));
             }
             reader.endArray();
         } catch (IOException e) {
@@ -704,35 +718,40 @@ public class JSONConnector implements Connector {
             
             reader.beginArray();
             while (reader.hasNext()) {
-                
-                int categoryId = 0;
-                int id = 0;
-                String title = "";
-                String feedUrl = "";
-                int unread = 0;
-                
-                reader.beginObject();
-                while (reader.hasNext()) {
-                    String name = reader.nextName();
+                try {
                     
-                    if (name.equals(ID)) {
-                        id = reader.nextInt();
-                    } else if (name.equals(CAT_ID)) {
-                        categoryId = reader.nextInt();
-                    } else if (name.equals(TITLE)) {
-                        title = reader.nextString();
-                    } else if (name.equals(FEED_URL)) {
-                        feedUrl = reader.nextString();
-                    } else if (name.equals(UNREAD)) {
-                        unread = reader.nextInt();
-                    } else {
-                        reader.skipValue();
+                    int categoryId = 0;
+                    int id = 0;
+                    String title = "";
+                    String feedUrl = "";
+                    int unread = 0;
+                    
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        
+                        if (name.equals(ID)) {
+                            id = reader.nextInt();
+                        } else if (name.equals(CAT_ID)) {
+                            categoryId = reader.nextInt();
+                        } else if (name.equals(TITLE)) {
+                            title = reader.nextString();
+                        } else if (name.equals(FEED_URL)) {
+                            feedUrl = reader.nextString();
+                        } else if (name.equals(UNREAD)) {
+                            unread = reader.nextInt();
+                        } else {
+                            reader.skipValue();
+                        }
+                        
                     }
+                    reader.endObject();
+                    if (id > 0 || categoryId == -2) // normal feed (>0) or label (-2)
+                        ret.add(new Feed(id, categoryId, title, feedUrl, unread));
                     
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
                 }
-                reader.endObject();
-                if (id > 0 || categoryId == -2) // normal feed (>0) or label (-2)
-                    ret.add(new Feed(id, categoryId, title, feedUrl, unread));
             }
             reader.endArray();
         } catch (IOException e) {
@@ -897,17 +916,22 @@ public class JSONConnector implements Connector {
             
             reader.beginArray();
             while (reader.hasNext()) {
-                
-                reader.beginObject();
-                while (reader.hasNext()) {
-                    String name = reader.nextName();
+                try {
                     
-                    if (name.equals(VERSION)) {
-                        response = reader.nextString();
-                    } else {
-                        reader.skipValue();
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        
+                        if (name.equals(VERSION)) {
+                            response = reader.nextString();
+                        } else {
+                            reader.skipValue();
+                        }
+                        
                     }
                     
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
                 }
             }
             
