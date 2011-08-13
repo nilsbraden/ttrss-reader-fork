@@ -9,7 +9,7 @@
   * Fixed some problems with the counters for Fresh/Starred/Published articles
   * Faster refresh of the UI when marking anything
   * Fixed small bug which rendered the ImageCache unusable
-  * Fixed labels
+  * Fixed Labels and two ANR-Situations
   * Bugfixes
 
 == Version 1.06 ==
