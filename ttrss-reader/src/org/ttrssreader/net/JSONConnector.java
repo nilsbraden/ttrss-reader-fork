@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
+import javax.net.ssl.SSLException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -219,6 +220,10 @@ public class JSONConnector implements Connector {
         } catch (ClientProtocolException e) {
             hasLastError = true;
             lastError = "ClientProtocolException on client.execute(httpPost) [ " + e.getCause() + " ]";
+            return null;
+        } catch (SSLException sslE) {
+            hasLastError = true;
+            lastError = "SSLException on client.execute(httpPost) [ " + sslE.getCause() + " ]";
             return null;
         } catch (IOException e) {
             /*
