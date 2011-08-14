@@ -186,7 +186,8 @@ public class CategoryAdapter extends MainAdapter {
         
         closeCursor();
         String[] columns = { "id", "title", "unread" };
-        Cursor c = db.query(TABLE_NAME, columns, null, null, null, null, "sortId");
+        Cursor c = db.query(TABLE_NAME, columns, null, null, null, null, "sortId "
+                + (invertSortFeedCats ? "DESC" : "ASC"));
         return c;
     }
     
