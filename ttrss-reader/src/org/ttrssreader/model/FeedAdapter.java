@@ -123,7 +123,7 @@ public class FeedAdapter extends MainAdapter {
         query.append(buildSafeQuery ? " LIMIT 100" : " LIMIT 1000"); // TODO: Does a hard limit make sense here?
 
         closeCursor();
-        return DBHelper.getInstance().query(query.toString(), null, DBHelper.TABLE_FEEDS);
+        return DBHelper.getInstance().query(query.toString(), null);
     }
     
 }

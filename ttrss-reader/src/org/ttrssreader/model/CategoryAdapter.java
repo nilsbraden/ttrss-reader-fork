@@ -154,7 +154,7 @@ public class CategoryAdapter extends MainAdapter {
             query.append("SELECT id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
             query.append(" WHERE id>=-4 AND id<0 ORDER BY id");
-            insertValues(DBHelper.getInstance().query(query.toString(), null, DBHelper.TABLE_CATEGORIES));
+            insertValues(DBHelper.getInstance().query(query.toString(), null));
         }
         
         // Labels
@@ -164,7 +164,7 @@ public class CategoryAdapter extends MainAdapter {
         query.append(" WHERE id<-10");
         query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ORDER BY UPPER(title) ASC");
-        insertValues(DBHelper.getInstance().query(query.toString(), null, DBHelper.TABLE_FEEDS));
+        insertValues(DBHelper.getInstance().query(query.toString(), null));
         
         // "Uncategorized Feeds"
         query = new StringBuilder();
@@ -172,7 +172,7 @@ public class CategoryAdapter extends MainAdapter {
         query.append(DBHelper.TABLE_CATEGORIES);
         query.append(" WHERE id=0");
         query.append(displayUnread ? " AND unread>0" : "");
-        insertValues(DBHelper.getInstance().query(query.toString(), null, DBHelper.TABLE_CATEGORIES));
+        insertValues(DBHelper.getInstance().query(query.toString(), null));
         
         // Categories
         query = new StringBuilder();
@@ -182,7 +182,7 @@ public class CategoryAdapter extends MainAdapter {
         query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
-        insertValues(DBHelper.getInstance().query(query.toString(), null, DBHelper.TABLE_CATEGORIES));
+        insertValues(DBHelper.getInstance().query(query.toString(), null));
         
         closeCursor();
         String[] columns = { "id", "title", "unread" };
