@@ -88,7 +88,6 @@ public final class $Gson$Types {
    * according to {@link Object#equals(Object) Object.equals()}. The returned
    * type is {@link java.io.Serializable}.
    */
-  @SuppressWarnings("unchecked")
   public static Type canonicalize(Type type) {
     if (type instanceof Class) {
       Class<?> c = (Class<?>) type;
@@ -113,7 +112,6 @@ public final class $Gson$Types {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public static Class<?> getRawType(Type type) {
     if (type instanceof Class<?>) {
       // type is a normal class.
@@ -155,7 +153,6 @@ public final class $Gson$Types {
   /**
    * Returns true if {@code a} and {@code b} are equal.
    */
-  @SuppressWarnings("unchecked")
   public static boolean equals(Type a, Type b) {
     if (a == b) {
       // also handles (a == null && b == null)
@@ -215,7 +212,6 @@ public final class $Gson$Types {
     return o != null ? o.hashCode() : 0;
   }
 
-  @SuppressWarnings("unchecked")
   public static String typeToString(Type type) {
     return type instanceof Class ? ((Class<?>) type).getName() : type.toString();
   }
@@ -275,7 +271,6 @@ public final class $Gson$Types {
   /**
    * Returns true if this type is an array.
    */
-  @SuppressWarnings("unchecked")
   public static boolean isArray(Type type) {
     return type instanceof GenericArrayType
         || (type instanceof Class && ((Class<?>) type).isArray());
@@ -319,7 +314,6 @@ public final class $Gson$Types {
     return mapParameterizedType.getActualTypeArguments();
   }
 
-  @SuppressWarnings("unchecked")
   public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {
     // this implementation is made a little more complicated in an attempt to avoid object-creation
     while (true) {
@@ -392,8 +386,8 @@ public final class $Gson$Types {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable unknown) {
+  @SuppressWarnings("rawtypes")
+static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable unknown) {
     Class<?> declaredByRaw = declaringClassOf(unknown);
 
     // we can't reduce this further
@@ -423,7 +417,7 @@ public final class $Gson$Types {
    * Returns the declaring class of {@code typeVariable}, or {@code null} if it was not declared by
    * a class.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   private static Class<?> declaringClassOf(TypeVariable typeVariable) {
     GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
     return genericDeclaration instanceof Class
@@ -440,7 +434,7 @@ public final class $Gson$Types {
     private final Type rawType;
     private final Type[] typeArguments;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     public ParameterizedTypeImpl(Type ownerType, Type rawType, Type... typeArguments) {
       // require an owner type if the raw type needs it
       if (rawType instanceof Class<?>) {
