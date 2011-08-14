@@ -156,7 +156,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
         else
             unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
-            
+        
         setTitle(MainAdapter.formatTitle(feedTitle, unreadCount));
         flingDetected = false; // reset fling-status
         
@@ -281,8 +281,12 @@ public class FeedHeadlineActivity extends MenuActivity {
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
-                if (feedId >= 0 || feedId < -10)
-                    new Updater(this, new ReadStateUpdater(feedId, 0)).execute();
+                if (selectArticlesForCategory) {
+                    new Updater(this, new ReadStateUpdater(categoryId)).execute();
+                } else {
+                    new Updater(this, new ReadStateUpdater(feedId, 42)).execute();
+                }
+                
                 return true;
         }
         
@@ -398,7 +402,7 @@ public class FeedHeadlineActivity extends MenuActivity {
      * 
      */
     public class FeedHeadlineUpdater extends AsyncTask<Void, Integer, Void> {
-
+        
         private int taskCount = 0;
         private static final int DEFAULT_TASK_COUNT = 2;
         

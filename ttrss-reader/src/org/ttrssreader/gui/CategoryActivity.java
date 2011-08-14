@@ -199,14 +199,20 @@ public class CategoryActivity extends MenuActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
+        int id = adapter.getId(cmi.position);
+        
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position))).execute();
+                if (id < -10)
+                    new Updater(this, new ReadStateUpdater(id, 42)).execute();
+                new Updater(this, new ReadStateUpdater(id)).execute();
                 return true;
             case SELECT_ARTICLES:
+                if (id < 0)
+                    return false; // Do nothing for Virtual Category or Labels
                 Intent i = new Intent(this, FeedHeadlineActivity.class);
                 i.putExtra(FeedHeadlineActivity.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
-                i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, adapter.getId(cmi.position));
+                i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, id);
                 i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(cmi.position));
                 i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, true);
                 startActivity(i);

@@ -208,7 +208,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         query.append(DBHelper.TABLE_ARTICLES2LABELS);
         query.append(" a2l, ");
         query.append(DBHelper.TABLE_FEEDS);
-        query.append(" l WHERE a2l.labelId=l.id AND a2l.articleId=a.id");
+        query.append(" l WHERE a.id=a2l.articleId AND a2l.labelId=l.id");
         query.append(" AND a2l.labelId=" + feedId);
         query.append(displayUnread ? " AND isUnread>0" : "");
         
@@ -222,7 +222,9 @@ public class FeedHeadlineAdapter extends MainAdapter {
             query.append(" m WHERE b2m.labelId=m.id AND b2m.articleId=b.id");
             query.append(" AND b.id=" + lastOpenedArticle);
         }
-        
+
+        query.append(" ORDER BY updateDate ");
+        query.append(invertSortArticles ? "ASC" : "DESC");
         return query.toString();
     }
     

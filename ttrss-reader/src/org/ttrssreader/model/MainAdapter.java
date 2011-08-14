@@ -85,9 +85,8 @@ public abstract class MainAdapter extends BaseAdapter {
     @Override
     public final int getCount() {
         synchronized (cursor) {
-            if (cursor.isClosed()) {
+            if (cursor.isClosed())
                 makeQuery();
-            }
             
             return cursor.getCount();
         }
@@ -101,15 +100,12 @@ public abstract class MainAdapter extends BaseAdapter {
     public final int getId(int position) {
         int ret = 0;
         synchronized (cursor) {
-            if (cursor.isClosed()) {
+            if (cursor.isClosed())
                 makeQuery();
-            }
             
-            if (cursor.getCount() >= position) {
-                if (cursor.moveToPosition(position)) {
+            if (cursor.getCount() >= position)
+                if (cursor.moveToPosition(position))
                     ret = cursor.getInt(0);
-                }
-            }
         }
         return ret;
     }
@@ -117,9 +113,8 @@ public abstract class MainAdapter extends BaseAdapter {
     public final List<Integer> getIds() {
         List<Integer> result = new ArrayList<Integer>();
         synchronized (cursor) {
-            if (cursor.isClosed()) {
+            if (cursor.isClosed())
                 makeQuery();
-            }
             
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
@@ -134,15 +129,12 @@ public abstract class MainAdapter extends BaseAdapter {
     public final String getTitle(int position) {
         String ret = "";
         synchronized (cursor) {
-            if (cursor.isClosed()) {
+            if (cursor.isClosed())
                 makeQuery();
-            }
             
-            if (cursor.getCount() >= position) {
-                if (cursor.moveToPosition(position)) {
+            if (cursor.getCount() >= position)
+                if (cursor.moveToPosition(position))
                     ret = cursor.getString(1);
-                }
-            }
         }
         return ret;
     }
