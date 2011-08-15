@@ -1135,7 +1135,7 @@ public class DBHelper {
             return;
         
         try {
-            for (String idList : StringSupport.convertListToString(ids)) {
+            for (String idList : StringSupport.convertListToString(ids, 100)) {
                 ContentValues cv = new ContentValues();
                 cv.putNull(mark);
                 db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);

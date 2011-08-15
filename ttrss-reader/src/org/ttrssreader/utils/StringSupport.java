@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import org.ttrssreader.controllers.Controller;
 import android.net.Uri;
 import android.text.TextUtils;
 
@@ -112,14 +111,11 @@ public class StringSupport {
      * 
      * @param ids
      *            the set of ids to be split
+     * @param maxCount
+     *              the maximum length of each list
      * @return a set of Strings with comma-separated ids
      */
-    public static Set<String> convertListToString(Set<Integer> ids) {
-        int maxCount = 500;
-        
-        if (Controller.getInstance().splitGetRequests())
-            maxCount = 50;
-        
+    public static Set<String> convertListToString(Set<Integer> ids, int maxCount) {
         Set<String> ret = new HashSet<String>();
         Iterator<Integer> it = ids.iterator();
         StringBuilder idList = new StringBuilder();
@@ -158,8 +154,6 @@ public class StringSupport {
     public static String getBaseURL(String url) {
         Uri uri = Uri.parse(url);
         if (uri != null) {
-            // TODO: Check if base-url is the right thing to return, perhaps we also need the rest of the path without
-            // the last segment
             return uri.getScheme() + "://" + uri.getAuthority();
         }
         return null;
