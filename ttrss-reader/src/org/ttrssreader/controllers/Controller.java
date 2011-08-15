@@ -85,7 +85,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Integer imageCacheSize = null;
     private Boolean imageCacheUnread = null;
     private Boolean articleCacheUnread = null;
-    private Boolean splitGetRequests = null;
     private Boolean isVacuumDBScheduled = null;
     private Boolean isDeleteDBScheduled = null;
     private Boolean isDeleteDBOnStartup = null;
@@ -482,17 +481,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setArticleCacheUnread(boolean articleCacheUnread) {
         put(Constants.ARTICLE_CACHE_UNREAD, articleCacheUnread);
         this.articleCacheUnread = articleCacheUnread;
-    }
-    
-    public boolean splitGetRequests() {
-        if (splitGetRequests == null)
-            splitGetRequests = prefs.getBoolean(Constants.SPLIT_GET_REQUESTS, Constants.SPLIT_GET_REQUESTS_DEFAULT);
-        return splitGetRequests;
-    }
-    
-    public void setSplitGetRequests(boolean splitGetRequests) {
-        put(Constants.SPLIT_GET_REQUESTS, splitGetRequests);
-        this.splitGetRequests = splitGetRequests;
     }
     
     public boolean isVacuumDBScheduled() {

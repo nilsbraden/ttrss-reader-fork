@@ -224,7 +224,7 @@
                     android:name="@string/DisplayArticleLimitTitle"
                     android:title="@string/DisplayArticleLimitTitle"
                     android:summary="@string/DisplayArticleLimitSummary"
-                    android:defaultValue="200"
+                    android:defaultValue="1000"
                     android:key="DisplayArticleLimitPreference"
                     android:maxLength="5"
                     android:inputType="number" />
@@ -239,7 +239,7 @@
                     android:name="@string/StoreImageLimitTitle"
                     android:title="@string/StoreImageLimitTitle"
                     android:summary="@string/StoreImageLimitSummary"
-                    android:defaultValue="200"
+                    android:defaultValue="50"
                     android:key="StoreImageLimitPreference"
                     android:maxLength="5"
                     android:inputType="number" />
@@ -255,12 +255,6 @@
                     android:defaultValue="true"
                     android:summary="@string/CacheUnreadArticlesSummary"
                     android:key="CacheUnreadArticlesPreference" />
-
-                <CheckBoxPreference
-                    android:title="@string/SplitLongGetRequestsTitle"
-                    android:defaultValue="false"
-                    android:summary="@string/SplitLongGetRequestsSummary"
-                    android:key="SplitLongGetRequestsPreference" />
                     
                 <CheckBoxPreference
                     android:title="@string/LogSensitiveDataTitle"
