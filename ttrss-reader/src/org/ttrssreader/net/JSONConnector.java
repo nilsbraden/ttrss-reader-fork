@@ -92,6 +92,7 @@ public class JSONConnector implements Connector {
     
     private static final String ERROR = "error";
     private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
+    private static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
     private static final String API_DISABLED = "API_DISABLED";
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
     private static final String STATUS = "status";
@@ -221,9 +222,9 @@ public class JSONConnector implements Connector {
             hasLastError = true;
             lastError = "ClientProtocolException on client.execute(httpPost) [ " + e.getCause() + " ]";
             return null;
-        } catch (SSLException sslE) {
+        } catch (SSLException e) {
             hasLastError = true;
-            lastError = "SSLException on client.execute(httpPost) [ " + sslE.getCause() + " ]";
+            lastError = "SSLException on client.execute(httpPost) [ " + e.getCause() + " ]";
             return null;
         } catch (IOException e) {
             /*
@@ -307,6 +308,11 @@ public class JSONConnector implements Connector {
         }
         
         reader.close();
+        if (ret.startsWith("\""))
+            ret = ret.substring(1, ret.length());
+        if (ret.endsWith("\""))
+            ret = ret.substring(0, ret.length() - 1);
+        
         return ret;
     }
     
@@ -341,6 +347,7 @@ public class JSONConnector implements Connector {
                         String message = object.get(ERROR).toString();
                         
                         if (message.contains(NOT_LOGGED_IN)) {
+                            sessionId = null;
                             if (login())
                                 return prepareReader(params, false); // Just do the same request again
                             else
@@ -428,6 +435,8 @@ public class JSONConnector implements Connector {
             }
             
             // Login didnt succeed
+            hasLastError = true;
+            lastError = NOT_LOGGED_IN_MESSAGE;
             return false;
         }
     }
