@@ -291,14 +291,24 @@ public class JSONConnector implements Connector {
                     reader.endObject();
                     
                     if (object.get(SESSION_ID) != null) {
-                        ret = object.get(SESSION_ID).toString();
+                        ret = object.get(SESSION_ID).getAsString();
                         break;
                     } else if (object.get(STATUS) != null) {
-                        ret = object.get(STATUS).toString();
+                        ret = object.get(STATUS).getAsString();
                         break;
                     } else if (object.get(VALUE) != null) {
-                        ret = object.get(VALUE).toString();
+                        ret = object.get(VALUE).getAsString();
                         break;
+                    } else if (object.get(ERROR) != null) {
+                        String message = object.get(ERROR).getAsString();
+                        
+                        if (message.contains(NOT_LOGGED_IN)) {
+                            sessionId = null;
+                            if (login())
+                                return readResult(params, login, false); // Just do the same request again
+                            else
+                                return null;
+                        }
                     }
                 }
                 
