@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.08 ==
+  * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
+  * Added preference to disable swipe and instead use buttons for browsing articles. Still a bit buggy.
+
 == Version 1.07 (4) ==
   * Improved speed of getCounters-API-call and database-access in method insertArticle()
   * Allow receiving of gzip-compressed data
