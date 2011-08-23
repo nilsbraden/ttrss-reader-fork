@@ -72,6 +72,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     private Boolean showVirtual = null;
     private Boolean useSwipe = null;
+    private Boolean useButtons = null;
     private Boolean onlyUnread = null;
     private Integer articleLimit = null;
     private Boolean displayArticleHeader = null;
@@ -343,6 +344,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setUseSwipe(boolean useSwipe) {
         put(Constants.USE_SWIPE, useSwipe);
         this.useSwipe = useSwipe;
+    }
+    
+    public boolean useButtons() {
+        if (useButtons == null)
+            useButtons = prefs.getBoolean(Constants.USE_BUTTONS, Constants.USE_BUTTONS_DEFAULT);
+        return useButtons;
+    }
+    
+    public void setUseButtons(boolean useButtons) {
+        put(Constants.USE_BUTTONS, useButtons);
+        this.useButtons = useButtons;
     }
     
     public boolean onlyUnread() {

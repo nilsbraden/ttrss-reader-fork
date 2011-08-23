@@ -151,6 +151,12 @@
                     android:key="DisplayUseSwipePreference" />
 
                 <CheckBoxPreference
+                    android:title="@string/DisplayUseButtonsTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/DisplayUseButtonsSummary"
+                    android:key="DisplayUseButtonsPreference" />
+
+                <CheckBoxPreference
                     android:title="@string/UsageVibrateOnLastArticleTitle"
                     android:defaultValue="true"
                     android:summary="@string/UsageVibrateOnLastArticleSummary"

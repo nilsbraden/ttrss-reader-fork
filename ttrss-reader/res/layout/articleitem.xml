@@ -127,37 +127,55 @@
             </LinearLayout>
         </org.ttrssreader.gui.ArticleHeaderView>
 
+
         <RelativeLayout 
-            android:id="@+id/webview_layout"
+            android:id="@+id/container_layout"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
         >
-        
+            
             <WebView
                 android:id="@+id/webview"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_alignParentTop="true"
-                android:layout_above="@+id/webview_swipe_text" />
+                android:layout_alignParentTop="true" />
             
-            <RelativeLayout 
-                android:id="@+id/webview_swipe_layout"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/buttonLayout"
+                android:orientation="horizontal"
+                android:background="@android:drawable/bottom_bar"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-            >
-
-                <TextView
-                    android:id="@+id/webview_swipe_text"
+                android:layout_width="fill_parent"
+                android:padding="8dip"
+                android:layout_alignBottom="@id/webview" >
+                <ImageButton
+                    android:id="@+id/nextButton"
+                    android:background="@drawable/arrow_up_float"
                     android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:padding="12dip"
-                    android:background="#AA000000"
-                    android:textColor="#ffffffff"
-                    android:text="@string/ArticleActivity.SwipeNotification" />
-
-            </RelativeLayout>
+                    android:layout_height="fill_parent"
+                    android:paddingLeft="8dip"
+                    android:marginRight="20dip" 
+                    android:layout_weight="1.0" />
+                
+                <ImageButton
+                    android:id="@+id/prevButton"
+                    android:background="@drawable/arrow_down_float"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:padding="8dip" 
+                    android:layout_weight="1.0" />
+            </LinearLayout>
+                
+            <TextView
+                android:id="@+id/webview_swipe_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dip"
+                android:background="#AA000000"
+                android:textColor="#ffffffff"
+                android:text="@string/ArticleActivity.SwipeNotification"
+                android:layout_alignBottom="@id/webview" />
+                
             
         </RelativeLayout>
     

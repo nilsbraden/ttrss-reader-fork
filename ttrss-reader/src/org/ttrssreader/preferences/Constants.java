@@ -58,6 +58,7 @@ public class Constants {
     // Display
     public static String SHOW_VIRTUAL = "DisplayShowVirtualPreference";
     public static String USE_SWIPE = "DisplayUseSwipePreference";
+    public static String USE_BUTTONS = "DisplayUseButtonsPreference";
     public static String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
     public static String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
     public static String DISPLAY_ARTICLE_HEADER = "DisplayArticleHeaderPreference";
@@ -70,6 +71,7 @@ public class Constants {
     // Display Default Values
     public static boolean SHOW_VIRTUAL_DEFAULT = true;
     public static boolean USE_SWIPE_DEFAULT = true;
+    public static boolean USE_BUTTONS_DEFAULT = false;
     public static boolean ONLY_UNREAD_DEFAULT = false;
     public static int ARTICLE_LIMIT_DEFAULT = 1000;
     public static boolean DISPLAY_ARTICLE_HEADER_DEFAULT = true;
