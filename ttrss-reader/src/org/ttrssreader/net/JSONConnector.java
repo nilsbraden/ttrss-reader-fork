@@ -469,6 +469,7 @@ public class JSONConnector implements Connector {
                     
                     reader.beginObject();
                     while (reader.hasNext()) {
+                        
                         try {
                             String name = reader.nextName();
                             
@@ -490,7 +491,10 @@ public class JSONConnector implements Connector {
                             }
                         } catch (IllegalArgumentException e) {
                             e.printStackTrace();
+                            reader.skipValue();
+                            continue;
                         }
+                        
                     }
                     reader.endObject();
                     
@@ -531,7 +535,6 @@ public class JSONConnector implements Connector {
         Set<String> ret = new HashSet<String>();
         reader.beginArray();
         while (reader.hasNext()) {
-            // No Try-Catch here, we catch Exceptions in the calling method (parseArticle())
             
             String attId = null;
             String attUrl = null;
@@ -539,13 +542,19 @@ public class JSONConnector implements Connector {
             reader.beginObject();
             while (reader.hasNext()) {
                 
-                String name = reader.nextName();
-                if (name.equals(CONTENT_URL)) {
-                    attUrl = reader.nextString();
-                } else if (name.equals(ID)) {
-                    attId = reader.nextString();
-                } else {
+                try {
+                    String name = reader.nextName();
+                    if (name.equals(CONTENT_URL)) {
+                        attUrl = reader.nextString();
+                    } else if (name.equals(ID)) {
+                        attId = reader.nextString();
+                    } else {
+                        reader.skipValue();
+                    }
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
                     reader.skipValue();
+                    continue;
                 }
                 
             }
@@ -580,7 +589,7 @@ public class JSONConnector implements Connector {
                     boolean isPublished = false;
                     
                     reader.beginObject();
-                    while (reader.hasNext()) {
+                    while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) { // ?
                         String name = reader.nextName();
                         
                         try {
@@ -610,7 +619,8 @@ public class JSONConnector implements Connector {
                                 reader.skipValue();
                             }
                         } catch (IllegalArgumentException e) {
-                            e.printStackTrace();
+                            Log.e(Utils.TAG, "Result contained illegal value for entry \"" + name + "\".");
+                            reader.skipValue();
                             continue;
                         }
                         
@@ -693,6 +703,7 @@ public class JSONConnector implements Connector {
                 
                 reader.beginObject();
                 while (reader.hasNext()) {
+                    
                     try {
                         String name = reader.nextName();
                         
@@ -705,10 +716,12 @@ public class JSONConnector implements Connector {
                         } else {
                             reader.skipValue();
                         }
-                        
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
+                        reader.skipValue();
+                        continue;
                     }
+                    
                 }
                 reader.endObject();
                 
@@ -760,6 +773,7 @@ public class JSONConnector implements Connector {
                 
                 reader.beginObject();
                 while (reader.hasNext()) {
+                    
                     try {
                         String name = reader.nextName();
                         
@@ -778,6 +792,8 @@ public class JSONConnector implements Connector {
                         }
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
+                        reader.skipValue();
+                        continue;
                     }
                     
                 }
