@@ -20,6 +20,11 @@
         name="updates"
     >
     
+    <item>Version 1.08
+            \n * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
+            \n * Added preference to disable swipe and instead use buttons for browsing articles. Still a bit buggy.
+            </item>
+    
     <item>Version 1.07
             \n * Improved speed of calls to API and DB access
             \n * Allow receiving of gzip-compressed data
