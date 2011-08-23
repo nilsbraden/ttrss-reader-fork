@@ -129,7 +129,9 @@
     <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
     <string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>
     <string name="DisplayUseSwipeTitle">Use Swipe</string>
-    <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe for navigation.</string>
+    <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe for navigation. This overrides the \"Use Buttons-Option\".</string>
+    <string name="DisplayUseButtonsTitle">Use Buttons</string>
+    <string name="DisplayUseButtonsSummary">Use Buttons for navigation (reduces space on screen).</string>
     <string name="DisplayShowUnreadOnlyTitle">Only show unread</string>
     <string name="DisplayShowUnreadOnlySummary">Hide Feeds and Articles that have no unread items.</string>
     <string name="DisplayArticleLimitTitle">Store Articles limit</string>

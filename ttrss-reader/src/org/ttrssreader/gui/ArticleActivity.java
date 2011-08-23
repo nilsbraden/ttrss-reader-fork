@@ -50,10 +50,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ArticleActivity extends Activity implements IUpdateEndListener {
@@ -74,8 +77,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     
     private WebView webview;
     private TextView webviewSwipeText;
+    private LinearLayout buttonLayout;
+    private ImageButton nextButton;
+    private ImageButton prevButton;
     private GestureDetector mGestureDetector;
-    private boolean useSwipe;
     
     private String baseUrl = null;
     
@@ -100,15 +105,38 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         webview = (WebView) findViewById(R.id.webview);
         webview.getSettings().setJavaScriptEnabled(true);
         webview.getSettings().setBuiltInZoomControls(true);
-        
         webview.setWebViewClient(new ArticleWebViewClient(this));
-        mGestureDetector = new GestureDetector(onGestureListener);
-        webview.setOnKeyListener(keyListener);
         
-        webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
-        webviewSwipeText.setVisibility(TextView.INVISIBLE);
-        webviewSwipeText.setPadding(16, Controller.padding, 16, Controller.padding);
-        useSwipe = Controller.getInstance().useSwipe();
+        // First check for swipe-option, this overrides the buttons-option
+        if (Controller.getInstance().useSwipe()) {
+            
+            // Load Swipe-Text-Field
+            webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
+            webviewSwipeText.setVisibility(TextView.INVISIBLE);
+            webviewSwipeText.setPadding(16, Controller.padding, 16, Controller.padding);
+            
+            // Set Buttons invisible
+            buttonLayout = (LinearLayout) findViewById(R.id.buttonLayout);
+            buttonLayout.setVisibility(LinearLayout.INVISIBLE);
+            
+            // Detect gestures
+            mGestureDetector = new GestureDetector(onGestureListener);
+            webview.setOnKeyListener(keyListener);
+            
+        } else if (Controller.getInstance().useButtons()) {
+            
+            buttonLayout = (LinearLayout) findViewById(R.id.buttonLayout);
+            buttonLayout.bringToFront();
+            
+            nextButton = (ImageButton) findViewById(R.id.nextButton);
+            nextButton.setOnClickListener(onButtonPressedListener);
+            nextButton.bringToFront();
+            
+            prevButton = (ImageButton) findViewById(R.id.prevButton);
+            prevButton.setOnClickListener(onButtonPressedListener);
+            prevButton.bringToFront();
+            
+        }
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -370,14 +398,20 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
-        super.dispatchTouchEvent(e);
-        return mGestureDetector.onTouchEvent(e);
+        boolean temp = super.dispatchTouchEvent(e);
+        
+        if (Controller.getInstance().useSwipe())
+            return mGestureDetector.onTouchEvent(e);
+        else
+            return temp;
     }
     
     private OnGestureListener onGestureListener = new OnGestureListener() {
         
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if (!Controller.getInstance().useSwipe())
+                return false;
             
             int SWIPE_BOTTOM = webview.getHeight() - Controller.swipeHeight;
             
@@ -385,9 +419,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             int dy = (int) (e2.getY() - e1.getY());
             
             // don't accept the fling if it's too short as it may conflict with a button push
-            boolean isSwype = false;
+            boolean isSwipe = false;
             if (Math.abs(dx) > Controller.swipeWidth && Math.abs(velocityX) > Math.abs(velocityY)) {
-                isSwype = true;
+                isSwipe = true;
             }
             
             if (Math.abs(dy) > (int) (Controller.absHeight * 0.2)) {
@@ -396,18 +430,15 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                 
             } else if (e1.getY() < SWIPE_BOTTOM || e2.getY() < SWIPE_BOTTOM) {
                 
-                if (isSwype) {
+                if (isSwipe) {
                     // Display text for swipe-area
                     webviewSwipeText.setVisibility(TextView.VISIBLE);
                     new Handler().postDelayed(timerTask, 1000);
                 }
                 return false;
-                
-            } else if (!useSwipe) {
-                return false;
             }
             
-            if (isSwype) {
+            if (isSwipe) {
                 if (velocityX > 0) {
                     openNextArticle(-1);
                 } else {
@@ -432,6 +463,16 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         // @formatter:on
     };
     
+    private OnClickListener onButtonPressedListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.equals(nextButton))
+                openNextArticle(-1);
+            else if (v.equals(prevButton))
+                openNextArticle(1);
+        }
+    };
+    
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
@@ -454,7 +495,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     }
     
     private OnKeyListener keyListener = new OnKeyListener() {
-        
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
             if (Controller.getInstance().useVolumeKeys()) {
@@ -538,11 +578,12 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         }
         return html;
     }
-
+    
     @Override
     public void onUpdateEnd() {
         // Not necessary here
     }
+    
     @Override
     public void onUpdateProgress() {
         // Not necessary here
