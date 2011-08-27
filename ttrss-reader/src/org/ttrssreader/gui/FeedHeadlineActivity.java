@@ -52,7 +52,7 @@ import android.widget.TextView;
 public class FeedHeadlineActivity extends MenuActivity {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
-    public static final String FEED_ID = "FEED_ID";
+    public static final String FEED_ID = "ARTICLE_FEED_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
     public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
     public static final String FEED_INDEX = "INDEX";
@@ -60,6 +60,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     public boolean flingDetected = false;
     
+    // Extras
     private int categoryId = -1000;
     private int feedId = -1000;
     private String feedTitle = null;
@@ -206,9 +207,10 @@ public class FeedHeadlineActivity extends MenuActivity {
         if (!flingDetected) {
             Intent i = new Intent(this, ArticleActivity.class);
             i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(position));
-            i.putExtra(ArticleActivity.FEED_ID, feedId);
+            i.putExtra(ArticleActivity.ARTICLE_FEED_ID, feedId);
             i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
             i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+            i.putExtra(ArticleActivity.ARTICLE_LAST_MOVE, ArticleActivity.ARTICLE_LAST_MOVE_DEFAULT);
             
             startActivity(i);
         }

@@ -241,8 +241,8 @@ public class CategoryActivity extends MenuActivity {
         } else {
             // Categories
             i = new Intent(this, FeedActivity.class);
-            i.putExtra(FeedActivity.CATEGORY_ID, categoryId);
-            i.putExtra(FeedActivity.CATEGORY_TITLE, adapter.getTitle(position));
+            i.putExtra(FeedActivity.FEED_CAT_ID, categoryId);
+            i.putExtra(FeedActivity.FEED_CAT_TITLE, adapter.getTitle(position));
         }
         startActivity(i);
     }

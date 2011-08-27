@@ -37,9 +37,10 @@ import android.widget.TextView;
 
 public class FeedActivity extends MenuActivity {
     
-    public static final String CATEGORY_ID = "CATEGORY_ID";
-    public static final String CATEGORY_TITLE = "CATEGORY_TITLE";
-    
+    public static final String FEED_CAT_ID = "FEED_CAT_ID";
+    public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
+
+    // Extras
     private int categoryId;
     private String categoryTitle;
     
@@ -57,11 +58,11 @@ public class FeedActivity extends MenuActivity {
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            categoryId = extras.getInt(CATEGORY_ID);
-            categoryTitle = extras.getString(CATEGORY_TITLE);
+            categoryId = extras.getInt(FEED_CAT_ID);
+            categoryTitle = extras.getString(FEED_CAT_TITLE);
         } else if (instance != null) {
-            categoryId = instance.getInt(CATEGORY_ID);
-            categoryTitle = instance.getString(CATEGORY_TITLE);
+            categoryId = instance.getInt(FEED_CAT_ID);
+            categoryTitle = instance.getString(FEED_CAT_TITLE);
         } else {
             categoryId = -1;
             categoryTitle = null;
@@ -106,8 +107,8 @@ public class FeedActivity extends MenuActivity {
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(CATEGORY_ID, categoryId);
-        outState.putString(CATEGORY_TITLE, categoryTitle);
+        outState.putInt(FEED_CAT_ID, categoryId);
+        outState.putString(FEED_CAT_TITLE, categoryTitle);
         super.onSaveInstanceState(outState);
     }
     
