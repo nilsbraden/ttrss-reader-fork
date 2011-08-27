@@ -62,18 +62,22 @@ import android.widget.TextView;
 public class ArticleActivity extends Activity implements IUpdateEndListener {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
-    public static final String FEED_ID = "FEED_ID";
+    public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
+    public static final String ARTICLE_LAST_MOVE = "ARTICLE_LAST_MOVE";
+    public static final int ARTICLE_LAST_MOVE_DEFAULT = 0;
     
+    // Extras
     private int articleId = -1;
     private int feedId = -1;
+    private int categoryId = -1000;
+    private boolean selectArticlesForCategory = false;
+    private int lastMove = 0;
     
     private ArticleHeaderView headerContainer;
     
     private Article article = null;
     private String content;
     private boolean linkAutoOpened;
-    private int categoryId = -1000;
-    private boolean selectArticlesForCategory = false;
     
     private WebView webview;
     private TextView webviewSwipeText;
@@ -141,19 +145,22 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             articleId = extras.getInt(ARTICLE_ID);
-            feedId = extras.getInt(FEED_ID);
+            feedId = extras.getInt(ARTICLE_FEED_ID);
             categoryId = extras.getInt(FeedHeadlineActivity.FEED_CAT_ID);
             selectArticlesForCategory = extras.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
+            lastMove = extras.getInt(ARTICLE_LAST_MOVE);
         } else if (instance != null) {
             articleId = instance.getInt(ARTICLE_ID);
-            feedId = instance.getInt(FEED_ID);
+            feedId = instance.getInt(ARTICLE_FEED_ID);
             categoryId = instance.getInt(FeedHeadlineActivity.FEED_CAT_ID);
             selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
+            lastMove = instance.getInt(ARTICLE_LAST_MOVE);
         }
         
         Controller.getInstance().lastOpenedFeed = feedId;
         Controller.getInstance().lastOpenedArticle = articleId;
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
+        doVibrate(0);
     }
     
     @Override
@@ -199,9 +206,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(ARTICLE_ID, articleId);
-        outState.putInt(FEED_ID, feedId);
+        outState.putInt(ARTICLE_FEED_ID, feedId);
         outState.putInt(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         outState.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        outState.putInt(ARTICLE_LAST_MOVE, lastMove);
     }
     
     private void doRefresh() {
@@ -370,30 +378,52 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     }
     
     private void openNextArticle(int direction) {
+        int newIndex = getCurrentIndex() + direction;
         
+        // Check: No more articles in this direction?
+        if (doVibrate(newIndex))
+            return;
+        
+        Intent i = new Intent(this, ArticleActivity.class);
+        i.putExtra(ARTICLE_ID, parentAdapter.getId(newIndex));
+        i.putExtra(ARTICLE_FEED_ID, feedId);
+        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        i.putExtra(ARTICLE_LAST_MOVE, direction); // Store direction so next article can evaluate if we are running into
+                                                  // a "wall"
+        
+        startActivityForResult(i, 0);
+        finish();
+    }
+    
+    private int getCurrentIndex() {
         int currentIndex = -2; // -2 so index is still -1 if direction is +1, avoids moving when no move possible
         int tempIndex = parentAdapter.getIds().indexOf(articleId);
         if (tempIndex >= 0)
             currentIndex = tempIndex;
+        return currentIndex;
+    }
+    
+    private boolean doVibrate(int newIndex) {
+        int tempIndex = 0;
         
-        int index = currentIndex + direction;
-        
-        // No more articles in this direction
-        if (index < 0 || index >= parentAdapter.getCount()) {
-            Log.d(Utils.TAG, String.format("No more articles in this direction. (Index: %s, ID: %s)", index, articleId));
-            if (Controller.getInstance().vibrateOnLastArticle())
-                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
-            return;
+        if (newIndex == 0) {
+            if (lastMove != 0) {
+                tempIndex = getCurrentIndex() + lastMove;
+            }
+        } else {
+            tempIndex = newIndex;
         }
         
-        Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ARTICLE_ID, parentAdapter.getId(index));
-        i.putExtra(FEED_ID, feedId);
-        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        if (tempIndex < 0 || tempIndex >= parentAdapter.getCount()) {
+            // Log.d(Utils.TAG, String.format("Move requested, no more articles in this direction. (Index: %s, ID: %s)",
+            // tempIndex, articleId));
+            if (Controller.getInstance().vibrateOnLastArticle())
+                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            return true;
+        }
         
-        startActivityForResult(i, 0);
-        finish();
+        return false;
     }
     
     @Override

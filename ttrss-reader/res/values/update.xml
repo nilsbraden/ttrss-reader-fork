@@ -20,6 +20,10 @@
         name="updates"
     >
     
+    <item>Version 1.09
+            \n * Vibrate when last article is reached, not only when trying to move further but the moment you reach it.
+            </item>
+    
     <item>Version 1.08
             \n * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
             \n * Added preference to disable swipe and instead use buttons for browsing articles. Still a bit buggy.
