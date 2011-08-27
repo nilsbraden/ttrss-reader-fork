@@ -3,6 +3,7 @@
 = Changes =
 == Version 1.09 ==
   * Vibrate when last article is reached, not only when trying to move further but the moment you reach it.
+  * Changed buttons and layout for article-browsing
   
 == Version 1.08 ==
   * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
