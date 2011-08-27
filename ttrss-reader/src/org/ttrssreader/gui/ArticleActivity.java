@@ -55,7 +55,7 @@ import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -82,8 +82,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     private WebView webview;
     private TextView webviewSwipeText;
     private LinearLayout buttonLayout;
-    private ImageButton nextButton;
-    private ImageButton prevButton;
+    private Button nextButton;
+    private Button prevButton;
     private GestureDetector mGestureDetector;
     
     private String baseUrl = null;
@@ -111,6 +111,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         webview.getSettings().setBuiltInZoomControls(true);
         webview.setWebViewClient(new ArticleWebViewClient(this));
         
+        // TODO: Use this to reposition the zoom-buttons?
+        // final View zoom = webview.getZoomControls();
+        // zoom.setLayoutParams(params)
+        
         // First check for swipe-option, this overrides the buttons-option
         if (Controller.getInstance().useSwipe()) {
             
@@ -122,6 +126,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             // Set Buttons invisible
             buttonLayout = (LinearLayout) findViewById(R.id.buttonLayout);
             buttonLayout.setVisibility(LinearLayout.INVISIBLE);
+            buttonLayout.setEnabled(false);
             
             // Detect gestures
             mGestureDetector = new GestureDetector(onGestureListener);
@@ -129,16 +134,23 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             
         } else if (Controller.getInstance().useButtons()) {
             
+            // Load Swipe-Text-Field and disable it
+            webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
+            webviewSwipeText.setEnabled(false);
+            
             buttonLayout = (LinearLayout) findViewById(R.id.buttonLayout);
             buttonLayout.bringToFront();
             
-            nextButton = (ImageButton) findViewById(R.id.nextButton);
+            nextButton = (Button) findViewById(R.id.nextButton);
             nextButton.setOnClickListener(onButtonPressedListener);
             nextButton.bringToFront();
             
-            prevButton = (ImageButton) findViewById(R.id.prevButton);
+            prevButton = (Button) findViewById(R.id.prevButton);
             prevButton.setOnClickListener(onButtonPressedListener);
             prevButton.bringToFront();
+            
+            // Disable webview zoom-controls
+            webview.getSettings().setBuiltInZoomControls(false);
             
         }
         

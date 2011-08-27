@@ -146,23 +146,21 @@
                 android:background="@android:drawable/bottom_bar"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
-                android:padding="8dip"
                 android:layout_alignBottom="@id/webview" >
-                <ImageButton
+                <Button
                     android:id="@+id/nextButton"
-                    android:background="@drawable/arrow_up_float"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:padding="8dip"
-                    android:layout_weight="1.0" />
-                
-                <ImageButton
+                    android:padding="4dip"
+                    android:layout_weight="1.0"
+                    android:text="Up" />
+                <Button
                     android:id="@+id/prevButton"
-                    android:background="@drawable/arrow_down_float"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:padding="8dip" 
-                    android:layout_weight="1.0" />
+                    android:padding="4dip"
+                    android:layout_weight="1.0"
+                    android:text="Down" />
             </LinearLayout>
                 
             <TextView

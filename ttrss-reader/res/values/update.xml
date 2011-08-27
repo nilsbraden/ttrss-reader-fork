@@ -21,7 +21,8 @@
     >
     
     <item>Version 1.09
-            \n * Vibrate when last article is reached, not only when trying to move further but the moment you reach it.
+            \n * Vibrate when last article is reached, not only when trying to move further but the moment you reach it
+            \n * Changed buttons and layout for article-browsing
             </item>
     
     <item>Version 1.08
