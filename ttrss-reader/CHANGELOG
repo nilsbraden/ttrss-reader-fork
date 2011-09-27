@@ -7,7 +7,8 @@
   * Added left-hand-mode for landscape display
   * Fixed Issue #75: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=75 Own keystore doesn't work any more])
   * Fixed Bug which prevented articles which had been marked while beeing offline to be synchronized with the server later
-  * 
+  * Removed ArticleCache. Same thing happens automatically when CategoryView is opened.
+  * Fixed ImageCache for unreliable connections
   
 == Version 1.08 ==
   * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)

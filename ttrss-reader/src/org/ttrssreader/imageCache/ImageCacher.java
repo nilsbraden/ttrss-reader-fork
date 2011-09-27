@@ -121,7 +121,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             imageCache.fillMemoryCacheFromDisk();
             downloadImages();
-            DBHelper.getInstance().updateAllArticlesCachedImages(true);
+//            DBHelper.getInstance().updateAllArticlesCachedImages(true); // TODO!
             purgeCache();
             
             Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
@@ -160,13 +160,13 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 // Get images included in HTML
                 Set<String> set = new HashSet<String>();
                 
-                for (String url : findAllImageUrls(c.getString(0))) {
+                for (String url : findAllImageUrls(c.getString(1))) {
                     if (!imageCache.containsKey(url))
                         set.add(url);
                 }
                 
                 // Get images from attachments separately
-                for (String url : c.getString(1).split(";")) {
+                for (String url : c.getString(2).split(";")) {
                     for (String ext : Utils.IMAGE_EXTENSIONS) {
                         if (url.toLowerCase().contains("." + ext) && !imageCache.containsKey(url)) {
                             set.add(url);
@@ -175,7 +175,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     }
                 }
                 
-                assignTask(tasks, StringSupport.setToArray(set));
+                assignTask(tasks, c.getInt(0), StringSupport.setToArray(set));
                 
                 if (downloaded > cacheSizeMax) {
                     Log.w(Utils.TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
@@ -235,18 +235,31 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         Log.i(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
     }
     
-    private void retrieveResult(DownloadImageTask t) {
+    /**
+     * Returns true if all downloads for this Task have been successful.
+     * 
+     * @param t
+     * @return
+     */
+    private boolean retrieveResult(DownloadImageTask t) {
+        boolean ret = false;
+        
         if (t != null && t.getStatus().equals(AsyncTask.Status.FINISHED)) {
             try {
                 downloaded += t.get();
-                t = null; // check if tasks[i] is null too, should be though.
+                if (t.allOK)
+                    ret = true;
+                
+                t = null; // Make sure tasks[i] is null
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        
+        return ret;
     }
     
-    private void assignTask(DownloadImageTask[] tasks, String... urls) {
+    private void assignTask(DownloadImageTask[] tasks, int articleId, String... urls) {
         if (urls.length == 0)
             return;
         
@@ -261,10 +274,11 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 DownloadImageTask t = tasks[i];
                 
                 // Retrieve result (downloaded size) and reset task
-                retrieveResult(t);
+                if (retrieveResult(t))
+                    DBHelper.getInstance().updateArticleCachedImages(articleId, true);
                 
                 // Assign new task if possible
-                if (t == null || t.getStatus().equals(AsyncTask.Status.FINISHED)) {
+                if (t == null) {
                     t = new DownloadImageTask(imageCache, maxFileSize);
                     t.execute(urls);
                     tasks[i] = t;

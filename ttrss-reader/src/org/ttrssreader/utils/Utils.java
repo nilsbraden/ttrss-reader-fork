@@ -225,15 +225,15 @@ public class Utils {
     public static long downloadToFile(String downloadUrl, File file, long maxSize) {
         FileOutputStream fos = null;
         int byteWritten = 0;
+        
         try {
-            if (file.exists()) {
+            if (file.exists())
                 file.delete();
-            }
             
             URL url = new URL(downloadUrl);
             URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(1000);
-            connection.setReadTimeout(1000);
+//            connection.setConnectTimeout(1000);
+//            connection.setReadTimeout(1000);
             
             long length = Long.parseLong(connection.getHeaderField("Content-Length"));
             if (length > maxSize) {
@@ -247,7 +247,7 @@ public class Utils {
             fos = new FileOutputStream(file);
             InputStream is = connection.getInputStream();
             
-            int size = 1024 * 1024;
+            int size = 1024 * 8;
             byte[] buf = new byte[size];
             int byteRead;
             
@@ -264,6 +264,7 @@ public class Utils {
                 }
             }
         } catch (Exception e) {
+            byteWritten = 0;
         } finally {
             if (fos != null) {
                 try {
