@@ -73,6 +73,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean showVirtual = null;
     private Boolean useSwipe = null;
     private Boolean useButtons = null;
+    private Boolean leftHanded = null;
     private Boolean onlyUnread = null;
     private Integer articleLimit = null;
     private Boolean displayArticleHeader = null;
@@ -259,7 +260,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public String getKeystorePassword() {
-        // Initialized inside initializeController();
+        if (keystorePassword == null)
+            keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
         return keystorePassword;
     }
     
@@ -355,6 +357,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setUseButtons(boolean useButtons) {
         put(Constants.USE_BUTTONS, useButtons);
         this.useButtons = useButtons;
+    }
+    
+    public boolean leftHanded() {
+        if (leftHanded == null)
+            leftHanded = prefs.getBoolean(Constants.LEFT_HANDED, Constants.LEFT_HANDED_DEFAULT);
+        return leftHanded;
+    }
+    
+    public void setLeftHanded(boolean leftHanded) {
+        put(Constants.LEFT_HANDED, leftHanded);
+        this.leftHanded = leftHanded;
     }
     
     public boolean onlyUnread() {

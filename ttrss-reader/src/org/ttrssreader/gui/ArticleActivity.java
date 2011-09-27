@@ -222,7 +222,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     
                     // Initialize mainContainer with buttons or swype-view
                     mainContainer.populate(Controller.getInstance().useSwipe(), Controller.getInstance().useButtons(),
-                            false);
+                            Controller.getInstance().leftHanded());
                     
                     // Inject the specific code for attachments, <img> for images, http-link for Videos
                     content = injectAttachments(getApplicationContext(), article.content, article.attachments);
