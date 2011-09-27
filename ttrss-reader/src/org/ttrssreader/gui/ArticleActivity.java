@@ -405,8 +405,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         }
         
         if (tempIndex < 0 || tempIndex >= parentAdapter.getCount()) {
-            // Log.d(Utils.TAG, String.format("Move requested, no more articles in this direction. (Index: %s, ID: %s)",
-            // tempIndex, articleId));
             if (Controller.getInstance().vibrateOnLastArticle())
                 ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return true;
@@ -641,7 +639,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         for (String url : ImageCacher.findAllImageUrls(html)) {
             String localUrl = ImageCacher.getCachedImageUrl(url);
             if (localUrl != null) {
-                Log.d(Utils.TAG, "Replacing image: " + localUrl);
                 html = html.replace(url, localUrl);
             }
         }

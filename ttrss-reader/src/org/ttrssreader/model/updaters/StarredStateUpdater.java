@@ -18,8 +18,6 @@ package org.ttrssreader.model.updaters;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.utils.Utils;
-import android.util.Log;
 
 public class StarredStateUpdater implements IUpdatable {
     
@@ -36,8 +34,6 @@ public class StarredStateUpdater implements IUpdatable {
     
     @Override
     public void update(Updater parent) {
-        Log.i(Utils.TAG, "Updating Article-Starred-Status...");
-        
         if (articleState >= 0) {
             article.isStarred = articleState > 0 ? true : false;
             

@@ -56,7 +56,7 @@ public class HttpClientFactory {
             socketFactory = newSslSocketFactory(keystorePassword);
             if (socketFactory == null) {
                 socketFactory = SSLSocketFactory.getSocketFactory();
-                Log.w(Utils.TAG, "HttpClientFactory() - custom key store could not be opened, using default settings");
+                Log.w(Utils.TAG, "Custom key store could not be read, using default settings.");
             }
             
         } else if (trustAllSslCerts) {

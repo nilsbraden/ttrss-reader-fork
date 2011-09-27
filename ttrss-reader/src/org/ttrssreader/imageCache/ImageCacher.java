@@ -73,7 +73,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         while (true) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (!Utils.checkConnected(cm)) {
-                Log.w(Utils.TAG, "No connectivity, aborting...");
+                Log.e(Utils.TAG, "Error: No connectivity, aborting...");
                 break;
             }
             
@@ -121,7 +121,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             imageCache.fillMemoryCacheFromDisk();
             downloadImages();
-//            DBHelper.getInstance().updateAllArticlesCachedImages(true); // TODO!
             purgeCache();
             
             Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,

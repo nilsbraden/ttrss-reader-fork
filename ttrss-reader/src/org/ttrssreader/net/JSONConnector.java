@@ -454,9 +454,11 @@ public class JSONConnector implements Connector {
                 }
             }
             
-            // Login didnt succeed
-            hasLastError = true;
-            lastError = NOT_LOGGED_IN_MESSAGE;
+            if (!hasLastError) {
+                // Login didnt succeed, write message
+                hasLastError = true;
+                lastError = NOT_LOGGED_IN_MESSAGE;
+            }
             return false;
         }
     }
@@ -582,7 +584,8 @@ public class JSONConnector implements Connector {
             db.beginTransaction();
             try {
                 
-                // People are complaining about not all articles beeing marked the right way, so just overwrite all unread
+                // People are complaining about not all articles beeing marked the right way, so just overwrite all
+                // unread
                 // states and fetch new articles...
                 // Moved this inside the transaction to make sure this only happens if the transaction is successful
                 DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
@@ -633,7 +636,7 @@ public class JSONConnector implements Connector {
                                 reader.skipValue();
                             }
                         } catch (IllegalArgumentException e) {
-                            Log.e(Utils.TAG, "Result contained illegal value for entry \"" + name + "\".");
+                            Log.w(Utils.TAG, "Result contained illegal value for entry \"" + name + "\".");
                             reader.skipValue();
                             continue;
                         }

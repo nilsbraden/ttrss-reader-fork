@@ -35,7 +35,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -311,7 +310,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         // No more feeds in this direction
         if (index < 0 || index >= parentAdapter.getCount()) {
-            Log.d(Utils.TAG, String.format("No more feeds in this direction. (Index: %s, ID: %s)", index, feedId));
             if (Controller.getInstance().vibrateOnLastArticle())
                 ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;

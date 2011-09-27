@@ -204,7 +204,6 @@ public class Utils {
                     break;
                 }
             }
-            Log.d(Utils.TAG, "Synchronized: Waited for " + wait + "ms for connection to become available...");
         }
         
         return info.isConnected();
@@ -232,12 +231,10 @@ public class Utils {
             
             URL url = new URL(downloadUrl);
             URLConnection connection = url.openConnection();
-//            connection.setConnectTimeout(1000);
-//            connection.setReadTimeout(1000);
             
             long length = Long.parseLong(connection.getHeaderField("Content-Length"));
             if (length > maxSize) {
-                Log.w(Utils.TAG, String.format(
+                Log.i(Utils.TAG, String.format(
                         "Not starting download of %s, the size (%s MB) exceeds the maximum filesize of %s MB.",
                         downloadUrl, length / 1048576, maxSize / 1048576));
                 return 0;
@@ -256,7 +253,7 @@ public class Utils {
                 byteWritten += byteRead;
                 
                 if (byteWritten > maxSize) {
-                    Log.d(Utils.TAG, String.format(
+                    Log.w(Utils.TAG, String.format(
                             "Download interrupted, the size of %s bytes exceeds maximum filesize.", byteWritten));
                     file.delete();
                     byteWritten = 0;

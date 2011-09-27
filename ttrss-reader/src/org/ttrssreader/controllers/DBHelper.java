@@ -143,7 +143,7 @@ public class DBHelper {
                     c.getInt(0);
                 
             } catch (Exception e) {
-                Log.d(Utils.TAG, "Database was corrupted, creating a new one...");
+                Log.w(Utils.TAG, "Database was corrupted, creating a new one...");
                 
                 closeDB();
                 backupAndRemoveDB();
@@ -157,7 +157,7 @@ public class DBHelper {
             
             // Do VACUUM if necessary and hasn't been done yet
             if (Controller.getInstance().isVacuumDBScheduled() && !vacuumDone) {
-                Log.d(Utils.TAG, "Doing VACUUM, this can take a while...");
+                Log.i(Utils.TAG, "Doing VACUUM, this can take a while...");
                 
                 // Reset scheduling-data
                 Controller.getInstance().setVacuumDBScheduled(false);
@@ -235,7 +235,7 @@ public class DBHelper {
             closeDB();
         }
         
-        Log.i(Utils.TAG, "Deleting Database as requested by preferences.");
+        Log.w(Utils.TAG, "Deleting Database as requested by preferences.");
         File f = context.getDatabasePath(DATABASE_NAME);
         if (f.exists())
             return f.delete();
@@ -266,7 +266,7 @@ public class DBHelper {
             initialized = db.isOpen();
             return initialized;
         } else {
-            Log.w(Utils.TAG, "Controller not initialized, trying to do that now...");
+            Log.i(Utils.TAG, "Controller not initialized, trying to do that now...");
             initialized = initializeDBHelper();
             return initialized;
         }
@@ -343,8 +343,8 @@ public class DBHelper {
             if (oldVersion < 40) {
                 String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isStarred INTEGER";
                 
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to 40.", oldVersion));
-                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 40.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -353,8 +353,8 @@ public class DBHelper {
             if (oldVersion < 42) {
                 String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isPublished INTEGER";
                 
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to 42.", oldVersion));
-                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 42.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -372,8 +372,8 @@ public class DBHelper {
                     + " PRIMARY KEY(id, type))";
                 // @formatter:on
                 
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to 45.", oldVersion));
-                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 45.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -392,9 +392,9 @@ public class DBHelper {
                     + " " + MARK_PUBLISH + " INTEGER)";
                 // @formatter:on
                 
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to 46.", oldVersion));
-                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
-                Log.w(Utils.TAG, String.format(" (Executing: %s", sql2));
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 46.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql2));
                 
                 db.execSQL(sql);
                 db.execSQL(sql2);
@@ -404,8 +404,8 @@ public class DBHelper {
             if (oldVersion < 47) {
                 String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN cachedImages INTEGER DEFAULT 0";
                 
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to 47.", oldVersion));
-                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 47.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -423,8 +423,8 @@ public class DBHelper {
                         + " PRIMARY KEY(id, type))";
                 // @formatter:on
                 
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to 48.", oldVersion));
-                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 48.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -438,15 +438,15 @@ public class DBHelper {
                         + " labelId INTEGER, PRIMARY KEY(articleId, labelId))";
                 // @formatter:on
                 
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to 49.", oldVersion));
-                Log.w(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 49.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
             }
             
             if (oldVersion < 50) {
-                Log.w(Utils.TAG, String.format("Upgrading database from %s to 50.", oldVersion));
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 50.", oldVersion));
                 ContentValues cv = new ContentValues();
                 cv.put("cachedImages", 0);
                 db.update(TABLE_ARTICLES, cv, "cachedImages IS null", null);
@@ -751,7 +751,6 @@ public class DBHelper {
         
         synchronized (TABLE_MARK) {
             for (Integer id : ids) {
-                Log.d(Utils.TAG, "markUnsynchronizedState(id:" + id + ", mark: " + mark + ", state: " + state + ")");
                 // First update, then insert. If row exists it gets updated and second call ignores it, else the second
                 // call inserts it.
                 db.execSQL(String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id));
@@ -903,9 +902,9 @@ public class DBHelper {
             long time = System.currentTimeMillis();
             db.execSQL("VACUUM");
             vacuumDone = true;
-            Log.d(Utils.TAG, "SQLite VACUUM took " + (System.currentTimeMillis() - time) + " ms.");
+            Log.i(Utils.TAG, "SQLite VACUUM took " + (System.currentTimeMillis() - time) + " ms.");
         } catch (SQLException e) {
-            Log.w(Utils.TAG, "SQLite VACUUM failed: " + e.getMessage() + " " + e.getCause());
+            Log.e(Utils.TAG, "SQLite VACUUM failed: " + e.getMessage() + " " + e.getCause());
         }
     }
     

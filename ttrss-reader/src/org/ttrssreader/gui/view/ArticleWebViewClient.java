@@ -50,7 +50,6 @@ public class ArticleWebViewClient extends WebViewClient {
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, final String url) {
         
-        Log.e(Utils.TAG, "Link clicked: " + url);
         context = view.getContext();
         
         boolean audioOrVideo = false;
@@ -76,7 +75,7 @@ public class ArticleWebViewClient extends WebViewClient {
                     
                     switch (item) {
                         case 0:
-                            Log.e(Utils.TAG, "Displaying file in mediaplayer: " + url);
+                            Log.i(Utils.TAG, "Displaying file in mediaplayer: " + url);
                             Intent i = new Intent(context, MediaPlayerActivity.class);
                             i.putExtra(MediaPlayerActivity.URL, url);
                             context.startActivity(i);
@@ -138,14 +137,14 @@ public class ArticleWebViewClient extends WebViewClient {
             if (urls.length < 1) {
                 
                 String msg = "No URL given, skipping download...";
-                Log.e(Utils.TAG, msg);
+                Log.w(Utils.TAG, msg);
                 Utils.showFinishedNotification(msg, 0, true, context);
                 return null;
                 
             } else if (!externalStorageState()) {
                 
                 String msg = "External Storage not available, skipping download...";
-                Log.e(Utils.TAG, msg);
+                Log.w(Utils.TAG, msg);
                 Utils.showFinishedNotification(msg, 0, true, context);
                 return null;
                 
@@ -202,12 +201,12 @@ public class ArticleWebViewClient extends WebViewClient {
                 int time = (int) (System.currentTimeMillis() - start) / 1000;
                 String path = folder + File.separator + name;
                 
-                Log.d(Utils.TAG, "Finished. Path: " + path + " Time: " + time + "s.");
+                Log.i(Utils.TAG, "Finished. Path: " + path + " Time: " + time + "s.");
                 Utils.showFinishedNotification(path, time, false, context);
                 
             } catch (IOException e) {
                 String msg = "Error while downloading: " + e;
-                Log.d(Utils.TAG, msg);
+                Log.e(Utils.TAG, msg);
                 Utils.showFinishedNotification(msg, 0, true, context);
             } finally {
                 // Remove "running"-notification

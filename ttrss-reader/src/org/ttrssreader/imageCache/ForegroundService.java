@@ -70,10 +70,10 @@ public class ForegroundService extends Service implements ICacheEndListener {
             method.invoke(this, mStartForegroundArgs);
         } catch (InvocationTargetException e) {
             // Should not happen.
-            Log.w(Utils.TAG, "Unable to invoke method", e);
+            Log.e(Utils.TAG, "Unable to invoke method", e);
         } catch (IllegalAccessException e) {
             // Should not happen.
-            Log.w(Utils.TAG, "Unable to invoke method", e);
+            Log.e(Utils.TAG, "Unable to invoke method", e);
         }
     }
     
@@ -108,10 +108,10 @@ public class ForegroundService extends Service implements ICacheEndListener {
                 mStopForeground.invoke(this, mStopForegroundArgs);
             } catch (InvocationTargetException e) {
                 // Should not happen.
-                Log.w(Utils.TAG, "Unable to invoke stopForeground", e);
+                Log.e(Utils.TAG, "Unable to invoke stopForeground", e);
             } catch (IllegalAccessException e) {
                 // Should not happen.
-                Log.w(Utils.TAG, "Unable to invoke stopForeground", e);
+                Log.e(Utils.TAG, "Unable to invoke stopForeground", e);
             }
             return;
         }

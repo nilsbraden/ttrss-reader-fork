@@ -16,12 +16,10 @@
 package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
-import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
@@ -47,7 +45,6 @@ public class MediaPlayerActivity extends Activity {
             url = "";
         }
         
-        Log.e(Utils.TAG, "Displaying video...");
         VideoView videoView = (VideoView) findViewById(R.id.MediaView);
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
