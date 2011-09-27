@@ -226,8 +226,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     // Inject the specific code for attachments, <img> for images, http-link for Videos
                     content = injectAttachments(getApplicationContext(), article.content, article.attachments);
                     
-                    if (article.cachedImages)
-                        content = injectCachedImages(content, articleId);
+                    // if (article.cachedImages)
+                    // Do this anyway, article.cachedImages can be true also if some images were fetched and others
+                    // produced errors
+                    content = injectCachedImages(content, articleId);
                     
                     // Load html from Controller and insert content
                     String text = Controller.htmlHeader.replace("MARKER", content);
@@ -509,7 +511,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     openNextArticle(-1);
                 else
                     openNextArticle(1);
-               
+                
                 return true;
             }
             return false;
