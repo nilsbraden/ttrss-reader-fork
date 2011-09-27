@@ -159,7 +159,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 // Get images included in HTML
                 Set<String> set = new HashSet<String>();
                 
-                for (String url : findAllImageUrls(c.getString(1))) {
+                for (String url : findAllImageUrls(c.getString(1), c.getInt(0))) {
                     if (!imageCache.containsKey(url))
                         set.add(url);
                 }
@@ -333,7 +333,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
      *            the html code which is to be searched
      * @return a set of URLs in their string representation
      */
-    public static Set<String> findAllImageUrls(String html) {
+    public static Set<String> findAllImageUrls(String html, int articleId) {
         Set<String> ret = new LinkedHashSet<String>();
         if (html == null || html.length() < 10)
             return ret;
@@ -350,9 +350,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             if (found && m.group(1).startsWith("http")) {
                 ret.add(m.group(1));
                 i += m.group(1).length();
-                Log.w(Utils.TAG, "URL found: " + m.group(1));
             } else if (found) {
-                Log.w(Utils.TAG, "Relative URL found: " + m.group(1) + " -> i=" + i);
                 i++;
                 continue;
             } else {
@@ -360,6 +358,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 continue;
             }
             
+            Log.i(Utils.TAG, ret.size() + " URLs found for Article-ID " + articleId);
         }
         return ret;
     }

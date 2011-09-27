@@ -227,7 +227,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     content = injectAttachments(getApplicationContext(), article.content, article.attachments);
                     
                     if (article.cachedImages)
-                        content = injectCachedImages(content);
+                        content = injectCachedImages(content, articleId);
                     
                     // Load html from Controller and insert content
                     String text = Controller.htmlHeader.replace("MARKER", content);
@@ -632,11 +632,11 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
      *            the original html
      * @return the altered html with the URLs replaced so they point on local files if available
      */
-    public static String injectCachedImages(String html) {
+    public static String injectCachedImages(String html, int articleId) {
         if (html == null || html.length() < 40)
             return html;
         
-        for (String url : ImageCacher.findAllImageUrls(html)) {
+        for (String url : ImageCacher.findAllImageUrls(html, articleId)) {
             String localUrl = ImageCacher.getCachedImageUrl(url);
             if (localUrl != null) {
                 html = html.replace(url, localUrl);
