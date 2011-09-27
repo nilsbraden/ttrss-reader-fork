@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import android.util.Log;
 import com.google.common.collect.MapMaker;
 
 /**
@@ -57,8 +56,6 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     protected String diskCacheDir;
     
     protected ConcurrentMap<KeyT, ValT> cache;
-    
-    private String name;
     
     /**
      * Creates a new cache instance.
@@ -168,7 +165,6 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
         ValT value = cache.get(key);
         if (value != null) {
             // memory hit
-            Log.d(name, "MEM cache hit for " + key.toString());
             return value;
         }
         
@@ -176,7 +172,6 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
         File file = getFileForKey(key);
         if (file.exists()) {
             // disk hit
-            Log.d(name, "DISK cache hit for " + key.toString());
             try {
                 value = readValueFromDisk(file);
             } catch (IOException e) {

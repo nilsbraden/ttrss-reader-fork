@@ -28,7 +28,6 @@ import org.ttrssreader.utils.Utils;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -144,10 +143,10 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
             case R.id.Menu_About:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
-//            // Removed. See res/menu/generic.xml for more information.
-//            case R.id.Category_Menu_ArticleCache:
-//                doCache(true);
-//                return true;
+                // // Removed. See res/menu/generic.xml for more information.
+                // case R.id.Category_Menu_ArticleCache:
+                // doCache(true);
+                // return true;
             case R.id.Category_Menu_ImageCache:
                 doCache(false);
                 return true;
@@ -157,7 +156,6 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     }
     
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(Utils.TAG, "onActivityResult. requestCode: " + requestCode + " resultCode: " + resultCode);
         if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
             refreshAndUpdate();
         } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {

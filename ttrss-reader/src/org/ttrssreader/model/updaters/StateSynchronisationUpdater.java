@@ -23,7 +23,7 @@ public class StateSynchronisationUpdater implements IUpdatable {
     
     @Override
     public void update(Updater parent) {
-        Log.i(Utils.TAG, "Went online, now synchronizing status of articles...");
+        Log.i(Utils.TAG, "Reader went online, now synchronizing status of articles...");
         Data.getInstance().synchronizeStatus();
     }
     

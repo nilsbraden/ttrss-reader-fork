@@ -62,7 +62,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
         }
         
         if (!isDiskCacheEnabled)
-            Log.w(Utils.TAG, "Failed creating disk cache directory " + diskCacheDir);
+            Log.e(Utils.TAG, "Failed creating disk cache directory " + diskCacheDir);
         
         return isDiskCacheEnabled;
     }
