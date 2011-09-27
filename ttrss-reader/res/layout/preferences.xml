@@ -159,6 +159,12 @@
                     android:dependency="DisplayUseSwipePreference" />
 
                 <CheckBoxPreference
+                    android:title="@string/DisplayLeftHandedTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/DisplayLeftHandedSummary"
+                    android:key="DisplayLeftHandedPreference" />
+
+                <CheckBoxPreference
                     android:title="@string/UsageVibrateOnLastArticleTitle"
                     android:defaultValue="true"
                     android:summary="@string/UsageVibrateOnLastArticleSummary"
