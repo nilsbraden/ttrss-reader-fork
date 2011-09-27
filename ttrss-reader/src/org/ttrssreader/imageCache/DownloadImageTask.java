@@ -36,10 +36,11 @@ public class DownloadImageTask extends AsyncTask<String, Void, Long> {
         for (String url : params) {
             
             long size = Utils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
-            if (size > 0) {
-                downloaded += size;
+            
+            if (size == -1) {
+                allOK = false; // Error
             } else {
-                allOK = false;
+                downloaded += size;
             }
             
         }

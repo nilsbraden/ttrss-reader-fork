@@ -126,7 +126,7 @@ public class Utils {
             return true;
         }
     }
-
+    
     /*
      * Checks the config for a user-defined server, returns true if a server has been defined
      */
@@ -232,12 +232,15 @@ public class Utils {
             URL url = new URL(downloadUrl);
             URLConnection connection = url.openConnection();
             
-            long length = Long.parseLong(connection.getHeaderField("Content-Length"));
-            if (length > maxSize) {
-                Log.i(Utils.TAG, String.format(
-                        "Not starting download of %s, the size (%s MB) exceeds the maximum filesize of %s MB.",
-                        downloadUrl, length / 1048576, maxSize / 1048576));
-                return 0;
+            // Check filesize if available from header
+            if (connection.getHeaderField("Content-Length") != null) {
+                long length = Long.parseLong(connection.getHeaderField("Content-Length"));
+                if (length > maxSize) {
+                    Log.i(Utils.TAG, String.format(
+                            "Not starting download of %s, the size (%s MB) exceeds the maximum filesize of %s MB.",
+                            downloadUrl, length / 1048576, maxSize / 1048576));
+                    return -1;
+                }
             }
             
             file.createNewFile();
@@ -256,12 +259,14 @@ public class Utils {
                     Log.w(Utils.TAG, String.format(
                             "Download interrupted, the size of %s bytes exceeds maximum filesize.", byteWritten));
                     file.delete();
-                    byteWritten = 0;
+                    byteWritten = 0; // Set to 0 so the article will not be scheduled for download again.
                     break;
                 }
             }
         } catch (Exception e) {
-            byteWritten = 0;
+            Log.i(Utils.TAG, "Download not finished properly. Exception:");
+            e.printStackTrace();
+            byteWritten = -1;
         } finally {
             if (fos != null) {
                 try {
