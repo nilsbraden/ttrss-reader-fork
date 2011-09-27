@@ -575,12 +575,18 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    private void parseArticle(JsonReader reader, int labelId) {
+    private void parseArticle(JsonReader reader, int labelId, int catId, boolean isCategory) {
         
         SQLiteDatabase db = DBHelper.getInstance().db;
         synchronized (DBHelper.TABLE_ARTICLES) {
             db.beginTransaction();
             try {
+                
+                // People are complaining about not all articles beeing marked the right way, so just overwrite all unread
+                // states and fetch new articles...
+                // Moved this inside the transaction to make sure this only happens if the transaction is successful
+                DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
+                
                 reader.beginArray();
                 while (reader.hasNext()) {
                     
@@ -849,17 +855,13 @@ public class JSONConnector implements Connector {
         if (id == Data.VCAT_PUB && isCategory)
             DBHelper.getInstance().purgePublishedArticles();
         
-        // People are complaining about not all articles beeing marked the right way, so just overwrite all unread
-        // states and fetch new articles...
-        DBHelper.getInstance().markFeedOnlyArticlesRead(id, isCategory);
-        
         JsonReader reader = null;
         try {
             reader = prepareReader(params);
             if (reader == null)
                 return;
             
-            parseArticle(reader, (!isCategory && id < -10 ? id : -1));
+            parseArticle(reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
             
         } catch (IOException e) {
             e.printStackTrace();
