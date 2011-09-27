@@ -23,6 +23,7 @@ public class DownloadImageTask extends AsyncTask<String, Void, Long> {
     
     private ImageCache imageCache;
     private long maxFileSize;
+    public boolean allOK = true;
     
     public DownloadImageTask(ImageCache cache, long maxFileSize) {
         this.imageCache = cache;
@@ -33,7 +34,14 @@ public class DownloadImageTask extends AsyncTask<String, Void, Long> {
     protected Long doInBackground(String... params) {
         long downloaded = 0;
         for (String url : params) {
-            downloaded += Utils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
+            
+            long size = Utils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
+            if (size > 0) {
+                downloaded += size;
+            } else {
+                allOK = false;
+            }
+            
         }
         return downloaded;
     }

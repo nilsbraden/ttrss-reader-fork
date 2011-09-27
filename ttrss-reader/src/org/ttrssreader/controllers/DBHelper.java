@@ -480,7 +480,7 @@ public class DBHelper {
         if (onlyUnreadImages)
             where += " AND isUnread>0";
         
-        return db.query(TABLE_ARTICLES, new String[] { "content", "attachments" }, where, null, null, null, null);
+        return db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" }, where, null, null, null, null);
     }
     
     // *******| INSERT |*******************************************************************
@@ -804,9 +804,20 @@ public class DBHelper {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
             
-            cv.put("cachedImages", true);
+            cv.put("cachedImages", isCachedImages);
             synchronized (TABLE_ARTICLES) {
                 db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
+            }
+        }
+    }
+    
+    public void updateArticleCachedImages(int id, boolean isCachedImages) {
+        if (isDBAvailable()) {
+            ContentValues cv = new ContentValues();
+            
+            cv.put("cachedImages", isCachedImages);
+            synchronized (TABLE_ARTICLES) {
+                db.update(TABLE_ARTICLES, cv, "cachedImages=0 && id=" + id, null); // Only apply if not yet applied and ID matches
             }
         }
     }

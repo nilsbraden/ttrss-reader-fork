@@ -144,9 +144,10 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
             case R.id.Menu_About:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
-            case R.id.Category_Menu_ArticleCache:
-                doCache(true);
-                return true;
+//            // Removed. See res/menu/generic.xml for more information.
+//            case R.id.Category_Menu_ArticleCache:
+//                doCache(true);
+//                return true;
             case R.id.Category_Menu_ImageCache:
                 doCache(false);
                 return true;

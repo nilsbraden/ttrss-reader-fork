@@ -42,10 +42,11 @@
         android:title="@string/Main.ImageCache"
         android:id="@+id/Category_Menu_ImageCache"
         android:icon="@android:drawable/ic_menu_save" />
-    <item
+    <!-- <item
         android:title="@string/Main.ArticleCache"
         android:id="@+id/Category_Menu_ArticleCache"
-        android:icon="@android:drawable/ic_menu_save" />
+        android:icon="@android:drawable/ic_menu_save" /> -->
+        <!-- Removed since this is done in the background automatically when the CategoryView is started... -->
     <item
         android:title="@string/Main.ShowPreferencesMenu"
         android:id="@+id/Menu_ShowPreferences"
