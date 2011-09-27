@@ -22,8 +22,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -43,12 +41,9 @@ public class ArticleView extends RelativeLayout {
     private LinearLayout buttonView;
     private TextView swipeView;
     
-    private Context context;
-    
     public ArticleView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.setBackgroundColor(Color.WHITE);
-        this.context = context;
     }
     
     private void initializeLayout() {
