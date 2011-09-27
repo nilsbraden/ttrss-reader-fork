@@ -406,6 +406,10 @@ public class JSONConnector implements Connector {
             return ret;
         } catch (IOException e) {
             e.printStackTrace();
+            if (!hasLastError) {
+                hasLastError = true;
+                lastError = "Error: " + e.getMessage();
+            }
         }
         
         if (hasLastError) {
@@ -444,6 +448,10 @@ public class JSONConnector implements Connector {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                if (!hasLastError) {
+                    hasLastError = true;
+                    lastError = "Error: " + e.getMessage();
+                }
             }
             
             // Login didnt succeed

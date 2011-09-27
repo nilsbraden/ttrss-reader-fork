@@ -107,9 +107,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public static String htmlHeader = "";
     public static int absHeight = -1;
     public static int absWidth = -1;
-    public static int swipeHeight = -1;
+    public static int swipeAreaHeight = -1;
     public static int swipeWidth = -1;
+    public static int swipeAreaWidth = -1;
+    public static int swipeHeight = -1;
     public static int padding = -1;
+    public static boolean landscape = false;
     
     // Singleton
     private Controller() {
@@ -166,14 +169,29 @@ public class Controller implements OnSharedPreferenceChangeListener {
         getImageCache(context);
     }
     
-    public static void initializeArticleViewStuff(Display display, DisplayMetrics metrics) {
-        if (absHeight <= 0) {
-            display.getMetrics(metrics);
-            absHeight = metrics.heightPixels;
-            absWidth = metrics.widthPixels;
-            swipeHeight = (int) (absHeight * 0.25); // 25% height
-            swipeWidth = (int) (absWidth * 0.5); // 50% width
-            padding = (int) ((swipeHeight / 2) - (16 * metrics.density));
+    public static void refreshDisplayMetrics(Display display) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        
+        absHeight = metrics.heightPixels;
+        absWidth = metrics.widthPixels;
+        
+        // Portrait-Mode
+        swipeAreaHeight = (int) (absHeight * 0.25); // 25% of absolute height
+        swipeWidth = (int) (absWidth * 0.5); // 50% of absolute width
+        
+        // Landscape-Mode
+        swipeAreaWidth = (int) (absWidth * 0.20); // 20% of absolute width
+        swipeHeight = (int) (absHeight * 0.5); // 50% of absolute height
+        
+        // Is this fine for orientation-recognition? display.getOrientation() is deprecated and
+        // display.getRotation() doesn't give information about which layout is used.
+        if (absWidth > absHeight) {
+            landscape = true;
+            padding = (int) ((swipeAreaWidth / 2) - (16 * metrics.density)); // TODO: Why 16???
+        } else {
+            landscape = false;
+            padding = (int) ((swipeAreaHeight / 2) - (16 * metrics.density)); // TODO: Why 16???
         }
     }
     

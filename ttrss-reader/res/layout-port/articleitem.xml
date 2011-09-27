@@ -147,7 +147,7 @@
                     android:layout_height="fill_parent" />
                 
                 <TextView
-                    android:id="@+id/swypeView"
+                    android:id="@+id/swipeView"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@id/webView"

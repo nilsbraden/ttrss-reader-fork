@@ -25,6 +25,7 @@ import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.view.ArticleHeaderView;
 import org.ttrssreader.gui.view.ArticleView;
+import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.imageCache.ImageCacher;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
@@ -42,7 +43,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -82,7 +82,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     private boolean linkAutoOpened;
     
     private WebView webView;
-    private TextView swypeView;
+    private TextView swipeView;
     private Button buttonNext;
     private Button buttonPrev;
     private GestureDetector mGestureDetector;
@@ -97,7 +97,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         Controller.getInstance().checkAndInitializeController(this);
-        Controller.initializeArticleViewStuff(getWindowManager().getDefaultDisplay(), new DisplayMetrics());
+        Controller.refreshDisplayMetrics(getWindowManager().getDefaultDisplay());
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
@@ -111,7 +111,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         webView = (WebView) findViewById(R.id.webView);
         buttonPrev = (Button) findViewById(R.id.buttonPrev);
         buttonNext = (Button) findViewById(R.id.buttonNext);
-        swypeView = (TextView) findViewById(R.id.swypeView);
+        swipeView = (TextView) findViewById(R.id.swipeView);
         
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setBuiltInZoomControls(true);
@@ -220,9 +220,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                         headerContainer.setVisibility(View.GONE);
                     }
                     
-                    // Initialize mainContainer with buttons or swype-view
-                    mainContainer.populate(Controller.getInstance().useSwipe(), Controller.getInstance().useButtons(),
-                            Controller.getInstance().leftHanded());
+                    // Initialize mainContainer with buttons or swipe-view
+                    mainContainer.populate();
                     
                     // Inject the specific code for attachments, <img> for images, http-link for Videos
                     content = injectAttachments(getApplicationContext(), article.content, article.attachments);
@@ -433,47 +432,96 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             if (!Controller.getInstance().useSwipe())
                 return false;
             
-            // TODO: Für Landscape_mode um 90° drehen!
-            int SWIPE_BOTTOM = webView.getHeight() - Controller.swipeHeight;
+            float movement = 0;
+            boolean isSwipe = false;
             
             int dx = (int) (e2.getX() - e1.getX());
             int dy = (int) (e2.getY() - e1.getY());
             
-            // don't accept the fling if it's too short as it may conflict with a button push
-            boolean isSwipe = false;
-            if (Math.abs(dx) > Controller.swipeWidth && Math.abs(velocityX) > Math.abs(velocityY)) {
-                isSwipe = true;
-            }
-            
-            if (Math.abs(dy) > (int) (Controller.absHeight * 0.2)) {
+            if (Controller.landscape) {
                 
-                return false; // Too much Y-Movement (20% of screen-height)
+                // LANDSCAPE
+                // Don't accept the fling if it's too short as it may conflict with a button push
+                if (Math.abs(dy) > Controller.swipeHeight && Math.abs(velocityY) > Math.abs(velocityX))
+                    isSwipe = true;
                 
-            } else if (e1.getY() < SWIPE_BOTTOM || e2.getY() < SWIPE_BOTTOM) {
-                
-                if (isSwipe) {
-                    // Display text for swipe-area
-                    swypeView.setVisibility(TextView.VISIBLE);
-                    new Handler().postDelayed(timerTask, 1000);
-                }
-                return false;
-            }
-            
-            if (isSwipe) {
-                if (velocityX > 0) {
-                    openNextArticle(-1);
+                if (Math.abs(dx) > (int) (Controller.absWidth * 0.30))
+                    return false; // Too much X-Movement (30% of screen-width)
+                    
+                // Check if Swipe-Motion is inside the Swipe-Area
+                if (Controller.getInstance().leftHanded()) {
+                    
+                    // Swipe-Area on LEFT side of the screen
+                    int swipeAreaPosition = Controller.swipeAreaWidth;
+                    if (e1.getX() > swipeAreaPosition || e2.getX() > swipeAreaPosition) {
+                        if (isSwipe) {
+                            // Display text for swipe-area
+                            swipeView.setVisibility(TextView.VISIBLE);
+                            new Handler().postDelayed(timerTask, 1000);
+                        }
+                        return false;
+                    }
+                    
                 } else {
-                    openNextArticle(1);
+                    
+                    // Swipe-Area on RIGHT side of the screen
+                    int swipeAreaPosition = webView.getWidth() - Controller.swipeAreaWidth;
+                    if (e1.getX() < swipeAreaPosition || e2.getX() < swipeAreaPosition) {
+                        if (isSwipe) {
+                            // Display text for swipe-area
+                            swipeView.setVisibility(TextView.VISIBLE);
+                            new Handler().postDelayed(timerTask, 1000);
+                        }
+                        return false;
+                    }
+                    
                 }
+                
+                if (isSwipe)
+                    movement = velocityY;
+                
+            } else {
+                
+                // PORTRAIT
+                int SWIPE_BOTTOM = webView.getHeight() - Controller.swipeAreaHeight;
+                
+                // Don't accept the fling if it's too short as it may conflict with a button push
+                if (Math.abs(dx) > Controller.swipeWidth && Math.abs(velocityX) > Math.abs(velocityY))
+                    isSwipe = true;
+                
+                if (Math.abs(dy) > (int) (Controller.absHeight * 0.2))
+                    return false; // Too much Y-Movement (20% of screen-height)
+                    
+                // Check if Swipe-Motion is inside the Swipe-Area
+                if (e1.getY() < SWIPE_BOTTOM || e2.getY() < SWIPE_BOTTOM) {
+                    if (isSwipe) {
+                        // Display text for swipe-area
+                        swipeView.setVisibility(TextView.VISIBLE);
+                        new Handler().postDelayed(timerTask, 1000);
+                    }
+                    return false;
+                }
+                
+                if (isSwipe)
+                    movement = velocityX;
+            }
+            
+            if (isSwipe && movement != 0) {
+                if (movement > 0)
+                    openNextArticle(-1);
+                else
+                    openNextArticle(1);
+               
                 return true;
             }
             return false;
+            
         }
         
         // @formatter:off
         private Runnable timerTask = new Runnable() {
             public void run() { // Need this to set the text invisible after some time
-                swypeView.setVisibility(TextView.INVISIBLE);
+                swipeView.setVisibility(TextView.INVISIBLE);
             }
         };
         @Override public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }

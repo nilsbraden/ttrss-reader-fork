@@ -2,8 +2,12 @@
 
 = Changes =
 == Version 1.09 ==
-  * Vibrate when last article is reached, not only when trying to move further but the moment you reach it.
+  * Vibrate when last article is reached, not only when trying to move further
   * Changed buttons and layout for article-browsing
+  * Added left-hand-mode for landscape display
+  * Fixed Issue #75: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=75 Own keystore doesn't work any more])
+  * Fixed Bug which prevented articles which had been marked while beeing offline to be synchronized with the server later
+  * 
   
 == Version 1.08 ==
   * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
@@ -96,7 +100,7 @@
 
 == Version 0.9.5 ==
   * Fixed error-message for API_DISABLED not beeing displayed
-  * Fixed swype-here-notification not beeing displayed
+  * Fixed swipe-here-notification not beeing displayed
   * Changed zoom-behaviour (default: Images are scaled, once zoomed: Images are displayed in right aspect-ratio)
   * Fixed broken next/previous article/feed jump when returning from article-view
   * Images are not fetched from online-sources anymore if browsing in Offline-mode
