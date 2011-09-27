@@ -98,7 +98,12 @@ public class ArticleWebViewClient extends WebViewClient {
             alert.show();
         } else {
             Uri uri = Uri.parse(url);
-            context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            
+            try {
+                context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         
         return true;
@@ -113,7 +118,7 @@ public class ArticleWebViewClient extends WebViewClient {
                 String.format("originalScale: %s, oldScale: %s, newScale: %s", originalScale, oldScale, newScale));
         if (originalScale == Float.MAX_VALUE) {
             originalScale = oldScale;
-            articleActivity.onZoomChanged(); //originalScale == newScale);
+            articleActivity.onZoomChanged(); // originalScale == newScale);
         }
         
     }
