@@ -817,7 +817,7 @@ public class DBHelper {
             
             cv.put("cachedImages", isCachedImages);
             synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "cachedImages=0 && id=" + id, null); // Only apply if not yet applied and ID matches
+                db.update(TABLE_ARTICLES, cv, "cachedImages=0 & id=" + id, null); // Only apply if not yet applied and ID matches
             }
         }
     }
