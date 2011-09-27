@@ -148,7 +148,7 @@
                     android:layout_height="fill_parent" />
                 
                 <org.ttrssreader.utils.RotatableTextView
-                    android:id="@+id/swypeView"
+                    android:id="@+id/swipeView"
                     android:layout_width="45dip"
                     android:layout_height="fill_parent"
                     android:layout_alignRight="@id/webView"

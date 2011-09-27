@@ -21,8 +21,10 @@ import org.ttrssreader.controllers.Controller;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -39,13 +41,8 @@ public class ArticleView extends RelativeLayout {
     private RelativeLayout centralView;
     private WebView webView;
     private LinearLayout buttonView;
-    private Button buttonPrev;
-    private Button buttonNext;
-    private TextView swypeView;
+    private TextView swipeView;
     
-    private boolean useSwype;
-    private boolean useButtons;
-    private boolean leftHanded;
     private Context context;
     
     public ArticleView(Context context, AttributeSet attrs) {
@@ -58,52 +55,85 @@ public class ArticleView extends RelativeLayout {
         centralView = (RelativeLayout) findViewById(R.id.centralView);
         webView = (WebView) findViewById(R.id.webView);
         buttonView = (LinearLayout) findViewById(R.id.buttonView);
-        buttonPrev = (Button) findViewById(R.id.buttonPrev);
-        buttonNext = (Button) findViewById(R.id.buttonNext);
-        swypeView = (TextView) findViewById(R.id.swypeView);
+        swipeView = (TextView) findViewById(R.id.swipeView);
         
         // First check for swipe-option, this overrides the buttons-option
-        if (useSwype) {
+        if (Controller.getInstance().useSwipe()) {
             
-            // Load Swipe-Text-Field
-            swypeView.setVisibility(TextView.INVISIBLE);
-            swypeView.setPadding(16, Controller.padding, 16, Controller.padding);
-            swypeView.setHeight(Controller.swipeHeight);
-            
-            // Set Buttons invisible
-            buttonView.setVisibility(LinearLayout.INVISIBLE);
-            buttonView.setEnabled(false);
-            this.removeView(buttonView);
-            
-            if (leftHanded) {
-                // TODO: Bring swypeView to left side
+            if (Controller.getInstance().leftHanded() && Controller.landscape) {
+                // Try to move swipe-area to left side...
+
+                // First: Remove the view
+                centralView.removeView(swipeView);
+                
+                // calculate width of the swipe-area in pixels, its the number of pixels of the value 45dip
+                int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) 45, getResources()
+                        .getDisplayMetrics());
+                
+                // Create new layout-parameters which align this view left in the parent view
+                LayoutParams params = new LayoutParams(width, LayoutParams.FILL_PARENT);
+                params.addRule(ALIGN_LEFT, webView.getId());
+                
+                // Add the view again
+                centralView.addView(swipeView, params);
+                
+                // Recalculate values
+                recomputeViewAttributes(swipeView);
             }
             
-        } else if (useButtons) {
+            swipeView.setVisibility(TextView.INVISIBLE);
+            swipeView.setPadding(16, Controller.padding, 16, Controller.padding);
             
-            // Load Swipe-Text-Field and disable it
-            centralView.removeView(swypeView);
+            if (Controller.landscape)
+                swipeView.setHeight(Controller.swipeAreaHeight);
+            else
+                swipeView.setWidth(Controller.swipeAreaWidth);
             
-            buttonView.bringToFront();
-            buttonNext.bringToFront();
-            buttonPrev.bringToFront();
+            // remove Buttons
+            this.removeView(buttonView);
             
-            if (leftHanded) {
-                // TODO: Bring buttons to left side
+        } else if (Controller.getInstance().useButtons()) {
+            
+            if (Controller.getInstance().leftHanded() && Controller.landscape) {
+                // Try to move buttons to left side...
+                
+                // First: Remove the view
+                this.removeView(buttonView);
+                // calculate width of the swipe-area in pixels, its the number of pixels of the value 45dip
+                int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) 45, getResources()
+                        .getDisplayMetrics());
+                // Create new layout-parameters which align this view left in the parent view
+                LayoutParams params = new LayoutParams(width, LayoutParams.FILL_PARENT);
+                params.addRule(ALIGN_PARENT_LEFT, TRUE);
+                // Add the view again
+                this.addView(buttonView, params);
+                
+                // Webview and its container has to be moved to the right side to make room for the buttons.
+                // Not necessary for the swipe area since this is an overlay to the webview.
+                this.removeView(centralView);
+                LayoutParams centralViewParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                params.addRule(RIGHT_OF, buttonView.getId());
+                this.addView(centralView, centralViewParams);
+                
+                // Recalculate values
+                recomputeViewAttributes(buttonView);
+                recomputeViewAttributes(centralView);
+                getParent().recomputeViewAttributes(this);
+                // TODO: Buttons werden nicht gezeichnet, warum??
             }
             
             // Disable webView zoom-controls
             webView.getSettings().setBuiltInZoomControls(false);
+            
+            // Remove Swipe-Area
+            centralView.removeView(swipeView);
         }
         
         // Recalculate values
-        this.recomputeViewAttributes(centralView);
+        recomputeViewAttributes(centralView);
     }
     
-    public void populate(boolean useSwype, boolean useButtons, boolean leftHanded) {
-        this.useSwype = useSwype;
-        this.useButtons = useButtons;
-        this.leftHanded = leftHanded;
+    public void populate() {
         this.initializeLayout();
     }
     

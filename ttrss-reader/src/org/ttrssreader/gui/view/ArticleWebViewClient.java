@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.gui;
+package org.ttrssreader.gui.view;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +23,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.ttrssreader.R;
+import org.ttrssreader.gui.ArticleActivity;
+import org.ttrssreader.gui.MediaPlayerActivity;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.content.Context;

@@ -123,7 +123,11 @@ public class StringSupport {
         int count = 0;
         while (it.hasNext()) {
             
-            idList.append(it.next());
+            Integer next = it.next();
+            if (next == null)
+                continue;
+            
+            idList.append(next);
             
             if (count == maxCount) {
                 ret.add(idList.toString());
