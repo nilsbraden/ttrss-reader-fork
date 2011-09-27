@@ -48,7 +48,7 @@
     <string name="ArticleActivity.ShareSubject">Link aus TTRSS-Reader: </string>
     <string name="ArticleActivity.ShareTitle">Link senden...</string>
     <string name="ArticleActivity.MediaPlay">Mediendatei Anhang abspielen</string>
-    <string name="ArticleActivity.SwipeNotification">Wischen (swipe) für nächsten/vorherigen Artikel</string>
+    <string name="ArticleActivity.SwipeNotification">Hier Wischen!</string>
     
     <string name="Loading.Headlines">Lade Artikelliste...</string>
     <string name="Loading.Feeds">Lade Feed-Liste...</string>

@@ -53,7 +53,7 @@
     <string name="ArticleActivity.ShareTitle">Send link...</string>
     <string name="ArticleActivity.MediaPlay">Play attached Media-File</string>
     <string name="ArticleActivity.MediaDisplayLink">Open attachment</string>
-    <string name="ArticleActivity.SwipeNotification">For Next / Previous Article Swipe here</string>
+    <string name="ArticleActivity.SwipeNotification">Swipe here!</string>
     
     <string name="Loading.Headlines">Loading articles...</string>
     <string name="Loading.Feeds">Loading feeds...</string>

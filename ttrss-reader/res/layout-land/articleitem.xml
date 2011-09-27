@@ -18,6 +18,7 @@
 -->
 <merge
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:my="http://schemas.android.com/apk/res/org.ttrssreader"
 >
     <LinearLayout
         android:id="@+id/container"
@@ -25,7 +26,7 @@
         android:layout_height="fill_parent"
         android:orientation="vertical"
     >
-        <org.ttrssreader.gui.ArticleHeaderView
+        <org.ttrssreader.gui.view.ArticleHeaderView
             android:id="@+id/article_header_container"
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="fill_parent"
@@ -125,56 +126,64 @@
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-        </org.ttrssreader.gui.ArticleHeaderView>
+        </org.ttrssreader.gui.view.ArticleHeaderView>
 
 
-        <RelativeLayout 
-            android:id="@+id/container_layout"
+        <org.ttrssreader.gui.view.ArticleView
+            android:id="@+id/article_main_layout"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
         >
-            
-            <WebView
-                android:id="@+id/webview"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_alignParentTop="true" />
+
+            <RelativeLayout
+                android:id="@+id/centralView"
+                android:orientation="vertical"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_toLeftOf="@+id/buttonView" >
+                
+                <WebView
+                    android:id="@+id/webView"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" />
+                
+                <org.ttrssreader.utils.RotatableTextView
+                    android:id="@+id/swypeView"
+                    android:layout_width="45dip"
+                    android:layout_height="fill_parent"
+                    android:layout_alignRight="@id/webView"
+                    my:backgroundColor="#AA000000"
+                    my:textColor="#FFFFFFFF"
+                    my:text="@string/ArticleActivity.SwipeNotification"
+                    my:textSize="25"
+                    my:textRotation="-90" />
+            </RelativeLayout>
             
             <LinearLayout
-                android:id="@+id/buttonLayout"
-                android:orientation="horizontal"
+                android:id="@+id/buttonView"
+                android:orientation="vertical"
                 android:background="@android:drawable/bottom_bar"
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_alignBottom="@id/webview" >
+                android:layout_height="fill_parent"
+                android:layout_width="45dip"
+                android:layout_alignParentRight="true" >
+                
                 <Button
-                    android:id="@+id/nextButton"
+                    android:id="@+id/buttonNext"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:padding="4dip"
                     android:layout_weight="1.0"
                     android:text="Up" />
                 <Button
-                    android:id="@+id/prevButton"
+                    android:id="@+id/buttonPrev"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:padding="4dip"
                     android:layout_weight="1.0"
                     android:text="Down" />
             </LinearLayout>
-                
-            <TextView
-                android:id="@+id/webview_swipe_text"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dip"
-                android:background="#AA000000"
-                android:textColor="#ffffffff"
-                android:text="@string/ArticleActivity.SwipeNotification"
-                android:layout_alignBottom="@id/webview" />
-                
             
-        </RelativeLayout>
+        </org.ttrssreader.gui.view.ArticleView>
     
     </LinearLayout>
 </merge>

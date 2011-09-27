@@ -49,7 +49,7 @@
     <string name="ArticleActivity.ShareTitle">Envoyer le lien...</string>
     <string name="ArticleActivity.MediaPlay">Lire la pièce jointe</string>
     <string name="ArticleActivity.MediaDisplayLink">Ouvrir la pièce jointe</string>
-    <string name="ArticleActivity.SwipeNotification">Glisser pour lire l\'article suivant / précédent</string>
+    <string name="ArticleActivity.SwipeNotification">Glisser ici!</string>
     
     <string name="Loading.Headlines">Chargement des articles...</string>
     <string name="Loading.Feeds">Chargement des flux...</string>

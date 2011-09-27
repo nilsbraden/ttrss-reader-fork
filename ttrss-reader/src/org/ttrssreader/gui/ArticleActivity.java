@@ -23,6 +23,8 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
+import org.ttrssreader.gui.view.ArticleHeaderView;
+import org.ttrssreader.gui.view.ArticleView;
 import org.ttrssreader.imageCache.ImageCacher;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
@@ -56,7 +58,6 @@ import android.view.Window;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ArticleActivity extends Activity implements IUpdateEndListener {
@@ -71,19 +72,19 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     private int feedId = -1;
     private int categoryId = -1000;
     private boolean selectArticlesForCategory = false;
-    private int lastMove = 0;
+    private int lastMove = ARTICLE_LAST_MOVE_DEFAULT;
     
     private ArticleHeaderView headerContainer;
+    private ArticleView mainContainer;
     
     private Article article = null;
     private String content;
     private boolean linkAutoOpened;
     
-    private WebView webview;
-    private TextView webviewSwipeText;
-    private LinearLayout buttonLayout;
-    private Button nextButton;
-    private Button prevButton;
+    private WebView webView;
+    private TextView swypeView;
+    private Button buttonNext;
+    private Button buttonPrev;
     private GestureDetector mGestureDetector;
     
     private String baseUrl = null;
@@ -105,54 +106,27 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         
         setContentView(R.layout.articleitem);
         headerContainer = (ArticleHeaderView) findViewById(R.id.article_header_container);
+        mainContainer = (ArticleView) findViewById(R.id.article_main_layout);
         
-        webview = (WebView) findViewById(R.id.webview);
-        webview.getSettings().setJavaScriptEnabled(true);
-        webview.getSettings().setBuiltInZoomControls(true);
-        webview.setWebViewClient(new ArticleWebViewClient(this));
+        webView = (WebView) findViewById(R.id.webView);
+        buttonPrev = (Button) findViewById(R.id.buttonPrev);
+        buttonNext = (Button) findViewById(R.id.buttonNext);
+        swypeView = (TextView) findViewById(R.id.swypeView);
+        
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setBuiltInZoomControls(true);
+        webView.setWebViewClient(new ArticleWebViewClient(this));
         
         // TODO: Use this to reposition the zoom-buttons?
-        // final View zoom = webview.getZoomControls();
+        // final View zoom = webView.getZoomControls();
         // zoom.setLayoutParams(params)
         
-        // First check for swipe-option, this overrides the buttons-option
-        if (Controller.getInstance().useSwipe()) {
-            
-            // Load Swipe-Text-Field
-            webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
-            webviewSwipeText.setVisibility(TextView.INVISIBLE);
-            webviewSwipeText.setPadding(16, Controller.padding, 16, Controller.padding);
-            
-            // Set Buttons invisible
-            buttonLayout = (LinearLayout) findViewById(R.id.buttonLayout);
-            buttonLayout.setVisibility(LinearLayout.INVISIBLE);
-            buttonLayout.setEnabled(false);
-            
-            // Detect gestures
-            mGestureDetector = new GestureDetector(onGestureListener);
-            webview.setOnKeyListener(keyListener);
-            
-        } else if (Controller.getInstance().useButtons()) {
-            
-            // Load Swipe-Text-Field and disable it
-            webviewSwipeText = (TextView) findViewById(R.id.webview_swipe_text);
-            webviewSwipeText.setEnabled(false);
-            
-            buttonLayout = (LinearLayout) findViewById(R.id.buttonLayout);
-            buttonLayout.bringToFront();
-            
-            nextButton = (Button) findViewById(R.id.nextButton);
-            nextButton.setOnClickListener(onButtonPressedListener);
-            nextButton.bringToFront();
-            
-            prevButton = (Button) findViewById(R.id.prevButton);
-            prevButton.setOnClickListener(onButtonPressedListener);
-            prevButton.bringToFront();
-            
-            // Disable webview zoom-controls
-            webview.getSettings().setBuiltInZoomControls(false);
-            
-        }
+        // Detect gestures
+        mGestureDetector = new GestureDetector(onGestureListener);
+        webView.setOnKeyListener(keyListener);
+        
+        buttonNext.setOnClickListener(onButtonPressedListener);
+        buttonPrev.setOnClickListener(onButtonPressedListener);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -228,9 +202,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         setProgressBarIndeterminateVisibility(true);
         
         if (Controller.getInstance().workOffline()) {
-            webview.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+            webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
         } else {
-            webview.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+            webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
         }
         
         try {
@@ -239,12 +213,16 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                 
                 if (article != null && article.content != null) {
                     
-                    // Populate information-bar on top of the webview if enabled
+                    // Populate information-bar on top of the webView if enabled
                     if (Controller.getInstance().displayArticleHeader()) {
                         headerContainer.populate(article);
                     } else {
                         headerContainer.setVisibility(View.GONE);
                     }
+                    
+                    // Initialize mainContainer with buttons or swype-view
+                    mainContainer.populate(Controller.getInstance().useSwipe(), Controller.getInstance().useButtons(),
+                            false);
                     
                     // Inject the specific code for attachments, <img> for images, http-link for Videos
                     content = injectAttachments(getApplicationContext(), article.content, article.attachments);
@@ -258,7 +236,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in
                     // html).
                     baseUrl = StringSupport.getBaseURL(article.url);
-                    webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
+                    webView.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
                     
                     setTitle(article.title);
                     
@@ -386,7 +364,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         if (content == null)
             content = "";
         String text = temp.replace("MARKER", content);
-        webview.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
+        webView.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
     }
     
     private void openNextArticle(int direction) {
@@ -455,7 +433,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             if (!Controller.getInstance().useSwipe())
                 return false;
             
-            int SWIPE_BOTTOM = webview.getHeight() - Controller.swipeHeight;
+            // TODO: Für Landscape_mode um 90° drehen!
+            int SWIPE_BOTTOM = webView.getHeight() - Controller.swipeHeight;
             
             int dx = (int) (e2.getX() - e1.getX());
             int dy = (int) (e2.getY() - e1.getY());
@@ -474,7 +453,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                 
                 if (isSwipe) {
                     // Display text for swipe-area
-                    webviewSwipeText.setVisibility(TextView.VISIBLE);
+                    swypeView.setVisibility(TextView.VISIBLE);
                     new Handler().postDelayed(timerTask, 1000);
                 }
                 return false;
@@ -494,7 +473,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         // @formatter:off
         private Runnable timerTask = new Runnable() {
             public void run() { // Need this to set the text invisible after some time
-                webviewSwipeText.setVisibility(TextView.INVISIBLE);
+                swypeView.setVisibility(TextView.INVISIBLE);
             }
         };
         @Override public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
@@ -508,9 +487,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     private OnClickListener onButtonPressedListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (v.equals(nextButton))
+            if (v.equals(buttonNext))
                 openNextArticle(-1);
-            else if (v.equals(prevButton))
+            else if (v.equals(buttonPrev))
                 openNextArticle(1);
         }
     };
