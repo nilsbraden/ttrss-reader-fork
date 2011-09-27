@@ -23,6 +23,11 @@
     <item>Version 1.09
             \n * Vibrate when last article is reached, not only when trying to move further but the moment you reach it
             \n * Changed buttons and layout for article-browsing
+            \n * Added left-hand-mode for landscape display
+            \n * Removed ArticleCache from menu. Same thing happens automatically when CategoryView is opened.
+            \n * Fixed Issue #75 (Own keystore doesn\'t work any more)
+            \n * Fixed Bug: Articles which had been marked while beeing offline where not synchronized with the server
+            \n * Fixed ImageCache for unreliable connections.
             </item>
     
     <item>Version 1.08
