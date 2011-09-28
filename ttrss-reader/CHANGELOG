@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.09 ==
+== Version 1.09 (1) ==
   * Vibrate when last article is reached, not only when trying to move further
   * Changed buttons and layout for article-browsing
   * Added left-hand-mode for landscape display
@@ -9,6 +9,7 @@
   * Fixed Bug which prevented articles which had been marked while beeing offline to be synchronized with the server later
   * Removed ArticleCache. Same thing happens automatically when CategoryView is opened.
   * Fixed ImageCache for unreliable connections
+  * Starred/Published articles are not purged anymore, article-limit in settings does not apply to these.
   
 == Version 1.08 ==
   * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
