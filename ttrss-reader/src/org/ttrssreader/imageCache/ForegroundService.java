@@ -45,7 +45,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
     
     public static final String ACTION_LOAD_IMAGES = "load_images";
     public static final String ACTION_LOAD_ARTICLES = "load_articles";
-
+    
     private ImageCacher imageCacher;
     private static ForegroundService instance = null;
     private static ICacheEndListener parent;
@@ -144,12 +144,23 @@ public class ForegroundService extends Service implements ICacheEndListener {
     
     @Override
     public void onDestroy() {
-        // Call all activities
-        Controller.getInstance().notifyActivities();
-        
-        // Remove the notification
-        stopForegroundCompat(R.string.Cache_service_started);
-        instance = null;
+        finishService();
+    }
+    
+    /**
+     * Cleans up all running notifications, notifies waiting activities and clears the instance of the service.
+     */
+    public void finishService() {
+        if (instance != null) {
+            // Remove the notification
+            stopForegroundCompat(R.string.Cache_service_started);
+            
+            // Call all activities
+            Controller.getInstance().notifyActivities();
+            
+            // Reset Instance
+            instance = null;
+        }
     }
     
     // This is the old onStart method that will be called on the pre-2.0
@@ -203,11 +214,11 @@ public class ForegroundService extends Service implements ICacheEndListener {
             imageCacher = new ImageCacher(this, this, false);
             imageCacher.execute();
         } else {
-            stopForegroundCompat(R.string.Cache_service_started);
+            finishService();
             this.stopSelf();
         }
     }
-
+    
     @Override
     public void onCacheProgress(int taskCount, int progress) {
         if (parent != null)

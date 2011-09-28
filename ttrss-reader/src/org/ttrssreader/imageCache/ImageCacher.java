@@ -143,8 +143,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
     @Override
     protected void onProgressUpdate(Integer... values) {
-        if (values[0] == taskCount)
-            return;
         if (parent != null)
             parent.onCacheProgress(taskCount, values[0]);
     }
@@ -217,7 +215,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         }
         
         if (folderSize > cacheSizeMax) {
-            Log.i(Utils.TAG, String.format("Before - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
+            // Log.i(Utils.TAG, String.format("Before - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
             
             // Sort list of files by last access date
             List<File> list = Arrays.asList(cacheFolder.listFiles());
@@ -229,7 +227,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 folderSize -= f.length();
                 f.delete();
             }
-            Log.i(Utils.TAG, String.format("After - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
+            // Log.i(Utils.TAG, String.format("After - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
         }
         Log.i(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
     }
@@ -277,7 +275,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     DBHelper.getInstance().updateArticleCachedImages(articleId, true);
                 
                 // Assign new task if possible
-                if (t == null) {
+                if (t == null || t.getStatus().equals(AsyncTask.Status.FINISHED)) {
                     t = new DownloadImageTask(imageCache, maxFileSize);
                     t.execute(urls);
                     tasks[i] = t;
@@ -358,7 +356,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 continue;
             }
             
-            Log.i(Utils.TAG, ret.size() + " URLs found for Article-ID " + articleId);
+            // Log.i(Utils.TAG, ret.size() + " URL" + (ret.size() == 1 ? "" : "s") +" found for Article-ID " + articleId
+            // + ".");
         }
         return ret;
     }

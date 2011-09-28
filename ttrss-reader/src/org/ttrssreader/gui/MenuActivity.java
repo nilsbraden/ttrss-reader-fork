@@ -77,6 +77,17 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     }
     
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
+            refreshAndUpdate();
+        } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
+            refreshAndUpdate();
+        } else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
+            finish();
+        }
+    }
+    
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
@@ -155,34 +166,10 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         }
     }
     
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
-            refreshAndUpdate();
-        } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
-            refreshAndUpdate();
-        } else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
-            finish();
-        }
-    }
+    protected abstract void doRefresh();
     
-    protected void openConnectionErrorDialog(String errorMessage) {
-        if (updater != null) {
-            updater.cancel(true);
-            updater = null;
-        }
-        setProgressBarIndeterminateVisibility(false);
-        Intent i = new Intent(this, ErrorActivity.class);
-        i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
-        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
-        // finish();
-    }
-    
-    protected void refreshAndUpdate() {
-        if (Utils.checkConfig()) {
-            doRefresh();
-            doUpdate();
-        }
-    }
+    /* ############# BEGIN: Update */
+    protected abstract void doUpdate();
     
     @Override
     public void onUpdateEnd() {
@@ -195,28 +182,9 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         doRefresh();
     }
     
-    @Override
-    public void onCacheEnd() {
-        setProgressBarVisibility(false);
-        doRefresh();
-    }
-    
-    @Override
-    public void onCacheProgress(int taskCount, int progress) {
-        if (taskCount == progress)
-            setProgressBarVisibility(false);
-        setProgress((10000 / (taskCount + 1)) * progress);
-        doRefresh();
-    }
-    
-    protected boolean isCacherRunning() {
-        return ForegroundService.isInstanceCreated();
-    }
-    
-    protected abstract void doRefresh();
-    
-    protected abstract void doUpdate();
-    
+    /* ############# END: Update */
+
+    /* ############# BEGIN: Cache */
     protected void doCache(boolean onlyArticles) {
         // Register for progress-updates
         ForegroundService.registerCallback(this);
@@ -240,6 +208,48 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         
         setProgressBarVisibility(true);
         startService(intent);
+    }
+    
+    @Override
+    public void onCacheEnd() {
+        setProgressBarVisibility(false);
+        doRefresh();
+    }
+    
+    @Override
+    public void onCacheProgress(int taskCount, int progress) {
+        if (taskCount == progress) {
+            setProgressBarIndeterminateVisibility(false);
+            setProgressBarVisibility(false);
+        } else {
+            setProgress((10000 / (taskCount + 1)) * progress);
+        }
+        doRefresh();
+    }
+    
+    protected boolean isCacherRunning() {
+        return ForegroundService.isInstanceCreated();
+    }
+    
+    /* ############# END: Cache */
+
+    protected void openConnectionErrorDialog(String errorMessage) {
+        if (updater != null) {
+            updater.cancel(true);
+            updater = null;
+        }
+        setProgressBarIndeterminateVisibility(false);
+        Intent i = new Intent(this, ErrorActivity.class);
+        i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
+        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
+        // finish();
+    }
+    
+    protected void refreshAndUpdate() {
+        if (Utils.checkConfig()) {
+            doRefresh();
+            doUpdate();
+        }
     }
     
 }

@@ -102,6 +102,8 @@ public class ArticleView extends RelativeLayout {
                 params.addRule(ALIGN_PARENT_LEFT, TRUE);
                 // Add the view again
                 this.addView(buttonView, params);
+                // Recalculate values
+                recomputeViewAttributes(buttonView);
                 
                 // Webview and its container has to be moved to the right side to make room for the buttons.
                 // Not necessary for the swipe area since this is an overlay to the webview.
@@ -111,14 +113,8 @@ public class ArticleView extends RelativeLayout {
                 this.addView(centralView, centralViewParams);
                 
                 // Recalculate values
-                recomputeViewAttributes(buttonView);
-                recomputeViewAttributes(centralView);
-                getParent().recomputeViewAttributes(this);
-                // TODO: Buttons werden nicht gezeichnet, warum??
+                recomputeViewAttributes(this);
             }
-            
-            // Disable webView zoom-controls
-            webView.getSettings().setBuiltInZoomControls(false);
             
             // Remove Swipe-Area
             centralView.removeView(swipeView);
