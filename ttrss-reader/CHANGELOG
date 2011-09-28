@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.09 (1) ==
+== Version 1.09 (2) ==
   * Vibrate when last article is reached, not only when trying to move further
   * Changed buttons and layout for article-browsing
   * Added left-hand-mode for landscape display
