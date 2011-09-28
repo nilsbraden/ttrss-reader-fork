@@ -816,7 +816,8 @@ public class DBHelper {
             
             cv.put("cachedImages", isCachedImages);
             synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "cachedImages=0 & id=" + id, null); // Only apply if not yet applied and ID matches
+                db.update(TABLE_ARTICLES, cv, "cachedImages=0 & id=" + id, null); // Only apply if not yet applied and
+                                                                                  // ID matches
             }
         }
     }
@@ -841,20 +842,21 @@ public class DBHelper {
         }
     }
     
-    public static final int PURGE_ARTICLES = -1;
-    
+    /**
+     * Deletes articles until the configured number of articles is matched. Published and Starred articles are ignored
+     * so the configured limit is not an exact upper limit to the numbe rof articles in the database.
+     */
     public void purgeArticlesNumber() {
         if (isDBAvailable()) {
             int number = Controller.getInstance().getArticleLimit();
-            String idList = "SELECT id FROM " + TABLE_ARTICLES + " ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
+            String idList = "SELECT id FROM " + TABLE_ARTICLES
+                    + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
             synchronized (TABLE_ARTICLES) {
                 db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
                 purgeLabels();
             }
         }
     }
-    
-    public static final int PURGE_PUBLISHED_ARTICLES = -2;
     
     public void purgePublishedArticles() {
         if (isDBAvailable()) {
@@ -864,8 +866,6 @@ public class DBHelper {
             }
         }
     }
-    
-    public static final int PURGE_STARRED_ARTICLES = -3;
     
     public void purgeStarredArticles() {
         if (isDBAvailable()) {
