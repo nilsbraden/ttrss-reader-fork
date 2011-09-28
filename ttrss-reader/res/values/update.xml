@@ -28,6 +28,7 @@
             \n * Fixed Issue #75 (Own keystore doesn\'t work any more)
             \n * Fixed Bug: Articles which had been marked while beeing offline where not synchronized with the server
             \n * Fixed ImageCache for unreliable connections.
+            \n * Starred/Published articles are not purged anymore, article-limit in settings does not apply to these.
             </item>
     
     <item>Version 1.08
