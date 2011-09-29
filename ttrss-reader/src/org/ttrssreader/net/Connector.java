@@ -24,8 +24,10 @@ public interface Connector {
     /**
      * Retrieves a set of maps which map strings to the information, e.g. "id" -> 42, containing the counters for every
      * category and feed. The retrieved information is directly inserted into the database.
+     * 
+     * @return true if the request succeeded.
      */
-    public void getCounters();
+    public boolean getCounters();
     
     /**
      * Retrieves all categories.
@@ -55,7 +57,7 @@ public interface Connector {
      *            indicates if we are dealing with a category or a feed
      * @return a set of ids of the received articles.
      */
-    public void getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory);
+    public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory);
     
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
