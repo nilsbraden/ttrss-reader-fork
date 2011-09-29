@@ -85,8 +85,8 @@ public class Data {
             return;
         } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
-                Controller.getInstance().getConnector().getCounters();
-                countersUpdated = System.currentTimeMillis();
+                if (Controller.getInstance().getConnector().getCounters())
+                    countersUpdated = System.currentTimeMillis(); // Only mark as updated if the call was successful
             } catch (NotInitializedException e) {
             }
         }
@@ -98,12 +98,12 @@ public class Data {
         updateArticles(feedId, displayOnlyUnread, isCategory, false);
     }
     
-    public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCategory, boolean overrideOffline) {
+    public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline) {
         
         // Check if unread-count and actual number of unread articles match, if not do a seperate call with
         // displayOnlyUnread=true
         boolean needUnreadUpdate = false;
-        if (!isCategory && !displayOnlyUnread) {
+        if (!isCat && !displayOnlyUnread) {
             int unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
             int actualUnread = DBHelper.getInstance().getUnreadArticles(feedId).size();
             if (unreadCount > actualUnread) {
@@ -137,7 +137,7 @@ public class Data {
                     break;
                 
                 default: // Normal categories
-                    limit = DBHelper.getInstance().getUnreadCount(feedId, isCategory);
+                    limit = DBHelper.getInstance().getUnreadCount(feedId, isCat);
             }
             
             if (limit <= 0 && displayOnlyUnread)
@@ -148,7 +148,7 @@ public class Data {
                 limit = 300; // Lots of unread articles, fetch the first 300
                 
             if (limit < 300) {
-                if (isCategory)
+                if (isCat)
                     limit = limit + 50; // Add some so we have a chance of getting not only the newest and possibly read
                                         // articles but also older ones.
                 else
@@ -159,23 +159,26 @@ public class Data {
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
                 
                 // Set<Integer> ids = // <-- Not needed
-                Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, viewMode, isCategory);
+                boolean ret = false;
+                ret = Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, viewMode, isCat);
                 
                 // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
                 if (needUnreadUpdate && !displayOnlyUnread)
-                    Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, "unread", isCategory);
+                    Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, "unread", isCat);
+                
+                // Only mark as updated if the first call was successful
+                if (ret) {
+                    // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
+                    // requested
+                    articlesUpdated.put(feedId, System.currentTimeMillis());
+                    if (isCat) {
+                        for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
+                            articlesUpdated.put(f.id, System.currentTimeMillis());
+                        }
+                    }
+                }
                 
             } catch (NotInitializedException e) {
-                return;
-            }
-            
-            // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
-            // requested
-            articlesUpdated.put(feedId, System.currentTimeMillis());
-            if (isCategory) {
-                for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
-                    articlesUpdated.put(f.id, System.currentTimeMillis());
-                }
             }
         }
     }
@@ -192,23 +195,24 @@ public class Data {
             return null;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
             try {
+                Set<Feed> ret = new LinkedHashSet<Feed>();
                 Set<Feed> feeds = Controller.getInstance().getConnector().getFeeds();
                 
                 // Only delete feeds if we got new feeds...
-                if (!feeds.isEmpty())
+                if (!feeds.isEmpty()) {
                     DBHelper.getInstance().deleteFeeds();
-                
-                Set<Feed> ret = new LinkedHashSet<Feed>();
-                for (Feed f : feeds) {
-                    if (categoryId == VCAT_ALL || f.categoryId == categoryId)
-                        ret.add(f);
-                }
-                DBHelper.getInstance().insertFeeds(feeds);
-                
-                // Store requested category-id and ids of all received feeds
-                feedsUpdated.put(categoryId, System.currentTimeMillis());
-                for (Feed f : feeds) {
-                    feedsUpdated.put(f.categoryId, System.currentTimeMillis());
+                    
+                    for (Feed f : feeds) {
+                        if (categoryId == VCAT_ALL || f.categoryId == categoryId)
+                            ret.add(f);
+                    }
+                    DBHelper.getInstance().insertFeeds(feeds);
+                    
+                    // Store requested category-id and ids of all received feeds
+                    feedsUpdated.put(categoryId, System.currentTimeMillis());
+                    for (Feed f : feeds) {
+                        feedsUpdated.put(f.categoryId, System.currentTimeMillis());
+                    }
                 }
                 
                 return ret;
@@ -257,9 +261,12 @@ public class Data {
         } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
                 Set<Category> categories = Controller.getInstance().getConnector().getCategories();
-                DBHelper.getInstance().deleteCategories(false);
-                DBHelper.getInstance().insertCategories(categories);
-                categoriesUpdated = System.currentTimeMillis();
+                
+                if (!categories.isEmpty()) {
+                    DBHelper.getInstance().deleteCategories(false);
+                    DBHelper.getInstance().insertCategories(categories);
+                    categoriesUpdated = System.currentTimeMillis();
+                }
                 
                 return categories;
             } catch (NotInitializedException e) {

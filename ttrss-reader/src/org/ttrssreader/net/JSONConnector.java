@@ -91,12 +91,12 @@ public class JSONConnector implements Connector {
     private static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
     
     private static final String ERROR = "error";
+    private static final String ERROR_TEXT = "Error: ";
     private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
     private static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
     private static final String API_DISABLED = "API_DISABLED";
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
     private static final String STATUS = "status";
-    private static final String OK = "OK";
     
     private static final String SESSION_ID = "session_id";
     private static final String ID = "id";
@@ -308,8 +308,10 @@ public class JSONConnector implements Connector {
                             sessionId = null;
                             if (login())
                                 return readResult(params, login, false); // Just do the same request again
-                            else
-                                return null;
+                        } else {
+                            hasLastError = true;
+                            lastError = ERROR_TEXT + message;
+                            return null;
                         }
                     }
                 }
@@ -374,7 +376,7 @@ public class JSONConnector implements Connector {
                         
                         // Any other error
                         hasLastError = true;
-                        lastError = message;
+                        lastError = ERROR_TEXT + message;
                     }
                 } else if (t.equals(JsonToken.BEGIN_ARRAY)) {
                     return reader;
@@ -397,26 +399,33 @@ public class JSONConnector implements Connector {
         return true;
     }
     
-    private String doRequestNoAnswer(Map<String, String> params) {
+    /**
+     * Does an API-Call and ignores the result.
+     * 
+     * @param params
+     * @return true if the call was successful.
+     */
+    private boolean doRequestNoAnswer(Map<String, String> params) {
         if (!sessionAlive())
-            return ERROR;
+            return false;
         
         try {
-            String ret = readResult(params, false, true);
-            return ret;
+            readResult(params, false, true);
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
             if (!hasLastError) {
                 hasLastError = true;
-                lastError = "Error: " + e.getMessage();
+                lastError = ERROR_TEXT + e.getMessage();
             }
         }
         
-        if (hasLastError) {
-            hasLastError = false;
-            lastError = "";
-        }
-        return ERROR;
+        // TODO: Why was this here???
+        // if (hasLastError) {
+        // hasLastError = false;
+        // lastError = "";
+        // }
+        return false;
     }
     
     /**
@@ -450,7 +459,7 @@ public class JSONConnector implements Connector {
                 e.printStackTrace();
                 if (!hasLastError) {
                     hasLastError = true;
-                    lastError = "Error: " + e.getMessage();
+                    lastError = ERROR_TEXT + e.getMessage();
                 }
             }
             
@@ -663,9 +672,10 @@ public class JSONConnector implements Connector {
     // ***************** Retrieve-Data-Methods **************************************************
     
     @Override
-    public void getCounters() {
+    public boolean getCounters() {
+        boolean ret = true;
         if (!sessionAlive())
-            return;
+            return false;
         
         long time = System.currentTimeMillis();
         Map<String, String> params = new HashMap<String, String>();
@@ -676,12 +686,13 @@ public class JSONConnector implements Connector {
         try {
             reader = prepareReader(params);
             if (reader == null)
-                return;
+                return false;
             
             parseCounter(reader);
             
         } catch (IOException e) {
             e.printStackTrace();
+            ret = false;
         } finally {
             if (reader != null)
                 try {
@@ -691,15 +702,16 @@ public class JSONConnector implements Connector {
         }
         
         Log.v(Utils.TAG, "getCounters: " + (System.currentTimeMillis() - time) + "ms");
+        return ret;
     }
     
     @Override
     public Set<Category> getCategories() {
         long time = System.currentTimeMillis();
-        if (!sessionAlive())
-            return null;
-        
         Set<Category> ret = new LinkedHashSet<Category>();
+        if (!sessionAlive())
+            return ret;
+        
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_CATEGORIES);
@@ -837,11 +849,12 @@ public class JSONConnector implements Connector {
     }
     
     @Override
-    public void getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
+    public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
         long time = System.currentTimeMillis();
+        boolean ret = true;
         
         if (!sessionAlive())
-            return;
+            return false;
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_HEADLINES);
@@ -862,12 +875,13 @@ public class JSONConnector implements Connector {
         try {
             reader = prepareReader(params);
             if (reader == null)
-                return;
+                return false;
             
             parseArticle(reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
             
         } catch (IOException e) {
             e.printStackTrace();
+            ret = false;
         } finally {
             if (reader != null)
                 try {
@@ -877,14 +891,14 @@ public class JSONConnector implements Connector {
         }
         
         Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
+        return ret;
     }
     
     @Override
     public boolean setArticleRead(Set<Integer> ids, int articleState) {
+        boolean ret = true;
         if (ids.size() == 0)
-            return true;
-        
-        String ret = "";
+            return ret;
         
         for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
             Map<String, String> params = new HashMap<String, String>();
@@ -892,17 +906,16 @@ public class JSONConnector implements Connector {
             params.put(PARAM_ARTICLE_IDS, idList);
             params.put(PARAM_MODE, articleState + "");
             params.put(PARAM_FIELD, "2");
-            ret = doRequestNoAnswer(params);
+            ret = ret && doRequestNoAnswer(params);
         }
-        return (ret != null && ret.contains(OK));
+        return ret;
     }
     
     @Override
     public boolean setArticleStarred(Set<Integer> ids, int articleState) {
+        boolean ret = true;
         if (ids.size() == 0)
-            return true;
-        
-        String ret = "";
+            return ret;
         
         for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
             Map<String, String> params = new HashMap<String, String>();
@@ -910,17 +923,16 @@ public class JSONConnector implements Connector {
             params.put(PARAM_ARTICLE_IDS, idList);
             params.put(PARAM_MODE, articleState + "");
             params.put(PARAM_FIELD, "0");
-            ret = doRequestNoAnswer(params);
+            ret = ret && doRequestNoAnswer(params);
         }
-        return (ret != null && ret.contains(OK));
+        return ret;
     }
     
     @Override
     public boolean setArticlePublished(Set<Integer> ids, int articleState) {
+        boolean ret = true;
         if (ids.size() == 0)
-            return true;
-        
-        String ret = "";
+            return ret;
         
         for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
             Map<String, String> params = new HashMap<String, String>();
@@ -928,9 +940,9 @@ public class JSONConnector implements Connector {
             params.put(PARAM_ARTICLE_IDS, idList);
             params.put(PARAM_MODE, articleState + "");
             params.put(PARAM_FIELD, "1");
-            ret = doRequestNoAnswer(params);
+            ret = ret && doRequestNoAnswer(params);
         }
-        return (ret != null && ret.contains(OK));
+        return ret;
     }
     
     @Override
@@ -939,8 +951,7 @@ public class JSONConnector implements Connector {
         params.put(PARAM_OP, VALUE_CATCHUP);
         params.put(PARAM_FEED_ID, id + "");
         params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
-        String ret = doRequestNoAnswer(params);
-        return (ret != null && ret.contains(OK));
+        return doRequestNoAnswer(params);
     }
     
     @Override
