@@ -308,11 +308,20 @@ public class JSONConnector implements Connector {
                             sessionId = null;
                             if (login())
                                 return readResult(params, login, false); // Just do the same request again
-                        } else {
+                            else
+                                return null;
+                        }
+                        
+                        if (message.contains(API_DISABLED)) {
                             hasLastError = true;
-                            lastError = ERROR_TEXT + message;
+                            lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
                             return null;
                         }
+                        
+                        // Any other error
+                        hasLastError = true;
+                        lastError = ERROR_TEXT + message;
+                        return null;
                     }
                 }
                 
