@@ -91,8 +91,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean isVacuumDBScheduled = null;
     private Boolean isDeleteDBScheduled = null;
     private Boolean isDeleteDBOnStartup = null;
-    private Boolean cacheOnStartup = null;
     private Boolean cacheImagesOnStartup = null;
+    private Boolean cacheImagesOnlyWifi = null;
     private Boolean logSensitiveData = null;
     
     private Long lastUpdateTime = null;
@@ -589,17 +589,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         setDeleteDBScheduled(isDeleteDBOnStartup);
     }
     
-    public boolean cacheOnStartup() {
-        if (cacheOnStartup == null)
-            cacheOnStartup = prefs.getBoolean(Constants.CACHE_ON_STARTUP, Constants.CACHE_ON_STARTUP_DEFAULT);
-        return cacheOnStartup;
-    }
-    
-    public void setCacheOnStartup(boolean cacheOnStartup) {
-        put(Constants.CACHE_ON_STARTUP, cacheOnStartup);
-        this.cacheOnStartup = cacheOnStartup;
-    }
-    
     public boolean cacheImagesOnStartup() {
         if (cacheImagesOnStartup == null)
             cacheImagesOnStartup = prefs.getBoolean(Constants.CACHE_IMAGES_ON_STARTUP,
@@ -612,7 +601,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.cacheImagesOnStartup = cacheImagesOnStartup;
     }
     
-    // logSensitiveData
+    public boolean cacheImagesOnlyWifi() {
+        if (cacheImagesOnlyWifi == null)
+            cacheImagesOnlyWifi = prefs.getBoolean(Constants.CACHE_IMAGES_ONLY_WIFI,
+                    Constants.CACHE_IMAGES_ONLY_WIFI_DEFAULT);
+        return cacheImagesOnlyWifi;
+    }
+    
+    public void setCacheImagesOnlyWifi(boolean cacheImagesOnlyWifi) {
+        put(Constants.CACHE_IMAGES_ONLY_WIFI, cacheImagesOnlyWifi);
+        this.cacheImagesOnlyWifi = cacheImagesOnlyWifi;
+    }
     
     public boolean logSensitiveData() {
         if (logSensitiveData == null)

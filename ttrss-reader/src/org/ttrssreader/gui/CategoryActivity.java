@@ -40,9 +40,12 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -89,13 +92,29 @@ public class CategoryActivity extends MenuActivity {
         // Delete DB if requested
         Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
         
-        // Start caching if requested, only cache articles if not caching images
+        // Start caching if requested
         if (Controller.getInstance().cacheImagesOnStartup()) {
+            boolean startCache = true;
+            
+            if (Controller.getInstance().cacheImagesOnlyWifi()) {
+                // Check if Wifi is connected, if not don't start the ImageCache
+                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo mWifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                
+                if (!mWifi.isConnected()) {
+                    Log.i(Utils.TAG, "Preference Start ImageCache only on WIFI set, doing nothing...");
+                    startCache = false;
+                }
+            }
+            
+            // Indicate that the cacher started anyway so the refresh is supressed if the ImageCache is configured but
+            // only for Wifi.
             cacherStarted = true;
-            doCache(false); // images
-        } else if (Controller.getInstance().cacheOnStartup()) {
-            cacherStarted = true;
-            doCache(true); // articles
+            
+            if (startCache) {
+                Log.i(Utils.TAG, "Starting ImageCache...");
+                doCache(false); // images
+            }
         }
         
         adapter = new CategoryAdapter(this);
