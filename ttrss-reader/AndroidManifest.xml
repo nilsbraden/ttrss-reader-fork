@@ -3,15 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:installLocation="auto"
-    android:versionName="1.09"
-    android:versionCode="1093"
+    android:versionName="1.1"
+    android:versionCode="1100"
 >
 
     <application
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName"
         android:description="@string/ApplicationDescription"
-        android:debuggable="true"
+        android:debuggable="false"
     >
 
         <activity

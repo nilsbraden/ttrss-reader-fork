@@ -3,6 +3,7 @@
 = Changes =
 == Version 1.1 ==
   * Added display-preference for dark-background and white text
+  * Added preference "Start ImageCache only on Wifi", which prevents the automatically scheduled ImageCache to run on a mobile connection
   * Fixed bug: Error in case of disabled-API
 
 == Version 1.09 (2) ==

@@ -21,6 +21,7 @@
     >
     <item>Version 1.1
             \n * Added display-preference for dark-background and white text
+            \n * Added preference "Start ImageCache only on Wifi", prevents the automatically scheduled ImageCache to run on a mobile connection
             \n * Fixed bug: Error in case of disabled-API
             </item>
     
