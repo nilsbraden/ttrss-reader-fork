@@ -83,6 +83,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean dateTimeSystem = null;
     private String dateString = null;
     private String timeString = null;
+    private Boolean darkBackground = null;
     
     private Integer imageCacheSize = null;
     private Boolean imageCacheUnread = null;
@@ -488,6 +489,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setTimeString(String timeString) {
         put(Constants.TIME_STRING, timeString);
         this.timeString = timeString;
+    }
+    
+    public boolean darkBackground() {
+        if (darkBackground == null)
+            darkBackground = prefs.getBoolean(Constants.DARK_BACKGROUND, Constants.DARK_BACKGROUND_DEFAULT);
+        return darkBackground;
+    }
+    
+    public void setDarkBackground(boolean darkBackground) {
+        put(Constants.DARK_BACKGROUND, darkBackground);
+        this.darkBackground = darkBackground;
     }
     
     // SYSTEM

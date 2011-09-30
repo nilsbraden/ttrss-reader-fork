@@ -39,6 +39,7 @@ import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,6 +55,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -234,6 +236,14 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     // Load html from Controller and insert content
                     String text = Controller.htmlHeader.replace("MARKER", content);
                     
+                    // TODO
+                    if (Controller.getInstance().darkBackground()) {
+                        webView.setBackgroundColor(Color.BLACK);
+                        text = "<font color='white'>" + text + "</font>";
+                        
+                        setDarkBackground(headerContainer);
+                    }
+                    
                     // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in
                     // html).
                     baseUrl = StringSupport.getBaseURL(article.url);
@@ -260,6 +270,29 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         }
         
         setProgressBarIndeterminateVisibility(false);
+    }
+    
+    /**
+     * Recursively walks all viewGroups and their Views inside the given ViewGroup and sets the background to black and,
+     * in case a TextView is found, the Text-Color to white.
+     * 
+     * @param v the ViewGroup to walk through
+     */
+    private void setDarkBackground(ViewGroup v) {
+        v.setBackgroundColor(Color.BLACK);
+        
+        for (int i = 0; i < v.getChildCount(); i++) { // View at index 0 seems to be this view itself.
+            View vChild = v.getChildAt(i);
+            
+            if (vChild == null || vChild.getId() == v.getId())
+                continue;
+            
+            if (vChild instanceof TextView)
+                ((TextView) vChild).setTextColor(Color.WHITE);
+            
+            if (vChild instanceof ViewGroup)
+                setDarkBackground(((ViewGroup) vChild));
+        }
     }
     
     @Override
