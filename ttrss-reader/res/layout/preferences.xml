@@ -213,6 +213,12 @@
                     android:key="DisplayTimeFormatPreference" 
                     android:inputType="textFilter" />
 
+                <CheckBoxPreference
+                    android:title="@string/DisplayDarkBackgroundTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/DisplayDarkBackgroundSummary"
+                    android:key="DisplayDarkBackgroundPreference" />
+
             </PreferenceCategory>
         </PreferenceScreen>
 

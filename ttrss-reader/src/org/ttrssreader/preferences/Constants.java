@@ -69,6 +69,7 @@ public class Constants {
     public static String DATE_TIME_SYSTEM = "DisplayDateTimeFormatSystemPreference";
     public static String DATE_STRING = "DisplayDateFormatPreference";
     public static String TIME_STRING = "DisplayTimeFormatPreference";
+    public static String DARK_BACKGROUND = "DisplayDarkBackgroundPreference";
     // Display Default Values
     public static boolean SHOW_VIRTUAL_DEFAULT = true;
     public static boolean USE_SWIPE_DEFAULT = true;
@@ -83,6 +84,7 @@ public class Constants {
     public static boolean DATE_TIME_SYSTEM_DEFAULT = true;
     public static String DATE_STRING_DEFAULT = "dd.MM.yyyy";
     public static String TIME_STRING_DEFAULT = "kk:mm";
+    public static boolean DARK_BACKGROUND_DEFAULT = false;
     
     // System
     public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";

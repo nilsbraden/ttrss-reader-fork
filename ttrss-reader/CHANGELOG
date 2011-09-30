@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.1 ==
+  * Added display-preference for dark-background and white text
+  * Fixed bug: Error in case of disabled-API
+
 == Version 1.09 (2) ==
   * Vibrate when last article is reached, not only when trying to move further
   * Changed buttons and layout for article-browsing

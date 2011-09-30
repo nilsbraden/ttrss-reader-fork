@@ -19,6 +19,10 @@
     <string-array
         name="updates"
     >
+    <item>Version 1.1
+            \n * Added display-preference for dark-background and white text
+            \n * Fixed bug: Error in case of disabled-API
+            </item>
     
     <item>Version 1.09
             \n * Vibrate when last article is reached, not only when trying to move further but the moment you reach it
