@@ -97,6 +97,7 @@ public class Constants {
     public static String SERVER_VERSION_LAST_UPDATE = "ServerVersionLastUpdate";
     public static String CACHE_ON_STARTUP = "CacheOnStartupPreference";
     public static String CACHE_IMAGES_ON_STARTUP = "CacheImagesOnStartupPreference";
+    public static String CACHE_IMAGES_ONLY_WIFI = "CacheImagesOnlyWifiPreference";
     public static String LOG_SENSITIVE_DATA = "LogSensitiveDataPreference";
     // System Default Values
     public static int IMAGE_CACHE_SIZE_DEFAULT = 50;
@@ -109,6 +110,7 @@ public class Constants {
     public static long SERVER_VERSION_LAST_UPDATE_DEFAULT = -1;
     public static boolean CACHE_ON_STARTUP_DEFAULT = false;
     public static boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
+    public static boolean CACHE_IMAGES_ONLY_WIFI_DEFAULT = false;
     public static boolean LOG_SENSITIVE_DATA_DEFAULT = false;
     
     // Internal

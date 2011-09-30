@@ -142,8 +142,8 @@
     <string name="DisplayArticleHeaderSummary">Enables display of more information when browsing articles (Title, Feed, Date etc.).</string>
     <string name="CacheImagesOnStartupTitle">Start ImageCache on startup?</string>
     <string name="CacheImagesOnStartupSummary">Enable to start the image-cache on every start of the reader, all articles+images will be fetched in the background.</string>
-    <string name="CacheOnStartupTitle">Start Cache on startup?</string>
-    <string name="CacheOnStartupSummary">Enable to start the article-cache on every start of the reader, all articles will be fetched in the background.</string>
+    <string name="CacheImagesOnlyWifiTitle">Only on Wifi?</string>
+    <string name="CacheImagesOnlyWifiSummary">Sets the automatic ImageCache on startup to only run when Wifi is used.</string>
     <string name="DisplayAlignFlushLeftTitle">Left-aligned Text</string>
     <string name="DisplayAlignFlushLeftSummary">Article text will be aligned flush left, ragged right. Default is justified.</string>
     <string name="DisplayDateTimeFormatSystemTitle">Date/Time format</string>
@@ -163,8 +163,6 @@
     <string name="StoreImageLimitSummary">The size of the SD-Card image cache for offline usage.</string>
     <string name="CacheImagesUnreadArticlesTitle">ImageCache unread only</string>
     <string name="CacheImagesUnreadArticlesSummary">Cache images for unread articles only?</string>
-    <string name="CacheUnreadArticlesTitle">ArticleCache unread only</string>
-    <string name="CacheUnreadArticlesSummary">Cache unread articles only?</string>
     <string name="SplitLongGetRequestsTitle">Split long GET-Requests</string>
     <string name="SplitLongGetRequestsSummary">Only use if you got problems with server-side security-scanners like Suhosin. Splits long requests into several small ones.</string>
     <string name="LogSensitiveDataTitle">Log sensitive data?</string>

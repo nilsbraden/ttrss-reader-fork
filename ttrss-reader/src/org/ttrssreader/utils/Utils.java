@@ -173,16 +173,31 @@ public class Utils {
     }
     
     /**
-     * Only checks the connectivity without regard to the preferences
+     * Wrapper for Method checkConnected(ConnectivityManager cm, boolean onlyWifi)
      * 
      * @param cm
      * @return
      */
     public static boolean checkConnected(ConnectivityManager cm) {
+        return checkConnected(cm, false);
+    }
+    
+    /**
+     * Only checks the connectivity without regard to the preferences
+     * 
+     * @param cm
+     * @return
+     */
+    public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi) {
         if (cm == null)
             return false;
         
-        NetworkInfo info = cm.getActiveNetworkInfo();
+        NetworkInfo info; 
+        if (onlyWifi) {
+            info = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        } else {
+            info = cm.getActiveNetworkInfo();
+        }
         
         if (info == null)
             return false;
@@ -264,8 +279,7 @@ public class Utils {
                 }
             }
         } catch (Exception e) {
-            Log.i(Utils.TAG, "Download not finished properly. Exception:");
-            e.printStackTrace();
+            Log.i(Utils.TAG, "Download not finished properly. Exception: " + e.getMessage());
             byteWritten = -1;
         } finally {
             if (fos != null) {

@@ -229,17 +229,25 @@
                 android:title="@string/SystemPreferenceCategoryTitle"
             >
                 <CheckBoxPreference
-                    android:title="@string/CacheOnStartupTitle"
-                    android:defaultValue="false"
-                    android:summary="@string/CacheOnStartupSummary"
-                    android:key="CacheOnStartupPreference" />
-                    
-                <CheckBoxPreference
                     android:title="@string/CacheImagesOnStartupTitle"
                     android:defaultValue="false"
                     android:summary="@string/CacheImagesOnStartupSummary"
-                    android:key="CacheImagesOnStartupPreference" />
+                    android:key="CacheImagesOnStartupPreference"
+                    android:disableDependentsState="false" />
+                    
+                <CheckBoxPreference
+                    android:title="@string/CacheImagesOnlyWifiTitle"
+                    android:defaultValue="false"
+                    android:summary="@string/CacheImagesOnlyWifiSummary"
+                    android:key="CacheImagesOnlyWifiPreference"
+                    android:dependency="CacheImagesOnStartupPreference" />
 
+                <CheckBoxPreference
+                    android:title="@string/CacheImagesUnreadArticlesTitle"
+                    android:defaultValue="true"
+                    android:summary="@string/CacheImagesUnreadArticlesSummary"
+                    android:key="CacheImagesUnreadArticlesPreference" />
+                    
                 <org.ttrssreader.preferences.EditIntegerPreference
                     android:name="@string/DisplayArticleLimitTitle"
                     android:title="@string/DisplayArticleLimitTitle"
@@ -264,18 +272,6 @@
                     android:maxLength="5"
                     android:inputType="number" />
 
-                <CheckBoxPreference
-                    android:title="@string/CacheImagesUnreadArticlesTitle"
-                    android:defaultValue="true"
-                    android:summary="@string/CacheImagesUnreadArticlesSummary"
-                    android:key="CacheImagesUnreadArticlesPreference" />
-
-                <CheckBoxPreference
-                    android:title="@string/CacheUnreadArticlesTitle"
-                    android:defaultValue="true"
-                    android:summary="@string/CacheUnreadArticlesSummary"
-                    android:key="CacheUnreadArticlesPreference" />
-                    
                 <CheckBoxPreference
                     android:title="@string/LogSensitiveDataTitle"
                     android:defaultValue="false"
