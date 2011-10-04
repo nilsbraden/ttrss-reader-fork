@@ -229,12 +229,16 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     mainContainer.populate();
                     
                     // Inject the specific code for attachments, <img> for images, http-link for Videos
-                    content = injectAttachments(getApplicationContext(), article.content, article.attachments);
+                    StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(
+                            article.content), article.attachments);
                     
                     // if (article.cachedImages)
                     // Do this anyway, article.cachedImages can be true also if some images were fetched and others
                     // produced errors
-                    content = injectCachedImages(content, articleId);
+                    contentTmp = injectCachedImages(contentTmp, articleId);
+                    final int contentLength = contentTmp.length();
+                    contentTmp = injectArticleLink(contentTmp);
+                    content = contentTmp.toString();
                     
                     // Load html from Controller and insert content
                     String text = Controller.htmlHeader.replace("MARKER", content);
@@ -257,7 +261,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     if (article.isUnread && Controller.getInstance().automaticMarkRead())
                         new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
                     
-                    if (!linkAutoOpened && content.length() < 3) {
+                    if (!linkAutoOpened && contentLength < 3) {
                         if (Controller.getInstance().openUrlEmptyArticle()) {
                             Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
                             linkAutoOpened = true;
@@ -627,11 +631,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             doRefresh();
     }
     
-    private static String injectAttachments(Context context, String content, Set<String> attachments) {
+    private static StringBuilder injectAttachments(Context context, StringBuilder content, Set<String> attachments) {
         if (content == null)
-            content = "";
-        
-        StringBuilder ret = new StringBuilder(content);
+            content = new StringBuilder();
         
         for (String url : attachments) {
             if (url.length() == 0)
@@ -649,18 +651,31 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     audioOrVideo = true;
             }
             
-            ret.append("<br>\n");
+            content.append("<br>\n");
             if (image) {
-                ret.append("<img src=\"").append(url).append("\" /><br>\n");
+                content.append("<img src=\"").append(url).append("\" /><br>\n");
             } else if (audioOrVideo) {
-                ret.append("<a href=\"").append(url).append("\">");
-                ret.append((String) context.getText(R.string.ArticleActivity_MediaPlay)).append("</a>");
+                content.append("<a href=\"").append(url).append("\">");
+                content.append((String) context.getText(R.string.ArticleActivity_MediaPlay)).append("</a>");
             } else {
-                ret.append("<a href=\"").append(url).append("\">");
-                ret.append((String) context.getText(R.string.ArticleActivity_MediaDisplayLink)).append("</a>");
+                content.append("<a href=\"").append(url).append("\">");
+                content.append((String) context.getText(R.string.ArticleActivity_MediaDisplayLink)).append("</a>");
             }
         }
-        return ret.toString();
+        return content;
+    }
+    
+    private StringBuilder injectArticleLink(StringBuilder html) {
+        if (html == null)
+            html = new StringBuilder();
+        if (article != null) {
+            if ((article.url != null) && (article.url.length() > 0)) {
+                html.append("<br>\n");
+                html.append("<a href=\"").append(article.url).append("\" rel=\"alternate\">");
+                html.append("*** article ***").append("</a>"); // TODO: internationalization
+            }
+        }
+        return html;
     }
     
     /**
@@ -671,17 +686,40 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
      *            the original html
      * @return the altered html with the URLs replaced so they point on local files if available
      */
-    public static String injectCachedImages(String html, int articleId) {
+    private static StringBuilder injectCachedImages(StringBuilder html, int articleId) {
         if (html == null || html.length() < 40)
             return html;
         
-        for (String url : ImageCacher.findAllImageUrls(html, articleId)) {
+        for (String url : ImageCacher.findAllImageUrls(html.toString(), articleId)) {
             String localUrl = ImageCacher.getCachedImageUrl(url);
             if (localUrl != null) {
-                html = html.replace(url, localUrl);
+                replace(html, url, localUrl);
             }
         }
         return html;
+    }
+    
+    private static void replace(StringBuilder s, String target, String replacement) {
+        final boolean oldway = true;
+        if (oldway) {
+            String stmp = s.toString();
+            stmp.replace(target, replacement);
+            s = new StringBuilder(stmp);
+        } else {
+            // TODO: find out why this is broken.
+            int searchStart = 0;
+            final int targetLength = target.length();
+            final int replacementLength = replacement.length();
+            while (true) {
+                int begin = s.indexOf(target, searchStart);
+                if (begin < 0) {
+                    break;
+                } else {
+                    s.replace(begin, begin + targetLength, replacement);
+                    searchStart = begin + replacementLength;
+                }
+            }
+        }
     }
     
     @Override
