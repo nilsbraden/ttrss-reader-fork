@@ -11,7 +11,7 @@
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName"
         android:description="@string/ApplicationDescription"
-        android:debuggable="false"
+        android:debuggable="true"
     >
 
         <activity
