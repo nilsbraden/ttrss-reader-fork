@@ -157,7 +157,6 @@
     <string name="DisplayDarkBackgroundTitle">Use dark background?</string>
     <string name="DisplayDarkBackgroundSummary">Enable this to display the articles with a dark background for easier reading at night.</string>
     
-    
     <string name="SystemPreferenceCategoryTitle">System</string>
     <string name="StoreImageLimitTitle">Image cache size (in MB)</string>
     <string name="StoreImageLimitSummary">The size of the SD-Card image cache for offline usage.</string>
@@ -204,6 +203,13 @@
     <string name="Utils.DownloadErrorTitle">Error</string>
     <string name="Utils.DownloadErrorTicker">Error...</string>
     <string name="Utils.DownloadErrorText">An error occurred, process could not be finished.</string>
+    <string name="SaveAttachmentTitle">Save attachments...</string>
+    <string name="CacheFolderTitle">Cache-Folder...</string>
+    <string name="Utils.FileSaveTitle">Save attachment</string>
+    <string name="Utils.FileSaveMessage">No file browser found. Where would you like to save this attachment?</string>
+    <string name="Utils.OkayAction">OK</string>
+    <string name="Utils.CancelAction">Cancel</string>
+    
     
     <string name="Cache.service_started">Download started...</string>
     <string name="Cache.service_text">Download is running...</string>
