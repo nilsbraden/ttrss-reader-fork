@@ -432,9 +432,9 @@ public class CategoryActivity extends MenuActivity {
             // This stuff will be done in background without UI-notification, but the progress-calls will be done anyway
             // to ensure the UI is refreshed properly. ProgressBar is rendered invisible with the call to
             // publishProgress(taskCount).
-            Data.getInstance().updateCategories(false);
-            publishProgress(0);
             Data.getInstance().updateVirtualCategories();
+            publishProgress(0);
+            Data.getInstance().updateCategories(false);
             publishProgress(0);
             Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
             

@@ -1,6 +1,9 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.11 ==
+  * 
+
 == Version 1.1 ==
   * Added display-preference for dark-background and white text
   * Added preference "Start ImageCache only on Wifi", which prevents the automatically scheduled ImageCache to run on a mobile connection

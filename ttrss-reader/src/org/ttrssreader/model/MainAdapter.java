@@ -35,6 +35,7 @@ public abstract class MainAdapter extends BaseAdapter {
     protected boolean invertSortArticles;
     protected int categoryId;
     protected int feedId;
+    protected long changedTime;
     
     protected boolean selectArticlesForCategory;
     
@@ -158,7 +159,7 @@ public abstract class MainAdapter extends BaseAdapter {
      *            Discards the current cursor and forces a refresh, including a newly built SQL-Query.
      */
     public final synchronized void makeQuery(boolean forceRefresh) {
-        boolean refresh = false;
+        boolean refresh = false || forceRefresh;
         // Check if display-settings have changed
         if (displayOnlyUnread != Controller.getInstance().onlyUnread()) {
             refresh = true;
@@ -176,18 +177,18 @@ public abstract class MainAdapter extends BaseAdapter {
         // if: sort-order or display-settings changed
         // if: forced by explicit call with forceRefresh
         // if: cursor is closed or null
-        if (refresh || forceRefresh || (cursor != null && cursor.isClosed()) || cursor == null) {
-            if (cursor != null)
-                closeCursor();
+        if (refresh || (cursor != null && cursor.isClosed()) || cursor == null) {
+            // if (cursor != null) // Not necessary, child can close it if it issues a new query.
+            // closeCursor();
             
             try {
-                cursor = executeQuery(false, false); // normal query
+                cursor = executeQuery(false, false, refresh); // normal query
                 
                 if (!checkUnread(cursor))
-                    cursor = executeQuery(true, false); // Override unread if query was empty
+                    cursor = executeQuery(true, false, refresh); // Override unread if query was empty
                     
             } catch (Exception e) {
-                cursor = executeQuery(false, true); // Fail-safe-query
+                cursor = executeQuery(false, true, refresh); // Fail-safe-query
             }
             
         } else if (cursor != null) {
@@ -232,8 +233,13 @@ public abstract class MainAdapter extends BaseAdapter {
      * @param overrideDisplayUnread
      *            if true unread articles/feeds/anything won't be filtered as specified by the setting but will be
      *            included in the result.
+     * @param buildSafeQuery
+     *            indicates that the query should modified to also display unread content even though displayUnread is
+     *            disabled, this is used to get a new query when the current query is empty.
+     * @param forceRefresh
+     *            this indicates that a refresh of the cursor should be forced.
      * @return a valid SQL-Query string for this adapter.
      */
-    protected abstract Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
+    protected abstract Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery, boolean forceRefresh);
     
 }

@@ -24,9 +24,11 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -133,7 +135,18 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return layout;
     }
     
-    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery, boolean forceRefresh) {
+        
+        long currentChangedTime = Data.getInstance().getArticlesChanged(feedId);
+        boolean refresh = buildSafeQuery || forceRefresh || (currentChangedTime == -1 && changedTime != -1);
+        
+        if (refresh){
+            // Create query, currentChangedTime is not initialized or safeQuery requested or forceRefresh requested.
+        } else if (cursor != null && !cursor.isClosed() && changedTime >= currentChangedTime) {
+            Log.d(Utils.TAG, "FeedHeadline currentChangedTime: " + currentChangedTime + " changedTime: " + changedTime);
+            return cursor;
+        }
+        
         String query;
         if (feedId > -10)
             query = buildFeedQuery(overrideDisplayUnread, buildSafeQuery);
@@ -141,7 +154,9 @@ public class FeedHeadlineAdapter extends MainAdapter {
             query = buildLabelQuery(overrideDisplayUnread, buildSafeQuery);
         
         closeCursor();
-        return DBHelper.getInstance().query(query, null);
+        Cursor c = DBHelper.getInstance().query(query, null);
+        changedTime = Data.getInstance().getArticlesChanged(feedId); // Re-fetch changedTime since it can have changed by now
+        return c;
     }
     
     private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
@@ -222,7 +237,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
             query.append(" m WHERE b2m.labelId=m.id AND b2m.articleId=b.id");
             query.append(" AND b.id=" + lastOpenedArticle);
         }
-
+        
         query.append(" ORDER BY updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
         return query.toString();

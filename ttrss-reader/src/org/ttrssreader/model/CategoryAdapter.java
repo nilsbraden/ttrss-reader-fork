@@ -23,12 +23,14 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -134,7 +136,22 @@ public class CategoryAdapter extends MainAdapter {
         return layout;
     }
     
-    protected synchronized Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+    protected synchronized Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery, boolean forceRefresh) {
+        
+        long currentChangedTime = Data.getInstance().getCategoriesChanged();
+        boolean refresh = buildSafeQuery || forceRefresh || (currentChangedTime == -1 && changedTime != -1);
+        
+        if (refresh){
+            // Create query, currentChangedTime is not initialized or safeQuery requested or forceRefresh requested.
+        } else if (cursor != null && !cursor.isClosed() && changedTime >= currentChangedTime) {
+            Log.d(Utils.TAG, "Category currentChangedTime: " + currentChangedTime + " changedTime: " + changedTime);
+            return cursor;
+        }
+        
+        boolean displayUnread = displayOnlyUnread;
+        if (overrideDisplayUnread)
+            displayUnread = false;
+        
         if (db != null)
             db.close();
         
@@ -142,12 +159,7 @@ public class CategoryAdapter extends MainAdapter {
         db = openHelper.getWritableDatabase();
         insert = db.compileStatement(INSERT);
         
-        boolean displayUnread = displayOnlyUnread;
-        if (overrideDisplayUnread)
-            displayUnread = false;
-        
         StringBuilder query;
-        
         // Virtual Feeds
         if (Controller.getInstance().showVirtual()) {
             query = new StringBuilder();
@@ -188,6 +200,7 @@ public class CategoryAdapter extends MainAdapter {
         String[] columns = { "id", "title", "unread" };
         Cursor c = db.query(TABLE_NAME, columns, null, null, null, null, "sortId "
                 + (invertSortFeedCats ? "DESC" : "ASC"));
+        changedTime = Data.getInstance().getCategoriesChanged(); // Re-fetch changedTime since it can have changed by now
         return c;
     }
     

@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:installLocation="auto"
-    android:versionName="1.1"
-    android:versionCode="1100"
+    android:versionName="1.11"
+    android:versionCode="1110"
 >
 
     <application
