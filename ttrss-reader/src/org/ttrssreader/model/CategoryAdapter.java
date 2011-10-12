@@ -141,10 +141,10 @@ public class CategoryAdapter extends MainAdapter {
         long currentChangedTime = Data.getInstance().getCategoriesChanged();
         boolean refresh = buildSafeQuery || forceRefresh || (currentChangedTime == -1 && changedTime != -1);
         
-        if (refresh){
+        if (refresh) {
             // Create query, currentChangedTime is not initialized or safeQuery requested or forceRefresh requested.
         } else if (cursor != null && !cursor.isClosed() && changedTime >= currentChangedTime) {
-            Log.d(Utils.TAG, "Category currentChangedTime: " + currentChangedTime + " changedTime: " + changedTime);
+            // Log.d(Utils.TAG, "Category currentChangedTime: " + currentChangedTime + " changedTime: " + changedTime);
             return cursor;
         }
         
@@ -200,7 +200,8 @@ public class CategoryAdapter extends MainAdapter {
         String[] columns = { "id", "title", "unread" };
         Cursor c = db.query(TABLE_NAME, columns, null, null, null, null, "sortId "
                 + (invertSortFeedCats ? "DESC" : "ASC"));
-        changedTime = Data.getInstance().getCategoriesChanged(); // Re-fetch changedTime since it can have changed by now
+        changedTime = Data.getInstance().getCategoriesChanged(); // Re-fetch changedTime since it can have changed by
+                                                                 // now
         return c;
     }
     

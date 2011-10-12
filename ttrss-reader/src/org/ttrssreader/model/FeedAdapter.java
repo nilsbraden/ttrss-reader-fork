@@ -101,10 +101,10 @@ public class FeedAdapter extends MainAdapter {
         long currentChangedTime = Data.getInstance().getFeedsChanged(categoryId);
         boolean refresh = buildSafeQuery || forceRefresh || (currentChangedTime == -1 && changedTime != -1);
         
-        if (refresh){
+        if (refresh) {
             // Create query, currentChangedTime is not initialized or safeQuery requested or forceRefresh requested.
         } else if (cursor != null && !cursor.isClosed() && changedTime >= currentChangedTime) {
-            Log.d(Utils.TAG, "Feed currentChangedTime: " + currentChangedTime + " changedTime: " + changedTime);
+            // Log.d(Utils.TAG, "Feed currentChangedTime: " + currentChangedTime + " changedTime: " + changedTime);
             return cursor;
         }
         
@@ -135,10 +135,11 @@ public class FeedAdapter extends MainAdapter {
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         query.append(buildSafeQuery ? " LIMIT 100" : " LIMIT 1000"); // TODO: Does a hard limit make sense here?
-
+        
         closeCursor();
         Cursor c = DBHelper.getInstance().query(query.toString(), null);
-        changedTime = Data.getInstance().getFeedsChanged(categoryId); // Re-fetch changedTime since it can have changed by now
+        changedTime = Data.getInstance().getFeedsChanged(categoryId); // Re-fetch changedTime since it can have changed
+                                                                      // by now
         return c;
     }
     
