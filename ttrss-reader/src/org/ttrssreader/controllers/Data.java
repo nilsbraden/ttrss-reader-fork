@@ -44,6 +44,11 @@ public class Data {
     private long virtCategoriesUpdated = 0;
     private long categoriesUpdated = 0;
     
+
+    private Map<Integer, Long> articlesChanged = new HashMap<Integer, Long>();
+    private Map<Integer, Long> feedsChanged = new HashMap<Integer, Long>();
+    private long categoriesChanged = 0;
+    
     private ConnectivityManager cm;
     
     // Singleton
@@ -66,18 +71,59 @@ public class Data {
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
     
+    public long getArticlesChanged(int feedId) {
+        if (articlesChanged.get(feedId) == null)
+            return -1;
+        else
+            return articlesChanged.get(feedId);
+    }
+    
+    public long getFeedsChanged(int categoryId) {
+        if (feedsChanged.get(categoryId) == null)
+            return -1;
+        else
+            return feedsChanged.get(categoryId);
+    }
+    
+    public long getCategoriesChanged() {
+        if (categoriesChanged == 0)
+            return -1;
+        else
+            return categoriesChanged;
+    }
+    
+    public void setArticlesChanged(int feedId, long time) {
+        if (articlesChanged.get(feedId) == null || articlesChanged.get(feedId) < time)
+            articlesChanged.put(feedId, time);
+    }
+    
+    public void setFeedsChanged(int categoryId, long time) {
+        if (feedsChanged.get(categoryId) == null || feedsChanged.get(categoryId) < time)
+            feedsChanged.put(categoryId, time);
+    }
+    
+    public void setCategoriesChanged(long time) {
+        if (categoriesChanged < time)
+            categoriesChanged = time;
+    }
+    
     // *** COUNTERS *********************************************************************
     
     public void resetTime(int id, boolean isCat, boolean isFeed, boolean isArticle) {
         if (isCat) { // id doesn't matter
             virtCategoriesUpdated = 0;
             categoriesUpdated = 0;
+            categoriesChanged = 0;
             countersUpdated = 0;
         }
-        if (isFeed)
+        if (isFeed) {
             feedsUpdated.put(id, new Long(0)); // id == categoryId
-        if (isArticle)
+            feedsChanged.put(id, new Long(0)); // id == categoryId
+        }
+        if (isArticle) {
             articlesUpdated.put(id, new Long(0)); // id == feedId
+            articlesChanged.put(id, new Long(0)); // id == feedId
+        }
     }
     
     public void updateCounters(boolean overrideOffline) {
@@ -171,9 +217,11 @@ public class Data {
                     // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
                     // requested
                     articlesUpdated.put(feedId, System.currentTimeMillis());
+                    articlesChanged.put(feedId, System.currentTimeMillis());
                     if (isCat) {
                         for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
                             articlesUpdated.put(f.id, System.currentTimeMillis());
+                            articlesChanged.put(f.id, System.currentTimeMillis());
                         }
                     }
                 }
@@ -210,8 +258,10 @@ public class Data {
                     
                     // Store requested category-id and ids of all received feeds
                     feedsUpdated.put(categoryId, System.currentTimeMillis());
+                    feedsChanged.put(categoryId, System.currentTimeMillis());
                     for (Feed f : feeds) {
                         feedsUpdated.put(f.categoryId, System.currentTimeMillis());
+                        feedsChanged.put(f.categoryId, System.currentTimeMillis());
                     }
                 }
                 
@@ -266,6 +316,7 @@ public class Data {
                     DBHelper.getInstance().deleteCategories(false);
                     DBHelper.getInstance().insertCategories(categories);
                     categoriesUpdated = System.currentTimeMillis();
+                    categoriesChanged = System.currentTimeMillis();
                 }
                 
                 return categories;
@@ -290,10 +341,10 @@ public class Data {
             DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, articleState);
     }
     
-    public void setArticleStarred(int articleIds, int articleState) {
+    public void setArticleStarred(int articleId, int articleState) {
         boolean erg = false;
         Set<Integer> ids = new HashSet<Integer>();
-        ids.add(articleIds);
+        ids.add(articleId);
         
         if (Utils.isConnected(cm))
             try {
@@ -306,10 +357,10 @@ public class Data {
             DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, articleState);
     }
     
-    public void setArticlePublished(int articleIds, int articleState) {
+    public void setArticlePublished(int articleId, int articleState) {
         boolean erg = false;
         Set<Integer> ids = new HashSet<Integer>();
-        ids.add(articleIds);
+        ids.add(articleId);
         
         if (Utils.isConnected(cm))
             try {
@@ -334,15 +385,15 @@ public class Data {
         
         if (isCategory || id < 0) {
             
+            DBHelper.getInstance().markCategoryRead(id);
             if (!erg)
                 DBHelper.getInstance().markUnsynchronizedStatesCategory(id);
-            DBHelper.getInstance().markCategoryRead(id);
             
         } else {
             
+            DBHelper.getInstance().markFeedRead(id);
             if (!erg)
                 DBHelper.getInstance().markUnsynchronizedStatesFeed(id);
-            DBHelper.getInstance().markFeedRead(id);
             
         }
     }

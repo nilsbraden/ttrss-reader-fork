@@ -76,25 +76,32 @@ public class ReadStateUpdater implements IUpdatable {
         if (categories != null) {
             
             for (Category ci : categories) {
+                DBHelper.getInstance().markCategoryRead(ci.id);
+                Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
+            }
+            
+            parent.progress();
+            
+            for (Category ci : categories) {
+                // VirtualCats are actually Feeds (the server handles them as such) so we have to set isCat to false
                 if (ci.id >= 0) {
                     Data.getInstance().setRead(ci.id, true);
                 } else {
-                    // Virtual Categories are actually Feeds (the server handles them as such) so we have to set isCat
-                    // to false here
                     Data.getInstance().setRead(ci.id, false);
                 }
-                parent.progress();
-                DBHelper.getInstance().markCategoryRead(ci.id);
             }
             
         } else if (feeds != null) {
             
             for (Feed fi : feeds) {
-                Data.getInstance().setRead(fi.id, false);
-            }
-            parent.progress();
-            for (Feed fi : feeds) {
                 DBHelper.getInstance().markFeedRead(fi.id);
+                Data.getInstance().setFeedsChanged(fi.categoryId, System.currentTimeMillis());
+            }
+            
+            parent.progress();
+            
+            for (Feed fi : feeds) {
+                Data.getInstance().setRead(fi.id, false);
             }
             
         } else if (articles != null) {
@@ -136,13 +143,20 @@ public class ReadStateUpdater implements IUpdatable {
                 // Check if it is a published article and modify that count too
                 if (article.isPublished && pid != Data.VCAT_PUB)
                     DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_PUB, delta);
+                
+                // Mark all categories and feeds as "changed" since the counters were changed here
+                Data.getInstance().setArticlesChanged(feedId, System.currentTimeMillis());
+                Data.getInstance().setFeedsChanged(categoryId, System.currentTimeMillis());
+                Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
             }
-
+            
             if (ids.size() > 0) {
                 DBHelper.getInstance().markArticles(ids, "isUnread", articleState);
+                Data.getInstance().setArticlesChanged(pid, System.currentTimeMillis());
                 
                 int deltaUnread = articleState == 1 ? ids.size() : -ids.size();
                 DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_ALL, deltaUnread);
+                
                 if (pid < 0 && pid >= -3) {
                     // If on a virtual category also update article state in it.
                     DBHelper.getInstance().updateCategoryDeltaUnreadCount(pid, deltaUnread);
@@ -152,6 +166,7 @@ public class ReadStateUpdater implements IUpdatable {
                 }
                 
                 parent.progress();
+                
                 Data.getInstance().setArticleRead(ids, articleState);
             }
             

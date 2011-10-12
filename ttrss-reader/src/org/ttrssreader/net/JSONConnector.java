@@ -535,6 +535,7 @@ public class JSONConnector implements Connector {
                     if (cat && id >= 0) {
                         // Category
                         db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+                        Data.getInstance().setFeedsChanged(id, System.currentTimeMillis());
                     } else if (!cat && id < 0 && id >= -4) {
                         // Virtual Category
                         db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
@@ -554,6 +555,7 @@ public class JSONConnector implements Connector {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
+                Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }
@@ -673,6 +675,12 @@ public class JSONConnector implements Connector {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
+                
+                if (isCategory)
+                    Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
+                else
+                    Data.getInstance().setFeedsChanged(catId, System.currentTimeMillis());
+                
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }
