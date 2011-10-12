@@ -52,7 +52,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
     private boolean onlyArticles;
     private boolean onlyUnreadImages;
-    private boolean onlyUnreadArticles;
     private long cacheSizeMax;
     private ImageCache imageCache;
     private long folderSize;
@@ -63,7 +62,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         this.parent = parent;
         this.context = context;
         this.onlyArticles = onlyArticles;
-        this.onlyUnreadArticles = Controller.getInstance().isArticleCacheUnread();
     }
     
     @Override
@@ -93,17 +91,17 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             Data.getInstance().updateFeeds(Data.VCAT_ALL, true);
             
             for (Category c : cats) {
-                if (c.unread == 0 && onlyUnreadArticles)
+                if (c.unread == 0)
                     continue;
                 publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true, true);
+                Data.getInstance().updateArticles(c.id, true, true, true);
             }
             
             for (Feed f : labels) {
-                if (f.unread == 0 && onlyUnreadArticles)
+                if (f.unread == 0)
                     continue;
                 publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false);
+                Data.getInstance().updateArticles(f.id, true, false);
             }
             
             publishProgress(taskCount); // Move progress forward
