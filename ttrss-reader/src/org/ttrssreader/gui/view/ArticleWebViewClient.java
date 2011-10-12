@@ -23,8 +23,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.ArticleActivity;
 import org.ttrssreader.gui.MediaPlayerActivity;
+import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -170,14 +172,20 @@ public class ArticleWebViewClient extends WebViewClient {
                 }
             }
             
-            // Path: /sdcard/Android/data/org.ttrssreader/files/
-            StringBuilder sb = new StringBuilder();
-            sb.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH_FILES);
-            File folder = new File(sb.toString());
+            // Use configured output directory
+            File folder = new File(Controller.getInstance().saveAttachmentPath());
             
             if (!folder.exists()) {
-                folder.mkdirs();
+                if (!folder.mkdirs()) {
+                    // Folder could not be created, fallback to internal directory on sdcard
+                    // Path: /sdcard/Android/data/org.ttrssreader/files/
+                    folder = new File(Constants.SAVE_ATTACHMENT_DEFAULT);
+                    folder.mkdirs();
+                }
             }
+            
+            if (!folder.exists())
+                folder.mkdirs();
             
             RandomAccessFile file = null;
             try {
