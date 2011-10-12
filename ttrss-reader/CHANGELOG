@@ -1,6 +1,9 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.12 ==
+  * Added dialogs to preferences which allow to change the Cache-Folder and the download-location for attached Media-Files
+
 == Version 1.11 ==
   * Modified background-refresh of displayed content, empty lists should not happen anymore (or at least not so often)
   * Changed link-color for dark theme, links are now red and readable on dark background.

@@ -20,16 +20,20 @@
         name="updates"
     >
     
+    <item>Version 1.12
+            \n * Added dialogs to preferences which allow to change the Cache-Folder and the download-location for attached Media-Files.
+            </item>
+    
     <item>Version 1.11
-            \n * Modified background-refresh of displayed content, empty lists should not happen anymore (or at least not so often)
+            \n * Modified background-refresh of displayed content, empty lists should not happen anymore (or at least not so often).
             \n * Changed link-color for dark theme, links are now red and readable on dark background.
             \n * Added connection-timeouts (5 seconds for connection, 8 seconds for receiving any data) to avoid endless running jobs.
             </item>
             
     <item>Version 1.1
-            \n * Added display-preference for dark-background and white text
-            \n * Added preference "Start ImageCache only on Wifi", prevents the automatically scheduled ImageCache to run on a mobile connection
-            \n * Fixed bug: Error in case of disabled-API
+            \n * Added display-preference for dark-background and white text.
+            \n * Added preference "Start ImageCache only on Wifi", prevents the automatically scheduled ImageCache to run on a mobile connection.
+            \n * Fixed bug: Error in case of disabled-API.
             </item>
     
     <item>Version 1.09

@@ -90,6 +90,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     private Integer imageCacheSize = null;
     private Boolean imageCacheUnread = null;
+    private String saveAttachment = null;
+    private String cacheFolder = null;
     private Boolean isVacuumDBScheduled = null;
     private Boolean isDeleteDBScheduled = null;
     private Boolean isDeleteDBOnStartup = null;
@@ -540,6 +542,28 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setImageCacheUnread(boolean imageCacheUnread) {
         put(Constants.IMAGE_CACHE_UNREAD, imageCacheUnread);
         this.imageCacheUnread = imageCacheUnread;
+    }
+    
+    public String saveAttachmentPath() {
+        if (saveAttachment == null)
+            saveAttachment = prefs.getString(Constants.SAVE_ATTACHMENT, Constants.SAVE_ATTACHMENT_DEFAULT);
+        return saveAttachment;
+    }
+    
+    public void setSaveAttachmentPath(String saveAttachment) {
+        put(Constants.SAVE_ATTACHMENT, saveAttachment);
+        this.saveAttachment = saveAttachment;
+    }
+    
+    public String cacheFolder() {
+        if (cacheFolder == null)
+            cacheFolder = prefs.getString(Constants.CACHE_FOLDER, Constants.CACHE_FOLDER_DEFAULT);
+        return cacheFolder;
+    }
+    
+    public void setCacheFolder(String cacheFolder) {
+        put(Constants.CACHE_FOLDER, cacheFolder);
+        this.cacheFolder = cacheFolder;
     }
     
     public boolean isVacuumDBScheduled() {

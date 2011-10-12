@@ -16,15 +16,28 @@
 
 package org.ttrssreader.preferences;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import org.ttrssreader.utils.Utils;
 import android.content.SharedPreferences;
+import android.os.Environment;
 
 public class Constants {
     
     public static String EMPTY = "";
     public static String APPENDED_DEFAULT = "_DEFAULT";
+    
+    static {
+        StringBuilder sbAttachments = new StringBuilder();
+        sbAttachments.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH_FILES);
+        SAVE_ATTACHMENT_DEFAULT = sbAttachments.toString();
+        
+        StringBuilder sbCache = new StringBuilder();
+        sbCache.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH_CACHE);
+        CACHE_FOLDER_DEFAULT = sbCache.toString();
+    }
     
     // Connection
     public static String URL = "ConnectionUrlPreference";
@@ -89,7 +102,8 @@ public class Constants {
     // System
     public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
     public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesPreference";
-    public static String ARTICLE_CACHE_UNREAD = "CacheUnreadArticlesPreference";
+    public static String SAVE_ATTACHMENT = "SaveAttachmentPreference";
+    public static String CACHE_FOLDER = "CacheFolderPreference";
     public static String VACUUM_DB_SCHEDULED = "VacuumDBScheduledPreference";
     public static String DELETE_DB_SCHEDULED = "DeleteDBScheduledPreference";
     public static String DELETE_DB_ON_STARTUP = "DeleteDBOnStartupPreference";
@@ -102,7 +116,8 @@ public class Constants {
     // System Default Values
     public static int IMAGE_CACHE_SIZE_DEFAULT = 50;
     public static boolean IMAGE_CACHE_UNREAD_DEFAULT = true;
-    public static boolean ARTICLE_CACHE_UNREAD_DEFAULT = true;
+    public static String SAVE_ATTACHMENT_DEFAULT;
+    public static String CACHE_FOLDER_DEFAULT;
     public static boolean VACUUM_DB_SCHEDULED_DEFAULT = false;
     public static boolean DELETE_DB_SCHEDULED_DEFAULT = false;
     public static boolean DELETE_DB_ON_STARTUP_DEFAULT = false;

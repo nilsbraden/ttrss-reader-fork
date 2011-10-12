@@ -20,6 +20,8 @@ package org.ttrssreader.utils;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.preferences.Constants;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
@@ -46,13 +48,27 @@ public class ImageCache extends AbstractCache<String, byte[]> {
      */
     public boolean enableDiskCache() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            diskCacheDir = Environment.getExternalStorageDirectory() + File.separator + Utils.SDCARD_PATH_CACHE;
-            File outFile = new File(diskCacheDir);
-            outFile.mkdirs();
-            isDiskCacheEnabled = outFile.exists();
+
+            // Use configured output directory
+            diskCacheDir = Controller.getInstance().cacheFolder();
+            File folder = new File(diskCacheDir);
+            
+            if (!folder.exists()) {
+                if (!folder.mkdirs()) {
+                    // Folder could not be created, fallback to internal directory on sdcard
+                    // Path: /sdcard/Android/data/org.ttrssreader/cache/
+                    diskCacheDir = Constants.CACHE_FOLDER_DEFAULT;
+                    folder = new File(diskCacheDir);
+                }
+            }
+
+            if (!folder.exists())
+                folder.mkdirs();
+            
+            isDiskCacheEnabled = folder.exists();
             
             // Create .nomedia File in Cache-Folder so android doesn't generate thumbnails
-            File nomediaFile = new File(this.diskCacheDir + File.separator + ".nomedia");
+            File nomediaFile = new File(diskCacheDir + File.separator + ".nomedia");
             if (!nomediaFile.exists()) {
                 try {
                     nomediaFile.createNewFile();

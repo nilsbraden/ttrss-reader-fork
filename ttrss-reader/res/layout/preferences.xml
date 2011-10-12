@@ -248,6 +248,18 @@
                     android:summary="@string/CacheImagesUnreadArticlesSummary"
                     android:key="CacheImagesUnreadArticlesPreference" />
                     
+                <Preference
+                    android:persistent="false"
+                    android:title="@string/SaveAttachmentTitle"
+                    android:key="SaveAttachmentPreference"
+                    android:summary="- PATH - set by activty -"/>
+            
+                <Preference
+                    android:persistent="false"
+                    android:title="@string/CacheFolderTitle"
+                    android:key="CacheFolderPreference"
+                    android:summary="- PATH - set by activty -"/>
+                    
                 <org.ttrssreader.preferences.EditIntegerPreference
                     android:name="@string/DisplayArticleLimitTitle"
                     android:title="@string/DisplayArticleLimitTitle"
