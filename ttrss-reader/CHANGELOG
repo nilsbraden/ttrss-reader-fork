@@ -2,7 +2,8 @@
 
 = Changes =
 == Version 1.11 ==
-  * 
+  * Modified background-refresh of displayed content, empty lists should not happen anymore (or at least not so often)
+  * Changed link-color for dark theme, links are now red and readable on dark background
 
 == Version 1.1 ==
   * Added display-preference for dark-background and white text

@@ -19,6 +19,7 @@ package org.ttrssreader.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -190,6 +193,16 @@ public class JSONConnector implements Connector {
             jsonData.setContentType("application/json");
             post.setEntity(jsonData);
             
+            // Add timeouts for the connection
+            HttpParams httpParams = post.getParams();
+            // Set the timeout in milliseconds until a connection is established.
+            int timeoutConnection = 5000;
+            HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
+            // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
+            int timeoutSocket = 8000;
+            HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
+            post.setParams(httpParams);
+            
             // LOG-Output
             if (!Controller.getInstance().logSensitiveData()) {
                 // Filter password and session-id
@@ -228,13 +241,12 @@ public class JSONConnector implements Connector {
             hasLastError = true;
             lastError = "SSLException on client.execute(httpPost) [ " + e.getCause() + " ]";
             return null;
+        } catch (SocketTimeoutException e) {
+            // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
+            Log.w(Utils.TAG, "Connection timed out (" + e.getMessage() + ") in doRequest()");
+            return null;
         } catch (IOException e) {
-            /*
-             * Occurs on timeout of the connection. Would be better to catch the specialized exception for that
-             * case but which is it? The Reference (http://developer.android.com/reference/java/io/IOException.html)
-             * lists lots of subclasses.
-             */
-            Log.w(Utils.TAG, "IOException (" + e.getMessage() + ") occurred in doRequest()...");
+            Log.w(Utils.TAG, "IOException (" + e.getMessage() + ") occurred in doRequest()");
             return null;
         }
         
@@ -728,7 +740,6 @@ public class JSONConnector implements Connector {
         Set<Category> ret = new LinkedHashSet<Category>();
         if (!sessionAlive())
             return ret;
-        
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_CATEGORIES);
