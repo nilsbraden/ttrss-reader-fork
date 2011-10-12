@@ -137,8 +137,6 @@
     <string name="StoreImageLimitSummary">Taille, sur la SD-Card, du cache pour les images pour un usage hors ligne.</string>
     <string name="CacheImagesUnreadArticlesTitle">Cache d\'image pour les non-lus seulement</string>
     <string name="CacheImagesUnreadArticlesSummary">Utilise le cache uniquement pour les images des articles non-lus ?</string>
-    <string name="CacheUnreadArticlesTitle">Cache pour les articles non-lus</string>
-    <string name="CacheUnreadArticlesSummary">Utilise le cache uniquement pour les articles non-lus ?</string>
     <string name="SplitLongGetRequestsTitle">Sépare les longues requêtes GET</string>
     <string name="SplitLongGetRequestsSummary">A seulement utiliser si vous avez des problèmes avec la connection au serveur qui utilise des utilitaires de sécurité comme Suhosin. Sépare les longues requêtes en plusieurs petites.</string>
     
