@@ -21,7 +21,7 @@
             &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
             &lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&gt;
             &lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-            &lt;head&gt;&lt;style type=&quot;text/css&quot;&gt;* { TEXT_ALIGN_MARKER } img { max-width : 100%; }&lt;/style&gt;&lt;/head&gt;
+            &lt;head&gt;&lt;style type=&quot;text/css&quot;&gt;img {max-width:100%} y* {TEXT_ALIGN_MARKER} A:link {LINK_MARKER} A:visited {LINK_VISITED_MARKER}&lt;/style&gt;&lt;/head&gt;
             &lt;body&gt;MARKER&lt;/body&gt;&lt;/html&gt;
     </string>
     
@@ -31,11 +31,16 @@
             &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
             &lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&gt;
             &lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
-            &lt;head&gt;&lt;style type=&quot;text/css&quot;&gt;* { TEXT_ALIGN_MARKER }&lt;/style&gt;&lt;/head&gt;
+            &lt;head&gt;&lt;style type=&quot;text/css&quot;&gt;* {TEXT_ALIGN_MARKER} A:link {LINK_MARKER} A:visited {LINK_VISITED_MARKER}&lt;/style&gt;&lt;/head&gt;
             &lt;body&gt;MARKER&lt;/body&gt;&lt;/html&gt;
     </string>
     
     <string name="ALIGN_JUSTIFY">text-align:justify;</string>
     <string name="ALIGN_LEFT">text-align:left;</string>
+    <string name="COLOR_LINK_LIGHT">color:blue;</string>
+    <string name="COLOR_LINK_DARK">color:red;</string>
+    <string name="COLOR_LINK_LIGHT_VISITED">color:blue;</string>
+    <string name="COLOR_LINK_DARK_VISITED">color:#D00000;</string>
+    
     
 </resources>
