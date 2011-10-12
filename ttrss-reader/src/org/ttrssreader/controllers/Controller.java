@@ -45,6 +45,9 @@ import android.view.Display;
 public class Controller implements OnSharedPreferenceChangeListener {
     
     public final static String JSON_END_URL = "api/";
+    private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
+    private static final String MARKER_LINK = "LINK_MARKER";
+    private static final String MARKER_LINK_VISITED = "LINK_VISITED_MARKER";
     
     private boolean initialized = false;
     private Context context;
@@ -155,15 +158,29 @@ public class Controller implements OnSharedPreferenceChangeListener {
         // Article-Prefetch-Stuff from Raw-Ressources and System
         htmlHeader = context.getResources().getString(R.string.INJECT_HTML_HEAD);
         
-        // Replace marker with the requested layout, align:left or justified
-        String alignMarker = "TEXT_ALIGN_MARKER";
-        String replacement = "";
+        // Replace alignment-marker with the requested layout, align:left or justified
+        String replaceAlign = "";
         if (alignFlushLeft()) {
-            replacement = context.getResources().getString(R.string.ALIGN_LEFT);
-            htmlHeader = htmlHeader.replace(alignMarker, replacement);
+            replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
+            htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
         } else {
-            replacement = context.getResources().getString(R.string.ALIGN_JUSTIFY);
-            htmlHeader = htmlHeader.replace(alignMarker, replacement);
+            replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
+            htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
+        }
+        
+        // Replace color-markers with matching colors for the requested background 
+        String replaceLink = "";
+        String replaceLinkVisited = "";
+        if (darkBackground()) {
+            replaceLink = context.getResources().getString(R.string.COLOR_LINK_DARK);
+            replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_DARK_VISITED);
+            htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
+            htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
+        } else {
+            replaceLink = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
+            replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_LIGHT_VISITED);
+            htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
+            htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
         }
         
         // Initialize ImageCache
