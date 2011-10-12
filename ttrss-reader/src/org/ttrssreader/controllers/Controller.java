@@ -90,7 +90,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     private Integer imageCacheSize = null;
     private Boolean imageCacheUnread = null;
-    private Boolean articleCacheUnread = null;
     private Boolean isVacuumDBScheduled = null;
     private Boolean isDeleteDBScheduled = null;
     private Boolean isDeleteDBOnStartup = null;
@@ -541,18 +540,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setImageCacheUnread(boolean imageCacheUnread) {
         put(Constants.IMAGE_CACHE_UNREAD, imageCacheUnread);
         this.imageCacheUnread = imageCacheUnread;
-    }
-    
-    public boolean isArticleCacheUnread() {
-        if (articleCacheUnread == null)
-            articleCacheUnread = prefs.getBoolean(Constants.ARTICLE_CACHE_UNREAD,
-                    Constants.ARTICLE_CACHE_UNREAD_DEFAULT);
-        return articleCacheUnread;
-    }
-    
-    public void setArticleCacheUnread(boolean articleCacheUnread) {
-        put(Constants.ARTICLE_CACHE_UNREAD, articleCacheUnread);
-        this.articleCacheUnread = articleCacheUnread;
     }
     
     public boolean isVacuumDBScheduled() {
