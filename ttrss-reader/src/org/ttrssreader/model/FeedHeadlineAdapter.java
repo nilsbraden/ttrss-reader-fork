@@ -140,10 +140,11 @@ public class FeedHeadlineAdapter extends MainAdapter {
         long currentChangedTime = Data.getInstance().getArticlesChanged(feedId);
         boolean refresh = buildSafeQuery || forceRefresh || (currentChangedTime == -1 && changedTime != -1);
         
-        if (refresh){
+        if (refresh) {
             // Create query, currentChangedTime is not initialized or safeQuery requested or forceRefresh requested.
         } else if (cursor != null && !cursor.isClosed() && changedTime >= currentChangedTime) {
-            Log.d(Utils.TAG, "FeedHeadline currentChangedTime: " + currentChangedTime + " changedTime: " + changedTime);
+            // Log.d(Utils.TAG, "FeedHeadline currentChangedTime: " + currentChangedTime + " changedTime: " +
+            // changedTime);
             return cursor;
         }
         
@@ -155,7 +156,8 @@ public class FeedHeadlineAdapter extends MainAdapter {
         
         closeCursor();
         Cursor c = DBHelper.getInstance().query(query, null);
-        changedTime = Data.getInstance().getArticlesChanged(feedId); // Re-fetch changedTime since it can have changed by now
+        changedTime = Data.getInstance().getArticlesChanged(feedId); // Re-fetch changedTime since it can have changed
+                                                                     // by now
         return c;
     }
     
