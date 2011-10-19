@@ -77,7 +77,6 @@ public class CategoryActivity extends MenuActivity {
         
         listView = getListView();
         registerForContextMenu(listView);
-        notificationTextView = (TextView) findViewById(R.id.notification);
         
         if (!Utils.checkFirstRun(this)) { // Check for new installation
             showDialog(DIALOG_WELCOME);
@@ -184,7 +183,6 @@ public class CategoryActivity extends MenuActivity {
         if (categoryUpdater == null && !isCacherRunning()) {
             setProgressBarIndeterminateVisibility(false);
             setProgressBarVisibility(false);
-            notificationTextView.setText(R.string.Loading_EmptyCategories);
         }
     }
     
@@ -202,7 +200,6 @@ public class CategoryActivity extends MenuActivity {
         if (!isCacherRunning() && !cacherStarted) {
             setProgressBarIndeterminateVisibility(true);
             setProgressBarVisibility(true);
-            notificationTextView.setText(R.string.Loading_Categories);
             
             categoryUpdater = new CategoryUpdater();
             categoryUpdater.execute();

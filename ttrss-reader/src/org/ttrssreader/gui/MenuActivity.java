@@ -45,7 +45,6 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
     
     protected ListView listView;
     protected Updater updater;
-    protected TextView notificationTextView;
     
     protected static final int MARK_GROUP = 42;
     protected static final int MARK_READ = MARK_GROUP + 1;

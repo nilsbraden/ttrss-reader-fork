@@ -78,7 +78,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         listView = getListView();
         registerForContextMenu(listView);
-        notificationTextView = (TextView) findViewById(R.id.notification);
         gestureDetector = new GestureDetector(onGestureListener);
         
         Bundle extras = getIntent().getExtras();
@@ -174,7 +173,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         if (headlineUpdater == null) {
             setProgressBarIndeterminateVisibility(false);
             setProgressBarVisibility(false);
-            notificationTextView.setText(R.string.Loading_EmptyHeadlines);
         }
     }
     
@@ -192,7 +190,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         if (!isCacherRunning()) {
             setProgressBarIndeterminateVisibility(true);
             setProgressBarVisibility(false);
-            notificationTextView.setText(R.string.Loading_Headlines);
             
             headlineUpdater = new FeedHeadlineUpdater();
             headlineUpdater.execute();
