@@ -48,7 +48,7 @@
 
     <uses-sdk
         android:minSdkVersion="3"
-        android:targetSdkVersion="11" />
+        android:targetSdkVersion="14" />
 
     <!-- Check connectivity -->
     <uses-permission
