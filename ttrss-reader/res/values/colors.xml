@@ -15,6 +15,7 @@
  * GNU General Public License for more details.
 -->
 <resources>
-    <color
-        name="about_background">#17170443</color>
+
+    <color name="about_background">#17170443</color>
+
 </resources>

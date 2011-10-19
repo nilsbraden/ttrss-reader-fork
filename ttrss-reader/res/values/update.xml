@@ -16,27 +16,22 @@
     not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <string-array
-        name="updates"
-    >
-    
-    <item>Version 1.12
+
+    <string-array name="updates">
+        <item>Version 1.12
             \n * Added dialogs to preferences which allow to change the Cache-Folder and the download-location for attached Media-Files.
             </item>
-    
-    <item>Version 1.11
+        <item>Version 1.11
             \n * Modified background-refresh of displayed content, empty lists should not happen anymore (or at least not so often).
             \n * Changed link-color for dark theme, links are now red and readable on dark background.
             \n * Added connection-timeouts (5 seconds for connection, 8 seconds for receiving any data) to avoid endless running jobs.
             </item>
-            
-    <item>Version 1.1
+        <item>Version 1.1
             \n * Added display-preference for dark-background and white text.
             \n * Added preference "Start ImageCache only on Wifi", prevents the automatically scheduled ImageCache to run on a mobile connection.
             \n * Fixed bug: Error in case of disabled-API.
             </item>
-    
-    <item>Version 1.09
+        <item>Version 1.09
             \n * Vibrate when last article is reached, not only when trying to move further but the moment you reach it
             \n * Changed buttons and layout for article-browsing
             \n * Added left-hand-mode for landscape display
@@ -46,27 +41,23 @@
             \n * Fixed ImageCache for unreliable connections.
             \n * Starred/Published articles are not purged anymore, article-limit in settings does not apply to these.
             </item>
-    
-    <item>Version 1.08
+        <item>Version 1.08
             \n * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
             \n * Added preference to disable swipe and instead use buttons for browsing articles. Still a bit buggy.
             </item>
-    
-    <item>Version 1.07
+        <item>Version 1.07
             \n * Improved speed of calls to API and DB access
             \n * Allow receiving of gzip-compressed data
             \n * New faster and stream-based JSON-parser
             \n * Fixed some problems with counters and faster refresh of the UI
             \n * Fixed Labels, should be fine now
             </item>
-    
-    <item>Version 1.06
+        <item>Version 1.06
             \n * Removed support for server-versions lower then 1.5.3
             \n * Added progress-information and UI-refresh to ImageCache but only while articles are fetched
             \n * Added support for Labels
             </item>
-    
-    <item>Version 1.05
+        <item>Version 1.05
             \n Support for server-versions prior to 1.5.3 will be removed with the next release, please make sure you keep your server up-to-date!
             \n
             \n Changes:
@@ -75,33 +66,28 @@
             \n * Store articles marked as read also for whole feeds/categoires. You can mark a feed as read while working offline, all articles in it the moment you marked it read will be synchronized with the server when you get online next time.
             \n * Fixed a problem with articles beeing marked as read only when opening the feed
             </item>
-            
-    <item>Version 1.04
+        <item>Version 1.04
             \n * Do VACUUM only once a month or manually from preferences
             \n * Fixed encoding of passwords with special characters
             \n * Tried to fix bug due to wrong server-version detected
             </item>
-    
-    <item>Version 1.03
+        <item>Version 1.03
             \n * Fixed Issue #67: New preferences allow you to change date and time formatting
             \n * Fixed Issue #68: New preference allows you to change display of articletext (justified or flush left)
             \n * Fixed reloading of preferences after changes, completely revamped the way preferences are handled and reloaded after beeing changed
             \n \n Please contact me if this update introduced new issues with the HTTP-Auth, I can\'t test this here so I have to rely on your feedback.
             </item>
-            
-    <item>Version 1.02
+        <item>Version 1.02
             \n * Added preference to automatically start ImageCache/ArticleCache on startup
             \n * No other updates will be started while Cache is running
             </item>
-    
-    <item>Version 1.01
+        <item>Version 1.01
             \n * Automatically fetch all new articles for all feeds on startup, can take a moment but you can just start browsing anyway
             \n * Improved marking articles as read, not sure if everything is fixed but counts should be allright most of the time now
             \n * Fixed swipe in Headline-List (go to next/previous feed by swipe or volume-button)
             \n * Minor improvements
             </item>
-    
-    <item>Version 1.0
+        <item>Version 1.0
             \n Think we are in a pretty stable state now so I switched to Version 1.0
             \n
             \n * Added versionCode to StackTrace-Mails
@@ -110,8 +96,7 @@
             \n * Fixed NPE when using old (pre 2.0) Service-API
             \n * New: Fixed some more bugs which lead to FCs. I won\'t develop much the next weeks, haven\'t got enough time right now.
             </item>
-    
-    <item>Version 0.9.7:
+        <item>Version 0.9.7:
             \n * Fixed some bugs introduced with 0.9.6
             \n * Added compatibility-fixes for Android 3.0
             \n * Changed some DB-Operations, added SQLite-Vacuum to free space
@@ -123,8 +108,7 @@
             \n * Fixed OutOfMemoryException when opening virtual categories
             \n * Fixed ImageCache with non-standard HTML, fixed SQLiteException with broken SQLite on some Devices
             </item>
-    
-    <item>Version 0.9.6:
+        <item>Version 0.9.6:
             If you encounter problems with categories not beeing displayed sometimes try enabling categories in the webinterface.
             \n * Show read articles when browsing "only unread articles" and entering an empty feed
             \n * Minor refactoring and changes due to release of Tiny Tiny RSS 1.5.3
@@ -134,8 +118,7 @@
             \n * Cleanup of old starred/published articles when refreshing
             \n * Fixed DB-Exceptions
             </item>
-        
-    <item>Version 0.9.5:
+        <item>Version 0.9.5:
             \n * Fixed error-message for API_DISABLED not beeing displayed
             \n * Fixed swipe-here-notification not beeing displayed
             \n * Changed zoom-behaviour (default: Images are scaled, once zoomed: Images are displayed in right aspect-ratio)
@@ -143,25 +126,21 @@
             \n * Images are not fetched from online-sources anymore if browsing in Offline-mode
             \n * Some performance-issues fixed and some background-exceptions too
             </item>
-    
-    <item>Version 0.9.4:
+        <item>Version 0.9.4:
             \n * Reduced permissions as requested by Issue #58
             </item>
-
-    <item>Version 0.9.3:
+        <item>Version 0.9.3:
             \n * Added French translation, thanks Régis
             \n * Long-press a category to show all articles in this category in one list
             \n * "Show all articles" now also allows browsing with volume-keys or swiping
             </item>
-
-    <item>Version 0.9.2:
+        <item>Version 0.9.2:
             \n * ImageCache now started as a service so it doesn\'t get killed anymore by the system
             \n * ImageCache accessible in menu of CategoryList, FeedList and FeedHeadlineList
             \n * Added notification for running downloads, using a grey icon to indicate the difference
             \n * Fixed DB-Problems which prevented efficient caching
             </item>
-        
-    <item>Version 0.9.1:
+        <item>Version 0.9.1:
             \n * Added possibility to send error-reports after a crash
             \n * Removed donators-limitations, everyone can use the ImageCache now
             \n * blog.fefe.de now working (fixed relative links)
@@ -169,15 +148,14 @@
             \n * Refurbished the reset of preferences (Preferences -> Menu -> Reset)
             \n * Cleanup of preferences
             </item>
-
-    <item>Version 0.9:
+        <item>Version 0.9:
             \n * Added check for supported server-version on startup
             \n * Added check for saved crash-report and option to send report by mail, minor changes in network-access
             \n * Requests are faster now
             </item>
 
         <!-- Old Entries: -->
-    <!--
+        <!--
         <item>Version 0.8.9: Added custom title-bar in Article-Display (can be disabled in preferences)
         \n * Added setting to change the display-order of all lists
         \n * Added long-press option to Category-View
@@ -276,7 +254,9 @@
         <item>Version 0.6.3: Refactored a lot, fixed some synchronisation issues, better Fling-Recognition</item>
         <item>Version 0.6.2: Added the license to all files, added Update-Check</item>
         <item>Version 0.6.1: Passwords can contain special characters, Download of attached Audio/Video files)</item>
-        <item>Version 0.6: Better check for connectivity, show attached videos and play music</item> -->
+        <item>Version 0.6: Better check for connectivity, show attached videos and play music</item>
+        -->
 
     </string-array>
+
 </resources>

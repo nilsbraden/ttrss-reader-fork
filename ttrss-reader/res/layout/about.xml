@@ -15,34 +15,36 @@
     copy of the GNU General Public License along with this program; If
     not, see <http://www.gnu.org/licenses/>.
 -->
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="5dip"
-    android:background="@color/about_background">
+    android:background="@color/about_background"
+    android:padding="5dip" >
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical"
         android:isScrollContainer="true"
-        android:scrollbars="vertical">
+        android:orientation="vertical"
+        android:scrollbars="vertical" >
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal" >
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:orientation="vertical">
+                android:orientation="vertical" >
+
                 <ImageView
-                    android:src="@drawable/icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/icon" />
+
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
@@ -52,78 +54,83 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:orientation="vertical">
+                android:orientation="vertical" >
+
                 <TextView
-                    android:text="@string/ApplicationName"
-                    android:textStyle="bold"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="@string/ApplicationName"
+                    android:textStyle="bold" />
+
                 <TextView
                     android:id="@+id/AboutActivity.VersionText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="@+id/AboutActivity.VersionText"
-                    android:textSize="11.5sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:textSize="11.5sp" />
+
                 <TextView
-                    android:text="@string/ApplicationDescription"
-                    android:textSize="11.0sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp" />
-                <TextView
-                    android:id="@+id/AboutActivity.LicenseText"
-                    android:text="@+id/AboutActivity.UrlText"
-                    android:textSize="12.5sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp" />
-                <TextView
-                    android:id="@+id/AboutActivity.UrlText"
-                    android:text="@+id/AboutActivity.UrlText"
-                    android:textSize="11.0sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:autoLink="web" />
+                    android:text="@string/ApplicationDescription"
+                    android:textSize="11.0sp" />
+
                 <TextView
-                    android:id="@+id/AboutActivity.ThanksText"
-                    android:text="@+id/AboutActivity.ThanksText"
-                    android:textSize="11.0sp"
+                    android:id="@+id/AboutActivity.LicenseText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp" />
+                    android:layout_marginTop="8dp"
+                    android:text="@+id/AboutActivity.UrlText"
+                    android:textSize="12.5sp" />
+
+                <TextView
+                    android:id="@+id/AboutActivity.UrlText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:autoLink="web"
+                    android:text="@+id/AboutActivity.UrlText"
+                    android:textSize="11.0sp" />
+
+                <TextView
+                    android:id="@+id/AboutActivity.ThanksText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@+id/AboutActivity.ThanksText"
+                    android:textSize="11.0sp" />
             </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="horizontal" >
 
             <Button
-                android:text="@string/AboutActivity.CloseBtn"
                 android:id="@+id/AboutActivity.CloseBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_marginBottom="20dip"
                 android:layout_marginLeft="20dip"
                 android:layout_marginRight="20dip"
                 android:layout_marginTop="20dip"
-                android:layout_marginBottom="20dip" />
+                android:gravity="center"
+                android:text="@string/AboutActivity.CloseBtn" />
 
             <Button
-                android:text="@string/AboutActivity.DonateBtn"
                 android:id="@+id/AboutActivity.DonateBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_marginBottom="20dip"
                 android:layout_marginLeft="20dip"
                 android:layout_marginRight="20dip"
                 android:layout_marginTop="20dip"
-                android:layout_marginBottom="20dip" />
+                android:gravity="center"
+                android:text="@string/AboutActivity.DonateBtn" />
         </LinearLayout>
-
     </LinearLayout>
 
 </ScrollView>

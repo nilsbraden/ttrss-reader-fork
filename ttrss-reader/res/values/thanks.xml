@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
 -->
 <resources>
-    <string
-        name="AboutActivity.ThanksTextValue"
-        formatted="false">
+
+    <string formatted="false" name="AboutActivity.ThanksTextValue">
             Special thanks to: \n 
             \n - Andrew Dolgov for TT-RSS (http://tt-rss.org/)
             \n - Google Inc. for some Code (Apache License)
@@ -28,5 +27,5 @@
             \n - J.Devauchelle for starting this project
             \n - http://hubpic.com/ for some images (Creative Commons License)
     </string>
-    
+
 </resources>
