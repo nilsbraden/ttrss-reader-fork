@@ -15,8 +15,7 @@
     copy of the GNU General Public License along with this program; If
     not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="horizontal" >
@@ -31,8 +30,8 @@
         android:id="@+id/textLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical"
-        android:gravity="center_vertical" >
+        android:gravity="center_vertical"
+        android:orientation="vertical" >
 
         <TextView
             android:id="@+id/title"
@@ -49,19 +48,17 @@
                 android:id="@+id/updateDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="10sp"
-                android:gravity="left" />
+                android:gravity="left"
+                android:textSize="10sp" />
 
             <TextView
                 android:id="@+id/dataSource"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:textSize="10sp"
+                android:layout_marginRight="10dp"
                 android:gravity="right"
-                android:layout_marginRight="10dp" />
-
+                android:textSize="10sp" />
         </LinearLayout>
-        
     </LinearLayout>
-    
+
 </LinearLayout>

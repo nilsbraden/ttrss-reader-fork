@@ -15,44 +15,53 @@
     copy of the GNU General Public License along with this program; If
     not, see <http://www.gnu.org/licenses/>.
 -->
-<menu
-    xmlns:android="http://schemas.android.com/apk/res/android"
->
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <item
-        android:title="@string/Main.RefreshMenu"
         android:id="@+id/Menu_Refresh"
-        android:icon="@drawable/ic_menu_refresh" />
+        android:icon="@drawable/ic_menu_refresh"
+        android:title="@string/Main.RefreshMenu"/>
+
     <item
-        android:title="@string/Commons.MarkAllRead"
         android:id="@+id/Menu_MarkAllRead"
-        android:icon="@drawable/ic_menu_mark" />
+        android:icon="@drawable/ic_menu_mark"
+        android:title="@string/Commons.MarkAllRead"/>
+
     <item
-        android:title="@string/Commons.DisplayOnlyUnread"
         android:id="@+id/Menu_DisplayOnlyUnread"
-        android:icon="@android:drawable/ic_menu_view" />
+        android:icon="@android:drawable/ic_menu_view"
+        android:title="@string/Commons.DisplayOnlyUnread"/>
+
     <item
-        android:title="@string/Commons.InvertSort"
         android:id="@+id/Menu_InvertSort"
-        android:icon="@android:drawable/ic_menu_rotate" />
+        android:icon="@android:drawable/ic_menu_rotate"
+        android:title="@string/Commons.InvertSort"/>
+
     <item
-        android:title="@string/UsageOfflineTitle"
         android:id="@+id/Menu_WorkOffline"
-        android:icon="@drawable/ic_menu_stop" />
+        android:icon="@drawable/ic_menu_stop"
+        android:title="@string/UsageOfflineTitle"/>
+
     <item
-        android:title="@string/Main.ImageCache"
         android:id="@+id/Category_Menu_ImageCache"
-        android:icon="@android:drawable/ic_menu_save" />
-    <!-- <item
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/Main.ImageCache"/>
+    <!--
+         <item
         android:title="@string/Main.ArticleCache"
         android:id="@+id/Category_Menu_ArticleCache"
-        android:icon="@android:drawable/ic_menu_save" /> -->
-        <!-- Removed since this is done in the background automatically when the CategoryView is started... -->
+        android:icon="@android:drawable/ic_menu_save" />
+    -->
+    <!-- Removed since this is done in the background automatically when the CategoryView is started... -->
+
     <item
-        android:title="@string/Main.ShowPreferencesMenu"
         android:id="@+id/Menu_ShowPreferences"
-        android:icon="@android:drawable/ic_menu_preferences" />
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="@string/Main.ShowPreferencesMenu"/>
+
     <item
-        android:title="@string/About.about"
         android:id="@+id/Menu_About"
-        android:icon="@android:drawable/ic_menu_help" />
+        android:icon="@android:drawable/ic_menu_help"
+        android:title="@string/About.about"/>
+
 </menu>
