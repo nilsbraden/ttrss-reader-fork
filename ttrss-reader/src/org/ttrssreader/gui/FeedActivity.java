@@ -54,7 +54,6 @@ public class FeedActivity extends MenuActivity {
         
         listView = getListView();
         registerForContextMenu(listView);
-        notificationTextView = (TextView) findViewById(R.id.notification);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -131,7 +130,6 @@ public class FeedActivity extends MenuActivity {
         if (feedUpdater == null) {
             setProgressBarIndeterminateVisibility(false);
             setProgressBarVisibility(false);
-            notificationTextView.setText(R.string.Loading_EmptyFeeds);
         }
     }
     
@@ -149,7 +147,6 @@ public class FeedActivity extends MenuActivity {
         if (!isCacherRunning()) {
             setProgressBarIndeterminateVisibility(true);
             setProgressBarVisibility(false);
-            notificationTextView.setText(R.string.Loading_Feeds);
             
             feedUpdater = new FeedUpdater();
             feedUpdater.execute();
