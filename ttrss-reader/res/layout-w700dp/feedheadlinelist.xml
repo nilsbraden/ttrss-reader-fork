@@ -22,17 +22,16 @@
 
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/feed_list_fragment"
+        android:id="@+id/feedheadline_list_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="org.ttrssreader.gui.fragments.FeedListFragment" >
+        android:name="org.ttrssreader.gui.fragments.FeedHeadlineListFragment" >
     </fragment>
 
     <FrameLayout
         android:id="@+id/details"
         android:layout_width="0px"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="?android:attr/detailsElementBackground" />
+        android:layout_weight="1" />
 
 </LinearLayout>
