@@ -96,6 +96,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
+        Log.d(Utils.TAG, "onCreate - ArticleActivity");
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         Controller.getInstance().checkAndInitializeController(this);

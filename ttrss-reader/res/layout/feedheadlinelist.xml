@@ -25,7 +25,7 @@
         android:id="@+id/feedheadline_list_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="org.ttrssreader.gui.fragments.FeedHeadlineListFragment" >
+        class="org.ttrssreader.gui.fragments.FeedHeadlineListFragment" >
     </fragment>
 
 </LinearLayout>

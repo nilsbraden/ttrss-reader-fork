@@ -51,8 +51,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class CategoryActivity extends MenuActivity {
     
@@ -60,23 +58,25 @@ public class CategoryActivity extends MenuActivity {
     private static final int DIALOG_UPDATE = 2;
     private static final int DIALOG_CRASH = 3;
     
-    protected static final int SELECT_ARTICLES = MARK_GROUP + 54;
+    private static final int SELECT_ARTICLES = MenuActivity.MARK_GROUP + 54;
     
-    private CategoryAdapter adapter = null;
-    private CategoryUpdater categoryUpdater = null;
-    private boolean cacherStarted = false;
     private String applicationName = null;
+    public boolean cacherStarted = false;
+    
+    private CategoryAdapter adapter = null; // Remember to explicitly check every access to adapter for it beeing null!
+    private CategoryUpdater categoryUpdater = null;
     
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
+        Log.d(Utils.TAG, "onCreate - CategoryActivity");
         setContentView(R.layout.categorylist);
         
         // Register our own ExceptionHander
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         
-        listView = getListView();
-        registerForContextMenu(listView);
+        // Delete DB if requested
+        Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
         
         if (!Utils.checkFirstRun(this)) { // Check for new installation
             showDialog(DIALOG_WELCOME);
@@ -87,9 +87,6 @@ public class CategoryActivity extends MenuActivity {
         } else if (!Utils.checkConfig()) {// Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
-        
-        // Delete DB if requested
-        Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
         
         // Start caching if requested
         if (Controller.getInstance().cacheImagesOnStartup()) {
@@ -114,52 +111,39 @@ public class CategoryActivity extends MenuActivity {
                 Log.i(Utils.TAG, "Starting ImageCache...");
                 doCache(false); // images
             }
+            
         }
-        
-        adapter = new CategoryAdapter(this);
-        listView.setAdapter(adapter);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
         
-        Controller.getInstance().lastOpenedFeed = null;
-        Controller.getInstance().lastOpenedArticle = null;
-        
-        DBHelper.getInstance().checkAndInitializeDB(this);
         refreshAndUpdate();
+    }
+    
+    private void closeCursor() {
+        if (adapter != null)
+            adapter.closeCursor();
     }
     
     @Override
     protected void onPause() {
-        synchronized (this) {
-            if (adapter != null) {
-                adapter.closeCursor();
-            }
-        }
+        // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
         super.onPause();
+        closeCursor();
     }
     
     @Override
     protected void onStop() {
-        synchronized (this) {
-            if (adapter != null) {
-                adapter.closeCursor();
-            }
-        }
         super.onStop();
+        closeCursor();
     }
     
     @Override
     protected void onDestroy() {
-        synchronized (this) {
-            if (adapter != null) {
-                adapter.closeCursor();
-                adapter = null;
-            }
-        }
         super.onDestroy();
+        closeCursor();
     }
     
     @Override
@@ -214,7 +198,11 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        Log.d(Utils.TAG, "CategoryActivity: onContextItemSelected called");
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
+        if (adapter == null)
+            return false;
+        
         int id = adapter.getId(cmi.position);
         
         switch (item.getItemId()) {
@@ -226,7 +214,7 @@ public class CategoryActivity extends MenuActivity {
             case SELECT_ARTICLES:
                 if (id < 0)
                     return false; // Do nothing for Virtual Category or Labels
-                Intent i = new Intent(this, FeedHeadlineActivity.class);
+                Intent i = new Intent(context, FeedHeadlineActivity.class);
                 i.putExtra(FeedHeadlineActivity.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
                 i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, id);
                 i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(cmi.position));
@@ -237,34 +225,8 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        
-        int categoryId = adapter.getId(position);
-        Intent i;
-        
-        if (categoryId < 0 && categoryId >= -4) {
-            // Virtual feeds
-            i = new Intent(this, FeedHeadlineActivity.class);
-            i.putExtra(FeedHeadlineActivity.FEED_ID, categoryId);
-            i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(position));
-        } else if (categoryId < -10) {
-            // Label
-            i = new Intent(this, FeedHeadlineActivity.class);
-            i.putExtra(FeedHeadlineActivity.FEED_ID, categoryId);
-            i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, -2);
-            i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(position));
-        } else {
-            // Categories
-            i = new Intent(this, FeedActivity.class);
-            i.putExtra(FeedActivity.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedActivity.FEED_CAT_TITLE, adapter.getTitle(position));
-        }
-        startActivity(i);
-    }
-    
-    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
+        Log.d(Utils.TAG, "CategoryActivity: onOptionsItemSelected called");
         boolean ret = super.onOptionsItemSelected(item);
         
         switch (item.getItemId()) {
@@ -274,14 +236,81 @@ public class CategoryActivity extends MenuActivity {
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
-                new Updater(this, new ReadStateUpdater(adapter.getCategories())).execute();
-                return true;
+                if (adapter != null) {
+                    new Updater(this, new ReadStateUpdater(adapter.getCategories())).execute();
+                    return true;
+                } else {
+                    return false;
+                }
         }
         
         if (ret) {
             refreshAndUpdate();
         }
         return true;
+    }
+    
+    public class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
+        
+        private int taskCount = 0;
+        private static final int DEFAULT_TASK_COUNT = 2;
+        
+        @Override
+        protected Void doInBackground(Void... params) {
+            boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
+            
+            Set<Category> cats = DBHelper.getInstance().getCategoriesIncludingUncategorized();
+            Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
+            taskCount = DEFAULT_TASK_COUNT + cats.size() + labels.size();
+            
+            int progress = 0;
+            publishProgress(++progress); // Move progress forward
+            
+            Data.getInstance().updateCounters(false);
+            
+            // Refresh articles for all categories
+            for (Category c : cats) {
+                if (c.unread == 0 && onlyUnreadArticles)
+                    continue;
+                publishProgress(++progress); // Move progress forward
+                Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true);
+            }
+            
+            // Refresh articles for all labels
+            for (Feed f : labels) {
+                if (f.unread == 0 && onlyUnreadArticles)
+                    continue;
+                publishProgress(++progress); // Move progress forward
+                Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false);
+            }
+            
+            publishProgress(taskCount); // Move progress forward to 100%
+            
+            // This stuff will be done in background without UI-notification, but the progress-calls will be done anyway
+            // to ensure the UI is refreshed properly. ProgressBar is rendered invisible with the call to
+            // publishProgress(taskCount).
+            Data.getInstance().updateVirtualCategories();
+            publishProgress(0);
+            Data.getInstance().updateCategories(false);
+            publishProgress(0);
+            Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
+            
+            return null;
+        }
+        
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            if (values[0] == taskCount) {
+                setProgressBarIndeterminateVisibility(false);
+                setProgressBarVisibility(false);
+                doRefresh();
+                return;
+            }
+            
+            setProgress((10000 / (taskCount + 1)) * values[0]);
+            doRefresh();
+        }
+        
     }
     
     @Override
@@ -384,73 +413,10 @@ public class CategoryActivity extends MenuActivity {
         deleteFile(TopExceptionHandler.FILE);
     }
     
-    /**
-     * 
-     * 
-     * @author n
-     * 
-     */
-    public class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
-        
-        private int taskCount = 0;
-        private static final int DEFAULT_TASK_COUNT = 2;
-        
-        @Override
-        protected Void doInBackground(Void... params) {
-            boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
-            
-            Set<Category> cats = DBHelper.getInstance().getCategoriesIncludingUncategorized();
-            Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
-            taskCount = DEFAULT_TASK_COUNT + cats.size() + labels.size();
-            
-            int progress = 0;
-            publishProgress(++progress); // Move progress forward
-            
-            Data.getInstance().updateCounters(false);
-            
-            // Refresh articles for all categories
-            for (Category c : cats) {
-                if (c.unread == 0 && onlyUnreadArticles)
-                    continue;
-                publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true);
-            }
-            
-            // Refresh articles for all labels
-            for (Feed f : labels) {
-                if (f.unread == 0 && onlyUnreadArticles)
-                    continue;
-                publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false);
-            }
-            
-            publishProgress(taskCount); // Move progress forward to 100%
-            
-            // This stuff will be done in background without UI-notification, but the progress-calls will be done anyway
-            // to ensure the UI is refreshed properly. ProgressBar is rendered invisible with the call to
-            // publishProgress(taskCount).
-            Data.getInstance().updateVirtualCategories();
-            publishProgress(0);
-            Data.getInstance().updateCategories(false);
-            publishProgress(0);
-            Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
-            
-            return null;
-        }
-        
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            if (values[0] == taskCount) {
-                setProgressBarIndeterminateVisibility(false);
-                setProgressBarVisibility(false);
-                doRefresh();
-                return;
-            }
-            
-            setProgress((10000 / (taskCount + 1)) * values[0]);
-            doRefresh();
-        }
-        
+    @Override
+    public void setAdapter(MainAdapter adapter) {
+        if (adapter instanceof CategoryAdapter)
+            this.adapter = (CategoryAdapter) adapter;
     }
     
 }
