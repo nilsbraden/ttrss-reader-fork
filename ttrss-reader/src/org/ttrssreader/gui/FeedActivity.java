@@ -26,34 +26,30 @@ import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import android.content.Intent;
+import org.ttrssreader.utils.Utils;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class FeedActivity extends MenuActivity {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
-
+    
     // Extras
     private int categoryId;
     private String categoryTitle;
     
-    private FeedAdapter adapter = null;
+    private FeedAdapter adapter = null; // Remember to explicitly check every access to adapter for it beeing null!
     private FeedUpdater feedUpdater = null;
     
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
+        Log.d(Utils.TAG, "onCreate - FeedActivity");
         setContentView(R.layout.feedlist);
-        
-        listView = getListView();
-        registerForContextMenu(listView);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -66,9 +62,6 @@ public class FeedActivity extends MenuActivity {
             categoryId = -1;
             categoryTitle = null;
         }
-        
-        adapter = new FeedAdapter(this, categoryId);
-        listView.setAdapter(adapter);
     }
     
     @Override
@@ -80,9 +73,8 @@ public class FeedActivity extends MenuActivity {
     }
     
     private void closeCursor() {
-        if (adapter != null) {
+        if (adapter != null)
             adapter.closeCursor();
-        }
     }
     
     @Override
@@ -154,18 +146,6 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        
-        Intent i = new Intent(this, FeedHeadlineActivity.class);
-        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineActivity.FEED_ID, adapter.getId(position));
-        i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(position));
-        
-        startActivity(i);
-    }
-    
-    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (item.getItemId() == MARK_READ) {
@@ -233,11 +213,17 @@ public class FeedActivity extends MenuActivity {
                 doRefresh();
                 return;
             }
-
+            
             setProgress((10000 / (taskCount + 1)) * values[0]);
             doRefresh();
         }
         
+    }
+    
+    @Override
+    public void setAdapter(MainAdapter adapter) {
+        if (adapter instanceof FeedAdapter)
+            this.adapter = (FeedAdapter) adapter;
     }
     
 }

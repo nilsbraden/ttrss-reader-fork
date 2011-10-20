@@ -23,13 +23,14 @@
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/feedheadline_list_fragment"
-        android:layout_width="match_parent"
+        android:layout_width="0px"
         android:layout_height="match_parent"
-        android:name="org.ttrssreader.gui.fragments.FeedHeadlineListFragment" >
+        android:layout_weight="1"
+        class="org.ttrssreader.gui.fragments.FeedHeadlineListFragment" >
     </fragment>
 
     <FrameLayout
-        android:id="@+id/details"
+        android:id="@+id/articleView"
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:layout_weight="1" />

@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -45,8 +46,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class FeedHeadlineActivity extends MenuActivity {
     
@@ -67,17 +66,16 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     private GestureDetector gestureDetector;
     
-    private FeedHeadlineAdapter adapter = null;
+    private FeedHeadlineAdapter adapter = null; // Remember to explicitly check every access to adapter for it beeing null!
     private FeedHeadlineUpdater headlineUpdater = null;
     private FeedAdapter parentAdapter = null;
     
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
+        Log.d(Utils.TAG, "onCreate - FeedHeadlineActivity");
         setContentView(R.layout.feedheadlinelist);
-        
-        listView = getListView();
-        registerForContextMenu(listView);
+
         gestureDetector = new GestureDetector(onGestureListener);
         
         Bundle extras = getIntent().getExtras();
@@ -97,9 +95,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         Controller.getInstance().lastOpenedArticle = null;
         
         parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
-        adapter = new FeedHeadlineAdapter(this, feedId, categoryId, selectArticlesForCategory);
-        listView.setAdapter(adapter);
-        
     }
     
     @Override
@@ -112,12 +107,10 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
     
     private void closeCursor() {
-        if (adapter != null) {
+        if (adapter != null)
             adapter.closeCursor();
-        }
-        if (parentAdapter != null) {
+        if (parentAdapter != null)
             parentAdapter.closeCursor();
-        }
     }
     
     @Override
@@ -141,11 +134,11 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putInt(FEED_CAT_ID, categoryId);
         outState.putInt(FEED_ID, feedId);
         outState.putString(FEED_TITLE, feedTitle);
         outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        super.onSaveInstanceState(outState);
     }
     
     @Override
@@ -193,22 +186,6 @@ public class FeedHeadlineActivity extends MenuActivity {
             
             headlineUpdater = new FeedHeadlineUpdater();
             headlineUpdater.execute();
-        }
-    }
-    
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        
-        if (!flingDetected) {
-            Intent i = new Intent(this, ArticleActivity.class);
-            i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(position));
-            i.putExtra(ArticleActivity.ARTICLE_FEED_ID, feedId);
-            i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-            i.putExtra(ArticleActivity.ARTICLE_LAST_MOVE, ArticleActivity.ARTICLE_LAST_MOVE_DEFAULT);
-            
-            startActivity(i);
         }
     }
     
@@ -434,6 +411,12 @@ public class FeedHeadlineActivity extends MenuActivity {
             doRefresh();
         }
         
+    }
+    
+    @Override
+    public void setAdapter(MainAdapter adapter) {
+        if (adapter instanceof FeedHeadlineAdapter)
+            this.adapter = (FeedHeadlineAdapter) adapter;
     }
     
 }

@@ -20,31 +20,31 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
+import org.ttrssreader.gui.interfaces.IConfigurable;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
-import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.ListView;
-import android.widget.TextView;
 
 /**
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
  * FeedHeadlineListActivity).
  */
-public abstract class MenuActivity extends ListActivity implements IUpdateEndListener, ICacheEndListener {
+public abstract class MenuActivity extends FragmentActivity implements IUpdateEndListener, ICacheEndListener, IConfigurable  {
     
-    protected ListView listView;
     protected Updater updater;
+    protected Context context = null;
     
     protected static final int MARK_GROUP = 42;
     protected static final int MARK_READ = MARK_GROUP + 1;
@@ -56,6 +56,8 @@ public abstract class MenuActivity extends ListActivity implements IUpdateEndLis
         super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
+        
+        context = getApplicationContext();
         
         // Initialize Singletons for Config, Data-Access and DB
         Controller.getInstance().checkAndInitializeController(this);
