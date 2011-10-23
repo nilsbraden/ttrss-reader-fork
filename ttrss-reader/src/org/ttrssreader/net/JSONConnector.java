@@ -23,6 +23,7 @@ import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +60,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 
 public class JSONConnector implements Connector {
+    // other units in milliseconds
+    static final int SECOND = 1000;
+    static final int MINUTE = 60 * SECOND;
     
     private static String lastError = "";
     private static boolean hasLastError = false;
@@ -88,6 +92,7 @@ public class JSONConnector implements Connector {
     private static final String VALUE_GET_HEADLINES = "getHeadlines";
     private static final String VALUE_UPDATE_ARTICLE = "updateArticle";
     private static final String VALUE_CATCHUP = "catchupFeed";
+    private static final String VALUE_UPDATE_FEED = "updateFeed";
     private static final String VALUE_GET_PREF = "getPref";
     private static final String VALUE_GET_VERSION = "getVersion";
     private static final String VALUE_GET_COUNTERS = "getCounters";
@@ -194,14 +199,20 @@ public class JSONConnector implements Connector {
             post.setEntity(jsonData);
             
             // Add timeouts for the connection
-            HttpParams httpParams = post.getParams();
-            // Set the timeout in milliseconds until a connection is established.
-            int timeoutConnection = 5000;
-            HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
-            // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
-            int timeoutSocket = 8000;
-            HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
-            post.setParams(httpParams);
+            {
+                HttpParams httpParams = post.getParams();
+                
+                // Set the timeout until a connection is established.
+                int timeoutConnection = 5 * SECOND;
+                HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
+
+                // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
+                // use longer timeout when lazyServer-Feature is used
+                int timeoutSocket = (Controller.getInstance().lazyServer()) ? 15 * MINUTE : 8 * SECOND;
+                HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
+
+                post.setParams(httpParams);
+            }
             
             // LOG-Output
             if (!Controller.getInstance().logSensitiveData()) {
@@ -431,8 +442,17 @@ public class JSONConnector implements Connector {
             return false;
         
         try {
-            readResult(params, false, true);
-            return true;
+            // TT-RSS 1.5.5 does not return valid JSON data for operation "updateFeed"
+            boolean avoidJSONParsing = Controller.getInstance().lazyServer();
+            if (avoidJSONParsing) {
+                InputStream in = doRequest(params, true);
+                if (in != null) {
+                    in.close();
+                }
+            } else {
+                readResult(params, false, true);
+                return true;
+            }
         } catch (IOException e) {
             e.printStackTrace();
             if (!hasLastError) {
@@ -616,7 +636,7 @@ public class JSONConnector implements Connector {
             db.beginTransaction();
             try {
                 
-                // People are complaining about not all articles beeing marked the right way, so just overwrite all
+                // People are complaining about not all articles being marked the right way, so just overwrite all
                 // unread
                 // states and fetch new articles...
                 // Moved this inside the transaction to make sure this only happens if the transaction is successful
@@ -703,6 +723,8 @@ public class JSONConnector implements Connector {
     @Override
     public boolean getCounters() {
         boolean ret = true;
+        makeLazyServerWork(); // otherwise the unread counters may be outdated
+        
         if (!sessionAlive())
             return false;
         
@@ -800,12 +822,15 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    @Override
-    public Set<Feed> getFeeds() {
+    private Set<Feed> getFeeds(boolean tolerateWrongUnreadInformation) {
         long time = System.currentTimeMillis();
         Set<Feed> ret = new LinkedHashSet<Feed>();;
         if (!sessionAlive())
             return ret;
+        
+        if (!tolerateWrongUnreadInformation) {
+            makeLazyServerWork();
+        }
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_FEEDS);
@@ -877,12 +902,48 @@ public class JSONConnector implements Connector {
     }
     
     @Override
+    public Set<Feed> getFeeds() {
+        return getFeeds(false);
+    }
+    
+    private boolean makeLazyServerWork(Integer feedId) {
+        if (Controller.getInstance().lazyServer()) {
+            Map<String, String> taskParams = new HashMap<String, String>();
+            taskParams.put(PARAM_OP, VALUE_UPDATE_FEED);
+            taskParams.put(PARAM_FEED_ID, feedId + "");
+            return doRequestNoAnswer(taskParams);
+        }
+        return true;
+    }
+    
+    private long noTaskUntil = 0;
+    final static private long minTaskIntervall = 30 * MINUTE; // TODO: Maybe it does not hurt to reduce this to 1 or 2
+                                                              // minutes.
+    
+    private boolean makeLazyServerWork() {
+        boolean ok = true;
+        final long time = System.currentTimeMillis();
+        if (Controller.getInstance().lazyServer() && (noTaskUntil < time)) {
+            noTaskUntil = time + minTaskIntervall;
+            Set<Feed> feedset = getFeeds(true);
+            Iterator<Feed> feeds = feedset.iterator();
+            while (feeds.hasNext()) {
+                final Feed f = feeds.next();
+                ok = makeLazyServerWork(f.id) && ok;
+            }
+        }
+        return ok;
+    }
+    
+    @Override
     public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
         long time = System.currentTimeMillis();
         boolean ret = true;
         
         if (!sessionAlive())
             return false;
+        
+        makeLazyServerWork(id);
         
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_HEADLINES);

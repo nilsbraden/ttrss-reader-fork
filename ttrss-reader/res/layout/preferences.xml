@@ -43,6 +43,12 @@
             android:summary="@string/ConnectionPasswordPreferenceSummary"
             android:title="@string/ConnectionPasswordPreferenceTitle" />
 
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="ConnectionLazyServerPreference"
+            android:summary="@string/ConnectionLazyServerPreferenceSummary"
+            android:title="@string/ConnectionLazyServerPreferenceTitle" />
+
         <PreferenceScreen android:title="@string/ConnectionHttpPreferenceCategoryTitle" >
 
             <PreferenceCategory android:title="@string/ConnectionHttpPreferenceCategoryTitle" >

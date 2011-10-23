@@ -131,7 +131,7 @@ public class FeedHeadlineListFragment extends ItemListFragment {
                 return;
             
             articleView = ArticleFragment.newInstance(adapter.getId(selectedIndex), feedId, categoryId,
-                    selectArticlesForCategory, ArticleActivity.ARTICLE_LAST_MOVE_DEFAULT);
+                    selectArticlesForCategory, ArticleActivity.ARTICLE_MOVE_DEFAULT);
             
             // Replace the old fragment with the new one
             FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -151,7 +151,7 @@ public class FeedHeadlineListFragment extends ItemListFragment {
             i.putExtra(ArticleActivity.ARTICLE_FEED_ID, feedId);
             i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
             i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-            i.putExtra(ArticleActivity.ARTICLE_LAST_MOVE, ArticleActivity.ARTICLE_LAST_MOVE_DEFAULT);
+            i.putExtra(ArticleActivity.ARTICLE_MOVE, ArticleActivity.ARTICLE_MOVE_DEFAULT);
             if (i != null)
                 startActivity(i);
             // }

@@ -26,8 +26,8 @@ import android.os.Environment;
 
 public class Constants {
     
-    public static String EMPTY = "";
-    public static String APPENDED_DEFAULT = "_DEFAULT";
+    public static final String EMPTY = "";
+    public static final String APPENDED_DEFAULT = "_DEFAULT";
     
     static {
         StringBuilder sbAttachments = new StringBuilder();
@@ -40,104 +40,106 @@ public class Constants {
     }
     
     // Connection
-    public static String URL = "ConnectionUrlPreference";
-    public static String USERNAME = "ConnectionUsernamePreference";
-    public static String PASSWORD = "ConnectionPasswordPreference";
-    public static String USE_HTTP_AUTH = "ConnectionHttpPreference";
-    public static String HTTP_USERNAME = "ConnectionHttpUsernamePreference";
-    public static String HTTP_PASSWORD = "ConnectionHttpPasswordPreference";
-    public static String TRUST_ALL_SSL = "ConnectionSSLPreference";
-    public static String USE_KEYSTORE = "ConnectionUseKeystorePreference";
-    public static String KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
+    public static final String URL = "ConnectionUrlPreference";
+    public static final String USERNAME = "ConnectionUsernamePreference";
+    public static final String PASSWORD = "ConnectionPasswordPreference";
+    public static final String USE_HTTP_AUTH = "ConnectionHttpPreference";
+    public static final String HTTP_USERNAME = "ConnectionHttpUsernamePreference";
+    public static final String HTTP_PASSWORD = "ConnectionHttpPasswordPreference";
+    public static final String TRUST_ALL_SSL = "ConnectionSSLPreference";
+    public static final String USE_KEYSTORE = "ConnectionUseKeystorePreference";
+    public static final String KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
+    public static final String USE_OF_A_LAZY_SERVER = "ConnectionLazyServerPreference";
     // Connection Default Values
-    public static String URL_DEFAULT = "http://localhost/";
-    public static boolean USE_HTTP_AUTH_DEFAULT = false;
-    public static boolean TRUST_ALL_SSL_DEFAULT = false;
-    public static boolean USE_KEYSTORE_DEFAULT = false;
+    public static final String URL_DEFAULT = "http://localhost/";
+    public static final boolean USE_HTTP_AUTH_DEFAULT = false;
+    public static final boolean TRUST_ALL_SSL_DEFAULT = false;
+    public static final boolean USE_KEYSTORE_DEFAULT = false;
+    public static final boolean USE_OF_A_LAZY_SERVER_DEFAULT = false;
     
     // Usage
-    public static String AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
-    public static String OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
-    public static String USE_VOLUME_KEYS = "UsageUseVolumeKeysPreference";
-    public static String VIBRATE_ON_LAST_ARTICLE = "UsageVibrateOnLastArticlePreference";
-    public static String WORK_OFFLINE = "UsageWorkOfflinePreference";
+    public static final String AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
+    public static final String OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
+    public static final String USE_VOLUME_KEYS = "UsageUseVolumeKeysPreference";
+    public static final String VIBRATE_ON_LAST_ARTICLE = "UsageVibrateOnLastArticlePreference";
+    public static final String WORK_OFFLINE = "UsageWorkOfflinePreference";
     // Usage Default Values
-    public static boolean AUTOMATIC_MARK_READ_DEFAULT = true;
-    public static boolean OPEN_URL_EMPTY_ARTICLE_DEFAULT = false;
-    public static boolean USE_VOLUME_KEYS_DEFAULT = false;
-    public static boolean VIBRATE_ON_LAST_ARTICLE_DEFAULT = true;
-    public static boolean WORK_OFFLINE_DEFAULT = false;
+    public static final boolean AUTOMATIC_MARK_READ_DEFAULT = true;
+    public static final boolean OPEN_URL_EMPTY_ARTICLE_DEFAULT = false;
+    public static final boolean USE_VOLUME_KEYS_DEFAULT = false;
+    public static final boolean VIBRATE_ON_LAST_ARTICLE_DEFAULT = true;
+    public static final boolean WORK_OFFLINE_DEFAULT = false;
     
     // Display
-    public static String SHOW_VIRTUAL = "DisplayShowVirtualPreference";
-    public static String USE_SWIPE = "DisplayUseSwipePreference";
-    public static String USE_BUTTONS = "DisplayUseButtonsPreference";
-    public static String LEFT_HANDED = "DisplayLeftHandedPreference";
-    public static String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
-    public static String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
-    public static String DISPLAY_ARTICLE_HEADER = "DisplayArticleHeaderPreference";
-    public static String INVERT_SORT_ARTICLELIST = "InvertSortArticlelistPreference";
-    public static String INVERT_SORT_FEEDSCATS = "InvertSortFeedscatsPreference";
-    public static String ALIGN_FLUSH_LEFT = "DisplayAlignFlushLeftPreference";
-    public static String DATE_TIME_SYSTEM = "DisplayDateTimeFormatSystemPreference";
-    public static String DATE_STRING = "DisplayDateFormatPreference";
-    public static String TIME_STRING = "DisplayTimeFormatPreference";
-    public static String DARK_BACKGROUND = "DisplayDarkBackgroundPreference";
+    public static final String SHOW_VIRTUAL = "DisplayShowVirtualPreference";
+    public static final String USE_SWIPE = "DisplayUseSwipePreference";
+    public static final String USE_BUTTONS = "DisplayUseButtonsPreference";
+    public static final String LEFT_HANDED = "DisplayLeftHandedPreference";
+    public static final String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
+    public static final String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
+    public static final String DISPLAY_ARTICLE_HEADER = "DisplayArticleHeaderPreference";
+    public static final String INVERT_SORT_ARTICLELIST = "InvertSortArticlelistPreference";
+    public static final String INVERT_SORT_FEEDSCATS = "InvertSortFeedscatsPreference";
+    public static final String ALIGN_FLUSH_LEFT = "DisplayAlignFlushLeftPreference";
+    public static final String DATE_TIME_SYSTEM = "DisplayDateTimeFormatSystemPreference";
+    public static final String DATE_STRING = "DisplayDateFormatPreference";
+    public static final String TIME_STRING = "DisplayTimeFormatPreference";
+    public static final String DARK_BACKGROUND = "DisplayDarkBackgroundPreference";
     // Display Default Values
-    public static boolean SHOW_VIRTUAL_DEFAULT = true;
-    public static boolean USE_SWIPE_DEFAULT = true;
-    public static boolean USE_BUTTONS_DEFAULT = false;
-    public static boolean LEFT_HANDED_DEFAULT = false;
-    public static boolean ONLY_UNREAD_DEFAULT = false;
-    public static int ARTICLE_LIMIT_DEFAULT = 1000;
-    public static boolean DISPLAY_ARTICLE_HEADER_DEFAULT = true;
-    public static boolean INVERT_SORT_ARTICLELIST_DEFAULT = false;
-    public static boolean INVERT_SORT_FEEDSCATS_DEFAULT = false;
-    public static boolean ALIGN_FLUSH_LEFT_DEFAULT = false;
-    public static boolean DATE_TIME_SYSTEM_DEFAULT = true;
-    public static String DATE_STRING_DEFAULT = "dd.MM.yyyy";
-    public static String TIME_STRING_DEFAULT = "kk:mm";
-    public static boolean DARK_BACKGROUND_DEFAULT = false;
+    public static final boolean SHOW_VIRTUAL_DEFAULT = true;
+    public static final boolean USE_SWIPE_DEFAULT = true;
+    public static final boolean USE_BUTTONS_DEFAULT = false;
+    public static final boolean LEFT_HANDED_DEFAULT = false;
+    public static final boolean ONLY_UNREAD_DEFAULT = false;
+    public static final int ARTICLE_LIMIT_DEFAULT = 1000;
+    public static final boolean DISPLAY_ARTICLE_HEADER_DEFAULT = true;
+    public static final boolean INVERT_SORT_ARTICLELIST_DEFAULT = false;
+    public static final boolean INVERT_SORT_FEEDSCATS_DEFAULT = false;
+    public static final boolean ALIGN_FLUSH_LEFT_DEFAULT = false;
+    public static final boolean DATE_TIME_SYSTEM_DEFAULT = true;
+    public static final String DATE_STRING_DEFAULT = "dd.MM.yyyy";
+    public static final String TIME_STRING_DEFAULT = "kk:mm";
+    public static final boolean DARK_BACKGROUND_DEFAULT = false;
     
     // System
-    public static String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
-    public static String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesPreference";
-    public static String SAVE_ATTACHMENT = "SaveAttachmentPreference";
-    public static String CACHE_FOLDER = "CacheFolderPreference";
-    public static String VACUUM_DB_SCHEDULED = "VacuumDBScheduledPreference";
-    public static String DELETE_DB_SCHEDULED = "DeleteDBScheduledPreference";
-    public static String DELETE_DB_ON_STARTUP = "DeleteDBOnStartupPreference";
-    public static String SERVER_VERSION = "ServerVersion";
-    public static String SERVER_VERSION_LAST_UPDATE = "ServerVersionLastUpdate";
-    public static String CACHE_ON_STARTUP = "CacheOnStartupPreference";
-    public static String CACHE_IMAGES_ON_STARTUP = "CacheImagesOnStartupPreference";
-    public static String CACHE_IMAGES_ONLY_WIFI = "CacheImagesOnlyWifiPreference";
-    public static String LOG_SENSITIVE_DATA = "LogSensitiveDataPreference";
+    public static final String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
+    public static final String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesPreference";
+    public static final String SAVE_ATTACHMENT = "SaveAttachmentPreference";
+    public static final String CACHE_FOLDER = "CacheFolderPreference";
+    public static final String VACUUM_DB_SCHEDULED = "VacuumDBScheduledPreference";
+    public static final String DELETE_DB_SCHEDULED = "DeleteDBScheduledPreference";
+    public static final String DELETE_DB_ON_STARTUP = "DeleteDBOnStartupPreference";
+    public static final String SERVER_VERSION = "ServerVersion";
+    public static final String SERVER_VERSION_LAST_UPDATE = "ServerVersionLastUpdate";
+    public static final String CACHE_ON_STARTUP = "CacheOnStartupPreference";
+    public static final String CACHE_IMAGES_ON_STARTUP = "CacheImagesOnStartupPreference";
+    public static final String CACHE_IMAGES_ONLY_WIFI = "CacheImagesOnlyWifiPreference";
+    public static final String LOG_SENSITIVE_DATA = "LogSensitiveDataPreference";
     // System Default Values
-    public static int IMAGE_CACHE_SIZE_DEFAULT = 50;
-    public static boolean IMAGE_CACHE_UNREAD_DEFAULT = true;
-    public static String SAVE_ATTACHMENT_DEFAULT;
-    public static String CACHE_FOLDER_DEFAULT;
-    public static boolean VACUUM_DB_SCHEDULED_DEFAULT = false;
-    public static boolean DELETE_DB_SCHEDULED_DEFAULT = false;
-    public static boolean DELETE_DB_ON_STARTUP_DEFAULT = false;
-    public static int SERVER_VERSION_DEFAULT = -1;
-    public static long SERVER_VERSION_LAST_UPDATE_DEFAULT = -1;
-    public static boolean CACHE_ON_STARTUP_DEFAULT = false;
-    public static boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
-    public static boolean CACHE_IMAGES_ONLY_WIFI_DEFAULT = false;
-    public static boolean LOG_SENSITIVE_DATA_DEFAULT = false;
+    public static final int IMAGE_CACHE_SIZE_DEFAULT = 50;
+    public static final boolean IMAGE_CACHE_UNREAD_DEFAULT = true;
+    public static final String SAVE_ATTACHMENT_DEFAULT;
+    public static final String CACHE_FOLDER_DEFAULT;
+    public static final boolean VACUUM_DB_SCHEDULED_DEFAULT = false;
+    public static final boolean DELETE_DB_SCHEDULED_DEFAULT = false;
+    public static final boolean DELETE_DB_ON_STARTUP_DEFAULT = false;
+    public static final int SERVER_VERSION_DEFAULT = -1;
+    public static final long SERVER_VERSION_LAST_UPDATE_DEFAULT = -1;
+    public static final boolean CACHE_ON_STARTUP_DEFAULT = false;
+    public static final boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
+    public static final boolean CACHE_IMAGES_ONLY_WIFI_DEFAULT = false;
+    public static final boolean LOG_SENSITIVE_DATA_DEFAULT = false;
     
     // Internal
-    public static String DATABASE_VERSION = "DatabaseVersion";
-    public static String LAST_UPDATE_TIME = "LastUpdateTime";
-    public static String LAST_VERSION_RUN = "LastVersionRun";
-    public static String LAST_VACUUM_DATE = "lastVacuumDate";
+    public static final String DATABASE_VERSION = "DatabaseVersion";
+    public static final String LAST_UPDATE_TIME = "LastUpdateTime";
+    public static final String LAST_VERSION_RUN = "LastVersionRun";
+    public static final String LAST_VACUUM_DATE = "lastVacuumDate";
     // Internal Default Values
-    public static int DATABASE_VERSION_DEFAULT = 1;
-    public static long LAST_UPDATE_TIME_DEFAULT = 1;
-    public static String LAST_VERSION_RUN_DEFAULT = "1";
-    public static long LAST_VACUUM_DATE_DEFAULT = 0;
+    public static final int DATABASE_VERSION_DEFAULT = 1;
+    public static final long LAST_UPDATE_TIME_DEFAULT = 1;
+    public static final String LAST_VERSION_RUN_DEFAULT = "1";
+    public static final long LAST_VACUUM_DATE_DEFAULT = 0;
     
     /*
      * Returns a list of the values of all constants in this class which represent preferences. Allows for easier

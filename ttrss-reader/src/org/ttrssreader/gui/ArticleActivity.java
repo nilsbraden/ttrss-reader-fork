@@ -66,15 +66,17 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
-    public static final String ARTICLE_LAST_MOVE = "ARTICLE_LAST_MOVE";
-    public static final int ARTICLE_LAST_MOVE_DEFAULT = 0;
+    
+    public static final String ARTICLE_MOVE = "ARTICLE_MOVE";
+    public static final int ARTICLE_MOVE_NONE = 0;
+    public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
     
     // Extras
     private int articleId = -1;
     private int feedId = -1;
     private int categoryId = -1000;
     private boolean selectArticlesForCategory = false;
-    private int lastMove = ARTICLE_LAST_MOVE_DEFAULT;
+    private int lastMove = ARTICLE_MOVE_DEFAULT;
     
     private ArticleHeaderView headerContainer;
     private ArticleView mainContainer;
@@ -137,13 +139,13 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             feedId = extras.getInt(ARTICLE_FEED_ID);
             categoryId = extras.getInt(FeedHeadlineActivity.FEED_CAT_ID);
             selectArticlesForCategory = extras.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
-            lastMove = extras.getInt(ARTICLE_LAST_MOVE);
+            lastMove = extras.getInt(ARTICLE_MOVE);
         } else if (instance != null) {
             articleId = instance.getInt(ARTICLE_ID);
             feedId = instance.getInt(ARTICLE_FEED_ID);
             categoryId = instance.getInt(FeedHeadlineActivity.FEED_CAT_ID);
             selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
-            lastMove = instance.getInt(ARTICLE_LAST_MOVE);
+            lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
         Controller.getInstance().lastOpenedFeed = feedId;
@@ -198,7 +200,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         outState.putInt(ARTICLE_FEED_ID, feedId);
         outState.putInt(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         outState.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        outState.putInt(ARTICLE_LAST_MOVE, lastMove);
+        outState.putInt(ARTICLE_MOVE, lastMove);
     }
     
     private void doRefresh() {
@@ -256,7 +258,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                         new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
                     
                     if (!linkAutoOpened && content.length() < 3) {
-                        if (Controller.getInstance().openUrlEmptyArticle()) {
+                        if (Controller.getInstance().openUrlEmptyArticle() && lastMove == ARTICLE_MOVE_NONE) {
                             Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
                             linkAutoOpened = true;
                             openLink();
@@ -277,7 +279,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
      * Recursively walks all viewGroups and their Views inside the given ViewGroup and sets the background to black and,
      * in case a TextView is found, the Text-Color to white.
      * 
-     * @param v the ViewGroup to walk through
+     * @param v
+     *            the ViewGroup to walk through
      */
     private void setDarkBackground(ViewGroup v) {
         v.setBackgroundColor(Color.BLACK);
@@ -414,8 +417,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         i.putExtra(ARTICLE_FEED_ID, feedId);
         i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        i.putExtra(ARTICLE_LAST_MOVE, direction); // Store direction so next article can evaluate if we are running into
-                                                  // a "wall"
+        i.putExtra(ARTICLE_MOVE, direction); // Store direction so next article can evaluate if we are running into
+                                             // a "wall"
         
         startActivityForResult(i, 0);
         finish();
