@@ -183,14 +183,8 @@ public class JSONConnector implements Connector {
             refreshHTTPAuth();
             
             // Set Address
-            if (Controller.getInstance().url() != null) {
-                post.setURI(Controller.getInstance().url());
-                post.addHeader("Accept-Encoding", "gzip");
-            } else {
-                hasLastError = true;
-                lastError = "Server-URL could not be parsed, please check your preferences.";
-                return null;
-            }
+            post.setURI(Controller.getInstance().url());
+            post.addHeader("Accept-Encoding", "gzip");
             
             // Add POST data
             JSONObject json = new JSONObject(params);

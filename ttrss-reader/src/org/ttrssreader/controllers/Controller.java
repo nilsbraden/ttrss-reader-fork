@@ -170,7 +170,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
         }
         
-        // Replace color-markers with matching colors for the requested background 
+        // Replace color-markers with matching colors for the requested background
         String replaceLink = "";
         String replaceLinkVisited = "";
         if (darkBackground()) {
@@ -231,24 +231,29 @@ public class Controller implements OnSharedPreferenceChangeListener {
         try {
             return new URI(url);
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            // Return default URL if creating an URI from the configured URL fails...
+            try {
+                return new URI(Constants.URL_DEFAULT);
+            } catch (URISyntaxException e1) {
+            }
         }
-        return null;
+        return null; // Should never be reached!
     }
     
     public String updateTriggerURI() {
         String url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
+        
         if (!url.endsWith(JSON_END_URL)) {
             if (!url.endsWith("/")) {
                 url += "/";
             }
         }
-        final String updateSuffix ="backend.php?op=globalUpdateFeeds&daemon=1";
-        url = url + updateSuffix;
-        return url;       
+        
+        final String updateSuffix = "backend.php?op=globalUpdateFeeds&daemon=1";
+        return url + updateSuffix;
     }
     
-   public String username() {
+    public String username() {
         if (username == null)
             username = prefs.getString(Constants.USERNAME, Constants.EMPTY);
         return username;
@@ -333,7 +338,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             lazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
         return lazyServer;
     }
-
+    
     public boolean openUrlEmptyArticle() {
         if (openUrlEmptyArticle == null)
             openUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
