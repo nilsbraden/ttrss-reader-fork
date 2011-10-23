@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
@@ -47,6 +48,8 @@ public class DBHelper {
     private boolean initialized = false;
     private boolean vacuumDone = false;
     
+    private static final ReentrantReadWriteLock dbReadLock = new ReentrantReadWriteLock();
+    
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
     public static final int DATABASE_VERSION = 50;
@@ -54,7 +57,7 @@ public class DBHelper {
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
     public static final String TABLE_ARTICLES = "articles";
-    public static final String TABLE_ARTICLES2LABELS = "articles2labels"; // Careful with locking, we don't lock on this
+    public static final String TABLE_ARTICLES2LABELS = "articles2labels"; // Careful with locking, we don't dbReadLock on this
                                                                           // table but instead on TABLE_ARTICLES
     public static final String TABLE_LABELS = "labels";
     public static final String TABLE_MARK = "marked";
@@ -249,8 +252,10 @@ public class DBHelper {
             synchronized (TABLE_FEEDS) {
                 synchronized (TABLE_CATEGORIES) {
                     synchronized (TABLE_MARK) {
+                        dbReadLock.writeLock().lock();
                         db.close();
                         db = null;
+                        dbReadLock.writeLock().unlock();
                     }
                 }
             }
@@ -258,18 +263,25 @@ public class DBHelper {
     }
     
     private boolean isDBAvailable() {
+        
+        boolean ret = false;
+        
         if (db != null && db.isOpen()) {
-            return true;
+            ret = true;
         } else if (db != null) {
             OpenHelper openHelper = new OpenHelper(context);
             db = openHelper.getWritableDatabase();
             initialized = db.isOpen();
-            return initialized;
+            ret = initialized;
         } else {
             Log.i(Utils.TAG, "Controller not initialized, trying to do that now...");
             initialized = initializeDBHelper();
-            return initialized;
+            ret = initialized;
         }
+        
+        if (ret)
+            dbReadLock.readLock().lock();
+        return ret;
     }
     
     private static class OpenHelper extends SQLiteOpenHelper {
@@ -497,6 +509,7 @@ public class DBHelper {
             insertCategory.bindLong(3, unread);
             insertCategory.execute();
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void insertCategories(Set<Category> set) {
@@ -524,6 +537,7 @@ public class DBHelper {
             insertFeed.bindLong(5, unread);
             insertFeed.execute();
         }
+        dbReadLock.readLock().unlock();
     }
     
     private void insertFeed(Feed f) {
@@ -579,6 +593,7 @@ public class DBHelper {
         if (retId > 0)
             insertLabel(id, label);
         
+        dbReadLock.readLock().unlock();
     }
     
     private void insertLabel(int articleId, int label) {
@@ -601,6 +616,7 @@ public class DBHelper {
                 markFeedRead(f.id);
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void markFeedRead(int feedId) {
@@ -653,6 +669,7 @@ public class DBHelper {
                 }
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void markLabelRead(int labelId) {
@@ -668,6 +685,7 @@ public class DBHelper {
                 }
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     // Marks only the articles as read so the JSONConnector can retrieve new articles and overwrite the old articles
@@ -694,6 +712,7 @@ public class DBHelper {
                 db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ")", null);
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void markArticles(Set<Integer> iDlist, String mark, int state) {
@@ -711,6 +730,7 @@ public class DBHelper {
                 db.execSQL(sql);
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void markUnsynchronizedStatesCategory(int categoryId) {
@@ -758,6 +778,7 @@ public class DBHelper {
                         state));
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void updateCategoryUnreadCount(int id) {
@@ -772,6 +793,7 @@ public class DBHelper {
                 db.update(TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void updateCategoryDeltaUnreadCount(int id, int delta) {
@@ -790,6 +812,7 @@ public class DBHelper {
                 db.update(TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void updateFeedDeltaUnreadCount(int id, int delta) {
@@ -808,6 +831,7 @@ public class DBHelper {
                 db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void updateArticleCachedImages(int id, boolean isCachedImages) {
@@ -820,6 +844,7 @@ public class DBHelper {
                                                                                   // ID matches
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void deleteCategories(boolean withVirtualCategories) {
@@ -832,6 +857,7 @@ public class DBHelper {
                 db.delete(TABLE_CATEGORIES, wherePart, null);
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void deleteFeeds() {
@@ -840,6 +866,7 @@ public class DBHelper {
                 db.delete(TABLE_FEEDS, null, null);
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     /**
@@ -856,6 +883,7 @@ public class DBHelper {
                 purgeLabels();
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void purgePublishedArticles() {
@@ -865,6 +893,7 @@ public class DBHelper {
                 purgeLabels();
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     public void purgeStarredArticles() {
@@ -874,6 +903,7 @@ public class DBHelper {
                 purgeLabels();
             }
         }
+        dbReadLock.readLock().unlock();
     }
     
     private void purgeLabels() {
@@ -931,7 +961,8 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
+        dbReadLock.readLock().unlock();
         return ret;
     }
     
@@ -955,7 +986,8 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
+        dbReadLock.readLock().unlock();
         return ret;
     }
     
@@ -979,7 +1011,8 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
+        dbReadLock.readLock().unlock();
         return ret;
     }
     
@@ -1003,7 +1036,8 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
+        dbReadLock.readLock().unlock();
         return ret;
     }
     
@@ -1041,7 +1075,8 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
+        dbReadLock.readLock().unlock();
         return ret;
     }
     
@@ -1063,7 +1098,8 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
+        dbReadLock.readLock().unlock();
         return ret;
     }
     
@@ -1085,7 +1121,8 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
+        dbReadLock.readLock().unlock();
         return ret;
     }
     
@@ -1109,7 +1146,8 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
+        dbReadLock.readLock().unlock();
         return ret;
     }
     
@@ -1136,7 +1174,8 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-        
+
+        dbReadLock.readLock().unlock();
         return ret;
     }
     
@@ -1154,6 +1193,7 @@ public class DBHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        dbReadLock.readLock().unlock();
     }
     
     // *******************************************
