@@ -18,6 +18,7 @@ package org.ttrssreader.gui.fragments;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.ArticleActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
+import org.ttrssreader.gui.interfaces.IConfigurable;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.utils.Utils;
 import android.content.Intent;
@@ -75,6 +76,10 @@ public class FeedHeadlineListFragment extends ItemListFragment {
         adapter = new FeedHeadlineAdapter(getActivity().getApplicationContext(), feedId, categoryId,
                 selectArticlesForCategory);
         setListAdapter(adapter);
+        
+        // Inject Adapter into activity. Don't know if this is the way to do stuff here...
+        if (getActivity() instanceof IConfigurable)
+            ((IConfigurable) getActivity()).setAdapter(adapter);
     }
     
     @Override
