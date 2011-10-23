@@ -89,6 +89,8 @@
     <string name="ConnectionUsernamePreferenceSummary">Der Benutzername für Ihren Tiny Tiny RSS-Account.</string>
     <string name="ConnectionPasswordPreferenceTitle">Passwort</string>
     <string name="ConnectionPasswordPreferenceSummary">Das Passwort für Ihren Tiny Tiny RSS-Account.</string>
+    <string name="ConnectionLazyServerPreferenceTitle">Fauler Server</string>
+    <string name="ConnectionLazyServerPreferenceSummary">Feedaktualisierung im Server anstoßen.</string>
     
     <string name="ConnectionSslPreferenceCategoryTitle">SSL Einstellungen</string>
     <string name="ConnectionSslPreferenceTitle">SSL</string>
@@ -126,10 +128,10 @@
     <string name="DisplayVirtualPreferenceSummary">Aktiviert die Anzeige virtueller Feeds wie \"Alle Artikel\".</string>
     <string name="DisplayUseSwipeTitle">Wischen (swipe) benutzen</string>
     <string name="DisplayUseSwipeSummary">Ermöglicht die Navigation durch Wisch-Bewegungen.</string>
-    <string name="DisplayUseButtonsTitle">Use Buttons</string>
-    <string name="DisplayUseButtonsSummary">Use Buttons for navigation (reduces space on screen).</string>
-    <string name="DisplayLeftHandedTitle">Left-Handed?</string>
-    <string name="DisplayLeftHandedSummary">Enable to align buttons for left-handed usage.</string>
+    <string name="DisplayUseButtonsTitle">Knopfsteuerung</string>
+    <string name="DisplayUseButtonsSummary">Knöpfe zum Navigieren verwenden (verknappt den Platz auf dem Bildschirm).</string>
+    <string name="DisplayLeftHandedTitle">Linkshänder?</string>
+    <string name="DisplayLeftHandedSummary">Knöpfe für Linkshänder anordnen.</string>    
     <string name="DisplayShowUnreadOnlyTitle">Nur ungelesenes anzeigen</string>
     <string name="DisplayShowUnreadOnlySummary">Versteckt bereits gelesene Inhalte.</string>
     <string name="DisplayArticleLimitTitle">Speicherlimit für Artikel</string>
@@ -142,7 +144,7 @@
     <string name="CacheImagesOnlyWifiSummary">Der automatische ImageCache wird nur gestartet wenn WLAN aktiv ist.</string>
     <string name="DisplayAlignFlushLeftTitle">Text linksbündig anzeigen?</string>
     <string name="DisplayAlignFlushLeftSummary">Artikel werden linksbündig ausgerichtet. Standard ist Blocksatz.</string>
-    <string name="DisplayDateTimeFormatSystemTitle">Datums-/Uhrzeit-Format</string>
+    <string name="DisplayDateTimeFormatSystemTitle">Datums- und Uhrzeitformat</string>    
     <string name="DisplayDateTimeFormatSystemSummary">Aktivieren um den Systemstandard zur Anzeige von Datums- und Zeitangaben zu verwenden.</string>
     <string name="DisplayDateFormatTitle">Eigenes Datumsformat</string>
     <string name="DisplayDateFormatSummary">Anleitung zur Formatierung findet sich im Wiki des Projekts. Standard ist \"dd.MM.yyyy\".</string>
@@ -156,7 +158,7 @@
     <string name="SystemPreferenceCategoryTitle">System</string>
     <string name="StoreImageLimitTitle">Bild-Cache Größe (in MB)</string>
     <string name="StoreImageLimitSummary">Größe des Zwischenspeichers für Bilder zur Offline-Nutzung.</string>
-    <string name="CacheImagesUnreadArticlesTitle">Bild-Cache nur ungelesene?</string>
+    <string name="CacheImagesUnreadArticlesTitle">Bild-Cache nur für Ungelesenes?</string>
     <string name="CacheImagesUnreadArticlesSummary">Gibt an ob im Bild-Cache nur Bilder aus ungelesenen Artikeln gespeichert werden sollen.</string>
     <string name="SplitLongGetRequestsTitle">Lange GET-Anfragen splitten?</string>
     <string name="SplitLongGetRequestsSummary">Nur bei Problemen mit Sicherheits-Systemen wie Suhosin verwenden. Splittet lange Requests in mehrere kurze auf.</string>

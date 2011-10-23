@@ -93,6 +93,8 @@
     <string name="ConnectionUsernamePreferenceSummary">The username of your Tiny Tiny RSS account.</string>
     <string name="ConnectionPasswordPreferenceTitle">Password</string>
     <string name="ConnectionPasswordPreferenceSummary">The password of your Tiny Tiny RSS account.</string>
+    <string name="ConnectionLazyServerPreferenceTitle">Lazy Server</string>
+    <string name="ConnectionLazyServerPreferenceSummary">Ask the server to update its feeds before we fetch them.</string>
     
     <string name="ConnectionSslPreferenceCategoryTitle">SSL Settings</string>
     <string name="ConnectionSslPreferenceTitle">SSL</string>

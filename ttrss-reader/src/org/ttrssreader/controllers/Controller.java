@@ -66,6 +66,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean trustAllSsl = null;
     private Boolean useKeystore = null;
     private String keystorePassword = null;
+    private Boolean lazyServer = null;
     
     private Boolean automaticMarkRead = null;
     private Boolean openUrlEmptyArticle = null;
@@ -235,7 +236,19 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return null;
     }
     
-    public String username() {
+    public String updateTriggerURI() {
+        String url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
+        if (!url.endsWith(JSON_END_URL)) {
+            if (!url.endsWith("/")) {
+                url += "/";
+            }
+        }
+        final String updateSuffix ="backend.php?op=globalUpdateFeeds&daemon=1";
+        url = url + updateSuffix;
+        return url;       
+    }
+    
+   public String username() {
         if (username == null)
             username = prefs.getString(Constants.USERNAME, Constants.EMPTY);
         return username;
@@ -315,6 +328,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.automaticMarkRead = automaticMarkRead;
     }
     
+    public boolean lazyServer() {
+        if (lazyServer == null)
+            lazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
+        return lazyServer;
+    }
+
     public boolean openUrlEmptyArticle() {
         if (openUrlEmptyArticle == null)
             openUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
