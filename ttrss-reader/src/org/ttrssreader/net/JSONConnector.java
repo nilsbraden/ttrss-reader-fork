@@ -106,7 +106,8 @@ public class JSONConnector implements Connector {
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
     private static final String STATUS = "status";
     
-    private static final String SESSION_ID = "session_id";
+    private static final String SESSION_ID = "session_id"; // session id as an out parameter
+    private static final String SID = "sid";               // session id as an in parameter
     private static final String ID = "id";
     private static final String TITLE = "title";
     private static final String UNREAD = "unread";
@@ -176,9 +177,10 @@ public class JSONConnector implements Connector {
         HttpPost post = new HttpPost();
         
         try {
-            if (sessionId != null)
-                params.put(SESSION_ID, sessionId);
-            
+            if (sessionId != null) {
+                params.put(SID, sessionId);
+            }
+                
             // check if http-Auth-Settings have changed, reload values if necessary
             refreshHTTPAuth();
             
@@ -436,9 +438,9 @@ public class JSONConnector implements Connector {
             return false;
         
         try {
-            // TT-RSS 1.5.5 does not return valid JSON data for operation "updateFeed"
-            boolean avoidJSONParsing = Controller.getInstance().lazyServer();
+            boolean avoidJSONParsing = false;
             if (avoidJSONParsing) {
+                // TODO: remove this branch, if there are no regressions.
                 InputStream in = doRequest(params, true);
                 if (in != null) {
                     in.close();
