@@ -25,7 +25,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
-public class FeedListFragment extends ItemListFragment {
+public class FeedListFragment extends MainListFragment {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
@@ -59,9 +59,6 @@ public class FeedListFragment extends ItemListFragment {
         } else if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
             categoryTitle = instance.getString(FEED_CAT_TITLE);
-        } else {
-            categoryId = -1;
-            categoryTitle = null;
         }
         
         adapter = new FeedAdapter(getActivity().getApplicationContext(), categoryId);
@@ -70,26 +67,6 @@ public class FeedListFragment extends ItemListFragment {
         // Inject Adapter into activity. Don't know if this is the way to do stuff here...
         if (getActivity() instanceof IConfigurable)
             ((IConfigurable) getActivity()).setAdapter(adapter);
-    }
-    
-    @Override
-    public void onResume() {
-        super.onResume();
-    }
-    
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-    
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-    
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
     
     @Override
@@ -117,7 +94,7 @@ public class FeedListFragment extends ItemListFragment {
             getListView().setItemChecked(selectedIndex, true);
             
             // Get the fragment instance
-            ItemListFragment details = (ItemListFragment) getFragmentManager().findFragmentById(R.id.details);
+            MainListFragment details = (MainListFragment) getFragmentManager().findFragmentById(R.id.details);
             
             // Is the current selected ondex the same as the clicked? If so, there is no need to update
             if (details != null && selectedIndex == selectedIndexOld)

@@ -22,7 +22,7 @@
 
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/feedheadline_list_fragment"
+        android:id="@+id/list"
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:layout_weight="1"

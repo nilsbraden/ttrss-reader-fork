@@ -24,7 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
-public abstract class ItemListFragment extends ListFragment {
+public abstract class MainListFragment extends ListFragment {
     
     protected static final String SELECTED_INDEX = "selectedIndex";
     protected static final int SELECTED_INDEX_DEFAULT = -1;
@@ -58,8 +58,34 @@ public abstract class ItemListFragment extends ListFragment {
             showDetails();
     }
     
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+    
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+    
+    @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Log.d(Utils.TAG, "onListItemClick: " + position + " (id: " + id + ")");
+        Log.d(Utils.TAG, this.getClass().getName() + " onListItemClick: " + position + " (id: " + id + ")");
         selectedIndexOld = selectedIndex;
         selectedIndex = position; // Set selected item
         

@@ -28,7 +28,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
-public class CategoryListFragment extends ItemListFragment {
+public class CategoryListFragment extends MainListFragment {
     
     private static final int SELECTED_VIRTUAL_CATEGORY = 1;
     private static final int SELECTED_CATEGORY = 2;
@@ -89,7 +89,7 @@ public class CategoryListFragment extends ItemListFragment {
             getListView().setItemChecked(selectedIndex, true);
             
             // Get the fragment instance
-            ItemListFragment details = (ItemListFragment) getFragmentManager().findFragmentById(R.id.details);
+            MainListFragment details = (MainListFragment) getFragmentManager().findFragmentById(R.id.details);
             
             // Is the current selected ondex the same as the clicked? If so, there is no need to update
             if (details != null && selectedIndex == selectedIndexOld)

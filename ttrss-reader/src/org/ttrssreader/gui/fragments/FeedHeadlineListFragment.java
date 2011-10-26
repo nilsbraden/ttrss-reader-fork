@@ -26,7 +26,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
-public class FeedHeadlineListFragment extends ItemListFragment {
+public class FeedHeadlineListFragment extends MainListFragment {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "ARTICLE_FEED_ID";
@@ -83,26 +83,6 @@ public class FeedHeadlineListFragment extends ItemListFragment {
     }
     
     @Override
-    public void onResume() {
-        super.onResume();
-    }
-    
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-    
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-    
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-    
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(FEED_CAT_ID, categoryId);
         outState.putInt(FEED_ID, feedId);
@@ -140,6 +120,7 @@ public class FeedHeadlineListFragment extends ItemListFragment {
             
             // Replace the old fragment with the new one
             FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.replace(R.id.list, this);
             ft.replace(R.id.details, articleView);
             // Use a fade animation. This makes it clear that this is not a new "layer"
             // above the current, but a replacement
