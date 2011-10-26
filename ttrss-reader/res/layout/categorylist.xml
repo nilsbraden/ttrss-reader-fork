@@ -22,7 +22,7 @@
 
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/category_list_fragment"
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         class="org.ttrssreader.gui.fragments.CategoryListFragment" >
