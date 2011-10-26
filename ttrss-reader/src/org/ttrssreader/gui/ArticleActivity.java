@@ -258,7 +258,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                         new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
                     
                     if (!linkAutoOpened && content.length() < 3) {
-                        if (Controller.getInstance().openUrlEmptyArticle() && lastMove == ARTICLE_MOVE_NONE) {
+                        if (Controller.getInstance().openUrlEmptyArticle()) {
                             Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
                             linkAutoOpened = true;
                             openLink();
