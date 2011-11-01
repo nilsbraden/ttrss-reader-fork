@@ -15,26 +15,35 @@
 
 package org.ttrssreader.gui.fragments;
 
-import org.ttrssreader.R;
-import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.interfaces.IConfigurable;
+import org.ttrssreader.gui.interfaces.IItemSelectedListener;
+import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.utils.Utils;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
 
-public class FeedListFragment extends MainListFragment {
+public class FeedListFragment extends ListFragment {
+    
+    private static final TYPE THIS_TYPE = TYPE.FEED;
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
+
+    private static final String SELECTED_INDEX = "selectedIndex";
+    private static final int SELECTED_INDEX_DEFAULT = -1;
+    private int selectedIndex = SELECTED_INDEX_DEFAULT;
+    private int selectedIndexOld = SELECTED_INDEX_DEFAULT;
     
     // Extras
     private int categoryId;
     private String categoryTitle;
     
     private FeedAdapter adapter = null;
+    private ListView listView;
     
     public static FeedListFragment newInstance(int id, String title) {
         // Create a new fragment instance
@@ -48,7 +57,7 @@ public class FeedListFragment extends MainListFragment {
     @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
-        
+
         listView = getListView();
         registerForContextMenu(listView);
         
@@ -59,6 +68,7 @@ public class FeedListFragment extends MainListFragment {
         } else if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
             categoryTitle = instance.getString(FEED_CAT_TITLE);
+            selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);
         }
         
         adapter = new FeedAdapter(getActivity().getApplicationContext(), categoryId);
@@ -76,53 +86,18 @@ public class FeedListFragment extends MainListFragment {
         super.onSaveInstanceState(outState);
     }
     
-    protected void showDetails() {
-        
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
         if (adapter == null) {
             Log.d(Utils.TAG, "Adapter shouldn't be null here...");
             return;
         }
         
-        // Decide what kind of item was selected
-        int categoryId = adapter.getId(selectedIndex);
+        selectedIndexOld = selectedIndex;
+        selectedIndex = position; // Set selected item
         
-        if (isTablet) {
-            // This is a tablet. Show the recipe in the detail fragment
-            Log.d(Utils.TAG, "Filling right pane... (" + selectedIndex + " " + selectedIndexOld + ")");
-            
-            // Set the list item as checked
-            getListView().setItemChecked(selectedIndex, true);
-            
-            // Get the fragment instance
-            MainListFragment details = (MainListFragment) getFragmentManager().findFragmentById(R.id.details);
-            
-            // Is the current selected ondex the same as the clicked? If so, there is no need to update
-            if (details != null && selectedIndex == selectedIndexOld)
-                return;
-            
-            details = FeedHeadlineListFragment.newInstance(adapter.getId(selectedIndex),
-                    adapter.getTitle(selectedIndex), categoryId, false);
-            
-            // Replace the old fragment with the new one
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.details, details);
-            // Use a fade animation. This makes it clear that this is not a new "layer"
-            // above the current, but a replacement
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-            
-        } else {
-            Log.d(Utils.TAG, "Showing new activity as we are not in 2-pane-mode...");
-            
-            // This is not a tablet - start a new activity
-            Intent i = new Intent(context, FeedHeadlineActivity.class);
-            i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedHeadlineActivity.FEED_ID, adapter.getId(selectedIndex));
-            i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
-            if (i != null)
-                startActivity(i);
-            
-        }
+        if (getActivity() instanceof IItemSelectedListener)
+            ((IItemSelectedListener) getActivity()).itemSelected(THIS_TYPE, selectedIndex, selectedIndexOld);
     }
     
 }

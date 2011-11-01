@@ -26,8 +26,23 @@
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        class="org.ttrssreader.gui.fragments.CategoryListFragment" >
-    </fragment>
+        class="org.ttrssreader.gui.fragments.CategoryListFragment" />
+
+    <fragment
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/feed_list"
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        class="org.ttrssreader.gui.fragments.FeedListFragment" />
+
+    <fragment
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/feed_headline_list"
+        android:layout_width="0px"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        class="org.ttrssreader.gui.fragments.FeedHeadlineListFragment" />
 
     <FrameLayout
         android:id="@+id/details"
