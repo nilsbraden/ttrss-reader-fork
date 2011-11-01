@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
+import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.MainAdapter;
@@ -35,6 +36,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -66,7 +69,8 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     private GestureDetector gestureDetector;
     
-    private FeedHeadlineAdapter adapter = null; // Remember to explicitly check every access to adapter for it beeing null!
+    private FeedHeadlineAdapter adapter = null; // Remember to explicitly check every access to adapter for it beeing
+                                                // null!
     private FeedHeadlineUpdater headlineUpdater = null;
     private FeedAdapter parentAdapter = null;
     
@@ -75,7 +79,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         super.onCreate(instance);
         Log.d(Utils.TAG, "onCreate - FeedHeadlineActivity");
         setContentView(R.layout.feedheadlinelist);
-
+        
         gestureDetector = new GestureDetector(onGestureListener);
         
         Bundle extras = getIntent().getExtras();
@@ -417,6 +421,62 @@ public class FeedHeadlineActivity extends MenuActivity {
     public void setAdapter(MainAdapter adapter) {
         if (adapter instanceof FeedHeadlineAdapter)
             this.adapter = (FeedHeadlineAdapter) adapter;
+    }
+    
+    @Override
+    public void itemSelected(TYPE type, int selectedIndex, int oldIndex) {
+        Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
+        if (adapter == null) {
+            Log.d(Utils.TAG, "Adapter shouldn't be null here...");
+            return;
+        }
+        
+        // Find out if we are using a wide screen
+        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
+        
+        if (secondPane != null && secondPane.isInLayout()) {
+            
+            Log.d(Utils.TAG, "Filling right pane... (" + selectedIndex + " " + oldIndex + ")");
+            
+            // Set the list item as checked
+            // getListView().setItemChecked(selectedIndex, true);
+            
+            // Get the fragment instance
+            ArticleFragment articleView = (ArticleFragment) getSupportFragmentManager().findFragmentById(
+                    R.id.articleView);
+            
+            // Is the current selected ondex the same as the clicked? If so, there is no need to update
+            if (articleView != null && selectedIndex == oldIndex)
+                return;
+            
+            articleView = ArticleFragment.newInstance(adapter.getId(selectedIndex), feedId, categoryId,
+                    selectArticlesForCategory, ArticleActivity.ARTICLE_MOVE_DEFAULT);
+            
+            // Replace the old fragment with the new one
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.details, articleView);
+            // Use a fade animation. This makes it clear that this is not a new "layer"
+            // above the current, but a replacement
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
+            
+        } else {
+            
+            Log.d(Utils.TAG, "Showing new activity as we are not in 2-pane-mode...");
+            
+            // This is not a tablet - start a new activity
+            // if (!flingDetected) { // TODO!
+            Intent i = new Intent(context, ArticleActivity.class);
+            i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(selectedIndex));
+            i.putExtra(ArticleActivity.ARTICLE_FEED_ID, feedId);
+            i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+            i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+            i.putExtra(ArticleActivity.ARTICLE_MOVE, ArticleActivity.ARTICLE_MOVE_DEFAULT);
+            if (i != null)
+                startActivity(i);
+            // }
+            
+        }
     }
     
 }

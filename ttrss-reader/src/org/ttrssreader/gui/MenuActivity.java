@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IConfigurable;
+import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
@@ -41,10 +42,12 @@ import android.view.Window;
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
  * FeedHeadlineListActivity).
  */
-public abstract class MenuActivity extends FragmentActivity implements IUpdateEndListener, ICacheEndListener, IConfigurable  {
+public abstract class MenuActivity extends FragmentActivity implements IUpdateEndListener, ICacheEndListener,
+        IConfigurable, IItemSelectedListener {
     
     protected Updater updater;
     protected Context context = null;
+    protected boolean isTablet = false;
     
     protected static final int MARK_GROUP = 42;
     protected static final int MARK_READ = MARK_GROUP + 1;
@@ -65,6 +68,10 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         Controller.getInstance().registerActivity(this);
+        
+        // This is a tablet if this view exists
+        View details = findViewById(R.id.details);
+        isTablet = details != null && details.getVisibility() == View.VISIBLE;
     }
     
     @Override

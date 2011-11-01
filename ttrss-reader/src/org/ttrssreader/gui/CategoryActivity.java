@@ -27,6 +27,8 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
+import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
+import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
@@ -45,6 +47,8 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -57,6 +61,10 @@ public class CategoryActivity extends MenuActivity {
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
     private static final int DIALOG_CRASH = 3;
+    
+    private static final int SELECTED_VIRTUAL_CATEGORY = 1;
+    private static final int SELECTED_CATEGORY = 2;
+    private static final int SELECTED_LABEL = 3;
     
     private static final int SELECT_ARTICLES = MenuActivity.MARK_GROUP + 54;
     
@@ -417,6 +425,107 @@ public class CategoryActivity extends MenuActivity {
     public void setAdapter(MainAdapter adapter) {
         if (adapter instanceof CategoryAdapter)
             this.adapter = (CategoryAdapter) adapter;
+    }
+    
+    @Override
+    public void itemSelected(TYPE type, int selectedIndex, int oldIndex) {
+        Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
+        if (adapter == null) {
+            Log.d(Utils.TAG, "Adapter shouldn't be null here...");
+            return;
+        }
+        
+        // Who is calling?
+        switch (type) {
+            case CATEGORY:
+                Log.d(Utils.TAG, "CATEGORY selected: " + selectedIndex);
+                break;
+            case FEED:
+                Log.d(Utils.TAG, "FEED selected: " + selectedIndex);
+                break;
+            case FEEDHEADLINE:
+                Log.d(Utils.TAG, "FEEDHEADLINE selected: " + selectedIndex);
+                break;
+        }
+        
+        // Decide what kind of item was selected
+        int selectedId = adapter.getId(selectedIndex);
+        final int selection;
+        
+        if (selectedId < 0 && selectedId >= -4) {
+            selection = SELECTED_VIRTUAL_CATEGORY;
+        } else if (selectedId < -10) {
+            selection = SELECTED_LABEL;
+        } else {
+            selection = SELECTED_CATEGORY;
+        }
+
+        // Find out if we are using a wide screen
+        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
+        
+        if (secondPane != null && secondPane.isInLayout()) {
+            
+            Log.d(Utils.TAG, "Filling right pane... (" + selectedIndex + " " + oldIndex + ")");
+            
+            // Set the list item as checked
+            // getListView().setItemChecked(selectedIndex, true);
+            
+            // Is the current selected ondex the same as the clicked? If so, there is no need to update
+            // if (details != null && selectedIndex == oldIndex)
+            // return;
+            
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            FeedHeadlineListFragment feedHeadlineFragment = null;
+            FeedListFragment feedFragment = null;
+            
+            switch (selection) {
+                case SELECTED_VIRTUAL_CATEGORY:
+                    feedHeadlineFragment = FeedHeadlineListFragment.newInstance(selectedId,
+                            adapter.getTitle(selectedIndex), 0, false);
+                    ft.replace(R.id.feed_headline_list, feedHeadlineFragment);
+                    break;
+                case SELECTED_LABEL:
+                    feedHeadlineFragment = FeedHeadlineListFragment.newInstance(selectedId,
+                            adapter.getTitle(selectedIndex), -2, false);
+                    ft.replace(R.id.feed_headline_list, feedHeadlineFragment);
+                    break;
+                case SELECTED_CATEGORY:
+                    feedFragment = FeedListFragment.newInstance(selectedId, adapter.getTitle(selectedIndex));
+                    ft.replace(R.id.feed_list, feedFragment);
+                    break;
+            }
+            
+            // Replace the old fragment with the new one
+            // Use a fade animation. This makes it clear that this is not a new "layer"
+            // above the current, but a replacement
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
+            
+        } else {
+            
+            Log.d(Utils.TAG, "Showing new activity as we are not in 2-pane-mode...");
+            
+            // This is not a tablet - start a new activity
+            Intent i = null;
+            switch (selection) {
+                case SELECTED_VIRTUAL_CATEGORY:
+                    i = new Intent(context, FeedHeadlineActivity.class);
+                    i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
+                    i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
+                case SELECTED_LABEL:
+                    i = new Intent(context, FeedHeadlineActivity.class);
+                    i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
+                    i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, -2);
+                    i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
+                case SELECTED_CATEGORY:
+                    i = new Intent(context, FeedActivity.class);
+                    i.putExtra(FeedActivity.FEED_CAT_ID, selectedId);
+                    i.putExtra(FeedActivity.FEED_CAT_TITLE, adapter.getTitle(selectedIndex));
+            }
+            if (i != null)
+                startActivity(i);
+            
+        }
     }
     
 }
