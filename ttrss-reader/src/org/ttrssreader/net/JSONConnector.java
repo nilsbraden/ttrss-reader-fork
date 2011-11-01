@@ -214,10 +214,10 @@ public class JSONConnector implements Connector {
             if (!Controller.getInstance().logSensitiveData()) {
                 // Filter password and session-id
                 Object paramPw = json.remove(PARAM_PW);
-                Object paramSID = json.remove(SESSION_ID);
+                Object paramSID = json.remove(SID);
                 Log.i(Utils.TAG, "Request: " + json);
                 json.put(PARAM_PW, paramPw);
-                json.put(SESSION_ID, paramSID);
+                json.put(SID, paramSID);
             } else {
                 Log.i(Utils.TAG, "Request: " + json);
             }
