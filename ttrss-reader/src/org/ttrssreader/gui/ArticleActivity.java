@@ -220,7 +220,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             }
             
             article = DBHelper.getInstance().getArticle(articleId);
-            
             if (article == null || article.content == null) {
                 setProgressBarIndeterminateVisibility(false);
                 return;
