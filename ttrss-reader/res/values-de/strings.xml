@@ -16,7 +16,6 @@
 <resources>
 
     <string name="ApplicationDescription">Tiny Tiny RSS Reader ist eine Anwendung um RSS-Feeds aus einer Tiny Tiny RSS-Installation zu lesen.</string>
-    
     <string name="Main.ShowPreferencesMenu">Optionen</string>
     <string name="Main.RefreshMenu">Aktualisieren</string>
     <string name="Main.UpdateMenu">Update</string>
@@ -24,24 +23,20 @@
     <string name="Main.Nothing">Keine Kategorien. Bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
     <string name="Main.ImageCache">Bilder herunterladen</string>
     <string name="Main.ArticleCache">Artikel herunterladen</string>
-    
     <string name="Preferences.Reset">Einstellungen zurücksetzen</string>
     <string name="Preferences.ResetDatabase">Datenbank zurücksetzen</string>
     <string name="Preferences.Btn">Optionen</string>
-    
     <string name="Changelog.Title">Changelog</string>
     <string name="Welcome.Title">Willkommen</string>
     <string name="Welcome.Message">Willkommen zum TTRSS-Reader!\n\nBitte beachten Sie, dass dieser Reader nur mit einem \"Tiny Tiny RSS\" Server arbeiten kann.\n\nWenn dies der erste Start dieser Anwendung ist sollten Sie Ihre Server- und Benutzer-Einstellungen setzen. Drücken Sie \"Einstellungen\" um fortzufahren.</string>
     <string name="Check.OldVersion">Der angegebene Tiny Tiny RSS Server liegt in einer nicht unterstützten Version vor. Bitte aktualisieren Sie den Server.</string>
     <string name="Check.Crash">Es wurde ein Fehlerbericht gespeichert soll dieser per Mail an den Entwickler der Anwendung gesendet werden?</string>
-    
     <string name="AboutActivity.Title">About</string>
     <string name="AboutActivity.CloseBtn">Schließen</string>
     <string name="AboutActivity.DonateBtn">Möchten Sie spenden?</string>
     <string name="AboutActivity.VersionText">Version:</string>
     <string name="AboutActivity.LicenseText">Lizenz:</string>
     <string name="AboutActivity.LicenseTextValue">GPL v3</string>
-    
     <string name="ArticleActivity.OpenLink">Artikel</string>
     <string name="ArticleActivity.OpenCommentLink">Kommentare</string>
     <string name="ArticleActivity.ShareLink">Senden</string>
@@ -50,14 +45,13 @@
     <string name="ArticleActivity.MediaPlay">Mediendatei Anhang abspielen</string>
     <string name="ArticleActivity.MediaDisplayLink">Anhang öffnen</string>
     <string name="ArticleActivity.SwipeNotification">Hier Wischen!</string>
-    
+    <string name="ArticleActivity.ArticleLink">-> Artikel-Link</string>
     <string name="Loading.Headlines">Lade Artikelliste...</string>
     <string name="Loading.Feeds">Lade Feed-Liste...</string>
     <string name="Loading.Categories">Lade Kategorien...</string>
     <string name="Loading.EmptyHeadlines">Keine Artikel anzuzeigen</string>
     <string name="Loading.EmptyFeeds">Keine Feeds anzuzeigen</string>
     <string name="Loading.EmptyCategories">Keine Kategorien anzuzeigen</string>
-    
     <string name="Commons.PleaseWait">Bitte warten...</string>
     <string name="Commons.NothingToDisplay">Nichts anzuzeigen.</string>
     <string name="Commons.UpdateReadState">Aktualisiere Status</string>
@@ -72,16 +66,13 @@
     <string name="Commons.MarkUnstar">Un-Star</string>
     <string name="Commons.MarkPublish">Publish</string>
     <string name="Commons.MarkUnpublish">Un-Publish</string>
-    
     <string name="VCategory.AllArticles">Alle Artikel</string>
     <string name="VCategory.FreshArticles">Neue Artikel</string>
     <string name="VCategory.PublishedArticles">Veröffentlichte Artikel</string>
     <string name="VCategory.StarredArticles">Favorisierte Artikel</string>
     <string name="Feed.UncategorizedFeeds">Unkategorisierte Feeds</string>
-    
     <string name="CategoryActivity.NoServer">Kein Server angegeben.</string>
     <string name="CategoryActivity.Donate">Möchten Sie spenden?</string>
-    
     <string name="ConnectionPreferenceCategoryTitle">Verbindung</string>
     <string name="ConnectionUrlPreferenceTitle">Server-URL</string>
     <string name="ConnectionUrlPreferenceSummary">Die Adresse Ihrer Tiny Tiny RSS-Installation.</string>
@@ -91,7 +82,6 @@
     <string name="ConnectionPasswordPreferenceSummary">Das Passwort für Ihren Tiny Tiny RSS-Account.</string>
     <string name="ConnectionLazyServerPreferenceTitle">Fauler Server</string>
     <string name="ConnectionLazyServerPreferenceSummary">Feedaktualisierung im Server anstoßen.</string>
-    
     <string name="ConnectionSslPreferenceCategoryTitle">SSL Einstellungen</string>
     <string name="ConnectionSslPreferenceTitle">SSL</string>
     <string name="ConnectionSslPreferenceSummary">Alle SSL-Zertifikate akzeptieren.</string>
@@ -99,7 +89,6 @@
     <string name="ConnectionKeystorePasswordPreferenceSummary">Das Passwort für den eigenen Keystore</string>
     <string name="ConnectionUseKeystorePreferenceTitle">Eigener Keystore</string>
     <string name="ConnectionUseKeystorePreferenceSummary">Soll ein eigener Keystore verwendet werden?</string>
-    
     <string name="ConnectionHttpPreferenceCategoryTitle">Einstellungen für die HTTP-Authentifizierung</string>
     <string name="ConnectionHttpPreferenceTitle">HTTP-Authentifizierung</string>
     <string name="ConnectionHttpPreferenceSummary">HTTP-Authentifizierung verwenden</string>
@@ -107,7 +96,6 @@
     <string name="ConnectionHttpUsernamePreferenceSummary">Der Benutzername für Ihre HTTP-basierte Authentifizierungs-Methode</string>
     <string name="ConnectionHttpPasswordPreferenceTitle">Passwort</string>
     <string name="ConnectionHttpPasswordPreferenceSummary">Das Passwort für Ihre HTTP-basierte Authentifizierungs-Methode</string>
-    
     <string name="MiscellaneousPreferenceCategoryTitle">Sonstige Einstellungen</string>
     <string name="UsagePreferenceCategoryTitle">Verwendung</string>
     <string name="UsageAutomaticMarkReadPreferenceTitle">Artikel automatisch als gelesen markieren</string>
@@ -122,7 +110,6 @@
     <string name="UsageOfflineTitle">Offline</string>
     <string name="UsageOnlineTitle">Online</string>
     <string name="UsageWorkOfflineSummary">Schaltet die Online-Synchronisierung aus.</string>
-    
     <string name="DisplayPreferenceCategoryTitle">Darstellung</string>
     <string name="DisplayVirtualPreferenceTitle">Virtuelle Feeds anzeigen</string>
     <string name="DisplayVirtualPreferenceSummary">Aktiviert die Anzeige virtueller Feeds wie \"Alle Artikel\".</string>
@@ -131,7 +118,7 @@
     <string name="DisplayUseButtonsTitle">Knopfsteuerung</string>
     <string name="DisplayUseButtonsSummary">Knöpfe zum Navigieren verwenden (verknappt den Platz auf dem Bildschirm).</string>
     <string name="DisplayLeftHandedTitle">Linkshänder?</string>
-    <string name="DisplayLeftHandedSummary">Knöpfe für Linkshänder anordnen.</string>    
+    <string name="DisplayLeftHandedSummary">Knöpfe für Linkshänder anordnen.</string>
     <string name="DisplayShowUnreadOnlyTitle">Nur ungelesenes anzeigen</string>
     <string name="DisplayShowUnreadOnlySummary">Versteckt bereits gelesene Inhalte.</string>
     <string name="DisplayArticleLimitTitle">Speicherlimit für Artikel</string>
@@ -144,7 +131,7 @@
     <string name="CacheImagesOnlyWifiSummary">Der automatische ImageCache wird nur gestartet wenn WLAN aktiv ist.</string>
     <string name="DisplayAlignFlushLeftTitle">Text linksbündig anzeigen?</string>
     <string name="DisplayAlignFlushLeftSummary">Artikel werden linksbündig ausgerichtet. Standard ist Blocksatz.</string>
-    <string name="DisplayDateTimeFormatSystemTitle">Datums- und Uhrzeitformat</string>    
+    <string name="DisplayDateTimeFormatSystemTitle">Datums- und Uhrzeitformat</string>
     <string name="DisplayDateTimeFormatSystemSummary">Aktivieren um den Systemstandard zur Anzeige von Datums- und Zeitangaben zu verwenden.</string>
     <string name="DisplayDateFormatTitle">Eigenes Datumsformat</string>
     <string name="DisplayDateFormatSummary">Anleitung zur Formatierung findet sich im Wiki des Projekts. Standard ist \"dd.MM.yyyy\".</string>
@@ -154,7 +141,6 @@
     <string name="DisplayTimeFormatDefault">kk:mm</string>
     <string name="DisplayDarkBackgroundTitle">Benutze dunklen Hintergrund?</string>
     <string name="DisplayDarkBackgroundSummary">Besser lesbarer dunkler Hintergrund für Artikel.</string>
-    
     <string name="SystemPreferenceCategoryTitle">System</string>
     <string name="StoreImageLimitTitle">Bild-Cache Größe (in MB)</string>
     <string name="StoreImageLimitSummary">Größe des Zwischenspeichers für Bilder zur Offline-Nutzung.</string>
@@ -170,28 +156,24 @@
     <string name="DeleteDBOnNextStartupSummary">Löscht die Datenbank beim nächsten Start der Anwendung.</string>
     <string name="DeleteDBOnStartupTitle">Datenbank bei jedem Start löschen?</string>
     <string name="DeleteDBOnStartupSummary">Löscht die Datenbank bei jedem Start der Anwendung.</string>
-    
     <string name="ErrorActivity.Title">Fehler</string>
     <string name="ErrorActivity.UserMessage">Konnte nicht zu Ihrer Tiny Tiny RSS-Installation verbinden, bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>
     <string name="ErrorActivity.ErrorTitle">Weitere Informationen:</string>
     <string name="ErrorActivity.ErrorDefault">Ein unbekannter Fehler ist aufgetreten. Sie können versuchen mehr Informationen mittels \"adb logcat\" von einem PC aus (sofern das Android-SDK installiert ist) oder über das Programm aLogcat aus dem Market zu bekommen.</string>
     <string name="ErrorActivity.CloseBtn">Meldung schließen</string>
     <string name="ErrorActivity.ExitBtn">Anwendung beenden</string>
-
     <string name="WebViewClientActivity.Download">Download</string>
     <string name="WebViewClientActivity.Display">Im Mediaplayer anzeigen</string>
-    
     <string name="About.about">Über</string>
     <string name="About.about_hint">Über diese App</string>
     <string name="About.project">Projekt-Webseite</string>
     <string name="About.project_hint">Informationen zur Entwicklung, dem Changelog etc.</string>
-	<string name="About.twitter">Twitter</string>
+    <string name="About.twitter">Twitter</string>
     <string name="About.twitter_hint">Contact me on twitter.</string>
     <string name="About.twitter_acc">http://twitter.com/nilsbraden</string>
     <string name="About.mail">ttrss@nilsbraden.de</string>
     <string name="About.feedback">Feedback</string>
     <string name="About.feedback_hint">Report bugs, request features ...</string>
-    
     <string name="Utils.DownloadFinishedTitle">Download</string>
     <string name="Utils.DownloadFinishedTicker">Prozess abgeschlossen.</string>
     <string name="Utils.DownloadFinishedText">Prozess in %s Sekunden abgeschlossen.</string>
@@ -200,17 +182,16 @@
     <string name="Utils.DownloadRunningText"></string>
     <string name="Utils.DownloadErrorTitle">Error</string>
     <string name="Utils.DownloadErrorTicker">Ein Fehler ist aufgetreten...</string>
-    <string name="Utils.DownloadErrorText">Ein Fehler ist aufgetreten, der Prozess konnte nicht abgeschlossen werden.</string>  
+    <string name="Utils.DownloadErrorText">Ein Fehler ist aufgetreten, der Prozess konnte nicht abgeschlossen werden.</string>
     <string name="SaveAttachmentTitle">Speicherort für Anhang...</string>
     <string name="CacheFolderTitle">Cache-Ordner...</string>
     <string name="Utils.FileSaveTitle">Anhang speichern</string>
     <string name="Utils.FileSaveMessage">Kein Dateibrowser gefunden. Wo möchten Sie die Anhänge speichern?</string>
     <string name="Utils.OkayAction">OK</string>
     <string name="Utils.CancelAction">Abbrechen</string>
-    
     <string name="Cache.service_started">Download gestartet...</string>
     <string name="Cache.service_text">Download läuft...</string>
     <string name="Cache.service_imagecache">Bild-Cache</string>
     <string name="Cache.service_articlecache">Artikel-Cache</string>
-	
+
 </resources>
