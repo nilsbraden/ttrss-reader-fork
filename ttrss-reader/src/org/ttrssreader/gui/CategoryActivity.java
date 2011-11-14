@@ -512,15 +512,18 @@ public class CategoryActivity extends MenuActivity {
                     i = new Intent(context, FeedHeadlineActivity.class);
                     i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
                     i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
+                    break;
                 case SELECTED_LABEL:
                     i = new Intent(context, FeedHeadlineActivity.class);
                     i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
                     i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, -2);
                     i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
+                    break;
                 case SELECTED_CATEGORY:
                     i = new Intent(context, FeedActivity.class);
                     i.putExtra(FeedActivity.FEED_CAT_ID, selectedId);
                     i.putExtra(FeedActivity.FEED_CAT_TITLE, adapter.getTitle(selectedIndex));
+                    break;
             }
             if (i != null)
                 startActivity(i);
