@@ -213,66 +213,70 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         }
         
         try {
-            if (!Controller.getInstance().getConnector().hasLastError()) {
-                article = DBHelper.getInstance().getArticle(articleId);
-                
-                if (article != null && article.content != null) {
-                    
-                    // Populate information-bar on top of the webView if enabled
-                    if (Controller.getInstance().displayArticleHeader()) {
-                        headerContainer.populate(article);
-                    } else {
-                        headerContainer.setVisibility(View.GONE);
-                    }
-                    
-                    // Initialize mainContainer with buttons or swipe-view
-                    mainContainer.populate();
-                    
-                    // Inject the specific code for attachments, <img> for images, http-link for Videos
-                    StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(
-                            article.content), article.attachments);
-                    
-                    // if (article.cachedImages)
-                    // Do this anyway, article.cachedImages can be true also if some images were fetched and others
-                    // produced errors
-                    contentTmp = injectCachedImages(contentTmp, articleId);
-                    final int contentLength = contentTmp.length();
-                    contentTmp = injectArticleLink(contentTmp);
-                    content = contentTmp.toString();
-                    
-                    // Load html from Controller and insert content
-                    String text = Controller.htmlHeader.replace("MARKER", content);
-                    
-                    // TODO
-                    if (Controller.getInstance().darkBackground()) {
-                        webView.setBackgroundColor(Color.BLACK);
-                        text = "<font color='white'>" + text + "</font>";
-                        
-                        setDarkBackground(headerContainer);
-                    }
-                    
-                    // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in
-                    // html).
-                    baseUrl = StringSupport.getBaseURL(article.url);
-                    webView.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
-                    
-                    setTitle(article.title);
-                    
-                    if (article.isUnread && Controller.getInstance().automaticMarkRead())
-                        new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
-                    
-                    if (!linkAutoOpened && contentLength < 3) {
-                        if (Controller.getInstance().openUrlEmptyArticle()) {
-                            Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
-                            linkAutoOpened = true;
-                            openLink();
-                        }
-                    }
-                    
-                }
-            } else {
+            if (Controller.getInstance().getConnector().hasLastError()) {
                 openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+                setProgressBarIndeterminateVisibility(false);
+                return;
             }
+
+            article = DBHelper.getInstance().getArticle(articleId);
+            
+            if (article == null || article.content == null) {
+                setProgressBarIndeterminateVisibility(false);
+                return;
+            }
+            
+            // Populate information-bar on top of the webView if enabled
+            if (Controller.getInstance().displayArticleHeader()) {
+                headerContainer.populate(article);
+            } else {
+                headerContainer.setVisibility(View.GONE);
+            }
+            
+            // Initialize mainContainer with buttons or swipe-view
+            mainContainer.populate();
+            
+            // Inject the specific code for attachments, <img> for images, http-link for Videos
+            StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(article.content),
+                    article.attachments);
+            
+            // if (article.cachedImages)
+            // Do this anyway, article.cachedImages can be true also if some images were fetched and others
+            // produced errors
+            contentTmp = injectCachedImages(contentTmp, articleId);
+            final int contentLength = contentTmp.length();
+            contentTmp = injectArticleLink(getApplicationContext(), contentTmp);
+            content = contentTmp.toString();
+            
+            // Load html from Controller and insert content
+            String text = Controller.htmlHeader.replace("MARKER", content);
+            
+            // TODO: Whole "switch background-color-thing" needs to be refactored.
+            if (Controller.getInstance().darkBackground()) {
+                webView.setBackgroundColor(Color.BLACK);
+                text = "<font color='white'>" + text + "</font>";
+                
+                setDarkBackground(headerContainer);
+            }
+            
+            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in
+            // html).
+            baseUrl = StringSupport.getBaseURL(article.url);
+            webView.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
+            
+            setTitle(article.title);
+            
+            if (article.isUnread && Controller.getInstance().automaticMarkRead())
+                new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+            
+            if (!linkAutoOpened && contentLength < 3) {
+                if (Controller.getInstance().openUrlEmptyArticle()) {
+                    Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+                    linkAutoOpened = true;
+                    openLink();
+                }
+            }
+            
         } catch (NotInitializedException e) {
         }
         
@@ -665,14 +669,15 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         return content;
     }
     
-    private StringBuilder injectArticleLink(StringBuilder html) {
+    private StringBuilder injectArticleLink(Context context, StringBuilder html) {
         if (html == null)
             html = new StringBuilder();
         if (article != null) {
             if ((article.url != null) && (article.url.length() > 0)) {
                 html.append("<br>\n");
                 html.append("<a href=\"").append(article.url).append("\" rel=\"alternate\">");
-                html.append("*** article ***").append("</a>"); // TODO: internationalization
+                html.append((String) context.getText(R.string.ArticleActivity_ArticleLink));
+                html.append("</a>");
             }
         }
         return html;
