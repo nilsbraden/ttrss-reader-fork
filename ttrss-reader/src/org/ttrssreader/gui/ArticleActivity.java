@@ -218,7 +218,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                 setProgressBarIndeterminateVisibility(false);
                 return;
             }
-
+            
             article = DBHelper.getInstance().getArticle(articleId);
             
             if (article == null || article.content == null) {
@@ -236,6 +236,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             // Initialize mainContainer with buttons or swipe-view
             mainContainer.populate();
             
+            final int contentLength = article.content.length();
+            
             // Inject the specific code for attachments, <img> for images, http-link for Videos
             StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(article.content),
                     article.attachments);
@@ -243,10 +245,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             // if (article.cachedImages)
             // Do this anyway, article.cachedImages can be true also if some images were fetched and others
             // produced errors
-            contentTmp = injectCachedImages(contentTmp, articleId);
-            final int contentLength = contentTmp.length();
             contentTmp = injectArticleLink(getApplicationContext(), contentTmp);
-            content = contentTmp.toString();
+            content = injectCachedImages(contentTmp.toString(), articleId);
             
             // Load html from Controller and insert content
             String text = Controller.htmlHeader.replace("MARKER", content);
@@ -443,10 +443,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     private boolean doVibrate(int newIndex) {
         int tempIndex = 0;
         
-        if (newIndex == 0) {
-            if (lastMove != 0) {
+        if (newIndex == 0 && lastMove != 0) {
                 tempIndex = getCurrentIndex() + lastMove;
-            }
         } else {
             tempIndex = newIndex;
         }
@@ -691,50 +689,22 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
      *            the original html
      * @return the altered html with the URLs replaced so they point on local files if available
      */
-    private static StringBuilder injectCachedImages(StringBuilder html, int articleId) {
-        if (html == null || html.length() < 40)
+    private static String injectCachedImages(String html, int articleId) {
+        if (html == null || html.length() < 40) // Random. Chosen by fair dice-roll.
             return html;
         
-        for (String url : ImageCacher.findAllImageUrls(html.toString(), articleId)) {
+        for (String url : ImageCacher.findAllImageUrls(html, articleId)) {
             String localUrl = ImageCacher.getCachedImageUrl(url);
             if (localUrl != null) {
-                replace(html, url, localUrl);
+                html = html.replace(url, localUrl);
             }
         }
         return html;
     }
     
-    private static void replace(StringBuilder s, String target, String replacement) {
-        final boolean oldway = true;
-        if (oldway) {
-            String stmp = s.toString();
-            stmp.replace(target, replacement);
-            s = new StringBuilder(stmp);
-        } else {
-            // TODO: find out why this is broken.
-            int searchStart = 0;
-            final int targetLength = target.length();
-            final int replacementLength = replacement.length();
-            while (true) {
-                int begin = s.indexOf(target, searchStart);
-                if (begin < 0) {
-                    break;
-                } else {
-                    s.replace(begin, begin + targetLength, replacement);
-                    searchStart = begin + replacementLength;
-                }
-            }
-        }
-    }
-    
-    @Override
-    public void onUpdateEnd() {
-        // Not necessary here
-    }
-    
-    @Override
-    public void onUpdateProgress() {
-        // Not necessary here
-    }
+    // @formatter:off
+    @Override public void onUpdateEnd() { /* Not necessary here */ }
+    @Override public void onUpdateProgress() { /* Not necessary here */ }
+    // @formatter:on
     
 }
