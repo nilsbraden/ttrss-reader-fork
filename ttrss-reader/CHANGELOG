@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.2 (beta!) ==
+--> This Version should run as expected on normal devices. On Tablets there is still some work to do with the new paned-layout.
+  * TODO: Changelog
+
 == Version 1.12 ==
   * Added dialogs to preferences which allow to change the Cache-Folder and the download-location for attached Media-Files
 
