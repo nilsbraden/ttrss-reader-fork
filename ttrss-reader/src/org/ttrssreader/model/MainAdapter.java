@@ -18,9 +18,11 @@ package org.ttrssreader.model;
 import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -185,7 +187,7 @@ public abstract class MainAdapter extends BaseAdapter {
                 cursor = executeQuery(false, false, refresh); // normal query
                 
                 if (!checkUnread(cursor))
-                    cursor = executeQuery(true, false, refresh); // Override unread if query was empty
+                    cursor = executeQuery(true, false, true); // Override unread if query was empty
                     
             } catch (Exception e) {
                 cursor = executeQuery(false, true, refresh); // Fail-safe-query
@@ -197,10 +199,10 @@ public abstract class MainAdapter extends BaseAdapter {
         
     }
     
-    private boolean checkUnread(Cursor c) {
+    private final boolean checkUnread(Cursor c) {
         if (c == null || c.isClosed())
-            return false;
-        
+            return true; // TODO: Check for concurrency-issues here, to avoid anything strange this should return false.
+            
         boolean gotUnread = false;
         if (c.moveToFirst()) {
             int col = c.getColumnIndex("unread");
