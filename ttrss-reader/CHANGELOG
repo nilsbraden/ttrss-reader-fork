@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.2 (beta!) ==
+== Version 1.2 ==
   * Added compatibility-code for Android 4.0 (API-Level 14)
   * Started working on a thre-pane-layout for tablet-devices (not functional yet)
   * Fixed Issue #80: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=80 Broken list in JSON request])
