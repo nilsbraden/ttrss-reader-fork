@@ -100,6 +100,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean cacheImagesOnlyWifi = null;
     private Boolean logSensitiveData = null;
     
+    private Long appVersionCheckTime = null;
+    private Integer appLatestVersion = null;
     private Long lastUpdateTime = null;
     private String lastVersionRun = null;
     private Boolean newInstallation = false;
@@ -677,6 +679,31 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     // ******* INTERNAL Data ****************************
+    
+    public long appVersionCheckTime() {
+        if (appVersionCheckTime == null)
+            appVersionCheckTime = prefs.getLong(Constants.APP_VERSION_CHECK_TIME,
+                    Constants.APP_VERSION_CHECK_TIME_DEFAULT);
+        return appVersionCheckTime;
+    }
+    
+    private void setAppVersionCheckTime(long appVersionCheckTime) {
+        put(Constants.APP_VERSION_CHECK_TIME, appVersionCheckTime);
+        this.appVersionCheckTime = appVersionCheckTime;
+    }
+    
+    public int appLatestVersion() {
+        if (appLatestVersion == null)
+            appLatestVersion = prefs.getInt(Constants.APP_LATEST_VERSION, Constants.APP_LATEST_VERSION_DEFAULT);
+        return appLatestVersion;
+    }
+    
+    public void setAppLatestVersion(int appLatestVersion) {
+        setAppVersionCheckTime(System.currentTimeMillis()); // Set current time, this only changes when it has been
+                                                            // fetched from the server
+        put(Constants.APP_LATEST_VERSION, appLatestVersion);
+        this.appLatestVersion = appLatestVersion;
+    }
     
     public long getLastUpdateTime() {
         if (lastUpdateTime == null)

@@ -31,11 +31,13 @@ public class Constants {
     
     static {
         StringBuilder sbAttachments = new StringBuilder();
-        sbAttachments.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH_FILES);
+        sbAttachments.append(Environment.getExternalStorageDirectory()).append(File.separator)
+                .append(Utils.SDCARD_PATH_FILES);
         SAVE_ATTACHMENT_DEFAULT = sbAttachments.toString();
         
         StringBuilder sbCache = new StringBuilder();
-        sbCache.append(Environment.getExternalStorageDirectory()).append(File.separator).append(Utils.SDCARD_PATH_CACHE);
+        sbCache.append(Environment.getExternalStorageDirectory()).append(File.separator)
+                .append(Utils.SDCARD_PATH_CACHE);
         CACHE_FOLDER_DEFAULT = sbCache.toString();
     }
     
@@ -131,11 +133,15 @@ public class Constants {
     public static final boolean LOG_SENSITIVE_DATA_DEFAULT = false;
     
     // Internal
+    public static final String APP_VERSION_CHECK_TIME = "appVersionCheckTime";
+    public static final String APP_LATEST_VERSION = "appLatestVersion";
     public static final String DATABASE_VERSION = "DatabaseVersion";
     public static final String LAST_UPDATE_TIME = "LastUpdateTime";
     public static final String LAST_VERSION_RUN = "LastVersionRun";
     public static final String LAST_VACUUM_DATE = "lastVacuumDate";
     // Internal Default Values
+    public static final long APP_VERSION_CHECK_TIME_DEFAULT = 0;
+    public static final int APP_LATEST_VERSION_DEFAULT = 0;
     public static final int DATABASE_VERSION_DEFAULT = 1;
     public static final long LAST_UPDATE_TIME_DEFAULT = 1;
     public static final String LAST_VERSION_RUN_DEFAULT = "1";

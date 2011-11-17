@@ -25,6 +25,11 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.regex.Pattern;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
@@ -38,6 +43,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.util.Log;
 
 public class Utils {
@@ -104,11 +110,16 @@ public class Utils {
      * Check if a new version of the app was installed, returns false if this is the case.
      */
     public static boolean checkNewVersion(Context c) {
-        String thisVersion = getAppVersion(c);
+        String thisVersion = getAppVersionName(c);
         String lastVersionRun = Controller.getInstance().getLastVersionRun();
         Controller.getInstance().setLastVersionRun(thisVersion);
         
         if (thisVersion.equals(lastVersionRun)) {
+            // No new version installed, perhaps a new version exists
+            // Only run task once for every session
+            if (AsyncTask.Status.PENDING.equals(appUpdateVersionCheckTask.getStatus()))
+                appUpdateVersionCheckTask.execute();
+            
             return true;
         } else {
             return false;
@@ -119,6 +130,12 @@ public class Utils {
      * Check if crashreport-file exists, returns false if it exists.
      */
     public static boolean checkCrashReport(Context c) {
+        // Ignore crashreport if this version isn't the newest from market
+        int latest = Controller.getInstance().appLatestVersion();
+        int current = getAppVersionCode(c);
+        if (latest > current)
+            return true; // Ignore!
+            
         try {
             c.openFileInput(TopExceptionHandler.FILE);
             return false;
@@ -139,13 +156,33 @@ public class Utils {
     }
     
     /**
-     * Retrieves the packaged version of the application
+     * Retrieves the packaged version-code of the application
      * 
      * @param c
      *            - The Activity to retrieve the current version
      * @return the version-string
      */
-    public static String getAppVersion(Context c) {
+    public static int getAppVersionCode(Context c) {
+        int result = 0;
+        try {
+            PackageManager manager = c.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(c.getPackageName(), 0);
+            result = info.versionCode;
+        } catch (NameNotFoundException e) {
+            Log.w(TAG, "Unable to get application version: " + e.getMessage());
+            result = 0;
+        }
+        return result;
+    }
+    
+    /**
+     * Retrieves the packaged version-name of the application
+     * 
+     * @param c
+     *            - The Activity to retrieve the current version
+     * @return the version-string
+     */
+    public static String getAppVersionName(Context c) {
         String result = "";
         try {
             PackageManager manager = c.getPackageManager();
@@ -192,7 +229,7 @@ public class Utils {
         if (cm == null)
             return false;
         
-        NetworkInfo info; 
+        NetworkInfo info;
         if (onlyWifi) {
             info = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         } else {
@@ -385,4 +422,59 @@ public class Utils {
         mNotMan.notify(ID_RUNNING, n);
     }
     
+    /**
+     * Reads a file from my webserver and parses the content. It containts the version code of the latest supported
+     * version. If the version of the installed app is lower then this the feature "Send mail with stacktrace on error"
+     * will be disabled to make sure I only receive "new" Bugreports.
+     */
+    private static AsyncTask<Void, Void, Void> appUpdateVersionCheckTask = new AsyncTask<Void, Void, Void>() {
+        @Override
+        protected Void doInBackground(Void... params) {
+            
+            try {
+                Thread.sleep(6000);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            
+            // Check last appVersionCheckDate
+            long last = Controller.getInstance().appVersionCheckTime();
+            long time = System.currentTimeMillis();
+            if (time - last < 86400000) { // One day
+                Log.d(TAG, "Returning, only check for update once a day...");
+                return null;
+            }
+            
+            // Retrieve remote version
+            int remote = 0;
+            
+            try {
+                DefaultHttpClient httpClient = new DefaultHttpClient();
+                HttpPost httpPost = new HttpPost("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
+                
+                HttpResponse httpResponse = httpClient.execute(httpPost);
+                HttpEntity httpEntity = httpResponse.getEntity();
+                
+                if (httpEntity.getContentLength() < 0 || httpEntity.getContentLength() > 100)
+                    throw new Exception("Content too long or empty.");
+                
+                String content = EntityUtils.toString(httpEntity);
+                
+                // Only ever read the integer if it matches the regex and is not too long
+                if (content.matches("[0-9]*[\\r\\n]*")) {
+                    content = content.replaceAll("[^0-9]*", "");
+                    remote = Integer.parseInt(content);
+                }
+                
+            } catch (Exception e) {
+                Log.e(TAG, "Error while downloading version-information: " + e.getMessage());
+            }
+            
+            // Store version
+            if (remote > 0)
+                Controller.getInstance().setAppLatestVersion(remote);
+            
+            return null;
+        }
+    };
 }
