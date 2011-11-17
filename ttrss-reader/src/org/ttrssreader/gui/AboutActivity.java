@@ -41,7 +41,7 @@ public class AboutActivity extends Activity {
         w.setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, android.R.drawable.ic_dialog_info);
         
         TextView versionText = (TextView) this.findViewById(R.id.AboutActivity_VersionText);
-        versionText.setText(this.getString(R.string.AboutActivity_VersionText) + " " + Utils.getAppVersion(this));
+        versionText.setText(this.getString(R.string.AboutActivity_VersionText) + " " + Utils.getAppVersionName(this));
         
         TextView licenseText = (TextView) this.findViewById(R.id.AboutActivity_LicenseText);
         licenseText.setText(this.getString(R.string.AboutActivity_LicenseText) + " "
