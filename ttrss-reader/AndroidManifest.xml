@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     android:installLocation="auto"
     package="org.ttrssreader"
-    android:versionCode="1200"
+    android:versionCode="1201"
     android:versionName="1.2" >
 
     <application
