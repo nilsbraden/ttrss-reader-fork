@@ -112,14 +112,14 @@ public class StringSupport {
      * @param ids
      *            the set of ids to be split
      * @param maxCount
-     *              the maximum length of each list
+     *            the maximum length of each list
      * @return a set of Strings with comma-separated ids
      */
     public static Set<String> convertListToString(Set<Integer> ids, int maxCount) {
         Set<String> ret = new HashSet<String>();
         Iterator<Integer> it = ids.iterator();
         StringBuilder idList = new StringBuilder();
-
+        
         int count = 0;
         while (it.hasNext()) {
             
@@ -142,7 +142,15 @@ public class StringSupport {
             
         }
         
-        ret.add(idList.toString());
+        String list = idList.toString();
+        
+        // Should not happen, but happens anyway: Cut of leading and trailing commas
+        if (list.startsWith(","))
+            list = list.substring(1);
+        if (list.endsWith(","))
+            list = list.substring(0, list.length() - 1);
+        
+        ret.add(list);
         return ret;
     }
     
