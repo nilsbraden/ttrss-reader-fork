@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.21
+            \n * Fixed wrong handling of Usage-options
+            \n * Trying to fix ActivityNotFoundExceptions which affected some users
+            \n * Added preference for "Inject Article-Link"
+            </item>
         <item>Version 1.2
             \n * Added compatibility-code for Android 4.0 (API-Level 14)
             \n * Started working on a thre-pane-layout for tablet-devices (not functional yet)

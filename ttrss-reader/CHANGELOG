@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.21 ==
+  * Fixed wrong handling of Usage-options
+  * Trying to fix ActivityNotFoundExceptions which affected some users
+  * Added preference for "Inject Article-Link"
+
 == Version 1.2 ==
   * Added compatibility-code for Android 4.0 (API-Level 14)
   * Started working on a thre-pane-layout for tablet-devices (not functional yet)
