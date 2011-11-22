@@ -178,6 +178,12 @@
 
                 <CheckBoxPreference
                     android:defaultValue="true"
+                    android:key="DisplayArticleLinkPreference"
+                    android:summary="@string/DisplayArticleLinkSummary"
+                    android:title="@string/DisplayArticleLinkTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
                     android:key="DisplayDateTimeFormatSystemPreference"
                     android:summary="@string/DisplayDateTimeFormatSystemSummary"
                     android:title="@string/DisplayDateTimeFormatSystemTitle" />

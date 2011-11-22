@@ -128,7 +128,9 @@
     <string name="DisplayArticleLimitTitle">Store Articles limit</string>
     <string name="DisplayArticleLimitSummary">How many Articles will be cached locally.</string>
     <string name="DisplayArticleHeaderTitle">Display Article-Header</string>
-    <string name="DisplayArticleHeaderSummary">Enables display of more information when browsing articles (Title, Feed, Date etc.).</string>
+    <string name="DisplayArticleHeaderSummary">Enables display of more information when browsing articles (Title, Feed, Date etc.).</string><string name="DisplayArticleLinkTitle">Inject Link into Article</string>
+    <string name="DisplayArticleLinkSummary">Enable to add a clickable link to the articles website at the end of the displayed article.</string>
+
     <string name="CacheImagesOnStartupTitle">Start ImageCache on startup?</string>
     <string name="CacheImagesOnStartupSummary">Enable to start the image-cache on every start of the reader, all articles+images will be fetched in the background.</string>
     <string name="CacheImagesOnlyWifiTitle">Only on Wifi?</string>

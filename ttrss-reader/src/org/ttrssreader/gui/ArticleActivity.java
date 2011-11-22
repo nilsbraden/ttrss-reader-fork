@@ -667,8 +667,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     }
     
     private StringBuilder injectArticleLink(Context context, StringBuilder html) {
-        if (html == null)
-            html = new StringBuilder();
+        if (!Controller.getInstance().injectArticleLink())
+            return html;
+        
         if (article != null) {
             if ((article.url != null) && (article.url.length() > 0)) {
                 html.append("<br>\n");

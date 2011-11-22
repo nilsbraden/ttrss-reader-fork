@@ -84,6 +84,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean invertSortArticlelist = null;
     private Boolean invertSortFeedscats = null;
     private Boolean alignFlushLeft = null;
+    private Boolean injectArticleLink = null;
     private Boolean dateTimeSystem = null;
     private String dateString = null;
     private String timeString = null;
@@ -500,6 +501,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setAlignFlushLeft(boolean alignFlushLeft) {
         put(Constants.ALIGN_FLUSH_LEFT, alignFlushLeft);
         this.alignFlushLeft = alignFlushLeft;
+    }
+    
+    public boolean injectArticleLink() {
+        if (injectArticleLink == null)
+            injectArticleLink = prefs.getBoolean(Constants.INJECT_ARTICLE_LINK, Constants.INJECT_ARTICLE_LINK_DEFAULT);
+        return injectArticleLink;
+    }
+    
+    public void setInjectArticleLink(boolean injectArticleLink) {
+        put(Constants.INJECT_ARTICLE_LINK, injectArticleLink);
+        this.injectArticleLink = injectArticleLink;
     }
     
     public boolean dateTimeSystem() {
