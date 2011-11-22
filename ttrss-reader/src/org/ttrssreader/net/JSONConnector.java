@@ -19,7 +19,8 @@ package org.ttrssreader.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.SocketTimeoutException;
+import java.io.InterruptedIOException;
+import java.net.SocketException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -248,9 +249,13 @@ public class JSONConnector implements Connector {
             hasLastError = true;
             lastError = "SSLException on client.execute(httpPost) [ " + e.getCause() + " ]";
             return null;
-        } catch (SocketTimeoutException e) {
+        } catch (InterruptedIOException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
-            Log.w(Utils.TAG, "Connection timed out (" + e.getMessage() + ") in doRequest()");
+            Log.w(Utils.TAG, "InterruptedIOException (" + e.getMessage() + ") in doRequest()");
+            return null;
+        } catch (SocketException e) {
+            // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
+            Log.w(Utils.TAG, "SocketException (" + e.getMessage() + ") in doRequest()");
             return null;
         } catch (IOException e) {
             Log.w(Utils.TAG, "IOException (" + e.getMessage() + ") occurred in doRequest()");

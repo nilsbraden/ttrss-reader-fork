@@ -125,6 +125,8 @@
     <string name="DisplayArticleLimitSummary">Gibt an wieviele Artikel lokal gespeichert werden.</string>
     <string name="DisplayArticleHeaderTitle">Artikel-Kopfzeile zeigen?</string>
     <string name="DisplayArticleHeaderSummary">Aktiviert die Anzeige der Artikel-Kopfzeile (Titel, Feed, Datum etc.).</string>
+    <string name="DisplayArticleLinkTitle">Artikel-Link einfügen</string>
+    <string name="DisplayArticleLinkSummary">Aktivieren um am Ende des angezeigten Artikels einen klickbaren Link zur Webseite des Artikels einzufügen.</string>
     <string name="CacheImagesOnStartupTitle">ImageCache beim Start?</string>
     <string name="CacheImagesOnStartupSummary">Aktiviert den ImageCache automatisch einmalig beim Start der Anwendung.</string>
     <string name="CacheImagesOnlyWifiTitle">Nur wenn WLAN aktiv ist?</string>
