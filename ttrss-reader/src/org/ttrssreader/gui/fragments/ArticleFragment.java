@@ -27,22 +27,22 @@ public class ArticleFragment extends Fragment {
     public static final int ARTICLE_MOVE_NONE = 0;
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
     
-    private int articleId = -1;
-    private int feedId = -1;
-    private int categoryId = -1000;
-    private boolean selectArticlesForCategory = false;
-    private int lastMove = ARTICLE_MOVE_DEFAULT;
+    // private int articleId = -1;
+    // private int feedId = -1;
+    // private int categoryId = -1000;
+    // private boolean selectArticlesForCategory = false;
+    // private int lastMove = ARTICLE_MOVE_DEFAULT;
     
     // private WebView webview;
     
     public static ArticleFragment newInstance(int id, int feedId, int categoryId, boolean selectArticles, int lastMove) {
         // Create a new fragment instance
         ArticleFragment detail = new ArticleFragment();
-        detail.articleId = id;
-        detail.feedId = feedId;
-        detail.categoryId = categoryId;
-        detail.selectArticlesForCategory = selectArticles;
-        detail.lastMove = lastMove;
+        // detail.articleId = id;
+        // detail.feedId = feedId;
+        // detail.categoryId = categoryId;
+        // detail.selectArticlesForCategory = selectArticles;
+        // detail.lastMove = lastMove;
         detail.setHasOptionsMenu(true);
         return detail;
     }
