@@ -77,7 +77,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        Log.d(Utils.TAG, "onCreate - FeedHeadlineActivity");
+        // Log.d(Utils.TAG, "onCreate - FeedHeadlineActivity");
         setContentView(R.layout.feedheadlinelist);
         
         gestureDetector = new GestureDetector(onGestureListener);
@@ -425,7 +425,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     @Override
     public void itemSelected(TYPE type, int selectedIndex, int oldIndex) {
-        Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
+        // Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
         if (adapter == null) {
             Log.d(Utils.TAG, "Adapter shouldn't be null here...");
             return;
@@ -461,8 +461,6 @@ public class FeedHeadlineActivity extends MenuActivity {
             ft.commit();
             
         } else {
-            
-            Log.d(Utils.TAG, "Showing new activity as we are not in 2-pane-mode...");
             
             // This is not a tablet - start a new activity
             // if (!flingDetected) { // TODO!
