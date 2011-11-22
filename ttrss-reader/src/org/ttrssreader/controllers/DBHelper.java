@@ -1208,10 +1208,10 @@ public class DBHelper {
                 c.getInt(1),                        // feedId
                 c.getString(2),                     // title
                 (c.getInt(3) != 0),                 // isUnread
-                c.getString(4),                     // updateDate
-                c.getString(5),                     // content
-                new Date(c.getLong(6)),             // articleUrl
-                c.getString(7),                     // articleCommentUrl
+                c.getString(4),                     // articleUrl
+                c.getString(5),                     // articleCommentUrl
+                new Date(c.getLong(6)),             // updateDate
+                c.getString(7),                     // content
                 parseAttachments(c.getString(8)),   // attachments
                 (c.getInt(9) != 0),                 // isStarred
                 (c.getInt(10) != 0)                 // isPublished
