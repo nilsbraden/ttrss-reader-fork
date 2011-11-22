@@ -33,20 +33,18 @@ public class Article implements Comparable<Article> {
     public boolean isStarred;
     public boolean isPublished;
     public boolean cachedImages;
-//    public Set<Integer> labels;
     
     public Article() {
     }
     
     public Article(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
             Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished) {
-//            Set<Integer> labels) {
         this.id = id;
         this.title = title;
         this.feedId = feedId;
         this.isUnread = isUnread;
         this.updated = updateDate;
-        this.url = articleUrl;
+        this.url = articleUrl.trim();
         this.commentUrl = articleCommentUrl;
         if (content == null || content.equals("null")) {
             this.content = null;
@@ -56,7 +54,6 @@ public class Article implements Comparable<Article> {
         this.attachments = attachments;
         this.isStarred = isStarred;
         this.isPublished = isPublished;
-//        this.labels = labels;
     }
     
     @Override

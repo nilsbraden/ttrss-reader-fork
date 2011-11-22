@@ -37,6 +37,7 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -393,13 +394,24 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         }
     }
     
+    /**
+     * Starts a new activity with the url of the current article. This should open a webbrowser in most cases. If the
+     * url contains spaces or newline-characters it is first trim()'ed.
+     */
     private void openLink() {
-        if (article != null) {
-            if ((article.url != null) && (article.url.length() > 0)) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(article.url));
-                startActivity(i);
-            }
+        if (article == null || article.url == null || article.url.length() == 0)
+            return;
+        
+        String url = article.url;
+        if (article.url.contains(" ") || article.url.contains("\n"))
+            url = url.trim();
+        
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(url));
+            startActivity(i);
+        } catch (ActivityNotFoundException e) {
+            Log.e(Utils.TAG, "Couldn't find a suitable activity for the uri: " + url);
         }
     }
     
@@ -443,7 +455,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         int tempIndex = 0;
         
         if (newIndex == 0 && lastMove != 0) {
-                tempIndex = getCurrentIndex() + lastMove;
+            tempIndex = getCurrentIndex() + lastMove;
         } else {
             tempIndex = newIndex;
         }
