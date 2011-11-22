@@ -118,6 +118,12 @@ public class ArticleView extends RelativeLayout {
             
             // Remove Swipe-Area
             centralView.removeView(swipeView);
+        } else {
+            
+            // Both disabled, remove everything
+            centralView.removeView(swipeView);
+            this.removeView(buttonView);
+            
         }
         
         // Recalculate values

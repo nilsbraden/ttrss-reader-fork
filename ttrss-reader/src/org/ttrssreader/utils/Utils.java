@@ -440,10 +440,8 @@ public class Utils {
             // Check last appVersionCheckDate
             long last = Controller.getInstance().appVersionCheckTime();
             long time = System.currentTimeMillis();
-            if (time - last < 86400000) { // One day
-                Log.d(TAG, "Returning, only check for update once a day...");
+            if (time - last < 86400000) // One day
                 return null;
-            }
             
             // Retrieve remote version
             int remote = 0;

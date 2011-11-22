@@ -77,7 +77,7 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        Log.d(Utils.TAG, "onCreate - CategoryActivity");
+        // Log.d(Utils.TAG, "onCreate - CategoryActivity");
         setContentView(R.layout.categorylist);
         
         // Register our own ExceptionHander
@@ -331,7 +331,7 @@ public class CategoryActivity extends MenuActivity {
         
         switch (id) {
             case DIALOG_WELCOME:
-
+                
                 builder.setTitle(getResources().getString(R.string.Welcome_Title));
                 builder.setMessage(getResources().getString(R.string.Welcome_Message));
                 builder.setNeutralButton((String) getText(R.string.Preferences_Btn),
@@ -346,7 +346,7 @@ public class CategoryActivity extends MenuActivity {
                 break;
             
             case DIALOG_UPDATE:
-
+                
                 builder.setTitle(getResources().getString(R.string.Changelog_Title));
                 final String[] changes = getResources().getStringArray(R.array.updates);
                 final StringBuilder sb = new StringBuilder();
@@ -370,7 +370,7 @@ public class CategoryActivity extends MenuActivity {
                 break;
             
             case DIALOG_CRASH:
-
+                
                 builder.setTitle(getResources().getString(R.string.ErrorActivity_Title));
                 builder.setMessage(getResources().getString(R.string.Check_Crash));
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -429,7 +429,7 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     public void itemSelected(TYPE type, int selectedIndex, int oldIndex) {
-        Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
+        // Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
         if (adapter == null) {
             Log.d(Utils.TAG, "Adapter shouldn't be null here...");
             return;
@@ -438,13 +438,13 @@ public class CategoryActivity extends MenuActivity {
         // Who is calling?
         switch (type) {
             case CATEGORY:
-                Log.d(Utils.TAG, "CATEGORY selected: " + selectedIndex);
+                Log.d(Utils.TAG, "CATEGORY selected. Index: " + selectedIndex);
                 break;
             case FEED:
-                Log.d(Utils.TAG, "FEED selected: " + selectedIndex);
+                Log.d(Utils.TAG, "FEED selected. Index: " + selectedIndex);
                 break;
             case FEEDHEADLINE:
-                Log.d(Utils.TAG, "FEEDHEADLINE selected: " + selectedIndex);
+                Log.d(Utils.TAG, "FEEDHEADLINE selected. Index: " + selectedIndex);
                 break;
         }
         
@@ -459,7 +459,7 @@ public class CategoryActivity extends MenuActivity {
         } else {
             selection = SELECTED_CATEGORY;
         }
-
+        
         // Find out if we are using a wide screen
         ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
         
@@ -502,8 +502,6 @@ public class CategoryActivity extends MenuActivity {
             ft.commit();
             
         } else {
-            
-            Log.d(Utils.TAG, "Showing new activity as we are not in 2-pane-mode...");
             
             // This is not a tablet - start a new activity
             Intent i = null;
