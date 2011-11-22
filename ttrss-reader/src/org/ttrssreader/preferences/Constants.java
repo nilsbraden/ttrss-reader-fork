@@ -99,7 +99,7 @@ public class Constants {
     public static final boolean INVERT_SORT_ARTICLELIST_DEFAULT = false;
     public static final boolean INVERT_SORT_FEEDSCATS_DEFAULT = false;
     public static final boolean ALIGN_FLUSH_LEFT_DEFAULT = false;
-    public static final boolean INJECT_ARTICLE_LINK_DEFAULT = false;
+    public static final boolean INJECT_ARTICLE_LINK_DEFAULT = true;
     public static final boolean DATE_TIME_SYSTEM_DEFAULT = true;
     public static final String DATE_STRING_DEFAULT = "dd.MM.yyyy";
     public static final String TIME_STRING_DEFAULT = "kk:mm";
