@@ -234,7 +234,7 @@ public class JSONConnector implements Connector {
             
         } catch (Exception e) {
             hasLastError = true;
-            lastError = "Error creating HTTP-Connection: " + e.getMessage() + " [ " + e.getCause() + " ]";
+            lastError = "Error creating HTTP-Connection [ " + e.getMessage() + " ]";
             return null;
         }
         
@@ -243,11 +243,11 @@ public class JSONConnector implements Connector {
             response = client.execute(post); // Execute the request
         } catch (ClientProtocolException e) {
             hasLastError = true;
-            lastError = "ClientProtocolException on client.execute(httpPost) [ " + e.getCause() + " ]";
+            lastError = "ClientProtocolException on client.execute(post) [ " + e.getMessage() + " ]";
             return null;
         } catch (SSLException e) {
             hasLastError = true;
-            lastError = "SSLException on client.execute(httpPost) [ " + e.getCause() + " ]";
+            lastError = "SSLException on client.execute(post) [ " + e.getMessage() + " ]";
             return null;
         } catch (InterruptedIOException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
@@ -258,7 +258,7 @@ public class JSONConnector implements Connector {
             Log.w(Utils.TAG, "SocketException (" + e.getMessage() + ") in doRequest()");
             return null;
         } catch (IOException e) {
-            Log.w(Utils.TAG, "IOException (" + e.getMessage() + ") occurred in doRequest()");
+            Log.w(Utils.TAG, "IOException (" + e.getMessage() + ") in doRequest()");
             return null;
         }
         
