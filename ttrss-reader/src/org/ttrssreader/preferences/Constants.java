@@ -135,6 +135,8 @@ public class Constants {
     public static final boolean LOG_SENSITIVE_DATA_DEFAULT = false;
     
     // Internal
+    public static final String API_LEVEL_UPDATED = "apiLevelUpdated";
+    public static final String API_LEVEL = "apiLevel";
     public static final String APP_VERSION_CHECK_TIME = "appVersionCheckTime";
     public static final String APP_LATEST_VERSION = "appLatestVersion";
     public static final String DATABASE_VERSION = "DatabaseVersion";
@@ -142,6 +144,8 @@ public class Constants {
     public static final String LAST_VERSION_RUN = "LastVersionRun";
     public static final String LAST_VACUUM_DATE = "lastVacuumDate";
     // Internal Default Values
+    public static final long API_LEVEL_UPDATED_DEFAULT = -1;
+    public static final int API_LEVEL_DEFAULT = -1;
     public static final long APP_VERSION_CHECK_TIME_DEFAULT = 0;
     public static final int APP_LATEST_VERSION_DEFAULT = 0;
     public static final int DATABASE_VERSION_DEFAULT = 1;

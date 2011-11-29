@@ -96,12 +96,14 @@ public class JSONConnector implements Connector {
     private static final String VALUE_UPDATE_FEED = "updateFeed";
     private static final String VALUE_GET_PREF = "getPref";
     private static final String VALUE_GET_VERSION = "getVersion";
+    private static final String VALUE_API_LEVEL = "getApiLevel";
     private static final String VALUE_GET_COUNTERS = "getCounters";
     private static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
     
     private static final String ERROR = "error";
     private static final String ERROR_TEXT = "Error: ";
     private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
+    private static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
     private static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
     private static final String API_DISABLED = "API_DISABLED";
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
@@ -125,6 +127,7 @@ public class JSONConnector implements Connector {
     private static final String PUBLISHED = "published";
     private static final String VALUE = "value";
     private static final String VERSION = "version";
+    private static final String LEVEL = "level";
     
     private static final String COUNTER_KIND = "kind";
     private static final String COUNTER_CAT = "cat";
@@ -1102,6 +1105,62 @@ public class JSONConnector implements Connector {
             
             // Replace dots, parse integer
             ret = Integer.parseInt(response.replace(".", ""));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null)
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+        }
+        
+        return ret;
+    }
+
+    @Override
+    public int getApiLevel() {
+        int ret = -1;
+        if (!sessionAlive())
+            return ret;
+        
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_API_LEVEL);
+        
+        String response = "";
+        JsonReader reader = null;
+        try {
+            reader = prepareReader(params);
+            if (reader == null)
+                return ret;
+            
+            reader.beginArray();
+            while (reader.hasNext()) {
+                try {
+                    
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        
+                        if (name.equals(LEVEL)) {
+                            response = reader.nextString();
+                        } else {
+                            reader.skipValue();
+                        }
+                        
+                    }
+                    
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
+            }
+            
+            if (response.contains(UNKNOWN_METHOD)) {
+                ret = 0; // Assume Api-Level 0
+            } else {
+                ret = Integer.parseInt(response);
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
