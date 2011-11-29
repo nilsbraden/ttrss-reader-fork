@@ -418,6 +418,16 @@ public class Data {
         return -1;
     }
     
+    public int getApiLevel() {
+        if (Utils.isConnected(cm))
+            try {
+                return Controller.getInstance().getConnector().getApiLevel();
+            } catch (NotInitializedException e) {
+                return -1;
+            }
+        return -1;
+    }
+    
     public void synchronizeStatus() {
         if (!Utils.isConnected(cm))
             return;

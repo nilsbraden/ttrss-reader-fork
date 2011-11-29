@@ -119,6 +119,13 @@ public interface Connector {
     public int getVersion();
     
     /**
+     * Retrieves the API-Level of the currently used server-installation.
+     * 
+     * @return the API-Level of the server-installation
+     */
+    public int getApiLevel();
+    
+    /**
      * Returns true if there was an error.
      * 
      * @return true if there was an error.
