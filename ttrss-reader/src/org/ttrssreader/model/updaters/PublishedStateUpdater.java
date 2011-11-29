@@ -23,6 +23,7 @@ public class PublishedStateUpdater implements IUpdatable {
     
     private Article article;
     private int articleState;
+    private String note;
     
     /**
      * Sets the articles' Published-Status according to articleState
@@ -30,27 +31,37 @@ public class PublishedStateUpdater implements IUpdatable {
     public PublishedStateUpdater(Article article, int articleState) {
         this.article = article;
         this.articleState = articleState;
+        this.note = null;
+    }
+    
+    /**
+     * Sets the articles' Published-Status according to articleState and adds the given note to the article.
+     */
+    public PublishedStateUpdater(Article article, int articleState, String note) {
+        this.article = article;
+        this.articleState = articleState;
+        this.note = note;
     }
     
     @Override
     public void update(Updater parent) {
         if (articleState >= 0) {
             article.isPublished = articleState > 0 ? true : false;
-
+            
             DBHelper.getInstance().markArticle(article.id, "isPublished", articleState);
             Data.getInstance().setArticlesChanged(article.feedId, System.currentTimeMillis());
             parent.progress();
-            Data.getInstance().setArticlePublished(article.id, articleState);
+            Data.getInstance().setArticlePublished(article.id, articleState, note);
             
         } else {
             // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
             int pub = article.isPublished ? 0 : 1;
             article.isPublished = !article.isPublished;
-                    
+            
             DBHelper.getInstance().markArticle(article.id, "isPublished", pub);
             Data.getInstance().setArticlesChanged(article.feedId, System.currentTimeMillis());
             parent.progress();
-            Data.getInstance().setArticlePublished(article.id, pub);
+            Data.getInstance().setArticlePublished(article.id, pub, note);
             
         }
     }

@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.22 ==
+  * Added support for new API of TTRSS 1.5.8 (due January 2012)
+  * Fixed Enhancement #65: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=65 Publish with a note])
+  * Only fetching new articles now since API gives information about this since 1.5.8. 
+
 == Version 1.21 ==
   * Fixed wrong handling of Usage-options
   * Trying to fix ActivityNotFoundExceptions which affected some users

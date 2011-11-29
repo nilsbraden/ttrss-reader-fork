@@ -65,6 +65,7 @@ public class DBHelper {
     public static final String MARK_READ = "isUnread";
     public static final String MARK_STAR = "isStarred";
     public static final String MARK_PUBLISH = "isPublished";
+    public static final String MARK_NOTE = "addNote";
     
     // @formatter:off
     private static final String INSERT_CATEGORY = 

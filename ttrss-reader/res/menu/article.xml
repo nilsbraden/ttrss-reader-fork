@@ -33,6 +33,11 @@
         android:title="@string/Commons.MarkPublish"/>
 
     <item
+        android:id="@+id/Article_Menu_MarkPublishNote"
+        android:icon="@drawable/ic_menu_publish"
+        android:title="@string/Commons.MarkPublishNote"/>
+
+    <item
         android:id="@+id/Article_Menu_OpenLink"
         android:icon="@drawable/ic_menu_home"
         android:title="@string/ArticleActivity.OpenLink"/>
