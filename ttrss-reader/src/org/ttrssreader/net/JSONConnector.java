@@ -79,8 +79,11 @@ public class JSONConnector implements Connector {
     private static final String PARAM_SHOW_CONTENT = "show_content";
     private static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
                                                                                // 1.5.3 but is ignored on older versions
+    private static final String PARAM_SINCE_ID = "since_id";
     private static final String PARAM_MODE = "mode";
-    private static final String PARAM_FIELD = "field";
+    private static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
+                                                       // level 1)
+    private static final String PARAM_DATA = "data"; // optional data parameter when setting note field
     private static final String PARAM_IS_CAT = "is_cat";
     private static final String PARAM_PREF = "pref_name";
     private static final String PARAM_OUTPUT_MODE = "output_mode"; // output_mode (default: flc) - what kind of
@@ -110,7 +113,7 @@ public class JSONConnector implements Connector {
     private static final String STATUS = "status";
     
     private static final String SESSION_ID = "session_id"; // session id as an out parameter
-    private static final String SID = "sid";               // session id as an in parameter
+    private static final String SID = "sid"; // session id as an in parameter
     private static final String ID = "id";
     private static final String TITLE = "title";
     private static final String UNREAD = "unread";
@@ -184,7 +187,7 @@ public class JSONConnector implements Connector {
             if (sessionId != null) {
                 params.put(SID, sessionId);
             }
-                
+            
             // check if http-Auth-Settings have changed, reload values if necessary
             refreshHTTPAuth();
             
@@ -205,12 +208,12 @@ public class JSONConnector implements Connector {
                 // Set the timeout until a connection is established.
                 int timeoutConnection = 5 * SECOND;
                 HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
-
+                
                 // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
                 // use longer timeout when lazyServer-Feature is used
                 int timeoutSocket = (Controller.getInstance().lazyServer()) ? 15 * MINUTE : 8 * SECOND;
                 HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
-
+                
                 post.setParams(httpParams);
             }
             
@@ -941,6 +944,11 @@ public class JSONConnector implements Connector {
     
     @Override
     public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
+        return getHeadlinesToDatabase(id, limit, viewMode, isCategory, 0);
+    }
+    
+    @Override
+    public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
         long time = System.currentTimeMillis();
         boolean ret = true;
         
@@ -957,6 +965,8 @@ public class JSONConnector implements Connector {
         params.put(PARAM_SHOW_CONTENT, "1");
         params.put(PARAM_INC_ATTACHMENTS, "1");
         params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
+        if (sinceId > 0)
+            params.put(PARAM_SINCE_ID, sinceId + "");
         
         if (id == Data.VCAT_STAR && isCategory)
             DBHelper.getInstance().purgeStarredArticles();
@@ -1022,7 +1032,7 @@ public class JSONConnector implements Connector {
     }
     
     @Override
-    public boolean setArticlePublished(Set<Integer> ids, int articleState) {
+    public boolean setArticlePublished(Set<Integer> ids, int articleState, String note) {
         boolean ret = true;
         if (ids.size() == 0)
             return ret;
@@ -1034,7 +1044,15 @@ public class JSONConnector implements Connector {
             params.put(PARAM_MODE, articleState + "");
             params.put(PARAM_FIELD, "1");
             ret = ret && doRequestNoAnswer(params);
+
+            // Add a note to the article(s)
+            if (note != null && note.length() > 0) {
+                params.put(PARAM_FIELD, "3"); // Field 3 is the "Add note" field
+                params.put(PARAM_DATA, note);
+                ret = ret && doRequestNoAnswer(params);
+            }
         }
+        
         return ret;
     }
     
@@ -1117,7 +1135,7 @@ public class JSONConnector implements Connector {
         
         return ret;
     }
-
+    
     @Override
     public int getApiLevel() {
         int ret = -1;

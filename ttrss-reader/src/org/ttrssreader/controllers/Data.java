@@ -357,14 +357,14 @@ public class Data {
             DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, articleState);
     }
     
-    public void setArticlePublished(int articleId, int articleState) {
+    public void setArticlePublished(int articleId, int articleState, String note) {
         boolean erg = false;
         Set<Integer> ids = new HashSet<Integer>();
         ids.add(articleId);
         
         if (Utils.isConnected(cm))
             try {
-                erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
+                erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState, note);
             } catch (NotInitializedException e) {
                 return;
             }
@@ -453,10 +453,11 @@ public class Data {
                         DBHelper.getInstance().setMarked(idsUnmark, mark);
                 }
                 if (DBHelper.MARK_PUBLISH.equals(mark)) {
-                    if (Controller.getInstance().getConnector().setArticlePublished(idsMark, 1))
+                    // TODO: Store notes for late-synchronization
+                    if (Controller.getInstance().getConnector().setArticlePublished(idsMark, 1, null))
                         DBHelper.getInstance().setMarked(idsMark, mark);
                     
-                    if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0))
+                    if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0, null))
                         DBHelper.getInstance().setMarked(idsUnmark, mark);
                 }
             } catch (NotInitializedException e) {

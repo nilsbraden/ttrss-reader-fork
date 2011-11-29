@@ -22,6 +22,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.gui.fragments.ArticleFragment;
+import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.MainAdapter;
@@ -50,7 +51,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class FeedHeadlineActivity extends MenuActivity {
+public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "ARTICLE_FEED_ID";
@@ -218,6 +219,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkUnpublish);
         } else {
             menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
+            menu.add(MARK_GROUP, MARK_PUBLISH_NOTE, Menu.NONE, R.string.Commons_MarkPublishNote);
         }
     }
     
@@ -238,6 +240,9 @@ public class FeedHeadlineActivity extends MenuActivity {
                 break;
             case MARK_PUBLISH:
                 new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).execute();
+                break;
+            case MARK_PUBLISH_NOTE:
+                new TextInputAlert(this, a).show(this);
                 break;
             default:
                 return false;
@@ -475,6 +480,10 @@ public class FeedHeadlineActivity extends MenuActivity {
             // }
             
         }
+    }
+    
+    public void onPublishNoteResult(Article a, String note) {
+        new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).execute();
     }
     
 }
