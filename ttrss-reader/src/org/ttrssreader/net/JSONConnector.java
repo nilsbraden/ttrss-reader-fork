@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -250,6 +251,12 @@ public class JSONConnector implements Connector {
         } catch (ClientProtocolException e) {
             hasLastError = true;
             lastError = "ClientProtocolException on client.execute(post) [ " + e.getMessage() + " ]";
+            return null;
+        } catch (SSLPeerUnverifiedException e) {
+            // Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
+            // Not doing anything here since this error should happen only when no certificate is received from the
+            // server.
+            Log.w(Utils.TAG, "SSLPeerUnverifiedException (" + e.getMessage() + ") in doRequest()");
             return null;
         } catch (SSLException e) {
             hasLastError = true;
@@ -1044,7 +1051,7 @@ public class JSONConnector implements Connector {
             params.put(PARAM_MODE, articleState + "");
             params.put(PARAM_FIELD, "1");
             ret = ret && doRequestNoAnswer(params);
-
+            
             // Add a note to the article(s)
             if (note != null && note.length() > 0) {
                 params.put(PARAM_FIELD, "3"); // Field 3 is the "Add note" field
