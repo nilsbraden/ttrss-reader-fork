@@ -818,7 +818,9 @@ public class JSONConnector implements Connector {
                 }
                 reader.endObject();
                 
-                if (id != -1 && title != null)
+                // Don't handle categories with an id below 1, we already have them in the DB from
+                // Data.updateVirtualCategories()
+                if (id > 0 && title != null)
                     ret.add(new Category(id, title, unread));
             }
             reader.endArray();
