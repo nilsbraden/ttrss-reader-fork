@@ -249,7 +249,7 @@
                     android:title="@string/CacheFolderTitle" />
 
                 <org.ttrssreader.preferences.EditIntegerPreference
-                    android:defaultValue="1000"
+                    android:defaultValue="2000"
                     android:inputType="number"
                     android:key="DisplayArticleLimitPreference"
                     android:maxLength="5"
