@@ -112,10 +112,12 @@ public class ReadStateUpdater implements IUpdatable {
             Set<Integer> ids = new HashSet<Integer>();
             
             for (Article article : articles) {
-                if (articleState != 0 && article.isUnread)
-                    continue;
-                if (articleState == 0 && !article.isUnread)
-                    continue;
+                // Don't check this, sometimes we need to set the state of the object at once before we call this
+                // updater.
+                // if (articleState != 0 && article.isUnread)
+                // continue;
+                // if (articleState == 0 && !article.isUnread)
+                // continue;
                 
                 // Build a list of article ids to update.
                 ids.add(article.id);
