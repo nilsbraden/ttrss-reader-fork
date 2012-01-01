@@ -33,6 +33,7 @@ import javax.net.ssl.SSLException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
@@ -264,6 +265,14 @@ public class JSONConnector implements Connector {
             return null;
         } catch (IOException e) {
             Log.w(Utils.TAG, "IOException (" + e.getMessage() + ") in doRequest()");
+            return null;
+        }
+        
+        // Try to check for HTTP Status codes
+        int code = response.getStatusLine().getStatusCode();
+        if (code == HttpStatus.SC_UNAUTHORIZED) {
+            hasLastError = true;
+            lastError = "Couldn't connect to server. returned status: \"401 Unauthorized (HTTP/1.0 - RFC 1945)\"";
             return null;
         }
         
