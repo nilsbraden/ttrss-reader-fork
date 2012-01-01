@@ -85,6 +85,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     private Article article = null;
     private String content;
     private boolean linkAutoOpened;
+    private boolean markedRead = false;
     
     private WebView webView;
     private TextView swipeView;
@@ -153,6 +154,17 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         Controller.getInstance().lastOpenedArticle = articleId;
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
         doVibrate(0);
+        
+        // Get article from DB
+        article = DBHelper.getInstance().getArticle(articleId);
+        
+        // Mark as read if necessary, do it here because in doRefresh() it will be done several tiumes even if you set
+        // it to "unread" in the meantime.
+        if (article.isUnread && Controller.getInstance().automaticMarkRead()) {
+            article.isUnread = false;
+            new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+            markedRead = true;
+        }
     }
     
     @Override
@@ -179,8 +191,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     @Override
     protected void onStop() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
-        if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
-            new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+        if (!markedRead) {
+            if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
+                new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+        }
         super.onStop();
         closeCursor();
     }
@@ -188,8 +202,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
     @Override
     protected void onDestroy() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
-        if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
-            new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+        if (!markedRead) {
+            if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
+                new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+        }
         super.onDestroy();
         closeCursor();
     }
@@ -221,8 +237,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                 return;
             }
             
-            // Get article from DB
-            article = DBHelper.getInstance().getArticle(articleId);
+            // Get article from DB only if necessary
+            if (article == null)
+                article = DBHelper.getInstance().getArticle(articleId);
             if (article == null || article.content == null)
                 return;
             
@@ -263,9 +280,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
             webView.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
             
             setTitle(article.title);
-            
-            if (article.isUnread && Controller.getInstance().automaticMarkRead())
-                new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
             
             if (!linkAutoOpened && contentLength < 3) {
                 if (Controller.getInstance().openUrlEmptyArticle()) {
