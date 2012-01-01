@@ -28,6 +28,10 @@ public class FileDateComparator implements Comparator<File> {
     @Override
     public int compare(File f1, File f2) {
         
+        // Hopefully avoids crashes due to IllegalArgumentExceptions
+        if (f1.equals(f2))
+            return 0;
+        
         long size1 = f1.lastModified();
         long size2 = f2.lastModified();
         

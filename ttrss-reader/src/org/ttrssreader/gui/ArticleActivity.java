@@ -214,17 +214,17 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
         }
         
         try {
+            // Check for errors
             if (Controller.getInstance().getConnector().hasLastError()) {
                 openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
                 setProgressBarIndeterminateVisibility(false);
                 return;
             }
             
+            // Get article from DB
             article = DBHelper.getInstance().getArticle(articleId);
-            if (article == null || article.content == null) {
-                setProgressBarIndeterminateVisibility(false);
+            if (article == null || article.content == null)
                 return;
-            }
             
             // Populate information-bar on top of the webView if enabled
             if (Controller.getInstance().displayArticleHeader()) {
@@ -243,8 +243,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                     article.attachments);
             
             // if (article.cachedImages)
-            // Do this anyway, article.cachedImages can be true also if some images were fetched and others
-            // produced errors
+            // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
             contentTmp = injectArticleLink(getApplicationContext(), contentTmp);
             content = injectCachedImages(contentTmp.toString(), articleId);
             
@@ -259,8 +258,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener {
                 setDarkBackground(headerContainer);
             }
             
-            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in
-            // html).
+            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
             baseUrl = StringSupport.getBaseURL(article.url);
             webView.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
             
