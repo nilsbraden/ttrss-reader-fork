@@ -108,7 +108,7 @@ public class JSONConnector implements Connector {
     private static final String STATUS = "status";
     
     private static final String SESSION_ID = "session_id"; // session id as an out parameter
-    private static final String SID = "sid";               // session id as an in parameter
+    private static final String SID = "sid"; // session id as an in parameter
     private static final String ID = "id";
     private static final String TITLE = "title";
     private static final String UNREAD = "unread";
@@ -181,7 +181,7 @@ public class JSONConnector implements Connector {
             if (sessionId != null) {
                 params.put(SID, sessionId);
             }
-                
+            
             // check if http-Auth-Settings have changed, reload values if necessary
             refreshHTTPAuth();
             
@@ -202,12 +202,12 @@ public class JSONConnector implements Connector {
                 // Set the timeout until a connection is established.
                 int timeoutConnection = 5 * SECOND;
                 HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
-
+                
                 // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
                 // use longer timeout when lazyServer-Feature is used
                 int timeoutSocket = (Controller.getInstance().lazyServer()) ? 15 * MINUTE : 8 * SECOND;
                 HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
-
+                
                 post.setParams(httpParams);
             }
             
@@ -246,8 +246,13 @@ public class JSONConnector implements Connector {
             lastError = "ClientProtocolException on client.execute(post) [ " + e.getMessage() + " ]";
             return null;
         } catch (SSLException e) {
-            hasLastError = true;
-            lastError = "SSLException on client.execute(post) [ " + e.getMessage() + " ]";
+            if ("No peer certificate".equals(e.getMessage())) {
+                // Handle this by ignoring it, this occurrs very often when the connection is instable.
+                Log.w(Utils.TAG, "SSLException on client.execute(post) [ " + e.getMessage() + " ]");
+            } else {
+                hasLastError = true;
+                lastError = "SSLException on client.execute(post) [ " + e.getMessage() + " ]";
+            }
             return null;
         } catch (InterruptedIOException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
