@@ -44,7 +44,6 @@ public class Data {
     private long virtCategoriesUpdated = 0;
     private long categoriesUpdated = 0;
     
-
     private Map<Integer, Long> articlesChanged = new HashMap<Integer, Long>();
     private Map<Integer, Long> feedsChanged = new HashMap<Integer, Long>();
     private long categoriesChanged = 0;
@@ -140,10 +139,6 @@ public class Data {
     
     // *** ARTICLES *********************************************************************
     
-    public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCategory) {
-        updateArticles(feedId, displayOnlyUnread, isCategory, false);
-    }
-    
     public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline) {
         
         // Check if unread-count and actual number of unread articles match, if not do a seperate call with
@@ -165,41 +160,14 @@ public class Data {
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
-            int limit = 50;
             
-            switch (feedId) {
-                case VCAT_STAR: // Starred
-                case VCAT_PUB: // Published
-                    limit = 300;
-                    displayOnlyUnread = false;
-                    break;
-                
-                case VCAT_FRESH: // Fresh
-                    limit = DBHelper.getInstance().getUnreadCount(feedId, true);
-                    break;
-                
-                case VCAT_ALL: // All Articles
-                    limit = DBHelper.getInstance().getUnreadCount(feedId, true);
-                    break;
-                
-                default: // Normal categories
-                    limit = DBHelper.getInstance().getUnreadCount(feedId, isCat);
-            }
+            if (feedId == VCAT_PUB || feedId == VCAT_STAR)
+                displayOnlyUnread = false; // Display all articles for Starred/Published
             
-            if (limit <= 0 && displayOnlyUnread)
-                limit = 50; // No unread articles, fetch some stuff
-            else if (limit <= 0)
-                limit = 100; // No unread, fetch some to make sure we are at least a bit up-to-date
-            else if (limit > 300)
-                limit = 300; // Lots of unread articles, fetch the first 300
-                
-            if (limit < 300) {
-                if (isCat)
-                    limit = limit + 50; // Add some so we have a chance of getting not only the newest and possibly read
-                                        // articles but also older ones.
-                else
-                    limit = limit + 15; // Less on feed, more on category...
-            }
+            // Calculate an appropriate upper limit for the number of articles
+            int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
+            
+            // TODO: Calculate the sinceId to get only new articles
             
             try {
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
@@ -229,6 +197,46 @@ public class Data {
             } catch (NotInitializedException e) {
             }
         }
+    }
+    
+    /*
+     * Calculate an appropriate upper limit for the number of articles
+     */
+    private int calculateLimit(int feedId, boolean displayOnlyUnread, boolean isCat) {
+        int limit = 50;
+        switch (feedId) {
+            case VCAT_STAR: // Starred
+            case VCAT_PUB: // Published
+                limit = 300;
+                break;
+            
+            case VCAT_FRESH: // Fresh
+                limit = DBHelper.getInstance().getUnreadCount(feedId, true);
+                break;
+            
+            case VCAT_ALL: // All Articles
+                limit = DBHelper.getInstance().getUnreadCount(feedId, true);
+                break;
+            
+            default: // Normal categories
+                limit = DBHelper.getInstance().getUnreadCount(feedId, isCat);
+        }
+        
+        if (limit <= 0 && displayOnlyUnread)
+            limit = 50; // No unread articles, fetch some stuff
+        else if (limit <= 0)
+            limit = 100; // No unread, fetch some to make sure we are at least a bit up-to-date
+        else if (limit > 300)
+            limit = 300; // Lots of unread articles, fetch the first 300
+            
+        if (limit < 300) {
+            if (isCat)
+                limit = limit + 50; // Add some so we have a chance of getting not only the newest and possibly read
+                                    // articles but also older ones.
+            else
+                limit = limit + 15; // Less on feed, more on category...
+        }
+        return limit;
     }
     
     // *** FEEDS ************************************************************************
