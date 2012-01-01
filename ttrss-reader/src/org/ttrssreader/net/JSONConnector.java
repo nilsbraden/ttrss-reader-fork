@@ -643,7 +643,8 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    private void parseArticle(JsonReader reader, int labelId, int catId, boolean isCategory) {
+    private void parseArticleArray(JsonReader reader, int labelId, int catId, boolean isCategory) {
+        long time = System.currentTimeMillis();
         
         SQLiteDatabase db = DBHelper.getInstance().db;
         synchronized (DBHelper.TABLE_ARTICLES) {
@@ -655,6 +656,7 @@ public class JSONConnector implements Connector {
                 // states and fetch new articles...
                 // Moved this inside the transaction to make sure this only happens if the transaction is successful
                 DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
+                // List<Object[]> articleList = new ArrayList<Object[]>();
                 
                 reader.beginArray();
                 while (reader.hasNext()) {
@@ -710,9 +712,18 @@ public class JSONConnector implements Connector {
                     }
                     reader.endObject();
                     
-                    if (id != -1 && title != null)
+                    if (id != -1 && title != null) {
                         DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
                                 articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId);
+                        // articleList.add(DBHelper.prepareArticleArray(id, realFeedId, title, isUnread, articleUrl,
+                        // articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
+                    }
+                    
+                    // See comment on DBHelper.getInstance().bulkInsertArticles for information about this.
+                    // if (articleList.size() > 100) {
+                    // DBHelper.getInstance().bulkInsertArticles(articleList);
+                    // articleList = new ArrayList<Object[]>();
+                    // }
                 }
                 reader.endArray();
                 
@@ -730,6 +741,7 @@ public class JSONConnector implements Connector {
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }
+        Log.d(Utils.TAG, "INSERT took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     // ***************** Retrieve-Data-Methods **************************************************
@@ -989,7 +1001,7 @@ public class JSONConnector implements Connector {
             if (reader == null)
                 return false;
             
-            parseArticle(reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
+            parseArticleArray(reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
             
         } catch (IOException e) {
             e.printStackTrace();

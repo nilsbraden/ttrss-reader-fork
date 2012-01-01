@@ -396,11 +396,11 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             if (selectArticlesForCategory) {
                 publishProgress(++progress); // Move progress forward
                 
-                Data.getInstance().updateArticles(categoryId, displayUnread, true);
+                Data.getInstance().updateArticles(categoryId, displayUnread, true, false);
             } else {
                 publishProgress(++progress); // Move progress forward
                 
-                Data.getInstance().updateArticles(feedId, displayUnread, false);
+                Data.getInstance().updateArticles(feedId, displayUnread, false, false);
             }
             
             publishProgress(taskCount); // Move progress forward to 100%

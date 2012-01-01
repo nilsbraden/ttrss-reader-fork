@@ -36,6 +36,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -57,7 +58,8 @@ public class DBHelper {
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
     public static final String TABLE_ARTICLES = "articles";
-    public static final String TABLE_ARTICLES2LABELS = "articles2labels"; // Careful with locking, we don't dbReadLock on this
+    public static final String TABLE_ARTICLES2LABELS = "articles2labels"; // Careful with locking, we don't dbReadLock
+                                                                          // on this
                                                                           // table but instead on TABLE_ARTICLES
     public static final String TABLE_LABELS = "labels";
     public static final String TABLE_MARK = "marked";
@@ -597,6 +599,94 @@ public class DBHelper {
         dbReadLock.readLock().unlock();
     }
     
+    public static Object[] prepareArticleArray(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label) {
+        Object[] ret = new Object[11];
+        
+        ret[0] = id;
+        ret[1] = feedId;
+        ret[2] = (title == null ? "" : title);
+        ret[3] = (isUnread ? 1 : 0);
+        ret[4] = (articleUrl == null ? "" : articleUrl);;
+        ret[5] = (articleCommentUrl == null ? "" : articleCommentUrl);;
+        ret[6] = updateDate.getTime();
+        ret[7] = (content == null ? "" : content);;
+        ret[8] = parseAttachmentSet(attachments);
+        ret[9] = (isStarred ? 1 : 0);
+        ret[10] = (isPublished ? 1 : 0);
+        
+        return ret;
+    }
+    
+    /**
+     * New method of inserting many articles into the DB at once. Doesn't seem to run faster then the old way so i'll
+     * just leave this code here for future reference and ignore it until it proves to be useful.
+     * 
+     * @param input Object-Array with the fields of an article-object.
+     */
+    public void bulkInsertArticles(List<Object[]> input) {
+        
+        if (!isDBAvailable())
+            return;
+        if (input == null || input.isEmpty())
+            return;
+        
+        StringBuilder stmt = new StringBuilder();
+        stmt.append("INSERT OR REPLACE INTO " + TABLE_ARTICLES);
+        
+        Object[] entry = input.get(0);
+        stmt.append(" SELECT ");
+        
+        stmt.append(entry[0] + " AS id, ");
+        stmt.append(entry[1] + " AS feedId, ");
+        stmt.append(DatabaseUtils.sqlEscapeString(entry[2] + "") + " AS title, ");
+        stmt.append(entry[3] + " AS isUnread, ");
+        stmt.append("'" + entry[4] + "' AS articleUrl, ");
+        stmt.append("'" + entry[5] + "' AS articleCommentUrl, ");
+        stmt.append(entry[6] + " AS updateDate, ");
+        stmt.append(DatabaseUtils.sqlEscapeString(entry[7] + "") + " AS content, ");
+        stmt.append("'" + entry[8] + "' AS attachments, ");
+        stmt.append(entry[9] + " AS isStarred, ");
+        stmt.append(entry[10] + " AS isPublished, ");
+        stmt.append("coalesce((SELECT cachedImages FROM articles WHERE id=" + entry[0] + "), 0) AS cachedImages UNION");
+        
+        for (int i = 1; i < input.size(); i++) {
+            entry = input.get(i);
+            
+            stmt.append(" SELECT ");
+            for (int j = 0; j < entry.length; j++) {
+                
+                if (j == 2 || j == 7) {
+                    // Escape and enquote Content and Title, they can contain quotes
+                    stmt.append(DatabaseUtils.sqlEscapeString(entry[j] + ""));
+                } else if (j == 4 || j == 5 || j == 8) {
+                    // Just enquote Text-Fields
+                    stmt.append("'" + entry[j] + "'");
+                } else {
+                    // Leave numbers..
+                    stmt.append(entry[j]);
+                }
+                
+                if (j < (entry.length - 1))
+                    stmt.append(", ");
+                if (j == (entry.length - 1))
+                    stmt.append(", coalesce((SELECT cachedImages FROM articles WHERE id=" + entry[0] + "), 0)");
+            }
+            if (i < input.size() - 1)
+                stmt.append(" UNION ");
+            
+        }
+        
+        // long retId = -1;
+        synchronized (TABLE_ARTICLES) {
+            db.execSQL(stmt.toString());
+        }
+        
+        // if (retId > 0)
+        // insertLabel(id, label);
+        
+        dbReadLock.readLock().unlock();
+    }
+    
     private void insertLabel(int articleId, int label) {
         if (label < -10) {
             synchronized (TABLE_ARTICLES) {
@@ -962,7 +1052,7 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-
+        
         dbReadLock.readLock().unlock();
         return ret;
     }
@@ -987,7 +1077,7 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-
+        
         dbReadLock.readLock().unlock();
         return ret;
     }
@@ -1012,7 +1102,7 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-
+        
         dbReadLock.readLock().unlock();
         return ret;
     }
@@ -1037,7 +1127,7 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-
+        
         dbReadLock.readLock().unlock();
         return ret;
     }
@@ -1076,7 +1166,7 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-
+        
         dbReadLock.readLock().unlock();
         return ret;
     }
@@ -1099,7 +1189,7 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-
+        
         dbReadLock.readLock().unlock();
         return ret;
     }
@@ -1122,7 +1212,7 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-
+        
         dbReadLock.readLock().unlock();
         return ret;
     }
@@ -1147,7 +1237,7 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-
+        
         dbReadLock.readLock().unlock();
         return ret;
     }
@@ -1175,7 +1265,7 @@ public class DBHelper {
             if (c != null)
                 c.close();
         }
-
+        
         dbReadLock.readLock().unlock();
         return ret;
     }
