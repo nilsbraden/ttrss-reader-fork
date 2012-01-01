@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/Menu_Refresh"
+        android:icon="@drawable/ic_menu_refresh"
+        android:title="@string/Main.RefreshMenu"/>
+
+    <item
+        android:id="@+id/Menu_MarkAllRead"
+        android:icon="@drawable/ic_menu_mark"
+        android:title="@string/Commons.MarkAllRead"/>
+
+    <item
+        android:id="@+id/Menu_DisplayOnlyUnread"
+        android:icon="@android:drawable/ic_menu_view"
+        android:title="@string/Commons.DisplayOnlyUnread"/>
+
+    <item
+        android:id="@+id/Menu_InvertSort"
+        android:icon="@android:drawable/ic_menu_rotate"
+        android:title="@string/Commons.InvertSort"/>
+
+    <item
+        android:id="@+id/Menu_WorkOffline"
+        android:icon="@drawable/ic_menu_stop"
+        android:title="@string/UsageOfflineTitle"/>
+
+    <item
+        android:id="@+id/Category_Menu_ImageCache"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/Main.ImageCache"/>
+    <!--
+         <item
+        android:title="@string/Main.ArticleCache"
+        android:id="@+id/Category_Menu_ArticleCache"
+        android:icon="@android:drawable/ic_menu_save" />
+    -->
+    <!-- Removed since this is done in the background automatically when the CategoryView is started... -->
+
+    <item
+        android:id="@+id/Menu_ShowPreferences"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="@string/Main.ShowPreferencesMenu"/>
+
+    <item
+        android:id="@+id/Menu_About"
+        android:icon="@android:drawable/ic_menu_help"
+        android:title="@string/About.about"/>
+
+</menu>

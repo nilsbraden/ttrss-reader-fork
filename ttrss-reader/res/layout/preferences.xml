@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/ConnectionPreferenceCategoryTitle" >
+
+        <EditTextPreference
+            android:defaultValue="http://localhost/"
+            android:inputType="textUri"
+            android:key="ConnectionUrlPreference"
+            android:name="@string/ConnectionUrlPreferenceTitle"
+            android:summary="@string/ConnectionUrlPreferenceSummary"
+            android:title="@string/ConnectionUrlPreferenceTitle" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:inputType="textFilter"
+            android:key="ConnectionUsernamePreference"
+            android:name="@string/ConnectionUsernamePreferenceTitle"
+            android:summary="@string/ConnectionUsernamePreferenceSummary"
+            android:title="@string/ConnectionUsernamePreferenceTitle" />
+
+        <EditTextPreference
+            android:defaultValue=""
+            android:inputType="textPassword"
+            android:key="ConnectionPasswordPreference"
+            android:name="@string/ConnectionPasswordPreferenceTitle"
+            android:summary="@string/ConnectionPasswordPreferenceSummary"
+            android:title="@string/ConnectionPasswordPreferenceTitle" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="ConnectionLazyServerPreference"
+            android:summary="@string/ConnectionLazyServerPreferenceSummary"
+            android:title="@string/ConnectionLazyServerPreferenceTitle" />
+
+        <PreferenceScreen android:title="@string/ConnectionHttpPreferenceCategoryTitle" >
+
+            <PreferenceCategory android:title="@string/ConnectionHttpPreferenceCategoryTitle" >
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="ConnectionHttpPreference"
+                    android:summary="@string/ConnectionHttpPreferenceSummary"
+                    android:title="@string/ConnectionHttpPreferenceTitle" />
+
+                <EditTextPreference
+                    android:defaultValue=""
+                    android:inputType="textFilter"
+                    android:key="ConnectionHttpUsernamePreference"
+                    android:name="@string/ConnectionHttpUsernamePreferenceTitle"
+                    android:summary="@string/ConnectionUsernamePreferenceSummary"
+                    android:title="@string/ConnectionHttpUsernamePreferenceTitle" />
+
+                <EditTextPreference
+                    android:defaultValue=""
+                    android:inputType="textPassword"
+                    android:key="ConnectionHttpPasswordPreference"
+                    android:name="@string/ConnectionHttpPasswordPreferenceTitle"
+                    android:summary="@string/ConnectionHttpPasswordPreferenceSummary"
+                    android:title="@string/ConnectionHttpPasswordPreferenceTitle" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+
+        <PreferenceScreen android:title="@string/ConnectionSslPreferenceCategoryTitle" >
+
+            <PreferenceCategory android:title="@string/ConnectionSslPreferenceCategoryTitle" >
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:disableDependentsState="true"
+                    android:key="ConnectionSSLPreference"
+                    android:summary="@string/ConnectionSslPreferenceSummary"
+                    android:title="@string/ConnectionSslPreferenceTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:dependency="ConnectionSSLPreference"
+                    android:disableDependentsState="false"
+                    android:key="ConnectionUseKeystorePreference"
+                    android:summary="@string/ConnectionUseKeystorePreferenceSummary"
+                    android:title="@string/ConnectionUseKeystorePreferenceTitle" />
+
+                <EditTextPreference
+                    android:defaultValue=""
+                    android:dependency="ConnectionUseKeystorePreference"
+                    android:inputType="textPassword"
+                    android:key="ConnectionKeystorePasswordPreference"
+                    android:name="@string/ConnectionKeystorePasswordPreferenceTitle"
+                    android:summary="@string/ConnectionKeystorePasswordPreferenceSummary"
+                    android:title="@string/ConnectionKeystorePasswordPreferenceTitle" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/MiscellaneousPreferenceCategoryTitle" >
+
+        <PreferenceScreen android:title="@string/UsagePreferenceCategoryTitle" >
+
+            <PreferenceCategory android:title="@string/UsagePreferenceCategoryTitle" >
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="UsageAutomaticMarkReadPreference"
+                    android:summary="@string/UsageAutomaticMarkReadPreferenceSummary"
+                    android:title="@string/UsageAutomaticMarkReadPreferenceTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="UsageOpenUrlEmptyArticlePreference"
+                    android:summary="@string/UsageOpenUrlEmptyArticleSummary"
+                    android:title="@string/UsageOpenUrlEmptyArticleTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="UsageUseVolumeKeysPreference"
+                    android:summary="@string/UsageUseVolumeKeysSummary"
+                    android:title="@string/UsageUseVolumeKeysTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:disableDependentsState="true"
+                    android:key="DisplayUseSwipePreference"
+                    android:summary="@string/DisplayUseSwipeSummary"
+                    android:title="@string/DisplayUseSwipeTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:dependency="DisplayUseSwipePreference"
+                    android:key="DisplayUseButtonsPreference"
+                    android:summary="@string/DisplayUseButtonsSummary"
+                    android:title="@string/DisplayUseButtonsTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="DisplayLeftHandedPreference"
+                    android:summary="@string/DisplayLeftHandedSummary"
+                    android:title="@string/DisplayLeftHandedTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="UsageVibrateOnLastArticlePreference"
+                    android:summary="@string/UsageVibrateOnLastArticleSummary"
+                    android:title="@string/UsageVibrateOnLastArticleTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="DisplayShowVirtualPreference"
+                    android:summary="@string/DisplayVirtualPreferenceSummary"
+                    android:title="@string/DisplayVirtualPreferenceTitle" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+
+        <PreferenceScreen android:title="@string/DisplayPreferenceCategoryTitle" >
+
+            <PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle" >
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="DisplayAlignFlushLeftPreference"
+                    android:summary="@string/DisplayAlignFlushLeftSummary"
+                    android:title="@string/DisplayAlignFlushLeftTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="DisplayArticleLinkPreference"
+                    android:summary="@string/DisplayArticleLinkSummary"
+                    android:title="@string/DisplayArticleLinkTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="DisplayDateTimeFormatSystemPreference"
+                    android:summary="@string/DisplayDateTimeFormatSystemSummary"
+                    android:title="@string/DisplayDateTimeFormatSystemTitle" />
+
+                <EditTextPreference
+                    android:defaultValue="@string/DisplayDateFormatDefault"
+                    android:inputType="textFilter"
+                    android:key="DisplayDateFormatPreference"
+                    android:name="@string/DisplayDateFormatTitle"
+                    android:summary="@string/DisplayDateFormatSummary"
+                    android:title="@string/DisplayDateFormatTitle" />
+
+                <EditTextPreference
+                    android:defaultValue="@string/DisplayTimeFormatDefault"
+                    android:inputType="textFilter"
+                    android:key="DisplayTimeFormatPreference"
+                    android:name="@string/DisplayTimeFormatTitle"
+                    android:summary="@string/DisplayTimeFormatSummary"
+                    android:title="@string/DisplayTimeFormatTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="DisplayDarkBackgroundPreference"
+                    android:summary="@string/DisplayDarkBackgroundSummary"
+                    android:title="@string/DisplayDarkBackgroundTitle" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+
+        <PreferenceScreen android:title="@string/SystemPreferenceCategoryTitle" >
+
+            <PreferenceCategory android:title="@string/SystemPreferenceCategoryTitle" >
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:disableDependentsState="false"
+                    android:key="CacheImagesOnStartupPreference"
+                    android:summary="@string/CacheImagesOnStartupSummary"
+                    android:title="@string/CacheImagesOnStartupTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:dependency="CacheImagesOnStartupPreference"
+                    android:key="CacheImagesOnlyWifiPreference"
+                    android:summary="@string/CacheImagesOnlyWifiSummary"
+                    android:title="@string/CacheImagesOnlyWifiTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="CacheImagesUnreadArticlesPreference"
+                    android:summary="@string/CacheImagesUnreadArticlesSummary"
+                    android:title="@string/CacheImagesUnreadArticlesTitle" />
+
+                <Preference
+                    android:key="SaveAttachmentPreference"
+                    android:persistent="false"
+                    android:summary="- PATH - set by activty -"
+                    android:title="@string/SaveAttachmentTitle" />
+
+                <Preference
+                    android:key="CacheFolderPreference"
+                    android:persistent="false"
+                    android:summary="- PATH - set by activty -"
+                    android:title="@string/CacheFolderTitle" />
+
+                <org.ttrssreader.preferences.EditIntegerPreference
+                    android:defaultValue="1000"
+                    android:inputType="number"
+                    android:key="DisplayArticleLimitPreference"
+                    android:maxLength="5"
+                    android:name="@string/DisplayArticleLimitTitle"
+                    android:summary="@string/DisplayArticleLimitSummary"
+                    android:title="@string/DisplayArticleLimitTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="DisplayArticleHeaderPreference"
+                    android:summary="@string/DisplayArticleHeaderSummary"
+                    android:title="@string/DisplayArticleHeaderTitle" />
+
+                <org.ttrssreader.preferences.EditIntegerPreference
+                    android:defaultValue="50"
+                    android:inputType="number"
+                    android:key="StoreImageLimitPreference"
+                    android:maxLength="5"
+                    android:name="@string/StoreImageLimitTitle"
+                    android:summary="@string/StoreImageLimitSummary"
+                    android:title="@string/StoreImageLimitTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="LogSensitiveDataPreference"
+                    android:summary="@string/LogSensitiveDataSummary"
+                    android:title="@string/LogSensitiveDataTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="VacuumDBScheduledPreference"
+                    android:summary="@string/VacuumDBOnNextStartupSummary"
+                    android:title="@string/VacuumDBOnNextStartupTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="DeleteDBOnStartupPreference"
+                    android:summary="@string/DeleteDBOnStartupSummary"
+                    android:title="@string/DeleteDBOnStartupTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:key="DeleteDBScheduledPreference"
+                    android:summary="@string/DeleteDBOnNextStartupSummary"
+                    android:title="@string/DeleteDBOnNextStartupTitle" />
+            </PreferenceCategory>
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/About.about" >
+
+        <!-- Doesn't work, perhaps because AboutActivity is set to android:theme="@android:style/Theme.Dialog" ? -->
+        <!--
+             <PreferenceScreen
+            android:title="@string/About.about"
+            android:summary="@string/About.about_hint">
+            <intent
+            android:action="android.intent.action.MAIN"
+            android:targetPackage="org.ttrssreader.gui"
+            android:targetClass="org.ttrssreader.gui.AboutActivity" />
+            </PreferenceScreen>
+        -->
+
+        <PreferenceScreen
+            android:summary="@string/About.project_hint"
+            android:title="@string/About.project" >
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://code.google.com/p/ttrss-reader-fork/" />
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:summary="@string/About.feedback_hint"
+            android:title="@string/About.feedback" >
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://code.google.com/p/ttrss-reader-fork/issues/list" />
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:summary="@string/About.twitter_hint"
+            android:title="@string/About.twitter" >
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/About.twitter_acc" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+</PreferenceScreen>

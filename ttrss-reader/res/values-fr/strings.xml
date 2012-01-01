@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * ttrss-reader-fork for Android
+ * 
+ * Copyright (C) 2010 N. Braden.
+ * Copyright (C) 2009-2010 J. Devauchelle.
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 3 as published by the Free Software Foundation.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+-->
+<resources>
+
+    <string name="ApplicationDescription">Tiny Tiny RSS Reader est une application pour lire vos flux de votre application Tiny Tiny RSS.</string>
+    
+    <string name="Main.ShowPreferencesMenu">Préférences</string>
+    <string name="Main.RefreshMenu">Rafraichir</string>
+    <string name="Main.UpdateMenu">Mettre à jour</string>
+    <string name="Main.ShowAboutMenu">A propos</string>
+    <string name="Main.Nothing">Aucune catégorie à afficher. Vérifier votre connection et vos informations de connections.</string>
+    <string name="Main.ImageCache">Cache images</string>
+    <string name="Main.ArticleCache">Cache articles</string>
+    
+    <string name="Preferences.Reset">Mettre à zéro les préférences</string>
+    <string name="Preferences.Btn">Préférences</string>
+    
+    <string name="Changelog.Title">Changelog</string>
+    <string name="Welcome.Title">Bienvenu</string>
+    <string name="Welcome.Message">Bievenu sur TTRSS-Reader!\n\nNoter que ce lecteur ne fonctionne qu\'avec un serveur \"Tiny Tiny RSS\".\n\nSi c\'est la première fois que vous lancez TTRSS-Reader, vous devriez indiquer l\'adresse du serveur et configurer l\'utilisateur. Appuyer sur "Préférences" pour y accéder.</string>
+    <string name="Check.OldVersion">Une ancienne version de Tiny Tiny RSS-Server a été detecté et n\'est plus supporté par ce lecteur. Veuillez metter à jour la version de TTRSS sur votre serveur.</string>
+    <string name="Check.Crash">Un rapport de crash a été sauvé, voulez-vous l\'envoyer au développer par mail ?</string>
+    
+    <string name="AboutActivity.Title">A propos</string>
+    <string name="AboutActivity.CloseBtn">Fermer</string>
+    <string name="AboutActivity.DonateBtn">Faire un don ?</string>
+    <string name="AboutActivity.VersionText">Version :</string>
+    <string name="AboutActivity.LicenseText">License :</string>
+    <string name="AboutActivity.LicenseTextValue">GPL v3</string>
+    
+    <string name="ArticleActivity.OpenLink">Article</string>
+    <string name="ArticleActivity.OpenCommentLink">Commentaires</string>
+    <string name="ArticleActivity.ShareLink">Partager</string>
+    <string name="ArticleActivity.ShareSubject">Lien de TTRSS-Reader :</string>
+    <string name="ArticleActivity.ShareTitle">Envoyer le lien...</string>
+    <string name="ArticleActivity.MediaPlay">Lire la pièce jointe</string>
+    <string name="ArticleActivity.MediaDisplayLink">Ouvrir la pièce jointe</string>
+    <string name="ArticleActivity.SwipeNotification">Glisser ici!</string>
+    
+    <string name="Loading.Headlines">Chargement des articles...</string>
+    <string name="Loading.Feeds">Chargement des flux...</string>
+    <string name="Loading.Categories">Chargement des catégories...</string>
+    <string name="Loading.EmptyHeadlines">Aucun article</string>
+    <string name="Loading.EmptyFeeds">Aucun flux</string>
+    <string name="Loading.EmptyCategories">Aucune catégories</string>
+    
+    <string name="Commons.PleaseWait">Patientez...</string>
+    <string name="Commons.NothingToDisplay">Rien à afficher.</string>
+    <string name="Commons.UpdateReadState">Mise à jour de l\'état</string>
+    <string name="Commons.DisplayOnlyUnread">Afficher les non lus</string>
+    <string name="Commons.InvertSort">Inverser l\'ordre</string>
+    <string name="Commons.DisplayAll">Tout afficher</string>
+    <string name="Commons.SelectArticles">Affiche tous les articles</string>
+    <string name="Commons.MarkAllRead">Tout marquer comme lu</string>
+    <string name="Commons.MarkRead">Lu</string>
+    <string name="Commons.MarkUnread">Non lu</string>
+    <string name="Commons.MarkStar">Marqué</string>
+    <string name="Commons.MarkUnstar">Dé-marqué</string>
+    <string name="Commons.MarkPublish">Publié</string>
+    <string name="Commons.MarkUnpublish">Dépublié</string>
+    
+    <string name="VCategory.AllArticles">Tous les articles</string>
+    <string name="VCategory.FreshArticles">Nouveaux Articles</string>
+    <string name="VCategory.PublishedArticles">Articles publiés</string>
+    <string name="VCategory.StarredArticles">Articles remarquables</string>
+    <string name="Feed.UncategorizedFeeds">Flux sans catégories</string>
+    
+    <string name="CategoryActivity.NoServer">Aucun serveur indiqué.</string>
+    <string name="CategoryActivity.Donate">Faire un don ?</string>
+    
+    <string name="ConnectionPreferenceCategoryTitle">Connexion</string>
+    <string name="ConnectionUrlPreferenceTitle">URL de connexion</string>
+    <string name="ConnectionUrlPreferenceSummary">URL de votre serveur Tiny Tiny RSS.</string>
+    <string name="ConnectionUsernamePreferenceTitle">Nom d\'utilisateur</string>
+    <string name="ConnectionUsernamePreferenceSummary">Le nom d\'utilisateur de votre compte Tiny Tiny RSS.</string>
+    <string name="ConnectionPasswordPreferenceTitle">Mot de passe</string>
+    <string name="ConnectionPasswordPreferenceSummary">Le mot de passe de votre compte Tiny Tiny RSS.</string>
+    
+    <string name="ConnectionSslPreferenceCategoryTitle">Paramètres SSL</string>
+    <string name="ConnectionSslPreferenceTitle">SSL</string>
+    <string name="ConnectionSslPreferenceSummary">Accepté tous les certificats SSL.</string>
+    <string name="ConnectionKeystorePasswordPreferenceTitle">Mot de passe du certificat personnel</string>
+    <string name="ConnectionKeystorePasswordPreferenceSummary">Mot de passe pour dévérouiller le certificat personnel</string>
+    <string name="ConnectionUseKeystorePreferenceTitle">Certificat personnel</string>
+    <string name="ConnectionUseKeystorePreferenceSummary">Utiliser un certificat personnel</string>
+    
+    <string name="ConnectionHttpPreferenceCategoryTitle">Paramètres d\'authentification HTTP</string>
+    <string name="ConnectionHttpPreferenceTitle">Authentification HTTP</string>
+    <string name="ConnectionHttpPreferenceSummary">Utiliser l\'authentification HTTP</string>
+    <string name="ConnectionHttpUsernamePreferenceTitle">Nom d\'utilisateur</string>
+    <string name="ConnectionHttpUsernamePreferenceSummary">Le nom d\'utilisateur d\'accès d\'authentitfaication HTTP</string>
+    <string name="ConnectionHttpPasswordPreferenceTitle">Mot de passe</string>
+    <string name="ConnectionHttpPasswordPreferenceSummary">Le mot de passe d\'accès d\'authentitfaication HTTP</string>
+    
+    <string name="MiscellaneousPreferenceCategoryTitle">Préférences diverses</string>
+    <string name="UsagePreferenceCategoryTitle">Utilisation</string>
+    <string name="UsageAutomaticMarkReadPreferenceTitle">Marquer les articles comme lu automatiquement</string>
+    <string name="UsageAutomaticMarkReadPreferenceSummary">Si cocher, les articles seront marqués comme lu à leur ouverture.</string>
+    <string name="UsageOpenUrlEmptyArticleTitle">Pour les articles vides, ouvrir l\'URL</string>
+    <string name="UsageOpenUrlEmptyArticleSummary">Visite automatiquement le site si le contenu de l\'article est vide.</string>
+    <string name="UsageUseVolumeKeysTitle">Naviguer avec les touches de volumes</string>
+    <string name="UsageUseVolumeKeysSummary">Appuyer sur haut pour l\'article suivant, et bas pour l\'ancien article.</string>
+    <string name="UsageVibrateOnLastArticleTitle">Vibrer sur le dernier article</string>
+    <string name="UsageVibrateOnLastArticleSummary">Vibre quand on arrive sur le premier ou dernier article.</string>
+    <string name="UsageWorkOfflineTitle">Travailler hors connexion</string>
+    <string name="UsageOfflineTitle">Hors connexion</string>
+    <string name="UsageOnlineTitle">En ligne</string>
+    <string name="UsageWorkOfflineSummary">Change le mode de synchronisation.</string>
+    
+    <string name="DisplayVirtualPreferenceTitle">Affiche les flux virtuels</string>
+    <string name="DisplayVirtualPreferenceSummary">Décocher pour cacher les flux virtuels de TTRSS.</string>
+    <string name="DisplayUseSwipeTitle">Utilise la fonction de "glisser"</string>
+    <string name="DisplayUseSwipeSummary">Utilser la fonction de "glisser" pour naviguer.</string>
+    <string name="DisplayShowUnreadOnlyTitle">Voir seulement les non-lus.</string>
+    <string name="DisplayShowUnreadOnlySummary">Cacher les flux et articles qui n\'ont pas d\'élément non-lus.</string>
+    <string name="DisplayArticleLimitTitle">Nombre d\'article en cache</string>
+    <string name="DisplayArticleLimitSummary">Combien d\'article peut être dans le cache local.</string>
+    <string name="DisplayArticleHeaderTitle">Affiche les en-tête des articles</string>
+    <string name="DisplayArticleHeaderSummary">Active l\'affichage des en-tête pour plus d\'informations pendant la navifation (Titre, flux, date, etc...).</string>
+    
+    <string name="SystemPreferenceCategoryTitle">Système</string>
+    <string name="StoreImageLimitTitle">Taille du cache des images (en MB)</string>
+    <string name="StoreImageLimitSummary">Taille, sur la SD-Card, du cache pour les images pour un usage hors ligne.</string>
+    <string name="CacheImagesUnreadArticlesTitle">Cache d\'image pour les non-lus seulement</string>
+    <string name="CacheImagesUnreadArticlesSummary">Utilise le cache uniquement pour les images des articles non-lus ?</string>
+    <string name="SplitLongGetRequestsTitle">Sépare les longues requêtes GET</string>
+    <string name="SplitLongGetRequestsSummary">A seulement utiliser si vous avez des problèmes avec la connection au serveur qui utilise des utilitaires de sécurité comme Suhosin. Sépare les longues requêtes en plusieurs petites.</string>
+    
+    <string name="ErrorActivity.Title">Erreur</string>
+    <string name="ErrorActivity.UserMessage">Impossible de se connection à votre instance de Tiny Tiny RSS, vérifiez la connection et les paramètres réseaux.</string>
+    <string name="ErrorActivity.ErrorTitle">Détail de l\'erreur :</string>
+    <string name="ErrorActivity.ErrorDefault">Une erreur est survenue. Pour avoir plus de détail sur l\'erreur, utilisez aLogcat (du market) ou ADB.</string>
+    <string name="ErrorActivity.CloseBtn">Fermer</string>
+    <string name="ErrorActivity.ExitBtn">Quitter</string>
+    
+    <string name="WebViewClientActivity.Download">Téléchargement</string>
+    <string name="WebViewClientActivity.Display">Affiche dans le lecteur multimédia</string>
+    
+    <string name="About.about">A propos</string>
+    <string name="About.about_hint">A propos de cette application</string>
+    <string name="About.project">Page du projet</string>
+    <string name="About.project_hint">Information sur le développement, Changelog etc...</string>
+    <string name="About.twitter">Twitter</string>
+    <string name="About.twitter_hint">Me contacter via twitter.</string>
+    <string name="About.feedback">Commentaires</string>
+    <string name="About.feedback_hint">Rapporter un bug, demandes de fonctionnalités ...</string>
+
+    <string name="Utils.DownloadFinishedTitle">Téléchargement</string>
+    <string name="Utils.DownloadFinishedTicker">Téléchargement terminé</string>
+    <string name="Utils.DownloadFinishedText">Processus terminé dans %s secondes.</string>
+    <string name="Utils.DownloadRunningTitle">Téléchargement en cours...</string>
+    <string name="Utils.DownloadRunningTicker">Téléchargement en cours...</string>
+    <string name="Utils.DownloadRunningText"></string>
+    <string name="Utils.DownloadErrorTitle">Erreur</string>
+    <string name="Utils.DownloadErrorTicker">Erreur...</string>
+    <string name="Utils.DownloadErrorText">Une erreur est survenue, le processus ne peut-être terminé.</string>
+    
+    <string name="Cache.service_started">Téléchargement commencé...</string>
+    <string name="Cache.service_text">Téléchargement en cours...</string>
+    <string name="Cache.service_imagecache">ImageCache</string>
+    <string name="Cache.service_articlecache">ArticleCache</string>
+    
+</resources>
