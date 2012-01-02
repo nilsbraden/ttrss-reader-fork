@@ -197,6 +197,13 @@ public abstract class MainAdapter extends BaseAdapter {
         
     }
     
+    /**
+     * Tries to find out if the given cursor points to a dataset with unread articles in it, returns true if it does.
+     * 
+     * @param c
+     *            the cursor.
+     * @return true if there are unread articles in the dataset, else false.
+     */
     private final boolean checkUnread(Cursor c) {
         if (c == null || c.isClosed())
             return true; // TODO: Check for concurrency-issues here, to avoid anything strange this should return false.

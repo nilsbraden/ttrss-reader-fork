@@ -468,7 +468,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         } else {
             
             // This is not a tablet - start a new activity
-            // if (!flingDetected) { // TODO!
+            // if (!flingDetected) { // TODO: Think about what to do with the fling-gesture in a three-pane-layout.
             Intent i = new Intent(context, ArticleActivity.class);
             i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(selectedIndex));
             i.putExtra(ArticleActivity.ARTICLE_FEED_ID, feedId);

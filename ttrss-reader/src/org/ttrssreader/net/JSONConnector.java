@@ -470,21 +470,12 @@ public class JSONConnector implements Connector {
             return false;
         
         try {
-            boolean avoidJSONParsing = false;
-            if (avoidJSONParsing) {
-                // TODO: remove this branch, if there are no regressions.
-                InputStream in = doRequest(params, true);
-                if (in != null) {
-                    in.close();
-                }
-            } else {
-                String result = readResult(params, false, true);
-                Log.d(Utils.TAG, "Result: " + result);
-                if ("OK".equals(result))
-                    return true;
-                else
-                    return false;
-            }
+            String result = readResult(params, false, true);
+            Log.d(Utils.TAG, "Result: " + result);
+            if ("OK".equals(result))
+                return true;
+            else
+                return false;
         } catch (IOException e) {
             e.printStackTrace();
             if (!hasLastError) {
@@ -958,8 +949,7 @@ public class JSONConnector implements Connector {
     }
     
     private long noTaskUntil = 0;
-    final static private long minTaskIntervall = 30 * MINUTE; // TODO: Maybe it does not hurt to reduce this to 1 or 2
-                                                              // minutes.
+    final static private long minTaskIntervall = 10 * MINUTE;
     
     private boolean makeLazyServerWork() {
         boolean ret = true;
