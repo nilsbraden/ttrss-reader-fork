@@ -261,7 +261,7 @@ public class CategoryActivity extends MenuActivity {
     public class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
         
         private int taskCount = 0;
-        private static final int DEFAULT_TASK_COUNT = 2;
+        private static final int DEFAULT_TASK_COUNT = 4;
         
         @Override
         protected Void doInBackground(Void... params) {
@@ -292,15 +292,15 @@ public class CategoryActivity extends MenuActivity {
                 Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false, false);
             }
             
-            publishProgress(taskCount); // Move progress forward to 100%
+            publishProgress(++progress); // Move progress forward to 100%
             
             // This stuff will be done in background without UI-notification, but the progress-calls will be done anyway
             // to ensure the UI is refreshed properly. ProgressBar is rendered invisible with the call to
             // publishProgress(taskCount).
             Data.getInstance().updateVirtualCategories();
-            publishProgress(0);
+            publishProgress(++progress);
             Data.getInstance().updateCategories(false);
-            publishProgress(0);
+            publishProgress(taskCount);
             Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
             
             return null;
