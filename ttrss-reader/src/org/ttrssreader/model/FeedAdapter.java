@@ -132,7 +132,7 @@ public class FeedAdapter extends MainAdapter {
         
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
-        query.append(buildSafeQuery ? " LIMIT 100" : " LIMIT 1000"); // TODO: Does a hard limit make sense here?
+        query.append(buildSafeQuery ? " LIMIT 200" : " LIMIT 1000");
         
         closeCursor();
         Cursor c = DBHelper.getInstance().query(query.toString(), null);

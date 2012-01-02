@@ -193,15 +193,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         // Initialize ImageCache
         getImageCache(context);
         
-        // TODO: Delete this until January 2012!
-        // Set the articleLimit to a reasonable value once, user can change it again if necessary
-        if (getArticleLimit() < 2000) {
-            if (!prefs.getBoolean("articleLimitRaisedTo2000", false)) {
-                put("articleLimitRaisedTo3000", true);
-                setArticleLimit(2000);
-            }
-        }
-        
     }
     
     public static void refreshDisplayMetrics(Display display) {
