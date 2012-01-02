@@ -18,7 +18,7 @@
 <resources>
 
     <string-array name="updates">
-        <item>
+        <item>Version 1.22
             \n * Added support for new API of TTRSS 1.5.8.1
             \n * Added Enhancement #65: Publish with a note (Article-Menu)
             \n * Notes are also cached if working offline, later they are automatically synchronized with the server
