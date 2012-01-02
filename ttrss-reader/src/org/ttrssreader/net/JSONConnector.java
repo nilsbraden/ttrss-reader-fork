@@ -82,6 +82,7 @@ public class JSONConnector implements Connector {
     private static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
                                                                                // 1.5.3 but is ignored on older versions
     private static final String PARAM_SINCE_ID = "since_id";
+    private static final String PARAM_SKIP = "skip";
     private static final String PARAM_MODE = "mode";
     private static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
                                                        // level 1)
@@ -647,8 +648,9 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    private void parseArticleArray(JsonReader reader, int labelId, int catId, boolean isCategory) {
+    private int parseArticleArray(JsonReader reader, int labelId, int catId, boolean isCategory) {
         long time = System.currentTimeMillis();
+        int count = 0;
         
         SQLiteDatabase db = DBHelper.getInstance().db;
         synchronized (DBHelper.TABLE_ARTICLES) {
@@ -664,6 +666,7 @@ public class JSONConnector implements Connector {
                 
                 reader.beginArray();
                 while (reader.hasNext()) {
+                    count++;
                     
                     int id = -1;
                     String title = null;
@@ -746,6 +749,7 @@ public class JSONConnector implements Connector {
             }
         }
         Log.d(Utils.TAG, "INSERT took " + (System.currentTimeMillis() - time) + "ms");
+        return count;
     }
     
     // ***************** Retrieve-Data-Methods **************************************************
@@ -967,17 +971,17 @@ public class JSONConnector implements Connector {
     }
     
     @Override
-    public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
-        return getHeadlinesToDatabase(id, limit, viewMode, isCategory, 0);
+    public int getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
+        return getHeadlinesToDatabase(id, limit, viewMode, isCategory, 0, 0);
     }
     
     @Override
-    public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
+    public int getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, int sinceId, int skip) {
         long time = System.currentTimeMillis();
-        boolean ret = true;
+        int count = 0;
         
         if (!sessionAlive())
-            return false;
+            return -1;
         
         makeLazyServerWork(id);
         
@@ -991,6 +995,9 @@ public class JSONConnector implements Connector {
         params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
         if (sinceId > 0)
             params.put(PARAM_SINCE_ID, sinceId + "");
+        if (skip > 0)
+            params.put(PARAM_SKIP, skip + "");
+        
         
         if (id == Data.VCAT_STAR && isCategory)
             DBHelper.getInstance().purgeStarredArticles();
@@ -1002,13 +1009,13 @@ public class JSONConnector implements Connector {
         try {
             reader = prepareReader(params);
             if (reader == null)
-                return false;
+                return -1;
             
-            parseArticleArray(reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
+            count = parseArticleArray(reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
             
         } catch (IOException e) {
             e.printStackTrace();
-            ret = false;
+            return -1;
         } finally {
             if (reader != null)
                 try {
@@ -1018,7 +1025,7 @@ public class JSONConnector implements Connector {
         }
         
         Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
-        return ret;
+        return count;
     }
     
     @Override

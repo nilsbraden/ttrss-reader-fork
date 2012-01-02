@@ -1079,6 +1079,34 @@ public class DBHelper {
     
     // *******| SELECT |*******************************************************************
     
+
+    public int getSinceId() {
+        int ret = 0;
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = null;
+        try {
+            c = db.query(TABLE_ARTICLES, new String[] {"id"}, null, null, null, null, "id DESC", "1");
+
+            if (!c.isAfterLast()) {
+                
+                if (c.isBeforeFirst() && !c.moveToFirst())
+                    return 0;
+                ret = c.getInt(0);
+                
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        dbReadLock.readLock().unlock();
+        return ret;
+    }
+    
     // Takes about 2 to 6 ms on Motorola Milestone
     public Article getArticle(int id) {
         Article ret = null;

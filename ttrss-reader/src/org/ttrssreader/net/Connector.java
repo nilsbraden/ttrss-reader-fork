@@ -56,9 +56,9 @@ public interface Connector {
      *            adaptive, marked, updated)
      * @param isCategory
      *            indicates if we are dealing with a category or a feed
-     * @return a set of ids of the received articles.
+     * @return the number of fetched articles.
      */
-    public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory);
+    public int getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory);
     
     /**
      * Retrieves the specified articles and directly stores them in the database.
@@ -74,9 +74,11 @@ public interface Connector {
      *            indicates if we are dealing with a category or a feed
      * @param sinceId
      *            only retrieves articles with an id > sinceId, does nothing if set to zero.
-     * @return a set of ids of the received articles.
+     * @param skip
+     *            the number of articles which should be skipped from the newest article on, allows for pagination.
+     * @return the number of fetched articles.
      */
-    public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, int sinceId);
+    public int getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, int sinceId, int skip);
     
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
