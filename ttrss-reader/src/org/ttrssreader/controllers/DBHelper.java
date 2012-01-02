@@ -21,9 +21,11 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.ttrssreader.model.pojos.Article;
@@ -53,7 +55,7 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 50;
+    public static final int DATABASE_VERSION = 51;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -67,7 +69,7 @@ public class DBHelper {
     public static final String MARK_READ = "isUnread";
     public static final String MARK_STAR = "isStarred";
     public static final String MARK_PUBLISH = "isPublished";
-    public static final String MARK_NOTE = "addNote";
+    public static final String MARK_NOTE = "note";
     
     // @formatter:off
     private static final String INSERT_CATEGORY = 
@@ -344,6 +346,7 @@ public class DBHelper {
                     + " " + MARK_READ + " INTEGER,"
                     + " " + MARK_STAR + " INTEGER,"
                     + " " + MARK_PUBLISH + " INTEGER,"
+                    + " " + MARK_NOTE + " TEXT,"
                     + " PRIMARY KEY(id, type))");
             // @formatter:on
         }
@@ -465,6 +468,30 @@ public class DBHelper {
                 ContentValues cv = new ContentValues();
                 cv.put("cachedImages", 0);
                 db.update(TABLE_ARTICLES, cv, "cachedImages IS null", null);
+                didUpgrade = true;
+            }
+            
+            if (oldVersion < 51) {
+                // @formatter:off
+                String sql = "DROP TABLE IF EXISTS "
+                    + TABLE_MARK;
+                String sql2 = "CREATE TABLE "
+                    + TABLE_MARK
+                    + " (id INTEGER,"
+                    + " type INTEGER,"
+                    + " " + MARK_READ + " INTEGER,"
+                    + " " + MARK_STAR + " INTEGER,"
+                    + " " + MARK_PUBLISH + " INTEGER,"
+                    + " " + MARK_NOTE + " TEXT,"
+                    + " PRIMARY KEY(id, type))";
+                // @formatter:on
+                
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 51.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql2));
+                
+                db.execSQL(sql);
+                db.execSQL(sql2);
                 didUpgrade = true;
             }
             
@@ -621,7 +648,8 @@ public class DBHelper {
      * New method of inserting many articles into the DB at once. Doesn't seem to run faster then the old way so i'll
      * just leave this code here for future reference and ignore it until it proves to be useful.
      * 
-     * @param input Object-Array with the fields of an article-object.
+     * @param input
+     *            Object-Array with the fields of an article-object.
      */
     public void bulkInsertArticles(List<Object[]> input) {
         
@@ -867,6 +895,26 @@ public class DBHelper {
                 db.execSQL(String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id));
                 db.execSQL(String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id,
                         state));
+            }
+        }
+        dbReadLock.readLock().unlock();
+    }
+    
+    // Special treatment for notes since the method markUnsynchronizedStates(...) doesn't support inserting any
+    // additional data.
+    public void markUnsynchronizedNotes(Map<Integer, String> ids, String markPublish) {
+        if (!isDBAvailable())
+            return;
+        
+        synchronized (TABLE_MARK) {
+            for (Integer id : ids.keySet()) {
+                String note = ids.get(id);
+                if (note == null || note.equals(""))
+                    continue;
+                
+                ContentValues cv = new ContentValues();
+                cv.put(MARK_NOTE, note);
+                db.update(TABLE_MARK, cv, "id=" + id, null);
             }
         }
         dbReadLock.readLock().unlock();
@@ -1242,20 +1290,21 @@ public class DBHelper {
         return ret;
     }
     
-    public Set<Integer> getMarked(String mark, int status) {
-        Set<Integer> ret = new HashSet<Integer>();
+    public Map<Integer, String> getMarked(String mark, int status) {
+        Map<Integer, String> ret = new HashMap<Integer, String>();
         if (!isDBAvailable())
             return ret;
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_MARK, new String[] { "id" }, mark + "=" + status, null, null, null, null, null);
+            c = db.query(TABLE_MARK, new String[] { "id", MARK_NOTE }, mark + "=" + status, null, null, null, null,
+                    null);
             
             if (!c.moveToFirst())
                 return ret;
             
             while (!c.isAfterLast()) {
-                ret.add(c.getInt(0));
+                ret.put(c.getInt(0), c.getString(1));
                 c.move(1);
             }
             
@@ -1270,17 +1319,31 @@ public class DBHelper {
         return ret;
     }
     
-    public void setMarked(Set<Integer> ids, String mark) {
+    public void setMarked(Map<Integer, String> ids, String mark) {
         if (!isDBAvailable())
             return;
         
         try {
-            for (String idList : StringSupport.convertListToString(ids, 100)) {
+            for (String idList : StringSupport.convertListToString(ids.keySet(), 100)) {
                 ContentValues cv = new ContentValues();
                 cv.putNull(mark);
                 db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
                 db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
             }
+            
+            // Insert notes afterwards and only if given note is not null
+            for (Integer id : ids.keySet()) {
+                String note = ids.get(id);
+                if (note == null || note.equals(""))
+                    continue;
+                
+                ContentValues cv = new ContentValues();
+                
+                cv.put(MARK_NOTE, note);
+                db.update(TABLE_MARK, cv, "id=" + id, null);
+                
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

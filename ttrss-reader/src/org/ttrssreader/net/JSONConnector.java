@@ -478,8 +478,12 @@ public class JSONConnector implements Connector {
                     in.close();
                 }
             } else {
-                readResult(params, false, true);
-                return true;
+                String result = readResult(params, false, true);
+                Log.d(Utils.TAG, "Result: " + result);
+                if ("OK".equals(result))
+                    return true;
+                else
+                    return false;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -489,11 +493,6 @@ public class JSONConnector implements Connector {
             }
         }
         
-        // TODO: Why was this here???
-        // if (hasLastError) {
-        // hasLastError = false;
-        // lastError = "";
-        // }
         return false;
     }
     
@@ -963,7 +962,7 @@ public class JSONConnector implements Connector {
                                                               // minutes.
     
     private boolean makeLazyServerWork() {
-        boolean ok = true;
+        boolean ret = true;
         final long time = System.currentTimeMillis();
         if (Controller.getInstance().lazyServer() && (noTaskUntil < time)) {
             noTaskUntil = time + minTaskIntervall;
@@ -971,10 +970,10 @@ public class JSONConnector implements Connector {
             Iterator<Feed> feeds = feedset.iterator();
             while (feeds.hasNext()) {
                 final Feed f = feeds.next();
-                ok = makeLazyServerWork(f.id) && ok;
+                ret = ret && makeLazyServerWork(f.id);
             }
         }
-        return ok;
+        return ret;
     }
     
     @Override
@@ -1067,12 +1066,12 @@ public class JSONConnector implements Connector {
     }
     
     @Override
-    public boolean setArticlePublished(Set<Integer> ids, int articleState, String note) {
+    public boolean setArticlePublished(Map<Integer, String> ids, int articleState) {
         boolean ret = true;
         if (ids.size() == 0)
             return ret;
         
-        for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
+        for (String idList : StringSupport.convertListToString(ids.keySet(), MAX_ID_LIST_LENGTH)) {
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
             params.put(PARAM_ARTICLE_IDS, idList);
@@ -1081,7 +1080,12 @@ public class JSONConnector implements Connector {
             ret = ret && doRequestNoAnswer(params);
             
             // Add a note to the article(s)
-            if (note != null && note.length() > 0) {
+            
+            for (Integer id : ids.keySet()) {
+                String note = ids.get(id);
+                if (note == null || note.equals(""))
+                    continue;
+                
                 params.put(PARAM_FIELD, "3"); // Field 3 is the "Add note" field
                 params.put(PARAM_DATA, note);
                 ret = ret && doRequestNoAnswer(params);

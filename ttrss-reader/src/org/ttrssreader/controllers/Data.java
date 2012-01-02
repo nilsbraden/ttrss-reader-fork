@@ -163,7 +163,7 @@ public class Data {
             
             if (feedId == VCAT_PUB || feedId == VCAT_STAR)
                 displayOnlyUnread = false; // Display all articles for Starred/Published
-            
+                
             // Calculate an appropriate upper limit for the number of articles
             int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
             
@@ -367,18 +367,21 @@ public class Data {
     
     public void setArticlePublished(int articleId, int articleState, String note) {
         boolean erg = false;
-        Set<Integer> ids = new HashSet<Integer>();
-        ids.add(articleId);
+        Map<Integer, String> ids = new HashMap<Integer, String>();
+        ids.put(articleId, note);
         
         if (Utils.isConnected(cm))
             try {
-                erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState, note);
+                erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
             } catch (NotInitializedException e) {
                 return;
             }
         
-        if (!erg)
-            DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_PUBLISH, articleState);
+        // Write changes to cache if calling the server failed
+        if (!erg) {
+            DBHelper.getInstance().markUnsynchronizedStates(ids.keySet(), DBHelper.MARK_PUBLISH, articleState);
+            DBHelper.getInstance().markUnsynchronizedNotes(ids, DBHelper.MARK_PUBLISH);
+        }
     }
     
     public void setRead(int id, boolean isCategory) {
@@ -436,40 +439,36 @@ public class Data {
         return -1;
     }
     
-    public void synchronizeStatus() {
+    public void synchronizeStatus() throws NotInitializedException {
         if (!Utils.isConnected(cm))
             return;
         
-        String[] marks = new String[] { DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH };
+        String[] marks = new String[] { DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH,
+                DBHelper.MARK_NOTE };
         for (String mark : marks) {
-            Set<Integer> idsMark = DBHelper.getInstance().getMarked(mark, 1);
-            Set<Integer> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
+            Map<Integer, String> idsMark = DBHelper.getInstance().getMarked(mark, 1);
+            Map<Integer, String> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
             
-            try {
-                if (DBHelper.MARK_READ.equals(mark)) {
-                    if (Controller.getInstance().getConnector().setArticleRead(idsMark, 1))
-                        DBHelper.getInstance().setMarked(idsMark, mark);
-                    
-                    if (Controller.getInstance().getConnector().setArticleRead(idsUnmark, 0))
-                        DBHelper.getInstance().setMarked(idsUnmark, mark);
-                }
-                if (DBHelper.MARK_STAR.equals(mark)) {
-                    if (Controller.getInstance().getConnector().setArticleStarred(idsMark, 1))
-                        DBHelper.getInstance().setMarked(idsMark, mark);
-                    
-                    if (Controller.getInstance().getConnector().setArticleStarred(idsUnmark, 0))
-                        DBHelper.getInstance().setMarked(idsUnmark, mark);
-                }
-                if (DBHelper.MARK_PUBLISH.equals(mark)) {
-                    // TODO: Store notes for late-synchronization
-                    if (Controller.getInstance().getConnector().setArticlePublished(idsMark, 1, null))
-                        DBHelper.getInstance().setMarked(idsMark, mark);
-                    
-                    if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0, null))
-                        DBHelper.getInstance().setMarked(idsUnmark, mark);
-                }
-            } catch (NotInitializedException e) {
-                return;
+            if (DBHelper.MARK_READ.equals(mark)) {
+                if (Controller.getInstance().getConnector().setArticleRead(idsMark.keySet(), 1))
+                    DBHelper.getInstance().setMarked(idsMark, mark);
+                
+                if (Controller.getInstance().getConnector().setArticleRead(idsUnmark.keySet(), 0))
+                    DBHelper.getInstance().setMarked(idsUnmark, mark);
+            }
+            if (DBHelper.MARK_STAR.equals(mark)) {
+                if (Controller.getInstance().getConnector().setArticleStarred(idsMark.keySet(), 1))
+                    DBHelper.getInstance().setMarked(idsMark, mark);
+                
+                if (Controller.getInstance().getConnector().setArticleStarred(idsUnmark.keySet(), 0))
+                    DBHelper.getInstance().setMarked(idsUnmark, mark);
+            }
+            if (DBHelper.MARK_PUBLISH.equals(mark)) {
+                if (Controller.getInstance().getConnector().setArticlePublished(idsMark, 1))
+                    DBHelper.getInstance().setMarked(idsMark, mark);
+                
+                if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0))
+                    DBHelper.getInstance().setMarked(idsUnmark, mark);
             }
         }
     }

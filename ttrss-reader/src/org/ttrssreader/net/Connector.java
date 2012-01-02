@@ -15,6 +15,7 @@
 
 package org.ttrssreader.net;
 
+import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
@@ -102,14 +103,12 @@ public interface Connector {
      * Marks the given Articles as "published"/"not published" depending on articleState.
      * 
      * @param ids
-     *            a list of article-ids.
+     *            a list of article-ids with corresponding notes (may be null).
      * @param articleState
      *            the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
-     * @param note
-     *            (optional) parameter only used when setting a note on a published article
      * @return true if the operation succeeded.
      */
-    public boolean setArticlePublished(Set<Integer> ids, int articleState, String note);
+    public boolean setArticlePublished(Map<Integer, String> ids, int articleState);
     
     /**
      * Marks a feed or a category with all its feeds as read.
