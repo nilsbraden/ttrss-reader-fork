@@ -163,13 +163,13 @@ public class Data {
                 }
                 
                 // Only mark as updated if the first call was successful
-                if (count > 0) {
+                if (count != -1) {
                     articlesCached = System.currentTimeMillis();
                     
                     // Store all category-ids and ids of all feeds for this category in db
                     articlesUpdated.put(-4, articlesCached);
                     articlesChanged.put(-4, articlesCached);
-                    for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
+                    for (Feed f : DBHelper.getInstance().getFeeds(-3)) {
                         articlesUpdated.put(f.id, articlesCached);
                         articlesChanged.put(f.id, articlesCached);
                     }
@@ -218,7 +218,7 @@ public class Data {
                     Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, "unread", isCat);
                 
                 // Only mark as updated if the first call was successful
-                if (count > 0) {
+                if (count != -1) {
                     long currentTime = System.currentTimeMillis();
                     // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
                     // requested
