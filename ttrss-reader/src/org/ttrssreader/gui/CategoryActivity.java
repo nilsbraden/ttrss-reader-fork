@@ -281,7 +281,7 @@ public class CategoryActivity extends MenuActivity {
                 if (c.unread == 0 && onlyUnreadArticles)
                     continue;
                 publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true);
+                Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true, false);
             }
             
             // Refresh articles for all labels
@@ -289,7 +289,7 @@ public class CategoryActivity extends MenuActivity {
                 if (f.unread == 0 && onlyUnreadArticles)
                     continue;
                 publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false);
+                Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false, false);
             }
             
             publishProgress(taskCount); // Move progress forward to 100%

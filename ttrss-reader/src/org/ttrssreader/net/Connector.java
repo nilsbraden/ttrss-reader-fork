@@ -60,6 +60,24 @@ public interface Connector {
     public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory);
     
     /**
+     * Retrieves the specified articles and directly stores them in the database.
+     * 
+     * @param id
+     *            the id of the feed/category
+     * @param limit
+     *            the maximum number of articles to be fetched
+     * @param viewMode
+     *            indicates wether only unread articles should be included (Possible values: all_articles, unread,
+     *            adaptive, marked, updated)
+     * @param isCategory
+     *            indicates if we are dealing with a category or a feed
+     * @param sinceId
+     *            only retrieves articles with an id > sinceId, does nothing if set to zero.
+     * @return a set of ids of the received articles.
+     */
+    public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, int sinceId);
+    
+    /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
      * 
      * @param articlesIds
@@ -87,9 +105,11 @@ public interface Connector {
      *            a list of article-ids.
      * @param articleState
      *            the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
+     * @param note
+     *            (optional) parameter only used when setting a note on a published article
      * @return true if the operation succeeded.
      */
-    public boolean setArticlePublished(Set<Integer> ids, int articleState);
+    public boolean setArticlePublished(Set<Integer> ids, int articleState, String note);
     
     /**
      * Marks a feed or a category with all its feeds as read.
@@ -117,6 +137,13 @@ public interface Connector {
      * @return the version
      */
     public int getVersion();
+    
+    /**
+     * Retrieves the API-Level of the currently used server-installation.
+     * 
+     * @return the API-Level of the server-installation
+     */
+    public int getApiLevel();
     
     /**
      * Returns true if there was an error.

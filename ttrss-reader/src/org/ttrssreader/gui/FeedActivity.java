@@ -203,7 +203,7 @@ public class FeedActivity extends MenuActivity {
             
             // Update articles for current category
             if (c.unread != 0)
-                Data.getInstance().updateArticles(c.id, Controller.getInstance().onlyUnread(), true);
+                Data.getInstance().updateArticles(c.id, Controller.getInstance().onlyUnread(), true, false);
             
             publishProgress(taskCount); // Move progress forward to 100%
             return null;
