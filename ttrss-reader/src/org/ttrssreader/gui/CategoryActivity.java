@@ -31,7 +31,6 @@ import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.MainAdapter;
-import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -267,22 +266,17 @@ public class CategoryActivity extends MenuActivity {
         protected Void doInBackground(Void... params) {
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
             
-            Set<Category> cats = DBHelper.getInstance().getCategoriesIncludingUncategorized();
             Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
-            taskCount = DEFAULT_TASK_COUNT + cats.size() + labels.size();
+            taskCount = DEFAULT_TASK_COUNT + labels.size() + 1; // 1 for the caching of all articles
             
             int progress = 0;
             publishProgress(++progress); // Move progress forward
             
             Data.getInstance().updateCounters(false);
             
-            // Refresh articles for all categories
-            for (Category c : cats) {
-                if (c.unread == 0 && onlyUnreadArticles)
-                    continue;
-                publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(c.id, onlyUnreadArticles, true, false);
-            }
+            // Cache articles for all categories
+            publishProgress(++progress);
+            Data.getInstance().cacheArticles(false);
             
             // Refresh articles for all labels
             for (Feed f : labels) {
@@ -331,7 +325,7 @@ public class CategoryActivity extends MenuActivity {
         
         switch (id) {
             case DIALOG_WELCOME:
-                
+
                 builder.setTitle(getResources().getString(R.string.Welcome_Title));
                 builder.setMessage(getResources().getString(R.string.Welcome_Message));
                 builder.setNeutralButton((String) getText(R.string.Preferences_Btn),
@@ -346,7 +340,7 @@ public class CategoryActivity extends MenuActivity {
                 break;
             
             case DIALOG_UPDATE:
-                
+
                 builder.setTitle(getResources().getString(R.string.Changelog_Title));
                 final String[] changes = getResources().getStringArray(R.array.updates);
                 final StringBuilder sb = new StringBuilder();
@@ -370,7 +364,7 @@ public class CategoryActivity extends MenuActivity {
                 break;
             
             case DIALOG_CRASH:
-                
+
                 builder.setTitle(getResources().getString(R.string.ErrorActivity_Title));
                 builder.setMessage(getResources().getString(R.string.Check_Crash));
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {

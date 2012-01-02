@@ -39,6 +39,7 @@ public class Data {
     private Context context;
     
     private long countersUpdated = 0;
+    private long articlesCached = 0;
     private Map<Integer, Long> articlesUpdated = new HashMap<Integer, Long>();
     private Map<Integer, Long> feedsUpdated = new HashMap<Integer, Long>();
     private long virtCategoriesUpdated = 0;
@@ -139,6 +140,45 @@ public class Data {
     
     // *** ARTICLES *********************************************************************
     
+    public void cacheArticles(boolean overrideOffline) {
+        
+        int limit = 500;
+        
+        if (articlesCached > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+            return;
+        } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
+            
+            try {
+                int sinceId = DBHelper.getInstance().getSinceId();
+                int count = Controller.getInstance().getConnector()
+                        .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, 0);
+                
+                if (count == limit) {
+                    Controller.getInstance().getConnector()
+                    .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, 0);
+                    // TODO: Think! What do we do when the limit is reached? Set the limit higher or fetch another 500?
+                    // What if this is a new installation, shall we bulk-load ALL articles (because this is what happens
+                    // if we start fetching the next 500 and so on)?
+                    // Just doing it twice for now, 1000 articles offline should be fine for most people.
+                }
+                
+                // Only mark as updated if the first call was successful
+                if (count > 0) {
+                    articlesCached = System.currentTimeMillis();
+                    
+                    // Store all category-ids and ids of all feeds for this category in db
+                    articlesUpdated.put(-4, articlesCached);
+                    articlesChanged.put(-4, articlesCached);
+                    for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
+                        articlesUpdated.put(f.id, articlesCached);
+                        articlesChanged.put(f.id, articlesCached);
+                    }
+                }
+            } catch (NotInitializedException e) {
+            }
+        }
+    }
+    
     public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline) {
         
         // Check if unread-count and actual number of unread articles match, if not do a seperate call with
@@ -167,29 +207,27 @@ public class Data {
             // Calculate an appropriate upper limit for the number of articles
             int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
             
-            // TODO: Calculate the sinceId to get only new articles
-            
             try {
                 String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
                 
-                // Set<Integer> ids = // <-- Not needed
-                boolean ret = false;
-                ret = Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, viewMode, isCat);
+                int count = Controller.getInstance().getConnector()
+                        .getHeadlinesToDatabase(feedId, limit, viewMode, isCat);
                 
                 // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
                 if (needUnreadUpdate && !displayOnlyUnread)
                     Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, "unread", isCat);
                 
                 // Only mark as updated if the first call was successful
-                if (ret) {
+                if (count > 0) {
+                    long currentTime = System.currentTimeMillis();
                     // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
                     // requested
-                    articlesUpdated.put(feedId, System.currentTimeMillis());
-                    articlesChanged.put(feedId, System.currentTimeMillis());
+                    articlesUpdated.put(feedId, currentTime);
+                    articlesChanged.put(feedId, currentTime);
                     if (isCat) {
                         for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
-                            articlesUpdated.put(f.id, System.currentTimeMillis());
-                            articlesChanged.put(f.id, System.currentTimeMillis());
+                            articlesUpdated.put(f.id, currentTime);
+                            articlesChanged.put(f.id, currentTime);
                         }
                     }
                 }

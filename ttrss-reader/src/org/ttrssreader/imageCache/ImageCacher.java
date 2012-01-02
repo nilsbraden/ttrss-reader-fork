@@ -27,7 +27,6 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
-import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.ImageCache;
@@ -79,9 +78,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             long timeArticles = System.currentTimeMillis();
             // Only use progress-updates and callbacks for downloading articles, images are done in background
             // completely
-            Set<Category> cats = DBHelper.getInstance().getCategoriesIncludingUncategorized();
             Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
-            taskCount = DEFAULT_TASK_COUNT + cats.size() + labels.size();
+            taskCount = DEFAULT_TASK_COUNT + labels.size() + 1; // 1 for the caching of all articles
             
             int progress = 0;
             Data.getInstance().updateCounters(true);
@@ -90,12 +88,9 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             publishProgress(++progress); // Move progress forward
             Data.getInstance().updateFeeds(Data.VCAT_ALL, true);
             
-            for (Category c : cats) {
-                if (c.unread == 0)
-                    continue;
-                publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(c.id, true, true, true);
-            }
+            // Cache all articles
+            publishProgress(++progress);
+            Data.getInstance().cacheArticles(false);
             
             for (Feed f : labels) {
                 if (f.unread == 0)
