@@ -101,7 +101,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 if (f.unread == 0)
                     continue;
                 publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(f.id, true, false);
+                Data.getInstance().updateArticles(f.id, true, false, false);
             }
             
             publishProgress(taskCount); // Move progress forward

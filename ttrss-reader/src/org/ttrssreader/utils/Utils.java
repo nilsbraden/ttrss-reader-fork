@@ -32,6 +32,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.preferences.Constants;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -117,8 +118,8 @@ public class Utils {
         if (thisVersion.equals(lastVersionRun)) {
             // No new version installed, perhaps a new version exists
             // Only run task once for every session
-            if (AsyncTask.Status.PENDING.equals(appUpdateVersionCheckTask.getStatus()))
-                appUpdateVersionCheckTask.execute();
+            if (AsyncTask.Status.PENDING.equals(updateVersionTask.getStatus()))
+                updateVersionTask.execute();
             
             return true;
         } else {
@@ -427,12 +428,12 @@ public class Utils {
      * version. If the version of the installed app is lower then this the feature "Send mail with stacktrace on error"
      * will be disabled to make sure I only receive "new" Bugreports.
      */
-    private static AsyncTask<Void, Void, Void> appUpdateVersionCheckTask = new AsyncTask<Void, Void, Void>() {
+    private static AsyncTask<Void, Void, Void> updateVersionTask = new AsyncTask<Void, Void, Void>() {
         @Override
         protected Void doInBackground(Void... params) {
             
             try {
-                Thread.sleep(6000);
+                Thread.sleep(5000);
             } catch (InterruptedException e1) {
                 e1.printStackTrace();
             }
@@ -440,37 +441,44 @@ public class Utils {
             // Check last appVersionCheckDate
             long last = Controller.getInstance().appVersionCheckTime();
             long time = System.currentTimeMillis();
-            if (time - last < 86400000) // One day
-                return null;
+            if (time - last > 86400000) { // More then one day
             
-            // Retrieve remote version
-            int remote = 0;
-            
-            try {
-                DefaultHttpClient httpClient = new DefaultHttpClient();
-                HttpPost httpPost = new HttpPost("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
+                // Retrieve remote version
+                int remote = 0;
                 
-                HttpResponse httpResponse = httpClient.execute(httpPost);
-                HttpEntity httpEntity = httpResponse.getEntity();
-                
-                if (httpEntity.getContentLength() < 0 || httpEntity.getContentLength() > 100)
-                    throw new Exception("Content too long or empty.");
-                
-                String content = EntityUtils.toString(httpEntity);
-                
-                // Only ever read the integer if it matches the regex and is not too long
-                if (content.matches("[0-9]*[\\r\\n]*")) {
-                    content = content.replaceAll("[^0-9]*", "");
-                    remote = Integer.parseInt(content);
+                try {
+                    DefaultHttpClient httpClient = new DefaultHttpClient();
+                    HttpPost httpPost = new HttpPost("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
+                    
+                    HttpResponse httpResponse = httpClient.execute(httpPost);
+                    HttpEntity httpEntity = httpResponse.getEntity();
+                    
+                    if (httpEntity.getContentLength() < 0 || httpEntity.getContentLength() > 100)
+                        throw new Exception("Content too long or empty.");
+                    
+                    String content = EntityUtils.toString(httpEntity);
+                    
+                    // Only ever read the integer if it matches the regex and is not too long
+                    if (content.matches("[0-9]*[\\r\\n]*")) {
+                        content = content.replaceAll("[^0-9]*", "");
+                        remote = Integer.parseInt(content);
+                    }
+                    
+                } catch (Exception e) {
+                    Log.e(TAG, "Error while downloading version-information: " + e.getMessage());
                 }
                 
-            } catch (Exception e) {
-                Log.e(TAG, "Error while downloading version-information: " + e.getMessage());
+                // Store version
+                if (remote > 0)
+                    Controller.getInstance().setAppLatestVersion(remote);
             }
             
-            // Store version
-            if (remote > 0)
-                Controller.getInstance().setAppLatestVersion(remote);
+            // Also fetch the current API-Level from the server. This may be helpful later.
+            last = Controller.getInstance().apiLevelUpdated();
+            if (time - last > 86400000) { // One day
+                int apiLevel = Data.getInstance().getApiLevel();
+                Controller.getInstance().setApiLevel(apiLevel);
+            }
             
             return null;
         }

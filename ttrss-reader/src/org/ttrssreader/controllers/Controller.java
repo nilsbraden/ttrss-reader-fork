@@ -101,6 +101,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean cacheImagesOnlyWifi = null;
     private Boolean logSensitiveData = null;
     
+    private Long apiLevelUpdated = null;
+    private Integer apiLevel = null;
     private Long appVersionCheckTime = null;
     private Integer appLatestVersion = null;
     private Long lastUpdateTime = null;
@@ -190,6 +192,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
         
         // Initialize ImageCache
         getImageCache(context);
+        
+        // TODO: Delete this until January 2012!
+        // Set the articleLimit to a reasonable value once, user can change it again if necessary
+        if (getArticleLimit() < 2000) {
+            if (!prefs.getBoolean("articleLimitRaisedTo2000", false)) {
+                put("articleLimitRaisedTo3000", true);
+                setArticleLimit(2000);
+            }
+        }
+        
     }
     
     public static void refreshDisplayMetrics(Display display) {
@@ -692,6 +704,29 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // ******* INTERNAL Data ****************************
     
+    public long apiLevelUpdated() {
+        if (apiLevelUpdated == null)
+            apiLevelUpdated = prefs.getLong(Constants.API_LEVEL_UPDATED, Constants.API_LEVEL_UPDATED_DEFAULT);
+        return apiLevelUpdated;
+    }
+    
+    private void setApiLevelUpdated(long apiLevelUpdated) {
+        put(Constants.APP_VERSION_CHECK_TIME, apiLevelUpdated);
+        this.apiLevelUpdated = apiLevelUpdated;
+    }
+    
+    public int apiLevel() {
+        if (apiLevel == null)
+            apiLevel = prefs.getInt(Constants.API_LEVEL, Constants.API_LEVEL_DEFAULT);
+        return apiLevel;
+    }
+    
+    public void setApiLevel(int apiLevel) {
+        put(Constants.API_LEVEL, apiLevel);
+        this.apiLevel = apiLevel;
+        setApiLevelUpdated(System.currentTimeMillis());
+    }
+    
     public long appVersionCheckTime() {
         if (appVersionCheckTime == null)
             appVersionCheckTime = prefs.getLong(Constants.APP_VERSION_CHECK_TIME,
@@ -711,10 +746,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public void setAppLatestVersion(int appLatestVersion) {
-        setAppVersionCheckTime(System.currentTimeMillis()); // Set current time, this only changes when it has been
-                                                            // fetched from the server
         put(Constants.APP_LATEST_VERSION, appLatestVersion);
         this.appLatestVersion = appLatestVersion;
+        setAppVersionCheckTime(System.currentTimeMillis());
+        // Set current time, this only changes when it has been fetched from the server
     }
     
     public long getLastUpdateTime() {

@@ -53,6 +53,7 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     protected static final int MARK_READ = MARK_GROUP + 1;
     protected static final int MARK_STAR = MARK_GROUP + 2;
     protected static final int MARK_PUBLISH = MARK_GROUP + 3;
+    protected static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -191,7 +192,7 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     }
     
     /* ############# END: Update */
-
+    
     /* ############# BEGIN: Cache */
     protected void doCache(boolean onlyArticles) {
         // Register for progress-updates
@@ -240,7 +241,7 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     }
     
     /* ############# END: Cache */
-
+    
     protected void openConnectionErrorDialog(String errorMessage) {
         if (updater != null) {
             updater.cancel(true);

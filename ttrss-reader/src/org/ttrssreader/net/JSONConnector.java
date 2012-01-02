@@ -30,10 +30,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
@@ -80,8 +80,11 @@ public class JSONConnector implements Connector {
     private static final String PARAM_SHOW_CONTENT = "show_content";
     private static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
                                                                                // 1.5.3 but is ignored on older versions
+    private static final String PARAM_SINCE_ID = "since_id";
     private static final String PARAM_MODE = "mode";
-    private static final String PARAM_FIELD = "field";
+    private static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
+                                                       // level 1)
+    private static final String PARAM_DATA = "data"; // optional data parameter when setting note field
     private static final String PARAM_IS_CAT = "is_cat";
     private static final String PARAM_PREF = "pref_name";
     private static final String PARAM_OUTPUT_MODE = "output_mode"; // output_mode (default: flc) - what kind of
@@ -97,12 +100,14 @@ public class JSONConnector implements Connector {
     private static final String VALUE_UPDATE_FEED = "updateFeed";
     private static final String VALUE_GET_PREF = "getPref";
     private static final String VALUE_GET_VERSION = "getVersion";
+    private static final String VALUE_API_LEVEL = "getApiLevel";
     private static final String VALUE_GET_COUNTERS = "getCounters";
     private static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
     
     private static final String ERROR = "error";
     private static final String ERROR_TEXT = "Error: ";
     private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
+    private static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
     private static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
     private static final String API_DISABLED = "API_DISABLED";
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
@@ -126,6 +131,7 @@ public class JSONConnector implements Connector {
     private static final String PUBLISHED = "published";
     private static final String VALUE = "value";
     private static final String VERSION = "version";
+    private static final String LEVEL = "level";
     
     private static final String COUNTER_KIND = "kind";
     private static final String COUNTER_CAT = "cat";
@@ -245,6 +251,12 @@ public class JSONConnector implements Connector {
         } catch (ClientProtocolException e) {
             hasLastError = true;
             lastError = "ClientProtocolException on client.execute(post) [ " + e.getMessage() + " ]";
+            return null;
+        } catch (SSLPeerUnverifiedException e) {
+            // Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
+            // Not doing anything here since this error should happen only when no certificate is received from the
+            // server.
+            Log.w(Utils.TAG, "SSLPeerUnverifiedException (" + e.getMessage() + ") in doRequest()");
             return null;
         } catch (SSLException e) {
             if ("No peer certificate".equals(e.getMessage())) {
@@ -644,7 +656,8 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    private void parseArticle(JsonReader reader, int labelId, int catId, boolean isCategory) {
+    private void parseArticleArray(JsonReader reader, int labelId, int catId, boolean isCategory) {
+        long time = System.currentTimeMillis();
         
         SQLiteDatabase db = DBHelper.getInstance().db;
         synchronized (DBHelper.TABLE_ARTICLES) {
@@ -656,6 +669,7 @@ public class JSONConnector implements Connector {
                 // states and fetch new articles...
                 // Moved this inside the transaction to make sure this only happens if the transaction is successful
                 DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
+                // List<Object[]> articleList = new ArrayList<Object[]>();
                 
                 reader.beginArray();
                 while (reader.hasNext()) {
@@ -711,9 +725,18 @@ public class JSONConnector implements Connector {
                     }
                     reader.endObject();
                     
-                    if (id != -1 && title != null)
+                    if (id != -1 && title != null) {
                         DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
                                 articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId);
+                        // articleList.add(DBHelper.prepareArticleArray(id, realFeedId, title, isUnread, articleUrl,
+                        // articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
+                    }
+                    
+                    // See comment on DBHelper.getInstance().bulkInsertArticles for information about this.
+                    // if (articleList.size() > 100) {
+                    // DBHelper.getInstance().bulkInsertArticles(articleList);
+                    // articleList = new ArrayList<Object[]>();
+                    // }
                 }
                 reader.endArray();
                 
@@ -731,6 +754,7 @@ public class JSONConnector implements Connector {
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }
+        Log.d(Utils.TAG, "INSERT took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     // ***************** Retrieve-Data-Methods **************************************************
@@ -819,7 +843,9 @@ public class JSONConnector implements Connector {
                 }
                 reader.endObject();
                 
-                if (id != -1 && title != null)
+                // Don't handle categories with an id below 1, we already have them in the DB from
+                // Data.updateVirtualCategories()
+                if (id > 0 && title != null)
                     ret.add(new Category(id, title, unread));
             }
             reader.endArray();
@@ -952,6 +978,11 @@ public class JSONConnector implements Connector {
     
     @Override
     public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
+        return getHeadlinesToDatabase(id, limit, viewMode, isCategory, 0);
+    }
+    
+    @Override
+    public boolean getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
         long time = System.currentTimeMillis();
         boolean ret = true;
         
@@ -968,6 +999,8 @@ public class JSONConnector implements Connector {
         params.put(PARAM_SHOW_CONTENT, "1");
         params.put(PARAM_INC_ATTACHMENTS, "1");
         params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
+        if (sinceId > 0)
+            params.put(PARAM_SINCE_ID, sinceId + "");
         
         if (id == Data.VCAT_STAR && isCategory)
             DBHelper.getInstance().purgeStarredArticles();
@@ -981,7 +1014,7 @@ public class JSONConnector implements Connector {
             if (reader == null)
                 return false;
             
-            parseArticle(reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
+            parseArticleArray(reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
             
         } catch (IOException e) {
             e.printStackTrace();
@@ -1033,7 +1066,7 @@ public class JSONConnector implements Connector {
     }
     
     @Override
-    public boolean setArticlePublished(Set<Integer> ids, int articleState) {
+    public boolean setArticlePublished(Set<Integer> ids, int articleState, String note) {
         boolean ret = true;
         if (ids.size() == 0)
             return ret;
@@ -1045,7 +1078,15 @@ public class JSONConnector implements Connector {
             params.put(PARAM_MODE, articleState + "");
             params.put(PARAM_FIELD, "1");
             ret = ret && doRequestNoAnswer(params);
+            
+            // Add a note to the article(s)
+            if (note != null && note.length() > 0) {
+                params.put(PARAM_FIELD, "3"); // Field 3 is the "Add note" field
+                params.put(PARAM_DATA, note);
+                ret = ret && doRequestNoAnswer(params);
+            }
         }
+        
         return ret;
     }
     
@@ -1116,6 +1157,62 @@ public class JSONConnector implements Connector {
             
             // Replace dots, parse integer
             ret = Integer.parseInt(response.replace(".", ""));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null)
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+        }
+        
+        return ret;
+    }
+    
+    @Override
+    public int getApiLevel() {
+        int ret = -1;
+        if (!sessionAlive())
+            return ret;
+        
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_API_LEVEL);
+        
+        String response = "";
+        JsonReader reader = null;
+        try {
+            reader = prepareReader(params);
+            if (reader == null)
+                return ret;
+            
+            reader.beginArray();
+            while (reader.hasNext()) {
+                try {
+                    
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        
+                        if (name.equals(LEVEL)) {
+                            response = reader.nextString();
+                        } else {
+                            reader.skipValue();
+                        }
+                        
+                    }
+                    
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
+            }
+            
+            if (response.contains(UNKNOWN_METHOD)) {
+                ret = 0; // Assume Api-Level 0
+            } else {
+                ret = Integer.parseInt(response);
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
