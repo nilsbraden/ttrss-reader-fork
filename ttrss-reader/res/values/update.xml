@@ -18,6 +18,15 @@
 <resources>
 
     <string-array name="updates">
+        <item>
+            \n * Added support for new API of TTRSS 1.5.8.1
+            \n * Added Enhancement #65: Publish with a note (Article-Menu)
+            \n * Notes are also cached if working offline, later they are automatically synchronized with the server
+            \n * Fixed not-working "mark as unread" menu entry
+            \n * Ignore specific SSLExceptions which often occur on bad connections
+            \n * Added check for http status code "401 Unauthorized"
+            \n * All new articles are fetched once on startup for faster browsing
+        </item>
         <item>Version 1.21
             \n * Fixed wrong handling of Usage-options
             \n * Trying to fix ActivityNotFoundExceptions which affected some users
