@@ -15,10 +15,11 @@
 
 package org.ttrssreader.gui.view;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -134,6 +135,8 @@ public class ArticleWebViewClient extends WebViewClient {
     }
     
     private class AsyncDownloader extends AsyncTask<URL, Void, Void> {
+        private final static int BUFFER = 1024;
+        
         protected Void doInBackground(URL... urls) {
             
             if (urls.length < 1) {
@@ -187,34 +190,46 @@ public class ArticleWebViewClient extends WebViewClient {
             if (!folder.exists())
                 folder.mkdirs();
             
-            RandomAccessFile file = null;
+            BufferedInputStream in = null;
+            FileOutputStream fos = null;
+            BufferedOutputStream bout = null;
+            
+            int count = -1;
+            
             try {
-                file = new RandomAccessFile(new File(folder, name), "rw");
-                file.seek(file.length()); // try to resume downloads
-                
                 HttpURLConnection c = (HttpURLConnection) url.openConnection();
-                c.setRequestMethod("GET");
-                c.setDoOutput(true);
-                c.setRequestProperty("Range", "bytes=" + file.length() + "-"); // try to resume downloads
-                c.connect();
                 
-                InputStream in = c.getInputStream();
-                byte[] buffer = new byte[1024];
-                int len1 = 0;
-                while ((len1 = in.read(buffer)) != -1) {
-                    file.write(buffer, 0, len1);
+                File file = new File(folder, name);
+                if (file.exists()) {
+                    count = (int) file.length();
+                    c.setRequestProperty("Range", "bytes=" + file.length() + "-"); // try to resume downloads
                 }
-                file.close();
+                
+                c.setRequestMethod("GET");
+                c.setDoInput(true);
+                c.setDoOutput(true);
+                
+                in = new BufferedInputStream(c.getInputStream());
+                fos = (count == 0) ? new FileOutputStream(file) : new FileOutputStream(file, true);
+                bout = new BufferedOutputStream(fos, BUFFER);
+                
+                byte[] data = new byte[BUFFER];
+                int x = 0;
+                
+                while ((x = in.read(data, 0, BUFFER)) >= 0) {
+                    bout.write(data, 0, x);
+                    count += x;
+                }
                 
                 int time = (int) (System.currentTimeMillis() - start) / 1000;
-                String path = folder + File.separator + name;
                 
-                Log.i(Utils.TAG, "Finished. Path: " + path + " Time: " + time + "s.");
-                Utils.showFinishedNotification(path, time, false, context);
+                Log.i(Utils.TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + count);
+                Utils.showFinishedNotification(file.getAbsolutePath(), time, false, context);
                 
             } catch (IOException e) {
                 String msg = "Error while downloading: " + e;
                 Log.e(Utils.TAG, msg);
+                e.printStackTrace();
                 Utils.showFinishedNotification(msg, 0, true, context);
             } finally {
                 // Remove "running"-notification
