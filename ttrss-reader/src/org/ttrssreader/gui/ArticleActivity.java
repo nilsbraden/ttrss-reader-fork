@@ -161,7 +161,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         
         // Mark as read if necessary, do it here because in doRefresh() it will be done several tiumes even if you set
         // it to "unread" in the meantime.
-        if (article.isUnread && Controller.getInstance().automaticMarkRead()) {
+        if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead()) {
             article.isUnread = false;
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
             markedRead = true;
