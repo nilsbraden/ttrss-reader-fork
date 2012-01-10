@@ -163,8 +163,7 @@ public class ArticleWebViewClient extends WebViewClient {
                 
             }
             
-            
-            Utils.showRunningNotification(context, false, null);
+            Utils.showRunningNotification(context, false);
             
             URL url = urls[0];
             long start = System.currentTimeMillis();
@@ -233,8 +232,14 @@ public class ArticleWebViewClient extends WebViewClient {
                 
                 int time = (int) (System.currentTimeMillis() - start) / 1000;
                 
+                // Show Intent which opens the file
+                Intent intent = new Intent();
+                intent.setAction(android.content.Intent.ACTION_VIEW);
+                if (file != null)
+                    intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
+                
                 Log.i(Utils.TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + count);
-                Utils.showFinishedNotification(file.getAbsolutePath(), time, false, context);
+                Utils.showFinishedNotification(file.getAbsolutePath(), time, false, context, intent);
                 
             } catch (IOException e) {
                 String msg = "Error while downloading: " + e;
@@ -242,14 +247,8 @@ public class ArticleWebViewClient extends WebViewClient {
                 e.printStackTrace();
                 Utils.showFinishedNotification(msg, 0, true, context);
             } finally {
-                
-                // Remove "running"-notification, show Intent which opens the file instead.
-                Intent intent = new Intent();
-                intent.setAction(android.content.Intent.ACTION_VIEW);
-                if (file != null)
-                    intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
-                Utils.showRunningNotification(context, true, intent);
-                
+                // Remove "running"-notification
+                Utils.showRunningNotification(context, true);
             }
             return null;
         }
