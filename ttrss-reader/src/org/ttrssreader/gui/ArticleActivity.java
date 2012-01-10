@@ -35,6 +35,7 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
@@ -64,7 +65,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class ArticleActivity extends Activity implements IUpdateEndListener, TextInputAlertCallback  {
+public class ArticleActivity extends Activity implements IUpdateEndListener, TextInputAlertCallback {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
@@ -193,8 +194,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     protected void onStop() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
-        if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
-            new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+            if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
+                new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
         }
         super.onStop();
         closeCursor();
@@ -204,8 +205,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     protected void onDestroy() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
-        if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
-            new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+            if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
+                new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
         }
         super.onDestroy();
         closeCursor();
@@ -240,7 +241,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             
             // Get article from DB only if necessary
             if (article == null)
-            article = DBHelper.getInstance().getArticle(articleId);
+                article = DBHelper.getInstance().getArticle(articleId);
             if (article == null || article.content == null)
                 return;
             
@@ -669,17 +670,17 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                 continue;
             
             boolean image = false;
-            for (String s : Utils.IMAGE_EXTENSIONS) {
+            for (String s : FileUtils.IMAGE_EXTENSIONS) {
                 if (url.toLowerCase().contains("." + s))
                     image = true;
             }
             
             boolean audioOrVideo = false;
-            for (String s : Utils.AUDIO_EXTENSIONS) {
+            for (String s : FileUtils.AUDIO_EXTENSIONS) {
                 if (url.toLowerCase().contains("." + s))
                     audioOrVideo = true;
             }
-            for (String s : Utils.VIDEO_EXTENSIONS) {
+            for (String s : FileUtils.VIDEO_EXTENSIONS) {
                 if (url.toLowerCase().contains("." + s))
                     audioOrVideo = true;
             }
@@ -738,7 +739,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     @Override public void onUpdateEnd() { /* Not necessary here */ }
     @Override public void onUpdateProgress() { /* Not necessary here */ }
     // @formatter:on
-
+    
     @Override
     public void onPublishNoteResult(Article a, String note) {
         new Updater(null, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).execute();

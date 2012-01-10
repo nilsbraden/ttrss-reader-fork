@@ -15,8 +15,8 @@
 
 package org.ttrssreader.imageCache;
 
+import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.ImageCache;
-import org.ttrssreader.utils.Utils;
 import android.os.AsyncTask;
 
 public class DownloadImageTask extends AsyncTask<String, Void, Long> {
@@ -35,7 +35,7 @@ public class DownloadImageTask extends AsyncTask<String, Void, Long> {
         long downloaded = 0;
         for (String url : params) {
             
-            long size = Utils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
+            long size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
             
             if (size == -1) {
                 allOK = false; // Error

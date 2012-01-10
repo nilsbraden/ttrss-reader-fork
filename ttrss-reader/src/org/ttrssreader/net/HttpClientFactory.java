@@ -28,6 +28,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpParams;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
 import android.os.Environment;
 import android.util.Log;
@@ -96,8 +97,8 @@ public class HttpClientFactory {
         try {
             KeyStore trusted = KeyStore.getInstance("BKS");
             
-            File file = new File(Environment.getExternalStorageDirectory() + File.separator + Utils.SDCARD_PATH_FILES
-                    + "store.bks");
+            File file = new File(Environment.getExternalStorageDirectory() + File.separator
+                    + FileUtils.SDCARD_PATH_FILES + "store.bks");
             
             if (!file.exists())
                 return null;
