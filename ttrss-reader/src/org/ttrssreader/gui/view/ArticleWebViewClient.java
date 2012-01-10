@@ -56,7 +56,14 @@ public class ArticleWebViewClient extends WebViewClient {
         context = view.getContext();
         
         boolean audioOrVideo = false;
-        for (String s : Utils.MEDIA_EXTENSIONS) {
+        for (String s : Utils.AUDIO_EXTENSIONS) {
+            if (url.toLowerCase().contains("." + s)) {
+                audioOrVideo = true;
+                break;
+            }
+        }
+        
+        for (String s : Utils.VIDEO_EXTENSIONS) {
             if (url.toLowerCase().contains("." + s)) {
                 audioOrVideo = true;
                 break;
