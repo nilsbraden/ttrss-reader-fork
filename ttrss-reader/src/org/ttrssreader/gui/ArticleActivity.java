@@ -675,7 +675,11 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             }
             
             boolean audioOrVideo = false;
-            for (String s : Utils.MEDIA_EXTENSIONS) {
+            for (String s : Utils.AUDIO_EXTENSIONS) {
+                if (url.toLowerCase().contains("." + s))
+                    audioOrVideo = true;
+            }
+            for (String s : Utils.VIDEO_EXTENSIONS) {
                 if (url.toLowerCase().contains("." + s))
                     audioOrVideo = true;
             }

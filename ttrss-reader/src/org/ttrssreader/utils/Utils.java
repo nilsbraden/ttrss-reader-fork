@@ -52,13 +52,21 @@ public class Utils {
     /**
      * Supported extensions of imagefiles, see http://developer.android.com/guide/appendix/media-formats.html
      */
-    public static final String[] IMAGE_EXTENSIONS = { "jpeg", "jpg", "gif", "png", "bmp" };
+    public static final String[] IMAGE_EXTENSIONS = { "jpeg", "jpg", "gif", "png", "bmp", "webp" };
     
     /**
-     * Supported extensions of mediafiles, see http://developer.android.com/guide/appendix/media-formats.html
+     * Supported extensions of audiofiles, see http://developer.android.com/guide/appendix/media-formats.html
+     * I removed the extensions from this list which are also used for video files. It is easier to open these in the
+     * videoplayer and blaming the source instead of trying to figure out mime-types by hand.
      */
-    public static final String[] MEDIA_EXTENSIONS = { "3gp", "mp4", "m4a", "aac", "mp3", "mid", "xmf", "mxmf", "rtttl",
-            "rtx", "ota", "imy", "ogg", "wav" };
+    public static final String[] AUDIO_EXTENSIONS = { "mp3", "mid", "midi", "xmf", "mxmf", "rtttl", "rtx", "ota",
+            "imy", "ogg", "wav" };
+    
+    /**
+     * Supported extensions of videofiles, see http://developer.android.com/guide/appendix/media-formats.html
+     */
+    public static final String[] VIDEO_EXTENSIONS = { "3gp", "mp4", "m4a", "aac", "ts", "webm", "mkv", "mpg", "mpeg",
+            "avi", "flv" };
     
     /**
      * Min supported versions of the Tiny Tiny RSS Server
