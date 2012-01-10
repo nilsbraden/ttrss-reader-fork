@@ -20,7 +20,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import org.ttrssreader.utils.Utils;
+import org.ttrssreader.utils.FileUtils;
 import android.content.SharedPreferences;
 import android.os.Environment;
 
@@ -32,12 +32,12 @@ public class Constants {
     static {
         StringBuilder sbAttachments = new StringBuilder();
         sbAttachments.append(Environment.getExternalStorageDirectory()).append(File.separator)
-                .append(Utils.SDCARD_PATH_FILES);
+                .append(FileUtils.SDCARD_PATH_FILES);
         SAVE_ATTACHMENT_DEFAULT = sbAttachments.toString();
         
         StringBuilder sbCache = new StringBuilder();
         sbCache.append(Environment.getExternalStorageDirectory()).append(File.separator)
-                .append(Utils.SDCARD_PATH_CACHE);
+                .append(FileUtils.SDCARD_PATH_CACHE);
         CACHE_FOLDER_DEFAULT = sbCache.toString();
     }
     

@@ -29,6 +29,7 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.FileDateComparator;
+import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -157,7 +158,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 
                 // Get images from attachments separately
                 for (String url : c.getString(2).split(";")) {
-                    for (String ext : Utils.IMAGE_EXTENSIONS) {
+                    for (String ext : FileUtils.IMAGE_EXTENSIONS) {
                         if (url.toLowerCase().contains("." + ext) && !imageCache.containsKey(url)) {
                             set.add(url);
                             break;

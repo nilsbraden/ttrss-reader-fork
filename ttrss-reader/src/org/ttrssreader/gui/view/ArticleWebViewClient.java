@@ -28,6 +28,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.ArticleActivity;
 import org.ttrssreader.gui.MediaPlayerActivity;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -56,14 +57,14 @@ public class ArticleWebViewClient extends WebViewClient {
         context = view.getContext();
         
         boolean audioOrVideo = false;
-        for (String s : Utils.AUDIO_EXTENSIONS) {
+        for (String s : FileUtils.AUDIO_EXTENSIONS) {
             if (url.toLowerCase().contains("." + s)) {
                 audioOrVideo = true;
                 break;
             }
         }
         
-        for (String s : Utils.VIDEO_EXTENSIONS) {
+        for (String s : FileUtils.VIDEO_EXTENSIONS) {
             if (url.toLowerCase().contains("." + s)) {
                 audioOrVideo = true;
                 break;
@@ -162,7 +163,8 @@ public class ArticleWebViewClient extends WebViewClient {
                 
             }
             
-            Utils.showRunningNotification(context, false);
+            
+            Utils.showRunningNotification(context, false, null);
             
             URL url = urls[0];
             long start = System.currentTimeMillis();
@@ -203,10 +205,11 @@ public class ArticleWebViewClient extends WebViewClient {
             
             int count = -1;
             
+            File file = null;
             try {
                 HttpURLConnection c = (HttpURLConnection) url.openConnection();
                 
-                File file = new File(folder, name);
+                file = new File(folder, name);
                 if (file.exists()) {
                     count = (int) file.length();
                     c.setRequestProperty("Range", "bytes=" + file.length() + "-"); // try to resume downloads
@@ -239,8 +242,14 @@ public class ArticleWebViewClient extends WebViewClient {
                 e.printStackTrace();
                 Utils.showFinishedNotification(msg, 0, true, context);
             } finally {
-                // Remove "running"-notification
-                Utils.showRunningNotification(context, true);
+                
+                // Remove "running"-notification, show Intent which opens the file instead.
+                Intent intent = new Intent();
+                intent.setAction(android.content.Intent.ACTION_VIEW);
+                if (file != null)
+                    intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
+                Utils.showRunningNotification(context, true, intent);
+                
             }
             return null;
         }
