@@ -235,6 +235,10 @@ public class Utils {
         return info.isConnected();
     }
     
+    public static void showFinishedNotification(String content, int time, boolean error, Context context) {
+        showFinishedNotification(content, time, error, context, new Intent());
+    }
+    
     /**
      * Shows a notification with the given parameters
      * 
@@ -247,7 +251,7 @@ public class Utils {
      * @param context
      *            the context
      */
-    public static void showFinishedNotification(String content, int time, boolean error, Context context) {
+    public static void showFinishedNotification(String content, int time, boolean error, Context context, Intent intent) {
         
         int icon;
         CharSequence title = "";
@@ -269,12 +273,16 @@ public class Utils {
         String ns = Context.NOTIFICATION_SERVICE;
         NotificationManager mNotMan = (NotificationManager) context.getSystemService(ns);
         
-        PendingIntent intent = PendingIntent.getActivity(context, 0, new Intent(), 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         Notification n = new Notification(icon, ticker, System.currentTimeMillis());
         n.flags |= Notification.FLAG_AUTO_CANCEL;
-        n.setLatestEventInfo(context, title, text, intent);
+        n.setLatestEventInfo(context, title, text, pendingIntent);
         
         mNotMan.notify(ID_FINISHED, n);
+    }
+    
+    public static void showRunningNotification(Context context, boolean finished) {
+        showRunningNotification(context, finished, new Intent());
     }
     
     /**
