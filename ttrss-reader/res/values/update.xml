@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item> Version 1.23
+            \n * Downloaded attachments are opened when tapping the notification now
+            \n * Player for downloaded files is chosen depending on file-extension (internal display of media-files hasn't changed)  
+            \n * Minor Bugfixes
+            </item>
         <item>Version 1.22
             \n * Added support for new API of TTRSS 1.5.8.1
             \n * Added Enhancement #65: Publish with a note (Article-Menu)
@@ -26,7 +31,7 @@
             \n * Ignore specific SSLExceptions which often occur on bad connections
             \n * Added check for http status code "401 Unauthorized"
             \n * All new articles are fetched once on startup for faster browsing
-        </item>
+            </item>
         <item>Version 1.21
             \n * Fixed wrong handling of Usage-options
             \n * Trying to fix ActivityNotFoundExceptions which affected some users

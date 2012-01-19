@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.23 ==
+  * Downloaded attachments are opened when tapping the notification now
+  * Player for downloaded files is chosen depending on file-extension (internal display of media-files hasn't changed)  
+  * Minor Bugfixes
+
 == Version 1.22 ==
   * Added support for new API of TTRSS 1.5.8 (due January 2012)
   * Added Enhancement #65: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=65 Publish with a note])
