@@ -20,7 +20,7 @@
     <string-array name="updates">
         <item> Version 1.23
             \n * Downloaded attachments are opened when tapping the notification now
-            \n * Player for downloaded files is chosen depending on file-extension (internal display of media-files hasn't changed)  
+            \n * Player for downloaded files is chosen depending on file-extension (internal display of media-files hasn\'t changed)  
             \n * Minor Bugfixes
             </item>
         <item>Version 1.22
