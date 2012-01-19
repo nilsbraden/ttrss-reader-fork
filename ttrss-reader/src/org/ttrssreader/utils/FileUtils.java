@@ -161,7 +161,7 @@ public class FileUtils {
      */
     public static String getMimeType(String fileName) {
         String ret = "";
-        if (fileName == null || fileName.isEmpty())
+        if (fileName == null || fileName.length() == 0)
             return ret;
         
         for (String ext : IMAGE_EXTENSIONS) {
