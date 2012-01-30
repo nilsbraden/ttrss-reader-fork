@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.24 ==
+  * Performance-Optimizations for faster startup
+  * Fix starred/published articles never beeing purged
+  * Minor Bugfixes
+
 == Version 1.23 ==
   * Downloaded attachments are opened when tapping the notification now
   * Player for downloaded files is chosen depending on file-extension (internal display of media-files hasn't changed)  
