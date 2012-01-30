@@ -999,10 +999,10 @@ public class JSONConnector implements Connector {
             params.put(PARAM_SKIP, skip + "");
         
         
-        if (id == Data.VCAT_STAR && isCategory)
+        if (id == Data.VCAT_STAR && !isCategory) // We set isCategory=false for starred/published articles...
             DBHelper.getInstance().purgeStarredArticles();
         
-        if (id == Data.VCAT_PUB && isCategory)
+        if (id == Data.VCAT_PUB && !isCategory)
             DBHelper.getInstance().purgePublishedArticles();
         
         JsonReader reader = null;
