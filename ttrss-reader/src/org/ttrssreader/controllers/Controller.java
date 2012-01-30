@@ -53,6 +53,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Context context;
     private Connector ttrssConnector;
     private ImageCache imageCache;
+    private String imageCacheLock = ""; // Use this to lock access to the cache as workaround for NPE on imageCache
     
     private static Controller instance = null;
     private SharedPreferences prefs = null;
@@ -138,21 +139,21 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return instance;
     }
     
-    public synchronized void checkAndInitializeController(final Context context) {
+    public synchronized void checkAndInitializeController(final Context context, final Display display) {
         this.context = context;
         
         if (!initialized) {
-            initializeController();
+            initializeController(display);
             initialized = true;
         }
     }
     
     public static synchronized void checkAndInitializeController(final Context context, boolean force_dummy_parameter) {
         Controller.instance = null;
-        Controller.getInstance().checkAndInitializeController(context);
+        Controller.getInstance().checkAndInitializeController(context, null);
     }
     
-    private synchronized void initializeController() {
+    private synchronized void initializeController(final Display display) {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         
         // Check for new installation
@@ -162,36 +163,56 @@ public class Controller implements OnSharedPreferenceChangeListener {
         
         ttrssConnector = new JSONConnector();
         
-        // Article-Prefetch-Stuff from Raw-Ressources and System
-        htmlHeader = context.getResources().getString(R.string.INJECT_HTML_HEAD);
-        
-        // Replace alignment-marker with the requested layout, align:left or justified
-        String replaceAlign = "";
-        if (alignFlushLeft()) {
-            replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
-            htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
-        } else {
-            replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
-            htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
-        }
-        
-        // Replace color-markers with matching colors for the requested background
-        String replaceLink = "";
-        String replaceLinkVisited = "";
-        if (darkBackground()) {
-            replaceLink = context.getResources().getString(R.string.COLOR_LINK_DARK);
-            replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_DARK_VISITED);
-            htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
-            htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
-        } else {
-            replaceLink = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
-            replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_LIGHT_VISITED);
-            htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
-            htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
-        }
-        
-        // Initialize ImageCache
-        getImageCache(context);
+        // Attempt to initialize some stuff in a background-thread to reduce loading time
+        // TODO: Check if it works..
+        new Thread(new Runnable() {
+            public void run() {
+                
+                // Only need once we are displaying the feed-list or an article...
+                if (display != null) {
+                    refreshDisplayMetrics(display);
+                }
+                
+                // This is only needed once an article is displayed
+                synchronized (htmlHeader) {
+                    // Article-Prefetch-Stuff from Raw-Ressources and System
+                    htmlHeader = context.getResources().getString(R.string.INJECT_HTML_HEAD);
+                    
+                    // Replace alignment-marker with the requested layout, align:left or justified
+                    String replaceAlign = "";
+                    if (alignFlushLeft()) {
+                        replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
+                        htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
+                    } else {
+                        replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
+                        htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
+                    }
+                    
+                    // Replace color-markers with matching colors for the requested background
+                    String replaceLink = "";
+                    String replaceLinkVisited = "";
+                    if (darkBackground()) {
+                        replaceLink = context.getResources().getString(R.string.COLOR_LINK_DARK);
+                        replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_DARK_VISITED);
+                        htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
+                        htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
+                    } else {
+                        replaceLink = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
+                        replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_LIGHT_VISITED);
+                        htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
+                        htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
+                    }
+                }
+                
+                // This will be accessed when displaying an article or starting the imageCache. When caching it is done
+                // anyway so we can just do it in background and the ImageCache starts once it is done.
+                synchronized (imageCacheLock) {
+                    // Initialize ImageCache
+                    getImageCache(context);
+                }
+                
+            }
+        }).start();
         
     }
     
@@ -311,10 +332,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public ImageCache getImageCache(Context context) {
-        if (imageCache == null) {
-            imageCache = new ImageCache(2000);
-            if (context == null || !imageCache.enableDiskCache()) {
-                imageCache = null;
+        synchronized (imageCacheLock) {
+            if (imageCache == null) {
+                imageCache = new ImageCache(2000);
+                if (context == null || !imageCache.enableDiskCache()) {
+                    imageCache = null;
+                }
             }
         }
         return imageCache;
@@ -882,7 +905,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
             for (MenuActivity m : callbacks) {
                 m.onCacheEnd();
             }
-            callbacks = new ArrayList<MenuActivity>();
+            // Why??
+            // callbacks = new ArrayList<MenuActivity>();
         }
     }
     
@@ -891,9 +915,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
             callbacks.add(activity);
             
             // Reduce size to maximum of 3 activities
-            if (callbacks.size() > 3) {
+            if (callbacks.size() > 2) {
                 List<MenuActivity> temp = new ArrayList<MenuActivity>();
-                temp.addAll(callbacks.subList(callbacks.size() - 3, callbacks.size()));
+                temp.addAll(callbacks.subList(callbacks.size() - 2, callbacks.size()));
                 callbacks = temp;
             }
         }

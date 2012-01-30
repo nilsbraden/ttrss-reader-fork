@@ -64,15 +64,22 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         context = getApplicationContext();
         
         // Initialize Singletons for Config, Data-Access and DB
-        Controller.getInstance().checkAndInitializeController(this);
-        Controller.refreshDisplayMetrics(getWindowManager().getDefaultDisplay());
+        Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
+        
+        // Register this instance to be notified when the ImageCache finished.
         Controller.getInstance().registerActivity(this);
         
         // This is a tablet if this view exists
         View details = findViewById(R.id.details);
         isTablet = details != null && details.getVisibility() == View.VISIBLE;
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Controller.getInstance().unregisterActivity(this);
     }
     
     @Override
@@ -82,7 +89,6 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
             updater.cancel(true);
             updater = null;
         }
-        Controller.getInstance().unregisterActivity(this);
     }
     
     @Override
