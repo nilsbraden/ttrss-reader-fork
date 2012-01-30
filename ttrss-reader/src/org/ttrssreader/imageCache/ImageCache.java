@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
-package org.ttrssreader.utils;
+package org.ttrssreader.imageCache;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AbstractCache;
+import org.ttrssreader.utils.Utils;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;

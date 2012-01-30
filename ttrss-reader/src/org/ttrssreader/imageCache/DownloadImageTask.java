@@ -16,7 +16,6 @@
 package org.ttrssreader.imageCache;
 
 import org.ttrssreader.utils.FileUtils;
-import org.ttrssreader.utils.ImageCache;
 import android.os.AsyncTask;
 
 public class DownloadImageTask extends AsyncTask<String, Void, Long> {

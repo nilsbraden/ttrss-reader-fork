@@ -30,7 +30,6 @@ import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.FileUtils;
-import org.ttrssreader.utils.ImageCache;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
