@@ -105,8 +105,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         // Log.d(Utils.TAG, "onCreate - ArticleActivity");
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
-        Controller.getInstance().checkAndInitializeController(this);
-        Controller.refreshDisplayMetrics(getWindowManager().getDefaultDisplay());
+        Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
