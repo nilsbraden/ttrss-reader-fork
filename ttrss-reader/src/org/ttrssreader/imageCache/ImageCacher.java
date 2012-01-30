@@ -204,8 +204,10 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         File cacheFolder = new File(imageCache.getDiskCacheDirectory());
         
         folderSize = 0;
-        for (File f : cacheFolder.listFiles()) {
-            folderSize += f.length();
+        if (cacheFolder.listFiles() != null) {
+            for (File f : cacheFolder.listFiles()) {
+                folderSize += f.length();
+            }
         }
         
         if (folderSize > cacheSizeMax) {
