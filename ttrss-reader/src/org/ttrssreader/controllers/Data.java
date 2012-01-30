@@ -26,6 +26,7 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 public class Data {
     
@@ -155,7 +156,7 @@ public class Data {
                 
                 if (count == limit) {
                     Controller.getInstance().getConnector()
-                    .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, 0);
+                            .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, 0);
                     // TODO: Think! What do we do when the limit is reached? Set the limit higher or fetch another 500?
                     // What if this is a new installation, shall we bulk-load ALL articles (because this is what happens
                     // if we start fetching the next 500 and so on)?
@@ -180,7 +181,8 @@ public class Data {
     }
     
     public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline) {
-        
+        Log.d(Utils.TAG, String.format("feedId: %s, displayOnlyUnread: %s, isCat: %s, overrideOffline: %s", feedId,
+                displayOnlyUnread, isCat, overrideOffline));
         // Check if unread-count and actual number of unread articles match, if not do a seperate call with
         // displayOnlyUnread=true
         boolean needUnreadUpdate = false;
