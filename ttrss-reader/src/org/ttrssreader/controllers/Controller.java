@@ -165,13 +165,19 @@ public class Controller implements OnSharedPreferenceChangeListener {
         
         // Attempt to initialize some stuff in a background-thread to reduce loading time
         // TODO: Check if it works..
+        
+        // Start a login-request separately because this takes some time
+        new Thread(new Runnable() {
+            public void run() {
+                ttrssConnector.sessionAlive();
+            }
+        }).start();
+        
         new Thread(new Runnable() {
             public void run() {
                 
                 // Only need once we are displaying the feed-list or an article...
-                if (display != null) {
-                    refreshDisplayMetrics(display);
-                }
+                refreshDisplayMetrics(display);
                 
                 // This is only needed once an article is displayed
                 synchronized (htmlHeader) {
@@ -206,17 +212,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 
                 // This will be accessed when displaying an article or starting the imageCache. When caching it is done
                 // anyway so we can just do it in background and the ImageCache starts once it is done.
-                synchronized (imageCacheLock) {
-                    // Initialize ImageCache
-                    getImageCache(context);
-                }
-                
+                getImageCache(context);
             }
         }).start();
         
     }
     
     public static void refreshDisplayMetrics(Display display) {
+        if (display == null)
+            return;
+        
         DisplayMetrics metrics = new DisplayMetrics();
         display.getMetrics(metrics);
         
