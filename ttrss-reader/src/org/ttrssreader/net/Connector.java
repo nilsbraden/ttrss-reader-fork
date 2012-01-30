@@ -23,6 +23,11 @@ import org.ttrssreader.model.pojos.Feed;
 public interface Connector {
     
     /**
+     * Manually check if this controller is currently connected and the session is alive. Starts a login if not.
+     */
+    public boolean sessionAlive();
+    
+    /**
      * Retrieves a set of maps which map strings to the information, e.g. "id" -> 42, containing the counters for every
      * category and feed. The retrieved information is directly inserted into the database.
      * 

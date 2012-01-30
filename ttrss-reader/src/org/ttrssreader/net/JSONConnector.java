@@ -450,7 +450,7 @@ public class JSONConnector implements Connector {
         return null;
     }
     
-    private boolean sessionAlive() {
+    public boolean sessionAlive() {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
             if (!login())
