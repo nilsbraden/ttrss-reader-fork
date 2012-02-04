@@ -137,6 +137,8 @@ public class DBHelper {
             initialized = initializeDBHelper();
         } else if (db == null || !db.isOpen()) {
             initialized = initializeDBHelper();
+        } else {
+            return; // DB was already initialized, no need to check anything.
         }
         
         // Test if DB is accessible, backup and delete if not, else do the vacuuming
