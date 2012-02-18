@@ -156,6 +156,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         Cursor c = DBHelper.getInstance().query(query, null);
         changedTime = Data.getInstance().getArticlesChanged(feedId); // Re-fetch changedTime since it can have changed
                                                                      // by now
+        
         return c;
     }
     
@@ -166,46 +167,49 @@ public class FeedHeadlineAdapter extends MainAdapter {
             displayUnread = false;
         
         StringBuilder query = new StringBuilder();
-        query.append("SELECT a.id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
+        query.append("SELECT a.id,a.feedId,a.title,a.isUnread AS unread,a.updateDate,a.isStarred,a.isPublished FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
         query.append(" a, ");
         query.append(DBHelper.TABLE_FEEDS);
-        query.append(" b WHERE feedId=b.id");
+        query.append(" b WHERE a.feedId=b.id");
         
         switch (feedId) {
             case Data.VCAT_STAR:
-                query.append(" AND isStarred=1");
+                query.append(" AND a.isStarred=1");
                 break;
             
             case Data.VCAT_PUB:
-                query.append(" AND isPublished=1");
+                query.append(" AND a.isPublished=1");
                 break;
             
             case Data.VCAT_FRESH:
-                query.append(" AND updateDate>");
+                query.append(" AND a.updateDate>");
                 query.append(Controller.getInstance().getFreshArticleMaxAge());
-                query.append(" AND isUnread>0");
+                query.append(" AND a.isUnread>0");
                 break;
             
             case Data.VCAT_ALL:
-                query.append(displayUnread ? " AND isUnread>0" : "");
+                query.append(displayUnread ? " AND a.isUnread>0" : "");
                 break;
             
             default:
 
                 // User selected to display all articles of a category directly
-                query.append(selectArticlesForCategory ? (" AND categoryId=" + categoryId) : (" AND feedId=" + feedId));
-                query.append(displayUnread ? " AND isUnread>0" : "");
+                query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId)
+                        : (" AND a.feedId=" + feedId));
+                query.append(displayUnread ? " AND a.isUnread>0" : "");
         }
         
         if (lastOpenedArticle != null && !buildSafeQuery) {
-            query.append(" UNION SELECT c.id,feedId,c.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
+            query.append(" UNION SELECT c.id,c.feedId,c.title,c.isUnread AS unread,c.updateDate,c.isStarred,c.isPublished FROM ");
             query.append(DBHelper.TABLE_ARTICLES);
-            query.append(" c, feeds d WHERE feedId=d.id AND c.id=");
+            query.append(" c, ");
+            query.append(DBHelper.TABLE_FEEDS);
+            query.append(" d WHERE c.feedId=d.id AND c.id=");
             query.append(lastOpenedArticle);
         }
         
-        query.append(" ORDER BY updateDate ");
+        query.append(" ORDER BY a.updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
         return query.toString();
     }

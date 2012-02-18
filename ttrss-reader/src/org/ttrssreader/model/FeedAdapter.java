@@ -138,6 +138,7 @@ public class FeedAdapter extends MainAdapter {
         Cursor c = DBHelper.getInstance().query(query.toString(), null);
         changedTime = Data.getInstance().getFeedsChanged(categoryId); // Re-fetch changedTime since it can have changed
                                                                       // by now
+        
         return c;
     }
     

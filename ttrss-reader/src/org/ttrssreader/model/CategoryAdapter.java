@@ -196,8 +196,7 @@ public class CategoryAdapter extends MainAdapter {
         
         closeCursor();
         String[] columns = { "id", "title", "unread" };
-        Cursor c = db.query(TABLE_NAME, columns, null, null, null, null, "sortId "
-                + (invertSortFeedCats ? "DESC" : "ASC"));
+        Cursor c = db.query(TABLE_NAME, columns, null, null, null, null, null); //"sortId " + (invertSortFeedCats ? "DESC" : "ASC"));
         changedTime = Data.getInstance().getCategoriesChanged(); // Re-fetch changedTime since it can have changed by
                                                                  // now
         return c;
