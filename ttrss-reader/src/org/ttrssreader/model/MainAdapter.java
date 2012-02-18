@@ -208,6 +208,9 @@ public abstract class MainAdapter extends BaseAdapter {
         if (c == null || c.isClosed())
             return true; // TODO: Check for concurrency-issues here, to avoid anything strange this should return false.
             
+        if (c.getCount() < 1)
+            return false;
+        
         boolean gotUnread = false;
         if (c.moveToFirst()) {
             int col = c.getColumnIndex("unread");
