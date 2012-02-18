@@ -50,7 +50,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
      */
     public boolean enableDiskCache() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-
+            
             // Use configured output directory
             diskCacheDir = Controller.getInstance().cacheFolder();
             File folder = new File(diskCacheDir);
@@ -63,7 +63,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
                     folder = new File(diskCacheDir);
                 }
             }
-
+            
             if (!folder.exists())
                 folder.mkdirs();
             
@@ -94,7 +94,11 @@ public class ImageCache extends AbstractCache<String, byte[]> {
             return;
         
         for (File file : files) {
-            cache.put(file.getName(), b);
+            try {
+                cache.put(file.getName(), b);
+            } catch (RuntimeException e) {
+                Log.d(Utils.TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
+            }
         }
     }
     
