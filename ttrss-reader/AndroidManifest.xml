@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     android:installLocation="auto"
     package="org.ttrssreader"
-    android:versionCode="1240"
-    android:versionName="1.24" >
+    android:versionCode="1251"
+    android:versionName="1.25" >
 
     <application
         android:debuggable="true"
