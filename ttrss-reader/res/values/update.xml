@@ -18,6 +18,12 @@
 <resources>
 
     <string-array name="updates">
+        <item> Version 1.25
+            \n * Reduced time to switch activities
+            \n * Tried to prevent display of empty datasets
+            \n * Fixed ImageCache for devices running Android 4.x 
+            \n * Minor Bugfixes
+            </item>
         <item> Version 1.24
             \n * Performance-Optimizations for faster startup
             \n * Fix starred/published articles never beeing purged
