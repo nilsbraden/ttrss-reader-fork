@@ -18,9 +18,11 @@ package org.ttrssreader.imageCache;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import org.ttrssreader.controllers.Controller;
@@ -37,13 +39,12 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
 public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
-    private static final long maxFileSize = 1024 * 1024 * 6; // Max size for one image is 6 MB
-    private static final int DOWNLOAD_IMAGES_THREADS = 4;
     private static final int DEFAULT_TASK_COUNT = 3;
     
     private ICacheEndListener parent;
@@ -57,15 +58,47 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private long downloaded = 0;
     private int taskCount = 0;
     
+    Handler handler;
+    long start;
+    Map<Integer, DownloadImageTask> map;
+    
     public ImageCacher(ICacheEndListener parent, Context context, boolean onlyArticles) {
         this.parent = parent;
         this.context = context;
         this.onlyArticles = onlyArticles;
+        
+        // Create Handler in a new Thread so all tasks are started in this new thread instead of the main UI-Thread
+        MyHandler.start();
     }
+    
+    public Thread MyHandler = new Thread() {
+        // Source: http://mindtherobot.com/blog/159/android-guts-intro-to-loopers-and-handlers/
+        @Override
+        public void run() {
+            try {
+                // preparing a looper on current thread
+                // the current thread is being detected implicitly
+                Looper.prepare();
+                
+                // now, the handler will automatically bind to the
+                // Looper that is attached to the current thread
+                // You don't need to specify the Looper explicitly
+                handler = new Handler();
+                
+                // After the following line the thread will start
+                // running the message loop and will not normally
+                // exit the loop unless a problem happens or you
+                // quit() the looper (see below)
+                Looper.loop();
+            } catch (Throwable t) {
+                Log.e(Utils.TAG, "halted due to an error", t);
+            }
+        }
+    };
     
     @Override
     protected Void doInBackground(Void... params) {
-        long start = System.currentTimeMillis();
+        start = System.currentTimeMillis();
         
         while (true) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -114,19 +147,26 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             imageCache.fillMemoryCacheFromDisk();
             downloadImages();
+            
             purgeCache();
             
             Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
                     cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / 1000));
+            
+            parent.onCacheEnd();
+            
             break; // Always break in the end, "while" is just useful for the different places in which we leave the
                    // loop
         }
         
-        handler.sendEmptyMessage(0);
+        // Call parent from another Thread to avoid Exception.
+        // CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
+        serviceHandler.sendEmptyMessage(0);
         return null;
     }
     
-    private Handler handler = new Handler() {
+    // Only used to inform parent about the status when finished...
+    private Handler serviceHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if (parent != null)
@@ -134,15 +174,37 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         }
     };
     
+    /**
+     * Calls the parent method to update the progress-bar in the UI while articles are refreshed. This is not called
+     * anymore from the moment on when the image-downloading starts.
+     */
     @Override
     protected void onProgressUpdate(Integer... values) {
         if (parent != null)
             parent.onCacheProgress(taskCount, values[0]);
     }
     
+    protected void downloadFinished(int articleId, Long size, boolean ok) {
+        synchronized (map) {
+            // Add size to overall download-sum and remove job from map
+            if (size > 0)
+                downloaded += size;
+            
+            map.remove(articleId);
+            
+            // Only mark images as "downloaded" when everything went fine
+            if (ok)
+                DBHelper.getInstance().updateArticleCachedImages(articleId, true);
+            
+            Log.d(Utils.TAG, "Download finished. articleId: " + articleId);
+            map.notifyAll();
+        }
+    }
+    
     private void downloadImages() {
         long time = System.currentTimeMillis();
-        DownloadImageTask[] tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
+        // DownloadImageTask[] tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
+        map = new HashMap<Integer, ImageCacher.DownloadImageTask>();
         
         Cursor c = DBHelper.getInstance().queryArticlesForImageCache(onlyUnreadImages);
         if (c.moveToFirst()) {
@@ -165,7 +227,12 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     }
                 }
                 
-                assignTask(tasks, c.getInt(0), StringSupport.setToArray(set));
+                if (set.size() > 0) {
+                    ImageCacher.DownloadImageTask task = new ImageCacher.DownloadImageTask(imageCache, c.getInt(0),
+                            StringSupport.setToArray(set));
+                    handler.post(task);
+                    map.put(c.getInt(0), task);
+                }
                 
                 if (downloaded > cacheSizeMax) {
                     Log.w(Utils.TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
@@ -176,25 +243,49 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         }
         c.close();
         
-        // Wait for all tasks to finish and retrieve results
-        boolean tasksRunning = true;
-        while (tasksRunning) {
-            tasksRunning = false;
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-            }
-            for (int i = 0; i < DOWNLOAD_IMAGES_THREADS; i++) {
-                DownloadImageTask t = tasks[i];
-                retrieveResult(t);
-                if (t != null && t.getStatus().equals(AsyncTask.Status.RUNNING)) {
-                    tasksRunning = true;
-                    break;
+        while (!map.isEmpty()) {
+            synchronized (map) {
+                try {
+                    map.wait(1000);
+                } catch (InterruptedException e) {
+                    Log.d(Utils.TAG, "Got an InterruptedException!");
                 }
             }
         }
         
         Log.i(Utils.TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
+    }
+    
+    public class DownloadImageTask implements Runnable {
+        
+        private static final long maxFileSize = 1024 * 1024 * 6; // Max size for one image is 6 MB
+        
+        private ImageCache imageCache;
+        private int articleId;
+        private String[] params;
+        public boolean allOK = true;
+        
+        public DownloadImageTask(ImageCache cache, int articleId, String... params) {
+            this.imageCache = cache;
+            this.articleId = articleId;
+            this.params = params;
+        }
+        
+        @Override
+        public void run() {
+            long downloaded = 0;
+            for (String url : params) {
+                long size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
+                
+                if (size == -1)
+                    allOK = false; // Error
+                else
+                    downloaded += size;
+            }
+            
+            downloadFinished(articleId, downloaded, allOK);
+        }
+        
     }
     
     private void purgeCache() {
@@ -224,72 +315,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             // Log.i(Utils.TAG, String.format("After - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
         }
         Log.i(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
-    }
-    
-    /**
-     * Returns true if all downloads for this Task have been successful.
-     * 
-     * @param t
-     * @return
-     */
-    private boolean retrieveResult(DownloadImageTask t) {
-        boolean ret = false;
-        
-        if (t != null && t.getStatus().equals(AsyncTask.Status.FINISHED)) {
-            try {
-                downloaded += t.get();
-                if (t.allOK)
-                    ret = true;
-                
-                t = null; // Make sure tasks[i] is null
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        
-        return ret;
-    }
-    
-    private void assignTask(DownloadImageTask[] tasks, int articleId, String... urls) {
-        if (urls.length == 0)
-            return;
-        
-        if (tasks == null)
-            tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
-        
-        Log.d(Utils.TAG, "Assigning Task: " + articleId);
-        
-        boolean done = false;
-        while (!done) {
-            
-            // Start new Task if task-slot is available
-            for (int i = 0; i < DOWNLOAD_IMAGES_THREADS; i++) {
-                DownloadImageTask t = tasks[i];
-                
-                // Retrieve result (downloaded size) and reset task
-                if (retrieveResult(t))
-                    DBHelper.getInstance().updateArticleCachedImages(articleId, true);
-                
-                // Assign new task if possible
-                if (t == null || t.getStatus().equals(AsyncTask.Status.FINISHED)) {
-                    t = new DownloadImageTask(imageCache, maxFileSize);
-                    t.execute(urls);
-                    tasks[i] = t;
-                    done = true;
-                    Log.d(Utils.TAG, "Task assigned..");
-                    break;
-                }
-            }
-            
-            if (!done) { // No task-slot available, wait.
-                synchronized (this) {
-                    try {
-                        wait(100);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        }
     }
     
     /**
