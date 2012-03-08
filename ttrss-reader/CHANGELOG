@@ -4,6 +4,7 @@
 == Version 1.25 ==
   * Reduced time to switch activities
   * Tried to prevent display of empty datasets
+  * Fixed ImageCache for devices running Android 4.x 
   * Minor Bugfixes
 
 == Version 1.24 ==
