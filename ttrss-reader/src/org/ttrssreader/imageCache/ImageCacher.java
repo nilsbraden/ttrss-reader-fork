@@ -180,17 +180,16 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         boolean tasksRunning = true;
         while (tasksRunning) {
             tasksRunning = false;
-            synchronized (this) {
-                try {
-                    wait(200);
-                } catch (InterruptedException e) {
-                }
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
             }
             for (int i = 0; i < DOWNLOAD_IMAGES_THREADS; i++) {
                 DownloadImageTask t = tasks[i];
                 retrieveResult(t);
                 if (t != null && t.getStatus().equals(AsyncTask.Status.RUNNING)) {
                     tasksRunning = true;
+                    break;
                 }
             }
         }
@@ -258,6 +257,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         if (tasks == null)
             tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
         
+        Log.d(Utils.TAG, "Assigning Task: " + articleId);
+        
         boolean done = false;
         while (!done) {
             
@@ -275,6 +276,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     t.execute(urls);
                     tasks[i] = t;
                     done = true;
+                    Log.d(Utils.TAG, "Task assigned..");
                     break;
                 }
             }

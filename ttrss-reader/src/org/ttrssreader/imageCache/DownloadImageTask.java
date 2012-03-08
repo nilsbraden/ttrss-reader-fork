@@ -16,7 +16,9 @@
 package org.ttrssreader.imageCache;
 
 import org.ttrssreader.utils.FileUtils;
+import org.ttrssreader.utils.Utils;
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class DownloadImageTask extends AsyncTask<String, Void, Long> {
     
@@ -42,7 +44,9 @@ public class DownloadImageTask extends AsyncTask<String, Void, Long> {
                 downloaded += size;
             }
             
+            Log.d(Utils.TAG, "Download finished: " + url);
         }
+        Log.d(Utils.TAG, "Task finished...");
         return downloaded;
     }
     
