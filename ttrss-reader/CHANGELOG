@@ -32,7 +32,7 @@
 
 == Version 1.2 ==
   * Added compatibility-code for Android 4.0 (API-Level 14)
-  * Started working on a thre-pane-layout for tablet-devices (not functional yet)
+  * Started working on a three-pane-layout for tablet-devices (not functional yet)
   * Fixed Issue #80: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=80 Broken list in JSON request])
   * Fixed Enhancement #77: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=77 Support lazy servers (no cron job for fetching feeds)])
   * Fixed Enhancement #79: ([https://code.google.com/p/ttrss-reader-fork/issues/detail?id=79 Inject a link to the web article at the end of the RSS article])
