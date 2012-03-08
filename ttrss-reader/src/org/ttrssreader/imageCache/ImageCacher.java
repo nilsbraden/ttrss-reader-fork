@@ -153,8 +153,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
                     cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / 1000));
             
-            parent.onCacheEnd();
-            
             break; // Always break in the end, "while" is just useful for the different places in which we leave the
                    // loop
         }
