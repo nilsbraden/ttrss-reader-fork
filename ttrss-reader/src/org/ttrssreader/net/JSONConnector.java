@@ -472,7 +472,7 @@ public class JSONConnector implements Connector {
         
         try {
             String result = readResult(params, false, true);
-            Log.d(Utils.TAG, "Result: " + result);
+            // Log.d(Utils.TAG, "Result: " + result);
             if ("OK".equals(result))
                 return true;
             else
@@ -997,7 +997,6 @@ public class JSONConnector implements Connector {
             params.put(PARAM_SINCE_ID, sinceId + "");
         if (skip > 0)
             params.put(PARAM_SKIP, skip + "");
-        
         
         if (id == Data.VCAT_STAR && !isCategory) // We set isCategory=false for starred/published articles...
             DBHelper.getInstance().purgeStarredArticles();

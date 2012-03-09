@@ -194,7 +194,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             if (ok)
                 DBHelper.getInstance().updateArticleCachedImages(articleId, true);
             
-            Log.d(Utils.TAG, "Download finished. articleId: " + articleId);
+            // Log.d(Utils.TAG, "Download finished. articleId: " + articleId);
             map.notifyAll();
         }
     }
