@@ -15,19 +15,64 @@
 
 package org.ttrssreader.widget;
 
+import org.ttrssreader.R;
 import org.ttrssreader.utils.Utils;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 public class RSSAppWidgetProvider extends AppWidgetProvider {
+    
+    public final static String WIDGET_ID = "WIDGET_ID_";
+    public final static String WIDGET_IS_CATEGORY = "WIDGET_IS_CATEGORY_";
+    public final static String WIDGET_UNREAD_ONLY = "WIDGET_UNREAD_ONLY_";
     
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         Log.d(Utils.TAG, "Widget: onUpdate");
-        super.onUpdate(context, appWidgetManager, appWidgetIds);
+        
+        // Perform this loop procedure for each App Widget that belongs to this provider
+        for (int appWidgetId : appWidgetIds) {
+            updateWidget(context, appWidgetManager, appWidgetId);
+        }
+    }
+    
+    static void updateWidget(final Context context, final AppWidgetManager appWidgetManager, final int appWidgetId) {
+        
+        Log.d(Utils.TAG, "updateWidget(" + appWidgetId + ")");
+        
+        // Set up the intent that starts the StackViewService, which will
+        // provide the views for this collection.
+        Intent intent = new Intent(context, RSSWidgetService.class);
+        
+        // Add the app widget ID to the intent extras.
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+        
+        // Instantiate the RemoteViews object for the App Widget layout.
+        RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget);
+        
+        // Set up the RemoteViews object to use a RemoteViews adapter.
+        // This adapter connects
+        // to a RemoteViewsService through the specified intent.
+        // This is how you populate the data.
+        rv.setRemoteAdapter(appWidgetId, R.id.list_view, intent);
+        
+        // The empty view is displayed when the collection has no items.
+        // It should be in the same layout used to instantiate the RemoteViews
+        // object above.
+        rv.setEmptyView(R.id.list_view, R.id.list_view); // TODO
+        
+        //
+        // Do additional processing specific to this app widget...
+        // ...
+        // 
+        
+        appWidgetManager.updateAppWidget(appWidgetId, rv);
     }
     
     @Override
