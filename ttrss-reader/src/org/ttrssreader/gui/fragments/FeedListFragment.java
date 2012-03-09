@@ -89,7 +89,7 @@ public class FeedListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         if (adapter == null) {
-            Log.d(Utils.TAG, "Adapter shouldn't be null here...");
+            Log.w(Utils.TAG, "FeedListFragment: Adapter shouldn't be null here...");
             return;
         }
         

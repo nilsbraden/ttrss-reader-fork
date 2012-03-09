@@ -234,7 +234,7 @@ public class FeedActivity extends MenuActivity {
     public void itemSelected(TYPE type, int selectedIndex, int oldIndex) {
         // Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
         if (adapter == null) {
-            Log.d(Utils.TAG, "Adapter shouldn't be null here...");
+            Log.w(Utils.TAG, "FeedActivity: Adapter shouldn't be null here...");
             return;
         }
         

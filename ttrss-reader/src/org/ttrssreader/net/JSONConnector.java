@@ -512,7 +512,7 @@ public class JSONConnector implements Connector {
             try {
                 sessionId = readResult(params, true, true);
                 if (sessionId != null) {
-                    Log.v(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+                    Log.d(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
                     return true;
                 }
             } catch (IOException e) {
@@ -786,7 +786,7 @@ public class JSONConnector implements Connector {
                 }
         }
         
-        Log.v(Utils.TAG, "getCounters: " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(Utils.TAG, "getCounters: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
     
@@ -854,7 +854,7 @@ public class JSONConnector implements Connector {
                 }
         }
         
-        Log.v(Utils.TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(Utils.TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
     
@@ -933,7 +933,7 @@ public class JSONConnector implements Connector {
                 }
         }
         
-        Log.v(Utils.TAG, "getFeeds: " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(Utils.TAG, "getFeeds: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
     
@@ -1023,7 +1023,7 @@ public class JSONConnector implements Connector {
                 }
         }
         
-        Log.v(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
         return count;
     }
     
