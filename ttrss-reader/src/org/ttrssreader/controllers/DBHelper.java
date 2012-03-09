@@ -112,9 +112,11 @@ public class DBHelper {
     }
     
     public static DBHelper getInstance() {
-        synchronized (DBHelper.class) {
-            if (instance == null) {
-                instance = new DBHelper();
+        if (instance == null) {
+            synchronized (DBHelper.class) {
+                if (instance == null) {
+                    instance = new DBHelper();
+                }
             }
         }
         return instance;
@@ -1081,7 +1083,6 @@ public class DBHelper {
     
     // *******| SELECT |*******************************************************************
     
-
     public int getSinceId() {
         int ret = 0;
         if (!isDBAvailable())
@@ -1089,8 +1090,8 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_ARTICLES, new String[] {"id"}, null, null, null, null, "id DESC", "1");
-
+            c = db.query(TABLE_ARTICLES, new String[] { "id" }, null, null, null, null, "id DESC", "1");
+            
             if (!c.isAfterLast()) {
                 
                 if (c.isBeforeFirst() && !c.moveToFirst())

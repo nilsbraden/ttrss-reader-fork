@@ -200,5 +200,7 @@
     <string name="Cache.service_text">Download is running...</string>
     <string name="Cache.service_imagecache">ImageCache</string>
     <string name="Cache.service_articlecache">ArticleCache</string>
+    
+    <string name="Widget.widget_config_title">widget_config_title</string>
 
 </resources>

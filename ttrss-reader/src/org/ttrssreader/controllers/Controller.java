@@ -131,9 +131,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public static Controller getInstance() {
-        synchronized (Controller.class) {
-            if (instance == null || instance.prefs == null) {
-                instance = new Controller();
+        if (instance == null || instance.prefs == null) {
+            synchronized (Controller.class) {
+                if (instance == null || instance.prefs == null) {
+                    instance = new Controller();
+                }
             }
         }
         return instance;

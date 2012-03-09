@@ -44,6 +44,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
@@ -372,7 +373,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
-                new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).execute();
+//                new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).execute();
+                
+                new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).executeOnExecutor(
+                        AsyncTask.THREAD_POOL_EXECUTOR, (Void[]) null);
                 return true;
             case R.id.Article_Menu_MarkStar:
                 new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).execute();

@@ -1,8 +1,10 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="294dp"
-    android:minHeight="72dp"
-    android:updatePeriodMillis="600000"
+    android:configure="org.ttrssreader.widget.RSSAppWidgetConfigure"
     android:initialLayout="@layout/widget"
-    android:configure="com.example.android.ExampleAppWidgetConfigure" 
-    android:resizeMode="horizontal|vertical">
+    android:minHeight="40dp"
+    android:minWidth="250dp"
+    android:previewImage="@drawable/preview"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="3600000" >
+
 </appwidget-provider>
