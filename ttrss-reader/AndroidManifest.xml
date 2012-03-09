@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     android:installLocation="auto"
     package="org.ttrssreader"
-    android:versionCode="1253"
+    android:versionCode="1254"
     android:versionName="1.25" >
 
     <application
@@ -33,25 +33,28 @@
         <service android:name=".imageCache.ForegroundService" />
 
         <!-- BEGIN: Widget-Stuff -->
-        <activity android:name=".widget.RSSAppWidgetConfigure" >
-            <intent-filter >
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
+        <!-- <activity android:name=".widget.RSSAppWidgetConfigure" > -->
+        <!-- <intent-filter > -->
+        <!-- <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /> -->
+        <!-- </intent-filter> -->
+        <!-- </activity> -->
 
-        <service
-            android:name=".widget.RSSWidgetService"
-            android:permission="android.permission.BIND_REMOTEVIEWS" />
 
-        <receiver android:name=".widget.RSSAppWidgetProvider" >
-            <intent-filter >
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
+        <!-- <service -->
+        <!-- android:name=".widget.RSSWidgetService" -->
+        <!-- android:permission="android.permission.BIND_REMOTEVIEWS" /> -->
 
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/ttrss_appwidget_info" />
-        </receiver>
+
+        <!-- <receiver android:name=".widget.RSSAppWidgetProvider" > -->
+        <!-- <intent-filter > -->
+        <!-- <action android:name="android.appwidget.action.APPWIDGET_UPDATE" /> -->
+        <!-- </intent-filter> -->
+
+
+        <!-- <meta-data -->
+        <!-- android:name="android.appwidget.provider" -->
+        <!-- android:resource="@xml/ttrss_appwidget_info" /> -->
+        <!-- </receiver> -->
         <!-- END: Widget-Stuff -->
 
     </application>
