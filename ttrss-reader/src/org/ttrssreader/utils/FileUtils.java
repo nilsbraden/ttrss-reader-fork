@@ -116,7 +116,7 @@ public class FileUtils {
                 }
             }
         } catch (Exception e) {
-            Log.i(Utils.TAG, "Download not finished properly. Exception: " + e.getMessage());
+            Log.e(Utils.TAG, "Download not finished properly. Exception: " + e.getMessage());
             byteWritten = -1;
         } finally {
             if (fos != null) {

@@ -155,7 +155,7 @@ public class DBHelper {
                     c.getInt(0);
                 
             } catch (Exception e) {
-                Log.w(Utils.TAG, "Database was corrupted, creating a new one...");
+                Log.e(Utils.TAG, "Database was corrupted, creating a new one...");
                 
                 closeDB();
                 backupAndRemoveDB();
@@ -247,7 +247,7 @@ public class DBHelper {
             closeDB();
         }
         
-        Log.w(Utils.TAG, "Deleting Database as requested by preferences.");
+        Log.i(Utils.TAG, "Deleting Database as requested by preferences.");
         File f = context.getDatabasePath(DATABASE_NAME);
         if (f.exists())
             return f.delete();
@@ -500,7 +500,7 @@ public class DBHelper {
             }
             
             if (didUpgrade == false) {
-                Log.w(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
+                Log.i(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);

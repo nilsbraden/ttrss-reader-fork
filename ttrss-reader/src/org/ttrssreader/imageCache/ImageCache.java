@@ -97,7 +97,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
             try {
                 cache.put(file.getName(), b);
             } catch (RuntimeException e) {
-                Log.d(Utils.TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
+                Log.e(Utils.TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
             }
         }
     }
