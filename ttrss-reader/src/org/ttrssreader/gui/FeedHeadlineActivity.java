@@ -190,7 +190,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             setProgressBarVisibility(false);
             
             headlineUpdater = new FeedHeadlineUpdater();
-            headlineUpdater.execute();
+            headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
     
@@ -233,13 +233,13 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(this, new ReadStateUpdater(a, feedId, a.isUnread ? 0 : 1)).execute();
+                new Updater(this, new ReadStateUpdater(a, feedId, a.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
             case MARK_STAR:
-                new Updater(this, new StarredStateUpdater(a, a.isStarred ? 0 : 1)).execute();
+                new Updater(this, new StarredStateUpdater(a, a.isStarred ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
             case MARK_PUBLISH:
-                new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).execute();
+                new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
             case MARK_PUBLISH_NOTE:
                 new TextInputAlert(this, a).show(this);
@@ -266,9 +266,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                 return true;
             case R.id.Menu_MarkAllRead:
                 if (selectArticlesForCategory) {
-                    new Updater(this, new ReadStateUpdater(categoryId)).execute();
+                    new Updater(this, new ReadStateUpdater(categoryId)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 } else {
-                    new Updater(this, new ReadStateUpdater(feedId, 42)).execute();
+                    new Updater(this, new ReadStateUpdater(feedId, 42)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
                 
                 return true;
@@ -483,7 +483,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     public void onPublishNoteResult(Article a, String note) {
-        new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).execute();
+        new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
     
 }

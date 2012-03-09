@@ -830,7 +830,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                         return null;
                     }
                 };
-                task.execute();
+                task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
             
         }

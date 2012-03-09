@@ -148,7 +148,7 @@ public class PreferencesActivity extends PreferenceActivity {
                     return null;
                 }
             };
-            init.execute();
+            init.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
     
