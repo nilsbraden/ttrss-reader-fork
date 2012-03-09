@@ -192,13 +192,11 @@ public class ForegroundService extends Service implements ICacheEndListener {
         
         if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
             imageCacher = new ImageCacher(this, this, false);
-            imageCacher.executeOnExecutor(
-                    AsyncTask.THREAD_POOL_EXECUTOR, (Void[]) null);
+            imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             title = getText(R.string.Cache_service_imagecache);
         } else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
             imageCacher = new ImageCacher(this, this, true);
-            imageCacher.executeOnExecutor(
-                    AsyncTask.THREAD_POOL_EXECUTOR, (Void[]) null);
+            imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             title = getText(R.string.Cache_service_articlecache);
         }
         
@@ -215,8 +213,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
         if (imageCache) {
             imageCache = false;
             imageCacher = new ImageCacher(this, this, false);
-            imageCacher.executeOnExecutor(
-                    AsyncTask.THREAD_POOL_EXECUTOR, (Void[]) null);
+            imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             finishService();
             this.stopSelf();

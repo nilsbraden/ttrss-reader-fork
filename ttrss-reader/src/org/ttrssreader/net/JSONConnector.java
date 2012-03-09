@@ -860,7 +860,7 @@ public class JSONConnector implements Connector {
     
     private Set<Feed> getFeeds(boolean tolerateWrongUnreadInformation) {
         long time = System.currentTimeMillis();
-        Set<Feed> ret = new LinkedHashSet<Feed>();;
+        Set<Feed> ret = new LinkedHashSet<Feed>();
         if (!sessionAlive())
             return ret;
         

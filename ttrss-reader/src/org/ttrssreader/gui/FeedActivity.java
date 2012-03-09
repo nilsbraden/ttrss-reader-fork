@@ -145,7 +145,7 @@ public class FeedActivity extends MenuActivity {
             setProgressBarVisibility(false);
             
             feedUpdater = new FeedUpdater();
-            feedUpdater.execute();
+            feedUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
     
@@ -153,7 +153,7 @@ public class FeedActivity extends MenuActivity {
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (item.getItemId() == MARK_READ) {
-            new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).execute();
+            new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             return true;
         }
         return false;
@@ -169,7 +169,7 @@ public class FeedActivity extends MenuActivity {
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
-                new Updater(this, new ReadStateUpdater(categoryId)).execute();
+                new Updater(this, new ReadStateUpdater(categoryId)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
         }
         

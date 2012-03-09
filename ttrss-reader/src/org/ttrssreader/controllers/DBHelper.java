@@ -637,10 +637,10 @@ public class DBHelper {
         ret[1] = feedId;
         ret[2] = (title == null ? "" : title);
         ret[3] = (isUnread ? 1 : 0);
-        ret[4] = (articleUrl == null ? "" : articleUrl);;
-        ret[5] = (articleCommentUrl == null ? "" : articleCommentUrl);;
+        ret[4] = (articleUrl == null ? "" : articleUrl);
+        ret[5] = (articleCommentUrl == null ? "" : articleCommentUrl);
         ret[6] = updateDate.getTime();
-        ret[7] = (content == null ? "" : content);;
+        ret[7] = (content == null ? "" : content);
         ret[8] = parseAttachmentSet(attachments);
         ret[9] = (isStarred ? 1 : 0);
         ret[10] = (isPublished ? 1 : 0);

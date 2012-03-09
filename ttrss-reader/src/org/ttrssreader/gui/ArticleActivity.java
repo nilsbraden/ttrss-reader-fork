@@ -164,7 +164,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         // it to "unread" in the meantime.
         if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead()) {
             article.isUnread = false;
-            new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+            new Updater(null, new ReadStateUpdater(article, feedId, 0)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             markedRead = true;
         }
     }
@@ -195,7 +195,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
             if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
-                new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+                new Updater(null, new ReadStateUpdater(article, feedId, 0)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         super.onStop();
         closeCursor();
@@ -206,7 +206,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
             if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
-                new Updater(null, new ReadStateUpdater(article, feedId, 0)).execute();
+                new Updater(null, new ReadStateUpdater(article, feedId, 0)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         super.onDestroy();
         closeCursor();
@@ -373,16 +373,16 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
-//                new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).execute();
+//                new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 
                 new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).executeOnExecutor(
-                        AsyncTask.THREAD_POOL_EXECUTOR, (Void[]) null);
+                        AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
             case R.id.Article_Menu_MarkStar:
-                new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).execute();
+                new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
             case R.id.Article_Menu_MarkPublish:
-                new Updater(null, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).execute();
+                new Updater(null, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
             case R.id.Article_Menu_MarkPublishNote:
                 new TextInputAlert(this, article).show(this);
@@ -745,7 +745,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     
     @Override
     public void onPublishNoteResult(Article a, String note) {
-        new Updater(null, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).execute();
+        new Updater(null, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
     
 }

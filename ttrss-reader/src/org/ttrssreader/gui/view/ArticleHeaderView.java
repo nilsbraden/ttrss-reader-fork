@@ -26,6 +26,7 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.DateUtils;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.CheckBox;
@@ -86,7 +87,8 @@ public class ArticleHeaderView extends LinearLayout {
         starred.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).execute();
+                new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1))
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         });
     }
