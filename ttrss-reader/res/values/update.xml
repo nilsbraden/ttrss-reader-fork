@@ -18,6 +18,9 @@
 <resources>
 
     <string-array name="updates">
+        <item> Version 1.26
+            \n * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn\'t properly test with older versions. 
+            </item>
         <item> Version 1.25
             \n * Reduced time to switch activities
             \n * Tried to prevent display of empty datasets
