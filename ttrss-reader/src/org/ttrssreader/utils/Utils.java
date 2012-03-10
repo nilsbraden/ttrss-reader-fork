@@ -92,7 +92,7 @@ public class Utils {
             // No new version installed, perhaps a new version exists
             // Only run task once for every session
             if (AsyncTask.Status.PENDING.equals(updateVersionTask.getStatus()))
-                updateVersionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                updateVersionTask.execute();
             
             return true;
         } else {

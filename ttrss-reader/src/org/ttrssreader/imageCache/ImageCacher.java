@@ -16,6 +16,8 @@
 package org.ttrssreader.imageCache;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -180,6 +182,34 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     protected void onProgressUpdate(Integer... values) {
         if (parent != null)
             parent.onCacheProgress(taskCount, values[0]);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public AsyncTask<Void, Integer, Void> exec() {
+        
+        if (sExecuteMethod != null) {
+            try {
+                return (AsyncTask<Void, Integer, Void>) sExecuteMethod.invoke(this, AsyncTask.THREAD_POOL_EXECUTOR,
+                        (Void[]) null);
+            } catch (InvocationTargetException unused) {
+                // fall through
+            } catch (IllegalAccessException unused) {
+                // fall through
+            }
+        }
+        return this.execute();
+    }
+    
+    private Method sExecuteMethod = findExecuteMethod();
+    
+    private Method findExecuteMethod() {
+        // Didn't get Class.getMethod() to work so I just search for the right method-name and take the first hit.
+        Class<?> cls = AsyncTask.class;
+        for (Method m : cls.getMethods()) {
+            if ("executeOnExecutor".equals(m.getName()))
+                return m;
+        }
+        return null;
     }
     
     protected void downloadFinished(int articleId, Long size, boolean ok) {

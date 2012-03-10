@@ -193,7 +193,7 @@ public class CategoryActivity extends MenuActivity {
             setProgressBarVisibility(true);
             
             categoryUpdater = new CategoryUpdater();
-            categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            categoryUpdater.execute();
         }
     }
     
@@ -215,8 +215,8 @@ public class CategoryActivity extends MenuActivity {
         switch (item.getItemId()) {
             case MARK_READ:
                 if (id < -10)
-                    new Updater(this, new ReadStateUpdater(id, 42)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                new Updater(this, new ReadStateUpdater(id)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    new Updater(this, new ReadStateUpdater(id, 42)).exec();
+                new Updater(this, new ReadStateUpdater(id)).exec();
                 return true;
             case SELECT_ARTICLES:
                 if (id < 0)
@@ -244,7 +244,7 @@ public class CategoryActivity extends MenuActivity {
                 return true;
             case R.id.Menu_MarkAllRead:
                 if (adapter != null) {
-                    new Updater(this, new ReadStateUpdater(adapter.getCategories())).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    new Updater(this, new ReadStateUpdater(adapter.getCategories())).exec();
                     return true;
                 } else {
                     return false;

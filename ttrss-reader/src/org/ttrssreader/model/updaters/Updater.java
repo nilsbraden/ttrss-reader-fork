@@ -16,6 +16,8 @@
 
 package org.ttrssreader.model.updaters;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -55,6 +57,34 @@ public class Updater extends AsyncTask<Void, Void, Void> {
     
     public void progress() {
         handler.sendEmptyMessage(PROGRESS);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public AsyncTask<Void, Void, Void> exec() {
+        
+        if (sExecuteMethod != null) {
+            try {
+                return (AsyncTask<Void, Void, Void>) sExecuteMethod.invoke(this, AsyncTask.THREAD_POOL_EXECUTOR,
+                        (Void[]) null);
+            } catch (InvocationTargetException unused) {
+                // fall through
+            } catch (IllegalAccessException unused) {
+                // fall through
+            }
+        }
+        return this.execute();
+    }
+    
+    private Method sExecuteMethod = findExecuteMethod();
+    
+    private Method findExecuteMethod() {
+        // Didn't get Class.getMethod() to work so I just search for the right method-name and take the first hit.
+        Class<?> cls = AsyncTask.class;
+        for (Method m : cls.getMethods()) {
+            if ("executeOnExecutor".equals(m.getName()))
+                return m;
+        }
+        return null;
     }
     
 }
