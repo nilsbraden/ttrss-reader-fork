@@ -159,7 +159,7 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
                 Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
                 if (!Controller.getInstance().workOffline()) {
                     // Synchronize status of articles with server
-                    new Updater(this, new StateSynchronisationUpdater()).execute((Void[]) null);
+                    new Updater(this, new StateSynchronisationUpdater()).exec();
                 }
                 return true;
             case R.id.Menu_ShowPreferences:
