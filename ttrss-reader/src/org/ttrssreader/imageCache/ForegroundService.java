@@ -27,6 +27,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -190,13 +191,22 @@ public class ForegroundService extends Service implements ICacheEndListener {
         CharSequence text = getText(R.string.Cache_service_text);
         
         if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
-            imageCacher = new ImageCacher(this, this, false);
-            imageCacher.exec();
             title = getText(R.string.Cache_service_imagecache);
+            imageCacher = new ImageCacher(this, this, false);
+            
+            if (Controller.getInstance().isExecuteOnExecutorAvailable())
+                imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            else
+                imageCacher.execute();
+            
         } else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
             imageCacher = new ImageCacher(this, this, true);
-            imageCacher.exec();
             title = getText(R.string.Cache_service_articlecache);
+            
+            if (Controller.getInstance().isExecuteOnExecutorAvailable())
+                imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            else
+                imageCacher.execute();
         }
         
         // Display notification
@@ -212,7 +222,12 @@ public class ForegroundService extends Service implements ICacheEndListener {
         if (imageCache) {
             imageCache = false;
             imageCacher = new ImageCacher(this, this, false);
-            imageCacher.exec();
+            
+            if (Controller.getInstance().isExecuteOnExecutorAvailable())
+                imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            else
+                imageCacher.execute();
+            
         } else {
             finishService();
             this.stopSelf();

@@ -193,7 +193,10 @@ public class CategoryActivity extends MenuActivity {
             setProgressBarVisibility(true);
             
             categoryUpdater = new CategoryUpdater();
-            categoryUpdater.execute();
+            if (Controller.getInstance().isExecuteOnExecutorAvailable())
+                categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            else
+                categoryUpdater.execute();
         }
     }
     

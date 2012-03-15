@@ -26,7 +26,6 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.util.Log;
 
 public class Data {
     
@@ -181,8 +180,6 @@ public class Data {
     }
     
     public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline) {
-        Log.d(Utils.TAG, String.format("feedId: %s, displayOnlyUnread: %s, isCat: %s, overrideOffline: %s", feedId,
-                displayOnlyUnread, isCat, overrideOffline));
         // Check if unread-count and actual number of unread articles match, if not do a seperate call with
         // displayOnlyUnread=true
         boolean needUnreadUpdate = false;

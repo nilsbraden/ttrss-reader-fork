@@ -93,7 +93,11 @@ public class ArticleWebViewClient extends WebViewClient {
                             break;
                         case 1:
                             try {
-                                new AsyncDownloader().execute(new URL(url));
+                                if (Controller.getInstance().isExecuteOnExecutorAvailable())
+                                    new AsyncDownloader().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                                            new URL(url));
+                                else
+                                    new AsyncDownloader().execute(new URL(url));
                             } catch (MalformedURLException e) {
                                 e.printStackTrace();
                             }

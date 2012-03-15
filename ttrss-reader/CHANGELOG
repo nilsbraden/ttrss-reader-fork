@@ -1,8 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.26 ==
-  * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn't properly test with older versions. 
+== Version 1.26 (1) ==
+  * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn't properly test with older versions.
+  * Completed work on background tasks
+  * Minor changes 
 
 == Version 1.25 ==
   * Reduced time to switch activities
