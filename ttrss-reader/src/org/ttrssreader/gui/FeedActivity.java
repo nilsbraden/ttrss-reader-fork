@@ -145,7 +145,10 @@ public class FeedActivity extends MenuActivity {
             setProgressBarVisibility(false);
             
             feedUpdater = new FeedUpdater();
-            feedUpdater.execute();
+            if (Controller.getInstance().isExecuteOnExecutorAvailable())
+                feedUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            else
+                feedUpdater.execute();
         }
     }
     

@@ -190,7 +190,10 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             setProgressBarVisibility(false);
             
             headlineUpdater = new FeedHeadlineUpdater();
-            headlineUpdater.execute();
+            if (Controller.getInstance().isExecuteOnExecutorAvailable())
+                headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            else
+                headlineUpdater.execute();
         }
     }
     

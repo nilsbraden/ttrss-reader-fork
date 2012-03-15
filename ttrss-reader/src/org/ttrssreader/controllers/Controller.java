@@ -102,6 +102,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean cacheImagesOnlyWifi = null;
     private Boolean logSensitiveData = null;
     
+    private Boolean isExecuteOnExecutorAvailable = null;
     private Long apiLevelUpdated = null;
     private Integer apiLevel = null;
     private Long appVersionCheckTime = null;
@@ -725,6 +726,20 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // ******* INTERNAL Data ****************************
     
+    public boolean isExecuteOnExecutorAvailable() {
+        if (isExecuteOnExecutorAvailable == null) {
+            Class<?> cls = AsyncTask.class;
+            for (Method m : cls.getMethods()) {
+                if ("executeOnExecutor".equals(m.getName())) {
+                    isExecuteOnExecutorAvailable = true;
+                    return isExecuteOnExecutorAvailable;
+                }
+            }
+            isExecuteOnExecutorAvailable = false;
+        }
+        return isExecuteOnExecutorAvailable;
+    }
+    
     public long apiLevelUpdated() {
         if (apiLevelUpdated == null)
             apiLevelUpdated = prefs.getLong(Constants.API_LEVEL_UPDATED, Constants.API_LEVEL_UPDATED_DEFAULT);
@@ -830,7 +845,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
                         return null;
                     }
                 };
-                task.execute();
+                if (isExecuteOnExecutorAvailable())
+                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                else
+                    task.execute();
             }
             
         }
