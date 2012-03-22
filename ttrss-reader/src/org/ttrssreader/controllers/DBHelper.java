@@ -590,44 +590,57 @@ public class DBHelper {
         }
     }
     
-    public void insertArticle(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label) {
+    public void insertArticle(ArticleContainer a) {
         
         if (!isDBAvailable())
             return;
-        if (title == null)
-            title = "";
-        if (content == null)
-            content = "";
-        if (articleUrl == null)
-            articleUrl = "";
-        if (articleCommentUrl == null)
-            articleCommentUrl = "";
-        if (updateDate == null)
-            updateDate = new Date();
-        if (attachments == null)
-            attachments = new LinkedHashSet<String>();
+        if (a.title == null)
+            a.title = "";
+        if (a.content == null)
+            a.content = "";
+        if (a.articleUrl == null)
+            a.articleUrl = "";
+        if (a.articleCommentUrl == null)
+            a.articleCommentUrl = "";
+        if (a.updateDate == null)
+            a.updateDate = new Date();
+        if (a.attachments == null)
+            a.attachments = new LinkedHashSet<String>();
         
         long retId = -1;
         synchronized (TABLE_ARTICLES) {
-            insertArticle.bindLong(1, id);
-            insertArticle.bindLong(2, feedId);
-            insertArticle.bindString(3, title);
-            insertArticle.bindLong(4, (isUnread ? 1 : 0));
-            insertArticle.bindString(5, articleUrl);
-            insertArticle.bindString(6, articleCommentUrl);
-            insertArticle.bindLong(7, updateDate.getTime());
-            insertArticle.bindString(8, content);
-            insertArticle.bindString(9, parseAttachmentSet(attachments));
-            insertArticle.bindLong(10, (isStarred ? 1 : 0));
-            insertArticle.bindLong(11, (isPublished ? 1 : 0));
-            insertArticle.bindLong(12, id); // ID again for the where-clause
+            insertArticle.bindLong(1, a.id);
+            insertArticle.bindLong(2, a.feedId);
+            insertArticle.bindString(3, a.title);
+            insertArticle.bindLong(4, (a.isUnread ? 1 : 0));
+            insertArticle.bindString(5, a.articleUrl);
+            insertArticle.bindString(6, a.articleCommentUrl);
+            insertArticle.bindLong(7, a.updateDate.getTime());
+            insertArticle.bindString(8, a.content);
+            insertArticle.bindString(9, parseAttachmentSet(a.attachments));
+            insertArticle.bindLong(10, (a.isStarred ? 1 : 0));
+            insertArticle.bindLong(11, (a.isPublished ? 1 : 0));
+            insertArticle.bindLong(12, a.id); // ID again for the where-clause
             retId = insertArticle.executeInsert();
         }
         
         if (retId > 0)
-            insertLabel(id, label);
+            insertLabel(a.id, a.label);
         
         dbReadLock.readLock().unlock();
+    }
+    
+    public void insertArticle(List<ArticleContainer> articles) {
+        if (!isDBAvailable())
+            return;
+        if (articles == null || articles.isEmpty())
+            return;
+        
+        synchronized (TABLE_ARTICLES) {
+            for (ArticleContainer a : articles) {
+                insertArticle(a);
+            }
+        }
     }
     
     public static Object[] prepareArticleArray(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label) {

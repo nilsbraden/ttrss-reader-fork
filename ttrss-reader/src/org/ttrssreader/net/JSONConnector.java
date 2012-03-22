@@ -21,11 +21,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
@@ -46,6 +48,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
+import org.ttrssreader.controllers.ArticleContainer;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
@@ -649,20 +652,15 @@ public class JSONConnector implements Connector {
     }
     
     private int parseArticleArray(JsonReader reader, int labelId, int catId, boolean isCategory) {
-        long time = System.currentTimeMillis();
+        long parseTime = System.currentTimeMillis();
+        long insertTime = 0;
         int count = 0;
         
         SQLiteDatabase db = DBHelper.getInstance().db;
         synchronized (DBHelper.TABLE_ARTICLES) {
-            db.beginTransaction();
             try {
-                
-                // People are complaining about not all articles being marked the right way, so just overwrite all
-                // unread
-                // states and fetch new articles...
-                // Moved this inside the transaction to make sure this only happens if the transaction is successful
-                DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
-                // List<Object[]> articleList = new ArrayList<Object[]>();
+                // DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
+                List<ArticleContainer> articleList = new ArrayList<ArticleContainer>();
                 
                 reader.beginArray();
                 while (reader.hasNext()) {
@@ -720,10 +718,10 @@ public class JSONConnector implements Connector {
                     reader.endObject();
                     
                     if (id != -1 && title != null) {
-                        DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
-                                articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId);
-                        // articleList.add(DBHelper.prepareArticleArray(id, realFeedId, title, isUnread, articleUrl,
-                        // articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
+                        // DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
+                        // articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId);
+                        articleList.add(new ArticleContainer(id, realFeedId, title, isUnread, articleUrl,
+                                articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
                     }
                     
                     // See comment on DBHelper.getInstance().bulkInsertArticles for information about this.
@@ -734,11 +732,24 @@ public class JSONConnector implements Connector {
                 }
                 reader.endArray();
                 
+                /*
+                 * Mark as read once all the articles are read from the stream.
+                 * People are complaining about not all articles being marked the right way, so just overwrite all
+                 * unread states and fetch new articles.
+                 * Moved this inside the transaction to make sure this only happens if the transaction is successful.
+                 */
+                insertTime = System.currentTimeMillis();
+                db.beginTransaction();
+                
+                DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
+                DBHelper.getInstance().insertArticle(articleList);
+                
                 db.setTransactionSuccessful();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(Utils.TAG, "Articles could not be inserted, doing Rollback...", e);
             } finally {
                 db.endTransaction();
+                Log.d(Utils.TAG, "INSERT  took " + (System.currentTimeMillis() - insertTime) + "ms");
                 
                 if (isCategory)
                     Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
@@ -748,7 +759,7 @@ public class JSONConnector implements Connector {
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }
-        Log.d(Utils.TAG, "INSERT took " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(Utils.TAG, "PARSING took " + (System.currentTimeMillis() - parseTime) + "ms");
         return count;
     }
     
