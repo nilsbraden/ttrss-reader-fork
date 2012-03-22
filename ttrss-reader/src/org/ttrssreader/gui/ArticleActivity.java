@@ -90,6 +90,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     private boolean markedRead = false;
     
     private WebView webView;
+    private boolean webviewInitialized = false;
     private TextView swipeView;
     private Button buttonNext;
     private Button buttonPrev;
@@ -185,6 +186,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     @Override
     protected void onPause() {
         // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
+        
         super.onPause();
         closeCursor();
     }
@@ -213,12 +215,12 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putInt(ARTICLE_ID, articleId);
         outState.putInt(ARTICLE_FEED_ID, feedId);
         outState.putInt(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         outState.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
         outState.putInt(ARTICLE_MOVE, lastMove);
+        super.onSaveInstanceState(outState);
     }
     
     private void doRefresh() {
@@ -228,6 +230,12 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
         } else {
             webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+        }
+        
+        // No need to reload everything
+        if (webviewInitialized) {
+            setProgressBarIndeterminateVisibility(false);
+            return;
         }
         
         try {
@@ -289,6 +297,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                     openLink();
                 }
             }
+            
+            // Everything did load, we dont have to do this again.
+            webviewInitialized = true;
             
         } catch (NotInitializedException e) {
         }
