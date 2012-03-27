@@ -24,10 +24,10 @@ import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.utils.Utils;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -210,9 +210,14 @@ public class ForegroundService extends Service implements ICacheEndListener {
         }
         
         // Display notification
-        Notification notification = new Notification(icon, ticker, System.currentTimeMillis());
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(), 0);
-        notification.setLatestEventInfo(this, title, text, pendingIntent);
+        Notification notification = null;
+        if (Build.VERSION.SDK_INT >= 11) {
+            notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, false);
+        } else {
+            notification = new Notification(icon, ticker, System.currentTimeMillis());
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(), 0);
+            notification.setLatestEventInfo(this, title, text, pendingIntent);
+        }
         startForegroundCompat(R.string.Cache_service_started, notification);
     }
     
