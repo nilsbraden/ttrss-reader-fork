@@ -39,6 +39,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 public class Utils {
@@ -257,10 +258,13 @@ public class Utils {
      */
     public static void showFinishedNotification(String content, int time, boolean error, Context context, Intent intent) {
         
-        int icon;
-        CharSequence title = "";
-        CharSequence ticker = "";
+        NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        
+        int icon = R.drawable.icon;
+        CharSequence title = String.format((String) context.getText(R.string.Utils_DownloadFinishedTitle), time);
+        CharSequence ticker = context.getText(R.string.Utils_DownloadFinishedTicker);
         CharSequence text = content;
+        
         if (content == null)
             text = context.getText(R.string.Utils_DownloadFinishedText);
         
@@ -268,21 +272,19 @@ public class Utils {
             icon = R.drawable.icon;
             title = context.getText(R.string.Utils_DownloadErrorTitle);
             ticker = context.getText(R.string.Utils_DownloadErrorTicker);
-        } else {
-            icon = R.drawable.icon;
-            title = String.format((String) context.getText(R.string.Utils_DownloadFinishedTitle), time);
-            ticker = context.getText(R.string.Utils_DownloadFinishedTicker);
         }
         
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager mNotMan = (NotificationManager) context.getSystemService(ns);
+        Notification notification = null;
+        if (Build.VERSION.SDK_INT >= 11) {
+            notification = buildNotification(context, icon, ticker, title, text, true);
+        } else {
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+            notification = new Notification(icon, ticker, System.currentTimeMillis());
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+            notification.setLatestEventInfo(context, title, text, pendingIntent);
+        }
         
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-        Notification n = new Notification(icon, ticker, System.currentTimeMillis());
-        n.flags |= Notification.FLAG_AUTO_CANCEL;
-        n.setLatestEventInfo(context, title, text, pendingIntent);
-        
-        mNotMan.notify(ID_FINISHED, n);
+        mNotMan.notify(ID_FINISHED, notification);
     }
     
     public static void showRunningNotification(Context context, boolean finished) {
@@ -299,8 +301,7 @@ public class Utils {
      *            if the notification is to be removed
      */
     public static void showRunningNotification(Context context, boolean finished, Intent intent) {
-        String ns = Context.NOTIFICATION_SERVICE;
-        NotificationManager mNotMan = (NotificationManager) context.getSystemService(ns);
+        NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         
         // if finished remove notification and return, else display notification
         if (finished) {
@@ -313,12 +314,8 @@ public class Utils {
         CharSequence ticker = context.getText(R.string.Utils_DownloadRunningTicker);
         CharSequence text = context.getText(R.string.Utils_DownloadRunningText);
         
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-        Notification n = new Notification(icon, ticker, System.currentTimeMillis());
-        n.flags |= Notification.FLAG_AUTO_CANCEL;
-        n.setLatestEventInfo(context, title, text, pendingIntent);
-        
-        mNotMan.notify(ID_RUNNING, n);
+        Notification notification = buildNotification(context, icon, ticker, title, text, true);
+        mNotMan.notify(ID_RUNNING, notification);
     }
     
     /**
@@ -381,4 +378,18 @@ public class Utils {
             return null;
         }
     };
+    
+    public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, boolean autoCancel) {
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(), 0);
+        Notification.Builder builder = new Notification.Builder(context);
+        builder.setSmallIcon(icon);
+        builder.setTicker(ticker);
+        builder.setWhen(System.currentTimeMillis());
+        builder.setContentTitle(title);
+        builder.setContentText(text);
+        builder.setContentIntent(pendingIntent);
+        builder.setAutoCancel(autoCancel);
+        return builder.getNotification();
+    }
+    
 }
