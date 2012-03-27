@@ -16,6 +16,7 @@
 package org.ttrssreader.imageCache;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -291,7 +292,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         File cacheFolder = new File(imageCache.getDiskCacheDirectory());
         
         folderSize = 0;
-        if (cacheFolder.listFiles() != null) {
+        if (cacheFolder.isDirectory() ) {
             for (File f : cacheFolder.listFiles()) {
                 folderSize += f.length();
             }
