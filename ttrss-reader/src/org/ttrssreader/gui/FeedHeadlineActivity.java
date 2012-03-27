@@ -81,7 +81,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         // Log.d(Utils.TAG, "onCreate - FeedHeadlineActivity");
         setContentView(R.layout.feedheadlinelist);
         
-        gestureDetector = new GestureDetector(onGestureListener);
+        gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -107,8 +107,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         super.onResume();
         
         DBHelper.getInstance().checkAndInitializeDB(this);
-        doRefresh();
-        doUpdate();
+        refreshAndUpdate();
     }
     
     private void closeCursor() {

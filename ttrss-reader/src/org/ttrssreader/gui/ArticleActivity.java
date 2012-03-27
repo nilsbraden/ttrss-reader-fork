@@ -131,7 +131,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         // zoom.setLayoutParams(params)
         
         // Detect gestures
-        mGestureDetector = new GestureDetector(onGestureListener);
+        mGestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
         webView.setOnKeyListener(keyListener);
         
         buttonNext.setOnClickListener(onButtonPressedListener);
