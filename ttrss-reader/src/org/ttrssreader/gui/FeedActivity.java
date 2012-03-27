@@ -72,8 +72,7 @@ public class FeedActivity extends MenuActivity {
     protected void onResume() {
         super.onResume();
         DBHelper.getInstance().checkAndInitializeDB(this);
-        doRefresh();
-        doUpdate();
+        refreshAndUpdate();
     }
     
     private void closeCursor() {
