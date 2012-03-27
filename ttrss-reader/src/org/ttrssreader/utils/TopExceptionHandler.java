@@ -66,7 +66,7 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
         sb.append("------------------------------\n\n");
         
         sb.append("--------- Firmware -----------\n");
-        sb.append("SDK: " + Build.VERSION.SDK + "\n");
+        sb.append("SDK: " + Build.VERSION.SDK_INT + "\n");
         sb.append("Release: " + Build.VERSION.RELEASE + "\n");
         sb.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n");
         sb.append("------------------------------\n\n");
