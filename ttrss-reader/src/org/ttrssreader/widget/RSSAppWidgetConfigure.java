@@ -73,7 +73,7 @@ public final class RSSAppWidgetConfigure extends Activity implements OnClickList
         final Cursor c = null; // TODO: ContentResolver nutzen? Würde sich anbieten...
         String[] fieldName = null;
         final SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, c,
-                fieldName, new int[] { android.R.id.text1 });
+                fieldName, new int[] { android.R.id.text1 }, SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         
         int pos = spinnerCategories.getSelectedItemPosition();
         spinnerCategories.setAdapter(adapter);

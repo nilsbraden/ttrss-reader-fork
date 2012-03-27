@@ -60,7 +60,7 @@ public class RSSAppWidgetProvider extends AppWidgetProvider {
         // This adapter connects
         // to a RemoteViewsService through the specified intent.
         // This is how you populate the data.
-        rv.setRemoteAdapter(appWidgetId, R.id.list_view, intent);
+        rv.setRemoteAdapter(R.id.list_view, intent);
         
         // The empty view is displayed when the collection has no items.
         // It should be in the same layout used to instantiate the RemoteViews
