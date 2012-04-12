@@ -44,10 +44,6 @@ public class CategoryAdapter extends MainAdapter {
     
     @Override
     public Object getItem(int position) {
-        if (cursor.isClosed()) {
-            makeQuery();
-        }
-        
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
                 Category ret = new Category();
@@ -61,10 +57,6 @@ public class CategoryAdapter extends MainAdapter {
     }
     
     public List<Category> getCategories() {
-        if (cursor.isClosed()) {
-            makeQuery();
-        }
-        
         List<Category> result = new ArrayList<Category>();
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
@@ -134,72 +126,63 @@ public class CategoryAdapter extends MainAdapter {
         return layout;
     }
     
-    protected synchronized Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery, boolean forceRefresh) {
+    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         
-        long currentChangedTime = Data.getInstance().getCategoriesChanged();
-        boolean refresh = buildSafeQuery || forceRefresh || (currentChangedTime == -1 && changedTime != -1);
-        
-        if (refresh) {
-            // Create query, currentChangedTime is not initialized or safeQuery requested or forceRefresh requested.
-        } else if (cursor != null && !cursor.isClosed() && changedTime >= currentChangedTime) {
-            // Log.d(Utils.TAG, "Category currentChangedTime: " + currentChangedTime + " changedTime: " + changedTime);
-            return cursor;
-        }
-        
-        boolean displayUnread = displayOnlyUnread;
-        if (overrideDisplayUnread)
-            displayUnread = false;
-        
-        if (db != null)
-            db.close();
-        
-        OpenHelper openHelper = new OpenHelper(context);
-        db = openHelper.getWritableDatabase();
-        insert = db.compileStatement(INSERT);
-        
-        StringBuilder query;
-        // Virtual Feeds
-        if (Controller.getInstance().showVirtual()) {
+        synchronized (poorMansMutex) {
+            
+            boolean displayUnread = Controller.getInstance().onlyUnread();
+            boolean invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
+            
+            if (overrideDisplayUnread)
+                displayUnread = false;
+            
+            if (db != null)
+                db.close();
+            
+            OpenHelper openHelper = new OpenHelper(context);
+            db = openHelper.getWritableDatabase();
+            insert = db.compileStatement(INSERT);
+            
+            StringBuilder query;
+            // Virtual Feeds
+            if (Controller.getInstance().showVirtual()) {
+                query = new StringBuilder();
+                query.append("SELECT id,title,unread FROM ");
+                query.append(DBHelper.TABLE_CATEGORIES);
+                query.append(" WHERE id>=-4 AND id<0 ORDER BY id");
+                insertValues(DBHelper.getInstance().query(query.toString(), null));
+            }
+            
+            // Labels
+            query = new StringBuilder();
+            query.append("SELECT id,title,unread FROM ");
+            query.append(DBHelper.TABLE_FEEDS);
+            query.append(" WHERE id<-10");
+            query.append(displayUnread ? " AND unread>0" : "");
+            query.append(" ORDER BY UPPER(title) ASC");
+            insertValues(DBHelper.getInstance().query(query.toString(), null));
+            
+            // "Uncategorized Feeds"
             query = new StringBuilder();
             query.append("SELECT id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
-            query.append(" WHERE id>=-4 AND id<0 ORDER BY id");
+            query.append(" WHERE id=0");
+            query.append(displayUnread ? " AND unread>0" : "");
             insertValues(DBHelper.getInstance().query(query.toString(), null));
+            
+            // Categories
+            query = new StringBuilder();
+            query.append("SELECT id,title,unread FROM ");
+            query.append(DBHelper.TABLE_CATEGORIES);
+            query.append(" WHERE id>0");
+            query.append(displayUnread ? " AND unread>0" : "");
+            query.append(" ORDER BY UPPER(title) ");
+            query.append(invertSortFeedCats ? "DESC" : "ASC");
+            insertValues(DBHelper.getInstance().query(query.toString(), null));
+            
+            String[] columns = { "id", "title", "unread" };
+            return db.query(TABLE_NAME, columns, null, null, null, null, null);
         }
-        
-        // Labels
-        query = new StringBuilder();
-        query.append("SELECT id,title,unread FROM ");
-        query.append(DBHelper.TABLE_FEEDS);
-        query.append(" WHERE id<-10");
-        query.append(displayUnread ? " AND unread>0" : "");
-        query.append(" ORDER BY UPPER(title) ASC");
-        insertValues(DBHelper.getInstance().query(query.toString(), null));
-        
-        // "Uncategorized Feeds"
-        query = new StringBuilder();
-        query.append("SELECT id,title,unread FROM ");
-        query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id=0");
-        query.append(displayUnread ? " AND unread>0" : "");
-        insertValues(DBHelper.getInstance().query(query.toString(), null));
-        
-        // Categories
-        query = new StringBuilder();
-        query.append("SELECT id,title,unread FROM ");
-        query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id>0");
-        query.append(displayUnread ? " AND unread>0" : "");
-        query.append(" ORDER BY UPPER(title) ");
-        query.append(invertSortFeedCats ? "DESC" : "ASC");
-        insertValues(DBHelper.getInstance().query(query.toString(), null));
-        
-        closeCursor();
-        String[] columns = { "id", "title", "unread" };
-        Cursor c = db.query(TABLE_NAME, columns, null, null, null, null, null); //"sortId " + (invertSortFeedCats ? "DESC" : "ASC"));
-        changedTime = Data.getInstance().getCategoriesChanged(); // Re-fetch changedTime since it can have changed by
-                                                                 // now
-        return c;
     }
     
     /*

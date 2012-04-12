@@ -19,8 +19,10 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IConfigurable;
+import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
@@ -43,7 +45,7 @@ import android.view.Window;
  * FeedHeadlineListActivity).
  */
 public abstract class MenuActivity extends FragmentActivity implements IUpdateEndListener, ICacheEndListener,
-        IConfigurable, IItemSelectedListener {
+        IConfigurable, IItemSelectedListener, IDataChangedListener {
     
     protected Updater updater;
     protected Context context = null;
@@ -68,6 +70,8 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
         
+        registerAsDataChangedListener();
+        
         // Register this instance to be notified when the ImageCache finished.
         Controller.getInstance().registerActivity(this);
         
@@ -85,6 +89,8 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterAsDataChangedListener();
+        
         if (updater != null) {
             updater.cancel(true);
             updater = null;
@@ -169,10 +175,6 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
             case R.id.Menu_About:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
-                // // Removed. See res/menu/generic.xml for more information.
-                // case R.id.Category_Menu_ArticleCache:
-                // doCache(true);
-                // return true;
             case R.id.Category_Menu_ImageCache:
                 doCache(false);
                 return true;
@@ -189,12 +191,10 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     @Override
     public void onUpdateEnd() {
         updater = null;
-        doRefresh();
     }
     
     @Override
     public void onUpdateProgress() {
-        doRefresh();
     }
     
     /* ############# END: Update */
@@ -228,7 +228,6 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     @Override
     public void onCacheEnd() {
         setProgressBarVisibility(false);
-        doRefresh();
     }
     
     @Override
@@ -239,7 +238,6 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         } else {
             setProgress((10000 / (taskCount + 1)) * progress);
         }
-        doRefresh();
     }
     
     protected boolean isCacherRunning() {
@@ -265,6 +263,27 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
             doRefresh();
             doUpdate();
         }
+    }
+    
+    @Override
+    public void dataChanged(int type) {
+        // Instantly refresh when counters did change, everything else is handled by specific UI-classes
+        if (type == UpdateController.TYPE_COUNTERS)
+            doRefresh();
+        else
+            handleDataChanged(type);
+    }
+    
+    abstract void handleDataChanged(int type);
+    
+    protected void registerAsDataChangedListener() {
+        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_COUNTERS,
+                UpdateController.LISTEN_ALL);
+    }
+    
+    protected void unregisterAsDataChangedListener() {
+        UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_COUNTERS,
+                UpdateController.LISTEN_ALL);
     }
     
 }

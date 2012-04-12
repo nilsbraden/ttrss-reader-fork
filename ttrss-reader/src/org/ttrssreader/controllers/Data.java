@@ -38,16 +38,13 @@ public class Data {
     private static Data instance = null;
     private Context context;
     
-    private long countersUpdated = 0;
     private long articlesCached = 0;
-    private Map<Integer, Long> articlesUpdated = new HashMap<Integer, Long>();
-    private Map<Integer, Long> feedsUpdated = new HashMap<Integer, Long>();
-    private long virtCategoriesUpdated = 0;
-    private long categoriesUpdated = 0;
     
     private Map<Integer, Long> articlesChanged = new HashMap<Integer, Long>();
     private Map<Integer, Long> feedsChanged = new HashMap<Integer, Long>();
+    private long virtCategoriesChanged = 0;
     private long categoriesChanged = 0;
+    private long countersChanged = 0;
     
     private ConnectivityManager cm;
     
@@ -71,68 +68,34 @@ public class Data {
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
     
-    public long getArticlesChanged(int feedId) {
-        if (articlesChanged.get(feedId) == null)
-            return -1;
-        else
-            return articlesChanged.get(feedId);
-    }
-    
-    public long getFeedsChanged(int categoryId) {
-        if (feedsChanged.get(categoryId) == null)
-            return -1;
-        else
-            return feedsChanged.get(categoryId);
-    }
-    
-    public long getCategoriesChanged() {
-        if (categoriesChanged == 0)
-            return -1;
-        else
-            return categoriesChanged;
-    }
-    
-    public void setArticlesChanged(int feedId, long time) {
-        if (articlesChanged.get(feedId) == null || articlesChanged.get(feedId) < time)
-            articlesChanged.put(feedId, time);
-    }
-    
-    public void setFeedsChanged(int categoryId, long time) {
-        if (feedsChanged.get(categoryId) == null || feedsChanged.get(categoryId) < time)
-            feedsChanged.put(categoryId, time);
-    }
-    
-    public void setCategoriesChanged(long time) {
-        if (categoriesChanged < time)
-            categoriesChanged = time;
-    }
-    
     // *** COUNTERS *********************************************************************
     
     public void resetTime(int id, boolean isCat, boolean isFeed, boolean isArticle) {
         if (isCat) { // id doesn't matter
-            virtCategoriesUpdated = 0;
-            categoriesUpdated = 0;
             categoriesChanged = 0;
-            countersUpdated = 0;
+            countersChanged = 0;
         }
         if (isFeed) {
-            feedsUpdated.put(id, new Long(0)); // id == categoryId
             feedsChanged.put(id, new Long(0)); // id == categoryId
         }
         if (isArticle) {
-            articlesUpdated.put(id, new Long(0)); // id == feedId
             articlesChanged.put(id, new Long(0)); // id == feedId
         }
     }
     
     public void updateCounters(boolean overrideOffline) {
-        if (countersUpdated > System.currentTimeMillis() - Utils.HALF_UPDATE_TIME) { // Update counters more often..
+        if (countersChanged > System.currentTimeMillis() - Utils.HALF_UPDATE_TIME) { // Update counters more often..
             return;
         } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
-                if (Controller.getInstance().getConnector().getCounters())
-                    countersUpdated = System.currentTimeMillis(); // Only mark as updated if the call was successful
+                if (Controller.getInstance().getConnector().getCounters()) {
+                    
+                    countersChanged = System.currentTimeMillis(); // Only mark as updated if the call was successful
+                    
+                    UpdateController.getInstance().notifyListeners(UpdateController.TYPE_COUNTERS,
+                            UpdateController.LISTEN_ALL, UpdateController.ID_EMPTY);
+                    
+                }
             } catch (NotInitializedException e) {
             }
         }
@@ -167,11 +130,10 @@ public class Data {
                     articlesCached = System.currentTimeMillis();
                     
                     // Store all category-ids and ids of all feeds for this category in db
-                    articlesUpdated.put(-4, articlesCached);
                     articlesChanged.put(-4, articlesCached);
                     for (Feed f : DBHelper.getInstance().getFeeds(-3)) {
-                        articlesUpdated.put(f.id, articlesCached);
                         articlesChanged.put(f.id, articlesCached);
+                        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id, f.categoryId);
                     }
                 }
             } catch (NotInitializedException e) {
@@ -188,11 +150,11 @@ public class Data {
             int actualUnread = DBHelper.getInstance().getUnreadArticles(feedId).size();
             if (unreadCount > actualUnread) {
                 needUnreadUpdate = true;
-                articlesUpdated.put(feedId, System.currentTimeMillis() - Utils.UPDATE_TIME - 1000);
+                articlesChanged.put(feedId, System.currentTimeMillis() - Utils.UPDATE_TIME - 1000);
             }
         }
         
-        Long time = articlesUpdated.get(feedId);
+        Long time = articlesChanged.get(feedId);
         if (time == null)
             time = new Long(0);
         
@@ -221,16 +183,19 @@ public class Data {
                     long currentTime = System.currentTimeMillis();
                     // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
                     // requested
-                    articlesUpdated.put(feedId, currentTime);
                     articlesChanged.put(feedId, currentTime);
+                    
                     if (isCat) {
                         for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
-                            articlesUpdated.put(f.id, currentTime);
                             articlesChanged.put(f.id, currentTime);
+                            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id,
+                                    f.categoryId);
                         }
+                    } else {
+                        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, feedId,
+                                UpdateController.ID_EMPTY);
                     }
                 }
-                
             } catch (NotInitializedException e) {
             }
         }
@@ -246,15 +211,12 @@ public class Data {
             case VCAT_PUB: // Published
                 limit = 300;
                 break;
-            
             case VCAT_FRESH: // Fresh
                 limit = DBHelper.getInstance().getUnreadCount(feedId, true);
                 break;
-            
             case VCAT_ALL: // All Articles
                 limit = DBHelper.getInstance().getUnreadCount(feedId, true);
                 break;
-            
             default: // Normal categories
                 limit = DBHelper.getInstance().getUnreadCount(feedId, isCat);
         }
@@ -280,7 +242,7 @@ public class Data {
     
     public Set<Feed> updateFeeds(int categoryId, boolean overrideOffline) {
         
-        Long time = feedsUpdated.get(categoryId);
+        Long time = feedsChanged.get(categoryId);
         if (time == null)
             time = new Long(0);
         
@@ -302,10 +264,11 @@ public class Data {
                     DBHelper.getInstance().insertFeeds(feeds);
                     
                     // Store requested category-id and ids of all received feeds
-                    feedsUpdated.put(categoryId, System.currentTimeMillis());
                     feedsChanged.put(categoryId, System.currentTimeMillis());
+                    UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, categoryId,
+                            UpdateController.ID_EMPTY);
                     for (Feed f : feeds) {
-                        feedsUpdated.put(f.categoryId, System.currentTimeMillis());
+                        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id, categoryId);
                         feedsChanged.put(f.categoryId, System.currentTimeMillis());
                     }
                 }
@@ -320,7 +283,7 @@ public class Data {
     // *** CATEGORIES *******************************************************************
     
     public Set<Category> updateVirtualCategories() {
-        if (virtCategoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME)
+        if (virtCategoriesChanged > System.currentTimeMillis() - Utils.UPDATE_TIME)
             return null;
         
         String vCatAllArticles = "";
@@ -345,13 +308,16 @@ public class Data {
         vCats.add(new Category(VCAT_UNCAT, uncatFeeds, DBHelper.getInstance().getUnreadCount(VCAT_UNCAT, true)));
         
         DBHelper.getInstance().insertCategories(vCats);
-        virtCategoriesUpdated = System.currentTimeMillis();
+        
+        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, UpdateController.LISTEN_ALL,
+                UpdateController.ID_EMPTY);
+        virtCategoriesChanged = System.currentTimeMillis();
         
         return vCats;
     }
     
     public Set<Category> updateCategories(boolean overrideOffline) {
-        if (categoriesUpdated > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        if (categoriesChanged > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
@@ -360,7 +326,9 @@ public class Data {
                 if (!categories.isEmpty()) {
                     DBHelper.getInstance().deleteCategories(false);
                     DBHelper.getInstance().insertCategories(categories);
-                    categoriesUpdated = System.currentTimeMillis();
+                    
+                    UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY,
+                            UpdateController.LISTEN_ALL, UpdateController.ID_EMPTY);
                     categoriesChanged = System.currentTimeMillis();
                 }
                 
@@ -422,6 +390,16 @@ public class Data {
     }
     
     public void setRead(int id, boolean isCategory) {
+        
+        if (isCategory || id < 0) {
+            DBHelper.getInstance().markCategoryRead(id);
+            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, id,
+                    UpdateController.ID_EMPTY);
+        } else {
+            DBHelper.getInstance().markFeedRead(id);
+            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, id, UpdateController.ID_EMPTY);
+        }
+        
         boolean erg = false;
         if (Utils.isConnected(cm)) {
             try {
@@ -432,18 +410,12 @@ public class Data {
         }
         
         if (isCategory || id < 0) {
-            
-            DBHelper.getInstance().markCategoryRead(id);
             if (!erg)
                 DBHelper.getInstance().markUnsynchronizedStatesCategory(id);
-            
         } else {
-            
-            DBHelper.getInstance().markFeedRead(id);
-            if (!erg)
-                DBHelper.getInstance().markUnsynchronizedStatesFeed(id);
-            
+            DBHelper.getInstance().markUnsynchronizedStatesFeed(id);
         }
+        
     }
     
     public String getPref(String pref) {

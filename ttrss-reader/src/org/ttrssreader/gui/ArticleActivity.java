@@ -22,6 +22,8 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
+import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.ArticleHeaderView;
@@ -65,7 +67,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class ArticleActivity extends Activity implements IUpdateEndListener, TextInputAlertCallback {
+public class ArticleActivity extends Activity implements IUpdateEndListener, TextInputAlertCallback, IDataChangedListener {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
@@ -173,6 +175,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     protected void onResume() {
         super.onResume();
         
+        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_ARTICLE, articleId);
         DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
     }
@@ -186,9 +189,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     @Override
     protected void onPause() {
         // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
-        
         super.onPause();
-        closeCursor();
+        
+        UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_ARTICLE, articleId);
     }
     
     @Override
@@ -755,6 +758,12 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     @Override
     public void onPublishNoteResult(Article a, String note) {
         new Updater(null, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
+    }
+
+    @Override
+    public void dataChanged(int type) {
+        if (type == UpdateController.TYPE_ARTICLE)
+            doRefresh();
     }
     
 }

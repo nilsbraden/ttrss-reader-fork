@@ -19,7 +19,6 @@ package org.ttrssreader.model;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Feed;
 import android.content.Context;
 import android.database.Cursor;
@@ -39,10 +38,6 @@ public class FeedAdapter extends MainAdapter {
     
     @Override
     public Object getItem(int position) {
-        if (cursor.isClosed()) {
-            makeQuery();
-        }
-        
         Feed ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
@@ -94,22 +89,15 @@ public class FeedAdapter extends MainAdapter {
         return layout;
     }
     
-    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery, boolean forceRefresh) {
-        
-        long currentChangedTime = Data.getInstance().getFeedsChanged(categoryId);
-        boolean refresh = buildSafeQuery || forceRefresh || (currentChangedTime == -1 && changedTime != -1);
-        
-        if (refresh) {
-            // Create query, currentChangedTime is not initialized or safeQuery requested or forceRefresh requested.
-        } else if (cursor != null && !cursor.isClosed() && changedTime >= currentChangedTime) {
-            // Log.d(Utils.TAG, "Feed currentChangedTime: " + currentChangedTime + " changedTime: " + changedTime);
-            return cursor;
-        }
+    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         
         StringBuilder query = new StringBuilder();
         
         Integer lastOpenedFeed = Controller.getInstance().lastOpenedFeed;
-        boolean displayUnread = displayOnlyUnread;
+        
+        boolean displayUnread = Controller.getInstance().onlyUnread();
+        boolean invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
+        
         if (overrideDisplayUnread)
             displayUnread = false;
         
@@ -134,12 +122,7 @@ public class FeedAdapter extends MainAdapter {
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         query.append(buildSafeQuery ? " LIMIT 200" : " LIMIT 1000");
         
-        closeCursor();
-        Cursor c = DBHelper.getInstance().query(query.toString(), null);
-        changedTime = Data.getInstance().getFeedsChanged(categoryId); // Re-fetch changedTime since it can have changed
-                                                                      // by now
-        
-        return c;
+        return DBHelper.getInstance().query(query.toString(), null);
     }
     
 }

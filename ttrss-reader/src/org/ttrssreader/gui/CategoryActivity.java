@@ -27,6 +27,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
+import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.model.CategoryAdapter;
@@ -124,8 +125,13 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     protected void onResume() {
+        if (adapter != null)
+            adapter.makeQuery();
+        
         super.onResume();
         
+        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY,
+                UpdateController.LISTEN_ALL);
         refreshAndUpdate();
     }
     
@@ -136,9 +142,9 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     protected void onPause() {
-        // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
         super.onPause();
-        closeCursor();
+        UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_CATEGORY,
+                UpdateController.LISTEN_ALL);
     }
     
     @Override
@@ -160,10 +166,8 @@ public class CategoryActivity extends MenuActivity {
         int unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
         setTitle(MainAdapter.formatTitle(applicationName, unreadCount));
         
-        if (adapter != null) {
-            adapter.makeQuery(true);
-            adapter.notifyDataSetChanged();
-        }
+        if (adapter != null)
+            adapter.refreshQuery();
         
         try {
             if (Controller.getInstance().getConnector().hasLastError())
@@ -237,7 +241,6 @@ public class CategoryActivity extends MenuActivity {
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         Log.d(Utils.TAG, "CategoryActivity: onOptionsItemSelected called");
-        boolean ret = super.onOptionsItemSelected(item);
         
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
@@ -252,10 +255,6 @@ public class CategoryActivity extends MenuActivity {
                 } else {
                     return false;
                 }
-        }
-        
-        if (ret) {
-            refreshAndUpdate();
         }
         return true;
     }
@@ -308,12 +307,10 @@ public class CategoryActivity extends MenuActivity {
             if (values[0] == taskCount) {
                 setProgressBarIndeterminateVisibility(false);
                 setProgressBarVisibility(false);
-                doRefresh();
                 return;
             }
             
             setProgress((10000 / (taskCount + 1)) * values[0]);
-            doRefresh();
         }
         
     }
@@ -328,7 +325,7 @@ public class CategoryActivity extends MenuActivity {
         
         switch (id) {
             case DIALOG_WELCOME:
-
+                
                 builder.setTitle(getResources().getString(R.string.Welcome_Title));
                 builder.setMessage(getResources().getString(R.string.Welcome_Message));
                 builder.setNeutralButton((String) getText(R.string.Preferences_Btn),
@@ -343,7 +340,7 @@ public class CategoryActivity extends MenuActivity {
                 break;
             
             case DIALOG_UPDATE:
-
+                
                 builder.setTitle(getResources().getString(R.string.Changelog_Title));
                 final String[] changes = getResources().getStringArray(R.array.updates);
                 final StringBuilder sb = new StringBuilder();
@@ -367,7 +364,7 @@ public class CategoryActivity extends MenuActivity {
                 break;
             
             case DIALOG_CRASH:
-
+                
                 builder.setTitle(getResources().getString(R.string.ErrorActivity_Title));
                 builder.setMessage(getResources().getString(R.string.Check_Crash));
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -524,6 +521,12 @@ public class CategoryActivity extends MenuActivity {
                 startActivity(i);
             
         }
+    }
+    
+    @Override
+    void handleDataChanged(int type) {
+        if (type == UpdateController.TYPE_CATEGORY)
+            doRefresh();
     }
     
 }
