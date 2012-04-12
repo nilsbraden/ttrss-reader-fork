@@ -589,7 +589,6 @@ public class JSONConnector implements Connector {
                     if (cat && id >= 0) {
                         // Category
                         db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
-                        Data.getInstance().setFeedsChanged(id, System.currentTimeMillis());
                     } else if (!cat && id < 0 && id >= -4) {
                         // Virtual Category
                         db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
@@ -609,7 +608,6 @@ public class JSONConnector implements Connector {
                 e.printStackTrace();
             } finally {
                 db.endTransaction();
-                Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }
@@ -659,7 +657,6 @@ public class JSONConnector implements Connector {
         SQLiteDatabase db = DBHelper.getInstance().db;
         synchronized (DBHelper.TABLE_ARTICLES) {
             try {
-                // DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
                 List<ArticleContainer> articleList = new ArrayList<ArticleContainer>();
                 
                 reader.beginArray();
@@ -718,17 +715,9 @@ public class JSONConnector implements Connector {
                     reader.endObject();
                     
                     if (id != -1 && title != null) {
-                        // DBHelper.getInstance().insertArticle(id, realFeedId, title, isUnread, articleUrl,
-                        // articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId);
                         articleList.add(new ArticleContainer(id, realFeedId, title, isUnread, articleUrl,
                                 articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
                     }
-                    
-                    // See comment on DBHelper.getInstance().bulkInsertArticles for information about this.
-                    // if (articleList.size() > 100) {
-                    // DBHelper.getInstance().bulkInsertArticles(articleList);
-                    // articleList = new ArrayList<Object[]>();
-                    // }
                 }
                 reader.endArray();
                 
@@ -750,12 +739,6 @@ public class JSONConnector implements Connector {
             } finally {
                 db.endTransaction();
                 Log.d(Utils.TAG, "INSERT  took " + (System.currentTimeMillis() - insertTime) + "ms");
-                
-                if (isCategory)
-                    Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
-                else
-                    Data.getInstance().setFeedsChanged(catId, System.currentTimeMillis());
-                
                 DBHelper.getInstance().purgeArticlesNumber();
             }
         }

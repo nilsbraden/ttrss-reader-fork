@@ -24,6 +24,7 @@ import java.util.Set;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
@@ -75,12 +76,12 @@ public class ReadStateUpdater implements IUpdatable {
     public void update(Updater parent) {
         if (categories != null) {
             
-            for (Category ci : categories) {
-                DBHelper.getInstance().markCategoryRead(ci.id);
-                Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
-            }
-            
-            parent.progress();
+            // for (Category ci : categories) {
+            // DBHelper.getInstance().markCategoryRead(ci.id);
+            // Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
+            // }
+            //
+            // parent.progress();
             
             for (Category ci : categories) {
                 // VirtualCats are actually Feeds (the server handles them as such) so we have to set isCat to false
@@ -93,12 +94,12 @@ public class ReadStateUpdater implements IUpdatable {
             
         } else if (feeds != null) {
             
-            for (Feed fi : feeds) {
-                DBHelper.getInstance().markFeedRead(fi.id);
-                Data.getInstance().setFeedsChanged(fi.categoryId, System.currentTimeMillis());
-            }
-            
-            parent.progress();
+            // for (Feed fi : feeds) {
+            // DBHelper.getInstance().markFeedRead(fi.id);
+            // Data.getInstance().setFeedsChanged(fi.categoryId, System.currentTimeMillis());
+            // }
+            //
+            // parent.progress();
             
             for (Feed fi : feeds) {
                 Data.getInstance().setRead(fi.id, false);
@@ -145,16 +146,10 @@ public class ReadStateUpdater implements IUpdatable {
                 // Check if it is a published article and modify that count too
                 if (article.isPublished && pid != Data.VCAT_PUB)
                     DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_PUB, delta);
-                
-                // Mark all categories and feeds as "changed" since the counters were changed here
-                Data.getInstance().setArticlesChanged(feedId, System.currentTimeMillis());
-                Data.getInstance().setFeedsChanged(categoryId, System.currentTimeMillis());
-                Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
             }
             
             if (ids.size() > 0) {
                 DBHelper.getInstance().markArticles(ids, "isUnread", articleState);
-                Data.getInstance().setArticlesChanged(pid, System.currentTimeMillis());
                 
                 int deltaUnread = articleState == 1 ? ids.size() : -ids.size();
                 DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_ALL, deltaUnread);
@@ -168,6 +163,14 @@ public class ReadStateUpdater implements IUpdatable {
                 }
                 
                 parent.progress();
+                
+                // Only notify some listeners on these articles and the parent feed
+                int count = 0;
+                for (int id : ids) {
+                    if (count++ > 10)
+                        break;
+                    UpdateController.getInstance().notifyListeners(UpdateController.TYPE_ARTICLE, id, pid);
+                }
                 
                 Data.getInstance().setArticleRead(ids, articleState);
             }

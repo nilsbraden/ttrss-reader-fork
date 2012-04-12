@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
+import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.model.FeedAdapter;
@@ -104,8 +105,16 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     @Override
     protected void onResume() {
+        if (adapter != null)
+            adapter.makeQuery();
+        
         super.onResume();
         
+        if (selectArticlesForCategory) {
+            UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY, categoryId);
+        } else {
+            UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_FEED, feedId);
+        }
         DBHelper.getInstance().checkAndInitializeDB(this);
         refreshAndUpdate();
     }
@@ -119,9 +128,13 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     @Override
     protected void onPause() {
-        // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
         super.onPause();
-        closeCursor();
+        
+        if (selectArticlesForCategory) {
+            UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY, categoryId);
+        } else {
+            UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_FEED, feedId);
+        }
     }
     
     @Override
@@ -156,10 +169,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         setTitle(MainAdapter.formatTitle(feedTitle, unreadCount));
         flingDetected = false; // reset fling-status
         
-        if (adapter != null) {
-            adapter.makeQuery(true);
-            adapter.notifyDataSetChanged();
-        }
+        if (adapter != null)
+            adapter.refreshQuery();
         
         try {
             if (Controller.getInstance().getConnector().hasLastError())
@@ -249,13 +260,11 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             default:
                 return false;
         }
-        doRefresh();
         return true;
     }
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
-        boolean ret = super.onOptionsItemSelected(item);
         
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
@@ -274,10 +283,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                 }
                 
                 return true;
-        }
-        
-        if (ret) {
-            doRefresh();
         }
         return true;
     }
@@ -414,12 +419,10 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             if (values[0] == taskCount) {
                 setProgressBarIndeterminateVisibility(false);
                 setProgressBarVisibility(false);
-                doRefresh();
                 return;
             }
             
             setProgress((10000 / (taskCount + 1)) * values[0]);
-            doRefresh();
         }
         
     }
@@ -486,6 +489,12 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     public void onPublishNoteResult(Article a, String note) {
         new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
+    }
+    
+    @Override
+    void handleDataChanged(int type) {
+        if (type == UpdateController.TYPE_ARTICLE)
+            doRefresh();
     }
     
 }

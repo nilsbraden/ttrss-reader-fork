@@ -17,10 +17,11 @@ package org.ttrssreader.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.ttrssreader.controllers.Controller;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -29,37 +30,26 @@ public abstract class MainAdapter extends BaseAdapter {
     
     protected Context context;
     protected Cursor cursor;
+    private Cursor tempCursor = null;
+    protected String poorMansMutex = "poorMansMutex";
     
-    protected boolean displayOnlyUnread;
-    protected boolean invertSortFeedCats;
-    protected boolean invertSortArticles;
     protected int categoryId;
     protected int feedId;
-    protected long changedTime;
     
     protected boolean selectArticlesForCategory;
     
-    public MainAdapter() {
-        this.displayOnlyUnread = Controller.getInstance().onlyUnread();
-        this.invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
-        this.invertSortArticles = Controller.getInstance().invertSortArticlelist();
-    }
-    
     public MainAdapter(Context context) {
-        this();
         this.context = context;
         makeQuery();
     }
     
     public MainAdapter(Context context, int categoryId) {
-        this();
         this.context = context;
         this.categoryId = categoryId;
         makeQuery();
     }
     
     public MainAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
-        this();
         this.context = context;
         this.feedId = feedId;
         this.categoryId = categoryId;
@@ -68,27 +58,31 @@ public abstract class MainAdapter extends BaseAdapter {
     }
     
     public final void closeCursor() {
-        if (cursor == null)
+        if (cursor == null || cursor.isClosed())
             return;
         
-        synchronized (cursor) {
-            if (cursor == null)
-                return;
-            
-            // Catch all SQLiteExceptions to make sure no "unable to close due to unfinalised statements" errors arise
-            try {
-                cursor.close();
-            } catch (SQLiteException e) {
-            }
+        synchronized (poorMansMutex) {
+            closeCursor(cursor);
+        }
+    }
+    
+    public final void closeCursor(Cursor c) {
+        if (c == null || c.isClosed())
+            return;
+        
+        if (c == null || c.isClosed())
+            return;
+        
+        // Catch all SQLiteExceptions to make sure no "unable to close due to unfinalised statements" errors arise
+        try {
+            c.close();
+        } catch (SQLiteException e) {
         }
     }
     
     @Override
     public final int getCount() {
-        synchronized (cursor) {
-            if (cursor.isClosed())
-                makeQuery();
-            
+        synchronized (poorMansMutex) {
             return cursor.getCount();
         }
     }
@@ -100,10 +94,7 @@ public abstract class MainAdapter extends BaseAdapter {
     
     public final int getId(int position) {
         int ret = 0;
-        synchronized (cursor) {
-            if (cursor.isClosed())
-                makeQuery();
-            
+        synchronized (poorMansMutex) {
             if (cursor.getCount() >= position)
                 if (cursor.moveToPosition(position))
                     ret = cursor.getInt(0);
@@ -113,10 +104,7 @@ public abstract class MainAdapter extends BaseAdapter {
     
     public final List<Integer> getIds() {
         List<Integer> result = new ArrayList<Integer>();
-        synchronized (cursor) {
-            if (cursor.isClosed())
-                makeQuery();
-            
+        synchronized (poorMansMutex) {
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
                     result.add(cursor.getInt(0));
@@ -129,10 +117,7 @@ public abstract class MainAdapter extends BaseAdapter {
     
     public final String getTitle(int position) {
         String ret = "";
-        synchronized (cursor) {
-            if (cursor.isClosed())
-                makeQuery();
-            
+        synchronized (poorMansMutex) {
             if (cursor.getCount() >= position)
                 if (cursor.moveToPosition(position))
                     ret = cursor.getString(1);
@@ -148,53 +133,61 @@ public abstract class MainAdapter extends BaseAdapter {
         }
     }
     
-    public final synchronized void makeQuery() {
+    /**
+     * Discards the old cursor and fetches new data in the background.
+     */
+    public final void refreshQuery() {
+        new Thread(new Runnable() {
+            public void run() {
+                makeQuery(true);
+            }
+        }).start();
+    }
+    
+    /**
+     * Creates a new query if necessary
+     */
+    public void makeQuery() {
         makeQuery(false);
     }
     
     /**
-     * Only refresh if forceRefresh is true (called from constructor) or one of the display-attributes changed.
+     * Creates a new query if necessary or called with force = true.
      * 
-     * @param forceRefresh
-     *            Discards the current cursor and forces a refresh, including a newly built SQL-Query.
+     * @param force
+     *            forces the creation of a new query
      */
-    public final synchronized void makeQuery(boolean forceRefresh) {
-        boolean refresh = false || forceRefresh;
-        // Check if display-settings have changed
-        if (displayOnlyUnread != Controller.getInstance().onlyUnread()) {
-            refresh = true;
-            displayOnlyUnread = !displayOnlyUnread;
-        }
-        if (invertSortFeedCats != Controller.getInstance().invertSortFeedscats()) {
-            refresh = true;
-            invertSortFeedCats = !invertSortFeedCats;
-        }
-        if (invertSortArticles != Controller.getInstance().invertSortArticlelist()) {
-            refresh = true;
-            invertSortArticles = !invertSortArticles;
+    public void makeQuery(boolean force) {
+        if (!force) {
+            if (cursor != null && !cursor.isClosed())
+                return;
         }
         
-        // if: sort-order or display-settings changed
-        // if: forced by explicit call with forceRefresh
-        // if: cursor is closed or null
-        if (refresh || (cursor != null && cursor.isClosed()) || cursor == null) {
-            // if (cursor != null) // Not necessary, child can close it if it issues a new query.
-            // closeCursor();
-            
+        synchronized (poorMansMutex) {
             try {
-                cursor = executeQuery(false, false, refresh); // normal query
+                tempCursor = executeQuery(false, false); // normal query
                 
-                if (!checkUnread(cursor))
-                    cursor = executeQuery(true, false, true); // Override unread if query was empty
+                if (!checkUnread(tempCursor))
+                    tempCursor = executeQuery(true, false); // Override unread if query was empty
                     
             } catch (Exception e) {
-                cursor = executeQuery(false, true, refresh); // Fail-safe-query
+                tempCursor = executeQuery(false, true); // Fail-safe-query
             }
             
-        } else if (cursor != null) {
-            cursor.requery();
+            // Try to almost atomically switch the old for the new cursor and close the old one afterwards
+            if (tempCursor != null) {
+                // Hold a reference
+                Cursor oldCur = cursor;
+                
+                // Swap cursor
+                cursor = tempCursor;
+                handler.sendEmptyMessage(0);
+                
+                // Clean-up
+                tempCursor = null;
+                closeCursor(oldCur);
+            }
         }
-        
     }
     
     /**
@@ -205,10 +198,7 @@ public abstract class MainAdapter extends BaseAdapter {
      * @return true if there are unread articles in the dataset, else false.
      */
     private final boolean checkUnread(Cursor c) {
-        if (c == null || c.isClosed())
-            return true; // TODO: Check for concurrency-issues here, to avoid anything strange this should return false.
-            
-        if (c.getCount() < 1)
+        if (c == null || c.isClosed() || c.getCount() < 1)
             return false;
         
         boolean gotUnread = false;
@@ -224,7 +214,6 @@ public abstract class MainAdapter extends BaseAdapter {
                     c.move(1);
                 }
             }
-            
         }
         
         c.moveToFirst();
@@ -250,6 +239,15 @@ public abstract class MainAdapter extends BaseAdapter {
      *            this indicates that a refresh of the cursor should be forced.
      * @return a valid SQL-Query string for this adapter.
      */
-    protected abstract Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery, boolean forceRefresh);
+    protected abstract Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
     
+    /**
+     * Notifies about changed data since only the original thread that created a view may do this.
+     */
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            notifyDataSetChanged();
+        }
+    };
 }

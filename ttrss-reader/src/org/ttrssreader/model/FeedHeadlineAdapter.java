@@ -46,10 +46,6 @@ public class FeedHeadlineAdapter extends MainAdapter {
     
     @Override
     public Object getItem(int position) {
-        if (cursor.isClosed()) {
-            makeQuery();
-        }
-        
         Article ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
@@ -133,18 +129,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return layout;
     }
     
-    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery, boolean forceRefresh) {
-        
-        long currentChangedTime = Data.getInstance().getArticlesChanged(feedId);
-        boolean refresh = buildSafeQuery || forceRefresh || (currentChangedTime == -1 && changedTime != -1);
-        
-        if (refresh) {
-            // Create query, currentChangedTime is not initialized or safeQuery requested or forceRefresh requested.
-        } else if (cursor != null && !cursor.isClosed() && changedTime >= currentChangedTime) {
-            // Log.d(Utils.TAG, "FeedHeadline currentChangedTime: " + currentChangedTime + " changedTime: " +
-            // changedTime);
-            return cursor;
-        }
+    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         
         String query;
         if (feedId > -10)
@@ -152,17 +137,15 @@ public class FeedHeadlineAdapter extends MainAdapter {
         else
             query = buildLabelQuery(overrideDisplayUnread, buildSafeQuery);
         
-        closeCursor();
-        Cursor c = DBHelper.getInstance().query(query, null);
-        changedTime = Data.getInstance().getArticlesChanged(feedId); // Re-fetch changedTime since it can have changed
-                                                                     // by now
-        
-        return c;
+        return DBHelper.getInstance().query(query, null);
     }
     
     private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         Integer lastOpenedArticle = Controller.getInstance().lastOpenedArticle;
-        boolean displayUnread = displayOnlyUnread;
+        
+        boolean displayUnread = Controller.getInstance().onlyUnread();
+        boolean invertSortArticles = Controller.getInstance().invertSortArticlelist();
+        
         if (overrideDisplayUnread)
             displayUnread = false;
         
@@ -193,7 +176,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
                 break;
             
             default:
-
+                
                 // User selected to display all articles of a category directly
                 query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId)
                         : (" AND a.feedId=" + feedId));
@@ -216,7 +199,10 @@ public class FeedHeadlineAdapter extends MainAdapter {
     
     private String buildLabelQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         Integer lastOpenedArticle = Controller.getInstance().lastOpenedArticle;
-        boolean displayUnread = displayOnlyUnread;
+        
+        boolean displayUnread = Controller.getInstance().onlyUnread();
+        boolean invertSortArticles = Controller.getInstance().invertSortArticlelist();
+        
         if (overrideDisplayUnread)
             displayUnread = false;
         
