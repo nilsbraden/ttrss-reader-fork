@@ -492,7 +492,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    void handleDataChanged(int type) {
+    protected void handleDataChanged(int type) {
         if (type == UpdateController.TYPE_ARTICLE)
             doRefresh();
     }

@@ -524,7 +524,7 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    void handleDataChanged(int type) {
+    protected void handleDataChanged(int type) {
         if (type == UpdateController.TYPE_CATEGORY)
             doRefresh();
     }

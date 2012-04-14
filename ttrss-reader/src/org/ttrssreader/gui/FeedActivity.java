@@ -73,7 +73,7 @@ public class FeedActivity extends MenuActivity {
     protected void onResume() {
         if (adapter != null)
             adapter.makeQuery();
-
+        
         super.onResume();
         
         UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY, categoryId);
@@ -277,7 +277,7 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    void handleDataChanged(int type) {
+    protected void handleDataChanged(int type) {
         if (type == UpdateController.TYPE_FEED)
             doRefresh();
     }

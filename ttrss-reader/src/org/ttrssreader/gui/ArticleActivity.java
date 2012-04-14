@@ -67,7 +67,8 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class ArticleActivity extends Activity implements IUpdateEndListener, TextInputAlertCallback, IDataChangedListener {
+public class ArticleActivity extends Activity implements IUpdateEndListener, TextInputAlertCallback,
+        IDataChangedListener {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
@@ -386,7 +387,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
-//                new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
+                // new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
                 
                 new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
                 return true;
@@ -750,16 +751,15 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         return html;
     }
     
-    // @formatter:off
-    @Override public void onUpdateEnd() { /* Not necessary here */ }
-    @Override public void onUpdateProgress() { /* Not necessary here */ }
-    // @formatter:on
+    @Override
+    public void onUpdateEnd() { /* Not necessary here */
+    }
     
     @Override
     public void onPublishNoteResult(Article a, String note) {
         new Updater(null, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
     }
-
+    
     @Override
     public void dataChanged(int type) {
         if (type == UpdateController.TYPE_ARTICLE)

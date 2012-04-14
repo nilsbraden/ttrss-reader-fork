@@ -19,8 +19,6 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.utils.Utils;
-import android.util.Log;
 
 public class StarredStateUpdater implements IUpdatable {
     
@@ -44,19 +42,7 @@ public class StarredStateUpdater implements IUpdatable {
             UpdateController.getInstance().notifyListeners(UpdateController.TYPE_ARTICLE, article.id,
                     UpdateController.ID_EMPTY);
             
-            parent.progress();
             Data.getInstance().setArticleStarred(article.id, articleState);
-            
-        } else {
-            // Does it make any sense to toggle the state on the server? Set newState to 2 for toggle.
-            Log.e(Utils.TAG, "WE SHOULD NOT BE HERE!!! -> StarredStateUpdater");
-            // int star = article.isStarred ? 0 : 1;
-            // article.isStarred = !article.isStarred;
-            //
-            // DBHelper.getInstance().markArticle(article.id, "isStarred", star);
-            // parent.progress();
-            // Data.getInstance().setArticleStarred(article.id, star);
-            
         }
         
         // Notify all listeners on this article and the parent feed

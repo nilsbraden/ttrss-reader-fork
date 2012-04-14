@@ -183,21 +183,10 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         }
     }
     
-    protected abstract void doRefresh();
-    
-    /* ############# BEGIN: Update */
-    protected abstract void doUpdate();
-    
     @Override
     public void onUpdateEnd() {
         updater = null;
     }
-    
-    @Override
-    public void onUpdateProgress() {
-    }
-    
-    /* ############# END: Update */
     
     /* ############# BEGIN: Cache */
     protected void doCache(boolean onlyArticles) {
@@ -274,7 +263,11 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
             handleDataChanged(type);
     }
     
-    abstract void handleDataChanged(int type);
+    protected abstract void doRefresh();
+    
+    protected abstract void doUpdate();
+    
+    protected abstract void handleDataChanged(int type);
     
     protected void registerAsDataChangedListener() {
         UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_COUNTERS,
