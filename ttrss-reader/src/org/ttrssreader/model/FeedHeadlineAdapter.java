@@ -46,6 +46,9 @@ public class FeedHeadlineAdapter extends MainAdapter {
     
     @Override
     public Object getItem(int position) {
+        if (cursor.isClosed())
+            makeQuery();
+        
         Article ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {

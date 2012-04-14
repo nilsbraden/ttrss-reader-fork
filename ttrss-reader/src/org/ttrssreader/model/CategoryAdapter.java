@@ -44,6 +44,9 @@ public class CategoryAdapter extends MainAdapter {
     
     @Override
     public Object getItem(int position) {
+        if (cursor.isClosed())
+            makeQuery();
+        
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
                 Category ret = new Category();

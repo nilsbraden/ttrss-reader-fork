@@ -38,6 +38,9 @@ public class FeedAdapter extends MainAdapter {
     
     @Override
     public Object getItem(int position) {
+        if (cursor.isClosed())
+            makeQuery();
+            
         Feed ret = null;
         if (cursor.getCount() >= position) {
             if (cursor.moveToPosition(position)) {
