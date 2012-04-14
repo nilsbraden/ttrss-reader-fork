@@ -83,6 +83,9 @@ public abstract class MainAdapter extends BaseAdapter {
     @Override
     public final int getCount() {
         synchronized (poorMansMutex) {
+            if (cursor.isClosed())
+                makeQuery();
+                
             return cursor.getCount();
         }
     }
@@ -95,6 +98,9 @@ public abstract class MainAdapter extends BaseAdapter {
     public final int getId(int position) {
         int ret = 0;
         synchronized (poorMansMutex) {
+            if (cursor.isClosed())
+                makeQuery();
+                
             if (cursor.getCount() >= position)
                 if (cursor.moveToPosition(position))
                     ret = cursor.getInt(0);
@@ -105,6 +111,9 @@ public abstract class MainAdapter extends BaseAdapter {
     public final List<Integer> getIds() {
         List<Integer> result = new ArrayList<Integer>();
         synchronized (poorMansMutex) {
+            if (cursor.isClosed())
+                makeQuery();
+                
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
                     result.add(cursor.getInt(0));
@@ -118,6 +127,9 @@ public abstract class MainAdapter extends BaseAdapter {
     public final String getTitle(int position) {
         String ret = "";
         synchronized (poorMansMutex) {
+            if (cursor.isClosed())
+                makeQuery();
+                
             if (cursor.getCount() >= position)
                 if (cursor.moveToPosition(position))
                     ret = cursor.getString(1);
@@ -164,6 +176,13 @@ public abstract class MainAdapter extends BaseAdapter {
         }
         
         synchronized (poorMansMutex) {
+            
+            // Check again to reduce the number of unnecessary new cursors
+            if (!force) {
+                if (cursor != null && !cursor.isClosed())
+                    return;
+            }
+            
             try {
                 tempCursor = executeQuery(false, false); // normal query
                 

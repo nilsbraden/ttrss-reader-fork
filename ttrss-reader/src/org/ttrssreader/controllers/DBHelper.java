@@ -1314,20 +1314,29 @@ public class DBHelper {
         if (!isDBAvailable())
             return ret;
         
-        Cursor c = null;
-        try {
-            c = db.query(isCat ? TABLE_CATEGORIES : TABLE_FEEDS, new String[] { "unread" }, "id=?", new String[] { id
-                    + "" }, null, null, null, null);
-            
-            if (c.moveToFirst()) {
-                ret = c.getInt(0);
+        if (isCat && id >= 0) { // Only do this for real categories for now
+        
+            for (Feed f : getFeeds(id)) {
+                // Recurse into all feeds of this category and add the unread-count
+                ret += getUnreadCount(f.id, false);
             }
             
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (c != null)
-                c.close();
+        } else {
+            // Read count for given feed
+            Cursor c = null;
+            try {
+                c = db.query(isCat ? TABLE_CATEGORIES : TABLE_FEEDS, new String[] { "unread" }, "id=" + id, null, null,
+                        null, null, null);
+                
+                if (c.moveToFirst())
+                    ret = c.getInt(0);
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null)
+                    c.close();
+            }
         }
         
         dbReadLock.readLock().unlock();

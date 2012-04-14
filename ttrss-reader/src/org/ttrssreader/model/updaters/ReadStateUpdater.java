@@ -76,13 +76,6 @@ public class ReadStateUpdater implements IUpdatable {
     public void update(Updater parent) {
         if (categories != null) {
             
-            // for (Category ci : categories) {
-            // DBHelper.getInstance().markCategoryRead(ci.id);
-            // Data.getInstance().setCategoriesChanged(System.currentTimeMillis());
-            // }
-            //
-            // parent.progress();
-            
             for (Category ci : categories) {
                 // VirtualCats are actually Feeds (the server handles them as such) so we have to set isCat to false
                 if (ci.id >= 0) {
@@ -93,13 +86,6 @@ public class ReadStateUpdater implements IUpdatable {
             }
             
         } else if (feeds != null) {
-            
-            // for (Feed fi : feeds) {
-            // DBHelper.getInstance().markFeedRead(fi.id);
-            // Data.getInstance().setFeedsChanged(fi.categoryId, System.currentTimeMillis());
-            // }
-            //
-            // parent.progress();
             
             for (Feed fi : feeds) {
                 Data.getInstance().setRead(fi.id, false);
@@ -113,12 +99,6 @@ public class ReadStateUpdater implements IUpdatable {
             Set<Integer> ids = new HashSet<Integer>();
             
             for (Article article : articles) {
-                // Don't check this, sometimes we need to set the state of the object at once before we call this
-                // updater.
-                // if (articleState != 0 && article.isUnread)
-                // continue;
-                // if (articleState == 0 && !article.isUnread)
-                // continue;
                 
                 // Build a list of article ids to update.
                 ids.add(article.id);
