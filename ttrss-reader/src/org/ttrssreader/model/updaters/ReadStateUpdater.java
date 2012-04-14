@@ -142,7 +142,9 @@ public class ReadStateUpdater implements IUpdatable {
                     DBHelper.getInstance().updateFeedDeltaUnreadCount(pid, deltaUnread);
                 }
                 
-                parent.progress();
+                // Notify about changed counters
+                UpdateController.getInstance().notifyListeners(UpdateController.TYPE_COUNTERS,
+                        UpdateController.ID_EMPTY, UpdateController.ID_EMPTY);
                 
                 // Only notify some listeners on these articles and the parent feed
                 int count = 0;

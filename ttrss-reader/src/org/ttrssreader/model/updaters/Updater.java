@@ -25,8 +25,6 @@ import android.os.Message;
 
 public class Updater extends AsyncTask<Void, Void, Void> {
     
-    private static final int END = 0;
-    private static final int PROGRESS = 1;
     private IUpdateEndListener parent;
     private IUpdatable updatable;
     
@@ -39,24 +37,16 @@ public class Updater extends AsyncTask<Void, Void, Void> {
         
         @Override
         public void handleMessage(Message msg) {
-            if (parent != null) {
-                if (msg.what == END)
-                    parent.onUpdateEnd();
-                if (msg.what == PROGRESS)
-                    parent.onUpdateProgress();
-            }
+            if (parent != null)
+                parent.onUpdateEnd();
         }
     };
     
     @Override
     protected Void doInBackground(Void... params) {
         updatable.update(this);
-        handler.sendEmptyMessage(END);
+        handler.sendEmptyMessage(0);
         return null;
-    }
-    
-    public void progress() {
-        handler.sendEmptyMessage(PROGRESS);
     }
     
     @SuppressWarnings("unchecked")
@@ -67,9 +57,7 @@ public class Updater extends AsyncTask<Void, Void, Void> {
                 return (AsyncTask<Void, Void, Void>) sExecuteMethod.invoke(this, AsyncTask.THREAD_POOL_EXECUTOR,
                         (Void[]) null);
             } catch (InvocationTargetException unused) {
-                // fall through
             } catch (IllegalAccessException unused) {
-                // fall through
             }
         }
         return this.execute();
