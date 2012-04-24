@@ -72,7 +72,7 @@ public class FeedActivity extends MenuActivity {
     @Override
     protected void onResume() {
         if (adapter != null)
-            adapter.makeQuery();
+            adapter.makeQuery(true);
         
         super.onResume();
         
@@ -166,6 +166,7 @@ public class FeedActivity extends MenuActivity {
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
+        super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
                 Data.getInstance().resetTime(categoryId, false, true, false);
@@ -174,8 +175,9 @@ public class FeedActivity extends MenuActivity {
             case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(categoryId)).exec();
                 return true;
+            default:
+                return false;
         }
-        return true;
     }
     
     /**
@@ -277,8 +279,8 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    protected void handleDataChanged(int type) {
-        if (type == UpdateController.TYPE_FEED)
+    protected void onDataChanged(int type) {
+        if (type == UpdateController.TYPE_CATEGORY)
             doRefresh();
     }
     
