@@ -126,7 +126,7 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onResume() {
         if (adapter != null)
-            adapter.makeQuery();
+            adapter.makeQuery(true);
         
         super.onResume();
         
@@ -240,8 +240,7 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
-        Log.d(Utils.TAG, "CategoryActivity: onOptionsItemSelected called");
-        
+        super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
                 Data.getInstance().resetTime(-1, true, false, false);
@@ -252,11 +251,10 @@ public class CategoryActivity extends MenuActivity {
                 if (adapter != null) {
                     new Updater(this, new ReadStateUpdater(adapter.getCategories())).exec();
                     return true;
-                } else {
-                    return false;
                 }
+            default:
+                return false;
         }
-        return true;
     }
     
     public class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
@@ -524,7 +522,7 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    protected void handleDataChanged(int type) {
+    protected void onDataChanged(int type) {
         if (type == UpdateController.TYPE_CATEGORY)
             doRefresh();
     }

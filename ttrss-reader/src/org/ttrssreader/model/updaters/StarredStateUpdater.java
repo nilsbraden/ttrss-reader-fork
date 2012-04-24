@@ -39,15 +39,12 @@ public class StarredStateUpdater implements IUpdatable {
             article.isStarred = articleState > 0 ? true : false;
             
             DBHelper.getInstance().markArticle(article.id, "isStarred", articleState);
-            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_ARTICLE, article.id,
-                    UpdateController.ID_EMPTY);
+            
+            // Notify all listeners on this article and the parent feed
+            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_ARTICLE, article.id, article.feedId);
             
             Data.getInstance().setArticleStarred(article.id, articleState);
         }
-        
-        // Notify all listeners on this article and the parent feed
-        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_ARTICLE, article.id,
-                UpdateController.ID_EMPTY);
     }
     
 }

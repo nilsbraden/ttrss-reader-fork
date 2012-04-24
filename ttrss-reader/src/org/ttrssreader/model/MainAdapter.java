@@ -17,11 +17,13 @@ package org.ttrssreader.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -85,7 +87,7 @@ public abstract class MainAdapter extends BaseAdapter {
         synchronized (poorMansMutex) {
             if (cursor.isClosed())
                 makeQuery();
-                
+            
             return cursor.getCount();
         }
     }
@@ -100,7 +102,7 @@ public abstract class MainAdapter extends BaseAdapter {
         synchronized (poorMansMutex) {
             if (cursor.isClosed())
                 makeQuery();
-                
+            
             if (cursor.getCount() >= position)
                 if (cursor.moveToPosition(position))
                     ret = cursor.getInt(0);
@@ -113,7 +115,7 @@ public abstract class MainAdapter extends BaseAdapter {
         synchronized (poorMansMutex) {
             if (cursor.isClosed())
                 makeQuery();
-                
+            
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
                     result.add(cursor.getInt(0));
@@ -129,7 +131,7 @@ public abstract class MainAdapter extends BaseAdapter {
         synchronized (poorMansMutex) {
             if (cursor.isClosed())
                 makeQuery();
-                
+            
             if (cursor.getCount() >= position)
                 if (cursor.moveToPosition(position))
                     ret = cursor.getString(1);

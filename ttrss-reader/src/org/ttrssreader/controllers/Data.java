@@ -309,8 +309,12 @@ public class Data {
         
         DBHelper.getInstance().insertCategories(vCats);
         
-        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, UpdateController.LISTEN_ALL,
-                UpdateController.ID_EMPTY);
+        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_ALL, UpdateController.ID_EMPTY);
+        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_FRESH, UpdateController.ID_EMPTY);
+        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_PUB, UpdateController.ID_EMPTY);
+        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_STAR, UpdateController.ID_EMPTY);
+        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_UNCAT, UpdateController.ID_EMPTY);
+        
         virtCategoriesChanged = System.currentTimeMillis();
         
         return vCats;
@@ -326,11 +330,14 @@ public class Data {
                 if (!categories.isEmpty()) {
                     DBHelper.getInstance().deleteCategories(false);
                     DBHelper.getInstance().insertCategories(categories);
-                    
-                    UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY,
-                            UpdateController.LISTEN_ALL, UpdateController.ID_EMPTY);
                     categoriesChanged = System.currentTimeMillis();
+                    
+                    for (Category c : categories) {
+                        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY,
+                                UpdateController.LISTEN_ALL, c.id);
+                    }
                 }
+                
                 
                 return categories;
             } catch (NotInitializedException e) {
@@ -397,7 +404,8 @@ public class Data {
                     UpdateController.ID_EMPTY);
         } else {
             DBHelper.getInstance().markFeedRead(id);
-            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, id, UpdateController.ID_EMPTY);
+            int catId = DBHelper.getInstance().getFeed(id).categoryId;
+            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, id, catId);
         }
         
         boolean erg = false;

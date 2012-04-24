@@ -106,7 +106,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     protected void onResume() {
         if (adapter != null)
-            adapter.makeQuery();
+            adapter.makeQuery(true);
         
         super.onResume();
         
@@ -131,9 +131,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         super.onPause();
         
         if (selectArticlesForCategory) {
-            UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY, categoryId);
+            UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_CATEGORY, categoryId);
         } else {
-            UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_FEED, feedId);
+            UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_FEED, feedId);
         }
     }
     
@@ -265,7 +265,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
-        
+        super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
                 if (selectArticlesForCategory) {
@@ -281,10 +281,10 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                 } else {
                     new Updater(this, new ReadStateUpdater(feedId, 42)).exec();
                 }
-                
                 return true;
+            default:
+                return false;
         }
-        return true;
     }
     
     private void openNextFeed(int direction) {
@@ -492,8 +492,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    protected void handleDataChanged(int type) {
-        if (type == UpdateController.TYPE_ARTICLE)
+    protected void onDataChanged(int type) {
+        if (type == UpdateController.TYPE_FEED)
             doRefresh();
     }
     

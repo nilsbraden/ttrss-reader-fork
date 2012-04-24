@@ -148,10 +148,10 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         super.onOptionsItemSelected(item);
-        
         switch (item.getItemId()) {
             case R.id.Menu_DisplayOnlyUnread:
                 Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().onlyUnread());
+                doRefresh();
                 return true;
             case R.id.Menu_InvertSort:
                 if (this instanceof FeedHeadlineActivity) {
@@ -160,6 +160,7 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
                 } else {
                     Controller.getInstance().setInvertSortFeedsCats(!Controller.getInstance().invertSortFeedscats());
                 }
+                doRefresh();
                 return true;
             case R.id.Menu_WorkOffline:
                 Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
@@ -167,6 +168,7 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
                     // Synchronize status of articles with server
                     new Updater(this, new StateSynchronisationUpdater()).exec();
                 }
+                doRefresh();
                 return true;
             case R.id.Menu_ShowPreferences:
                 startActivityForResult(new Intent(this, PreferencesActivity.class),
@@ -210,8 +212,8 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         }
         intent.setClass(this.getApplicationContext(), ForegroundService.class);
         
-        setProgressBarVisibility(true);
-        startService(intent);
+        this.setProgressBarVisibility(true);
+        this.startService(intent);
     }
     
     @Override
@@ -260,14 +262,14 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         if (type == UpdateController.TYPE_COUNTERS)
             doRefresh();
         else
-            handleDataChanged(type);
+            onDataChanged(type);
     }
     
     protected abstract void doRefresh();
     
     protected abstract void doUpdate();
     
-    protected abstract void handleDataChanged(int type);
+    protected abstract void onDataChanged(int type);
     
     protected void registerAsDataChangedListener() {
         UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_COUNTERS,

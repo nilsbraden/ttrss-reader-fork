@@ -85,13 +85,13 @@ public class UpdateController {
             insertIntoMap(map, notifyMap, id, type);
             
             // Add all listeners on counters, they probably have changed so we notify them
-            insertIntoMap(counterListeners, notifyMap, id, LISTEN_ALL);
+            // insertIntoMap(counterListeners, notifyMap, id, LISTEN_ALL);
             
             if (superMap != null) {
                 // Check for super-listeners (listeners which listen on all events for one type
                 insertIntoMap(superMap, notifyMap, superId, LISTEN_ALL);
                 
-                // Also notify listeners
+                // Also notify listeners on super-type
                 if (superId != ID_EMPTY)
                     insertIntoMap(superMap, notifyMap, superId, superType);
             }
@@ -150,6 +150,11 @@ public class UpdateController {
      * @param id
      *            the ID of the referenced object
      */
+    // MenuActivity:    TYPE_COUNTERS  LISTEN_ALL
+    // Category:        TYPE_CATEGORY  LISTEN_ALL
+    // Feed:            TYPE_CATEGORY  categoryId
+    // FeedHeadline:    TYPE_FEED      feedId (categoryId for virtual cat)
+    // Article:         TYPE_ARTICLE   articleId
     public void registerActivity(IDataChangedListener listener, int type, Integer id) {
         switch (type) {
             case TYPE_CATEGORY:
