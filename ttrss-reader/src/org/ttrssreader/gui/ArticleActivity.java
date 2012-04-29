@@ -102,6 +102,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     private String baseUrl = null;
     
     private FeedHeadlineAdapter parentAdapter = null;
+    private int[] parentIDs = new int[2];
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -158,6 +159,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         Controller.getInstance().lastOpenedFeed = feedId;
         Controller.getInstance().lastOpenedArticle = articleId;
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
+        fillParentInformation();
         doVibrate(0);
         
         // Get article from DB
@@ -169,6 +171,20 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             article.isUnread = false;
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
             markedRead = true;
+        }
+        fillParentInformation();
+    }
+    
+    private void fillParentInformation() {
+        int index = parentAdapter.getIds().indexOf(articleId);
+        if (index >= 0) {
+            parentIDs[0] = parentAdapter.getId(index - 1); // Previous
+            parentIDs[1] = parentAdapter.getId(index + 1); // Next
+            
+            if (parentIDs[0] == 0)
+                parentIDs[0] = -1;
+            if (parentIDs[1] == 0)
+                parentIDs[1] = -1;
         }
     }
     
@@ -458,14 +474,16 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     }
     
     private void openNextArticle(int direction) {
-        int newIndex = getCurrentIndex() + direction;
+        int id = direction < 0 ? parentIDs[0] : parentIDs[1];
         
-        // Check: No more articles in this direction?
-        if (doVibrate(newIndex))
+        if (id < 0) {
+            if (Controller.getInstance().vibrateOnLastArticle())
+                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
+        }
         
         Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ARTICLE_ID, parentAdapter.getId(newIndex));
+        i.putExtra(ARTICLE_ID, id);
         i.putExtra(ARTICLE_FEED_ID, feedId);
         i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
@@ -476,29 +494,18 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         finish();
     }
     
-    private int getCurrentIndex() {
-        int currentIndex = -2; // -2 so index is still -1 if direction is +1, avoids moving when no move possible
-        int tempIndex = parentAdapter.getIds().indexOf(articleId);
-        if (tempIndex >= 0)
-            currentIndex = tempIndex;
-        return currentIndex;
-    }
-    
     private boolean doVibrate(int newIndex) {
-        int tempIndex = 0;
-        
-        if (newIndex == 0 && lastMove != 0) {
-            tempIndex = getCurrentIndex() + lastMove;
-        } else {
-            tempIndex = newIndex;
+        if (lastMove != 0) {
+            if (parentAdapter.getIds().indexOf(articleId) != -1) {
+                int index = parentAdapter.getIds().indexOf(articleId) + lastMove;
+                
+                if (index < 0 || index >= parentAdapter.getIds().size()) {
+                    if (Controller.getInstance().vibrateOnLastArticle())
+                        ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+                    return true;
+                }
+            }
         }
-        
-        if (tempIndex < 0 || tempIndex >= parentAdapter.getCount()) {
-            if (Controller.getInstance().vibrateOnLastArticle())
-                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
-            return true;
-        }
-        
         return false;
     }
     

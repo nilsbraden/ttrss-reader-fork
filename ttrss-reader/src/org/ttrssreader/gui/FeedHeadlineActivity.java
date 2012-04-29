@@ -75,6 +75,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                                                 // null!
     private FeedHeadlineUpdater headlineUpdater = null;
     private FeedAdapter parentAdapter = null;
+    private int[] parentIDs = new int[2];
+    private String[] parentTitles = new String[2];
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -101,6 +103,26 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         Controller.getInstance().lastOpenedArticle = null;
         
         parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
+        fillParentInformation();
+    }
+    
+    private void fillParentInformation() {
+        int index = parentAdapter.getIds().indexOf(feedId);
+        if (index >= 0) {
+            parentIDs[0] = parentAdapter.getId(index - 1); // Previous
+            parentIDs[1] = parentAdapter.getId(index + 1); // Next
+            parentTitles[0] = parentAdapter.getTitle(index - 1);
+            parentTitles[1] = parentAdapter.getTitle(index + 1);
+            
+            if (parentIDs[0] == 0) {
+                parentIDs[0] = -1;
+                parentTitles[0] = "";
+            }
+            if (parentIDs[1] == 0) {
+                parentIDs[1] = -1;
+                parentTitles[1] = "";
+            }
+        }
     }
     
     @Override
@@ -291,22 +313,14 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         if (feedId < 0)
             return;
         
-        int currentIndex = -2; // -2 so index is still -1 if direction is +1, avoids moving when no move possible
-        int tempIndex = parentAdapter.getIds().indexOf(feedId);
-        if (tempIndex >= 0)
-            currentIndex = tempIndex;
+        int id = direction < 0 ? parentIDs[0] : parentIDs[1];
+        String title = direction < 0 ? parentTitles[0] : parentTitles[1];
         
-        int index = currentIndex + direction;
-        
-        // No more feeds in this direction
-        if (index < 0 || index >= parentAdapter.getCount()) {
+        if (id < 0) {
             if (Controller.getInstance().vibrateOnLastArticle())
                 ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
-        
-        int id = parentAdapter.getId(index);
-        String title = parentAdapter.getTitle(index);
         
         Intent i = new Intent(this, getClass());
         i.putExtra(FEED_ID, id);
