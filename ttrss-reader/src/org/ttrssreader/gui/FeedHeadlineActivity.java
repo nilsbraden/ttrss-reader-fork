@@ -149,14 +149,14 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         closeCursor();
     }
     
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(FEED_CAT_ID, categoryId);
-        outState.putInt(FEED_ID, feedId);
-        outState.putString(FEED_TITLE, feedTitle);
-        outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        super.onSaveInstanceState(outState);
-    }
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        outState.putInt(FEED_CAT_ID, categoryId);
+//        outState.putInt(FEED_ID, feedId);
+//        outState.putString(FEED_TITLE, feedTitle);
+//        outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
+//        super.onSaveInstanceState(outState);
+//    }
     
     @Override
     protected void doRefresh() {

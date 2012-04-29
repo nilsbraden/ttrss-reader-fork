@@ -179,7 +179,6 @@ public class FeedHeadlineAdapter extends MainAdapter {
                 break;
             
             default:
-                
                 // User selected to display all articles of a category directly
                 query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId)
                         : (" AND a.feedId=" + feedId));

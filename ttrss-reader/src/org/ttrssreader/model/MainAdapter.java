@@ -192,6 +192,7 @@ public abstract class MainAdapter extends BaseAdapter {
                     tempCursor = executeQuery(true, false); // Override unread if query was empty
                     
             } catch (Exception e) {
+                e.printStackTrace();
                 tempCursor = executeQuery(false, true); // Fail-safe-query
             }
             
@@ -220,25 +221,20 @@ public abstract class MainAdapter extends BaseAdapter {
      */
     private final boolean checkUnread(Cursor c) {
         if (c == null || c.isClosed() || c.getCount() < 1)
-            return false;
-        
-        boolean gotUnread = false;
-        if (c.moveToFirst()) {
-            int col = c.getColumnIndex("unread");
-            if (col > -1) {
-                while (!c.isAfterLast()) {
-                    int unread = c.getInt(col);
-                    if (unread > 0) {
-                        gotUnread = true;
-                        break;
-                    }
-                    c.move(1);
-                }
+            return false; // Check null, closed, empty
+            
+        int col = c.getColumnIndex("unread");
+        if (col == -1 || !c.moveToFirst())
+            return false; // Check column, move
+            
+        while (c.moveToNext()) {
+            if (c.getInt(col) > 0) {
+                c.moveToFirst(); // One unread article found, move to first entry
+                return true;
             }
         }
         
-        c.moveToFirst();
-        return gotUnread;
+        return false;
     }
     
     @Override
