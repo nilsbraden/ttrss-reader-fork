@@ -104,12 +104,12 @@ public class FeedActivity extends MenuActivity {
         closeCursor();
     }
     
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(FEED_CAT_ID, categoryId);
-        outState.putString(FEED_CAT_TITLE, categoryTitle);
-        super.onSaveInstanceState(outState);
-    }
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        outState.putInt(FEED_CAT_ID, categoryId);
+//        outState.putString(FEED_CAT_TITLE, categoryTitle);
+//        super.onSaveInstanceState(outState);
+//    }
     
     @Override
     protected void doRefresh() {
