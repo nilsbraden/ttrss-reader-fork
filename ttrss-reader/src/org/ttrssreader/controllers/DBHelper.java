@@ -51,7 +51,12 @@ public class DBHelper {
     private boolean initialized = false;
     private boolean vacuumDone = false;
     
-    private static final ReentrantReadWriteLock dbReadLock = new ReentrantReadWriteLock();
+    private static final ReentrantReadWriteLock dbLock = new ReentrantReadWriteLock();
+    private static final ReentrantReadWriteLock dbLock_Cat = new ReentrantReadWriteLock();
+    private static final ReentrantReadWriteLock dbLock_Feed = new ReentrantReadWriteLock();
+    private static final ReentrantReadWriteLock dbLock_Article = new ReentrantReadWriteLock();
+    private static final ReentrantReadWriteLock dbLock_Label = new ReentrantReadWriteLock();
+    private static final ReentrantReadWriteLock dbLock_Mark = new ReentrantReadWriteLock();
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
@@ -60,9 +65,7 @@ public class DBHelper {
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
     public static final String TABLE_ARTICLES = "articles";
-    public static final String TABLE_ARTICLES2LABELS = "articles2labels"; // Careful with locking, we don't dbReadLock
-                                                                          // on this
-                                                                          // table but instead on TABLE_ARTICLES
+    public static final String TABLE_ARTICLES2LABELS = "articles2labels";
     public static final String TABLE_LABELS = "labels";
     public static final String TABLE_MARK = "marked";
     
@@ -256,22 +259,18 @@ public class DBHelper {
     }
     
     private void closeDB() {
-        // Close DB, acquire all locks to make sure no other threads have write-access to the DB right now.
-        synchronized (TABLE_ARTICLES) {
-            synchronized (TABLE_FEEDS) {
-                synchronized (TABLE_CATEGORIES) {
-                    synchronized (TABLE_MARK) {
-                        dbReadLock.writeLock().lock();
-                        db.close();
-                        db = null;
-                        dbReadLock.writeLock().unlock();
-                    }
-                }
-            }
-        }
+        // Close DB, acquire write-lock to make sure no other threads start accessing the DB from now on
+        dbLock.writeLock().lock();
+        db.close();
+        db = null;
+        dbLock.writeLock().unlock();
     }
     
     private boolean isDBAvailable() {
+        return isDBAvailable(null);
+    }
+    
+    private boolean isDBAvailable(String database) {
         
         boolean ret = false;
         
@@ -288,9 +287,44 @@ public class DBHelper {
             ret = initialized;
         }
         
-        if (ret)
-            dbReadLock.readLock().lock();
+        if (ret) {
+            dbLock.readLock().lock();
+            
+            if (TABLE_CATEGORIES.equals(database))
+                dbLock_Cat.writeLock().lock();
+            else if (TABLE_FEEDS.equals(database))
+                dbLock_Feed.writeLock().lock();
+            else if (TABLE_ARTICLES.equals(database))
+                dbLock_Article.writeLock().lock();
+            else if (TABLE_LABELS.equals(database))
+                dbLock_Label.writeLock().lock();
+            else if (TABLE_MARK.equals(database))
+                dbLock_Mark.writeLock().lock();
+        }
         return ret;
+    }
+    
+    private void releaseLock() {
+        releaseLock(null);
+    }
+    
+    private void releaseLock(String database) {
+        dbLock.readLock().unlock();
+        
+        if (dbLock.isWriteLockedByCurrentThread())
+            dbLock.writeLock().unlock();
+        
+        if (TABLE_CATEGORIES.equals(database) && dbLock_Cat.isWriteLockedByCurrentThread())
+            dbLock_Cat.writeLock().unlock();
+        else if (TABLE_FEEDS.equals(database) && dbLock_Feed.isWriteLockedByCurrentThread())
+            dbLock_Feed.writeLock().unlock();
+        else if (TABLE_ARTICLES.equals(database) && dbLock_Article.isWriteLockedByCurrentThread())
+            dbLock_Article.writeLock().unlock();
+        else if (TABLE_LABELS.equals(database) && dbLock_Label.isWriteLockedByCurrentThread())
+            dbLock_Label.writeLock().unlock();
+        else if (TABLE_MARK.equals(database) && dbLock_Mark.isWriteLockedByCurrentThread())
+            dbLock_Mark.writeLock().unlock();
+        
     }
     
     private static class OpenHelper extends SQLiteOpenHelper {
@@ -532,68 +566,56 @@ public class DBHelper {
     // *******| INSERT |*******************************************************************
     
     private void insertCategory(int id, String title, int unread) {
-        if (!isDBAvailable())
-            return;
         if (title == null)
             title = "";
         
-        synchronized (TABLE_CATEGORIES) {
-            insertCategory.bindLong(1, id);
-            insertCategory.bindString(2, title);
-            insertCategory.bindLong(3, unread);
-            insertCategory.execute();
-        }
-        dbReadLock.readLock().unlock();
+        insertCategory.bindLong(1, id);
+        insertCategory.bindString(2, title);
+        insertCategory.bindLong(3, unread);
+        
+        insertCategory.execute();
     }
     
     public void insertCategories(Set<Category> set) {
+        if (!isDBAvailable(TABLE_CATEGORIES))
+            return;
         if (set == null)
             return;
         
         for (Category c : set) {
             insertCategory(c.id, c.title, c.unread);
         }
+        
+        releaseLock(TABLE_CATEGORIES);
     }
     
     private void insertFeed(int id, int categoryId, String title, String url, int unread) {
-        if (!isDBAvailable())
-            return;
         if (title == null)
             title = "";
         if (url == null)
             url = "";
         
-        synchronized (TABLE_FEEDS) {
-            insertFeed.bindLong(1, new Integer(id).longValue());
-            insertFeed.bindLong(2, new Integer(categoryId).longValue());
-            insertFeed.bindString(3, title);
-            insertFeed.bindString(4, url);
-            insertFeed.bindLong(5, unread);
-            insertFeed.execute();
-        }
-        dbReadLock.readLock().unlock();
-    }
-    
-    private void insertFeed(Feed f) {
-        if (f == null)
-            return;
-        
-        insertFeed(f.id, f.categoryId, f.title, f.url, f.unread);
+        insertFeed.bindLong(1, new Integer(id).longValue());
+        insertFeed.bindLong(2, new Integer(categoryId).longValue());
+        insertFeed.bindString(3, title);
+        insertFeed.bindString(4, url);
+        insertFeed.bindLong(5, unread);
+        insertFeed.execute();
     }
     
     public void insertFeeds(Set<Feed> set) {
+        if (!isDBAvailable(TABLE_FEEDS))
+            return;
         if (set == null)
             return;
         
         for (Feed f : set) {
-            insertFeed(f);
+            insertFeed(f.id, f.categoryId, f.title, f.url, f.unread);
         }
+        releaseLock(TABLE_FEEDS);
     }
     
-    public void insertArticle(ArticleContainer a) {
-        
-        if (!isDBAvailable())
-            return;
+    private void insertArticleIntern(ArticleContainer a) {
         if (a.title == null)
             a.title = "";
         if (a.content == null)
@@ -607,40 +629,44 @@ public class DBHelper {
         if (a.attachments == null)
             a.attachments = new LinkedHashSet<String>();
         
-        long retId = -1;
-        synchronized (TABLE_ARTICLES) {
-            insertArticle.bindLong(1, a.id);
-            insertArticle.bindLong(2, a.feedId);
-            insertArticle.bindString(3, a.title);
-            insertArticle.bindLong(4, (a.isUnread ? 1 : 0));
-            insertArticle.bindString(5, a.articleUrl);
-            insertArticle.bindString(6, a.articleCommentUrl);
-            insertArticle.bindLong(7, a.updateDate.getTime());
-            insertArticle.bindString(8, a.content);
-            insertArticle.bindString(9, parseAttachmentSet(a.attachments));
-            insertArticle.bindLong(10, (a.isStarred ? 1 : 0));
-            insertArticle.bindLong(11, (a.isPublished ? 1 : 0));
-            insertArticle.bindLong(12, a.id); // ID again for the where-clause
-            retId = insertArticle.executeInsert();
-        }
+        insertArticle.bindLong(1, a.id);
+        insertArticle.bindLong(2, a.feedId);
+        insertArticle.bindString(3, a.title);
+        insertArticle.bindLong(4, (a.isUnread ? 1 : 0));
+        insertArticle.bindString(5, a.articleUrl);
+        insertArticle.bindString(6, a.articleCommentUrl);
+        insertArticle.bindLong(7, a.updateDate.getTime());
+        insertArticle.bindString(8, a.content);
+        insertArticle.bindString(9, parseAttachmentSet(a.attachments));
+        insertArticle.bindLong(10, (a.isStarred ? 1 : 0));
+        insertArticle.bindLong(11, (a.isPublished ? 1 : 0));
+        insertArticle.bindLong(12, a.id); // ID again for the where-clause
+        
+        long retId = insertArticle.executeInsert();
         
         if (retId > 0)
             insertLabel(a.id, a.label);
+    }
+    
+    public void insertArticle(ArticleContainer a) {
+        if (!isDBAvailable(TABLE_ARTICLES))
+            return;
         
-        dbReadLock.readLock().unlock();
+        insertArticleIntern(a);
+        
+        releaseLock(TABLE_ARTICLES);
     }
     
     public void insertArticle(List<ArticleContainer> articles) {
-        if (!isDBAvailable())
+        if (!isDBAvailable(TABLE_ARTICLES))
             return;
         if (articles == null || articles.isEmpty())
             return;
         
-        synchronized (TABLE_ARTICLES) {
-            for (ArticleContainer a : articles) {
-                insertArticle(a);
-            }
+        for (ArticleContainer a : articles) {
+            insertArticleIntern(a);
         }
+        releaseLock(TABLE_ARTICLES);
     }
     
     public static Object[] prepareArticleArray(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label) {
@@ -670,7 +696,7 @@ public class DBHelper {
      */
     public void bulkInsertArticles(List<Object[]> input) {
         
-        if (!isDBAvailable())
+        if (!isDBAvailable(TABLE_ARTICLES))
             return;
         if (input == null || input.isEmpty())
             return;
@@ -721,107 +747,95 @@ public class DBHelper {
             
         }
         
-        // long retId = -1;
-        synchronized (TABLE_ARTICLES) {
-            db.execSQL(stmt.toString());
-        }
-        
-        // if (retId > 0)
-        // insertLabel(id, label);
-        
-        dbReadLock.readLock().unlock();
+        db.execSQL(stmt.toString());
+        releaseLock(TABLE_ARTICLES);
     }
     
     private void insertLabel(int articleId, int label) {
         if (label < -10) {
-            synchronized (TABLE_ARTICLES) {
-                insertLabel.bindLong(1, articleId);
-                insertLabel.bindLong(2, label);
-                insertLabel.executeInsert();
-            }
+            insertLabel.bindLong(1, articleId);
+            insertLabel.bindLong(2, label);
+            insertLabel.executeInsert();
         }
     }
     
     // *******| UPDATE |*******************************************************************
     
     public void markCategoryRead(int categoryId) {
-        if (isDBAvailable()) {
+        if (isDBAvailable(TABLE_CATEGORIES)) {
             updateCategoryUnreadCount(categoryId, 0);
-            
             for (Feed f : getFeeds(categoryId)) {
                 markFeedRead(f.id);
             }
         }
-        dbReadLock.readLock().unlock();
+        releaseLock(TABLE_CATEGORIES);
     }
     
     public void markFeedRead(int feedId) {
-        if (isDBAvailable()) {
-            
-            String[] cols = new String[] { "isStarred", "isPublished", "updateDate" };
-            Cursor c = db.query(TABLE_ARTICLES, cols, "isUnread>0 AND feedId=" + feedId, null, null, null, null);
-            
-            int countStar = 0;
-            int countPub = 0;
-            int countFresh = 0;
-            int countAll = 0;
-            long ms = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
-            Date maxAge = new Date(ms);
-            
-            if (c.moveToFirst()) {
-                while (true) {
-                    countAll++;
-                    
-                    if (c.getInt(0) > 0)
-                        countStar++;
-                    
-                    if (c.getInt(1) > 0)
-                        countPub++;
-                    
-                    Date d = new Date(c.getLong(2));
-                    if (d.after(maxAge))
-                        countFresh++;
-                    
-                    if (!c.move(1))
-                        break;
-                }
-            }
-            c.close();
-            
-            updateCategoryDeltaUnreadCount(Data.VCAT_STAR, countStar * -1);
-            updateCategoryDeltaUnreadCount(Data.VCAT_PUB, countPub * -1);
-            updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, countFresh * -1);
-            updateCategoryDeltaUnreadCount(Data.VCAT_ALL, countAll * -1);
-            
-            updateFeedUnreadCount(feedId, 0);
-            
-            synchronized (TABLE_ARTICLES) {
-                if (feedId < -10) {
-                    markLabelRead(feedId);
-                } else {
-                    ContentValues cv = new ContentValues();
-                    cv.put("isUnread", 0);
-                    db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId=" + feedId, null);
-                }
+        if (isDBAvailable(TABLE_FEEDS))
+            markFeedReadIntern(feedId);
+        
+        releaseLock(TABLE_FEEDS);
+    }
+    
+    private void markFeedReadIntern(int feedId) {
+        String[] cols = new String[] { "isStarred", "isPublished", "updateDate" };
+        Cursor c = db.query(TABLE_ARTICLES, cols, "isUnread>0 AND feedId=" + feedId, null, null, null, null);
+        
+        int countStar = 0;
+        int countPub = 0;
+        int countFresh = 0;
+        int countAll = 0;
+        long ms = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
+        Date maxAge = new Date(ms);
+        
+        if (c.moveToFirst()) {
+            while (true) {
+                countAll++;
+                
+                if (c.getInt(0) > 0)
+                    countStar++;
+                
+                if (c.getInt(1) > 0)
+                    countPub++;
+                
+                Date d = new Date(c.getLong(2));
+                if (d.after(maxAge))
+                    countFresh++;
+                
+                if (!c.move(1))
+                    break;
             }
         }
-        dbReadLock.readLock().unlock();
+        c.close();
+        
+        updateCategoryDeltaUnreadCount(Data.VCAT_STAR, countStar * -1);
+        updateCategoryDeltaUnreadCount(Data.VCAT_PUB, countPub * -1);
+        updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, countFresh * -1);
+        updateCategoryDeltaUnreadCount(Data.VCAT_ALL, countAll * -1);
+        
+        updateFeedUnreadCount(feedId, 0);
+        
+        if (feedId < -10) {
+            markLabelRead(feedId);
+        } else {
+            ContentValues cv = new ContentValues();
+            cv.put("isUnread", 0);
+            db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId=" + feedId, null);
+        }
     }
     
     public void markLabelRead(int labelId) {
-        if (isDBAvailable()) {
-            synchronized (TABLE_ARTICLES) {
-                ContentValues cv = new ContentValues();
-                cv.put("isUnread", 0);
-                String idList = "SELECT id FROM " + TABLE_ARTICLES + " AS a, " + TABLE_ARTICLES2LABELS
-                        + " as l WHERE a.id=l.articleId AND l.labelId=" + labelId;
-                
-                synchronized (TABLE_ARTICLES) {
-                    db.update(TABLE_ARTICLES, cv, "isUnread>0 AND id IN(" + idList + ")", null);
-                }
-            }
+        if (isDBAvailable(TABLE_LABELS)) {
+            
+            ContentValues cv = new ContentValues();
+            cv.put("isUnread", 0);
+            String idList = "SELECT id FROM " + TABLE_ARTICLES + " AS a, " + TABLE_ARTICLES2LABELS
+                    + " as l WHERE a.id=l.articleId AND l.labelId=" + labelId;
+            
+            db.update(TABLE_ARTICLES, cv, "isUnread>0 AND id IN(" + idList + ")", null);
         }
-        dbReadLock.readLock().unlock();
+        releaseLock(TABLE_LABELS);
     }
     
     // Marks only the articles as read so the JSONConnector can retrieve new articles and overwrite the old articles
@@ -832,7 +846,7 @@ public class DBHelper {
             return;
         }
         
-        if (isDBAvailable()) {
+        if (isDBAvailable(TABLE_FEEDS)) {
             ContentValues cv = new ContentValues();
             cv.put("isUnread", 0);
             
@@ -844,29 +858,26 @@ public class DBHelper {
             else
                 idList = feedId + "";
             
-            synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ")", null);
-            }
+            db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ")", null);
+            releaseLock(TABLE_FEEDS);
         }
-        dbReadLock.readLock().unlock();
     }
     
     public void markArticles(Set<Integer> iDlist, String mark, int state) {
-        if (isDBAvailable()) {
+        if (isDBAvailable(TABLE_ARTICLES)) {
             for (Integer id : iDlist) {
                 markArticle(id, mark, state);
             }
+            releaseLock(TABLE_ARTICLES);
         }
     }
     
     public void markArticle(int id, String mark, int state) {
-        if (isDBAvailable()) {
-            synchronized (TABLE_ARTICLES) {
-                String sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_ARTICLES, mark, state, id);
-                db.execSQL(sql);
-            }
+        if (isDBAvailable(TABLE_ARTICLES)) {
+            String sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_ARTICLES, mark, state, id);
+            db.execSQL(sql);
+            releaseLock(TABLE_ARTICLES);
         }
-        dbReadLock.readLock().unlock();
     }
     
     public void markUnsynchronizedStatesCategory(int categoryId) {
@@ -893,7 +904,7 @@ public class DBHelper {
     }
     
     public void markUnsynchronizedStates(Set<Integer> ids, String mark, int state) {
-        if (!isDBAvailable())
+        if (!isDBAvailable(TABLE_MARK))
             return;
         
         // Disabled until further testing and proper SQL has been built. Tries to do the UPDATE and INSERT without
@@ -905,51 +916,42 @@ public class DBHelper {
         // <- WRONG!
         // }
         
-        synchronized (TABLE_MARK) {
-            for (Integer id : ids) {
-                // First update, then insert. If row exists it gets updated and second call ignores it, else the second
-                // call inserts it.
-                db.execSQL(String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id));
-                db.execSQL(String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id,
-                        state));
-            }
+        for (Integer id : ids) {
+            // First update, then insert. If row exists it gets updated and second call ignores it, else the second
+            // call inserts it.
+            db.execSQL(String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id));
+            db.execSQL(String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id, state));
         }
-        dbReadLock.readLock().unlock();
+        releaseLock(TABLE_MARK);
     }
     
     // Special treatment for notes since the method markUnsynchronizedStates(...) doesn't support inserting any
     // additional data.
     public void markUnsynchronizedNotes(Map<Integer, String> ids, String markPublish) {
-        if (!isDBAvailable())
+        if (!isDBAvailable(TABLE_MARK))
             return;
         
-        synchronized (TABLE_MARK) {
-            for (Integer id : ids.keySet()) {
-                String note = ids.get(id);
-                if (note == null || note.equals(""))
-                    continue;
-                
-                ContentValues cv = new ContentValues();
-                cv.put(MARK_NOTE, note);
-                db.update(TABLE_MARK, cv, "id=" + id, null);
-            }
+        for (Integer id : ids.keySet()) {
+            String note = ids.get(id);
+            if (note == null || note.equals(""))
+                continue;
+            
+            ContentValues cv = new ContentValues();
+            cv.put(MARK_NOTE, note);
+            db.update(TABLE_MARK, cv, "id=" + id, null);
         }
-        dbReadLock.readLock().unlock();
-    }
-    
-    public void updateCategoryUnreadCount(int id) {
+        releaseLock(TABLE_MARK);
     }
     
     public void updateCategoryUnreadCount(int id, int count) {
-        if (isDBAvailable() && count >= 0) {
-            ContentValues cv = new ContentValues();
-            cv.put("unread", count);
-            
-            synchronized (TABLE_CATEGORIES) {
+        if (isDBAvailable(TABLE_CATEGORIES)) {
+            if (count >= 0) {
+                ContentValues cv = new ContentValues();
+                cv.put("unread", count);
                 db.update(TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
             }
+            releaseLock(TABLE_CATEGORIES);
         }
-        dbReadLock.readLock().unlock();
     }
     
     public void updateCategoryDeltaUnreadCount(int id, int delta) {
@@ -960,15 +962,14 @@ public class DBHelper {
     }
     
     public void updateFeedUnreadCount(int id, int count) {
-        if (isDBAvailable() && count >= 0) {
-            ContentValues cv = new ContentValues();
-            cv.put("unread", count);
-            
-            synchronized (TABLE_FEEDS) {
+        if (isDBAvailable(TABLE_FEEDS)) {
+            if (count >= 0) {
+                ContentValues cv = new ContentValues();
+                cv.put("unread", count);
                 db.update(TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
             }
+            releaseLock(TABLE_FEEDS);
         }
-        dbReadLock.readLock().unlock();
     }
     
     public void updateFeedDeltaUnreadCount(int id, int delta) {
@@ -979,50 +980,40 @@ public class DBHelper {
     }
     
     public void updateAllArticlesCachedImages(boolean isCachedImages) {
-        if (isDBAvailable()) {
+        if (isDBAvailable(TABLE_ARTICLES)) {
             ContentValues cv = new ContentValues();
-            
             cv.put("cachedImages", isCachedImages);
-            synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
-            }
+            db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
+            releaseLock(TABLE_ARTICLES);
         }
-        dbReadLock.readLock().unlock();
     }
     
     public void updateArticleCachedImages(int id, boolean isCachedImages) {
-        if (isDBAvailable()) {
+        if (isDBAvailable(TABLE_ARTICLES)) {
             ContentValues cv = new ContentValues();
-            
             cv.put("cachedImages", isCachedImages);
-            synchronized (TABLE_ARTICLES) {
-                db.update(TABLE_ARTICLES, cv, "cachedImages=0 & id=" + id, null); // Only apply if not yet applied and
-                                                                                  // ID matches
-            }
+            db.update(TABLE_ARTICLES, cv, "cachedImages=0 & id=" + id, null); // Only apply if not yet applied and ID
+                                                                              // matches
+            releaseLock(TABLE_ARTICLES);
         }
-        dbReadLock.readLock().unlock();
     }
     
     public void deleteCategories(boolean withVirtualCategories) {
-        if (isDBAvailable()) {
+        if (isDBAvailable(TABLE_CATEGORIES)) {
             String wherePart = "";
-            if (!withVirtualCategories) {
+            if (!withVirtualCategories)
                 wherePart = "id > 0";
-            }
-            synchronized (TABLE_CATEGORIES) {
-                db.delete(TABLE_CATEGORIES, wherePart, null);
-            }
+            
+            db.delete(TABLE_CATEGORIES, wherePart, null);
+            releaseLock(TABLE_CATEGORIES);
         }
-        dbReadLock.readLock().unlock();
     }
     
     public void deleteFeeds() {
-        if (isDBAvailable()) {
-            synchronized (TABLE_FEEDS) {
-                db.delete(TABLE_FEEDS, null, null);
-            }
+        if (isDBAvailable(TABLE_FEEDS)) {
+            db.delete(TABLE_FEEDS, null, null);
+            releaseLock(TABLE_FEEDS);
         }
-        dbReadLock.readLock().unlock();
     }
     
     /**
@@ -1030,36 +1021,31 @@ public class DBHelper {
      * so the configured limit is not an exact upper limit to the numbe rof articles in the database.
      */
     public void purgeArticlesNumber() {
-        if (isDBAvailable()) {
+        if (isDBAvailable(TABLE_ARTICLES)) {
             int number = Controller.getInstance().getArticleLimit();
             String idList = "SELECT id FROM " + TABLE_ARTICLES
                     + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
-            synchronized (TABLE_ARTICLES) {
-                db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
-                purgeLabels();
-            }
+            
+            db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
+            purgeLabels();
+            releaseLock(TABLE_ARTICLES);
         }
-        dbReadLock.readLock().unlock();
     }
     
     public void purgePublishedArticles() {
-        if (isDBAvailable()) {
-            synchronized (TABLE_ARTICLES) {
-                db.delete(TABLE_ARTICLES, "isPublished>0", null);
-                purgeLabels();
-            }
+        if (isDBAvailable(TABLE_ARTICLES)) {
+            db.delete(TABLE_ARTICLES, "isPublished>0", null);
+            purgeLabels();
+            releaseLock(TABLE_ARTICLES);
         }
-        dbReadLock.readLock().unlock();
     }
     
     public void purgeStarredArticles() {
-        if (isDBAvailable()) {
-            synchronized (TABLE_ARTICLES) {
-                db.delete(TABLE_ARTICLES, "isStarred>0", null);
-                purgeLabels();
-            }
+        if (isDBAvailable(TABLE_ARTICLES)) {
+            db.delete(TABLE_ARTICLES, "isStarred>0", null);
+            purgeLabels();
+            releaseLock(TABLE_ARTICLES);
         }
-        dbReadLock.readLock().unlock();
     }
     
     private void purgeLabels() {
@@ -1074,10 +1060,8 @@ public class DBHelper {
             + TABLE_FEEDS + " AS f"
             + " ON a2l.labelId = f.id WHERE f.id IS null";
         // @formatter:on
-        synchronized (TABLE_ARTICLES) {
-            db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
-            db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
-        }
+        db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
+        db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
     }
     
     public void vacuum() {
@@ -1119,7 +1103,7 @@ public class DBHelper {
                 c.close();
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1145,7 +1129,7 @@ public class DBHelper {
                 c.close();
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1170,7 +1154,7 @@ public class DBHelper {
                 c.close();
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1195,7 +1179,7 @@ public class DBHelper {
                 c.close();
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1220,7 +1204,7 @@ public class DBHelper {
                 c.close();
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1259,7 +1243,7 @@ public class DBHelper {
                 c.close();
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1282,7 +1266,7 @@ public class DBHelper {
                 c.close();
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1305,7 +1289,7 @@ public class DBHelper {
                 c.close();
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1339,7 +1323,7 @@ public class DBHelper {
             }
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1368,7 +1352,7 @@ public class DBHelper {
                 c.close();
         }
         
-        dbReadLock.readLock().unlock();
+        releaseLock();
         return ret;
     }
     
@@ -1400,7 +1384,7 @@ public class DBHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        dbReadLock.readLock().unlock();
+        releaseLock();
     }
     
     // *******************************************
