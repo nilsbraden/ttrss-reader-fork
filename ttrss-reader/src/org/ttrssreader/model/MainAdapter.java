@@ -227,12 +227,12 @@ public abstract class MainAdapter extends BaseAdapter {
         if (col == -1 || !c.moveToFirst())
             return false; // Check column, move
             
-        while (c.moveToNext()) {
+        do {
             if (c.getInt(col) > 0) {
                 c.moveToFirst(); // One unread article found, move to first entry
                 return true;
             }
-        }
+        } while (c.moveToNext());
         
         return false;
     }
