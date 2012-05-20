@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:installLocation="auto"
-    android:versionCode="1261"
-    android:versionName="1.26" >
+    android:versionCode="1300"
+    android:versionName="1.3" >
 
     <application
         android:debuggable="true"
@@ -66,7 +66,7 @@
 
     <uses-sdk
         android:minSdkVersion="3"
-        android:targetSdkVersion="14" />
+        android:targetSdkVersion="15" />
 
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

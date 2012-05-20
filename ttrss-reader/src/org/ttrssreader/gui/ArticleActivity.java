@@ -62,6 +62,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -236,6 +237,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         }
         webContainer.removeView(webView);
         webView.destroy();
+        webView = null;
         super.onDestroy();
         closeCursor();
     }
@@ -251,6 +253,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     }
     
     private void doRefresh() {
+        if (webView == null)
+            return;
+        
         setProgressBarIndeterminateVisibility(true);
         
         if (Controller.getInstance().workOffline()) {
@@ -301,19 +306,19 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             content = injectCachedImages(contentTmp.toString(), articleId);
             
             // Load html from Controller and insert content
-            String text = Controller.htmlHeader.replace("MARKER", content);
+            content = Controller.htmlHeader.replace("MARKER", content);
             
             // TODO: Whole "switch background-color-thing" needs to be refactored.
             if (Controller.getInstance().darkBackground()) {
                 webView.setBackgroundColor(Color.BLACK);
-                text = "<font color='white'>" + text + "</font>";
+                content = "<font color='white'>" + content + "</font>";
                 
                 setDarkBackground(headerContainer);
             }
             
             // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
             baseUrl = StringSupport.getBaseURL(article.url);
-            webView.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
+            webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
             
             setTitle(article.title);
             
@@ -539,6 +544,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             int dx = (int) (e2.getX() - e1.getX());
             int dy = (int) (e2.getY() - e1.getY());
             
+            // Refresh metrics-data in Controller
+            Controller.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE))
+                    .getDefaultDisplay());
+            
             if (Controller.landscape) {
                 
                 // LANDSCAPE
@@ -566,8 +575,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             } else {
                 
                 // PORTRAIT
-                int SWIPE_BOTTOM = webView.getHeight() - Controller.swipeAreaHeight;
-                
                 // Don't accept the fling if it's too short as it may conflict with a button push
                 if (Math.abs(dx) > Controller.swipeWidth && Math.abs(velocityX) > Math.abs(velocityY))
                     isSwipe = true;
@@ -576,7 +583,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                     return false; // Too much Y-Movement (20% of screen-height)
                     
                 // Check if Swipe-Motion is inside the Swipe-Area
-                if (e1.getY() < SWIPE_BOTTOM || e2.getY() < SWIPE_BOTTOM) {
+                int swipeAreaPosition = webView.getHeight() - Controller.swipeAreaHeight;
+                if (e1.getY() < swipeAreaPosition || e2.getY() < swipeAreaPosition) {
                     if (isSwipe) {
                         // Display text for swipe-area
                         swipeView.setVisibility(TextView.VISIBLE);
