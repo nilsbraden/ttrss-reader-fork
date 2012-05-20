@@ -33,6 +33,7 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
+import com.actionbarsherlock.view.MenuItem;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -46,7 +47,6 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -259,7 +259,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         Article a = (Article) adapter.getItem(cmi.position);
         

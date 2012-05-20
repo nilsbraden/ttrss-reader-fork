@@ -29,13 +29,13 @@ import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
+import com.actionbarsherlock.view.MenuItem;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
-import android.view.MenuItem;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class FeedActivity extends MenuActivity {
@@ -155,7 +155,7 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (item.getItemId() == MARK_READ) {
             new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();

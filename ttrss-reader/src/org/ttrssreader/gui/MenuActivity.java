@@ -32,19 +32,18 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 /**
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
  * FeedHeadlineListActivity).
  */
-public abstract class MenuActivity extends FragmentActivity implements IUpdateEndListener, ICacheEndListener,
+public abstract class MenuActivity extends SherlockFragmentActivity implements IUpdateEndListener, ICacheEndListener,
         IConfigurable, IItemSelectedListener, IDataChangedListener {
     
     protected Updater updater;
@@ -117,8 +116,7 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = this.getMenuInflater();
-        inflater.inflate(R.menu.generic, menu);
+        getSupportMenuInflater().inflate(R.menu.generic, menu);
         return true;
     }
     

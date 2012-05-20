@@ -37,7 +37,6 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -53,9 +52,9 @@ import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import com.actionbarsherlock.view.MenuItem;
 
 public class CategoryActivity extends MenuActivity {
     
@@ -211,7 +210,7 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(android.view.MenuItem item) {
         Log.d(Utils.TAG, "CategoryActivity: onContextItemSelected called");
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (adapter == null)

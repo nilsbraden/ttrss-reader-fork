@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:installLocation="auto"
     package="org.ttrssreader"
+    android:installLocation="auto"
     android:versionCode="1261"
     android:versionName="1.26" >
 
@@ -11,23 +11,28 @@
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName" >
         <activity
+            android:name=".gui.CategoryActivity"
             android:label="@string/ApplicationName"
-            android:name=".gui.CategoryActivity" >
-            <intent-filter >
+            android:theme="@style/Theme.Sherlock" >
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".gui.FeedActivity" />
-        <activity android:name=".gui.FeedHeadlineActivity" />
+        <activity
+            android:name=".gui.FeedActivity"
+            android:theme="@style/Theme.Sherlock" />
+        <activity
+            android:name=".gui.FeedHeadlineActivity"
+            android:theme="@style/Theme.Sherlock" />
         <activity android:name=".gui.ArticleActivity" />
         <activity android:name=".gui.PreferencesActivity" />
         <activity android:name=".gui.MediaPlayerActivity" />
         <activity android:name=".gui.ErrorActivity" />
         <activity
-            android:label="@string/AboutActivity.Title"
             android:name=".gui.AboutActivity"
+            android:label="@string/AboutActivity.Title"
             android:theme="@android:style/Theme.Dialog" />
 
         <service android:name=".imageCache.ForegroundService" />
