@@ -549,33 +549,15 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                 if (Math.abs(dx) > (int) (Controller.absWidth * 0.30))
                     return false; // Too much X-Movement (30% of screen-width)
                     
-                // Check if Swipe-Motion is inside the Swipe-Area
-                if (Controller.getInstance().leftHanded()) {
-                    
-                    // Swipe-Area on LEFT side of the screen
-                    int swipeAreaPosition = Controller.swipeAreaWidth;
-                    if (e1.getX() > swipeAreaPosition || e2.getX() > swipeAreaPosition) {
-                        if (isSwipe) {
-                            // Display text for swipe-area
-                            swipeView.setVisibility(TextView.VISIBLE);
-                            new Handler().postDelayed(timerTask, 1000);
-                        }
-                        return false;
+                // Swipe-Area on RIGHT side of the screen
+                int swipeAreaPosition = webView.getWidth() - Controller.swipeAreaWidth;
+                if (e1.getX() < swipeAreaPosition || e2.getX() < swipeAreaPosition) {
+                    if (isSwipe) {
+                        // Display text for swipe-area
+                        swipeView.setVisibility(TextView.VISIBLE);
+                        new Handler().postDelayed(timerTask, 1000);
                     }
-                    
-                } else {
-                    
-                    // Swipe-Area on RIGHT side of the screen
-                    int swipeAreaPosition = webView.getWidth() - Controller.swipeAreaWidth;
-                    if (e1.getX() < swipeAreaPosition || e2.getX() < swipeAreaPosition) {
-                        if (isSwipe) {
-                            // Display text for swipe-area
-                            swipeView.setVisibility(TextView.VISIBLE);
-                            new Handler().postDelayed(timerTask, 1000);
-                        }
-                        return false;
-                    }
-                    
+                    return false;
                 }
                 
                 if (isSwipe)

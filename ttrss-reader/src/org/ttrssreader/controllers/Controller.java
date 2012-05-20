@@ -457,17 +457,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.useButtons = useButtons;
     }
     
-    public boolean leftHanded() {
-        if (leftHanded == null)
-            leftHanded = prefs.getBoolean(Constants.LEFT_HANDED, Constants.LEFT_HANDED_DEFAULT);
-        return leftHanded;
-    }
-    
-    public void setLeftHanded(boolean leftHanded) {
-        put(Constants.LEFT_HANDED, leftHanded);
-        this.leftHanded = leftHanded;
-    }
-    
     public boolean onlyUnread() {
         if (onlyUnread == null)
             onlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);

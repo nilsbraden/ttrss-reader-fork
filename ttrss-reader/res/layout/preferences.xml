@@ -147,12 +147,6 @@
                     android:title="@string/DisplayUseButtonsTitle" />
 
                 <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="DisplayLeftHandedPreference"
-                    android:summary="@string/DisplayLeftHandedSummary"
-                    android:title="@string/DisplayLeftHandedTitle" />
-
-                <CheckBoxPreference
                     android:defaultValue="true"
                     android:key="UsageVibrateOnLastArticlePreference"
                     android:summary="@string/UsageVibrateOnLastArticleSummary"
@@ -239,13 +233,13 @@
                 <Preference
                     android:key="SaveAttachmentPreference"
                     android:persistent="false"
-                    android:summary="- PATH - set by activty -"
+                    android:summary="- PATH - set by activity -"
                     android:title="@string/SaveAttachmentTitle" />
 
                 <Preference
                     android:key="CacheFolderPreference"
                     android:persistent="false"
-                    android:summary="- PATH - set by activty -"
+                    android:summary="- PATH - set by activity -"
                     android:title="@string/CacheFolderTitle" />
 
                 <org.ttrssreader.preferences.EditIntegerPreference
