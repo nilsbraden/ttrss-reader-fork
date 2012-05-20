@@ -235,10 +235,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
-        webContainer.removeView(webView);
+        super.onDestroy();
+        webContainer.removeAllViews();
         webView.destroy();
         webView = null;
-        super.onDestroy();
         closeCursor();
     }
     
