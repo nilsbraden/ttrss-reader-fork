@@ -118,6 +118,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // Article-View-Stuff
     public static String htmlHeader = "";
+    public static String htmlHeaderZoom = "";
     public static int absHeight = -1;
     public static int absWidth = -1;
     public static int swipeAreaHeight = -1;
@@ -186,15 +187,18 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 synchronized (htmlHeader) {
                     // Article-Prefetch-Stuff from Raw-Ressources and System
                     htmlHeader = context.getResources().getString(R.string.INJECT_HTML_HEAD);
+                    htmlHeaderZoom = context.getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
                     
                     // Replace alignment-marker with the requested layout, align:left or justified
                     String replaceAlign = "";
                     if (alignFlushLeft()) {
                         replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
                         htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
+                        htmlHeaderZoom = htmlHeaderZoom.replace(MARKER_ALIGN, replaceAlign);
                     } else {
                         replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
                         htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
+                        htmlHeaderZoom = htmlHeaderZoom.replace(MARKER_ALIGN, replaceAlign);
                     }
                     
                     // Replace color-markers with matching colors for the requested background
@@ -205,11 +209,15 @@ public class Controller implements OnSharedPreferenceChangeListener {
                         replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_DARK_VISITED);
                         htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
                         htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
+                        htmlHeaderZoom = htmlHeaderZoom.replace(MARKER_LINK, replaceLink);
+                        htmlHeaderZoom = htmlHeaderZoom.replace(MARKER_LINK_VISITED, replaceLinkVisited);
                     } else {
                         replaceLink = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
                         replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_LIGHT_VISITED);
                         htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
                         htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
+                        htmlHeaderZoom = htmlHeaderZoom.replace(MARKER_LINK, replaceLink);
+                        htmlHeaderZoom = htmlHeaderZoom.replace(MARKER_LINK_VISITED, replaceLinkVisited);
                     }
                 }
                 
