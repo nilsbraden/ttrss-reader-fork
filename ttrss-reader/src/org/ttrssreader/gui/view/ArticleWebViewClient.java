@@ -114,7 +114,9 @@ public class ArticleWebViewClient extends WebViewClient {
             Uri uri = Uri.parse(url);
             
             try {
-                context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
             } catch (Exception e) {
                 e.printStackTrace();
             }

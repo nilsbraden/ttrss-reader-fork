@@ -65,6 +65,7 @@ import android.view.Window;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 public class ArticleActivity extends Activity implements IUpdateEndListener, TextInputAlertCallback,
@@ -92,6 +93,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     private boolean linkAutoOpened;
     private boolean markedRead = false;
     
+    private FrameLayout webContainer;
     private WebView webView;
     private boolean webviewInitialized = false;
     private TextView swipeView;
@@ -121,7 +123,14 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         headerContainer = (ArticleHeaderView) findViewById(R.id.article_header_container);
         mainContainer = (ArticleView) findViewById(R.id.article_main_layout);
         
-        webView = (WebView) findViewById(R.id.webView);
+        // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
+        // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
+        // Layout-Files are changed due to this and the onDestroy-Method now calls container.removeAllViews() and
+        // webview.destory()...
+        webContainer = (FrameLayout) findViewById(R.id.webView_Container);
+        webView = new WebView(getApplicationContext());
+        webContainer.addView(webView);
+        
         buttonPrev = (Button) findViewById(R.id.buttonPrev);
         buttonNext = (Button) findViewById(R.id.buttonNext);
         swipeView = (TextView) findViewById(R.id.swipeView);
@@ -129,10 +138,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.setWebViewClient(new ArticleWebViewClient(this));
-        
-        // TODO: Use this to reposition the zoom-buttons?
-        // final View zoom = webView.getZoomControls();
-        // zoom.setLayoutParams(params)
         
         // Detect gestures
         mGestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
@@ -229,6 +234,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
+        webContainer.removeView(webView);
+        webView.destroy();
         super.onDestroy();
         closeCursor();
     }
@@ -280,7 +287,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             }
             
             // Initialize mainContainer with buttons or swipe-view
-            mainContainer.populate();
+            mainContainer.populate(webView);
             
             final int contentLength = article.content.length();
             

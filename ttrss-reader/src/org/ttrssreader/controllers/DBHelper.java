@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
@@ -48,10 +49,17 @@ import android.util.Log;
 public class DBHelper {
     
     private static DBHelper instance = null;
-    private boolean initialized = false;
+    private volatile boolean initialized = false;
     private boolean vacuumDone = false;
     
-    private static final ReentrantReadWriteLock dbLock = new ReentrantReadWriteLock();
+    /*
+     * We use two locks here to avoid too much locking for reading and be able to completely lock everything up when we
+     * need to close the DB. In this case we lock both locks with write-access to avoid any other Threads holding the
+     * locks while we use only read-locking on the "dbReadLock" for normal accesss. The "dbWriteLock" is always locked
+     * on one Thread since concurrent write-access is not possible.
+     */
+    // private static final ReentrantReadWriteLock dbReadLock = new ReentrantReadWriteLock();
+    // private static final ReentrantLock dbWriteLock = new ReentrantLock();
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
@@ -126,7 +134,7 @@ public class DBHelper {
         // Check if deleteDB is scheduled or if DeleteOnStartup is set
         if (Controller.getInstance().isDeleteDBScheduled()) {
             if (deleteDB()) {
-                initialized = initializeDBHelper();
+                initializeDBHelper();
                 Controller.getInstance().resetDeleteDBScheduled();
                 return; // Don't need to check if DB is corrupted, it is NEW!
             }
@@ -134,9 +142,9 @@ public class DBHelper {
         
         // Initialize DB
         if (!initialized) {
-            initialized = initializeDBHelper();
+            initializeDBHelper();
         } else if (db == null || !db.isOpen()) {
-            initialized = initializeDBHelper();
+            initializeDBHelper();
         } else {
             return; // DB was already initialized, no need to check anything.
         }
@@ -159,7 +167,7 @@ public class DBHelper {
                 backupAndRemoveDB();
                 
                 // Initialize again...
-                initialized = initializeDBHelper();
+                initializeDBHelper();
             } finally {
                 if (c != null)
                     c.close();
@@ -234,6 +242,7 @@ public class DBHelper {
         insertArticle = db.compileStatement(INSERT_ARTICLE);
         insertLabel = db.compileStatement(INSERT_LABEL);
         
+        initialized = true;
         return true;
     }
     
@@ -255,26 +264,34 @@ public class DBHelper {
     
     private void closeDB() {
         // Close DB, acquire write-lock to make sure no other threads start accessing the DB from now on
-        dbLock.writeLock().lock();
+        // dbWriteLock.lock();
+        // dbReadLock.writeLock().lock();
         db.close();
         db = null;
-        dbLock.writeLock().unlock();
+        // dbReadLock.writeLock().unlock();
+        // dbWriteLock.unlock();
     }
     
-    private synchronized boolean isDBAvailable() {
+    private boolean isDBAvailable() {
         boolean ret = false;
         
         if (db != null && db.isOpen()) {
             ret = true;
         } else if (db != null) {
-            OpenHelper openHelper = new OpenHelper(context);
-            db = openHelper.getWritableDatabase();
-            initialized = db.isOpen();
-            ret = initialized;
+            
+            synchronized (this) {
+                if (db != null) {
+                    OpenHelper openHelper = new OpenHelper(context);
+                    db = openHelper.getWritableDatabase();
+                    initialized = db.isOpen();
+                    ret = initialized;
+                }
+            }
+            
         } else {
             Log.i(Utils.TAG, "Controller not initialized, trying to do that now...");
-            initialized = initializeDBHelper();
-            ret = initialized;
+            initializeDBHelper();
+            ret = true;
         }
         
         return ret;
@@ -285,11 +302,11 @@ public class DBHelper {
     }
     
     private void acquireLock(boolean write) {
-        if (write) {
-            dbLock.writeLock().lock();
-        } else {
-            dbLock.readLock().lock();
-        }
+        // if (write) {
+        // dbWriteLock.lock();
+        // } else {
+        // dbReadLock.readLock().lock();
+        // }
     }
     
     private void releaseLock() {
@@ -297,12 +314,11 @@ public class DBHelper {
     }
     
     private void releaseLock(boolean write) {
-        if (write) {
-            if (dbLock.writeLock().isHeldByCurrentThread())
-                dbLock.writeLock().unlock();   
-        } else {
-            dbLock.readLock().unlock();
-        }
+        // if (write) {
+        // dbWriteLock.unlock();
+        // } else {
+        // dbReadLock.readLock().unlock();
+        // }
     }
     
     private static class OpenHelper extends SQLiteOpenHelper {
@@ -547,11 +563,12 @@ public class DBHelper {
         if (title == null)
             title = "";
         
-        insertCategory.bindLong(1, id);
-        insertCategory.bindString(2, title);
-        insertCategory.bindLong(3, unread);
-        
-        insertCategory.execute();
+        synchronized (insertCategory) {
+            insertCategory.bindLong(1, id);
+            insertCategory.bindString(2, title);
+            insertCategory.bindLong(3, unread);
+            insertCategory.execute();
+        }
     }
     
     public void insertCategories(Set<Category> set) {
@@ -573,12 +590,14 @@ public class DBHelper {
         if (url == null)
             url = "";
         
-        insertFeed.bindLong(1, new Integer(id).longValue());
-        insertFeed.bindLong(2, new Integer(categoryId).longValue());
-        insertFeed.bindString(3, title);
-        insertFeed.bindString(4, url);
-        insertFeed.bindLong(5, unread);
-        insertFeed.execute();
+        synchronized (insertFeed) {
+            insertFeed.bindLong(1, new Integer(id).longValue());
+            insertFeed.bindLong(2, new Integer(categoryId).longValue());
+            insertFeed.bindString(3, title);
+            insertFeed.bindString(4, url);
+            insertFeed.bindLong(5, unread);
+            insertFeed.execute();
+        }
     }
     
     public void insertFeeds(Set<Feed> set) {
@@ -608,20 +627,22 @@ public class DBHelper {
         if (a.attachments == null)
             a.attachments = new LinkedHashSet<String>();
         
-        insertArticle.bindLong(1, a.id);
-        insertArticle.bindLong(2, a.feedId);
-        insertArticle.bindString(3, a.title);
-        insertArticle.bindLong(4, (a.isUnread ? 1 : 0));
-        insertArticle.bindString(5, a.articleUrl);
-        insertArticle.bindString(6, a.articleCommentUrl);
-        insertArticle.bindLong(7, a.updateDate.getTime());
-        insertArticle.bindString(8, a.content);
-        insertArticle.bindString(9, parseAttachmentSet(a.attachments));
-        insertArticle.bindLong(10, (a.isStarred ? 1 : 0));
-        insertArticle.bindLong(11, (a.isPublished ? 1 : 0));
-        insertArticle.bindLong(12, a.id); // ID again for the where-clause
-        
-        long retId = insertArticle.executeInsert();
+        long retId = -1;
+        synchronized (insertArticle) {
+            insertArticle.bindLong(1, a.id);
+            insertArticle.bindLong(2, a.feedId);
+            insertArticle.bindString(3, a.title);
+            insertArticle.bindLong(4, (a.isUnread ? 1 : 0));
+            insertArticle.bindString(5, a.articleUrl);
+            insertArticle.bindString(6, a.articleCommentUrl);
+            insertArticle.bindLong(7, a.updateDate.getTime());
+            insertArticle.bindString(8, a.content);
+            insertArticle.bindString(9, parseAttachmentSet(a.attachments));
+            insertArticle.bindLong(10, (a.isStarred ? 1 : 0));
+            insertArticle.bindLong(11, (a.isPublished ? 1 : 0));
+            insertArticle.bindLong(12, a.id); // ID again for the where-clause
+            retId = insertArticle.executeInsert();
+        }
         
         if (retId > 0)
             insertLabel(a.id, a.label);
@@ -734,9 +755,11 @@ public class DBHelper {
     
     private void insertLabel(int articleId, int label) {
         if (label < -10) {
-            insertLabel.bindLong(1, articleId);
-            insertLabel.bindLong(2, label);
-            insertLabel.executeInsert();
+            synchronized (insertLabel) {
+                insertLabel.bindLong(1, articleId);
+                insertLabel.bindLong(2, label);
+                insertLabel.executeInsert();
+            }
         }
     }
     
@@ -987,7 +1010,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
             cv.put("cachedImages", isCachedImages);
-
+            
             acquireLock(true);
             db.update(TABLE_ARTICLES, cv, "cachedImages=0 & id=" + id, null); // Only apply if not yet applied and ID
             releaseLock(true);
@@ -1144,7 +1167,7 @@ public class DBHelper {
         Feed ret = new Feed();
         if (!isDBAvailable())
             return ret;
-
+        
         acquireLock();
         
         Cursor c = null;
@@ -1322,7 +1345,6 @@ public class DBHelper {
         int ret = 0;
         if (!isDBAvailable())
             return ret;
-        
         
         if (isCat && id >= 0) { // Only do this for real categories for now
         

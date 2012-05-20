@@ -53,7 +53,7 @@ public class ArticleHeaderView extends LinearLayout {
     
     public ArticleHeaderView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.setBackgroundColor(Color.WHITE);
+        setBackgroundColor(Color.WHITE);
         this.context = context;
     }
     
@@ -68,38 +68,21 @@ public class ArticleHeaderView extends LinearLayout {
         timeView.setTextColor(Color.BLACK);
         starred = (CheckBox) findViewById(R.id.starred);
         
-        this.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                
-                return;
-            }
-        });
-        
-        feedView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                
-            }
-        });
-        
         starred.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1))
-                        .exec();
+                new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
             }
         });
     }
     
     public void populate(Article article) {
         this.article = article;
-        this.initializeLayout();
+        initializeLayout();
         
         Feed feed = DBHelper.getInstance().getFeed(article.feedId);
-        if (feed != null) {
+        if (feed != null)
             feedView.setText(feed.title);
-        }
         
         titleView.setText(article.title);
         

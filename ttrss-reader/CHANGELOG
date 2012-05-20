@@ -1,6 +1,14 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.3 ==
+  * Completely re-wrote the communication between interface and backend
+   -> Interface did active polling, now it registers as listener and gets notified about changes
+  * Completely changed the way the DB is accessed, drastically reduced the number of locks involved
+  * Slight changes to the UI to work with the changed code
+  * Lots of changes to reduce the amount of work for DB-Write-Accesses and necessary RAM for the ImageCache
+  * TODO: Add ActionBarSherlock
+
 == Version 1.26 (1) ==
   * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn't properly test with older versions.
   * Completed work on background tasks
