@@ -37,6 +37,7 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -119,7 +120,6 @@ public class CategoryActivity extends MenuActivity {
                 Log.i(Utils.TAG, "Starting ImageCache...");
                 doCache(false); // images
             }
-            
         }
     }
     

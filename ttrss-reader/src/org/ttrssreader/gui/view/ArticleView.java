@@ -37,7 +37,6 @@ import android.widget.TextView;
 public class ArticleView extends RelativeLayout {
     
     private RelativeLayout centralView;
-    private WebView webView;
     private LinearLayout buttonView;
     private TextView swipeView;
     
@@ -46,9 +45,8 @@ public class ArticleView extends RelativeLayout {
         this.setBackgroundColor(Color.WHITE);
     }
     
-    private void initializeLayout() {
+    private void initializeLayout(final WebView webView) {
         centralView = (RelativeLayout) findViewById(R.id.centralView);
-        webView = (WebView) findViewById(R.id.webView);
         buttonView = (LinearLayout) findViewById(R.id.buttonView);
         swipeView = (TextView) findViewById(R.id.swipeView);
         
@@ -57,7 +55,7 @@ public class ArticleView extends RelativeLayout {
             
             if (Controller.getInstance().leftHanded() && Controller.landscape) {
                 // Try to move swipe-area to left side...
-
+                
                 // First: Remove the view
                 centralView.removeView(swipeView);
                 
@@ -130,8 +128,8 @@ public class ArticleView extends RelativeLayout {
         recomputeViewAttributes(centralView);
     }
     
-    public void populate() {
-        this.initializeLayout();
+    public void populate(final WebView webView) {
+        this.initializeLayout(webView);
     }
     
 }

@@ -538,77 +538,76 @@ public class JSONConnector implements Connector {
     // ***************** Helper-Methods **************************************************
     
     private void parseCounter(JsonReader reader) {
-        SQLiteDatabase db = DBHelper.getInstance().db;
-        synchronized (DBHelper.TABLE_ARTICLES) {
-            db.beginTransaction();
-            try {
-                reader.beginArray();
+        
+        final int isCat = 0;
+        final int id = 1;
+        final int unreadCount = 2;
+        
+        List<int[]> list = new ArrayList<int[]>();
+        try {
+            reader.beginArray();
+            while (reader.hasNext()) {
+                
+                int[] values = new int[] { 0, Integer.MAX_VALUE, 0 };
+                
+                reader.beginObject();
                 while (reader.hasNext()) {
                     
-                    boolean cat = false;
-                    int id = Integer.MAX_VALUE;
-                    int counter = 0;
-                    
-                    reader.beginObject();
-                    while (reader.hasNext()) {
+                    try {
+                        String name = reader.nextName();
                         
-                        try {
-                            String name = reader.nextName();
-                            
-                            if (name.equals(COUNTER_KIND)) {
-                                cat = reader.nextString().equals(COUNTER_CAT);
-                            } else if (name.equals(COUNTER_ID)) {
-                                String value = reader.nextString();
-                                // Check if id is a string, then it would be a global counter
-                                if (value.equals("global-unread") || value.equals("subscribed-feeds"))
-                                    continue;
-                                id = Integer.parseInt(value);
-                            } else if (name.equals(COUNTER_COUNTER)) {
-                                String value = reader.nextString();
-                                // Check if null because of an API-bug
-                                if (!value.equals("null"))
-                                    counter = Integer.parseInt(value);
-                            } else {
-                                reader.skipValue();
-                            }
-                        } catch (IllegalArgumentException e) {
-                            e.printStackTrace();
+                        if (name.equals(COUNTER_KIND)) {
+                            values[isCat] = reader.nextString().equals(COUNTER_CAT) ? 1 : 0;
+                        } else if (name.equals(COUNTER_ID)) {
+                            String value = reader.nextString();
+                            // Check if id is a string, then it would be a global counter
+                            if (value.equals("global-unread") || value.equals("subscribed-feeds"))
+                                continue;
+                            values[id] = Integer.parseInt(value);
+                        } else if (name.equals(COUNTER_COUNTER)) {
+                            String value = reader.nextString();
+                            // Check if null because of an API-bug
+                            if (!value.equals("null"))
+                                values[unreadCount] = Integer.parseInt(value);
+                        } else {
                             reader.skipValue();
-                            continue;
                         }
-                        
-                    }
-                    reader.endObject();
-                    
-                    ContentValues cv = new ContentValues();
-                    cv.put("unread", counter);
-                    
-                    if (id == Integer.MAX_VALUE)
+                    } catch (IllegalArgumentException e) {
+                        e.printStackTrace();
+                        reader.skipValue();
                         continue;
-                    
-                    if (cat && id >= 0) {
-                        // Category
-                        db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
-                    } else if (!cat && id < 0 && id >= -4) {
-                        // Virtual Category
-                        db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
-                    } else if (!cat && id > 0) {
-                        // Feed
-                        db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
-                    } else if (!cat && id < -10) {
-                        // Label
-                        db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
                     }
                     
                 }
-                reader.endArray();
+                reader.endObject();
+                list.add(values);
                 
-                db.setTransactionSuccessful();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                db.endTransaction();
-                DBHelper.getInstance().purgeArticlesNumber();
+            }
+            reader.endArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        SQLiteDatabase db = DBHelper.getInstance().db;
+        for (int[] values : list) {
+            if (values[id] == Integer.MAX_VALUE)
+                continue;
+            
+            ContentValues cv = new ContentValues();
+            cv.put("unread", values[unreadCount]);
+            
+            if (values[isCat] > 0 && values[id] >= 0) {
+                // Category
+                db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { values[id] + "" });
+            } else if (values[isCat] == 0 && values[id] < 0 && values[id] >= -4) {
+                // Virtual Category
+                db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { values[id] + "" });
+            } else if (values[isCat] == 0 && values[id] > 0) {
+                // Feed
+                db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { values[id] + "" });
+            } else if (values[isCat] == 0 && values[id] < -10) {
+                // Label
+                db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { values[id] + "" });
             }
         }
     }
@@ -651,97 +650,93 @@ public class JSONConnector implements Connector {
     
     private int parseArticleArray(JsonReader reader, int labelId, int catId, boolean isCategory) {
         long parseTime = System.currentTimeMillis();
-        long insertTime = 0;
         int count = 0;
+        List<ArticleContainer> articleList = new ArrayList<ArticleContainer>();
         
-        SQLiteDatabase db = DBHelper.getInstance().db;
-        synchronized (DBHelper.TABLE_ARTICLES) {
-            try {
-                List<ArticleContainer> articleList = new ArrayList<ArticleContainer>();
+        try {
+            reader.beginArray();
+            while (reader.hasNext()) {
+                count++;
                 
-                reader.beginArray();
-                while (reader.hasNext()) {
-                    count++;
+                int id = -1;
+                String title = null;
+                boolean isUnread = false;
+                Date updated = null;
+                int realFeedId = 0;
+                String content = null;
+                String articleUrl = null;
+                String articleCommentUrl = null;
+                Set<String> attachments = null;
+                boolean isStarred = false;
+                boolean isPublished = false;
+                
+                reader.beginObject();
+                while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) { // ?
+                    String name = reader.nextName();
                     
-                    int id = -1;
-                    String title = null;
-                    boolean isUnread = false;
-                    Date updated = null;
-                    int realFeedId = 0;
-                    String content = null;
-                    String articleUrl = null;
-                    String articleCommentUrl = null;
-                    Set<String> attachments = null;
-                    boolean isStarred = false;
-                    boolean isPublished = false;
-                    
-                    reader.beginObject();
-                    while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) { // ?
-                        String name = reader.nextName();
-                        
-                        try {
-                            if (name.equals(ID)) {
-                                id = reader.nextInt();
-                            } else if (name.equals(TITLE)) {
-                                title = reader.nextString();
-                            } else if (name.equals(UNREAD)) {
-                                isUnread = reader.nextBoolean();
-                            } else if (name.equals(UPDATED)) {
-                                updated = new Date(new Long(reader.nextString() + "000").longValue());
-                            } else if (name.equals(FEED_ID)) {
-                                realFeedId = reader.nextInt();
-                            } else if (name.equals(CONTENT)) {
-                                content = reader.nextString();
-                            } else if (name.equals(URL)) {
-                                articleUrl = reader.nextString();
-                            } else if (name.equals(COMMENT_URL)) {
-                                articleCommentUrl = reader.nextString();
-                            } else if (name.equals(ATTACHMENTS)) {
-                                attachments = parseAttachments(reader);
-                            } else if (name.equals(STARRED)) {
-                                isStarred = reader.nextBoolean();
-                            } else if (name.equals(PUBLISHED)) {
-                                isPublished = reader.nextBoolean();
-                            } else {
-                                reader.skipValue();
-                            }
-                        } catch (IllegalArgumentException e) {
-                            Log.w(Utils.TAG, "Result contained illegal value for entry \"" + name + "\".");
+                    try {
+                        if (name.equals(ID)) {
+                            id = reader.nextInt();
+                        } else if (name.equals(TITLE)) {
+                            title = reader.nextString();
+                        } else if (name.equals(UNREAD)) {
+                            isUnread = reader.nextBoolean();
+                        } else if (name.equals(UPDATED)) {
+                            updated = new Date(new Long(reader.nextString() + "000").longValue());
+                        } else if (name.equals(FEED_ID)) {
+                            realFeedId = reader.nextInt();
+                        } else if (name.equals(CONTENT)) {
+                            content = reader.nextString();
+                        } else if (name.equals(URL)) {
+                            articleUrl = reader.nextString();
+                        } else if (name.equals(COMMENT_URL)) {
+                            articleCommentUrl = reader.nextString();
+                        } else if (name.equals(ATTACHMENTS)) {
+                            attachments = parseAttachments(reader);
+                        } else if (name.equals(STARRED)) {
+                            isStarred = reader.nextBoolean();
+                        } else if (name.equals(PUBLISHED)) {
+                            isPublished = reader.nextBoolean();
+                        } else {
                             reader.skipValue();
-                            continue;
                         }
-                        
+                    } catch (IllegalArgumentException e) {
+                        Log.w(Utils.TAG, "Result contained illegal value for entry \"" + name + "\".");
+                        reader.skipValue();
+                        continue;
                     }
-                    reader.endObject();
                     
-                    if (id != -1 && title != null) {
-                        articleList.add(new ArticleContainer(id, realFeedId, title, isUnread, articleUrl,
-                                articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
-                    }
                 }
-                reader.endArray();
+                reader.endObject();
                 
-                /*
-                 * Mark as read once all the articles are read from the stream.
-                 * People are complaining about not all articles being marked the right way, so just overwrite all
-                 * unread states and fetch new articles.
-                 * Moved this inside the transaction to make sure this only happens if the transaction is successful.
-                 */
-                insertTime = System.currentTimeMillis();
-                db.beginTransaction();
-                
-                DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
-                DBHelper.getInstance().insertArticle(articleList);
-                
-                db.setTransactionSuccessful();
-            } catch (IOException e) {
-                Log.e(Utils.TAG, "Articles could not be inserted, doing Rollback...", e);
-            } finally {
-                db.endTransaction();
-                Log.d(Utils.TAG, "INSERT  took " + (System.currentTimeMillis() - insertTime) + "ms");
-                DBHelper.getInstance().purgeArticlesNumber();
+                if (id != -1 && title != null) {
+                    articleList.add(new ArticleContainer(id, realFeedId, title, isUnread, articleUrl,
+                            articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
+                }
             }
+            reader.endArray();
+        } catch (IOException e) {
+            Log.e(Utils.TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
         }
+        
+        if (articleList.size() > 0) {
+            long insertTime = 0;
+            /*
+             * Mark as read once all the articles are read from the stream.
+             * People are complaining about not all articles being marked the right way, so just overwrite all
+             * unread states and fetch new articles.
+             * Moved this inside the transaction to make sure this only happens if the transaction is successful.
+             */
+            insertTime = System.currentTimeMillis();
+            // db.beginTransaction();
+            
+            DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
+            DBHelper.getInstance().insertArticle(articleList);
+            DBHelper.getInstance().purgeArticlesNumber();
+            
+            Log.d(Utils.TAG, "INSERT  took " + (System.currentTimeMillis() - insertTime) + "ms");
+        }
+        
         Log.d(Utils.TAG, "PARSING took " + (System.currentTimeMillis() - parseTime) + "ms");
         return count;
     }

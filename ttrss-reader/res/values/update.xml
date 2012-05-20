@@ -18,16 +18,23 @@
 <resources>
 
     <string-array name="updates">
-        <item> Version 1.26
+        <item>Version 1.3
+            \n * Completely re-wrote the communication between interface and backend
+            \n  -> Interface did active polling, now it registers as listener and gets notified about changes
+            \n * Completely changed the way the DB is accessed, drastically reduced the number of locks involved
+            \n * Slight changes to the UI to work with the changed code
+            \n * Lots of changes to reduce the amount of work for DB-Write-Accesses and necessary RAM for the ImageCache
+            </item>
+        <item>Version 1.26
             \n * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn\'t properly test with older versions. 
             </item>
-        <item> Version 1.25
+        <item>Version 1.25
             \n * Reduced time to switch activities
             \n * Tried to prevent display of empty datasets
             \n * Fixed ImageCache for devices running Android 4.x 
             \n * Minor Bugfixes
             </item>
-        <item> Version 1.24
+        <item>Version 1.24
             \n * Performance-Optimizations for faster startup
             \n * Fix starred/published articles never beeing purged
             \n * Minor Bugfixes

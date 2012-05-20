@@ -144,16 +144,20 @@
                 android:layout_toLeftOf="@+id/buttonView"
                 android:orientation="vertical" >
 
-                <WebView
-                    android:id="@+id/webView"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent" />
+                <FrameLayout
+                    android:id="@+id/webView_Container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                    <!--WebView
+                        android:id="@+id/webView"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent" /-->
 
                 <org.ttrssreader.utils.RotatableTextView
                     android:id="@+id/swipeView"
                     android:layout_width="45dip"
                     android:layout_height="fill_parent"
-                    android:layout_alignRight="@id/webView"
+                    android:layout_alignRight="@id/webView_Container"
                     my:backgroundColor="#AA000000"
                     my:text="@string/ArticleActivity.SwipeNotification"
                     my:textColor="#FFFFFFFF"
