@@ -21,44 +21,34 @@
         android:id="@+id/Menu_Refresh"
         android:icon="@drawable/ic_menu_refresh"
         android:title="@string/Main.RefreshMenu"/>
-
     <item
         android:id="@+id/Menu_MarkAllRead"
         android:icon="@drawable/ic_menu_mark"
+        android:showAsAction="always"
         android:title="@string/Commons.MarkAllRead"/>
-
     <item
         android:id="@+id/Menu_DisplayOnlyUnread"
         android:icon="@android:drawable/ic_menu_view"
+        android:showAsAction="always"
         android:title="@string/Commons.DisplayOnlyUnread"/>
-
     <item
         android:id="@+id/Menu_InvertSort"
         android:icon="@android:drawable/ic_menu_rotate"
         android:title="@string/Commons.InvertSort"/>
-
     <item
         android:id="@+id/Menu_WorkOffline"
         android:icon="@drawable/ic_menu_stop"
+        android:showAsAction="ifRoom"
         android:title="@string/UsageOfflineTitle"/>
-
     <item
         android:id="@+id/Category_Menu_ImageCache"
         android:icon="@android:drawable/ic_menu_save"
+        android:showAsAction="ifRoom"
         android:title="@string/Main.ImageCache"/>
-    <!--
-         <item
-        android:title="@string/Main.ArticleCache"
-        android:id="@+id/Category_Menu_ArticleCache"
-        android:icon="@android:drawable/ic_menu_save" />
-    -->
-    <!-- Removed since this is done in the background automatically when the CategoryView is started... -->
-
     <item
         android:id="@+id/Menu_ShowPreferences"
         android:icon="@android:drawable/ic_menu_preferences"
         android:title="@string/Main.ShowPreferencesMenu"/>
-
     <item
         android:id="@+id/Menu_About"
         android:icon="@android:drawable/ic_menu_help"
