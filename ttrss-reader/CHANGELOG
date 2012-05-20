@@ -7,7 +7,8 @@
   * Completely changed the way the DB is accessed, drastically reduced the number of locks involved
   * Slight changes to the UI to work with the changed code
   * Lots of changes to reduce the amount of work for DB-Write-Accesses and necessary RAM for the ImageCache
-  * TODO: Add ActionBarSherlock
+  * Added ActionBarSherlock, included "mark all read" and "display all" in ActionBar, optionally if there is room also "offline" and "ImageCache"
+  * Some minor fixes to portrait/landscape-mode and positioning of the swipe-area
 
 == Version 1.26 (1) ==
   * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn't properly test with older versions.
