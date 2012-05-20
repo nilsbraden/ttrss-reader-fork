@@ -477,12 +477,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     }
     
     public void onZoomChanged() {
-        // Load html from Raw-Ressources and insert content
-        String temp = getResources().getString(R.string.INJECT_HTML_HEAD_ZOOM);
         if (content == null)
             content = "";
-        String text = temp.replace("MARKER", content);
-        webView.loadDataWithBaseURL(baseUrl, text, "text/html", "utf-8", "about:blank");
+        content = Controller.htmlHeaderZoom.replace("MARKER", content);
+        webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
     }
     
     private void openNextArticle(int direction) {
