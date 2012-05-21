@@ -255,12 +255,11 @@ public class Data {
                 
                 // Only delete feeds if we got new feeds...
                 if (!feeds.isEmpty()) {
-                    DBHelper.getInstance().deleteFeeds();
-                    
                     for (Feed f : feeds) {
                         if (categoryId == VCAT_ALL || f.categoryId == categoryId)
                             ret.add(f);
                     }
+                    DBHelper.getInstance().deleteFeeds();
                     DBHelper.getInstance().insertFeeds(feeds);
                     
                     // Store requested category-id and ids of all received feeds

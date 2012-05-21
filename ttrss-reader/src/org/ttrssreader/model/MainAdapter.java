@@ -17,6 +17,7 @@ package org.ttrssreader.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
@@ -188,22 +189,20 @@ public abstract class MainAdapter extends BaseAdapter {
             
             // Check again to reduce the number of unnecessary new cursors
             if (!force) {
-                if (cursor != null && !cursor.isClosed())
+                if (cursor != null && !cursor.isClosed() && cursor.getCount() > 0)
                     return;
             }
             
             try {
                 tempCursor = executeQuery(false, false); // normal query
                 
-                // Only check for unread articles in normal feeds, published, starred, all, fresh often don't have
+                // Only check for unread articles in normal feeds. Published, starred, all, fresh often don't have
                 // unread articles so dont check there.
-                if (feedId >= 0 && !checkUnread(tempCursor)) {
-                    Log.d(Utils.TAG, "Cursor did not contain unread articles...");
+                if (feedId >= 0 && Controller.getInstance().onlyUnread() && !checkUnread(tempCursor)) {
                     tempCursor = executeQuery(true, false); // Override unread if query was empty
                 }
                 
             } catch (Exception e) {
-                Log.d(Utils.TAG, "Exception while creating cursor, trying to create a really fail-safe query...");
                 tempCursor = executeQuery(false, true); // Fail-safe-query
             }
             
@@ -226,26 +225,23 @@ public abstract class MainAdapter extends BaseAdapter {
     /**
      * Tries to find out if the given cursor points to a dataset with unread articles in it, returns true if it does.
      * 
-     * @param c
+     * @param cursor
      *            the cursor.
      * @return true if there are unread articles in the dataset, else false.
      */
-    private final boolean checkUnread(Cursor c) {
-        if (c == null || c.isClosed() || c.getCount() < 1)
-            return false; // Check null, closed, empty
+    private final boolean checkUnread(Cursor cursor) {
+        if (cursor == null || cursor.isClosed())
+            return false; // Check null or closed
             
-        int col = c.getColumnIndex("unread");
-        if (col == -1 || !c.moveToFirst())
-            return false; // Check column, move
+        if (!cursor.moveToFirst())
+            return false; // Check empty
             
         do {
-            if (c.getInt(col) > 0) {
-                c.moveToFirst(); // One unread article found, move to first entry
-                return true;
-            }
-        } while (c.moveToNext());
+            if (cursor.getInt(cursor.getColumnIndex("unread")) > 0)
+                return cursor.moveToFirst(); // One unread article found, move to first entry
+        } while (cursor.moveToNext());
         
-        c.moveToFirst();
+        cursor.moveToFirst();
         return false;
     }
     

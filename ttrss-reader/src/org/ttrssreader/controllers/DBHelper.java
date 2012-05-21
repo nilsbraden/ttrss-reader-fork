@@ -27,8 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
@@ -545,16 +543,23 @@ public class DBHelper {
      * @see android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])
      */
     public Cursor query(String sql, String[] selectionArgs) {
-        return db.rawQuery(sql, selectionArgs);
+        acquireLock();
+        Cursor cursor = db.rawQuery(sql, selectionArgs);
+        releaseLock();
+        return cursor;
     }
     
     public Cursor queryArticlesForImageCache(boolean onlyUnreadImages) {
+        acquireLock();
         // Add where-clause for only unread articles
         String where = "cachedImages=0";
         if (onlyUnreadImages)
             where += " AND isUnread>0";
         
-        return db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" }, where, null, null, null, null);
+        Cursor cursor = db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" }, where, null, null,
+                null, null);
+        releaseLock();
+        return cursor;
     }
     
     // *******| INSERT |*******************************************************************
@@ -578,8 +583,15 @@ public class DBHelper {
             return;
         
         acquireLock(true);
-        for (Category c : set) {
-            insertCategory(c.id, c.title, c.unread);
+        
+        db.beginTransaction();
+        try {
+            for (Category c : set) {
+                insertCategory(c.id, c.title, c.unread);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
         releaseLock(true);
     }
@@ -607,8 +619,14 @@ public class DBHelper {
             return;
         
         acquireLock(true);
-        for (Feed f : set) {
-            insertFeed(f.id, f.categoryId, f.title, f.url, f.unread);
+        db.beginTransaction();
+        try {
+            for (Feed f : set) {
+                insertFeed(f.id, f.categoryId, f.title, f.url, f.unread);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
         releaseLock(true);
     }
@@ -664,8 +682,14 @@ public class DBHelper {
             return;
         
         acquireLock(true);
-        for (ArticleContainer a : articles) {
-            insertArticleIntern(a);
+        db.beginTransaction();
+        try {
+            for (ArticleContainer a : articles) {
+                insertArticleIntern(a);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
         releaseLock(true);
     }
@@ -874,8 +898,15 @@ public class DBHelper {
     public void markArticles(Set<Integer> iDlist, String mark, int state) {
         if (isDBAvailable()) {
             acquireLock(true);
-            for (Integer id : iDlist) {
-                markArticle(id, mark, state);
+            
+            db.beginTransaction();
+            try {
+                for (Integer id : iDlist) {
+                    markArticle(id, mark, state);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
             releaseLock(true);
         }
@@ -927,11 +958,18 @@ public class DBHelper {
         // }
         
         acquireLock(true);
-        for (Integer id : ids) {
-            // First update, then insert. If row exists it gets updated and second call ignores it, else the second
-            // call inserts it.
-            db.execSQL(String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id));
-            db.execSQL(String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id, state));
+        db.beginTransaction();
+        try {
+            for (Integer id : ids) {
+                // First update, then insert. If row exists it gets updated and second call ignores it, else the second
+                // call inserts it.
+                db.execSQL(String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_MARK, mark, state, id));
+                db.execSQL(String.format("INSERT OR IGNORE INTO %s (id, %s) VALUES (%s, %s)", TABLE_MARK, mark, id,
+                        state));
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
         releaseLock(true);
     }
@@ -943,14 +981,21 @@ public class DBHelper {
             return;
         
         acquireLock(true);
-        for (Integer id : ids.keySet()) {
-            String note = ids.get(id);
-            if (note == null || note.equals(""))
-                continue;
-            
-            ContentValues cv = new ContentValues();
-            cv.put(MARK_NOTE, note);
-            db.update(TABLE_MARK, cv, "id=" + id, null);
+        
+        db.beginTransaction();
+        try {
+            for (Integer id : ids.keySet()) {
+                String note = ids.get(id);
+                if (note == null || note.equals(""))
+                    continue;
+                
+                ContentValues cv = new ContentValues();
+                cv.put(MARK_NOTE, note);
+                db.update(TABLE_MARK, cv, "id=" + id, null);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
         releaseLock(true);
     }
@@ -1415,6 +1460,7 @@ public class DBHelper {
         
         acquireLock();
         
+        db.beginTransaction();
         try {
             for (String idList : StringSupport.convertListToString(ids.keySet(), 100)) {
                 ContentValues cv = new ContentValues();
@@ -1436,9 +1482,11 @@ public class DBHelper {
                 
             }
             
+            db.setTransactionSuccessful();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            db.endTransaction();
             releaseLock();
         }
     }

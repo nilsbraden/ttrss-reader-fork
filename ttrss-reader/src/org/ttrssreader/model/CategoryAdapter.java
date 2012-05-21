@@ -170,7 +170,7 @@ public class CategoryAdapter extends MainAdapter {
             query.append("SELECT id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
             query.append(" WHERE id=0");
-            query.append(displayUnread ? " AND unread>0" : "");
+//            query.append(displayUnread ? " AND unread>0" : "");
             insertValues(DBHelper.getInstance().query(query.toString(), null));
             
             // Categories
