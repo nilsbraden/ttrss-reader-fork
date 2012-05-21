@@ -24,9 +24,11 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,7 +145,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return DBHelper.getInstance().query(query, null);
     }
     
-    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) { // TODO: true, false liefert kein Ergebnis
         Integer lastOpenedArticle = Controller.getInstance().lastOpenedArticle;
         
         boolean displayUnread = Controller.getInstance().onlyUnread();
@@ -196,6 +198,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         
         query.append(" ORDER BY a.updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
+        Log.d(Utils.TAG, query.toString());
         return query.toString();
     }
     
