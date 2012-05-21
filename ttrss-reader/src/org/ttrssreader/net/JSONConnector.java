@@ -589,26 +589,35 @@ public class JSONConnector implements Connector {
         }
         
         SQLiteDatabase db = DBHelper.getInstance().db;
-        for (int[] values : list) {
-            if (values[id] == Integer.MAX_VALUE)
-                continue;
+        try {
+            db.beginTransaction();
             
-            ContentValues cv = new ContentValues();
-            cv.put("unread", values[unreadCount]);
-            
-            if (values[isCat] > 0 && values[id] >= 0) {
-                // Category
-                db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { values[id] + "" });
-            } else if (values[isCat] == 0 && values[id] < 0 && values[id] >= -4) {
-                // Virtual Category
-                db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { values[id] + "" });
-            } else if (values[isCat] == 0 && values[id] > 0) {
-                // Feed
-                db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { values[id] + "" });
-            } else if (values[isCat] == 0 && values[id] < -10) {
-                // Label
-                db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { values[id] + "" });
+            for (int[] values : list) {
+                if (values[id] == Integer.MAX_VALUE)
+                    continue;
+                
+                ContentValues cv = new ContentValues();
+                cv.put("unread", values[unreadCount]);
+                
+                if (values[isCat] > 0 && values[id] >= 0) {
+                    // Category
+                    db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { values[id] + "" });
+                } else if (values[isCat] == 0 && values[id] < 0 && values[id] >= -4) {
+                    // Virtual Category
+                    db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { values[id] + "" });
+                } else if (values[isCat] == 0 && values[id] > 0) {
+                    // Feed
+                    db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { values[id] + "" });
+                } else if (values[isCat] == 0 && values[id] < -10) {
+                    // Label
+                    db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { values[id] + "" });
+                }
             }
+            
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            DBHelper.getInstance().purgeArticlesNumber();
         }
     }
     
@@ -720,21 +729,23 @@ public class JSONConnector implements Connector {
         }
         
         if (articleList.size() > 0) {
-            long insertTime = 0;
-            /*
-             * Mark as read once all the articles are read from the stream.
-             * People are complaining about not all articles being marked the right way, so just overwrite all
-             * unread states and fetch new articles.
-             * Moved this inside the transaction to make sure this only happens if the transaction is successful.
-             */
-            insertTime = System.currentTimeMillis();
-            // db.beginTransaction();
             
-            DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
-            DBHelper.getInstance().insertArticle(articleList);
-            DBHelper.getInstance().purgeArticlesNumber();
-            
-            Log.d(Utils.TAG, "INSERT  took " + (System.currentTimeMillis() - insertTime) + "ms");
+            SQLiteDatabase db = DBHelper.getInstance().db;
+            long insertTime = System.currentTimeMillis();
+            try {
+                db.beginTransaction();
+                
+                DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
+                DBHelper.getInstance().insertArticle(articleList);
+                Log.d(Utils.TAG, "Actual INSERT  took " + (System.currentTimeMillis() - insertTime) + "ms");
+                DBHelper.getInstance().purgeArticlesNumber();
+
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+                Log.d(Utils.TAG, "INSERT  took " + (System.currentTimeMillis() - insertTime) + "ms");
+                DBHelper.getInstance().purgeArticlesNumber();
+            }
         }
         
         Log.d(Utils.TAG, "PARSING took " + (System.currentTimeMillis() - parseTime) + "ms");
