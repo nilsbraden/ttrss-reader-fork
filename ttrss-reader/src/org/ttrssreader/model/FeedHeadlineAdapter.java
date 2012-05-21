@@ -198,7 +198,6 @@ public class FeedHeadlineAdapter extends MainAdapter {
         
         query.append(" ORDER BY a.updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
-        Log.d(Utils.TAG, query.toString());
         return query.toString();
     }
     
