@@ -543,6 +543,8 @@ public class JSONConnector implements Connector {
         final int id = 1;
         final int unreadCount = 2;
         
+        long time = System.currentTimeMillis();
+        
         List<int[]> list = new ArrayList<int[]>();
         try {
             reader.beginArray();
@@ -588,11 +590,14 @@ public class JSONConnector implements Connector {
             e.printStackTrace();
         }
         
+        Log.d(Utils.TAG, "Counters: parsing took " + (System.currentTimeMillis() - time) + "ms");
+        time = System.currentTimeMillis();
+        
         SQLiteDatabase db = DBHelper.getInstance().db;
         try {
             db.beginTransaction();
             
-            for (int[] values : list) {
+            for (int[] values : list) {  // TODO: Optimize!!!
                 if (values[id] == Integer.MAX_VALUE)
                     continue;
                 
@@ -619,6 +624,8 @@ public class JSONConnector implements Connector {
             db.endTransaction();
             DBHelper.getInstance().purgeArticlesNumber();
         }
+        
+        Log.d(Utils.TAG, "Counters: inserting took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     private Set<String> parseAttachments(JsonReader reader) throws IOException {
@@ -658,9 +665,10 @@ public class JSONConnector implements Connector {
     }
     
     private int parseArticleArray(JsonReader reader, int labelId, int catId, boolean isCategory) {
-        long parseTime = System.currentTimeMillis();
         int count = 0;
         List<ArticleContainer> articleList = new ArrayList<ArticleContainer>();
+        
+        long time = System.currentTimeMillis();
         
         try {
             reader.beginArray();
@@ -728,27 +736,27 @@ public class JSONConnector implements Connector {
             Log.e(Utils.TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
         }
         
+        Log.d(Utils.TAG, "parseArticleArray: parsing took " + (System.currentTimeMillis() - time) + "ms");
+        time = System.currentTimeMillis();
+        
         if (articleList.size() > 0) {
             
             SQLiteDatabase db = DBHelper.getInstance().db;
-            long insertTime = System.currentTimeMillis();
             try {
                 db.beginTransaction();
                 
                 DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
                 DBHelper.getInstance().insertArticle(articleList);
-                Log.d(Utils.TAG, "Actual INSERT  took " + (System.currentTimeMillis() - insertTime) + "ms");
                 DBHelper.getInstance().purgeArticlesNumber();
 
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
-                Log.d(Utils.TAG, "INSERT  took " + (System.currentTimeMillis() - insertTime) + "ms");
-                DBHelper.getInstance().purgeArticlesNumber();
             }
         }
         
-        Log.d(Utils.TAG, "PARSING took " + (System.currentTimeMillis() - parseTime) + "ms");
+        Log.d(Utils.TAG, "parseArticleArray: inserting took " + (System.currentTimeMillis() - time) + "ms");
+        
         return count;
     }
     
