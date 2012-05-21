@@ -17,11 +17,13 @@ package org.ttrssreader.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -164,12 +166,19 @@ public abstract class MainAdapter extends BaseAdapter {
     }
     
     /**
+     * Creates a new query if necessary
+     */
+    public void makeQuery(boolean force) {
+        makeQuery(force, false);
+    }
+    
+    /**
      * Creates a new query if necessary or called with force = true.
      * 
      * @param force
      *            forces the creation of a new query
      */
-    public void makeQuery(boolean force) {
+    public void makeQuery(boolean force, boolean overrideUnreadCheck) {
         if (!force) {
             if (cursor != null && !cursor.isClosed())
                 return;
@@ -186,11 +195,15 @@ public abstract class MainAdapter extends BaseAdapter {
             try {
                 tempCursor = executeQuery(false, false); // normal query
                 
-                if (!checkUnread(tempCursor))
+                // Only check for unread articles in normal feeds, published, starred, all, fresh often don't have
+                // unread articles so dont check there.
+                if (feedId >= 0 && !checkUnread(tempCursor)) {
+                    Log.d(Utils.TAG, "Cursor did not contain unread articles...");
                     tempCursor = executeQuery(true, false); // Override unread if query was empty
-                    
+                }
+                
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.d(Utils.TAG, "Exception while creating cursor, trying to create a really fail-safe query...");
                 tempCursor = executeQuery(false, true); // Fail-safe-query
             }
             
@@ -232,6 +245,7 @@ public abstract class MainAdapter extends BaseAdapter {
             }
         } while (c.moveToNext());
         
+        c.moveToFirst();
         return false;
     }
     
