@@ -316,7 +316,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
         String title = direction < 0 ? parentTitles[0] : parentTitles[1];
         
-        if (id < 0) {
+        if (id <= 0) {
             if (Controller.getInstance().vibrateOnLastArticle())
                 ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;

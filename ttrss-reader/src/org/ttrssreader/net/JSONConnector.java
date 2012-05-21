@@ -740,19 +740,9 @@ public class JSONConnector implements Connector {
         time = System.currentTimeMillis();
         
         if (articleList.size() > 0) {
-            
-            SQLiteDatabase db = DBHelper.getInstance().db;
-            try {
-                db.beginTransaction();
-                
-                DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
-                DBHelper.getInstance().insertArticle(articleList);
-                DBHelper.getInstance().purgeArticlesNumber();
-
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
-            }
+            DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
+            DBHelper.getInstance().insertArticle(articleList);
+            DBHelper.getInstance().purgeArticlesNumber();
         }
         
         Log.d(Utils.TAG, "parseArticleArray: inserting took " + (System.currentTimeMillis() - time) + "ms");
