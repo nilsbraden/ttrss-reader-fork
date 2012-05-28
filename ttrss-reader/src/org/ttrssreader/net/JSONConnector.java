@@ -280,8 +280,8 @@ public class JSONConnector implements Connector {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
             Log.w(Utils.TAG, "SocketException (" + e.getMessage() + ") in doRequest()");
             return null;
-        } catch (IOException e) {
-            Log.w(Utils.TAG, "IOException (" + e.getMessage() + ") in doRequest()");
+        } catch (Exception e) {
+            Log.w(Utils.TAG, "Exception (" + e.getMessage() + ") in doRequest()");
             return null;
         }
         
@@ -586,8 +586,8 @@ public class JSONConnector implements Connector {
                 
             }
             reader.endArray();
+        } catch (IllegalStateException ise) {
         } catch (IOException e) {
-            e.printStackTrace();
         }
         
         Log.d(Utils.TAG, "Counters: parsing took " + (System.currentTimeMillis() - time) + "ms");
