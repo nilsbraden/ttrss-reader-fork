@@ -18,6 +18,8 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.31
+            \n * Fixed several bugs.</item>
         <item>Version 1.3
             \n * Completely re-wrote the communication between interface and backend
             \n --> Interface did active polling, now it registers as listener and gets notified about changes
@@ -25,10 +27,10 @@
             \n * Slight changes to the UI to work with the changed code
             \n * Lots of changes to reduce the amount of work for DB-Write-Accesses and necessary RAM for the ImageCache
             \n * Added ActionBarSherlock, included "mark all read" and "display all" in ActionBar, optionally if there is room also "offline" and "ImageCache"
-            \n * Some minor fixes to portrait/landscape-mode and positioning of the swipe-area</item>
-            \n * Performance-optimizations
+            \n * Some minor fixes to portrait/landscape-mode and positioning of the swipe-area
+            \n * Performance-optimizations</item>
         <item>Version 1.26
-            \n * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn\'t properly test with older versions. </item>
+            \n * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn\'t properly test with older versions.</item>
         <item>Version 1.25
             \n * Reduced time to switch activities
             \n * Tried to prevent display of empty datasets
