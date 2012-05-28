@@ -296,7 +296,7 @@ public class DBHelper {
     }
     
     private void acquireLock() {
-        acquireLock(false);
+        // acquireLock(false);
     }
     
     private void acquireLock(boolean write) {
@@ -308,7 +308,7 @@ public class DBHelper {
     }
     
     private void releaseLock() {
-        releaseLock(false);
+        // releaseLock(false);
     }
     
     private void releaseLock(boolean write) {
@@ -592,8 +592,8 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            releaseLock(true);
         }
-        releaseLock(true);
     }
     
     private void insertFeed(int id, int categoryId, String title, String url, int unread) {
@@ -627,8 +627,8 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            releaseLock(true);
         }
-        releaseLock(true);
     }
     
     private void insertArticleIntern(ArticleContainer a) {
@@ -690,8 +690,8 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            releaseLock(true);
         }
-        releaseLock(true);
     }
     
     public static Object[] prepareArticleArray(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label) {
@@ -907,8 +907,8 @@ public class DBHelper {
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
+                releaseLock(true);
             }
-            releaseLock(true);
         }
     }
     
@@ -970,8 +970,8 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            releaseLock(true);
         }
-        releaseLock(true);
     }
     
     // Special treatment for notes since the method markUnsynchronizedStates(...) doesn't support inserting any
@@ -996,8 +996,8 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            releaseLock(true);
         }
-        releaseLock(true);
     }
     
     public void updateCategoryUnreadCount(int id, int count) {
@@ -1476,15 +1476,11 @@ public class DBHelper {
                     continue;
                 
                 ContentValues cv = new ContentValues();
-                
                 cv.put(MARK_NOTE, note);
                 db.update(TABLE_MARK, cv, "id=" + id, null);
-                
             }
             
             db.setTransactionSuccessful();
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             db.endTransaction();
             releaseLock();
