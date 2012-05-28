@@ -78,7 +78,7 @@ public class ArticleWebViewClient extends WebViewClient {
                     (String) context.getText(R.string.WebViewClientActivity_Download) };
             // @formatter:on
             
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            AlertDialog.Builder builder = new AlertDialog.Builder(articleActivity);
             builder.setTitle("What shall we do?");
             builder.setItems(items, new DialogInterface.OnClickListener() {
                 
