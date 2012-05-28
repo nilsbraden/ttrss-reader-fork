@@ -584,7 +584,7 @@ public class JSONConnector implements Connector {
                 reader.endObject();
                 list.add(values);
                 
-            }
+            } 
             reader.endArray();
         } catch (IllegalStateException ise) {
         } catch (IOException e) {
