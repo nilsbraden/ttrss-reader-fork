@@ -78,7 +78,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean showVirtual = null;
     private Boolean useSwipe = null;
     private Boolean useButtons = null;
-    private Boolean leftHanded = null;
     private Boolean onlyUnread = null;
     private Integer articleLimit = null;
     private Boolean displayArticleHeader = null;
@@ -278,9 +277,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
             try {
                 return new URI(Constants.URL_DEFAULT);
             } catch (URISyntaxException e1) {
+                throw new RuntimeException(e1);
             }
         }
-        return null; // Should never be reached!
     }
     
     public String updateTriggerURI() {

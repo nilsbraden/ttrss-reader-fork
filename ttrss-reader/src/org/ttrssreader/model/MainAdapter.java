@@ -18,13 +18,11 @@ package org.ttrssreader.model;
 import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -70,9 +68,6 @@ public abstract class MainAdapter extends BaseAdapter {
     }
     
     public final void closeCursor(Cursor c) {
-        if (c == null || c.isClosed())
-            return;
-        
         if (c == null || c.isClosed())
             return;
         
