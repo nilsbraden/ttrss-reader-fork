@@ -44,31 +44,34 @@ public class CategoryAdapter extends MainAdapter {
     
     @Override
     public Object getItem(int position) {
-        if (cursor.isClosed())
-            makeQuery();
-        
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                Category ret = new Category();
-                ret.id = cursor.getInt(0);
-                ret.title = cursor.getString(1);
-                ret.unread = cursor.getInt(2);
-                return ret;
+        Category ret = new Category();
+        synchronized (poorMansMutex) {
+            if (cursor.isClosed())
+                makeQuery();
+            
+            if (cursor.getCount() >= position) {
+                if (cursor.moveToPosition(position)) {
+                    ret.id = cursor.getInt(0);
+                    ret.title = cursor.getString(1);
+                    ret.unread = cursor.getInt(2);
+                }
             }
         }
-        return null;
+        return ret;
     }
     
     public List<Category> getCategories() {
         List<Category> result = new ArrayList<Category>();
-        if (cursor.moveToFirst()) {
-            while (!cursor.isAfterLast()) {
-                Category c = new Category();
-                c.id = cursor.getInt(0);
-                c.title = cursor.getString(1);
-                c.unread = cursor.getInt(2);
-                result.add(c);
-                cursor.move(1);
+        synchronized (poorMansMutex) {
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    Category c = new Category();
+                    c.id = cursor.getInt(0);
+                    c.title = cursor.getString(1);
+                    c.unread = cursor.getInt(2);
+                    result.add(c);
+                    cursor.move(1);
+                }
             }
         }
         return result;
@@ -170,7 +173,7 @@ public class CategoryAdapter extends MainAdapter {
             query.append("SELECT id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
             query.append(" WHERE id=0");
-//            query.append(displayUnread ? " AND unread>0" : "");
+            // query.append(displayUnread ? " AND unread>0" : "");
             insertValues(DBHelper.getInstance().query(query.toString(), null));
             
             // Categories

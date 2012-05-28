@@ -38,16 +38,17 @@ public class FeedAdapter extends MainAdapter {
     
     @Override
     public Object getItem(int position) {
-        if (cursor.isClosed())
-            makeQuery();
+        Feed ret = new Feed();
+        synchronized (poorMansMutex) {
+            if (cursor.isClosed())
+                makeQuery();
             
-        Feed ret = null;
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                ret = new Feed();
-                ret.id = cursor.getInt(0);
-                ret.title = cursor.getString(1);
-                ret.unread = cursor.getInt(2);
+            if (cursor.getCount() >= position) {
+                if (cursor.moveToPosition(position)) {
+                    ret.id = cursor.getInt(0);
+                    ret.title = cursor.getString(1);
+                    ret.unread = cursor.getInt(2);
+                }
             }
         }
         return ret;

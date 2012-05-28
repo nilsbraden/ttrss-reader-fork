@@ -24,11 +24,9 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
-import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,20 +46,21 @@ public class FeedHeadlineAdapter extends MainAdapter {
     
     @Override
     public Object getItem(int position) {
-        if (cursor.isClosed())
-            makeQuery();
-        
-        Article ret = null;
-        if (cursor.getCount() >= position) {
-            if (cursor.moveToPosition(position)) {
-                ret = new Article();
-                ret.id = cursor.getInt(0);
-                ret.feedId = cursor.getInt(1);
-                ret.title = cursor.getString(2);
-                ret.isUnread = cursor.getInt(3) != 0;
-                ret.updated = new Date(cursor.getLong(4));
-                ret.isStarred = cursor.getInt(5) != 0;
-                ret.isPublished = cursor.getInt(6) != 0;
+        Article ret = new Article();
+        synchronized (poorMansMutex) {
+            if (cursor.isClosed())
+                makeQuery();
+            
+            if (cursor.getCount() >= position) {
+                if (cursor.moveToPosition(position)) {
+                    ret.id = cursor.getInt(0);
+                    ret.feedId = cursor.getInt(1);
+                    ret.title = cursor.getString(2);
+                    ret.isUnread = cursor.getInt(3) != 0;
+                    ret.updated = new Date(cursor.getLong(4));
+                    ret.isStarred = cursor.getInt(5) != 0;
+                    ret.isPublished = cursor.getInt(6) != 0;
+                }
             }
         }
         return ret;
@@ -145,7 +144,8 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return DBHelper.getInstance().query(query, null);
     }
     
-    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) { // TODO: true, false liefert kein Ergebnis
+    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) { // TODO: true, false liefert
+                                                                                           // kein Ergebnis
         Integer lastOpenedArticle = Controller.getInstance().lastOpenedArticle;
         
         boolean displayUnread = Controller.getInstance().onlyUnread();
