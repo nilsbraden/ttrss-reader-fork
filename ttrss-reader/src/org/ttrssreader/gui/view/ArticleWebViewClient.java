@@ -88,6 +88,7 @@ public class ArticleWebViewClient extends WebViewClient {
                         case 0:
                             Log.i(Utils.TAG, "Displaying file in mediaplayer: " + url);
                             Intent i = new Intent(context, MediaPlayerActivity.class);
+                            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             i.putExtra(MediaPlayerActivity.URL, url);
                             context.startActivity(i);
                             break;
