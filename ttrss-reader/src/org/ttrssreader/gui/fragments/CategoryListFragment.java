@@ -57,12 +57,18 @@ public class CategoryListFragment extends ListFragment {
         // Inject Adapter into activity. Don't know if this is the way to do stuff here...
         if (getActivity() instanceof IConfigurable)
             ((IConfigurable) getActivity()).setAdapter(adapter);
-        
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        getListView().setVisibility(View.GONE);
     }
     
     @Override
     public void onResume() {
         super.onResume();
+        getListView().setVisibility(View.VISIBLE);
         
         Controller.getInstance().lastOpenedFeed = null;
         Controller.getInstance().lastOpenedArticle = null;

@@ -29,7 +29,6 @@ import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
-import com.actionbarsherlock.view.MenuItem;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,6 +36,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import com.actionbarsherlock.view.MenuItem;
 
 public class FeedActivity extends MenuActivity {
     
@@ -104,12 +104,12 @@ public class FeedActivity extends MenuActivity {
         closeCursor();
     }
     
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//        outState.putInt(FEED_CAT_ID, categoryId);
-//        outState.putString(FEED_CAT_TITLE, categoryTitle);
-//        super.onSaveInstanceState(outState);
-//    }
+    // @Override
+    // protected void onSaveInstanceState(Bundle outState) {
+    // outState.putInt(FEED_CAT_ID, categoryId);
+    // outState.putString(FEED_CAT_TITLE, categoryTitle);
+    // super.onSaveInstanceState(outState);
+    // }
     
     @Override
     protected void doRefresh() {
@@ -126,8 +126,8 @@ public class FeedActivity extends MenuActivity {
         }
         
         if (feedUpdater == null) {
-            setProgressBarIndeterminateVisibility(false);
-            setProgressBarVisibility(false);
+            setSupportProgressBarIndeterminateVisibility(false);
+            setSupportProgressBarVisibility(false);
         }
     }
     
@@ -143,8 +143,8 @@ public class FeedActivity extends MenuActivity {
         }
         
         if (!isCacherRunning()) {
-            setProgressBarIndeterminateVisibility(true);
-            setProgressBarVisibility(false);
+            setSupportProgressBarIndeterminateVisibility(true);
+            setSupportProgressBarVisibility(false);
             
             feedUpdater = new FeedUpdater();
             if (Controller.getInstance().isExecuteOnExecutorAvailable())
@@ -213,8 +213,8 @@ public class FeedActivity extends MenuActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setProgressBarIndeterminateVisibility(false);
-                setProgressBarVisibility(false);
+                setSupportProgressBarIndeterminateVisibility(false);
+                setSupportProgressBarVisibility(false);
                 return;
             }
             

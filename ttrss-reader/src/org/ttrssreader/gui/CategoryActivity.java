@@ -175,8 +175,8 @@ public class CategoryActivity extends MenuActivity {
         }
         
         if (categoryUpdater == null && !isCacherRunning()) {
-            setProgressBarIndeterminateVisibility(false);
-            setProgressBarVisibility(false);
+            setSupportProgressBarIndeterminateVisibility(false);
+            setSupportProgressBarVisibility(false);
         }
     }
     
@@ -192,8 +192,8 @@ public class CategoryActivity extends MenuActivity {
         }
         
         if (!isCacherRunning() && !cacherStarted) {
-            setProgressBarIndeterminateVisibility(true);
-            setProgressBarVisibility(true);
+            setSupportProgressBarIndeterminateVisibility(true);
+            setSupportProgressBarVisibility(true);
             
             categoryUpdater = new CategoryUpdater();
             if (Controller.getInstance().isExecuteOnExecutorAvailable())
@@ -302,8 +302,8 @@ public class CategoryActivity extends MenuActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setProgressBarIndeterminateVisibility(false);
-                setProgressBarVisibility(false);
+                setSupportProgressBarIndeterminateVisibility(false);
+                setSupportProgressBarVisibility(false);
                 return;
             }
             
