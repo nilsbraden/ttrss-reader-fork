@@ -33,7 +33,6 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
-import com.actionbarsherlock.view.MenuItem;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -51,6 +50,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
     
@@ -201,8 +201,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         }
         
         if (headlineUpdater == null) {
-            setProgressBarIndeterminateVisibility(false);
-            setProgressBarVisibility(false);
+            setSupportProgressBarIndeterminateVisibility(false);
+            setSupportProgressBarVisibility(false);
         }
     }
     
@@ -218,8 +218,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         }
         
         if (!isCacherRunning()) {
-            setProgressBarIndeterminateVisibility(true);
-            setProgressBarVisibility(false);
+            setSupportProgressBarIndeterminateVisibility(true);
+            setSupportProgressBarVisibility(false);
             
             headlineUpdater = new FeedHeadlineUpdater();
             if (Controller.getInstance().isExecuteOnExecutorAvailable())
@@ -431,8 +431,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setProgressBarIndeterminateVisibility(false);
-                setProgressBarVisibility(false);
+                setSupportProgressBarIndeterminateVisibility(false);
+                setSupportProgressBarVisibility(false);
                 return;
             }
             

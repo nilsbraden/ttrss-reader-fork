@@ -27,7 +27,7 @@ import android.view.View;
 import android.widget.ListView;
 
 public class FeedHeadlineListFragment extends ListFragment {
-
+    
     private static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
@@ -35,7 +35,7 @@ public class FeedHeadlineListFragment extends ListFragment {
     public static final String FEED_TITLE = "FEED_TITLE";
     public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
     public static final String FEED_INDEX = "INDEX";
-
+    
     private static final String SELECTED_INDEX = "selectedIndex";
     private static final int SELECTED_INDEX_DEFAULT = -1;
     private int selectedIndex = SELECTED_INDEX_DEFAULT;
@@ -62,9 +62,21 @@ public class FeedHeadlineListFragment extends ListFragment {
     }
     
     @Override
+    public void onStop() {
+        super.onStop();
+        getListView().setVisibility(View.GONE);
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        getListView().setVisibility(View.VISIBLE);
+    }
+    
+    @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
-
+        
         listView = getListView();
         registerForContextMenu(listView);
         
@@ -106,7 +118,7 @@ public class FeedHeadlineListFragment extends ListFragment {
             Log.w(Utils.TAG, "FeedHeadlineListFragment: Adapter shouldn't be null here...");
             return;
         }
-
+        
         selectedIndexOld = selectedIndex;
         selectedIndex = position; // Set selected item
         

@@ -55,6 +55,18 @@ public class FeedListFragment extends ListFragment {
     }
     
     @Override
+    public void onStop() {
+        super.onStop();
+        getListView().setVisibility(View.GONE);
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        getListView().setVisibility(View.VISIBLE);
+    }
+    
+    @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
 

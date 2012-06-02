@@ -210,20 +210,20 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         }
         intent.setClass(this.getApplicationContext(), ForegroundService.class);
         
-        this.setProgressBarVisibility(true);
+        this.setSupportProgressBarVisibility(true);
         this.startService(intent);
     }
     
     @Override
     public void onCacheEnd() {
-        setProgressBarVisibility(false);
+        setSupportProgressBarVisibility(false);
     }
     
     @Override
     public void onCacheProgress(int taskCount, int progress) {
         if (taskCount == progress) {
-            setProgressBarIndeterminateVisibility(false);
-            setProgressBarVisibility(false);
+            setSupportProgressBarIndeterminateVisibility(false);
+            setSupportProgressBarVisibility(false);
         } else {
             setProgress((10000 / (taskCount + 1)) * progress);
         }
@@ -240,7 +240,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             updater.cancel(true);
             updater = null;
         }
-        setProgressBarIndeterminateVisibility(false);
+        setSupportProgressBarIndeterminateVisibility(false);
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
