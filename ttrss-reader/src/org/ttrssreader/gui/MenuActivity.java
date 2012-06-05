@@ -34,10 +34,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.View;
-import android.view.Window;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
 /**
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
@@ -210,7 +210,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         }
         intent.setClass(this.getApplicationContext(), ForegroundService.class);
         
-        this.setSupportProgressBarVisibility(true);
+        setSupportProgressBarVisibility(true);
         this.startService(intent);
     }
     
