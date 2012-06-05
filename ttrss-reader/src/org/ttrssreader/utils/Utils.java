@@ -274,16 +274,7 @@ public class Utils {
             ticker = context.getText(R.string.Utils_DownloadErrorTicker);
         }
         
-        Notification notification = null;
-        if (Build.VERSION.SDK_INT >= 11) {
-            notification = buildNotification(context, icon, ticker, title, text, true);
-        } else {
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-            notification = new Notification(icon, ticker, System.currentTimeMillis());
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-            notification.setLatestEventInfo(context, title, text, pendingIntent);
-        }
-        
+        Notification notification = buildNotification(context, icon, ticker, title, text, true, intent);
         mNotMan.notify(ID_FINISHED, notification);
     }
     
@@ -314,7 +305,7 @@ public class Utils {
         CharSequence ticker = context.getText(R.string.Utils_DownloadRunningTicker);
         CharSequence text = context.getText(R.string.Utils_DownloadRunningText);
         
-        Notification notification = buildNotification(context, icon, ticker, title, text, true);
+        Notification notification = buildNotification(context, icon, ticker, title, text, true, intent);
         mNotMan.notify(ID_RUNNING, notification);
     }
     
@@ -379,17 +370,29 @@ public class Utils {
         }
     };
     
-    public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, boolean autoCancel) {
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(), 0);
-        Notification.Builder builder = new Notification.Builder(context);
-        builder.setSmallIcon(icon);
-        builder.setTicker(ticker);
-        builder.setWhen(System.currentTimeMillis());
-        builder.setContentTitle(title);
-        builder.setContentText(text);
-        builder.setContentIntent(pendingIntent);
-        builder.setAutoCancel(autoCancel);
-        return builder.getNotification();
+    public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, boolean autoCancel, Intent intent) {
+        
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+        Notification notification = null;
+        
+        if (Build.VERSION.SDK_INT >= 11) {
+            Notification.Builder builder = new Notification.Builder(context);
+            builder.setSmallIcon(icon);
+            builder.setTicker(ticker);
+            builder.setWhen(System.currentTimeMillis());
+            builder.setContentTitle(title);
+            builder.setContentText(text);
+            builder.setContentIntent(pendingIntent);
+            builder.setAutoCancel(autoCancel);
+            builder.setContentIntent(pendingIntent);
+            notification = builder.getNotification();
+        } else {
+            notification = new Notification(icon, ticker, System.currentTimeMillis());
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+            notification.setLatestEventInfo(context, title, text, pendingIntent);
+        }
+        
+        return notification;
     }
     
 }

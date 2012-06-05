@@ -65,6 +65,9 @@ public class Updater extends AsyncTask<Void, Void, Void> {
     
     private Method sExecuteMethod = findExecuteMethod();
     
+    // Why do we use this here though we have a method for this in Controller.isExecuteOnExecutorAvailable()?
+    // -> There are many places we would have to alter and it would be the same code over and over again, so just leave
+    // this here, it works.
     private Method findExecuteMethod() {
         // Didn't get Class.getMethod() to work so I just search for the right method-name and take the first hit.
         Class<?> cls = AsyncTask.class;

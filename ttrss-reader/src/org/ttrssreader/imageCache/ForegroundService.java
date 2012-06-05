@@ -211,14 +211,8 @@ public class ForegroundService extends Service implements ICacheEndListener {
         }
         
         // Display notification
-        Notification notification = null;
-        if (Build.VERSION.SDK_INT >= 11) {
-            notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, false);
-        } else {
-            notification = new Notification(icon, ticker, System.currentTimeMillis());
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(), 0);
-            notification.setLatestEventInfo(this, title, text, pendingIntent);
-        }
+        Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, true,
+                null);
         startForegroundCompat(R.string.Cache_service_started, notification);
     }
     
