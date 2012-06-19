@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.32 ==
+  * Reintroduced the "Progress_Indeterminate" notification for API-Levels < 11
+  * IllegalStateExceptions should not occur anymore
+  * Fixed several bugs which were leading to FCs
+
 == Version 1.31 ==
   * Fixed several bugs.
 

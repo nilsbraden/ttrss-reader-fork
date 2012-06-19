@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:installLocation="auto"
-    android:versionCode="1311"
-    android:versionName="1.31" >
+    android:versionCode="1320"
+    android:versionName="1.32" >
 
     <application
         android:debuggable="false"
@@ -26,7 +26,9 @@
         <activity
             android:name=".gui.FeedHeadlineActivity"
             android:theme="@style/Theme.Sherlock" />
-        <activity android:name=".gui.ArticleActivity" />
+        <activity
+            android:name=".gui.ArticleActivity"
+            android:theme="@style/Theme.Sherlock" />
         <activity android:name=".gui.PreferencesActivity" />
         <activity android:name=".gui.MediaPlayerActivity" />
         <activity android:name=".gui.ErrorActivity" />
