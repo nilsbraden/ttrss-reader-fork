@@ -375,21 +375,26 @@ public class Utils {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         Notification notification = null;
         
-        if (Build.VERSION.SDK_INT >= 11) {
-            Notification.Builder builder = new Notification.Builder(context);
-            builder.setSmallIcon(icon);
-            builder.setTicker(ticker);
-            builder.setWhen(System.currentTimeMillis());
-            builder.setContentTitle(title);
-            builder.setContentText(text);
-            builder.setContentIntent(pendingIntent);
-            builder.setAutoCancel(autoCancel);
-            builder.setContentIntent(pendingIntent);
-            notification = builder.getNotification();
-        } else {
-            notification = new Notification(icon, ticker, System.currentTimeMillis());
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-            notification.setLatestEventInfo(context, title, text, pendingIntent);
+        try {
+            if (Build.VERSION.SDK_INT >= 11) {
+                Notification.Builder builder = new Notification.Builder(context);
+                builder.setSmallIcon(icon);
+                builder.setTicker(ticker);
+                builder.setWhen(System.currentTimeMillis());
+                builder.setContentTitle(title);
+                builder.setContentText(text);
+                builder.setContentIntent(pendingIntent);
+                builder.setAutoCancel(autoCancel);
+                builder.setContentIntent(pendingIntent);
+                notification = builder.getNotification();
+            } else {
+                notification = new Notification(icon, ticker, System.currentTimeMillis());
+                notification.flags |= Notification.FLAG_AUTO_CANCEL;
+                notification.setLatestEventInfo(context, title, text, pendingIntent);
+            }
+        } catch (RuntimeException re) {
+            Log.e(Utils.TAG, "Exception while building notification. Does your device propagate the right API-Level? ("
+                    + Build.VERSION.SDK_INT + ")", re);
         }
         
         return notification;
