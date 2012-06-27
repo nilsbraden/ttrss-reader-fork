@@ -118,6 +118,9 @@ public class CategoryAdapter extends MainAdapter {
             }
         }
         
+        if (layout == null)
+            return new View(context);
+        
         ImageView icon = (ImageView) layout.findViewById(R.id.icon);
         icon.setImageResource(getImage(c.id, c.unread > 0));
         
