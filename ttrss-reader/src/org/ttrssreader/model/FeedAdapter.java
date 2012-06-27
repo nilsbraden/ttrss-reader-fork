@@ -79,6 +79,9 @@ public class FeedAdapter extends MainAdapter {
             }
         }
         
+        if (layout == null)
+            return new View(context);
+        
         ImageView icon = (ImageView) layout.findViewById(R.id.icon);
         icon.setImageResource(getImage(f.unread > 0));
         

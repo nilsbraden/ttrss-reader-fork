@@ -106,6 +106,9 @@ public class FeedHeadlineAdapter extends MainAdapter {
             }
         }
         
+        if (layout == null)
+            return new View(context);
+        
         ImageView icon = (ImageView) layout.findViewById(R.id.icon);
         getImage(icon, a);
         
