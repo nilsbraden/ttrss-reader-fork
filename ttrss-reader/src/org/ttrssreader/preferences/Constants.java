@@ -73,6 +73,7 @@ public class Constants {
     public static final boolean WORK_OFFLINE_DEFAULT = false;
     
     // Display
+    public static final String HEADLINE_SIZE = "HeadlineSizePreference";
     public static final String SHOW_VIRTUAL = "DisplayShowVirtualPreference";
     public static final String USE_SWIPE = "DisplayUseSwipePreference";
     public static final String USE_BUTTONS = "DisplayUseButtonsPreference";
@@ -88,6 +89,7 @@ public class Constants {
     public static final String TIME_STRING = "DisplayTimeFormatPreference";
     public static final String DARK_BACKGROUND = "DisplayDarkBackgroundPreference";
     // Display Default Values
+    public static final int HEADLINE_SIZE_DEFAULT = 10;
     public static final boolean SHOW_VIRTUAL_DEFAULT = true;
     public static final boolean USE_SWIPE_DEFAULT = true;
     public static final boolean USE_BUTTONS_DEFAULT = false;

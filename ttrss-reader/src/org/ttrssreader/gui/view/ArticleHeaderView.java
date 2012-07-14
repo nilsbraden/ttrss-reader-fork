@@ -18,6 +18,7 @@ package org.ttrssreader.gui.view;
 
 import java.util.Date;
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
@@ -62,6 +63,7 @@ public class ArticleHeaderView extends LinearLayout {
         feedView.setTextColor(Color.BLACK);
         titleView = (TextView) findViewById(R.id.title);
         titleView.setTextColor(Color.BLACK);
+        titleView.setTextSize(Controller.getInstance().headlineSize()); // Read Text-Size for the title from prefs.
         dateView = (TextView) findViewById(R.id.date);
         dateView.setTextColor(Color.BLACK);
         timeView = (TextView) findViewById(R.id.time);

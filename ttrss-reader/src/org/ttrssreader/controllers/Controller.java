@@ -75,6 +75,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean vibrateOnLastArticle = null;
     private Boolean workOffline = null;
     
+    private Integer headlineSize = null;
     private Boolean showVirtual = null;
     private Boolean useSwipe = null;
     private Boolean useButtons = null;
@@ -430,6 +431,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     // ******* DISPLAY-Options ****************************
+    
+    public int headlineSize() {
+        if (headlineSize == null)
+            headlineSize = prefs.getInt(Constants.HEADLINE_SIZE, Constants.HEADLINE_SIZE_DEFAULT);
+        return headlineSize;
+    }
+    
+    public void setHeadlineSize(int headlineSize) {
+        put(Constants.HEADLINE_SIZE, headlineSize);
+        this.headlineSize = headlineSize;
+    }
     
     public boolean showVirtual() {
         if (showVirtual == null)

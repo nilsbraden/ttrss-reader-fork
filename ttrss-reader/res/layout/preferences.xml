@@ -203,6 +203,21 @@
                     android:key="DisplayDarkBackgroundPreference"
                     android:summary="@string/DisplayDarkBackgroundSummary"
                     android:title="@string/DisplayDarkBackgroundTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="DisplayArticleHeaderPreference"
+                    android:summary="@string/DisplayArticleHeaderSummary"
+                    android:title="@string/DisplayArticleHeaderTitle" />
+
+                <org.ttrssreader.preferences.EditIntegerPreference
+                    android:defaultValue="10"
+                    android:inputType="number"
+                    android:key="HeadlineSizePreference"
+                    android:maxLength="2"
+                    android:name="@string/HeadlineSizeTitle"
+                    android:summary="@string/HeadlineSizeSummary"
+                    android:title="@string/HeadlineSizeTitle" />
             </PreferenceCategory>
         </PreferenceScreen>
 
@@ -250,12 +265,6 @@
                     android:name="@string/DisplayArticleLimitTitle"
                     android:summary="@string/DisplayArticleLimitSummary"
                     android:title="@string/DisplayArticleLimitTitle" />
-
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="DisplayArticleHeaderPreference"
-                    android:summary="@string/DisplayArticleHeaderSummary"
-                    android:title="@string/DisplayArticleHeaderTitle" />
 
                 <org.ttrssreader.preferences.EditIntegerPreference
                     android:defaultValue="50"
