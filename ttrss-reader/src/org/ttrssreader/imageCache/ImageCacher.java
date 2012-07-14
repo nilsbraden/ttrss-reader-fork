@@ -306,7 +306,11 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             int i = 0;
             while (folderSize > cacheSizeMax) {
-                File f = list.get(i++);
+                if (i >= list.size()) // Should only happen if cacheSize has been set to 0
+                    break;
+                
+                File f = list.get(i);
+                i++;
                 folderSize -= f.length();
                 f.delete();
             }
