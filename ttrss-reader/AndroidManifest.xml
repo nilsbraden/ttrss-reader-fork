@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:installLocation="auto"
-    android:versionCode="1320"
-    android:versionName="1.32" >
+    android:versionCode="1330"
+    android:versionName="1.33" >
 
     <application
-        android:debuggable="false"
+        android:debuggable="true"
         android:description="@string/ApplicationDescription"
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName" >

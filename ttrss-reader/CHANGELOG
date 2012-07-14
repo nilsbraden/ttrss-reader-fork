@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.33 ==
+  * Issue #92: Introduced a new preference for the size of the title inside the ArticleHeaderView.
+  * Fixed several bugs which were leading to FCs
+
 == Version 1.32 ==
   * Reintroduced the "Progress_Indeterminate" notification for API-Levels < 11
   * IllegalStateExceptions should not occur anymore
