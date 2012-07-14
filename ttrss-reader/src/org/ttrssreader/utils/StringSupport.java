@@ -106,7 +106,7 @@ public class StringSupport {
     }
     
     /**
-     * Splits the ids into Sets of Strings with 50 ids each if configured in preferences, else only splits on 500 to
+     * Splits the ids into Sets of Strings with maxCount ids each if configured in preferences, else only splits on 500 to
      * avoid extremely large requests.
      * 
      * @param ids
@@ -135,11 +135,9 @@ public class StringSupport {
                 count = 0;
             } else {
                 count++;
+                if (it.hasNext())
+                    idList.append(",");
             }
-            
-            if (it.hasNext())
-                idList.append(",");
-            
         }
         
         String list = idList.toString();
