@@ -371,11 +371,10 @@ public class Utils {
     };
     
     public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, boolean autoCancel, Intent intent) {
-        
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
         Notification notification = null;
-        
         try {
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            
             if (Build.VERSION.SDK_INT >= 11) {
                 Notification.Builder builder = new Notification.Builder(context);
                 builder.setSmallIcon(icon);
@@ -392,7 +391,7 @@ public class Utils {
                 notification.flags |= Notification.FLAG_AUTO_CANCEL;
                 notification.setLatestEventInfo(context, title, text, pendingIntent);
             }
-        } catch (RuntimeException re) {
+        } catch (Exception re) {
             Log.e(Utils.TAG, "Exception while building notification. Does your device propagate the right API-Level? ("
                     + Build.VERSION.SDK_INT + ")", re);
         }
