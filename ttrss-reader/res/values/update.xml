@@ -18,6 +18,9 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.33
+            \n * Issue #92: Introduced a new preference for the size of the title inside the ArticleHeaderView.
+            \n * Fixed several bugs which were leading to FCs</item>
         <item>Version 1.32
             \n * Reintroduced the "Progress_Indeterminate" notification for lower API-Levels
             \n * IllegalStateExceptions should not occur anymore
