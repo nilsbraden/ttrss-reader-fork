@@ -1,6 +1,9 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.34 ==
+  * Fixed some DB issues regarding closed cursors
+
 == Version 1.33 ==
   * Issue #92: Introduced a new preference for the size of the title inside the ArticleHeaderView.
   * Fixed several bugs which were leading to FCs

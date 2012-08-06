@@ -248,14 +248,15 @@ public class DBHelper {
         if (context == null)
             return false;
         
-        if (db != null) {
-            closeDB();
-        }
         
         Log.i(Utils.TAG, "Deleting Database as requested by preferences.");
         File f = context.getDatabasePath(DATABASE_NAME);
-        if (f.exists())
+        if (f.exists()) {
+            if (db != null) {
+                closeDB();
+            }
             return f.delete();
+        }
         
         return false;
     }
@@ -543,6 +544,9 @@ public class DBHelper {
      * @see android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])
      */
     public Cursor query(String sql, String[] selectionArgs) {
+        if (!isDBAvailable())
+            return null;
+        
         acquireLock();
         Cursor cursor = db.rawQuery(sql, selectionArgs);
         releaseLock();
@@ -550,6 +554,9 @@ public class DBHelper {
     }
     
     public Cursor queryArticlesForImageCache(boolean onlyUnreadImages) {
+        if (!isDBAvailable())
+            return null;
+        
         acquireLock();
         // Add where-clause for only unread articles
         String where = "cachedImages=0";

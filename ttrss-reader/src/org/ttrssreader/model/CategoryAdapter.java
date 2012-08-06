@@ -227,6 +227,8 @@ public class CategoryAdapter extends MainAdapter {
     }
     
     private void insertValues(Cursor c) {
+        if (c == null)
+            return;
         if (c.isBeforeFirst() && !c.moveToFirst())
             return;
         
