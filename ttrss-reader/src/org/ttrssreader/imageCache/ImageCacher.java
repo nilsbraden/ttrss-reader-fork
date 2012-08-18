@@ -291,7 +291,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         File cacheFolder = new File(imageCache.getDiskCacheDirectory());
         
         folderSize = 0;
-        if (cacheFolder.isDirectory() ) {
+        if (cacheFolder.isDirectory()) {
             for (File f : cacheFolder.listFiles()) {
                 folderSize += f.length();
             }
@@ -324,7 +324,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
      * 
      * @param url
      *            the original URL
-     * @return the local URL or null if no image in cache or if the file couldn't be found.
+     * @return the local URL or null if no image in cache or if the file couldn't be found or another thread is creating
+     *         the imagecache at the moment.
      */
     public static String getCachedImageUrl(String url) {
         ImageCache cache = Controller.getInstance().getImageCache(null);

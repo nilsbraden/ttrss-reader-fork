@@ -20,7 +20,6 @@ package org.ttrssreader.imageCache;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AbstractCache;
 import org.ttrssreader.utils.Utils;
@@ -48,11 +47,10 @@ public class ImageCache extends AbstractCache<String, byte[]> {
      *            the current context
      * @return
      */
-    public boolean enableDiskCache() {
+    public boolean enableDiskCache(String diskCacheDir) {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             
             // Use configured output directory
-            diskCacheDir = Controller.getInstance().cacheFolder();
             File folder = new File(diskCacheDir);
             
             if (!folder.exists()) {
