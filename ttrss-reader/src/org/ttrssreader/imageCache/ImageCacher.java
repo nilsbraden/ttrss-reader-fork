@@ -205,7 +205,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         map = new HashMap<Integer, ImageCacher.DownloadImageTask>();
         
         Cursor c = DBHelper.getInstance().queryArticlesForImageCache(onlyUnreadImages);
-        if (c != null && c.moveToFirst()) {
+        if (c != null && c.moveToFirst() && c.getCount() > 0) {
             while (!c.isAfterLast()) {
                 // Get images included in HTML
                 Set<String> set = new HashSet<String>();

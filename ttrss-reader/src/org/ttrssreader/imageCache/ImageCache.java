@@ -36,8 +36,9 @@ import android.util.Log;
  */
 public class ImageCache extends AbstractCache<String, byte[]> {
     
-    public ImageCache(int initialCapacity) {
+    public ImageCache(int initialCapacity, String cacheDir) {
         super("ImageCache", initialCapacity, 1);
+        this.diskCacheDir = cacheDir;
     }
     
     /**
@@ -47,7 +48,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
      *            the current context
      * @return
      */
-    public boolean enableDiskCache(String diskCacheDir) {
+    public boolean enableDiskCache() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             
             // Use configured output directory

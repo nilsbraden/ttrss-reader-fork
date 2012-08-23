@@ -354,8 +354,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
             synchronized (imageCacheLock) {
                 imageCacheLocked = true;
                 if (imageCache == null) {
-                    imageCache = new ImageCache(2000);
-                    if (context == null || !imageCache.enableDiskCache(cacheFolder())) {
+                    imageCache = new ImageCache(2000, cacheFolder());
+                    if (context == null || !imageCache.enableDiskCache()) {
                         imageCache = null;
                     }
                 }
