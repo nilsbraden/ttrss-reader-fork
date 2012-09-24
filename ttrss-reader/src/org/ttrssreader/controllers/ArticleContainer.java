@@ -31,6 +31,7 @@ public class ArticleContainer {
         this.attachments = attachments;
         this.isStarred = isStarred;
         this.isPublished = isPublished;
+        this.label = label;
     }
     
 }

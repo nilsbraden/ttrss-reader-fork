@@ -247,6 +247,7 @@ public class JSONConnector implements Connector {
         } catch (Exception e) {
             hasLastError = true;
             lastError = "Error creating HTTP-Connection [ " + e.getMessage() + " ]";
+            e.printStackTrace();
             return null;
         }
         
@@ -256,12 +257,14 @@ public class JSONConnector implements Connector {
         } catch (ClientProtocolException e) {
             hasLastError = true;
             lastError = "ClientProtocolException on client.execute(post) [ " + e.getMessage() + " ]";
+            e.printStackTrace();
             return null;
         } catch (SSLPeerUnverifiedException e) {
             // Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
             // Not doing anything here since this error should happen only when no certificate is received from the
             // server.
             Log.w(Utils.TAG, "SSLPeerUnverifiedException (" + e.getMessage() + ") in doRequest()");
+            e.printStackTrace();
             return null;
         } catch (SSLException e) {
             if ("No peer certificate".equals(e.getMessage())) {
@@ -271,6 +274,7 @@ public class JSONConnector implements Connector {
                 hasLastError = true;
                 lastError = "SSLException on client.execute(post) [ " + e.getMessage() + " ]";
             }
+            e.printStackTrace();
             return null;
         } catch (InterruptedIOException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
@@ -279,9 +283,11 @@ public class JSONConnector implements Connector {
         } catch (SocketException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
             Log.w(Utils.TAG, "SocketException (" + e.getMessage() + ") in doRequest()");
+            e.printStackTrace();
             return null;
         } catch (Exception e) {
             Log.w(Utils.TAG, "Exception (" + e.getMessage() + ") in doRequest()");
+            e.printStackTrace();
             return null;
         }
         
