@@ -669,7 +669,7 @@ public class DBHelper {
             retId = insertArticle.executeInsert();
         }
         
-        if (retId > 0)
+        if (retId != -1)
             insertLabel(a.id, a.label);
     }
     

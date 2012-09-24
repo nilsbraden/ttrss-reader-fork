@@ -276,10 +276,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
         try {
             return new URI(url);
         } catch (URISyntaxException e) {
+            e.printStackTrace();
             // Return default URL if creating an URI from the configured URL fails...
             try {
                 return new URI(Constants.URL_DEFAULT);
             } catch (URISyntaxException e1) {
+                e.printStackTrace();
                 throw new RuntimeException(e1);
             }
         }
