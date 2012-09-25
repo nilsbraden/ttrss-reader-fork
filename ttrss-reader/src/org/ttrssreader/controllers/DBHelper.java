@@ -1318,9 +1318,24 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            String where = "categoryId=" + categoryId;
-            if (categoryId < 0 && categoryId != -2) {
-                where = null;
+            String where = null; // categoryId = 0
+            
+            switch (categoryId) {
+                case 0:
+                    where = "categoryId=" + categoryId;
+                    break;
+                case -1:
+                    where = "id IN (0, -2, -3)";
+                    break;
+                case -2:
+                    where = "id < -10";
+                    break;
+                case -3:
+                    where = "categoryId > 0";
+                    break;
+                case -4:
+                    where = null;
+                    break;
             }
             
             c = db.query(TABLE_FEEDS, null, where, null, null, null, "UPPER(title) ASC");
