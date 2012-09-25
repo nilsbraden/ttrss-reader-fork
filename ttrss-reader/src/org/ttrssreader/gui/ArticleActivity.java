@@ -106,7 +106,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     
     private FeedHeadlineAdapter parentAdapter = null;
     private int[] parentIDs = new int[2];
-    private boolean isDestroyed = false;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -137,6 +136,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         buttonNext = (Button) findViewById(R.id.buttonNext);
         swipeView = (TextView) findViewById(R.id.swipeView);
         
+        webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.setWebViewClient(new ArticleWebViewClient(this));
         
@@ -230,17 +230,19 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     
     @Override
     protected void onDestroy() {
-        isDestroyed = true;
-        
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
             if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         super.onDestroy();
-        
         webContainer.removeAllViews();
+        webView.stopLoading();
+        webView.clearCache(true);
+        webView.clearView();
+        webView.freeMemory();
         webView.destroy();
+        webView = null;
         closeCursor();
     }
     
@@ -255,7 +257,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     }
     
     private void doRefresh() {
-        if (isDestroyed)
+        if (webView == null)
             return;
         
         setProgressBarIndeterminateVisibility(true);
@@ -321,9 +323,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
             baseUrl = StringSupport.getBaseURL(article.url);
             webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
-            
-            // Move belo loadData() call to avoid Exception: "EventHub.removeMessages(int what = 107) is not supported before the WebViewCore is set up."
-            webView.getSettings().setJavaScriptEnabled(true);
             
             setTitle(article.title);
             
