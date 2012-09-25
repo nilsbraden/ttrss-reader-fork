@@ -237,10 +237,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         }
         super.onDestroy();
         webContainer.removeAllViews();
-        webView.stopLoading();
-        webView.clearCache(true);
-        webView.clearView();
-        webView.freeMemory();
         webView.destroy();
         webView = null;
         closeCursor();
