@@ -740,6 +740,8 @@ public class JSONConnector implements Connector {
             reader.endArray();
         } catch (IOException e) {
             Log.e(Utils.TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
+        } catch (IllegalStateException e) {
+            Log.e(Utils.TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
         }
         
         Log.d(Utils.TAG, "parseArticleArray: parsing took " + (System.currentTimeMillis() - time) + "ms");
