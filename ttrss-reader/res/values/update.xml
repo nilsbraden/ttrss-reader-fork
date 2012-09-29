@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.34
+            \n * Fixed some DB issues regarding closed cursors
+            \n * Fixed automatic refresh of labels on startup
+            \n * No error-reporting when using app in debug-mode
+            \n * Several minor bugfixes for FCs and ANRs</item>
         <item>Version 1.33
             \n * Issue #92: Introduced a new preference for the size of the title inside the ArticleHeaderView.
             \n * Fixed several bugs which were leading to FCs</item>
