@@ -877,10 +877,10 @@ public class DBHelper {
     }
     
     // Marks only the articles as read so the JSONConnector can retrieve new articles and overwrite the old articles
-    public void markFeedOnlyArticlesRead(int feedId, boolean isCat) {
+    public void markFeedOnlyArticlesRead(int id, boolean isCat) {
         
-        if (!isCat && feedId < -10) {
-            markLabelRead(feedId);
+        if (!isCat && id < -10) {
+            markLabelRead(id);
             return;
         }
         
@@ -890,11 +890,17 @@ public class DBHelper {
             
             // Mark all articles from feed or category as read, depending on isCat. Just use idList with only one feedId
             // if it is just a feed, else create a list of feedIds.
+            // Special treatment for special categories (eg. -4)
             String idList = "";
-            if (isCat)
-                idList = "SELECT id FROM " + TABLE_FEEDS + " WHERE categoryId=" + feedId;
-            else
-                idList = feedId + "";
+            if (isCat) {
+                if (id < 0) {
+                    idList = "SELECT id FROM " + TABLE_FEEDS;
+                } else {
+                    idList = "SELECT id FROM " + TABLE_FEEDS + " WHERE categoryId=" + id;
+                }
+            } else {
+                idList = id + "";
+            }
             
             acquireLock(true);
             db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ")", null);

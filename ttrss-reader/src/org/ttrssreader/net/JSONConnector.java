@@ -670,7 +670,7 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    private int parseArticleArray(JsonReader reader, int labelId, int catId, boolean isCategory) {
+    private int parseArticleArray(JsonReader reader, int labelId, int id, boolean isCategory) {
         int count = 0;
         List<ArticleContainer> articleList = new ArrayList<ArticleContainer>();
         
@@ -681,11 +681,11 @@ public class JSONConnector implements Connector {
             while (reader.hasNext()) {
                 count++;
                 
-                int id = -1;
+                int articleId = -1;
                 String title = null;
                 boolean isUnread = false;
                 Date updated = null;
-                int realFeedId = 0;
+                int feedId = 0;
                 String content = null;
                 String articleUrl = null;
                 String articleCommentUrl = null;
@@ -699,15 +699,15 @@ public class JSONConnector implements Connector {
                     
                     try {
                         if (name.equals(ID)) {
-                            id = reader.nextInt();
+                            articleId = reader.nextInt();
                         } else if (name.equals(TITLE)) {
                             title = reader.nextString();
                         } else if (name.equals(UNREAD)) {
                             isUnread = reader.nextBoolean();
                         } else if (name.equals(UPDATED)) {
-                            updated = new Date(new Long(reader.nextString() + "000").longValue());
+                            updated = new Date(Long.valueOf(reader.nextString() + "000"));
                         } else if (name.equals(FEED_ID)) {
-                            realFeedId = reader.nextInt();
+                            feedId = reader.nextInt();
                         } else if (name.equals(CONTENT)) {
                             content = reader.nextString();
                         } else if (name.equals(URL)) {
@@ -732,8 +732,8 @@ public class JSONConnector implements Connector {
                 }
                 reader.endObject();
                 
-                if (id != -1 && title != null) {
-                    articleList.add(new ArticleContainer(id, realFeedId, title, isUnread, articleUrl,
+                if (articleId != -1 && title != null) {
+                    articleList.add(new ArticleContainer(articleId, feedId, title, isUnread, articleUrl,
                             articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
                 }
             }
@@ -748,7 +748,7 @@ public class JSONConnector implements Connector {
         time = System.currentTimeMillis();
         
         if (articleList.size() > 0) {
-            DBHelper.getInstance().markFeedOnlyArticlesRead(catId, isCategory);
+            DBHelper.getInstance().markFeedOnlyArticlesRead(id, isCategory);
             DBHelper.getInstance().insertArticle(articleList);
             DBHelper.getInstance().purgeArticlesNumber();
         }

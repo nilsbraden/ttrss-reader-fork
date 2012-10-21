@@ -2,8 +2,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:installLocation="auto"
-    android:versionCode="1340"
-    android:versionName="1.34" >
+    android:versionCode="1350"
+    android:versionName="1.35" >
+
+    <uses-sdk
+        android:minSdkVersion="3"
+        android:targetSdkVersion="15" />
+
+    <!-- Check connectivity -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Download -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Save articles to SDCard -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Vibrate on last article/feed -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
 
     <application
         android:debuggable="true"
@@ -65,27 +87,5 @@
         <!-- END: Widget-Stuff -->
 
     </application>
-
-    <uses-sdk
-        android:minSdkVersion="3"
-        android:targetSdkVersion="15" />
-
-    <!-- Check connectivity -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <!-- Download -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- Save articles to SDCard -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <!-- Vibrate on last article/feed -->
-    <uses-permission android:name="android.permission.VIBRATE" />
-
-    <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="true" />
 
 </manifest>
