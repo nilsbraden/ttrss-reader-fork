@@ -97,6 +97,22 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     @Override
+    protected void onStop() {
+        super.onStop();
+        // TODO: Evaluate possible solution to
+        // "IllegalStateException: The content of the adapter has changed but ListView did not receive a notification"-problem
+        this.setVisible(false);
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        // TODO: Evaluate possible solution to
+        // "IllegalStateException: The content of the adapter has changed but ListView did not receive a notification"-problem
+        this.setVisible(true);
+    }
+    
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
             refreshAndUpdate();
