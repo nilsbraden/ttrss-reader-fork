@@ -15,6 +15,7 @@
 
 package org.ttrssreader.gui;
 
+import java.lang.reflect.Field;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -34,6 +35,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.View;
+import android.view.ViewConfiguration;
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -75,6 +78,30 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         // This is a tablet if this view exists
         View details = findViewById(R.id.details);
         isTablet = details != null && details.getVisibility() == View.VISIBLE;
+        
+        // Go to the CategoryActivity and clean the return-stack
+        getSupportActionBar().setHomeButtonEnabled(true);
+        
+        getOverflowMenu();
+    }
+    
+    /**
+     * Force-display the three dots for overflow, would be disabled on devices with a menu-key.
+     * 
+     * @see http://stackoverflow.com/a/13098824
+     */
+    private void getOverflowMenu() {
+        
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     @Override
@@ -167,6 +194,12 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     public boolean onOptionsItemSelected(final MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
+            case android.R.id.home:
+                // Go to the CategoryActivity and clean the return-stack
+                Intent intent = new Intent(this, CategoryActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                return true;
             case R.id.Menu_DisplayOnlyUnread:
                 Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().onlyUnread());
                 doRefresh();
