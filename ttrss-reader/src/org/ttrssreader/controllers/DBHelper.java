@@ -296,30 +296,6 @@ public class DBHelper {
         return ret;
     }
     
-    private void acquireLock() {
-        // acquireLock(false);
-    }
-    
-    private void acquireLock(boolean write) {
-        // if (write) {
-        // dbWriteLock.lock();
-        // } else {
-        // dbReadLock.readLock().lock();
-        // }
-    }
-    
-    private void releaseLock() {
-        // releaseLock(false);
-    }
-    
-    private void releaseLock(boolean write) {
-        // if (write) {
-        // dbWriteLock.unlock();
-        // } else {
-        // dbReadLock.readLock().unlock();
-        // }
-    }
-    
     private static class OpenHelper extends SQLiteOpenHelper {
         
         OpenHelper(Context context) {
@@ -547,9 +523,7 @@ public class DBHelper {
         if (!isDBAvailable())
             return null;
         
-        acquireLock();
         Cursor cursor = db.rawQuery(sql, selectionArgs);
-        releaseLock();
         return cursor;
     }
     
@@ -557,7 +531,6 @@ public class DBHelper {
         if (!isDBAvailable())
             return null;
         
-        acquireLock();
         // Add where-clause for only unread articles
         String where = "cachedImages=0";
         if (onlyUnreadImages)
@@ -565,7 +538,6 @@ public class DBHelper {
         
         Cursor cursor = db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" }, where, null, null,
                 null, null);
-        releaseLock();
         return cursor;
     }
     
@@ -589,8 +561,6 @@ public class DBHelper {
         if (set == null)
             return;
         
-        acquireLock(true);
-        
         db.beginTransaction();
         try {
             for (Category c : set) {
@@ -599,7 +569,6 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-            releaseLock(true);
         }
     }
     
@@ -625,7 +594,6 @@ public class DBHelper {
         if (set == null)
             return;
         
-        acquireLock(true);
         db.beginTransaction();
         try {
             for (Feed f : set) {
@@ -634,7 +602,6 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-            releaseLock(true);
         }
     }
     
@@ -677,9 +644,7 @@ public class DBHelper {
         if (!isDBAvailable())
             return;
         
-        acquireLock(true);
         insertArticleIntern(a);
-        releaseLock(true);
     }
     
     public void insertArticle(List<ArticleContainer> articles) {
@@ -688,7 +653,6 @@ public class DBHelper {
         if (articles == null || articles.isEmpty())
             return;
         
-        acquireLock(true);
         db.beginTransaction();
         try {
             for (ArticleContainer a : articles) {
@@ -697,7 +661,6 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-            releaseLock(true);
         }
     }
     
@@ -779,9 +742,7 @@ public class DBHelper {
             
         }
         
-        acquireLock(true);
         db.execSQL(stmt.toString());
-        releaseLock(true);
     }
     
     private void insertLabel(int articleId, int label) {
@@ -798,20 +759,16 @@ public class DBHelper {
     
     public void markCategoryRead(int categoryId) {
         if (isDBAvailable()) {
-            acquireLock(true);
             updateCategoryUnreadCount(categoryId, 0);
             for (Feed f : getFeeds(categoryId)) {
                 markFeedRead(f.id);
             }
-            releaseLock(true);
         }
     }
     
     public void markFeedRead(int feedId) {
         if (isDBAvailable()) {
-            acquireLock(true);
             markFeedReadIntern(feedId);
-            releaseLock(true);
         }
     }
     
@@ -870,9 +827,7 @@ public class DBHelper {
             String idList = "SELECT id FROM " + TABLE_ARTICLES + " AS a, " + TABLE_ARTICLES2LABELS
                     + " as l WHERE a.id=l.articleId AND l.labelId=" + labelId;
             
-            acquireLock(true);
             db.update(TABLE_ARTICLES, cv, "isUnread>0 AND id IN(" + idList + ")", null);
-            releaseLock(true);
         }
     }
     
@@ -902,15 +857,12 @@ public class DBHelper {
                 idList = id + "";
             }
             
-            acquireLock(true);
             db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ")", null);
-            releaseLock(true);
         }
     }
     
     public void markArticles(Set<Integer> iDlist, String mark, int state) {
         if (isDBAvailable()) {
-            acquireLock(true);
             
             db.beginTransaction();
             try {
@@ -920,7 +872,6 @@ public class DBHelper {
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
-                releaseLock(true);
             }
         }
     }
@@ -928,9 +879,7 @@ public class DBHelper {
     public void markArticle(int id, String mark, int state) {
         if (isDBAvailable()) {
             String sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_ARTICLES, mark, state, id);
-            acquireLock(true);
             db.execSQL(sql);
-            releaseLock(true);
         }
     }
     
@@ -970,7 +919,6 @@ public class DBHelper {
         // <- WRONG!
         // }
         
-        acquireLock(true);
         db.beginTransaction();
         try {
             for (Integer id : ids) {
@@ -983,7 +931,6 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-            releaseLock(true);
         }
     }
     
@@ -993,7 +940,6 @@ public class DBHelper {
         if (!isDBAvailable())
             return;
         
-        acquireLock(true);
         
         db.beginTransaction();
         try {
@@ -1009,7 +955,6 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-            releaseLock(true);
         }
     }
     
@@ -1019,9 +964,7 @@ public class DBHelper {
                 ContentValues cv = new ContentValues();
                 cv.put("unread", count);
                 
-                acquireLock(true);
                 db.update(TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
-                releaseLock(true);
             }
         }
     }
@@ -1038,10 +981,7 @@ public class DBHelper {
             if (count >= 0) {
                 ContentValues cv = new ContentValues();
                 cv.put("unread", count);
-                
-                acquireLock(true);
                 db.update(TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
-                releaseLock(true);
             }
         }
     }
@@ -1057,10 +997,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
             cv.put("cachedImages", isCachedImages);
-            
-            acquireLock(true);
             db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
-            releaseLock(true);
         }
     }
     
@@ -1068,10 +1005,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
             cv.put("cachedImages", isCachedImages);
-            
-            acquireLock(true);
             db.update(TABLE_ARTICLES, cv, "cachedImages=0 & id=" + id, null); // Only apply if not yet applied and ID
-            releaseLock(true);
         }
     }
     
@@ -1080,18 +1014,13 @@ public class DBHelper {
             String wherePart = "";
             if (!withVirtualCategories)
                 wherePart = "id > 0";
-            
-            acquireLock(true);
             db.delete(TABLE_CATEGORIES, wherePart, null);
-            releaseLock(true);
         }
     }
     
     public void deleteFeeds() {
         if (isDBAvailable()) {
-            acquireLock(true);
             db.delete(TABLE_FEEDS, null, null);
-            releaseLock(true);
         }
     }
     
@@ -1105,28 +1034,22 @@ public class DBHelper {
             String idList = "SELECT id FROM " + TABLE_ARTICLES
                     + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
             
-            acquireLock(true);
             db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
             purgeLabels();
-            releaseLock(true);
         }
     }
     
     public void purgePublishedArticles() {
         if (isDBAvailable()) {
-            acquireLock(true);
             db.delete(TABLE_ARTICLES, "isPublished>0", null);
             purgeLabels();
-            releaseLock(true);
         }
     }
     
     public void purgeStarredArticles() {
         if (isDBAvailable()) {
-            acquireLock(true);
             db.delete(TABLE_ARTICLES, "isStarred>0", null);
             purgeLabels();
-            releaseLock(true);
         }
     }
     
@@ -1167,8 +1090,6 @@ public class DBHelper {
         if (!isDBAvailable())
             return ret;
         
-        acquireLock();
-        
         Cursor c = null;
         try {
             c = db.query(TABLE_ARTICLES, new String[] { "id" }, null, null, null, null, "id DESC", "1");
@@ -1185,8 +1106,6 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
-            
-            releaseLock();
         }
         
         return ret;
@@ -1197,8 +1116,6 @@ public class DBHelper {
         Article ret = null;
         if (!isDBAvailable())
             return ret;
-        
-        acquireLock();
         
         Cursor c = null;
         try {
@@ -1214,8 +1131,6 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
-            
-            releaseLock();
         }
         
         return ret;
@@ -1225,8 +1140,6 @@ public class DBHelper {
         Feed ret = new Feed();
         if (!isDBAvailable())
             return ret;
-        
-        acquireLock();
         
         Cursor c = null;
         try {
@@ -1242,8 +1155,6 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
-            
-            releaseLock();
         }
         
         return ret;
@@ -1253,8 +1164,6 @@ public class DBHelper {
         Category ret = new Category();
         if (!isDBAvailable())
             return ret;
-        
-        acquireLock();
         
         Cursor c = null;
         try {
@@ -1270,8 +1179,6 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
-            
-            releaseLock();
         }
         
         return ret;
@@ -1281,8 +1188,6 @@ public class DBHelper {
         Set<Article> ret = new LinkedHashSet<Article>();
         if (!isDBAvailable())
             return ret;
-        
-        acquireLock();
         
         Cursor c = null;
         try {
@@ -1298,8 +1203,6 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
-            
-            releaseLock();
         }
         
         return ret;
@@ -1319,8 +1222,6 @@ public class DBHelper {
         Set<Feed> ret = new LinkedHashSet<Feed>();
         if (!isDBAvailable())
             return ret;
-        
-        acquireLock();
         
         Cursor c = null;
         try {
@@ -1355,8 +1256,6 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
-            
-            releaseLock();
         }
         
         return ret;
@@ -1366,8 +1265,6 @@ public class DBHelper {
         Set<Category> ret = new LinkedHashSet<Category>();
         if (!isDBAvailable())
             return ret;
-        
-        acquireLock();
         
         Cursor c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
         try {
@@ -1381,8 +1278,6 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
-            
-            releaseLock();
         }
         
         return ret;
@@ -1392,8 +1287,6 @@ public class DBHelper {
         Set<Category> ret = new LinkedHashSet<Category>();
         if (!isDBAvailable())
             return ret;
-        
-        acquireLock();
         
         Cursor c = db.query(TABLE_CATEGORIES, null, "id>=0", null, null, null, "title ASC");
         try {
@@ -1407,8 +1300,6 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
-            
-            releaseLock();
         }
         
         return ret;
@@ -1428,7 +1319,6 @@ public class DBHelper {
             
         } else {
             // Read count for given feed
-            acquireLock();
             Cursor c = null;
             try {
                 c = db.query(isCat ? TABLE_CATEGORIES : TABLE_FEEDS, new String[] { "unread" }, "id=" + id, null, null,
@@ -1442,8 +1332,6 @@ public class DBHelper {
             } finally {
                 if (c != null)
                     c.close();
-                
-                releaseLock();
             }
         }
         
@@ -1454,8 +1342,6 @@ public class DBHelper {
         Map<Integer, String> ret = new HashMap<Integer, String>();
         if (!isDBAvailable())
             return ret;
-        
-        acquireLock();
         
         Cursor c = null;
         try {
@@ -1475,8 +1361,6 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
-            
-            releaseLock();
         }
         
         return ret;
@@ -1485,8 +1369,6 @@ public class DBHelper {
     public void setMarked(Map<Integer, String> ids, String mark) {
         if (!isDBAvailable())
             return;
-        
-        acquireLock();
         
         db.beginTransaction();
         try {
@@ -1511,7 +1393,6 @@ public class DBHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-            releaseLock();
         }
     }
     

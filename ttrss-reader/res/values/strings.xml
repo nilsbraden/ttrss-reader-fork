@@ -71,6 +71,7 @@
     <string name="Commons.MarkPublish">Publish</string>
     <string name="Commons.MarkPublishNote">Publish with a note</string>
     <string name="Commons.MarkUnpublish">Un-Publish</string>
+    <string name="Commons.MarkAboveRead">Mark articles above read</string>
     <string name="VCategory.AllArticles">All Articles</string>
     <string name="VCategory.FreshArticles">Fresh Articles</string>
     <string name="VCategory.PublishedArticles">Published Articles</string>

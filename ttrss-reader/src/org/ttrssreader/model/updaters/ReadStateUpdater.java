@@ -72,6 +72,14 @@ public class ReadStateUpdater implements IUpdatable {
         this.articleState = articleState;
     }
     
+    /* articleState: 0 = mark as read, 1 = mark as unread */
+    public ReadStateUpdater(Collection<Article> articles, int pid, int articleState) {
+        this.articles = new ArrayList<Article>();
+        this.articles.addAll(articles);
+        this.pid = pid;
+        this.articleState = articleState;
+    }
+    
     @Override
     public void update(Updater parent) {
         if (categories != null) {
