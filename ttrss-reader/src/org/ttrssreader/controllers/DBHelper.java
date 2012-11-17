@@ -233,7 +233,7 @@ public class DBHelper {
         
         OpenHelper openHelper = new OpenHelper(context);
         db = openHelper.getWritableDatabase();
-        db.setLockingEnabled(false);
+        db.setLockingEnabled(true);
         
         insertCategory = db.compileStatement(INSERT_CATEGORY);
         insertFeed = db.compileStatement(INSERT_FEED);
@@ -262,13 +262,8 @@ public class DBHelper {
     }
     
     private void closeDB() {
-        // Close DB, acquire write-lock to make sure no other threads start accessing the DB from now on
-        // dbWriteLock.lock();
-        // dbReadLock.writeLock().lock();
         db.close();
         db = null;
-        // dbReadLock.writeLock().unlock();
-        // dbWriteLock.unlock();
     }
     
     private boolean isDBAvailable() {
