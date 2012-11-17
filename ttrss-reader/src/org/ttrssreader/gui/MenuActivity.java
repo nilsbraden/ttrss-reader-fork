@@ -72,45 +72,48 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         
         registerAsDataChangedListener();
         
-        // Register this instance to be notified when the ImageCache finished.
-        Controller.getInstance().registerActivity(this);
-        
         // This is a tablet if this view exists
         View details = findViewById(R.id.details);
         isTablet = details != null && details.getVisibility() == View.VISIBLE;
     }
     
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Register this instance to be notified when the ImageCache finished.
+        Controller.getInstance().registerActivity(this);
+        this.setVisible(true);
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        this.setVisible(true);
+    }
+    
+    @Override
     protected void onPause() {
         super.onPause();
+        this.setVisible(false);
         Controller.getInstance().unregisterActivity(this);
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        this.setVisible(false);
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        this.setVisible(false);
         unregisterAsDataChangedListener();
         
         if (updater != null) {
             updater.cancel(true);
             updater = null;
         }
-    }
-    
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // TODO: Evaluate possible solution to
-        // "IllegalStateException: The content of the adapter has changed but ListView did not receive a notification"-problem
-        this.setVisible(false);
-    }
-    
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        // TODO: Evaluate possible solution to
-        // "IllegalStateException: The content of the adapter has changed but ListView did not receive a notification"-problem
-        this.setVisible(true);
     }
     
     @Override
