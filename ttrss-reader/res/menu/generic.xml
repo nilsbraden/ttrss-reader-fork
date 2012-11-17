@@ -30,29 +30,32 @@
     <item
         android:id="@+id/Menu_DisplayOnlyUnread"
         android:icon="@drawable/ic_menu_view"
-        android:showAsAction="always|withText"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.DisplayOnlyUnread"/>
     <item
         android:id="@+id/Menu_InvertSort"
         android:icon="@drawable/ic_menu_rotate"
+        android:showAsAction="never|withText"
         android:title="@string/Commons.InvertSort"/>
     <item
         android:id="@+id/Menu_WorkOffline"
         android:icon="@drawable/ic_menu_stop"
-        android:showAsAction="always|withText"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/UsageOfflineTitle"/>
     <item
         android:id="@+id/Category_Menu_ImageCache"
         android:icon="@drawable/ic_menu_save"
-        android:showAsAction="ifRoom|withText"
+        android:showAsAction="never|withText"
         android:title="@string/Main.ImageCache"/>
     <item
         android:id="@+id/Menu_ShowPreferences"
         android:icon="@drawable/ic_menu_preferences"
+        android:showAsAction="never|withText"
         android:title="@string/Main.ShowPreferencesMenu"/>
     <item
         android:id="@+id/Menu_About"
         android:icon="@drawable/ic_menu_help"
+        android:showAsAction="never|withText"
         android:title="@string/About.about"/>
 
 </menu>
