@@ -3,7 +3,10 @@
 = Changes =
 == Version 1.35 ==
   * Articles are again marked as read when beeing read in the webinterface as long as there are new articles to be synced (API doesn't offer "changes since date/time", I can only guess what has changed)
-  * 
+  * Added long-press menu in Article-List: "Mark everything above as read"
+  * Another attempt at fixing the IllegalStateExceptions
+  * Small bugfixes
+  * I ned help regarding the SQLiteException "cannot commit transaction - SQL statements in progress: COMMIT;", please contact me if you think you can give any advice on this issue.
 
 == Version 1.34 ==
   * Fixed some DB issues regarding closed cursors
