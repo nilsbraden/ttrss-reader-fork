@@ -55,6 +55,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected static final int MARK_STAR = MARK_GROUP + 2;
     protected static final int MARK_PUBLISH = MARK_GROUP + 3;
     protected static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
+    protected static final int MARK_ABOVE_READ = MARK_GROUP + 5;
     
     @Override
     protected void onCreate(Bundle instance) {

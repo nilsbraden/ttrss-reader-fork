@@ -1,0 +1,11 @@
+
+syntax: glob
+bin/**
+syntax: regexp
+build\.properties
+syntax: regexp
+local\.properties
+syntax: regexp
+^ttrss-reader/ant\.properties$
+syntax: regexp
+^ttrss-reader/gen$

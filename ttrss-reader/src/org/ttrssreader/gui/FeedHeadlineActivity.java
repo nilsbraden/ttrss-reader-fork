@@ -51,6 +51,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import com.actionbarsherlock.view.MenuItem;
+import java.util.List;
+import java.util.ArrayList;
 
 public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
     
@@ -171,14 +173,14 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         closeCursor();
     }
     
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//        outState.putInt(FEED_CAT_ID, categoryId);
-//        outState.putInt(FEED_ID, feedId);
-//        outState.putString(FEED_TITLE, feedTitle);
-//        outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
-//        super.onSaveInstanceState(outState);
-//    }
+    // @Override
+    // protected void onSaveInstanceState(Bundle outState) {
+    // outState.putInt(FEED_CAT_ID, categoryId);
+    // outState.putInt(FEED_ID, feedId);
+    // outState.putString(FEED_TITLE, feedTitle);
+    // outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
+    // super.onSaveInstanceState(outState);
+    // }
     
     @Override
     protected void doRefresh() {
@@ -238,6 +240,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         Article a = (Article) adapter.getItem(info.position);
         menu.removeItem(MARK_READ); // Remove "Mark read" from super-class
         
+        menu.add(MARK_GROUP, MARK_ABOVE_READ, Menu.NONE, R.string.Commons_MarkAboveRead);
+        
         if (a.isUnread) {
             menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
         } else {
@@ -256,6 +260,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
             menu.add(MARK_GROUP, MARK_PUBLISH_NOTE, Menu.NONE, R.string.Commons_MarkPublishNote);
         }
+        
     }
     
     @Override
@@ -279,10 +284,28 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             case MARK_PUBLISH_NOTE:
                 new TextInputAlert(this, a).show(this);
                 break;
+            case MARK_ABOVE_READ:
+                new Updater(this, new ReadStateUpdater(getUnreadArticlesAbove(cmi.position), feedId, 0)).exec();
+                break;
             default:
                 return false;
         }
         return true;
+    }
+    
+    /**
+     * Creates a list of articles which are above the given index in the currently displayed list of items.
+     * 
+     * @param index
+     *            the selected index, will be excluded in returned list
+     * @return a list of items above the selected item
+     */
+    private List<Article> getUnreadArticlesAbove(int index) {
+        List<Article> ret = new ArrayList<Article>();
+        for (int i = 0; i < index; i++) {
+            ret.add((Article) adapter.getItem(i));
+        }
+        return ret;
     }
     
     @Override
