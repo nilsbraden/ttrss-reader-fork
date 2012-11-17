@@ -6,7 +6,7 @@
   * Added long-press menu in Article-List: "Mark everything above as read"
   * Another attempt at fixing the IllegalStateExceptions
   * Small bugfixes
-  * I ned help regarding the SQLiteException "cannot commit transaction - SQL statements in progress: COMMIT;", please contact me if you think you can give any advice on this issue.
+  * I need help regarding the SQLiteException "cannot commit transaction - SQL statements in progress: COMMIT;", please contact me if you think you can give any advice on this issue.
 
 == Version 1.34 ==
   * Fixed some DB issues regarding closed cursors
