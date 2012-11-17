@@ -44,7 +44,7 @@
 
     <item
         android:id="@+id/Article_Menu_ShareLink"
-        android:icon="@android:drawable/ic_menu_send"
+        android:icon="@drawable/ic_menu_send"
         android:title="@string/ArticleActivity.ShareLink"/>
 
     <item

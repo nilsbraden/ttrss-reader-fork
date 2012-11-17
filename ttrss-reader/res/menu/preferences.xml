@@ -19,12 +19,12 @@
 
     <item
         android:id="@+id/Preferences_Menu_Reset"
-        android:icon="@android:drawable/ic_menu_revert"
+        android:icon="@drawable/ic_menu_revert"
         android:title="@string/Preferences.Reset"/>
 
     <item
         android:id="@+id/Preferences_Menu_ResetDatabase"
-        android:icon="@android:drawable/ic_menu_revert"
+        android:icon="@drawable/ic_menu_revert"
         android:title="@string/Preferences.ResetDatabase"/>
 
 </menu>
