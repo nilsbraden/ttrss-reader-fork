@@ -2,12 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:installLocation="auto"
-    android:versionCode="1352"
+    android:versionCode="1353"
     android:versionName="1.35" >
 
     <uses-sdk
         android:minSdkVersion="3"
-        android:targetSdkVersion="15" />
+        android:targetSdkVersion="17" />
 
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -31,7 +31,8 @@
         android:debuggable="true"
         android:description="@string/ApplicationDescription"
         android:icon="@drawable/icon"
-        android:label="@string/ApplicationName" >
+        android:label="@string/ApplicationName"
+        android:allowBackup="true" >
         <activity
             android:name=".gui.CategoryActivity"
             android:label="@string/ApplicationName"
