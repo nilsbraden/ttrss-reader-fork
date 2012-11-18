@@ -763,7 +763,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     }
     
     @Override
-    public void dataChanged(int type) {
+    public void dataChanged(int type, int id, int superId) {
         if (type == UpdateController.TYPE_ARTICLE)
             doRefresh();
     }

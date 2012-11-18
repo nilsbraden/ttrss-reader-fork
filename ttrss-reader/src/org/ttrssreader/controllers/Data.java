@@ -93,7 +93,7 @@ public class Data {
                     countersChanged = System.currentTimeMillis(); // Only mark as updated if the call was successful
                     
                     UpdateController.getInstance().notifyListeners(UpdateController.TYPE_COUNTERS,
-                            UpdateController.LISTEN_ALL, UpdateController.ID_EMPTY);
+                            UpdateController.ID_ALL, UpdateController.ID_EMPTY);
                     
                 }
             } catch (NotInitializedException e) {
@@ -333,7 +333,7 @@ public class Data {
                     
                     for (Category c : categories) {
                         UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY,
-                                UpdateController.LISTEN_ALL, c.id);
+                                UpdateController.ID_ALL, UpdateController.ID_EMPTY);
                     }
                 }
                 
