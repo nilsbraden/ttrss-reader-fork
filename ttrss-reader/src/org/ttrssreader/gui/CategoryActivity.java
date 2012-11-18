@@ -130,7 +130,7 @@ public class CategoryActivity extends MenuActivity {
         super.onResume();
         
         UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY,
-                UpdateController.LISTEN_ALL);
+                UpdateController.ID_ALL);
         refreshAndUpdate();
     }
     
@@ -143,7 +143,7 @@ public class CategoryActivity extends MenuActivity {
     protected void onPause() {
         super.onPause();
         UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_CATEGORY,
-                UpdateController.LISTEN_ALL);
+                UpdateController.ID_ALL);
     }
     
     @Override
@@ -521,8 +521,11 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    protected void onDataChanged(int type) {
+    protected void onDataChanged(int type, int id, int superId) {
         if (type == UpdateController.TYPE_CATEGORY)
+            doRefresh();
+        // Listen for Feed-Events too, Virtual Categories are defined as feeds
+        if (type == UpdateController.TYPE_FEED && id < 1)
             doRefresh();
     }
     

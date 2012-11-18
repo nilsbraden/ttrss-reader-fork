@@ -529,8 +529,11 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    protected void onDataChanged(int type) {
-        if (type == UpdateController.TYPE_FEED)
+    protected void onDataChanged(int type, int id, int superId) {
+        Log.d(Utils.TAG, "feedId: " + feedId + " and categoryId: " + categoryId + " type: " + type + " (id: " + id + ", superId: " + superId + ")");
+        if (type == UpdateController.TYPE_FEED && id == this.feedId)
+            doRefresh();
+        if (type == UpdateController.TYPE_ARTICLE && superId == this.feedId)
             doRefresh();
     }
     

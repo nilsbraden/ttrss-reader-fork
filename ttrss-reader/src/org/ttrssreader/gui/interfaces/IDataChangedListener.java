@@ -17,6 +17,6 @@ package org.ttrssreader.gui.interfaces;
 
 public interface IDataChangedListener {
     
-    public void dataChanged(int type);
+    public void dataChanged(int type, int id, int superId);
     
 }

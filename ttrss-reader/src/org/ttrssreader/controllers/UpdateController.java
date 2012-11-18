@@ -16,7 +16,6 @@
 package org.ttrssreader.controllers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +26,7 @@ import android.os.Message;
 
 public class UpdateController {
     
-    public static final int LISTEN_ALL = Integer.MIN_VALUE;
+    public static final int ID_ALL = Integer.MIN_VALUE;
     public static final int ID_EMPTY = Integer.MIN_VALUE + 1;
     
     public static final int TYPE_CATEGORY = 1;
@@ -55,11 +54,10 @@ public class UpdateController {
             final int type = (Integer) msg.getData().get(DATA_TYPE);
             
             final int superId = (Integer) msg.getData().get(DATA_SUPER_ID);
-            final int superType = type - 1;
             
             Map<Integer, List<IDataChangedListener>> map = null;
             Map<Integer, List<IDataChangedListener>> superMap = null;
-            Map<IDataChangedListener, List<Integer>> notifyMap = new HashMap<IDataChangedListener, List<Integer>>();
+            List<IDataChangedListener> notifyMap = new ArrayList<IDataChangedListener>();
             
             switch (type) {
                 case TYPE_CATEGORY:
@@ -82,46 +80,35 @@ public class UpdateController {
                 return;
             
             // Call all listeners in the map with the given id
-            insertIntoMap(map, notifyMap, id, type);
-            
-            // Add all listeners on counters, they probably have changed so we notify them
-            // insertIntoMap(counterListeners, notifyMap, id, LISTEN_ALL);
+            insertIntoMap(map, notifyMap, id);
             
             if (superMap != null) {
                 // Check for super-listeners (listeners which listen on all events for one type
-                insertIntoMap(superMap, notifyMap, superId, LISTEN_ALL);
+                insertIntoMap(superMap, notifyMap, superId);
                 
                 // Also notify listeners on super-type
                 if (superId != ID_EMPTY)
-                    insertIntoMap(superMap, notifyMap, superId, superType);
+                    insertIntoMap(superMap, notifyMap, superId);
             }
             
             // For all items in notifyMap:
-            for (IDataChangedListener listener : notifyMap.keySet()) {
-                listener.dataChanged(type);
+            for (IDataChangedListener listener : notifyMap) {
+                listener.dataChanged(type, id, superId);
             }
         }
     };
     
-    private static void insertIntoMap(final Map<Integer, List<IDataChangedListener>> source, final Map<IDataChangedListener, List<Integer>> target, int id, int type) {
+    private static void insertIntoMap(final Map<Integer, List<IDataChangedListener>> source, final List<IDataChangedListener> target, int id) {
         if (source == null || target == null)
             return; // No source or target, nothing to do
             
-        if (source.get(id) == null)
-            return; // No listeners for this id
-            
-        // Read listener for this id from source, add listener with type to target, type is inserted in the list of
-        // types
-        for (IDataChangedListener listener : source.get(id)) {
-            List<Integer> typeList = target.get(listener);
-            if (typeList == null) {
-                typeList = new ArrayList<Integer>();
-                target.put(listener, typeList);
-            }
-            
-            if (!typeList.contains(type))
-                typeList.add(type);
-        }
+        // Add listeners
+        if (source.get(id) != null)
+            target.addAll(source.get(id));
+        
+        // Always add the listeners for "ALL" events
+        if (source.get(ID_ALL) != null)
+            target.addAll(source.get(ID_ALL));
     }
     
     // Singleton
@@ -150,8 +137,8 @@ public class UpdateController {
      * @param id
      *            the ID of the referenced object
      */
-    // MenuActivity:    TYPE_COUNTERS  LISTEN_ALL
-    // Category:        TYPE_CATEGORY  LISTEN_ALL
+    // MenuActivity:    TYPE_COUNTERS  ID_ALL
+    // Category:        TYPE_CATEGORY  ID_ALL
     // Feed:            TYPE_CATEGORY  categoryId
     // FeedHeadline:    TYPE_FEED      feedId (categoryId for virtual cat)
     // Article:         TYPE_ARTICLE   articleId
