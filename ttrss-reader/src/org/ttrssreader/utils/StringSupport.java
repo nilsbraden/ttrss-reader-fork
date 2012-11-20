@@ -171,8 +171,8 @@ public class StringSupport {
     
     public static String convertStreamToString(InputStream inputStream) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        InputStream in = new BufferedInputStream(inputStream, 1024);
-        byte[] buffer = new byte[1024];
+        InputStream in = new BufferedInputStream(inputStream, (int)Utils.KB);
+        byte[] buffer = new byte[(int)Utils.KB];
         int n = 0;
         try {
             while (-1 != (n = in.read(buffer))) {

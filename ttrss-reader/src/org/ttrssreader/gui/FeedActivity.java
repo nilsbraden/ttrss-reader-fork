@@ -77,7 +77,6 @@ public class FeedActivity extends MenuActivity {
         super.onResume();
         
         UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY, categoryId);
-        DBHelper.getInstance().checkAndInitializeDB(this);
         refreshAndUpdate();
     }
     
@@ -280,7 +279,7 @@ public class FeedActivity extends MenuActivity {
     
     @Override
     protected void onDataChanged(int type, int id, int superId) {
-        Log.d(Utils.TAG, "categoryId: " + categoryId + " and  type: " + type + " (id: " + id + ", superId: " + superId + ")");
+        // Log.d(Utils.TAG, "categoryId: " + categoryId + " and  type: " + type + " (id: " + id + ", superId: " + superId + ")");
         if (type == UpdateController.TYPE_CATEGORY && id == this.categoryId)
             doRefresh();
         if (type == UpdateController.TYPE_FEED && superId == this.categoryId)

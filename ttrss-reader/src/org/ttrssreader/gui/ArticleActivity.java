@@ -41,6 +41,7 @@ import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -562,7 +563,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                     if (isSwipe) {
                         // Display text for swipe-area
                         swipeView.setVisibility(TextView.VISIBLE);
-                        new Handler().postDelayed(timerTask, 1000);
+                        new Handler().postDelayed(timerTask, Utils.SECOND);
                     }
                     return false;
                 }
@@ -586,7 +587,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                     if (isSwipe) {
                         // Display text for swipe-area
                         swipeView.setVisibility(TextView.VISIBLE);
-                        new Handler().postDelayed(timerTask, 1000);
+                        new Handler().postDelayed(timerTask, Utils.SECOND);
                     }
                     return false;
                 }

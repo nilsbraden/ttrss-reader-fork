@@ -16,6 +16,8 @@
 
 package org.ttrssreader.gui;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -51,8 +53,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import com.actionbarsherlock.view.MenuItem;
-import java.util.List;
-import java.util.ArrayList;
 
 public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
     
@@ -139,7 +139,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         } else {
             UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_FEED, feedId);
         }
-        DBHelper.getInstance().checkAndInitializeDB(this);
         refreshAndUpdate();
     }
     
@@ -530,7 +529,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     @Override
     protected void onDataChanged(int type, int id, int superId) {
-        Log.d(Utils.TAG, "feedId: " + feedId + " and categoryId: " + categoryId + " type: " + type + " (id: " + id + ", superId: " + superId + ")");
+        // Log.d(Utils.TAG, "feedId: " + feedId + " and categoryId: " + categoryId + " type: " + type + " (id: " + id + ", superId: " + superId + ")");
         if (type == UpdateController.TYPE_FEED && id == this.feedId)
             doRefresh();
         if (type == UpdateController.TYPE_ARTICLE && superId == this.feedId)

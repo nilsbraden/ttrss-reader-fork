@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.utils.FileUtils;
+import org.ttrssreader.utils.Utils;
 import android.content.SharedPreferences;
 import android.os.Environment;
 
@@ -143,6 +144,8 @@ public class Constants {
     public static final String LAST_UPDATE_TIME = "LastUpdateTime";
     public static final String LAST_VERSION_RUN = "LastVersionRun";
     public static final String LAST_VACUUM_DATE = "lastVacuumDate";
+    public static final String FRESH_ARTICLE_MAX_AGE = "freshArticleMaxAge";
+    public static final String FRESH_ARTICLE_MAX_AGE_DATE = "freshArticleMaxAgeDate";
     // Internal Default Values
     public static final long API_LEVEL_UPDATED_DEFAULT = -1;
     public static final int API_LEVEL_DEFAULT = -1;
@@ -152,6 +155,8 @@ public class Constants {
     public static final long LAST_UPDATE_TIME_DEFAULT = 1;
     public static final String LAST_VERSION_RUN_DEFAULT = "1";
     public static final long LAST_VACUUM_DATE_DEFAULT = 0;
+    public static final long FRESH_ARTICLE_MAX_AGE_DEFAULT = Utils.DAY;
+    public static final long FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT = 0;
     
     /*
      * Returns a list of the values of all constants in this class which represent preferences. Allows for easier

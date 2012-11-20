@@ -45,6 +45,16 @@ import android.util.Log;
 
 public class Utils {
     
+    public static final long SECOND = 1000;
+    public static final long MINUTE = 60 * SECOND;
+    public static final long HOUR = 60 * MINUTE;
+    public static final long DAY = 24 * HOUR;
+    public static final long WEEK = 7 * DAY;
+    public static final long MONTH = 31 * DAY;
+    
+    public static final long KB = 1024;
+    public static final long MB = KB * KB;
+    
     /**
      * Min supported versions of the Tiny Tiny RSS Server
      */
@@ -63,8 +73,8 @@ public class Utils {
     /**
      * The time after which data will be fetched again from the server if asked for the data
      */
-    public static final int UPDATE_TIME = 600000;
-    public static final int HALF_UPDATE_TIME = UPDATE_TIME / 2;
+    public static final long UPDATE_TIME = 600000;
+    public static final long HALF_UPDATE_TIME = UPDATE_TIME / 2;
     
     /**
      * The Pattern to match image-urls inside HTML img-tags.
@@ -125,6 +135,13 @@ public class Utils {
         } catch (FileNotFoundException e) {
             return true;
         }
+    }
+    
+    /*
+     * Check if vacuum is necessary, returns true if yes.
+     */
+    public static boolean checkVacuumDB(Context c) {
+        return Controller.getInstance().isVacuumDBScheduled();
     }
     
     /*
@@ -235,7 +252,7 @@ public class Utils {
                     e.printStackTrace();
                 }
                 
-                if (wait > 1000) { // Wait a maximum of one second for connection
+                if (wait > SECOND) { // Wait a maximum of one second for connection
                     break;
                 }
             }

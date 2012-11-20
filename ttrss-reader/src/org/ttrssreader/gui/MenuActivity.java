@@ -30,10 +30,10 @@ import org.ttrssreader.imageCache.ForegroundService;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -65,7 +65,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
-        
+
         context = getApplicationContext();
         
         // Initialize Singletons for Config, Data-Access and DB
@@ -106,11 +106,11 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected void onResume() {
         super.onResume();
         // Register to be notified when counters were updated
-        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_COUNTERS,
-                UpdateController.ID_ALL);
+        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_COUNTERS, UpdateController.ID_ALL);
         
         // Register for callback of the ImageCache
         Controller.getInstance().registerActivity(this);
+        DBHelper.getInstance().checkAndInitializeDB(this);
         this.setVisible(true);
     }
     
@@ -138,8 +138,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         super.onDestroy();
         this.setVisible(false);
         
-        UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_COUNTERS,
-                UpdateController.ID_ALL);
+        UpdateController.getInstance()
+                .unregisterActivity(this, UpdateController.TYPE_COUNTERS, UpdateController.ID_ALL);
         
         if (updater != null) {
             updater.cancel(true);
@@ -311,12 +311,13 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         }
     }
     
-    private final static String TYPES = " (TYPE_CATEGORY = 1, TYPE_FEED = 2, TYPE_ARTICLE = 3, TYPE_COUNTERS = 4, ID_EMPTY = " + (Integer.MIN_VALUE + 1) + ", ID_ALL = " + Integer.MIN_VALUE + ")"; 
-    
     @Override
     public void dataChanged(int type, int id, int superId) {
-        Log.d(Utils.TAG, "dataChanged: " + type + TYPES);
-        // Instantly refresh when counters did change, everything else is handled by specific UI-classes
+        // String TYPES = " (TYPE_CATEGORY = 1, TYPE_FEED = 2, TYPE_ARTICLE = 3, TYPE_COUNTERS = 4, ID_EMPTY = " +
+        // (Integer.MIN_VALUE + 1) + ", ID_ALL = " + Integer.MIN_VALUE + ")";
+        // Log.d(Utils.TAG, "dataChanged: " + type + TYPES);
+        
+        // Instantly refresh when counters change, everything else is handled by specific UI-classes
         if (type == UpdateController.TYPE_COUNTERS)
             doRefresh();
         else
