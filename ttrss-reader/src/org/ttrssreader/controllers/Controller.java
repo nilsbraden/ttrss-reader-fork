@@ -30,12 +30,14 @@ import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.net.Connector;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 
 /**
@@ -69,7 +71,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean trustAllSsl = null;
     private Boolean useKeystore = null;
     private String keystorePassword = null;
-    private Boolean lazyServer = null;
+    private Boolean useOfALazyServer = null;
     
     private Boolean automaticMarkRead = null;
     private Boolean openUrlEmptyArticle = null;
@@ -97,9 +99,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean imageCacheUnread = null;
     private String saveAttachment = null;
     private String cacheFolder = null;
-    private Boolean isVacuumDBScheduled = null;
-    private Boolean isDeleteDBScheduled = null;
-    private Boolean isDeleteDBOnStartup = null;
+    private Boolean vacuumDbScheduled = null;
+    private Boolean isDeleteDbScheduled = null;
+    private Boolean isDeleteDbOnStartup = null;
     private Boolean cacheImagesOnStartup = null;
     private Boolean cacheImagesOnlyWifi = null;
     private Boolean logSensitiveData = null;
@@ -112,7 +114,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Long lastUpdateTime = null;
     private String lastVersionRun = null;
     private Boolean newInstallation = false;
-    private String freshArticleMaxAge = "";
+    private Long freshArticleMaxAge = null;
+    private Long freshArticleMaxAgeDate = null;
     private Long lastVacuumDate = null;
     
     public volatile Integer lastOpenedFeed = null;
@@ -387,9 +390,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public boolean lazyServer() {
-        if (lazyServer == null)
-            lazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
-        return lazyServer;
+        if (useOfALazyServer == null)
+            useOfALazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
+        return useOfALazyServer;
     }
     
     public boolean openUrlEmptyArticle() {
@@ -656,52 +659,51 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public boolean isVacuumDBScheduled() {
         long time = System.currentTimeMillis();
-        long thirtyDays = 30 * 24 * 60 * 60 * 1000L; // Note "L" for explicit cast to long
         
-        if (lastVacuumDate() < (time - thirtyDays))
+        if (lastVacuumDate() < (time - Utils.MONTH))
             return true;
         
-        if (isVacuumDBScheduled == null)
-            isVacuumDBScheduled = prefs
+        if (vacuumDbScheduled == null)
+            vacuumDbScheduled = prefs
                     .getBoolean(Constants.VACUUM_DB_SCHEDULED, Constants.VACUUM_DB_SCHEDULED_DEFAULT);
-        return isVacuumDBScheduled;
+        return vacuumDbScheduled;
     }
     
     public void setVacuumDBScheduled(boolean isVacuumDBScheduled) {
         put(Constants.VACUUM_DB_SCHEDULED, isVacuumDBScheduled);
-        this.isVacuumDBScheduled = isVacuumDBScheduled;
+        this.vacuumDbScheduled = isVacuumDBScheduled;
     }
     
     public boolean isDeleteDBScheduled() {
-        if (isDeleteDBScheduled == null)
-            isDeleteDBScheduled = prefs
+        if (isDeleteDbScheduled == null)
+            isDeleteDbScheduled = prefs
                     .getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
-        return isDeleteDBScheduled;
+        return isDeleteDbScheduled;
     }
     
     public void setDeleteDBScheduled(boolean isDeleteDBScheduled) {
         put(Constants.DELETE_DB_SCHEDULED, isDeleteDBScheduled);
-        this.isDeleteDBScheduled = isDeleteDBScheduled;
+        this.isDeleteDbScheduled = isDeleteDBScheduled;
     }
     
     // Reset to false if preference to delete on every start is not set
     public void resetDeleteDBScheduled() {
         if (!isDeleteDBOnStartup()) {
             put(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
-            this.isDeleteDBScheduled = Constants.DELETE_DB_SCHEDULED_DEFAULT;
+            this.isDeleteDbScheduled = Constants.DELETE_DB_SCHEDULED_DEFAULT;
         }
     }
     
     public boolean isDeleteDBOnStartup() {
-        if (isDeleteDBOnStartup == null)
-            isDeleteDBOnStartup = prefs.getBoolean(Constants.DELETE_DB_ON_STARTUP,
+        if (isDeleteDbOnStartup == null)
+            isDeleteDbOnStartup = prefs.getBoolean(Constants.DELETE_DB_ON_STARTUP,
                     Constants.DELETE_DB_ON_STARTUP_DEFAULT);
-        return isDeleteDBOnStartup;
+        return isDeleteDbOnStartup;
     }
     
     public void setDeleteDBOnStartup(boolean isDeleteDBOnStartup) {
         put(Constants.DELETE_DB_ON_STARTUP, isDeleteDBOnStartup);
-        this.isDeleteDBOnStartup = isDeleteDBOnStartup;
+        this.isDeleteDbOnStartup = isDeleteDBOnStartup;
         setDeleteDBScheduled(isDeleteDBOnStartup);
     }
     
@@ -843,39 +845,48 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return lastVacuumDate;
     }
     
-    private AsyncTask<Void, Void, Void> task;
+    private AsyncTask<Void, Void, Void> refreshPrefTask;
     
     public long getFreshArticleMaxAge() {
-        int ret = 48 * 60 * 60 * 1000; // Refreshed every two days only
+        if (freshArticleMaxAge == null)
+            freshArticleMaxAge = prefs
+                    .getLong(Constants.FRESH_ARTICLE_MAX_AGE, Constants.FRESH_ARTICLE_MAX_AGE_DEFAULT);
         
-        if (freshArticleMaxAge == null) {
-            return ret;
-        } else if (freshArticleMaxAge.equals("")) {
+        if (freshArticleMaxAgeDate == null)
+            freshArticleMaxAgeDate = prefs.getLong(Constants.FRESH_ARTICLE_MAX_AGE_DATE,
+                    Constants.FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT);
+        
+        if (freshArticleMaxAgeDate < System.currentTimeMillis() - (Utils.DAY * 2)) {
             
             // Only start task if none existing yet
-            if (task == null) {
-                task = new AsyncTask<Void, Void, Void>() {
+            if (refreshPrefTask == null) {
+                refreshPrefTask = new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... params) {
-                        freshArticleMaxAge = Data.getInstance().getPref("FRESH_ARTICLE_MAX_AGE");
+                        String s = "";
+                        try {
+                            s = Data.getInstance().getPref("FRESH_ARTICLE_MAX_AGE");
+                            
+                            freshArticleMaxAge = Long.parseLong(s) * Utils.HOUR;
+                            put(Constants.FRESH_ARTICLE_MAX_AGE, freshArticleMaxAge);
+                            
+                            freshArticleMaxAgeDate = System.currentTimeMillis();
+                            put(Constants.FRESH_ARTICLE_MAX_AGE_DATE, freshArticleMaxAgeDate);
+                        } catch (Exception e) {
+                            Log.d(Utils.TAG, "Pref \"FRESH_ARTICLE_MAX_AGE\" could not be fetched from server: " + s);
+                        }
                         return null;
                     }
                 };
+                
                 if (isExecuteOnExecutorAvailable())
-                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    refreshPrefTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 else
-                    task.execute();
+                    refreshPrefTask.execute();
             }
-            
         }
         
-        try {
-            ret = Integer.parseInt(freshArticleMaxAge) * 60 * 60 * 1000;
-        } catch (Exception e) {
-            return ret;
-        }
-        
-        return ret;
+        return freshArticleMaxAge;
     }
     
     /*
@@ -985,23 +996,23 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 continue;
             
             // Only use public static fields
-            if (Modifier.isStatic(field.getModifiers()) && Modifier.isPublic(field.getModifiers())) {
+            if (!Modifier.isStatic(field.getModifiers()) || !Modifier.isPublic(field.getModifiers()))
+                continue;
                 
-                try {
-                    Object f = field.get(this);
-                    if (!(f instanceof String))
-                        continue;
+            try {
+                Object f = field.get(this);
+                if (!(f instanceof String))
+                    continue;
+                
+                if (!key.equals((String) f))
+                    continue;
                     
-                    if (key.equals((String) f)) {
-                        // reset variable, it will be re-read on next access
-                        String fieldName = Constants.constant2Var(field.getName());
-                        Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
-                                                                                      // fields are returned
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                
+                // reset variable, it will be re-read on next access
+                String fieldName = Constants.constant2Var(field.getName());
+                Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
+                    
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             
         }

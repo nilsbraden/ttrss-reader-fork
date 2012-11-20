@@ -151,7 +151,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             purgeCache();
             
             Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
-                    cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / 1000));
+                    cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / Utils.SECOND));
             
             break; // Always break in the end, "while" is just useful for the different places in which we leave the
                    // loop
@@ -244,7 +244,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         while (!map.isEmpty()) {
             synchronized (map) {
                 try {
-                    map.wait(1000);
+                    map.wait(Utils.SECOND);
                 } catch (InterruptedException e) {
                     Log.d(Utils.TAG, "Got an InterruptedException!");
                 }
@@ -256,7 +256,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
     public class DownloadImageTask implements Runnable {
         
-        private static final long maxFileSize = 1024 * 1024 * 6; // Max size for one image is 6 MB
+        private static final long maxFileSize = Utils.MB * 6; // Max size for one image is 6 MB
         
         private ImageCache imageCache;
         private int articleId;

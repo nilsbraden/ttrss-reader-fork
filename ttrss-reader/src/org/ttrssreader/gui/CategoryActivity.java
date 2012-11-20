@@ -39,6 +39,7 @@ import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -61,6 +62,7 @@ public class CategoryActivity extends MenuActivity {
     private static final int DIALOG_WELCOME = 1;
     private static final int DIALOG_UPDATE = 2;
     private static final int DIALOG_CRASH = 3;
+    private static final int DIALOG_VACUUM = 4;
     
     private static final int SELECTED_VIRTUAL_CATEGORY = 1;
     private static final int SELECTED_CATEGORY = 2;
@@ -92,6 +94,8 @@ public class CategoryActivity extends MenuActivity {
             showDialog(DIALOG_UPDATE);
         } else if (!Utils.checkCrashReport(this)) { // Check for crash-reports
             showDialog(DIALOG_CRASH);
+        } else if (Utils.checkVacuumDB(this)) { // Check for scheduled VACUUM
+            showDialog(DIALOG_VACUUM);
         } else if (!Utils.checkConfig()) {// Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
@@ -129,8 +133,7 @@ public class CategoryActivity extends MenuActivity {
         
         super.onResume();
         
-        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY,
-                UpdateController.ID_ALL);
+        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY, UpdateController.ID_ALL);
         refreshAndUpdate();
     }
     
@@ -142,8 +145,8 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_CATEGORY,
-                UpdateController.ID_ALL);
+        UpdateController.getInstance()
+                .unregisterActivity(this, UpdateController.TYPE_CATEGORY, UpdateController.ID_ALL);
     }
     
     @Override
@@ -378,8 +381,49 @@ public class CategoryActivity extends MenuActivity {
                     }
                 });
                 break;
+            
+            case DIALOG_VACUUM:
+                
+                builder.setTitle("VACUUM");
+                builder.setMessage("The DB should sometimes be vacuumed to free space. Do you want to start this process now? It may take up to several minutes.");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface d, final int which) {
+                        new VacuumTask(ProgressDialog.show(context, "VACUUM", "Cleaning the database...", true)).execute();
+                        d.dismiss();
+                    }
+                });
+                builder.setNegativeButton("Not now", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface d, final int which) {
+                        d.dismiss();
+                    }
+                });
+                break;
+                
         }
         return builder.create();
+    }
+    
+    private class VacuumTask extends AsyncTask<Void, Void, Void> {
+        ProgressDialog dialog = null;
+        public VacuumTask(ProgressDialog dialog) {
+            this.dialog = dialog;
+        }
+        protected Void doInBackground(Void... args) {
+            try {
+                DBHelper.getInstance().vacuum();
+            } finally {
+                // Reset scheduling-data
+                Controller.getInstance().setVacuumDBScheduled(false);
+                Controller.getInstance().setLastVacuumDate();
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void result) {
+            dialog.dismiss();
+        }
     }
     
     public void sendReport() {

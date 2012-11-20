@@ -99,7 +99,7 @@ public class FileUtils {
             fos = new FileOutputStream(file);
             InputStream is = connection.getInputStream();
             
-            int size = 1024 * 8;
+            int size = (int)Utils.KB * 8;
             byte[] buf = new byte[size];
             int byteRead;
             

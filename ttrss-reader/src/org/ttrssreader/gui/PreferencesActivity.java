@@ -24,6 +24,7 @@ import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.preferences.FileBrowserHelper;
 import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
 import org.ttrssreader.utils.Utils;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;

@@ -150,7 +150,7 @@ public class ArticleWebViewClient extends WebViewClient {
     }
     
     private class AsyncDownloader extends AsyncTask<URL, Void, Void> {
-        private final static int BUFFER = 1024;
+        private final static int BUFFER = (int)Utils.KB;
         
         protected Void doInBackground(URL... urls) {
             
@@ -237,7 +237,7 @@ public class ArticleWebViewClient extends WebViewClient {
                     count += x;
                 }
                 
-                int time = (int) (System.currentTimeMillis() - start) / 1000;
+                int time = (int) ((System.currentTimeMillis() - start) / Utils.SECOND);
                 
                 // Show Intent which opens the file
                 Intent intent = new Intent();
@@ -256,6 +256,13 @@ public class ArticleWebViewClient extends WebViewClient {
             } finally {
                 // Remove "running"-notification
                 Utils.showRunningNotification(context, true);
+                
+                if (bout != null) {
+                    try {
+                        bout.close();
+                    } catch (IOException e) {
+                    }
+                }
             }
             return null;
         }

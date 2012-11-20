@@ -48,7 +48,7 @@ public class DBHelper {
     
     private static DBHelper instance = null;
     private volatile boolean initialized = false;
-    private boolean vacuumDone = false;
+    private volatile boolean vacuumDone = false;
     
     /*
      * We use two locks here to avoid too much locking for reading and be able to completely lock everything up when we
@@ -147,9 +147,8 @@ public class DBHelper {
             return; // DB was already initialized, no need to check anything.
         }
         
-        // Test if DB is accessible, backup and delete if not, else do the vacuuming
+        // Test if DB is accessible, backup and delete if not
         if (initialized) {
-            
             Cursor c = null;
             try {
                 // Try to access the DB
@@ -170,19 +169,6 @@ public class DBHelper {
                 if (c != null)
                     c.close();
             }
-            
-            // Do VACUUM if necessary and hasn't been done yet
-            if (Controller.getInstance().isVacuumDBScheduled() && !vacuumDone) {
-                Log.i(Utils.TAG, "Doing VACUUM, this can take a while...");
-                
-                // Reset scheduling-data
-                Controller.getInstance().setVacuumDBScheduled(false);
-                Controller.getInstance().setLastVacuumDate();
-                
-                // call vacuum
-                vacuum();
-            }
-            
         }
     }
     
@@ -267,10 +253,8 @@ public class DBHelper {
     }
     
     private boolean isDBAvailable() {
-        boolean ret = false;
-        
         if (db != null && db.isOpen()) {
-            ret = true;
+            return true;
         } else if (db != null) {
             
             synchronized (this) {
@@ -278,17 +262,17 @@ public class DBHelper {
                     OpenHelper openHelper = new OpenHelper(context);
                     db = openHelper.getWritableDatabase();
                     initialized = db.isOpen();
-                    ret = initialized;
+                    return initialized;
                 }
             }
             
         } else {
             Log.i(Utils.TAG, "Controller not initialized, trying to do that now...");
             initializeDBHelper();
-            ret = true;
+            return true;
         }
         
-        return ret;
+        return false;
     }
     
     private static class OpenHelper extends SQLiteOpenHelper {
@@ -1064,7 +1048,7 @@ public class DBHelper {
         db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
     }
     
-    public void vacuum() {
+    public synchronized void vacuum() {
         if (vacuumDone)
             return;
         
@@ -1087,15 +1071,13 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_ARTICLES, new String[] { "id" }, null, null, null, null, "id DESC", "1");
             
-            if (!c.isAfterLast()) {
-                
-                if (c.isBeforeFirst() && !c.moveToFirst())
-                    return 0;
+            c = db.query(TABLE_ARTICLES, new String[] { "id" }, null, null, null, null, "id DESC", "1");
+            if (c.moveToFirst())
                 ret = c.getInt(0);
-                
-            }
+            else
+                return 0;
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1114,13 +1096,11 @@ public class DBHelper {
         
         Cursor c = null;
         try {
+
             c = db.query(TABLE_ARTICLES, null, "id=?", new String[] { id + "" }, null, null, null, null);
-            
-            while (!c.isAfterLast()) {
+            if (c.moveToFirst())
                 ret = handleArticleCursor(c);
-                
-                c.move(1);
-            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1138,13 +1118,11 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_FEEDS, null, "id=?", new String[] { id + "" }, null, null, null, null);
             
-            while (!c.isAfterLast()) {
+            c = db.query(TABLE_FEEDS, null, "id=?", new String[] { id + "" }, null, null, null, null);
+            if (c.moveToFirst())
                 ret = handleFeedCursor(c);
-                
-                c.move(1);
-            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1162,13 +1140,11 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_CATEGORIES, null, "id=?", new String[] { id + "" }, null, null, null, null);
             
-            while (!c.isAfterLast()) {
+            c = db.query(TABLE_CATEGORIES, null, "id=?", new String[] { id + "" }, null, null, null, null);
+            if (c.moveToFirst())
                 ret = handleCategoryCursor(c);
-                
-                c.move(1);
-            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1186,13 +1162,13 @@ public class DBHelper {
         
         Cursor c = null;
         try {
+            
             c = db.query(TABLE_ARTICLES, null, "feedId=? AND isUnread>0", new String[] { feedId + "" }, null, null,
                     null, null);
-            
-            while (!c.isAfterLast()) {
+            while (c.moveToNext()) {
                 ret.add(handleArticleCursor(c));
-                c.move(1);
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1241,11 +1217,10 @@ public class DBHelper {
             }
             
             c = db.query(TABLE_FEEDS, null, where, null, null, null, "UPPER(title) ASC");
-            
-            while (!c.isAfterLast()) {
+            while (c.moveToNext()) {
                 ret.add(handleFeedCursor(c));
-                c.move(1);
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1261,13 +1236,14 @@ public class DBHelper {
         if (!isDBAvailable())
             return ret;
         
-        Cursor c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
+        Cursor c = null;
         try {
-            while (!c.isAfterLast()) {
-                Category ci = handleCategoryCursor(c);
-                ret.add(ci);
-                c.move(1);
+            
+            c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
+            while (c.moveToNext()) {
+                ret.add(handleCategoryCursor(c));
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1282,14 +1258,15 @@ public class DBHelper {
         Set<Category> ret = new LinkedHashSet<Category>();
         if (!isDBAvailable())
             return ret;
-        
-        Cursor c = db.query(TABLE_CATEGORIES, null, "id>=0", null, null, null, "title ASC");
+
+        Cursor c = null;
         try {
-            while (!c.isAfterLast()) {
-                Category ci = handleCategoryCursor(c);
-                ret.add(ci);
-                c.move(1);
+            
+            c = db.query(TABLE_CATEGORIES, null, "id>=0", null, null, null, "title ASC");
+            while (c.moveToNext()) {
+                ret.add(handleCategoryCursor(c));
             }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1316,9 +1293,9 @@ public class DBHelper {
             // Read count for given feed
             Cursor c = null;
             try {
+                
                 c = db.query(isCat ? TABLE_CATEGORIES : TABLE_FEEDS, new String[] { "unread" }, "id=" + id, null, null,
                         null, null, null);
-                
                 if (c.moveToFirst())
                     ret = c.getInt(0);
                 
@@ -1343,12 +1320,8 @@ public class DBHelper {
             c = db.query(TABLE_MARK, new String[] { "id", MARK_NOTE }, mark + "=" + status, null, null, null, null,
                     null);
             
-            if (!c.moveToFirst())
-                return ret;
-            
-            while (!c.isAfterLast()) {
+            while (c.moveToNext()) {
                 ret.put(c.getInt(0), c.getString(1));
-                c.move(1);
             }
             
         } catch (Exception e) {
@@ -1394,9 +1367,6 @@ public class DBHelper {
     // *******************************************
     
     private static Article handleArticleCursor(Cursor c) {
-        if (c.isBeforeFirst() && !c.moveToFirst())
-            return null;
-        
         // @formatter:off
         Article ret = new Article(
                 c.getInt(0),                        // id
@@ -1417,9 +1387,6 @@ public class DBHelper {
     }
     
     private static Feed handleFeedCursor(Cursor c) {
-        if (c.isBeforeFirst() && !c.moveToFirst())
-            return null;
-        
         // @formatter:off
         Feed ret = new Feed(
                 c.getInt(0),            // id
@@ -1432,14 +1399,11 @@ public class DBHelper {
     }
     
     private static Category handleCategoryCursor(Cursor c) {
-        if (c.isBeforeFirst() && !c.moveToFirst())
-            return null;
-        
         // @formatter:off
         Category ret = new Category(
-                c.getInt(0),                // id
-                c.getString(1),             // title
-                c.getInt(2));               // unread
+                c.getInt(0),            // id
+                c.getString(1),         // title
+                c.getInt(2));           // unread
         // @formatter:on
         return ret;
     }

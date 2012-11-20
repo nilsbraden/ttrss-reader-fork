@@ -16,12 +16,12 @@
 package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.interfaces.IConfigurable;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.utils.Utils;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -72,8 +72,6 @@ public class CategoryListFragment extends ListFragment {
         
         Controller.getInstance().lastOpenedFeed = null;
         Controller.getInstance().lastOpenedArticle = null;
-        
-        DBHelper.getInstance().checkAndInitializeDB(getActivity().getApplicationContext());
     }
     
     @Override
@@ -86,8 +84,9 @@ public class CategoryListFragment extends ListFragment {
         selectedIndexOld = selectedIndex;
         selectedIndex = position; // Set selected item
         
-        if (getActivity() instanceof IItemSelectedListener)
-            ((IItemSelectedListener) getActivity()).itemSelected(THIS_TYPE, selectedIndex, selectedIndexOld);
+        Activity activity = getActivity();
+        if (activity instanceof IItemSelectedListener)
+            ((IItemSelectedListener) activity).itemSelected(THIS_TYPE, selectedIndex, selectedIndexOld);
     }
     
 }

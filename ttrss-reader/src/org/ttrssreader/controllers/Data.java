@@ -150,7 +150,7 @@ public class Data {
             int actualUnread = DBHelper.getInstance().getUnreadArticles(feedId).size();
             if (unreadCount > actualUnread) {
                 needUnreadUpdate = true;
-                articlesChanged.put(feedId, System.currentTimeMillis() - Utils.UPDATE_TIME - 1000);
+                articlesChanged.put(feedId, System.currentTimeMillis() - Utils.UPDATE_TIME - Utils.SECOND);
             }
         }
         

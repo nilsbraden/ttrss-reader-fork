@@ -66,10 +66,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 
 public class JSONConnector implements Connector {
-    // other units in milliseconds
-    static final int SECOND = 1000;
-    static final int MINUTE = 60 * SECOND;
-    
+
     private static String lastError = "";
     private static boolean hasLastError = false;
     
@@ -212,12 +209,12 @@ public class JSONConnector implements Connector {
                 HttpParams httpParams = post.getParams();
                 
                 // Set the timeout until a connection is established.
-                int timeoutConnection = 5 * SECOND;
+                int timeoutConnection = (int)(8 * Utils.SECOND);
                 HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
                 
                 // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
                 // use longer timeout when lazyServer-Feature is used
-                int timeoutSocket = (Controller.getInstance().lazyServer()) ? 15 * MINUTE : 8 * SECOND;
+                int timeoutSocket = (int)((Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE : 10 * Utils.SECOND);
                 HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
                 
                 post.setParams(httpParams);
@@ -959,7 +956,7 @@ public class JSONConnector implements Connector {
     }
     
     private long noTaskUntil = 0;
-    final static private long minTaskIntervall = 10 * MINUTE;
+    final static private long minTaskIntervall = 10 * Utils.MINUTE;
     
     private boolean makeLazyServerWork() {
         boolean ret = true;
