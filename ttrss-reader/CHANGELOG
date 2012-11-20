@@ -4,7 +4,10 @@
 == Version 1.36 ==
   * Notify user about upcoming DB-clean-up (VACUUM)
   * Improve DB-Locking by enabling it (please don't judge me, it's been years since I wrote the line db.setLockingEnabled(false))
-  * Small changes, mostly internal stuff
+  * UI refreshes again when items change (eg. are marked as read, published)
+  * Added icons from SDK so all icons look the same
+  * Cleaned up the ActionBar
+  * Now using API-Level 17
 
 == Version 1.35 ==
   * Articles are again marked as read when beeing read in the webinterface as long as there are new articles to be synced (API doesn't offer "changes since date/time", I can only guess what has changed)
