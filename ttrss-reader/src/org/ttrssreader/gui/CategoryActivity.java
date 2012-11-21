@@ -478,6 +478,8 @@ public class CategoryActivity extends MenuActivity {
             case FEEDHEADLINE:
                 Log.d(Utils.TAG, "FEEDHEADLINE selected. Index: " + selectedIndex);
                 break;
+            case NONE:
+                break;
         }
         
         // Decide what kind of item was selected
