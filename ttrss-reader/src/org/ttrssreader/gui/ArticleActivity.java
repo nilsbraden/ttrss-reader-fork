@@ -16,6 +16,7 @@
 
 package org.ttrssreader.gui;
 
+import java.util.Locale;
 import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -170,6 +171,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         
         // Get article from DB
         article = DBHelper.getInstance().getArticle(articleId);
+        if (article == null) {
+            finish();
+            return;
+        }
         
         // Mark as read if necessary, do it here because in doRefresh() it will be done several tiumes even if you set
         // it to "unread" in the meantime.
@@ -279,9 +284,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             }
             
             // Get article from DB only if necessary
-            if (article == null)
-                article = DBHelper.getInstance().getArticle(articleId);
-            if (article == null || article.content == null)
+            if (article.content == null)
                 return;
             
             // Populate information-bar on top of the webView if enabled
@@ -375,9 +378,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         
-        if (article == null)
-            return true;
-        
         MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
         if (article.isUnread) {
             read.setTitle(getString(R.string.Commons_MarkRead));
@@ -442,12 +442,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                 String content = (String) getText(R.string.ArticleActivity_ShareSubject);
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
-                
-                if (article != null) {
-                    i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
-                    i.putExtra(Intent.EXTRA_SUBJECT, article.title);
-                }
-                
+                i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
+                i.putExtra(Intent.EXTRA_SUBJECT, article.title);
                 startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
             default:
@@ -460,7 +456,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
      * url contains spaces or newline-characters it is first trim()'ed.
      */
     private void openLink() {
-        if (article == null || article.url == null || article.url.length() == 0)
+        if (article.url == null || article.url.length() == 0)
             return;
         
         String url = article.url;
@@ -689,17 +685,17 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             
             boolean image = false;
             for (String s : FileUtils.IMAGE_EXTENSIONS) {
-                if (url.toLowerCase().contains("." + s))
+                if (url.toLowerCase(Locale.getDefault()).contains("." + s))
                     image = true;
             }
             
             boolean audioOrVideo = false;
             for (String s : FileUtils.AUDIO_EXTENSIONS) {
-                if (url.toLowerCase().contains("." + s))
+                if (url.toLowerCase(Locale.getDefault()).contains("." + s))
                     audioOrVideo = true;
             }
             for (String s : FileUtils.VIDEO_EXTENSIONS) {
-                if (url.toLowerCase().contains("." + s))
+                if (url.toLowerCase(Locale.getDefault()).contains("." + s))
                     audioOrVideo = true;
             }
             
@@ -721,13 +717,11 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         if (!Controller.getInstance().injectArticleLink())
             return html;
         
-        if (article != null) {
-            if ((article.url != null) && (article.url.length() > 0)) {
-                html.append("<br>\n");
-                html.append("<a href=\"").append(article.url).append("\" rel=\"alternate\">");
-                html.append((String) context.getText(R.string.ArticleActivity_ArticleLink));
-                html.append("</a>");
-            }
+        if ((article.url != null) && (article.url.length() > 0)) {
+            html.append("<br>\n");
+            html.append("<a href=\"").append(article.url).append("\" rel=\"alternate\">");
+            html.append((String) context.getText(R.string.ArticleActivity_ArticleLink));
+            html.append("</a>");
         }
         return html;
     }

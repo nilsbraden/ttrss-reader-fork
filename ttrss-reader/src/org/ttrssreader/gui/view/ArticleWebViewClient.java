@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Locale;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.ArticleActivity;
@@ -58,14 +59,14 @@ public class ArticleWebViewClient extends WebViewClient {
         
         boolean audioOrVideo = false;
         for (String s : FileUtils.AUDIO_EXTENSIONS) {
-            if (url.toLowerCase().contains("." + s)) {
+            if (url.toLowerCase(Locale.getDefault()).contains("." + s)) {
                 audioOrVideo = true;
                 break;
             }
         }
         
         for (String s : FileUtils.VIDEO_EXTENSIONS) {
-            if (url.toLowerCase().contains("." + s)) {
+            if (url.toLowerCase(Locale.getDefault()).contains("." + s)) {
                 audioOrVideo = true;
                 break;
             }
