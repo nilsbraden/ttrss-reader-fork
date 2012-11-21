@@ -19,7 +19,7 @@ package org.ttrssreader.model.updaters;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
-import android.os.AsyncTask;
+import org.ttrssreader.utils.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 

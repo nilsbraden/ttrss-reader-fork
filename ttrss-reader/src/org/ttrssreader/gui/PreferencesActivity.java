@@ -23,14 +23,13 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.preferences.FileBrowserHelper;
 import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
-import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -149,10 +148,7 @@ public class PreferencesActivity extends PreferenceActivity {
                     return null;
                 }
             };
-            if (Controller.getInstance().isExecuteOnExecutorAvailable())
-                init.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            else
-                init.execute();
+            init.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
     

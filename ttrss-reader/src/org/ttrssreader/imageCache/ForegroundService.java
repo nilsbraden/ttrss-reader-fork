@@ -21,14 +21,12 @@ import java.lang.reflect.Method;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -194,24 +192,16 @@ public class ForegroundService extends Service implements ICacheEndListener {
         if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
             title = getText(R.string.Cache_service_imagecache);
             imageCacher = new ImageCacher(this, this, false);
-            
-            if (Controller.getInstance().isExecuteOnExecutorAvailable())
-                imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            else
-                imageCacher.execute();
-            
+            imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
-            imageCacher = new ImageCacher(this, this, true);
             title = getText(R.string.Cache_service_articlecache);
-            
-            if (Controller.getInstance().isExecuteOnExecutorAvailable())
-                imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            else
-                imageCacher.execute();
+            imageCacher = new ImageCacher(this, this, true);
+            imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         
         // Display notification
-        Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, true, new Intent());
+        Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, true,
+                new Intent());
         startForegroundCompat(R.string.Cache_service_started, notification);
     }
     
@@ -221,12 +211,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
         if (imageCache) {
             imageCache = false;
             imageCacher = new ImageCacher(this, this, false);
-            
-            if (Controller.getInstance().isExecuteOnExecutorAvailable())
-                imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            else
-                imageCacher.execute();
-            
+            imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
             finishService();
             this.stopSelf();
