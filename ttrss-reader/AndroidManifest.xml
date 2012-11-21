@@ -6,7 +6,7 @@
     android:versionName="1.36" >
 
     <uses-sdk
-        android:minSdkVersion="3"
+        android:minSdkVersion="7"
         android:targetSdkVersion="17" />
 
     <!-- Check connectivity -->

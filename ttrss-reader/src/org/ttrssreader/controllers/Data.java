@@ -331,10 +331,8 @@ public class Data {
                     DBHelper.getInstance().insertCategories(categories);
                     categoriesChanged = System.currentTimeMillis();
                     
-                    for (Category c : categories) {
-                        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY,
-                                UpdateController.ID_ALL, UpdateController.ID_EMPTY);
-                    }
+                    UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY,
+                            UpdateController.ID_ALL, UpdateController.ID_EMPTY);
                 }
                 
                 

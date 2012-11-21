@@ -330,65 +330,69 @@ public class JSONConnector implements Connector {
         InputStream in = doRequest(params, true);
         if (in == null)
             return null;
-        JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
+        
+        JsonReader reader = null;
         String ret = "";
-        
-        // Check if content contains array or object, array indicates login-response or error, object is content
-        
-        reader.beginObject();
-        while (reader.hasNext()) {
-            String name = reader.nextName();
-            if (name.equals("content")) {
-                JsonToken t = reader.peek();
-                
-                if (t.equals(JsonToken.BEGIN_OBJECT)) {
+        try {
+            reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
+            // Check if content contains array or object, array indicates login-response or error, object is content
+            
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                if (name.equals("content")) {
+                    JsonToken t = reader.peek();
                     
-                    JsonObject object = new JsonObject();
-                    reader.beginObject();
-                    while (reader.hasNext()) {
-                        object.addProperty(reader.nextName(), reader.nextString());
-                    }
-                    reader.endObject();
-                    
-                    if (object.get(SESSION_ID) != null) {
-                        ret = object.get(SESSION_ID).getAsString();
-                        break;
-                    } else if (object.get(STATUS) != null) {
-                        ret = object.get(STATUS).getAsString();
-                        break;
-                    } else if (object.get(VALUE) != null) {
-                        ret = object.get(VALUE).getAsString();
-                        break;
-                    } else if (object.get(ERROR) != null) {
-                        String message = object.get(ERROR).getAsString();
+                    if (t.equals(JsonToken.BEGIN_OBJECT)) {
                         
-                        if (message.contains(NOT_LOGGED_IN)) {
-                            sessionId = null;
-                            if (login())
-                                return readResult(params, login, false); // Just do the same request again
-                            else
-                                return null;
+                        JsonObject object = new JsonObject();
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            object.addProperty(reader.nextName(), reader.nextString());
                         }
+                        reader.endObject();
                         
-                        if (message.contains(API_DISABLED)) {
+                        if (object.get(SESSION_ID) != null) {
+                            ret = object.get(SESSION_ID).getAsString();
+                            break;
+                        } else if (object.get(STATUS) != null) {
+                            ret = object.get(STATUS).getAsString();
+                            break;
+                        } else if (object.get(VALUE) != null) {
+                            ret = object.get(VALUE).getAsString();
+                            break;
+                        } else if (object.get(ERROR) != null) {
+                            String message = object.get(ERROR).getAsString();
+                            
+                            if (message.contains(NOT_LOGGED_IN)) {
+                                sessionId = null;
+                                if (login())
+                                    return readResult(params, login, false); // Just do the same request again
+                                else
+                                    return null;
+                            }
+                            
+                            if (message.contains(API_DISABLED)) {
+                                hasLastError = true;
+                                lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
+                                return null;
+                            }
+                            
+                            // Any other error
                             hasLastError = true;
-                            lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
+                            lastError = ERROR_TEXT + message;
                             return null;
                         }
-                        
-                        // Any other error
-                        hasLastError = true;
-                        lastError = ERROR_TEXT + message;
-                        return null;
                     }
+                    
+                } else {
+                    reader.skipValue();
                 }
-                
-            } else {
-                reader.skipValue();
             }
+        } finally {
+            if (reader != null)
+                reader.close();
         }
-        
-        reader.close();
         if (ret.startsWith("\""))
             ret = ret.substring(1, ret.length());
         if (ret.endsWith("\""))
