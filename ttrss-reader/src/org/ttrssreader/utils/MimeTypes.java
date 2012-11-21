@@ -18,6 +18,7 @@
 package org.ttrssreader.utils;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import android.webkit.MimeTypeMap;
 
@@ -31,7 +32,7 @@ public class MimeTypes {
     
     public void put(String type, String extension) {
         // Convert extensions to lower case letters for easier comparison
-        extension = extension.toLowerCase();
+        extension = extension.toLowerCase(Locale.getDefault());
         
         mMimeTypes.put(type, extension);
     }
@@ -52,7 +53,7 @@ public class MimeTypes {
         }
         
         // Convert extensions to lower case letters for easier comparison
-        extension = extension.toLowerCase();
+        extension = extension.toLowerCase(Locale.getDefault());
         
         String mimetype = mMimeTypes.get(extension);
         

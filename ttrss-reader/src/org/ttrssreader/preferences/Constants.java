@@ -20,6 +20,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
 import android.content.SharedPreferences;
@@ -249,11 +250,11 @@ public class Constants {
             camelCaseString = camelCaseString + toProperCase(part);
         }
         // We want the String to starrt with a lower-case letter...
-        return camelCaseString.substring(0, 1).toLowerCase() + camelCaseString.substring(1);
+        return camelCaseString.substring(0, 1).toLowerCase(Locale.getDefault()) + camelCaseString.substring(1);
     }
     
     static String toProperCase(String s) {
-        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
+        return s.substring(0, 1).toUpperCase(Locale.getDefault()) + s.substring(1).toLowerCase(Locale.getDefault());
     }
     
 }

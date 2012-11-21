@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -24,7 +25,7 @@ public class StringSupport {
      */
     protected static String underscore(String camelCaseString) {
         String[] words = splitByCharacterTypeCamelCase(camelCaseString);
-        return TextUtils.join("_", words).toLowerCase();
+        return TextUtils.join("_", words).toLowerCase(Locale.getDefault());
     }
     
     /**

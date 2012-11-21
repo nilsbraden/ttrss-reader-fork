@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -218,7 +219,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 // Get images from attachments separately
                 for (String url : c.getString(2).split(";")) {
                     for (String ext : FileUtils.IMAGE_EXTENSIONS) {
-                        if (url.toLowerCase().contains("." + ext) && !imageCache.containsKey(url)) {
+                        if (url.toLowerCase(Locale.getDefault()).contains("." + ext) && !imageCache.containsKey(url)) {
                             set.add(url);
                             break;
                         }
