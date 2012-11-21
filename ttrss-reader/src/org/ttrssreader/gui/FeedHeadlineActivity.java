@@ -310,9 +310,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
                 if (selectArticlesForCategory) {
-                    Data.getInstance().resetTime(categoryId, false, true, false);
+                    Data.getInstance().resetTime(categoryId, Data.TIME_FEEDHEADLINE);
                 } else {
-                    Data.getInstance().resetTime(feedId, false, false, true);
+                    Data.getInstance().resetTime(feedId, Data.TIME_FEEDHEADLINE);
                 }
                 doUpdate();
                 return true;
@@ -433,13 +433,10 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             int progress = 0;
             boolean displayUnread = Controller.getInstance().onlyUnread();
             
+            publishProgress(++progress); // Move progress forward
             if (selectArticlesForCategory) {
-                publishProgress(++progress); // Move progress forward
-                
                 Data.getInstance().updateArticles(categoryId, displayUnread, true, false);
             } else {
-                publishProgress(++progress); // Move progress forward
-                
                 Data.getInstance().updateArticles(feedId, displayUnread, false, false);
             }
             

@@ -242,7 +242,7 @@ public class CategoryActivity extends MenuActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(-1, true, false, false);
+                Data.getInstance().resetTime(-1, Data.TIME_CATEGORY);
                 cacherStarted = false;
                 doUpdate();
                 return true;
