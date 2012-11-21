@@ -34,10 +34,10 @@ import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.FragmentTransaction;
@@ -223,10 +223,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             setSupportProgressBarVisibility(false);
             
             headlineUpdater = new FeedHeadlineUpdater();
-            if (Controller.getInstance().isExecuteOnExecutorAvailable())
-                headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            else
-                headlineUpdater.execute();
+            headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
     

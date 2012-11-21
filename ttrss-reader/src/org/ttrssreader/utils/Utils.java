@@ -39,7 +39,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 
@@ -103,12 +102,8 @@ public class Utils {
         if (thisVersion.equals(lastVersionRun)) {
             // No new version installed, perhaps a new version exists
             // Only run task once for every session
-            if (AsyncTask.Status.PENDING.equals(updateVersionTask.getStatus())) {
-                if (Controller.getInstance().isExecuteOnExecutorAvailable())
-                    updateVersionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                else
-                    updateVersionTask.execute();
-            }
+            if (AsyncTask.Status.PENDING.equals(updateVersionTask.getStatus()))
+                updateVersionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             
             return true;
         } else {

@@ -35,6 +35,7 @@ import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
@@ -46,7 +47,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
@@ -199,10 +199,7 @@ public class CategoryActivity extends MenuActivity {
             setSupportProgressBarVisibility(true);
             
             categoryUpdater = new CategoryUpdater();
-            if (Controller.getInstance().isExecuteOnExecutorAvailable())
-                categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            else
-                categoryUpdater.execute();
+            categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
     

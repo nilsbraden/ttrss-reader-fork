@@ -28,6 +28,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.ArticleActivity;
 import org.ttrssreader.gui.MediaPlayerActivity;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
 import android.app.AlertDialog;
@@ -35,7 +36,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.webkit.WebView;
@@ -94,11 +94,7 @@ public class ArticleWebViewClient extends WebViewClient {
                             break;
                         case 1:
                             try {
-                                if (Controller.getInstance().isExecuteOnExecutorAvailable())
-                                    new AsyncDownloader().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
-                                            new URL(url));
-                                else
-                                    new AsyncDownloader().execute(new URL(url));
+                                new AsyncDownloader().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new URL(url));
                             } catch (MalformedURLException e) {
                                 e.printStackTrace();
                             }
@@ -150,7 +146,7 @@ public class ArticleWebViewClient extends WebViewClient {
     }
     
     private class AsyncDownloader extends AsyncTask<URL, Void, Void> {
-        private final static int BUFFER = (int)Utils.KB;
+        private final static int BUFFER = (int) Utils.KB;
         
         protected Void doInBackground(URL... urls) {
             

@@ -28,9 +28,9 @@ import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
@@ -146,10 +146,7 @@ public class FeedActivity extends MenuActivity {
             setSupportProgressBarVisibility(false);
             
             feedUpdater = new FeedUpdater();
-            if (Controller.getInstance().isExecuteOnExecutorAvailable())
-                feedUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            else
-                feedUpdater.execute();
+            feedUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
     
