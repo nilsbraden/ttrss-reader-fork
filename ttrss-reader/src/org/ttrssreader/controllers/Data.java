@@ -26,6 +26,7 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 public class Data {
     
@@ -34,6 +35,10 @@ public class Data {
     public static final int VCAT_PUB = -2;
     public static final int VCAT_FRESH = -3;
     public static final int VCAT_ALL = -4;
+    
+    public static final int TIME_CATEGORY = 1;
+    public static final int TIME_FEED = 2;
+    public static final int TIME_FEEDHEADLINE = 3;
     
     private static Data instance = null;
     private Context context;
@@ -70,16 +75,19 @@ public class Data {
     
     // *** COUNTERS *********************************************************************
     
-    public void resetTime(int id, boolean isCat, boolean isFeed, boolean isArticle) {
-        if (isCat) { // id doesn't matter
-            categoriesChanged = 0;
-            countersChanged = 0;
-        }
-        if (isFeed) {
-            feedsChanged.put(id, new Long(0)); // id == categoryId
-        }
-        if (isArticle) {
-            articlesChanged.put(id, new Long(0)); // id == feedId
+    public void resetTime(int id, int type) {
+        Log.d(Utils.TAG, "resetTime( id: " + id + " type: " + type + " )");
+        switch (type) {
+            case TIME_CATEGORY: // id doesn't matter
+                categoriesChanged = 0;
+                countersChanged = 0;
+                break;
+            case TIME_FEED:
+                feedsChanged.put(id, Long.valueOf(0)); // id == categoryId
+                break;
+            case TIME_FEEDHEADLINE:
+                articlesChanged.put(id, Long.valueOf(0)); // id == feedId
+                break;
         }
     }
     
@@ -117,16 +125,12 @@ public class Data {
                         .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, 0);
                 
                 if (count == limit) {
-                    Controller.getInstance().getConnector()
-                            .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, 0);
-                    // TODO: Think! What do we do when the limit is reached? Set the limit higher or fetch another 500?
-                    // What if this is a new installation, shall we bulk-load ALL articles (because this is what happens
-                    // if we start fetching the next 500 and so on)?
-                    // Just doing it twice for now, 1000 articles offline should be fine for most people.
+                    count += Controller.getInstance().getConnector()
+                            .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, count);
                 }
                 
-                // Only mark as updated if the first call was successful
-                if (count != -1) {
+                // Only mark as updated if the calls were successful
+                if (count > -1) {
                     articlesCached = System.currentTimeMillis();
                     
                     // Store all category-ids and ids of all feeds for this category in db
@@ -156,7 +160,7 @@ public class Data {
         
         Long time = articlesChanged.get(feedId);
         if (time == null)
-            time = new Long(0);
+            time = Long.valueOf(0);
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
@@ -244,7 +248,7 @@ public class Data {
         
         Long time = feedsChanged.get(categoryId);
         if (time == null)
-            time = new Long(0);
+            time = Long.valueOf(0);
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;

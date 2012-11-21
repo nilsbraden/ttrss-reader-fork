@@ -165,7 +165,7 @@ public class FeedActivity extends MenuActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(categoryId, false, true, false);
+                Data.getInstance().resetTime(categoryId, Data.TIME_FEED);
                 doUpdate();
                 return true;
             case R.id.Menu_MarkAllRead:
