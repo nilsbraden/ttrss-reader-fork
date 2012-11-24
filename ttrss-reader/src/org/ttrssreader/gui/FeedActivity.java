@@ -22,7 +22,6 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
@@ -32,11 +31,9 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import com.actionbarsherlock.view.MenuItem;
 
 public class FeedActivity extends MenuActivity {
     
@@ -125,8 +122,8 @@ public class FeedActivity extends MenuActivity {
         }
         
         if (feedUpdater == null) {
-            setSupportProgressBarIndeterminateVisibility(false);
-            setSupportProgressBarVisibility(false);
+            setProgressBarIndeterminateVisibility(false);
+            setProgressBarVisibility(false);
         }
     }
     
@@ -142,8 +139,8 @@ public class FeedActivity extends MenuActivity {
         }
         
         if (!isCacherRunning()) {
-            setSupportProgressBarIndeterminateVisibility(true);
-            setSupportProgressBarVisibility(false);
+            setProgressBarIndeterminateVisibility(true);
+            setProgressBarVisibility(false);
             
             feedUpdater = new FeedUpdater();
             feedUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -209,8 +206,8 @@ public class FeedActivity extends MenuActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setSupportProgressBarIndeterminateVisibility(false);
-                setSupportProgressBarVisibility(false);
+                setProgressBarIndeterminateVisibility(false);
+                setProgressBarVisibility(false);
                 return;
             }
             
@@ -233,45 +230,13 @@ public class FeedActivity extends MenuActivity {
             return;
         }
         
-        // Find out if we are using a wide screen
-        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
-        
-        if (secondPane != null && secondPane.isInLayout()) {
-            
-            Log.d(Utils.TAG, "Filling right pane... (" + selectedIndex + " " + oldIndex + ")");
-            
-            // Set the list item as checked
-            // getListView().setItemChecked(selectedIndex, true);
-            
-            // Get the fragment instance
-            ListFragment details = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
-            
-            // Is the current selected ondex the same as the clicked? If so, there is no need to update
-            if (details != null && selectedIndex == oldIndex)
-                return;
-            
-            details = FeedHeadlineListFragment.newInstance(adapter.getId(selectedIndex),
-                    adapter.getTitle(selectedIndex), categoryId, false);
-            
-            // Replace the old fragment with the new one
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.details, details);
-            // Use a fade animation. This makes it clear that this is not a new "layer"
-            // above the current, but a replacement
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-            
-        } else {
-            
-            // This is not a tablet - start a new activity
-            Intent i = new Intent(context, FeedHeadlineActivity.class);
-            i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedHeadlineActivity.FEED_ID, adapter.getId(selectedIndex));
-            i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
-            if (i != null)
-                startActivity(i);
-            
-        }
+        // This is not a tablet - start a new activity
+        Intent i = new Intent(context, FeedHeadlineActivity.class);
+        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineActivity.FEED_ID, adapter.getId(selectedIndex));
+        i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
+        if (i != null)
+            startActivity(i);
     }
     
     @Override

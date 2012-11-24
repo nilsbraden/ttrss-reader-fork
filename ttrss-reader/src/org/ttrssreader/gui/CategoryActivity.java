@@ -28,8 +28,6 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
-import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Feed;
@@ -48,14 +46,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import com.actionbarsherlock.view.MenuItem;
 
 public class CategoryActivity extends MenuActivity {
     
@@ -177,8 +173,8 @@ public class CategoryActivity extends MenuActivity {
         }
         
         if (categoryUpdater == null && !isCacherRunning()) {
-            setSupportProgressBarIndeterminateVisibility(false);
-            setSupportProgressBarVisibility(false);
+            setProgressBarIndeterminateVisibility(false);
+            setProgressBarVisibility(false);
         }
     }
     
@@ -194,8 +190,8 @@ public class CategoryActivity extends MenuActivity {
         }
         
         if (!isCacherRunning() && !cacherStarted) {
-            setSupportProgressBarIndeterminateVisibility(true);
-            setSupportProgressBarVisibility(true);
+            setProgressBarIndeterminateVisibility(true);
+            setProgressBarVisibility(true);
             
             categoryUpdater = new CategoryUpdater();
             categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -307,8 +303,8 @@ public class CategoryActivity extends MenuActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setSupportProgressBarIndeterminateVisibility(false);
-                setSupportProgressBarVisibility(false);
+                setProgressBarIndeterminateVisibility(false);
+                setProgressBarVisibility(false);
                 return;
             }
             
@@ -503,73 +499,29 @@ public class CategoryActivity extends MenuActivity {
             selection = SELECTED_CATEGORY;
         }
         
-        // Find out if we are using a wide screen
-        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
-        
-        if (secondPane != null && secondPane.isInLayout()) {
-            
-            Log.d(Utils.TAG, "Filling right pane... (" + selectedIndex + " " + oldIndex + ")");
-            
-            // Set the list item as checked
-            // getListView().setItemChecked(selectedIndex, true);
-            
-            // Is the current selected ondex the same as the clicked? If so, there is no need to update
-            // if (details != null && selectedIndex == oldIndex)
-            // return;
-            
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            FeedHeadlineListFragment feedHeadlineFragment = null;
-            FeedListFragment feedFragment = null;
-            
-            switch (selection) {
-                case SELECTED_VIRTUAL_CATEGORY:
-                    feedHeadlineFragment = FeedHeadlineListFragment.newInstance(selectedId,
-                            adapter.getTitle(selectedIndex), 0, false);
-                    ft.replace(R.id.feed_headline_list, feedHeadlineFragment);
-                    break;
-                case SELECTED_LABEL:
-                    feedHeadlineFragment = FeedHeadlineListFragment.newInstance(selectedId,
-                            adapter.getTitle(selectedIndex), -2, false);
-                    ft.replace(R.id.feed_headline_list, feedHeadlineFragment);
-                    break;
-                case SELECTED_CATEGORY:
-                    feedFragment = FeedListFragment.newInstance(selectedId, adapter.getTitle(selectedIndex));
-                    ft.replace(R.id.feed_list, feedFragment);
-                    break;
-            }
-            
-            // Replace the old fragment with the new one
-            // Use a fade animation. This makes it clear that this is not a new "layer"
-            // above the current, but a replacement
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-            
-        } else {
-            
-            // This is not a tablet - start a new activity
-            Intent i = null;
-            switch (selection) {
-                case SELECTED_VIRTUAL_CATEGORY:
-                    i = new Intent(context, FeedHeadlineActivity.class);
-                    i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
-                    i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
-                    break;
-                case SELECTED_LABEL:
-                    i = new Intent(context, FeedHeadlineActivity.class);
-                    i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
-                    i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, -2);
-                    i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
-                    break;
-                case SELECTED_CATEGORY:
-                    i = new Intent(context, FeedActivity.class);
-                    i.putExtra(FeedActivity.FEED_CAT_ID, selectedId);
-                    i.putExtra(FeedActivity.FEED_CAT_TITLE, adapter.getTitle(selectedIndex));
-                    break;
-            }
-            if (i != null)
-                startActivity(i);
-            
+        // This is not a tablet - start a new activity
+        Intent i = null;
+        switch (selection) {
+            case SELECTED_VIRTUAL_CATEGORY:
+                i = new Intent(context, FeedHeadlineActivity.class);
+                i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
+                i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
+                break;
+            case SELECTED_LABEL:
+                i = new Intent(context, FeedHeadlineActivity.class);
+                i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
+                i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, -2);
+                i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
+                break;
+            case SELECTED_CATEGORY:
+                i = new Intent(context, FeedActivity.class);
+                i.putExtra(FeedActivity.FEED_CAT_ID, selectedId);
+                i.putExtra(FeedActivity.FEED_CAT_TITLE, adapter.getTitle(selectedIndex));
+                break;
         }
+        if (i != null)
+            startActivity(i);
+        
     }
     
     @Override

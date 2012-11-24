@@ -24,7 +24,6 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
@@ -40,19 +39,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
     
@@ -194,8 +191,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         }
         
         if (headlineUpdater == null) {
-            setSupportProgressBarIndeterminateVisibility(false);
-            setSupportProgressBarVisibility(false);
+            setProgressBarIndeterminateVisibility(false);
+            setProgressBarVisibility(false);
         }
     }
     
@@ -211,8 +208,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         }
         
         if (!isCacherRunning()) {
-            setSupportProgressBarIndeterminateVisibility(true);
-            setSupportProgressBarVisibility(false);
+            setProgressBarIndeterminateVisibility(true);
+            setProgressBarVisibility(false);
             
             headlineUpdater = new FeedHeadlineUpdater();
             headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -439,8 +436,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setSupportProgressBarIndeterminateVisibility(false);
-                setSupportProgressBarVisibility(false);
+                setProgressBarIndeterminateVisibility(false);
+                setProgressBarVisibility(false);
                 return;
             }
             
@@ -463,50 +460,17 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             return;
         }
         
-        // Find out if we are using a wide screen
-        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
-        
-        if (secondPane != null && secondPane.isInLayout()) {
-            
-            Log.d(Utils.TAG, "Filling right pane... (" + selectedIndex + " " + oldIndex + ")");
-            
-            // Set the list item as checked
-            // getListView().setItemChecked(selectedIndex, true);
-            
-            // Get the fragment instance
-            ArticleFragment articleView = (ArticleFragment) getSupportFragmentManager().findFragmentById(
-                    R.id.articleView);
-            
-            // Is the current selected ondex the same as the clicked? If so, there is no need to update
-            if (articleView != null && selectedIndex == oldIndex)
-                return;
-            
-            articleView = ArticleFragment.newInstance(adapter.getId(selectedIndex), feedId, categoryId,
-                    selectArticlesForCategory, ArticleActivity.ARTICLE_MOVE_DEFAULT);
-            
-            // Replace the old fragment with the new one
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.details, articleView);
-            // Use a fade animation. This makes it clear that this is not a new "layer"
-            // above the current, but a replacement
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-            
-        } else {
-            
-            // This is not a tablet - start a new activity
-            // if (!flingDetected) { // TODO: Think about what to do with the fling-gesture in a three-pane-layout.
-            Intent i = new Intent(context, ArticleActivity.class);
-            i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(selectedIndex));
-            i.putExtra(ArticleActivity.ARTICLE_FEED_ID, feedId);
-            i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-            i.putExtra(ArticleActivity.ARTICLE_MOVE, ArticleActivity.ARTICLE_MOVE_DEFAULT);
-            if (i != null)
-                startActivity(i);
-            // }
-            
-        }
+        // This is not a tablet - start a new activity
+        // if (!flingDetected) { // TODO: Think about what to do with the fling-gesture in a three-pane-layout.
+        Intent i = new Intent(context, ArticleActivity.class);
+        i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(selectedIndex));
+        i.putExtra(ArticleActivity.ARTICLE_FEED_ID, feedId);
+        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        i.putExtra(ArticleActivity.ARTICLE_MOVE, ArticleActivity.ARTICLE_MOVE_DEFAULT);
+        if (i != null)
+            startActivity(i);
+        // }
     }
     
     public void onPublishNoteResult(Article a, String note) {

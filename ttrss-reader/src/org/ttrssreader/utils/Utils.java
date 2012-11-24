@@ -16,7 +16,6 @@
 
 package org.ttrssreader.utils;
 
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.regex.Pattern;
 import org.apache.http.HttpEntity;
@@ -33,7 +32,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -115,21 +113,7 @@ public class Utils {
      * Check if crashreport-file exists, returns false if it exists.
      */
     public static boolean checkCrashReport(Context c) {
-        // Ignore crashreport if this version isn't the newest from market
-        int latest = Controller.getInstance().appLatestVersion();
-        int current = getAppVersionCode(c);
-        if (latest > current)
-            return true; // Ignore!
-            
-        if ((c.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0)
-            return true; // Debug-Mode, ignore
-            
-        try {
-            c.openFileInput(TopExceptionHandler.FILE);
-            return false;
-        } catch (FileNotFoundException e) {
-            return true;
-        }
+        return true; // Ignore all reports from this version!
     }
     
     /*
@@ -391,22 +375,10 @@ public class Utils {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         
         try {
-            if (Build.VERSION.SDK_INT >= 11) {
-                Notification.Builder builder = new Notification.Builder(context);
-                builder.setSmallIcon(icon);
-                builder.setTicker(ticker);
-                builder.setWhen(System.currentTimeMillis());
-                builder.setContentTitle(title);
-                builder.setContentText(text);
-                builder.setContentIntent(pendingIntent);
-                builder.setAutoCancel(autoCancel);
-                notification = builder.getNotification();
-            } else {
-                notification = buildOldNotification(context, icon, ticker, title, text, pendingIntent);
-            }
+            notification = buildOldNotification(context, icon, ticker, title, text, pendingIntent);
         } catch (Exception re) {
             Log.e(Utils.TAG, "Exception while building notification. Does your device propagate the right API-Level? ("
-                    + Build.VERSION.SDK_INT + ")", re);
+                    + Build.VERSION.SDK + ")", re);
             re.printStackTrace();
             
             // fallback

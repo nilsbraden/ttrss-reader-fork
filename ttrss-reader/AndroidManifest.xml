@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
-    android:installLocation="auto"
     android:versionCode="1370"
     android:versionName="1.37" >
 
     <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="17" />
+        android:minSdkVersion="3" />
 
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -21,21 +19,13 @@
     <!-- Vibrate on last article/feed -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
-    <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="true" />
-
     <application
         android:description="@string/ApplicationDescription"
         android:icon="@drawable/icon"
-        android:label="@string/ApplicationName"
-        android:allowBackup="true" >
+        android:label="@string/ApplicationName" >
         <activity
             android:name=".gui.CategoryActivity"
-            android:label="@string/ApplicationName"
-            android:theme="@style/Theme.Sherlock" >
+            android:label="@string/ApplicationName" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,14 +33,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".gui.FeedActivity"
-            android:theme="@style/Theme.Sherlock" />
+            android:name=".gui.FeedActivity" />
         <activity
-            android:name=".gui.FeedHeadlineActivity"
-            android:theme="@style/Theme.Sherlock" />
+            android:name=".gui.FeedHeadlineActivity" />
         <activity
-            android:name=".gui.ArticleActivity"
-            android:theme="@style/Theme.Sherlock" />
+            android:name=".gui.ArticleActivity" />
         <activity android:name=".gui.PreferencesActivity" />
         <activity android:name=".gui.MediaPlayerActivity" />
         <activity android:name=".gui.ErrorActivity" />

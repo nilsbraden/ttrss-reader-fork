@@ -15,7 +15,6 @@
 
 package org.ttrssreader.gui;
 
-import java.lang.reflect.Field;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -33,19 +32,18 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewConfiguration;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
+import android.view.Window;
 
 /**
  * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
  * FeedHeadlineListActivity).
  */
-public abstract class MenuActivity extends SherlockFragmentActivity implements IUpdateEndListener, ICacheEndListener,
+public abstract class MenuActivity extends FragmentActivity implements IUpdateEndListener, ICacheEndListener,
         IConfigurable, IItemSelectedListener, IDataChangedListener {
     
     protected Updater updater;
@@ -71,34 +69,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
-        
-        // This is a tablet if this view exists
-        View details = findViewById(R.id.details);
-        isTablet = details != null && details.getVisibility() == View.VISIBLE;
-        
-        // Go to the CategoryActivity and clean the return-stack
-        getSupportActionBar().setHomeButtonEnabled(true);
-        
-        getOverflowMenu();
-    }
-    
-    /**
-     * Force-display the three dots for overflow, would be disabled on devices with a menu-key.
-     * 
-     * @see http://stackoverflow.com/a/13098824
-     */
-    private void getOverflowMenu() {
-        
-        try {
-            ViewConfiguration config = ViewConfiguration.get(this);
-            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if (menuKeyField != null) {
-                menuKeyField.setAccessible(true);
-                menuKeyField.setBoolean(config, false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     
     @Override
@@ -165,7 +135,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getSupportMenuInflater().inflate(R.menu.generic, menu);
+        getMenuInflater().inflate(R.menu.generic, menu);
         return true;
     }
     
@@ -196,12 +166,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     public boolean onOptionsItemSelected(final MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
-            case android.R.id.home:
-                // Go to the CategoryActivity and clean the return-stack
-                Intent intent = new Intent(this, CategoryActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                return true;
             case R.id.Menu_DisplayOnlyUnread:
                 Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().onlyUnread());
                 doRefresh();
@@ -265,20 +229,20 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         }
         intent.setClass(this.getApplicationContext(), ForegroundService.class);
         
-        setSupportProgressBarVisibility(true);
+        setProgressBarVisibility(true);
         this.startService(intent);
     }
     
     @Override
     public void onCacheEnd() {
-        setSupportProgressBarVisibility(false);
+        setProgressBarVisibility(false);
     }
     
     @Override
     public void onCacheProgress(int taskCount, int progress) {
         if (taskCount == progress) {
-            setSupportProgressBarIndeterminateVisibility(false);
-            setSupportProgressBarVisibility(false);
+            setProgressBarIndeterminateVisibility(false);
+            setProgressBarVisibility(false);
         } else {
             setProgress((10000 / (taskCount + 1)) * progress);
         }
@@ -295,7 +259,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             updater.cancel(true);
             updater = null;
         }
-        setSupportProgressBarIndeterminateVisibility(false);
+        setProgressBarIndeterminateVisibility(false);
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);

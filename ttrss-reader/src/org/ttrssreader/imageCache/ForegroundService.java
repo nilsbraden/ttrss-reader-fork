@@ -171,14 +171,6 @@ public class ForegroundService extends Service implements ICacheEndListener {
         handleCommand(intent);
     }
     
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        handleCommand(intent);
-        // We want this service to continue running until it is explicitly
-        // stopped, so return sticky.
-        return START_STICKY;
-    }
-    
     void handleCommand(Intent intent) {
         // Fail-safe
         if (intent == null || intent.getAction() == null)
@@ -200,8 +192,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
         }
         
         // Display notification
-        Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, true,
-                new Intent());
+        Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, true, new Intent());
         startForegroundCompat(R.string.Cache_service_started, notification);
     }
     
