@@ -234,7 +234,6 @@ public class DBHelper {
         if (context == null)
             return false;
         
-        
         Log.i(Utils.TAG, "Deleting Database as requested by preferences.");
         File f = context.getDatabasePath(DATABASE_NAME);
         if (f.exists()) {
@@ -558,8 +557,8 @@ public class DBHelper {
             url = "";
         
         synchronized (insertFeed) {
-            insertFeed.bindLong(1, new Integer(id).longValue());
-            insertFeed.bindLong(2, new Integer(categoryId).longValue());
+            insertFeed.bindLong(1, Integer.valueOf(id).longValue());
+            insertFeed.bindLong(2, Integer.valueOf(categoryId).longValue());
             insertFeed.bindString(3, title);
             insertFeed.bindString(4, url);
             insertFeed.bindLong(5, unread);
@@ -811,7 +810,9 @@ public class DBHelper {
     }
     
     // Marks only the articles as read so the JSONConnector can retrieve new articles and overwrite the old articles
-    public void markFeedOnlyArticlesRead(int id, boolean isCat) {
+    // minArticleId is the minimum article id which is marked so only articles within the range of updated articles are
+    // marked.
+    public void markFeedOnlyArticlesRead(int id, boolean isCat, int minArticleId) {
         
         if (!isCat && id < -10) {
             markLabelRead(id);
@@ -836,7 +837,10 @@ public class DBHelper {
                 idList = id + "";
             }
             
-            db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ")", null);
+            if (minArticleId == Integer.MAX_VALUE)
+                minArticleId = 0;
+            
+            db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ") and id >= " + minArticleId, null);
         }
     }
     
@@ -918,7 +922,6 @@ public class DBHelper {
     public void markUnsynchronizedNotes(Map<Integer, String> ids, String markPublish) {
         if (!isDBAvailable())
             return;
-        
         
         db.beginTransaction();
         try {
@@ -1072,7 +1075,7 @@ public class DBHelper {
         Cursor c = null;
         try {
             
-            c = db.query(TABLE_ARTICLES, new String[] { "id" }, null, null, null, null, "id DESC", "1");
+            c = db.query(TABLE_ARTICLES, new String[] { "max(id)" }, null, null, null, null, null, null);
             if (c.moveToFirst())
                 ret = c.getInt(0);
             else
@@ -1096,7 +1099,7 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-
+            
             c = db.query(TABLE_ARTICLES, null, "id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
                 ret = handleArticleCursor(c);
@@ -1198,10 +1201,10 @@ public class DBHelper {
         try {
             String where = null; // categoryId = 0
             
+            if (categoryId >= 0)
+                where = "categoryId=" + categoryId;
+            
             switch (categoryId) {
-                case 0:
-                    where = "categoryId=" + categoryId;
-                    break;
                 case -1:
                     where = "id IN (0, -2, -3)";
                     break;
@@ -1209,7 +1212,7 @@ public class DBHelper {
                     where = "id < -10";
                     break;
                 case -3:
-                    where = "categoryId > 0";
+                    where = "categoryId >= 0";
                     break;
                 case -4:
                     where = null;
@@ -1258,7 +1261,7 @@ public class DBHelper {
         Set<Category> ret = new LinkedHashSet<Category>();
         if (!isDBAvailable())
             return ret;
-
+        
         Cursor c = null;
         try {
             
