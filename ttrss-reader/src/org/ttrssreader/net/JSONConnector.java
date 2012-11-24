@@ -306,6 +306,9 @@ public class JSONConnector implements Connector {
             Header contentEncoding = response.getFirstHeader("Content-Encoding");
             if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip"))
                 instream = new GZIPInputStream(instream);
+
+            // Header size = response.getFirstHeader("Api-Content-Length");
+            // Log.d(Utils.TAG, "SIZE: " + size.getValue());
             
             if (instream == null) {
                 hasLastError = true;
@@ -676,6 +679,7 @@ public class JSONConnector implements Connector {
         List<ArticleContainer> articleList = new ArrayList<ArticleContainer>();
         
         long time = System.currentTimeMillis();
+        int minArticleId = Integer.MAX_VALUE;
         
         try {
             reader.beginArray();
@@ -734,6 +738,9 @@ public class JSONConnector implements Connector {
                 reader.endObject();
                 
                 if (articleId != -1 && title != null) {
+                    if (articleId < minArticleId)
+                        minArticleId = articleId; // Store minumum id in this result-set
+                    
                     articleList.add(new ArticleContainer(articleId, feedId, title, isUnread, articleUrl,
                             articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
                 }
@@ -749,7 +756,7 @@ public class JSONConnector implements Connector {
         time = System.currentTimeMillis();
         
         if (articleList.size() > 0) {
-            DBHelper.getInstance().markFeedOnlyArticlesRead(id, isCategory);
+            DBHelper.getInstance().markFeedOnlyArticlesRead(id, isCategory, minArticleId);
             DBHelper.getInstance().insertArticle(articleList);
             DBHelper.getInstance().purgeArticlesNumber();
         }
