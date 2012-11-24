@@ -1,6 +1,13 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.37 ==
+  * Changed events, refreshing of the UI should now be really fast
+  * Changed update-mechanism
+  * Fixed refresh-button
+  * Added separate Build for old devices (below Android 2.1) 
+  * Bugfixes
+
 == Version 1.36 ==
   * Notify user about upcoming DB-clean-up (VACUUM)
   * Improve DB-Locking by enabling it (please don't judge me, it's been years since I wrote the line db.setLockingEnabled(false))
