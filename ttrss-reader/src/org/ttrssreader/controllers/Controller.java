@@ -100,8 +100,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String saveAttachment = null;
     private String cacheFolder = null;
     private Boolean vacuumDbScheduled = null;
-    private Boolean isDeleteDbScheduled = null;
-    private Boolean isDeleteDbOnStartup = null;
+    private Boolean deleteDbScheduled = null;
+    private Boolean deleteDbOnStartup = null;
     private Boolean cacheImagesOnStartup = null;
     private Boolean cacheImagesOnlyWifi = null;
     private Boolean logSensitiveData = null;
@@ -674,35 +674,35 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public boolean isDeleteDBScheduled() {
-        if (isDeleteDbScheduled == null)
-            isDeleteDbScheduled = prefs
+        if (deleteDbScheduled == null)
+            deleteDbScheduled = prefs
                     .getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
-        return isDeleteDbScheduled;
+        return deleteDbScheduled;
     }
     
     public void setDeleteDBScheduled(boolean isDeleteDBScheduled) {
         put(Constants.DELETE_DB_SCHEDULED, isDeleteDBScheduled);
-        this.isDeleteDbScheduled = isDeleteDBScheduled;
+        this.deleteDbScheduled = isDeleteDBScheduled;
     }
     
     // Reset to false if preference to delete on every start is not set
     public void resetDeleteDBScheduled() {
         if (!isDeleteDBOnStartup()) {
             put(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
-            this.isDeleteDbScheduled = Constants.DELETE_DB_SCHEDULED_DEFAULT;
+            this.deleteDbScheduled = Constants.DELETE_DB_SCHEDULED_DEFAULT;
         }
     }
     
     public boolean isDeleteDBOnStartup() {
-        if (isDeleteDbOnStartup == null)
-            isDeleteDbOnStartup = prefs.getBoolean(Constants.DELETE_DB_ON_STARTUP,
+        if (deleteDbOnStartup == null)
+            deleteDbOnStartup = prefs.getBoolean(Constants.DELETE_DB_ON_STARTUP,
                     Constants.DELETE_DB_ON_STARTUP_DEFAULT);
-        return isDeleteDbOnStartup;
+        return deleteDbOnStartup;
     }
     
     public void setDeleteDBOnStartup(boolean isDeleteDBOnStartup) {
         put(Constants.DELETE_DB_ON_STARTUP, isDeleteDBOnStartup);
-        this.isDeleteDbOnStartup = isDeleteDBOnStartup;
+        this.deleteDbOnStartup = isDeleteDBOnStartup;
         setDeleteDBScheduled(isDeleteDBOnStartup);
     }
     
