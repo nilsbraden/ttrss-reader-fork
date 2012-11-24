@@ -133,7 +133,7 @@ public class CategoryActivity extends MenuActivity {
         
         super.onResume();
         
-        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY, UpdateController.ID_ALL);
+        UpdateController.getInstance().registerActivity(this);
         refreshAndUpdate();
     }
     
@@ -145,8 +145,7 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        UpdateController.getInstance()
-                .unregisterActivity(this, UpdateController.TYPE_CATEGORY, UpdateController.ID_ALL);
+        UpdateController.getInstance().unregisterActivity(this);
     }
     
     @Override
@@ -296,6 +295,12 @@ public class CategoryActivity extends MenuActivity {
             publishProgress(taskCount);
             Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
             
+            // Silently try to synchronize any ids left in TABLE_MARK
+            try {
+                Data.getInstance().synchronizeStatus();
+            } catch (NotInitializedException e) {
+            }
+            
             return null;
         }
         
@@ -386,7 +391,8 @@ public class CategoryActivity extends MenuActivity {
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface d, final int which) {
-                        new VacuumTask(ProgressDialog.show(context, "VACUUM", "Cleaning the database...", true)).execute();
+                        new VacuumTask(ProgressDialog.show(context, "VACUUM", "Cleaning the database...", true))
+                                .execute();
                         d.dismiss();
                     }
                 });
@@ -397,16 +403,18 @@ public class CategoryActivity extends MenuActivity {
                     }
                 });
                 break;
-                
+        
         }
         return builder.create();
     }
     
     private class VacuumTask extends AsyncTask<Void, Void, Void> {
         ProgressDialog dialog = null;
+        
         public VacuumTask(ProgressDialog dialog) {
             this.dialog = dialog;
         }
+        
         protected Void doInBackground(Void... args) {
             try {
                 DBHelper.getInstance().vacuum();
@@ -417,6 +425,7 @@ public class CategoryActivity extends MenuActivity {
             }
             return null;
         }
+        
         @Override
         protected void onPostExecute(Void result) {
             dialog.dismiss();
@@ -564,12 +573,8 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    protected void onDataChanged(int type, int id, int superId) {
-        if (type == UpdateController.TYPE_CATEGORY)
-            doRefresh();
-        // Listen for Feed-Events too, Virtual Categories are defined as feeds
-        if (type == UpdateController.TYPE_FEED && id < 1)
-            doRefresh();
+    protected void onDataChanged() {
+        doRefresh();
     }
     
 }

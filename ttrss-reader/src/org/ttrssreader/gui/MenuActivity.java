@@ -105,7 +105,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected void onResume() {
         super.onResume();
         // Register to be notified when counters were updated
-        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_COUNTERS, UpdateController.ID_ALL);
+        UpdateController.getInstance().registerActivity(this);
         
         // Register for callback of the ImageCache
         Controller.getInstance().registerActivity(this);
@@ -137,8 +137,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         super.onDestroy();
         this.setVisible(false);
         
-        UpdateController.getInstance()
-                .unregisterActivity(this, UpdateController.TYPE_COUNTERS, UpdateController.ID_ALL);
+        UpdateController.getInstance().unregisterActivity(this);
         
         if (updater != null) {
             updater.cancel(true);
@@ -311,22 +310,14 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     @Override
-    public void dataChanged(int type, int id, int superId) {
-        // String TYPES = " (TYPE_CATEGORY = 1, TYPE_FEED = 2, TYPE_ARTICLE = 3, TYPE_COUNTERS = 4, ID_EMPTY = " +
-        // (Integer.MIN_VALUE + 1) + ", ID_ALL = " + Integer.MIN_VALUE + ")";
-        // Log.d(Utils.TAG, "dataChanged: " + type + TYPES);
-        
-        // Instantly refresh when counters change, everything else is handled by specific UI-classes
-        if (type == UpdateController.TYPE_COUNTERS)
-            doRefresh();
-        else
-            onDataChanged(type, id, superId);
+    public void dataChanged() {
+        doRefresh();
     }
     
     protected abstract void doRefresh();
     
     protected abstract void doUpdate();
     
-    protected abstract void onDataChanged(int type, int id, int superId);
+    protected abstract void onDataChanged();
     
 }

@@ -48,12 +48,8 @@ public class PublishedStateUpdater implements IUpdatable {
     public void update(Updater parent) {
         if (articleState >= 0) {
             article.isPublished = articleState > 0 ? true : false;
-            
             DBHelper.getInstance().markArticle(article.id, "isPublished", articleState);
-            
-            // Notify all listeners on this article and the parent feed
-            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_ARTICLE, article.id, article.feedId);
-            
+            UpdateController.getInstance().notifyListeners();
             Data.getInstance().setArticlePublished(article.id, articleState, note);
         }
     }
