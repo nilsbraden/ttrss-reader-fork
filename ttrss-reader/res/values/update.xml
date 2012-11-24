@@ -18,6 +18,12 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.37
+            \n * Changed events, refreshing of the UI should now be really fast
+            \n * Changed update-mechanism
+            \n * Fixed refresh-button
+            \n * Added separate Build for old devices (below Android 2.1) 
+            \n * Bugfixes</item>
         <item>Version 1.36
             \n * Notify user about upcoming DB-clean-up (VACUUM)
             \n * Improve DB-Locking by enabling it (please don\'t judge me, it\'s been years since I wrote the line db.setLockingEnabled(false))
