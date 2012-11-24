@@ -17,14 +17,11 @@ package org.ttrssreader.model.updaters;
 
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
-import org.ttrssreader.utils.Utils;
-import android.util.Log;
 
 public class StateSynchronisationUpdater implements IUpdatable {
     
     @Override
     public void update(Updater parent) {
-        Log.i(Utils.TAG, "Reader went online, now synchronizing status of articles...");
         try {
             Data.getInstance().synchronizeStatus();
         } catch (NotInitializedException e) {

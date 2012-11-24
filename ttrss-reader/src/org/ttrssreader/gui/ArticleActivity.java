@@ -203,7 +203,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     protected void onResume() {
         super.onResume();
         
-        UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_ARTICLE, articleId);
+        UpdateController.getInstance().registerActivity(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
     }
@@ -219,7 +219,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
         super.onPause();
         
-        UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_ARTICLE, articleId);
+        UpdateController.getInstance().unregisterActivity(this);
     }
     
     @Override
@@ -757,9 +757,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     }
     
     @Override
-    public void dataChanged(int type, int id, int superId) {
-        if (type == UpdateController.TYPE_ARTICLE)
-            doRefresh();
+    public void dataChanged() {
+        doRefresh();
     }
     
 }

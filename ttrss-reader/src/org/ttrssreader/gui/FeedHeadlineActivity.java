@@ -134,11 +134,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         
         super.onResume();
         
-        if (selectArticlesForCategory) {
-            UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_CATEGORY, categoryId);
-        } else {
-            UpdateController.getInstance().registerActivity(this, UpdateController.TYPE_FEED, feedId);
-        }
+        UpdateController.getInstance().registerActivity(this);
         refreshAndUpdate();
     }
     
@@ -153,11 +149,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     protected void onPause() {
         super.onPause();
         
-        if (selectArticlesForCategory) {
-            UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_CATEGORY, categoryId);
-        } else {
-            UpdateController.getInstance().unregisterActivity(this, UpdateController.TYPE_FEED, feedId);
-        }
+        UpdateController.getInstance().unregisterActivity(this);
     }
     
     @Override
@@ -522,12 +514,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    protected void onDataChanged(int type, int id, int superId) {
-        // Log.d(Utils.TAG, "feedId: " + feedId + " and categoryId: " + categoryId + " type: " + type + " (id: " + id + ", superId: " + superId + ")");
-        if (type == UpdateController.TYPE_FEED && id == this.feedId)
-            doRefresh();
-        if (type == UpdateController.TYPE_ARTICLE && superId == this.feedId)
-            doRefresh();
+    protected void onDataChanged() {
+        doRefresh();
     }
     
 }
