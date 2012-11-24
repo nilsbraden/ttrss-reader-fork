@@ -26,7 +26,6 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.util.Log;
 
 public class Data {
     
@@ -76,14 +75,19 @@ public class Data {
     // *** COUNTERS *********************************************************************
     
     public void resetTime(int id, int type) {
-        Log.d(Utils.TAG, "resetTime( id: " + id + " type: " + type + " )");
         switch (type) {
             case TIME_CATEGORY: // id doesn't matter
                 categoriesChanged = 0;
                 countersChanged = 0;
                 break;
             case TIME_FEED:
-                feedsChanged.put(id, Long.valueOf(0)); // id == categoryId
+                feedsChanged.put(id, Long.valueOf(0)); // id == empty (-1) or categoryId
+                if (id != -1) { // FeedHeadlineView with all articles from a category, reset all feeds from this
+                                // category
+                    for (Feed feed : DBHelper.getInstance().getFeeds(id)) {
+                        feedsChanged.put(feed.id, Long.valueOf(0));
+                    }
+                }
                 break;
             case TIME_FEEDHEADLINE:
                 articlesChanged.put(id, Long.valueOf(0)); // id == feedId
@@ -97,12 +101,8 @@ public class Data {
         } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
                 if (Controller.getInstance().getConnector().getCounters()) {
-                    
                     countersChanged = System.currentTimeMillis(); // Only mark as updated if the call was successful
-                    
-                    UpdateController.getInstance().notifyListeners(UpdateController.TYPE_COUNTERS,
-                            UpdateController.ID_ALL, UpdateController.ID_EMPTY);
-                    
+                    UpdateController.getInstance().notifyListeners();
                 }
             } catch (NotInitializedException e) {
             }
@@ -113,7 +113,7 @@ public class Data {
     
     public void cacheArticles(boolean overrideOffline) {
         
-        int limit = 500;
+        int limit = 1000;
         
         if (articlesCached > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
@@ -124,20 +124,25 @@ public class Data {
                 int count = Controller.getInstance().getConnector()
                         .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, 0);
                 
-                if (count == limit) {
-                    count += Controller.getInstance().getConnector()
-                            .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, count);
-                }
+                // Request lots of unread articles afterwards. Every call to getHeadlinesToDatabase() marks all existing
+                // articles as unread so with these calls we should get a) lots of articles and b) all unread articles
+                // except if there are more then 1000.
+                count += Controller.getInstance().getConnector()
+                        .getHeadlinesToDatabase(-4, limit, "unread", true, sinceId, 0);
                 
                 // Only mark as updated if the calls were successful
                 if (count > -1) {
                     articlesCached = System.currentTimeMillis();
                     
+                    UpdateController.getInstance().notifyListeners();
+                    
                     // Store all category-ids and ids of all feeds for this category in db
                     articlesChanged.put(-4, articlesCached);
-                    for (Feed f : DBHelper.getInstance().getFeeds(-3)) {
+                    for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
                         articlesChanged.put(f.id, articlesCached);
-                        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id, f.categoryId);
+                    }
+                    for (Category c : DBHelper.getInstance().getCategoriesIncludingUncategorized()) {
+                        feedsChanged.put(c.id, articlesCached);
                     }
                 }
             } catch (NotInitializedException e) {
@@ -159,6 +164,10 @@ public class Data {
         }
         
         Long time = articlesChanged.get(feedId);
+        
+        if (isCat) // Category-Ids are in feedsChanged
+            time = feedsChanged.get(feedId);
+        
         if (time == null)
             time = Long.valueOf(0);
         
@@ -188,16 +197,14 @@ public class Data {
                     // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
                     // requested
                     articlesChanged.put(feedId, currentTime);
+                    UpdateController.getInstance().notifyListeners();
                     
                     if (isCat) {
                         for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
                             articlesChanged.put(f.id, currentTime);
-                            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id,
-                                    f.categoryId);
+                            // UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id,
+                            // f.categoryId);
                         }
-                    } else {
-                        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, feedId,
-                                UpdateController.ID_EMPTY);
                     }
                 }
             } catch (NotInitializedException e) {
@@ -268,10 +275,9 @@ public class Data {
                     
                     // Store requested category-id and ids of all received feeds
                     feedsChanged.put(categoryId, System.currentTimeMillis());
-                    UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, categoryId,
-                            UpdateController.ID_EMPTY);
+                    UpdateController.getInstance().notifyListeners();
                     for (Feed f : feeds) {
-                        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id, categoryId);
+                        // UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id, categoryId);
                         feedsChanged.put(f.categoryId, System.currentTimeMillis());
                     }
                 }
@@ -311,12 +317,7 @@ public class Data {
         vCats.add(new Category(VCAT_UNCAT, uncatFeeds, DBHelper.getInstance().getUnreadCount(VCAT_UNCAT, true)));
         
         DBHelper.getInstance().insertCategories(vCats);
-        
-        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_ALL, UpdateController.ID_EMPTY);
-        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_FRESH, UpdateController.ID_EMPTY);
-        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_PUB, UpdateController.ID_EMPTY);
-        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_STAR, UpdateController.ID_EMPTY);
-        UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, VCAT_UNCAT, UpdateController.ID_EMPTY);
+        UpdateController.getInstance().notifyListeners();
         
         virtCategoriesChanged = System.currentTimeMillis();
         
@@ -333,12 +334,10 @@ public class Data {
                 if (!categories.isEmpty()) {
                     DBHelper.getInstance().deleteCategories(false);
                     DBHelper.getInstance().insertCategories(categories);
-                    categoriesChanged = System.currentTimeMillis();
                     
-                    UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY,
-                            UpdateController.ID_ALL, UpdateController.ID_EMPTY);
+                    categoriesChanged = System.currentTimeMillis();
+                    UpdateController.getInstance().notifyListeners();
                 }
-                
                 
                 return categories;
             } catch (NotInitializedException e) {
@@ -399,15 +398,12 @@ public class Data {
     
     public void setRead(int id, boolean isCategory) {
         
-        if (isCategory || id < 0) {
+        if (isCategory || id < 0)
             DBHelper.getInstance().markCategoryRead(id);
-            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_CATEGORY, id,
-                    UpdateController.ID_EMPTY);
-        } else {
+        else
             DBHelper.getInstance().markFeedRead(id);
-            int catId = DBHelper.getInstance().getFeed(id).categoryId;
-            UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, id, catId);
-        }
+        
+        UpdateController.getInstance().notifyListeners();
         
         boolean erg = false;
         if (Utils.isConnected(cm)) {
