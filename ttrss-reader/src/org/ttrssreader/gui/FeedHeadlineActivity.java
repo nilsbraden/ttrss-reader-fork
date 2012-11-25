@@ -200,7 +200,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    protected void doUpdate() {
+    protected void doUpdate(boolean forceUpdate) {
         // Only update if no headlineUpdater already running
         if (headlineUpdater != null) {
             if (headlineUpdater.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -214,7 +214,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             setSupportProgressBarIndeterminateVisibility(true);
             setSupportProgressBarVisibility(false);
             
-            headlineUpdater = new FeedHeadlineUpdater();
+            headlineUpdater = new FeedHeadlineUpdater(forceUpdate);
             headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
@@ -301,12 +301,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                if (selectArticlesForCategory) {
-                    Data.getInstance().resetTime(categoryId, Data.TIME_FEEDHEADLINE);
-                } else {
-                    Data.getInstance().resetTime(feedId, Data.TIME_FEEDHEADLINE);
-                }
-                doUpdate();
+                doUpdate(true);
                 return true;
             case R.id.Menu_MarkAllRead:
                 if (selectArticlesForCategory) {
@@ -417,6 +412,11 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         
         private int taskCount = 0;
         private static final int DEFAULT_TASK_COUNT = 2;
+        boolean forceUpdate;
+        
+        public FeedHeadlineUpdater(boolean forceUpdate) {
+            this.forceUpdate = forceUpdate;
+        }
         
         @Override
         protected Void doInBackground(Void... params) {
@@ -427,9 +427,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             
             publishProgress(++progress); // Move progress forward
             if (selectArticlesForCategory) {
-                Data.getInstance().updateArticles(categoryId, displayUnread, true, false);
+                Data.getInstance().updateArticles(categoryId, displayUnread, true, false, forceUpdate);
             } else {
-                Data.getInstance().updateArticles(feedId, displayUnread, false, false);
+                Data.getInstance().updateArticles(feedId, displayUnread, false, false, forceUpdate);
             }
             
             publishProgress(taskCount); // Move progress forward to 100%

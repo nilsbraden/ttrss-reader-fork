@@ -116,7 +116,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             taskCount = DEFAULT_TASK_COUNT + labels.size() + 1; // 1 for the caching of all articles
             
             int progress = 0;
-            Data.getInstance().updateCounters(true);
+            Data.getInstance().updateCounters(true, true);
             publishProgress(++progress); // Move progress forward
             Data.getInstance().updateCategories(true);
             publishProgress(++progress); // Move progress forward
@@ -124,13 +124,13 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             // Cache all articles
             publishProgress(++progress);
-            Data.getInstance().cacheArticles(false);
+            Data.getInstance().cacheArticles(false, true);
             
             for (Feed f : labels) {
                 if (f.unread == 0)
                     continue;
                 publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(f.id, true, false, false);
+                Data.getInstance().updateArticles(f.id, true, false, false, true);
             }
             
             publishProgress(taskCount); // Move progress forward

@@ -66,7 +66,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 
 public class JSONConnector implements Connector {
-
+    
     private static String lastError = "";
     private static boolean hasLastError = false;
     
@@ -209,12 +209,13 @@ public class JSONConnector implements Connector {
                 HttpParams httpParams = post.getParams();
                 
                 // Set the timeout until a connection is established.
-                int timeoutConnection = (int)(8 * Utils.SECOND);
+                int timeoutConnection = (int) (8 * Utils.SECOND);
                 HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
                 
                 // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
                 // use longer timeout when lazyServer-Feature is used
-                int timeoutSocket = (int)((Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE : 10 * Utils.SECOND);
+                int timeoutSocket = (int) ((Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE
+                        : 10 * Utils.SECOND);
                 HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
                 
                 post.setParams(httpParams);
@@ -306,7 +307,7 @@ public class JSONConnector implements Connector {
             Header contentEncoding = response.getFirstHeader("Content-Encoding");
             if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip"))
                 instream = new GZIPInputStream(instream);
-
+            
             // Header size = response.getFirstHeader("Api-Content-Length");
             // Log.d(Utils.TAG, "SIZE: " + size.getValue());
             
@@ -594,7 +595,7 @@ public class JSONConnector implements Connector {
                 reader.endObject();
                 list.add(values);
                 
-            } 
+            }
             reader.endArray();
         } catch (IllegalStateException ise) {
         } catch (IOException e) {
@@ -607,7 +608,7 @@ public class JSONConnector implements Connector {
         try {
             db.beginTransaction();
             
-            for (int[] values : list) {  // TODO: Optimize!!!
+            for (int[] values : list) { // TODO: Optimize!!!
                 if (values[id] == Integer.MAX_VALUE)
                     continue;
                 
@@ -680,6 +681,7 @@ public class JSONConnector implements Connector {
         
         long time = System.currentTimeMillis();
         int minArticleId = Integer.MAX_VALUE;
+        int maxArticleId = Integer.MIN_VALUE;
         
         try {
             reader.beginArray();
@@ -739,8 +741,11 @@ public class JSONConnector implements Connector {
                 
                 if (articleId != -1 && title != null) {
                     if (articleId < minArticleId)
-                        minArticleId = articleId; // Store minumum id in this result-set
+                        minArticleId = articleId; // Store minumum id
                     
+                    if (articleId > maxArticleId)
+                        maxArticleId = articleId; // Store maximum id
+                        
                     articleList.add(new ArticleContainer(articleId, feedId, title, isUnread, articleUrl,
                             articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
                 }
@@ -759,9 +764,11 @@ public class JSONConnector implements Connector {
             DBHelper.getInstance().markFeedOnlyArticlesRead(id, isCategory, minArticleId);
             DBHelper.getInstance().insertArticle(articleList);
             DBHelper.getInstance().purgeArticlesNumber();
+            Controller.getInstance().setSinceId(maxArticleId);
         }
         
-        Log.d(Utils.TAG, "parseArticleArray: inserting took " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(Utils.TAG, "parseArticleArray: inserting " + count + " articles took "
+                + (System.currentTimeMillis() - time) + "ms");
         
         return count;
     }

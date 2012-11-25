@@ -74,34 +74,13 @@ public class Data {
     
     // *** COUNTERS *********************************************************************
     
-    public void resetTime(int id, int type) {
-        switch (type) {
-            case TIME_CATEGORY: // id doesn't matter
-                categoriesChanged = 0;
-                countersChanged = 0;
-                break;
-            case TIME_FEED:
-                feedsChanged.put(id, Long.valueOf(0)); // id == empty (-1) or categoryId
-                if (id != -1) { // FeedHeadlineView with all articles from a category, reset all feeds from this
-                                // category
-                    for (Feed feed : DBHelper.getInstance().getFeeds(id)) {
-                        feedsChanged.put(feed.id, Long.valueOf(0));
-                    }
-                }
-                break;
-            case TIME_FEEDHEADLINE:
-                articlesChanged.put(id, Long.valueOf(0)); // id == feedId
-                break;
-        }
-    }
-    
-    public void updateCounters(boolean overrideOffline) {
-        if (countersChanged > System.currentTimeMillis() - Utils.HALF_UPDATE_TIME) { // Update counters more often..
+    public void updateCounters(boolean overrideOffline, boolean overrideDelay) {
+        if (!overrideDelay && countersChanged > System.currentTimeMillis() - Utils.HALF_UPDATE_TIME) {
             return;
         } else if (Utils.isConnected(cm) || overrideOffline) {
             try {
                 if (Controller.getInstance().getConnector().getCounters()) {
-                    countersChanged = System.currentTimeMillis(); // Only mark as updated if the call was successful
+                    countersChanged = System.currentTimeMillis();
                     UpdateController.getInstance().notifyListeners();
                 }
             } catch (NotInitializedException e) {
@@ -111,16 +90,16 @@ public class Data {
     
     // *** ARTICLES *********************************************************************
     
-    public void cacheArticles(boolean overrideOffline) {
+    public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
         
         int limit = 1000;
         
-        if (articlesCached > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        if (!overrideDelay && articlesCached > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
             
             try {
-                int sinceId = DBHelper.getInstance().getSinceId();
+                int sinceId = Controller.getInstance().getSinceId();
                 int count = Controller.getInstance().getConnector()
                         .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, 0);
                 
@@ -150,16 +129,14 @@ public class Data {
         }
     }
     
-    public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline) {
+    public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline, boolean overrideDelay) {
         // Check if unread-count and actual number of unread articles match, if not do a seperate call with
         // displayOnlyUnread=true
         boolean needUnreadUpdate = false;
-        if (!isCat && !displayOnlyUnread) {
+        if (!isCat) {
             int unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
-            int actualUnread = DBHelper.getInstance().getUnreadArticles(feedId).size();
-            if (unreadCount > actualUnread) {
+            if (unreadCount > DBHelper.getInstance().getUnreadArticles(feedId).size()) {
                 needUnreadUpdate = true;
-                articlesChanged.put(feedId, System.currentTimeMillis() - Utils.UPDATE_TIME - Utils.SECOND);
             }
         }
         
@@ -171,7 +148,7 @@ public class Data {
         if (time == null)
             time = Long.valueOf(0);
         
-        if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        if (!overrideDelay && !needUnreadUpdate && time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
             

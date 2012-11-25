@@ -116,6 +116,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Long freshArticleMaxAge = null;
     private Long freshArticleMaxAgeDate = null;
     private Long lastVacuumDate = null;
+    private Integer sinceId = null;
     
     public volatile Integer lastOpenedFeed = null;
     public volatile Integer lastOpenedArticle = null;
@@ -828,6 +829,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
         if (lastVacuumDate == null)
             lastVacuumDate = prefs.getLong(Constants.LAST_VACUUM_DATE, Constants.LAST_VACUUM_DATE_DEFAULT);
         return lastVacuumDate;
+    }
+    
+    public void setSinceId(int sinceId) {
+        put(Constants.SINCE_ID, sinceId);
+        this.sinceId = sinceId;
+    }
+    
+    public int getSinceId() {
+        if (sinceId == null)
+            sinceId = prefs.getInt(Constants.SINCE_ID, Constants.SINCE_ID_DEFAULT);
+        return sinceId;
     }
     
     private AsyncTask<Void, Void, Void> refreshPrefTask;
