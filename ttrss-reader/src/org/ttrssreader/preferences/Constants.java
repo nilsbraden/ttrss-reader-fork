@@ -147,6 +147,7 @@ public class Constants {
     public static final String LAST_VACUUM_DATE = "lastVacuumDate";
     public static final String FRESH_ARTICLE_MAX_AGE = "freshArticleMaxAge";
     public static final String FRESH_ARTICLE_MAX_AGE_DATE = "freshArticleMaxAgeDate";
+    public static final String SINCE_ID = "sinceId";
     // Internal Default Values
     public static final long API_LEVEL_UPDATED_DEFAULT = -1;
     public static final int API_LEVEL_DEFAULT = -1;
@@ -158,6 +159,7 @@ public class Constants {
     public static final long LAST_VACUUM_DATE_DEFAULT = 0;
     public static final long FRESH_ARTICLE_MAX_AGE_DEFAULT = Utils.DAY;
     public static final long FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT = 0;
+    public static final int SINCE_ID_DEFAULT = 0;
     
     /*
      * Returns a list of the values of all constants in this class which represent preferences. Allows for easier

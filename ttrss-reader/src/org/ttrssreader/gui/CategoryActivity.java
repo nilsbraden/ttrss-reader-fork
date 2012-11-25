@@ -183,7 +183,7 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    protected void doUpdate() {
+    protected void doUpdate(boolean forceUpdate) {
         // Only update if no categoryUpdater already running
         if (categoryUpdater != null) {
             if (categoryUpdater.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -193,11 +193,11 @@ public class CategoryActivity extends MenuActivity {
             }
         }
         
-        if (!isCacherRunning() && !cacherStarted) {
+        if ((!isCacherRunning() && !cacherStarted) || forceUpdate) {
             setSupportProgressBarIndeterminateVisibility(true);
             setSupportProgressBarVisibility(true);
             
-            categoryUpdater = new CategoryUpdater();
+            categoryUpdater = new CategoryUpdater(forceUpdate);
             categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
@@ -241,9 +241,7 @@ public class CategoryActivity extends MenuActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(-1, Data.TIME_CATEGORY);
-                cacherStarted = false;
-                doUpdate();
+                doUpdate(true);
                 return true;
             case R.id.Menu_MarkAllRead:
                 if (adapter != null) {
@@ -259,6 +257,11 @@ public class CategoryActivity extends MenuActivity {
         
         private int taskCount = 0;
         private static final int DEFAULT_TASK_COUNT = 4;
+        boolean forceUpdate;
+        
+        public CategoryUpdater(boolean forceUpdate) {
+            this.forceUpdate = forceUpdate;
+        }
         
         @Override
         protected Void doInBackground(Void... params) {
@@ -270,36 +273,38 @@ public class CategoryActivity extends MenuActivity {
             int progress = 0;
             publishProgress(++progress); // Move progress forward
             
-            Data.getInstance().updateCounters(false);
+            Data.getInstance().updateCounters(false, forceUpdate);
             
             // Cache articles for all categories
             publishProgress(++progress);
-            Data.getInstance().cacheArticles(false);
+            Data.getInstance().cacheArticles(false, forceUpdate);
             
             // Refresh articles for all labels
             for (Feed f : labels) {
                 if (f.unread == 0 && onlyUnreadArticles)
                     continue;
-                publishProgress(++progress); // Move progress forward
-                Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false, false);
+                publishProgress(++progress);
+                Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false, false, forceUpdate);
             }
             
-            publishProgress(++progress); // Move progress forward to 100%
+            publishProgress(++progress); // Move progress to 100%
             
             // This stuff will be done in background without UI-notification, but the progress-calls will be done anyway
-            // to ensure the UI is refreshed properly. ProgressBar is rendered invisible with the call to
-            // publishProgress(taskCount).
+            // to ensure the UI is refreshed properly.
             Data.getInstance().updateVirtualCategories();
             publishProgress(++progress);
             Data.getInstance().updateCategories(false);
             publishProgress(taskCount);
             Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
+            publishProgress(++progress);
             
             // Silently try to synchronize any ids left in TABLE_MARK
             try {
                 Data.getInstance().synchronizeStatus();
             } catch (NotInitializedException e) {
             }
+            
+            publishProgress(++progress);
             
             return null;
         }

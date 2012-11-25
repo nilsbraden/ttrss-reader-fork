@@ -305,7 +305,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected void refreshAndUpdate() {
         if (Utils.checkConfig()) {
             doRefresh();
-            doUpdate();
+            doUpdate(false);
         }
     }
     
@@ -316,7 +316,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     protected abstract void doRefresh();
     
-    protected abstract void doUpdate();
+    protected abstract void doUpdate(boolean forceUpdate);
     
     protected abstract void onDataChanged();
     

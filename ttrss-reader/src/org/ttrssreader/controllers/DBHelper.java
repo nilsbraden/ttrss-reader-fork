@@ -1075,7 +1075,7 @@ public class DBHelper {
         Cursor c = null;
         try {
             
-            c = db.query(TABLE_ARTICLES, new String[] { "max(id)" }, null, null, null, null, null, null);
+            c = db.query(TABLE_ARTICLES, new String[] { "max(id)" }, "isUnread>0", null, null, null, null, null);
             if (c.moveToFirst())
                 ret = c.getInt(0);
             else

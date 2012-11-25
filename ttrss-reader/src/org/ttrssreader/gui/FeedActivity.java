@@ -131,7 +131,7 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    protected void doUpdate() {
+    protected void doUpdate(boolean forceUpdate) {
         // Only update if no feedUpdater already running
         if (feedUpdater != null) {
             if (feedUpdater.getStatus().equals(AsyncTask.Status.FINISHED)) {
@@ -145,7 +145,7 @@ public class FeedActivity extends MenuActivity {
             setSupportProgressBarIndeterminateVisibility(true);
             setSupportProgressBarVisibility(false);
             
-            feedUpdater = new FeedUpdater();
+            feedUpdater = new FeedUpdater(forceUpdate);
             feedUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
@@ -165,8 +165,7 @@ public class FeedActivity extends MenuActivity {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
-                Data.getInstance().resetTime(categoryId, Data.TIME_FEED);
-                doUpdate();
+                doUpdate(true);
                 return true;
             case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(categoryId)).exec();
@@ -186,6 +185,11 @@ public class FeedActivity extends MenuActivity {
         
         private int taskCount = 0;
         private static final int DEFAULT_TASK_COUNT = 2;
+        boolean forceUpdate;
+        
+        public FeedUpdater(boolean forceUpdate) {
+            this.forceUpdate = forceUpdate;
+        }
         
         @Override
         protected Void doInBackground(Void... params) {
@@ -200,7 +204,8 @@ public class FeedActivity extends MenuActivity {
             
             // Update articles for current category
             if (c.unread != 0)
-                Data.getInstance().updateArticles(c.id, Controller.getInstance().onlyUnread(), true, false);
+                Data.getInstance()
+                        .updateArticles(c.id, Controller.getInstance().onlyUnread(), true, false, forceUpdate);
             
             publishProgress(taskCount); // Move progress forward to 100%
             return null;
