@@ -106,8 +106,7 @@ public class Data {
                 // Request lots of unread articles afterwards. Every call to getHeadlinesToDatabase() marks all existing
                 // articles as unread so with these calls we should get a) lots of articles and b) all unread articles
                 // except if there are more then 1000.
-                count += Controller.getInstance().getConnector()
-                        .getHeadlinesToDatabase(-4, limit, "unread", true, sinceId, 0);
+                count += Controller.getInstance().getConnector().getHeadlinesToDatabase(-4, limit, "unread", true);
                 
                 // Only mark as updated if the calls were successful
                 if (count > -1) {
