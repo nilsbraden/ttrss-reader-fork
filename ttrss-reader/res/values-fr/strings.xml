@@ -46,19 +46,19 @@
     <string name="ArticleActivity.OpenCommentLink">Commentaires</string>
     <string name="ArticleActivity.ShareLink">Partager</string>
     <string name="ArticleActivity.ShareSubject">Lien de TTRSS-Reader :</string>
-    <string name="ArticleActivity.ShareTitle">Envoyer le lien...</string>
+    <string name="ArticleActivity.ShareTitle">Envoyer le lien…</string>
     <string name="ArticleActivity.MediaPlay">Lire la pièce jointe</string>
     <string name="ArticleActivity.MediaDisplayLink">Ouvrir la pièce jointe</string>
     <string name="ArticleActivity.SwipeNotification">Glisser ici!</string>
     
-    <string name="Loading.Headlines">Chargement des articles...</string>
-    <string name="Loading.Feeds">Chargement des flux...</string>
-    <string name="Loading.Categories">Chargement des catégories...</string>
+    <string name="Loading.Headlines">Chargement des articles…</string>
+    <string name="Loading.Feeds">Chargement des flux…</string>
+    <string name="Loading.Categories">Chargement des catégories…</string>
     <string name="Loading.EmptyHeadlines">Aucun article</string>
     <string name="Loading.EmptyFeeds">Aucun flux</string>
     <string name="Loading.EmptyCategories">Aucune catégories</string>
     
-    <string name="Commons.PleaseWait">Patientez...</string>
+    <string name="Commons.PleaseWait">Patientez…</string>
     <string name="Commons.NothingToDisplay">Rien à afficher.</string>
     <string name="Commons.UpdateReadState">Mise à jour de l\'état</string>
     <string name="Commons.DisplayOnlyUnread">Afficher les non lus</string>
@@ -130,7 +130,7 @@
     <string name="DisplayArticleLimitTitle">Nombre d\'article en cache</string>
     <string name="DisplayArticleLimitSummary">Combien d\'article peut être dans le cache local.</string>
     <string name="DisplayArticleHeaderTitle">Affiche les en-tête des articles</string>
-    <string name="DisplayArticleHeaderSummary">Active l\'affichage des en-tête pour plus d\'informations pendant la navifation (Titre, flux, date, etc...).</string>
+    <string name="DisplayArticleHeaderSummary">Active l\'affichage des en-tête pour plus d\'informations pendant la navifation (Titre, flux, date, etc…).</string>
     
     <string name="SystemPreferenceCategoryTitle">Système</string>
     <string name="StoreImageLimitTitle">Taille du cache des images (en MB)</string>
@@ -153,24 +153,24 @@
     <string name="About.about">A propos</string>
     <string name="About.about_hint">A propos de cette application</string>
     <string name="About.project">Page du projet</string>
-    <string name="About.project_hint">Information sur le développement, Changelog etc...</string>
+    <string name="About.project_hint">Information sur le développement, Changelog etc…</string>
     <string name="About.twitter">Twitter</string>
     <string name="About.twitter_hint">Me contacter via twitter.</string>
     <string name="About.feedback">Commentaires</string>
-    <string name="About.feedback_hint">Rapporter un bug, demandes de fonctionnalités ...</string>
+    <string name="About.feedback_hint">Rapporter un bug, demandes de fonctionnalités …</string>
 
     <string name="Utils.DownloadFinishedTitle">Téléchargement</string>
     <string name="Utils.DownloadFinishedTicker">Téléchargement terminé</string>
     <string name="Utils.DownloadFinishedText">Processus terminé dans %s secondes.</string>
-    <string name="Utils.DownloadRunningTitle">Téléchargement en cours...</string>
-    <string name="Utils.DownloadRunningTicker">Téléchargement en cours...</string>
+    <string name="Utils.DownloadRunningTitle">Téléchargement en cours…</string>
+    <string name="Utils.DownloadRunningTicker">Téléchargement en cours…</string>
     <string name="Utils.DownloadRunningText"></string>
     <string name="Utils.DownloadErrorTitle">Erreur</string>
-    <string name="Utils.DownloadErrorTicker">Erreur...</string>
+    <string name="Utils.DownloadErrorTicker">Erreur…</string>
     <string name="Utils.DownloadErrorText">Une erreur est survenue, le processus ne peut-être terminé.</string>
     
-    <string name="Cache.service_started">Téléchargement commencé...</string>
-    <string name="Cache.service_text">Téléchargement en cours...</string>
+    <string name="Cache.service_started">Téléchargement commencé…</string>
+    <string name="Cache.service_text">Téléchargement en cours…</string>
     <string name="Cache.service_imagecache">ImageCache</string>
     <string name="Cache.service_articlecache">ArticleCache</string>
     

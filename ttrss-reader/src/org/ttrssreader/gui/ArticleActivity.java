@@ -137,7 +137,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         buttonNext = (Button) findViewById(R.id.buttonNext);
         swipeView = (TextView) findViewById(R.id.swipeView);
         
-        webView.getSettings().setJavaScriptEnabled(true);
+//        webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.setWebViewClient(new ArticleWebViewClient(this));
         

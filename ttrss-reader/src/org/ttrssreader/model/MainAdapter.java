@@ -18,10 +18,10 @@ package org.ttrssreader.model;
 import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.WeakReferenceHandler;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
-import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,14 +40,11 @@ public abstract class MainAdapter extends BaseAdapter {
     protected boolean selectArticlesForCategory;
     
     public MainAdapter(Context context) {
-        this.context = context;
-        makeQuery();
+        this(context, -1);
     }
     
     public MainAdapter(Context context, int categoryId) {
-        this.context = context;
-        this.categoryId = categoryId;
-        makeQuery();
+        this(context, -1, categoryId, false);
     }
     
     public MainAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
@@ -55,6 +52,7 @@ public abstract class MainAdapter extends BaseAdapter {
         this.feedId = feedId;
         this.categoryId = categoryId;
         this.selectArticlesForCategory = selectArticlesForCategory;
+        MainAdapter.handler = new MsgHandler(this);
         makeQuery();
     }
     
@@ -263,13 +261,18 @@ public abstract class MainAdapter extends BaseAdapter {
      */
     protected abstract Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
     
-    /**
-     * Notifies about changed data since only the original thread that created a view may do this.
-     */
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            notifyDataSetChanged();
+    // Use handler with weak reference on parent object
+    private static class MsgHandler extends WeakReferenceHandler<BaseAdapter> {
+        public MsgHandler(BaseAdapter parent) {
+            super(parent);
         }
-    };
+        
+        @Override
+        public void handleMessage(BaseAdapter parent, Message msg) {
+            parent.notifyDataSetChanged();
+        }
+    }
+    
+    private static MsgHandler handler;
+    
 }
