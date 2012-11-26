@@ -43,8 +43,6 @@
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
                     android:gravity="fill_horizontal" >
 
                     <LinearLayout
@@ -62,10 +60,6 @@
                             android:textAppearance="?android:attr/textAppearanceSmall"
                             android:textSize="10sp"
                             android:textStyle="bold" />
-
-                        >
-
-                        
 
                         <LinearLayout
                             android:id="@+id/feed_container"
@@ -96,7 +90,6 @@
                             android:id="@+id/date"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
                             android:ellipsize="none"
                             android:singleLine="true"
                             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -106,7 +99,6 @@
                             android:id="@+id/time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
                             android:ellipsize="none"
                             android:singleLine="true"
                             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -116,15 +108,13 @@
                     <LinearLayout
                         android:id="@+id/icons_container"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true" >
+                        android:layout_height="wrap_content" >
 
                         <CheckBox
                             android:id="@+id/starred"
                             style="?android:attr/starStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
                             android:focusable="false" />
                     </LinearLayout>
                 </LinearLayout>
@@ -147,10 +137,12 @@
                     android:id="@+id/webView_Container"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent" />
-                    <!--WebView
+                <!--
+                        WebView
                         android:id="@+id/webView"
                         android:layout_width="fill_parent"
-                        android:layout_height="fill_parent" /-->
+                        android:layout_height="fill_parent" /
+                -->
 
                 <TextView
                     android:id="@+id/swipeView"

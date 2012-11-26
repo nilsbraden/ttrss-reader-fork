@@ -36,6 +36,7 @@ import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
+import org.ttrssreader.utils.WeakReferenceHandler;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -59,9 +60,9 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private long downloaded = 0;
     private int taskCount = 0;
     
-    Handler handler;
-    long start;
-    Map<Integer, DownloadImageTask> map;
+    private static Handler handler;
+    private long start;
+    private Map<Integer, DownloadImageTask> map;
     
     public ImageCacher(ICacheEndListener parent, Context context, boolean onlyArticles) {
         this.parent = parent;
@@ -72,7 +73,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         MyHandler.start();
     }
     
-    public Thread MyHandler = new Thread() {
+    public static Thread MyHandler = new Thread() {
         // Source: http://mindtherobot.com/blog/159/android-guts-intro-to-loopers-and-handlers/
         @Override
         public void run() {
@@ -160,18 +161,24 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         
         // Call parent from another Thread to avoid Exception.
         // CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
+        serviceHandler = new MsgHandler(parent);
         serviceHandler.sendEmptyMessage(0);
         return null;
     }
     
-    // Only used to inform parent about the status when finished...
-    private Handler serviceHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (parent != null)
-                parent.onCacheEnd();
+    // Use handler with weak reference on parent object
+    private static class MsgHandler extends WeakReferenceHandler<ICacheEndListener> {
+        public MsgHandler(ICacheEndListener parent) {
+            super(parent);
         }
-    };
+        
+        @Override
+        public void handleMessage(ICacheEndListener parent, Message msg) {
+            parent.onCacheEnd();
+        }
+    }
+    
+    private static MsgHandler serviceHandler;
     
     /**
      * Calls the parent method to update the progress-bar in the UI while articles are refreshed. This is not called
