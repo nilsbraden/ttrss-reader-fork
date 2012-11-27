@@ -52,7 +52,7 @@
             \n * Fixed several bugs.</item>
         <item>Version 1.3
             \n * Completely re-wrote the communication between interface and backend
-            \n --> Interface did active polling, now it registers as listener and gets notified about changes
+            \n -> Interface did active polling, now it registers as listener and gets notified about changes
             \n * Completely changed the way the DB is accessed, drastically reduced the number of locks involved
             \n * Slight changes to the UI to work with the changed code
             \n * Lots of changes to reduce the amount of work for DB-Write-Accesses and necessary RAM for the ImageCache

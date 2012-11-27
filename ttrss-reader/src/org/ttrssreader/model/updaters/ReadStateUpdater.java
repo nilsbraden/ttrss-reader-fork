@@ -155,9 +155,6 @@ public class ReadStateUpdater implements IUpdatable {
                 
                 Data.getInstance().setArticleRead(ids, articleState);
             }
-            
-            Data.getInstance().updateCounters(false);
-            
         }
     }
     

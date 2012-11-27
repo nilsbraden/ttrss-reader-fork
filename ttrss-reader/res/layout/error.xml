@@ -70,7 +70,7 @@
 
             <Button
                 android:id="@+id/Preferences.Btn"
-                android:layout_width="wrap_content"
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.5"
                 android:text="@string/Preferences.Btn" />

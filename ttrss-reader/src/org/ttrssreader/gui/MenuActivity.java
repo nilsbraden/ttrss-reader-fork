@@ -15,6 +15,7 @@
 
 package org.ttrssreader.gui;
 
+import java.lang.reflect.Field;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -269,7 +270,7 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     protected void refreshAndUpdate() {
         if (Utils.checkConfig()) {
             doRefresh();
-            doUpdate();
+            doUpdate(false);
         }
     }
     
@@ -280,7 +281,7 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     
     protected abstract void doRefresh();
     
-    protected abstract void doUpdate();
+    protected abstract void doUpdate(boolean forceUpdate);
     
     protected abstract void onDataChanged();
     

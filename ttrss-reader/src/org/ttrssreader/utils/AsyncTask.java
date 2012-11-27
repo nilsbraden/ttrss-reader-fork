@@ -439,6 +439,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      *             If {@link #getStatus()} returns either {@link AsyncTask.Status#RUNNING} or
      *             {@link AsyncTask.Status#FINISHED}.
      */
+    @SuppressWarnings("incomplete-switch")
     public final AsyncTask<Params, Progress, Result> executeOnExecutor(Executor exec, Params... params) {
         if (mStatus != Status.PENDING) {
             switch (mStatus) {
@@ -447,8 +448,6 @@ public abstract class AsyncTask<Params, Progress, Result> {
                 case FINISHED:
                     throw new IllegalStateException("Cannot execute task:" + " the task has already been executed "
                             + "(a task can be executed only once)");
-                case PENDING:
-                    break;
             }
         }
         

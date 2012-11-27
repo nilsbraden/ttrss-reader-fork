@@ -42,9 +42,17 @@ public class RotatableTextView extends TextView {
     private int pivotHeight = 0;
     private String text = "";
     
+    private static final Paint paint = new Paint();
+    
     public RotatableTextView(Context context) {
         super(context);
         typeface = Typeface.create("arial", Typeface.NORMAL);
+        
+        paint.setTypeface(typeface);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(color);
+        paint.setTextSize(size);
+        paint.setTextAlign(Align.CENTER);
     }
     
     public RotatableTextView(Context context, AttributeSet attrs) {
@@ -75,13 +83,6 @@ public class RotatableTextView extends TextView {
     
     @Override
     protected void onDraw(Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setTypeface(typeface);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(color);
-        paint.setTextSize(size);
-        paint.setTextAlign(Align.CENTER);
-        
         pivotWidth = this.getWidth() / 2;
         pivotHeight = this.getHeight() / 2;
         

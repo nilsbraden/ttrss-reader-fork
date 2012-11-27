@@ -20,27 +20,30 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.utils.AsyncTask;
-import android.os.Handler;
+import org.ttrssreader.utils.WeakReferenceHandler;
 import android.os.Message;
 
 public class Updater extends AsyncTask<Void, Void, Void> {
     
-    private IUpdateEndListener parent;
     private IUpdatable updatable;
     
     public Updater(IUpdateEndListener parent, IUpdatable updatable) {
-        this.parent = parent;
         this.updatable = updatable;
+        this.handler = new MsgHandler(parent);
     }
     
-    private Handler handler = new Handler() {
+    // Use handler with weak reference on parent object
+    private static class MsgHandler extends WeakReferenceHandler<IUpdateEndListener> {
+        public MsgHandler(IUpdateEndListener parent) {
+            super(parent);
+        }
         
         @Override
-        public void handleMessage(Message msg) {
-            if (parent != null)
-                parent.onUpdateEnd();
+        public void handleMessage(IUpdateEndListener parent, Message msg) {
+            parent.onUpdateEnd();
         }
-    };
+    }
+    private MsgHandler handler;
     
     @Override
     protected Void doInBackground(Void... params) {
