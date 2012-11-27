@@ -29,7 +29,7 @@ public class Updater extends AsyncTask<Void, Void, Void> {
     
     public Updater(IUpdateEndListener parent, IUpdatable updatable) {
         this.updatable = updatable;
-        Updater.handler = new MsgHandler(parent);
+        this.handler = new MsgHandler(parent);
     }
     
     // Use handler with weak reference on parent object
@@ -43,7 +43,7 @@ public class Updater extends AsyncTask<Void, Void, Void> {
             parent.onUpdateEnd();
         }
     }
-    private static MsgHandler handler;
+    private MsgHandler handler;
     
     @Override
     protected Void doInBackground(Void... params) {

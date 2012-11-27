@@ -69,34 +69,28 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         this.context = context;
         this.onlyArticles = onlyArticles;
         
+        // Create service-handler
+        serviceHandler = new MsgHandler(parent);
+        
         // Create Handler in a new Thread so all tasks are started in this new thread instead of the main UI-Thread
-        MyHandler.start();
+        myHandler = new MyHandler();
+        myHandler.start();
     }
     
-    public static Thread MyHandler = new Thread() {
+    private static class MyHandler extends Thread {
         // Source: http://mindtherobot.com/blog/159/android-guts-intro-to-loopers-and-handlers/
         @Override
         public void run() {
             try {
-                // preparing a looper on current thread
-                // the current thread is being detected implicitly
                 Looper.prepare();
-                
-                // now, the handler will automatically bind to the
-                // Looper that is attached to the current thread
-                // You don't need to specify the Looper explicitly
                 handler = new Handler();
-                
-                // After the following line the thread will start
-                // running the message loop and will not normally
-                // exit the loop unless a problem happens or you
-                // quit() the looper (see below)
                 Looper.loop();
             } catch (Throwable t) {
-                Log.e(Utils.TAG, "halted due to an error", t);
             }
         }
     };
+    
+    public static Thread myHandler;
     
     @Override
     protected Void doInBackground(Void... params) {
@@ -161,7 +155,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         
         // Call parent from another Thread to avoid Exception.
         // CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
-        serviceHandler = new MsgHandler(parent);
         serviceHandler.sendEmptyMessage(0);
         return null;
     }
@@ -192,17 +185,11 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
     protected void downloadFinished(int articleId, Long size, boolean ok) {
         synchronized (map) {
-            // Add size to overall download-sum and remove job from map
             if (size > 0)
                 downloaded += size;
-            
             map.remove(articleId);
-            
-            // Only mark images as "downloaded" when everything went fine
             if (ok)
                 DBHelper.getInstance().updateArticleCachedImages(articleId, true);
-            
-            // Log.d(Utils.TAG, "Download finished. articleId: " + articleId);
             map.notifyAll();
         }
     }
@@ -263,9 +250,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     }
     
     public class DownloadImageTask implements Runnable {
-        
         private static final long maxFileSize = Utils.MB * 6; // Max size for one image is 6 MB
-        
         private ImageCache imageCache;
         private int articleId;
         private String[] params;
@@ -288,10 +273,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 else
                     downloaded += size;
             }
-            
             downloadFinished(articleId, downloaded, allOK);
         }
-        
     }
     
     private void purgeCache() {
@@ -306,8 +289,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         }
         
         if (folderSize > cacheSizeMax) {
-            // Log.i(Utils.TAG, String.format("Before - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
-            
             // Sort list of files by last access date
             List<File> list = Arrays.asList(cacheFolder.listFiles());
             Collections.sort(list, new FileDateComparator());
@@ -322,7 +303,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 folderSize -= f.length();
                 f.delete();
             }
-            // Log.i(Utils.TAG, String.format("After - Cache: %s bytes (Limit: %s bytes)", folderSize, cacheSizeMax));
         }
         Log.i(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
     }
@@ -345,7 +325,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             sb.append(cache.getFileNameForKey(url));
             
             File file = new File(sb.toString());
-            
             if (file.exists()) {
                 sb.insert(0, "file://"); // Add "file:" at the beginning..
                 return sb.toString();
@@ -374,9 +353,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             if (i == -1)
                 break;
             
-            Matcher m = Utils.findImageUrlsPattern.matcher(html.substring(i, html.length()));
-            
             // Filter out URLs without leading http, we cannot work with relative URLs yet.
+            Matcher m = Utils.findImageUrlsPattern.matcher(html.substring(i, html.length()));
             boolean found = m.find();
             if (found && m.group(1).startsWith("http")) {
                 ret.add(m.group(1));
@@ -388,9 +366,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 i++;
                 continue;
             }
-            
-            // Log.i(Utils.TAG, ret.size() + " URL" + (ret.size() == 1 ? "" : "s") +" found for Article-ID " + articleId
-            // + ".");
         }
         return ret;
     }

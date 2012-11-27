@@ -52,7 +52,7 @@ public abstract class MainAdapter extends BaseAdapter {
         this.feedId = feedId;
         this.categoryId = categoryId;
         this.selectArticlesForCategory = selectArticlesForCategory;
-        MainAdapter.handler = new MsgHandler(this);
+        this.handler = new MsgHandler(this);
         makeQuery();
     }
     
@@ -273,6 +273,6 @@ public abstract class MainAdapter extends BaseAdapter {
         }
     }
     
-    private static MsgHandler handler;
+    private MsgHandler handler;
     
 }
