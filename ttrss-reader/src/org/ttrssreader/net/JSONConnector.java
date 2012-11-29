@@ -65,7 +65,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 
-public class JSONConnector implements Connector {
+public class JSONConnector {
     
     private static String lastError = "";
     private static boolean hasLastError = false;
@@ -77,6 +77,7 @@ public class JSONConnector implements Connector {
     private static final String PARAM_FEED_ID = "feed_id";
     private static final String PARAM_ARTICLE_IDS = "article_ids";
     private static final String PARAM_LIMIT = "limit";
+    private static final int PARAM_LIMIT_MAX_VALUE = 60;
     private static final String PARAM_VIEWMODE = "view_mode";
     private static final String PARAM_SHOW_CONTENT = "show_content";
     private static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
@@ -675,19 +676,13 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    private int parseArticleArray(JsonReader reader, int labelId, int id, boolean isCategory) {
-        int count = 0;
-        List<ArticleContainer> articleList = new ArrayList<ArticleContainer>();
-        
+    private int parseArticleArray(final Set<ArticleContainer> articles, JsonReader reader, int labelId, int id, boolean isCategory) {
         long time = System.currentTimeMillis();
-        int minArticleId = Integer.MAX_VALUE;
-        int maxArticleId = Integer.MIN_VALUE;
+        int count = 0;
         
         try {
             reader.beginArray();
             while (reader.hasNext()) {
-                count++;
-                
                 int articleId = -1;
                 String title = null;
                 boolean isUnread = false;
@@ -701,7 +696,7 @@ public class JSONConnector implements Connector {
                 boolean isPublished = false;
                 
                 reader.beginObject();
-                while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) { // ?
+                while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) {
                     String name = reader.nextName();
                     
                     try {
@@ -740,42 +735,29 @@ public class JSONConnector implements Connector {
                 reader.endObject();
                 
                 if (articleId != -1 && title != null) {
-                    if (articleId < minArticleId)
-                        minArticleId = articleId; // Store minumum id
-                    
-                    if (articleId > maxArticleId)
-                        maxArticleId = articleId; // Store maximum id
-                        
-                    articleList.add(new ArticleContainer(articleId, feedId, title, isUnread, articleUrl,
+                    articles.add(new ArticleContainer(articleId, feedId, title, isUnread, articleUrl,
                             articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
+                    count++;
                 }
             }
             reader.endArray();
-        } catch (IOException e) {
-            Log.e(Utils.TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             Log.e(Utils.TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
         }
         
-        Log.d(Utils.TAG, "parseArticleArray: parsing took " + (System.currentTimeMillis() - time) + "ms");
-        time = System.currentTimeMillis();
-        
-        if (articleList.size() > 0) {
-            DBHelper.getInstance().markFeedOnlyArticlesRead(id, isCategory, minArticleId);
-            DBHelper.getInstance().insertArticle(articleList);
-            DBHelper.getInstance().purgeArticlesNumber();
-            Controller.getInstance().setSinceId(maxArticleId);
-        }
-        
-        Log.d(Utils.TAG, "parseArticleArray: inserting " + count + " articles took "
+        Log.d(Utils.TAG, "parseArticleArray: parsing " + count + " articles took "
                 + (System.currentTimeMillis() - time) + "ms");
-        
         return count;
     }
     
     // ***************** Retrieve-Data-Methods **************************************************
     
-    @Override
+    /**
+     * Retrieves a set of maps which map strings to the information, e.g. "id" -> 42, containing the counters for every
+     * category and feed. The retrieved information is directly inserted into the database.
+     * 
+     * @return true if the request succeeded.
+     */
     public boolean getCounters() {
         boolean ret = true;
         makeLazyServerWork(); // otherwise the unread counters may be outdated
@@ -811,7 +793,11 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    @Override
+    /**
+     * Retrieves all categories.
+     * 
+     * @return a list of categories.
+     */
     public Set<Category> getCategories() {
         long time = System.currentTimeMillis();
         Set<Category> ret = new LinkedHashSet<Category>();
@@ -958,7 +944,11 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    @Override
+    /**
+     * Retrieves all feeds, mapped to their categories.
+     * 
+     * @return a map of all feeds mapped to the categories.
+     */
     public Set<Feed> getFeeds() {
         return getFeeds(false);
     }
@@ -991,64 +981,92 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    @Override
-    public int getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory) {
-        return getHeadlinesToDatabase(id, limit, viewMode, isCategory, 0, 0);
+    /**
+     * @see #getHeadlines(Integer, int, String, boolean, int, int)
+     */
+    public void getHeadlines(final Set<ArticleContainer> articles, Integer id, int limit, String viewMode, boolean isCategory) {
+        getHeadlines(articles, id, limit, viewMode, isCategory, 0);
     }
     
-    @Override
-    public int getHeadlinesToDatabase(Integer id, int limit, String viewMode, boolean isCategory, int sinceId, int skip) {
+    /**
+     * Retrieves the specified articles.
+     * 
+     * @param id
+     *            the id of the feed/category
+     * @param limit
+     *            the maximum number of articles to be fetched
+     * @param viewMode
+     *            indicates wether only unread articles should be included (Possible values: all_articles, unread,
+     *            adaptive, marked, updated)
+     * @param isCategory
+     *            indicates if we are dealing with a category or a feed
+     * @param sinceId
+     *            the first ArticleId which is to be retrieved.
+     * @return the number of fetched articles.
+     */
+    public void getHeadlines(final Set<ArticleContainer> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
         long time = System.currentTimeMillis();
-        int count = 0;
+        int offset = 0;
+        int maxSize = articles.size() + limit;
         
         if (!sessionAlive())
-            return -1;
+            return;
         
         makeLazyServerWork(id);
         
-        Map<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_OP, VALUE_GET_HEADLINES);
-        params.put(PARAM_FEED_ID, id + "");
-        params.put(PARAM_LIMIT, limit + "");
-        params.put(PARAM_VIEWMODE, viewMode);
-        params.put(PARAM_SHOW_CONTENT, "1");
-        params.put(PARAM_INC_ATTACHMENTS, "1");
-        params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
-        if (sinceId > 0)
-            params.put(PARAM_SINCE_ID, sinceId + "");
-        if (skip > 0)
-            params.put(PARAM_SKIP, skip + "");
-        
-        if (id == Data.VCAT_STAR && !isCategory) // We set isCategory=false for starred/published articles...
-            DBHelper.getInstance().purgeStarredArticles();
-        
-        if (id == Data.VCAT_PUB && !isCategory)
-            DBHelper.getInstance().purgePublishedArticles();
-        
-        JsonReader reader = null;
-        try {
-            reader = prepareReader(params);
-            if (reader == null)
-                return -1;
+        while (articles.size() < maxSize) {
             
-            count = parseArticleArray(reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_GET_HEADLINES);
+            params.put(PARAM_FEED_ID, id + "");
+            params.put(PARAM_LIMIT, PARAM_LIMIT_MAX_VALUE + "");
+            params.put(PARAM_SKIP, offset + "");
+            params.put(PARAM_VIEWMODE, viewMode);
+            params.put(PARAM_SHOW_CONTENT, "1");
+            params.put(PARAM_INC_ATTACHMENTS, "1");
+            params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
+            if (sinceId > 0)
+                params.put(PARAM_SINCE_ID, sinceId + "");
             
-        } catch (IOException e) {
-            e.printStackTrace();
-            return -1;
-        } finally {
-            if (reader != null)
-                try {
-                    reader.close();
-                } catch (IOException e1) {
+            if (id == Data.VCAT_STAR && !isCategory) // We set isCategory=false for starred/published articles...
+                DBHelper.getInstance().purgeStarredArticles();
+            
+            if (id == Data.VCAT_PUB && !isCategory)
+                DBHelper.getInstance().purgePublishedArticles();
+            
+            JsonReader reader = null;
+            try {
+                reader = prepareReader(params);
+                if (reader == null)
+                    continue;
+                
+                int count = parseArticleArray(articles, reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
+                if (count < PARAM_LIMIT_MAX_VALUE)
+                    break;
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (IOException e1) {
+                    }
                 }
+            }
+            offset = offset + PARAM_LIMIT_MAX_VALUE;
         }
         
-        Log.d(Utils.TAG, "getHeadlinesToDatabase: " + (System.currentTimeMillis() - time) + "ms");
-        return count;
+        Log.d(Utils.TAG, "getHeadlines: " + (System.currentTimeMillis() - time) + "ms");
     }
     
-    @Override
+    /**
+     * Marks the given list of article-Ids as read/unread depending on int articleState.
+     * 
+     * @param articlesIds
+     *            a list of article-ids.
+     * @param articleState
+     *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
+     */
     public boolean setArticleRead(Set<Integer> ids, int articleState) {
         boolean ret = true;
         if (ids.size() == 0)
@@ -1065,7 +1083,15 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    @Override
+    /**
+     * Marks the given Article as "starred"/"not starred" depending on int articleState.
+     * 
+     * @param ids
+     *            a list of article-ids.
+     * @param articleState
+     *            the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
+     * @return true if the operation succeeded.
+     */
     public boolean setArticleStarred(Set<Integer> ids, int articleState) {
         boolean ret = true;
         if (ids.size() == 0)
@@ -1082,7 +1108,15 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    @Override
+    /**
+     * Marks the given Articles as "published"/"not published" depending on articleState.
+     * 
+     * @param ids
+     *            a list of article-ids with corresponding notes (may be null).
+     * @param articleState
+     *            the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
+     * @return true if the operation succeeded.
+     */
     public boolean setArticlePublished(Map<Integer, String> ids, int articleState) {
         boolean ret = true;
         if (ids.size() == 0)
@@ -1112,7 +1146,15 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    @Override
+    /**
+     * Marks a feed or a category with all its feeds as read.
+     * 
+     * @param id
+     *            the feed-id/category-id.
+     * @param isCategory
+     *            indicates whether id refers to a feed or a category.
+     * @return true if the operation succeeded.
+     */
     public boolean setRead(int id, boolean isCategory) {
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_CATCHUP);
@@ -1121,7 +1163,13 @@ public class JSONConnector implements Connector {
         return doRequestNoAnswer(params);
     }
     
-    @Override
+    /**
+     * Returns the value for the given preference-name as a string.
+     * 
+     * @param pref
+     *            the preferences name
+     * @return the value of the preference or null if it ist not set or unknown
+     */
     public String getPref(String pref) {
         if (!sessionAlive())
             return null;
@@ -1140,7 +1188,11 @@ public class JSONConnector implements Connector {
         return null;
     }
     
-    @Override
+    /**
+     * Returns the version of the server-installation as integer (version-string without dots)
+     * 
+     * @return the version
+     */
     public int getVersion() {
         int ret = -1;
         if (!sessionAlive())
@@ -1192,7 +1244,11 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    @Override
+    /**
+     * Retrieves the API-Level of the currently used server-installation.
+     * 
+     * @return the API-Level of the server-installation
+     */
     public int getApiLevel() {
         int ret = -1;
         if (!sessionAlive())
@@ -1248,12 +1304,20 @@ public class JSONConnector implements Connector {
         return ret;
     }
     
-    @Override
+    /**
+     * Returns true if there was an error.
+     * 
+     * @return true if there was an error.
+     */
     public boolean hasLastError() {
         return hasLastError;
     }
     
-    @Override
+    /**
+     * Returns the last error-message and resets the error-state of the connector.
+     * 
+     * @return a string with the last error-message.
+     */
     public String pullLastError() {
         String ret = new String(lastError);
         lastError = "";

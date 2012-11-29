@@ -34,4 +34,20 @@ public class ArticleContainer {
         this.label = label;
     }
     
+    @Override
+    public boolean equals(Object o) {
+        if (o == null)
+            return false;
+        if (o instanceof ArticleContainer) {
+            ArticleContainer ac = (ArticleContainer) o;
+            return id == ac.id;
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return id;
+    }
+    
 }

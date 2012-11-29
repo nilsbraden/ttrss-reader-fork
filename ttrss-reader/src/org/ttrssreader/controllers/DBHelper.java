@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -625,7 +626,7 @@ public class DBHelper {
         insertArticleIntern(a);
     }
     
-    public void insertArticle(List<ArticleContainer> articles) {
+    public void insertArticle(Collection<ArticleContainer> articles) {
         if (!isDBAvailable())
             return;
         if (articles == null || articles.isEmpty())
@@ -837,10 +838,11 @@ public class DBHelper {
                 idList = id + "";
             }
             
-            if (minArticleId == Integer.MAX_VALUE)
-                minArticleId = 0;
+            String minPart = " and id >= " + minArticleId;
+            if (minArticleId <= 0 || minArticleId == Integer.MAX_VALUE)
+                minPart = "";
             
-            db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ") and id >= " + minArticleId, null);
+            db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ")" + minPart, null);
         }
     }
     
