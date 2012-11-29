@@ -18,6 +18,9 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.38
+		  	\n * Adapt to API-changes, number of articles to be fetched at once has been reduced to 60, got no idea why but am now dealing with it properly.
+		  	\n * Fixed some bugs in the mechanism to fetch new articles.</item>
         <item>Version 1.37
             \n * Changed events, refreshing of the UI should now be really fast
             \n * Changed update-mechanism
