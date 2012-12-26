@@ -76,6 +76,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean openUrlEmptyArticle = null;
     private Boolean useVolumeKeys = null;
     private Boolean vibrateOnLastArticle = null;
+    private Boolean loadImages = null;
     private Boolean workOffline = null;
     
     private Integer headlineSize = null;
@@ -427,6 +428,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
         put(Constants.VIBRATE_ON_LAST_ARTICLE, vibrateOnLastArticle);
         this.vibrateOnLastArticle = vibrateOnLastArticle;
+    }
+    
+    public boolean loadImages() {
+        if (loadImages == null)
+            loadImages = prefs.getBoolean(Constants.LOAD_IMAGES, Constants.LOAD_IMAGES_DEFAULT);
+        return loadImages;
+    }
+    
+    public void setLoadImages(boolean loadImages) {
+        put(Constants.LOAD_IMAGES, loadImages);
+        this.loadImages = loadImages;
     }
     
     public boolean workOffline() {

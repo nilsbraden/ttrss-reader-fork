@@ -263,7 +263,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         
         setProgressBarIndeterminateVisibility(true);
         
-        if (Controller.getInstance().workOffline()) {
+        if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
             webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
         } else {
             webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
