@@ -439,10 +439,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                 openLink();
                 return true;
             case R.id.Article_Menu_ShareLink:
-                String content = (String) getText(R.string.ArticleActivity_ShareSubject);
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
+                i.putExtra(Intent.EXTRA_TEXT, article.url);
                 i.putExtra(Intent.EXTRA_SUBJECT, article.title);
                 startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;
