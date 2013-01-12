@@ -23,7 +23,9 @@ import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.imageCache.ImageCache;
@@ -118,8 +120,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Long lastVacuumDate = null;
     private Integer sinceId = null;
     
-    public volatile Integer lastOpenedFeed = null;
-    public volatile Integer lastOpenedArticle = null;
+    public volatile Set<Integer> lastOpenedFeeds = new HashSet<Integer>();
+    public volatile Set<Integer> lastOpenedArticles = new HashSet<Integer>();
     
     // Article-View-Stuff
     public static String htmlHeader = "";

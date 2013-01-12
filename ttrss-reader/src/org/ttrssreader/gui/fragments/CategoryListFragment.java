@@ -31,7 +31,7 @@ import android.widget.ListView;
 public class CategoryListFragment extends ListFragment {
     
     private static final TYPE THIS_TYPE = TYPE.CATEGORY;
-
+    
     private static final String SELECTED_INDEX = "selectedIndex";
     private static final int SELECTED_INDEX_DEFAULT = -1;
     private int selectedIndex = SELECTED_INDEX_DEFAULT;
@@ -43,7 +43,7 @@ public class CategoryListFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
-
+        
         listView = getListView();
         registerForContextMenu(listView);
         
@@ -70,8 +70,8 @@ public class CategoryListFragment extends ListFragment {
         super.onResume();
         getListView().setVisibility(View.VISIBLE);
         
-        Controller.getInstance().lastOpenedFeed = null;
-        Controller.getInstance().lastOpenedArticle = null;
+        Controller.getInstance().lastOpenedFeeds.clear();
+        Controller.getInstance().lastOpenedArticles.clear();
     }
     
     @Override
@@ -80,7 +80,7 @@ public class CategoryListFragment extends ListFragment {
             Log.w(Utils.TAG, "CategoryListFragment: Adapter shouldn't be null here...");
             return;
         }
-
+        
         selectedIndexOld = selectedIndex;
         selectedIndex = position; // Set selected item
         

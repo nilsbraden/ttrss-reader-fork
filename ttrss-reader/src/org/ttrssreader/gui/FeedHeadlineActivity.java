@@ -101,8 +101,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
         }
         
-        Controller.getInstance().lastOpenedFeed = feedId;
-        Controller.getInstance().lastOpenedArticle = null;
+        Controller.getInstance().lastOpenedFeeds.add(feedId);
+        Controller.getInstance().lastOpenedArticles.clear();
         
         parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
         fillParentInformation();
