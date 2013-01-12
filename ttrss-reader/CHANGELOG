@@ -1,6 +1,16 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.39 ==
+  * Added preference for "Load images" which, when disabled, forces the Webview to not load any content from the web.
+  * Fixed Issue #99 "Sharing with Firefox Sync"
+  * Implemented Issue #81: Show temporarily read items in "new articles", the read articles now are all left in the displayed list.
+  * Longer update-interval for background refresh
+
+== Version 1.38 ==
+  * Adapt to API-changes, number of articles to be fetched at once has been reduced to 60, got no idea why but am now dealing with it properly.
+  * Fixed some bugs in the mechanism to fetch new articles.
+  
 == Version 1.37 ==
   * Changed events, refreshing of the UI should now be really fast
   * Changed update-mechanism

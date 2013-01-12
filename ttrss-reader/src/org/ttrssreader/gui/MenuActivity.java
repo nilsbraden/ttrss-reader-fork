@@ -15,7 +15,6 @@
 
 package org.ttrssreader.gui;
 
-import java.lang.reflect.Field;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;

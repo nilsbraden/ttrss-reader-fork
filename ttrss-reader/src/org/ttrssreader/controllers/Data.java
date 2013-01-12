@@ -15,6 +15,7 @@
 
 package org.ttrssreader.controllers;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -38,6 +39,9 @@ public class Data {
     public static final int TIME_CATEGORY = 1;
     public static final int TIME_FEED = 2;
     public static final int TIME_FEEDHEADLINE = 3;
+    
+    private static final String VIEW_ALL = "all_articles";
+    private static final String VIEW_NEW = "unread";
     
     private static Data instance = null;
     private Context context;
@@ -92,7 +96,7 @@ public class Data {
     
     public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
         
-        int limit = 1000;
+        int limit = 500;
         
         if (!overrideDelay && articlesCached > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
@@ -100,15 +104,15 @@ public class Data {
             
             try {
                 int sinceId = Controller.getInstance().getSinceId();
-                int count = Controller.getInstance().getConnector()
-                        .getHeadlinesToDatabase(-4, limit, "all_articles", true, sinceId, 0);
                 
-                // Request lots of unread articles afterwards. Every call to getHeadlinesToDatabase() marks all existing
-                // articles as unread so with these calls we should get a) lots of articles and b) all unread articles
-                // except if there are more then 1000.
-                count += Controller.getInstance().getConnector().getHeadlinesToDatabase(-4, limit, "unread", true);
+                Set<ArticleContainer> articles = new HashSet<ArticleContainer>();
+                Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_NEW, true);
+                Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_ALL, true, sinceId);
+                
+                handleInsertArticles(articles, -4, true);
                 
                 // Only mark as updated if the calls were successful
+                int count = articles.size();
                 if (count > -1) {
                     articlesCached = System.currentTimeMillis();
                     
@@ -158,16 +162,19 @@ public class Data {
             int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
             
             try {
-                String viewMode = (displayOnlyUnread ? "unread" : "all_articles");
-                
-                int count = Controller.getInstance().getConnector()
-                        .getHeadlinesToDatabase(feedId, limit, viewMode, isCat);
+                String viewMode = (displayOnlyUnread ? VIEW_NEW : VIEW_ALL);
+                Set<ArticleContainer> articles = new HashSet<ArticleContainer>();
                 
                 // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
                 if (needUnreadUpdate && !displayOnlyUnread)
-                    Controller.getInstance().getConnector().getHeadlinesToDatabase(feedId, limit, "unread", isCat);
+                    Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_NEW, isCat);
+                
+                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat);
+                
+                handleInsertArticles(articles, feedId, isCat);
                 
                 // Only mark as updated if the first call was successful
+                int count = articles.size();
                 if (count != -1) {
                     long currentTime = System.currentTimeMillis();
                     // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
@@ -217,12 +224,28 @@ public class Data {
             
         if (limit < 300) {
             if (isCat)
-                limit = limit + 50; // Add some so we have a chance of getting not only the newest and possibly read
+                limit = limit + 100; // Add some so we have a chance of getting not only the newest and possibly read
                                     // articles but also older ones.
             else
-                limit = limit + 15; // Less on feed, more on category...
+                limit = limit + 50; // Less on feed, more on category...
         }
         return limit;
+    }
+    
+    private void handleInsertArticles(Collection<ArticleContainer> articles, int feedId, boolean isCategory) {
+        int maxArticleId = Integer.MIN_VALUE;
+        
+        if (articles.size() > 0) {
+            for (ArticleContainer a : articles) {
+                if (a.id > maxArticleId)
+                    maxArticleId = a.id; // Store maximum id
+            }
+            
+            DBHelper.getInstance().markFeedOnlyArticlesRead(feedId, isCategory, -1);
+            DBHelper.getInstance().insertArticle(articles);
+            DBHelper.getInstance().purgeArticlesNumber();
+            Controller.getInstance().setSinceId(maxArticleId);
+        }
     }
     
     // *** FEEDS ************************************************************************

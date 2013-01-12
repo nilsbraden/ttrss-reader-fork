@@ -24,7 +24,6 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
@@ -99,8 +98,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
         }
         
-        Controller.getInstance().lastOpenedFeed = feedId;
-        Controller.getInstance().lastOpenedArticle = null;
+        Controller.getInstance().lastOpenedFeeds.add(feedId);
+        Controller.getInstance().lastOpenedArticles.clear();
         
         parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
         fillParentInformation();

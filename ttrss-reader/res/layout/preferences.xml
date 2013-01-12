@@ -161,6 +161,12 @@
                     android:key="DisplayShowVirtualPreference"
                     android:summary="@string/DisplayVirtualPreferenceSummary"
                     android:title="@string/DisplayVirtualPreferenceTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="DisplayLoadImagesPreference"
+                    android:summary="@string/DisplayLoadImagesPreferenceSummary"
+                    android:title="@string/DisplayLoadImagesPreferenceTitle" />
             </PreferenceCategory>
         </PreferenceScreen>
 

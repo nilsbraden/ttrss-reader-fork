@@ -28,8 +28,6 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
-import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Feed;

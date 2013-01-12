@@ -163,8 +163,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
-        Controller.getInstance().lastOpenedFeed = feedId;
-        Controller.getInstance().lastOpenedArticle = articleId;
+        Controller.getInstance().lastOpenedFeeds.add(feedId);
+        Controller.getInstance().lastOpenedArticles.add(articleId);
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
         fillParentInformation();
         doVibrate(0);
@@ -263,7 +263,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         
         setProgressBarIndeterminateVisibility(true);
         
-        if (Controller.getInstance().workOffline()) {
+        if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
             webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
         } else {
             webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
@@ -439,10 +439,9 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                 openLink();
                 return true;
             case R.id.Article_Menu_ShareLink:
-                String content = (String) getText(R.string.ArticleActivity_ShareSubject);
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_TEXT, content + " " + article.url);
+                i.putExtra(Intent.EXTRA_TEXT, article.url);
                 i.putExtra(Intent.EXTRA_SUBJECT, article.title);
                 startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 return true;

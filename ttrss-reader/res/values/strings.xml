@@ -119,6 +119,8 @@
     <string name="DisplayPreferenceCategoryTitle">Display</string>
     <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
     <string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>
+    <string name="DisplayLoadImagesPreferenceTitle">Load images</string>
+    <string name="DisplayLoadImagesPreferenceSummary">Uncheck to disable image-loading from external ressources in Webview.</string>
     <string name="DisplayUseSwipeTitle">Use Swipe</string>
     <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe for navigation. This overrides the \"Use Buttons-Option\".</string>
     <string name="DisplayUseButtonsTitle">Use Buttons</string>

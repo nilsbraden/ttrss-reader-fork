@@ -23,11 +23,12 @@ import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.imageCache.ImageCache;
-import org.ttrssreader.net.Connector;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
@@ -53,7 +54,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     private boolean initialized = false;
     private Context context;
-    private Connector ttrssConnector;
+    private JSONConnector ttrssConnector;
     private ImageCache imageCache;
     
     private String imageCacheLock = ""; // Use this to lock access to the cache as workaround for NPE on imageCache
@@ -77,6 +78,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean openUrlEmptyArticle = null;
     private Boolean useVolumeKeys = null;
     private Boolean vibrateOnLastArticle = null;
+    private Boolean loadImages = null;
     private Boolean workOffline = null;
     
     private Integer headlineSize = null;
@@ -118,8 +120,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Long lastVacuumDate = null;
     private Integer sinceId = null;
     
-    public volatile Integer lastOpenedFeed = null;
-    public volatile Integer lastOpenedArticle = null;
+    public volatile Set<Integer> lastOpenedFeeds = new HashSet<Integer>();
+    public volatile Set<Integer> lastOpenedArticles = new HashSet<Integer>();
     
     // Article-View-Stuff
     public static String htmlHeader = "";
@@ -345,7 +347,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return trustAllSsl;
     }
     
-    public Connector getConnector() throws NotInitializedException {
+    public JSONConnector getConnector() throws NotInitializedException {
         // Initialized inside initializeController();
         if (ttrssConnector != null) {
             return ttrssConnector;
@@ -428,6 +430,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
         put(Constants.VIBRATE_ON_LAST_ARTICLE, vibrateOnLastArticle);
         this.vibrateOnLastArticle = vibrateOnLastArticle;
+    }
+    
+    public boolean loadImages() {
+        if (loadImages == null)
+            loadImages = prefs.getBoolean(Constants.LOAD_IMAGES, Constants.LOAD_IMAGES_DEFAULT);
+        return loadImages;
+    }
+    
+    public void setLoadImages(boolean loadImages) {
+        put(Constants.LOAD_IMAGES, loadImages);
+        this.loadImages = loadImages;
     }
     
     public boolean workOffline() {
@@ -664,8 +677,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             return true;
         
         if (vacuumDbScheduled == null)
-            vacuumDbScheduled = prefs
-                    .getBoolean(Constants.VACUUM_DB_SCHEDULED, Constants.VACUUM_DB_SCHEDULED_DEFAULT);
+            vacuumDbScheduled = prefs.getBoolean(Constants.VACUUM_DB_SCHEDULED, Constants.VACUUM_DB_SCHEDULED_DEFAULT);
         return vacuumDbScheduled;
     }
     
@@ -676,8 +688,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public boolean isDeleteDBScheduled() {
         if (deleteDbScheduled == null)
-            deleteDbScheduled = prefs
-                    .getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
+            deleteDbScheduled = prefs.getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
         return deleteDbScheduled;
     }
     
@@ -696,8 +707,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public boolean isDeleteDBOnStartup() {
         if (deleteDbOnStartup == null)
-            deleteDbOnStartup = prefs.getBoolean(Constants.DELETE_DB_ON_STARTUP,
-                    Constants.DELETE_DB_ON_STARTUP_DEFAULT);
+            deleteDbOnStartup = prefs
+                    .getBoolean(Constants.DELETE_DB_ON_STARTUP, Constants.DELETE_DB_ON_STARTUP_DEFAULT);
         return deleteDbOnStartup;
     }
     
@@ -992,7 +1003,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             // Only use public static fields
             if (!Modifier.isStatic(field.getModifiers()) || !Modifier.isPublic(field.getModifiers()))
                 continue;
-                
+            
             try {
                 Object f = field.get(this);
                 if (!(f instanceof String))
@@ -1000,11 +1011,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 
                 if (!key.equals((String) f))
                     continue;
-                    
+                
                 // reset variable, it will be re-read on next access
                 String fieldName = Constants.constant2Var(field.getName());
                 Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
-                    
+                
             } catch (Exception e) {
                 e.printStackTrace();
             }
