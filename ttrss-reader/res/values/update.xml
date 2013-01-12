@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.39
+            \n * Added preference for "Load images" which, when disabled, forces the Webview to not load any content from the web.
+		    \n * Fixed Issue #99 "Sharing with Firefox Sync"
+		    \n * Implemented Issue #81: Show temporarily read items in "new articles", the read articles now are all left in the displayed list.
+		    \n * Longer update-interval for background refresh</item>
         <item>Version 1.38
 		  	\n * Adapt to API-changes, number of articles to be fetched at once has been reduced to 60, got no idea why but am now dealing with it properly.
 		  	\n * Fixed some bugs in the mechanism to fetch new articles.</item>
