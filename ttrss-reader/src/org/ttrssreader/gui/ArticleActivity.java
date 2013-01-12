@@ -163,8 +163,8 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
-        Controller.getInstance().lastOpenedFeed = feedId;
-        Controller.getInstance().lastOpenedArticle = articleId;
+        Controller.getInstance().lastOpenedFeeds.add(feedId);
+        Controller.getInstance().lastOpenedArticles.add(articleId);
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
         fillParentInformation();
         doVibrate(0);

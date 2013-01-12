@@ -96,7 +96,7 @@ public class Data {
     
     public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
         
-        int limit = 1000;
+        int limit = 500;
         
         if (!overrideDelay && articlesCached > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;

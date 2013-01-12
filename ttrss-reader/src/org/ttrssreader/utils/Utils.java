@@ -18,6 +18,7 @@ package org.ttrssreader.utils;
 
 import java.io.FileNotFoundException;
 import java.net.URI;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -424,6 +425,21 @@ public class Utils {
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notification.setLatestEventInfo(context, title, text, pendingIntent);
         return notification;
+    }
+    
+    public static String separateItems(Set<?> att, String separator) {
+        if (att == null)
+            return "";
+        
+        StringBuilder ret = new StringBuilder();
+        for (Object s : att) {
+            ret.append(s);
+            ret.append(separator);
+        }
+        if (att.size() > 0)
+            ret.deleteCharAt(ret.length() - 1);
+        
+        return ret.toString();
     }
     
 }

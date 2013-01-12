@@ -20,6 +20,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
@@ -100,7 +101,7 @@ public class FeedAdapter extends MainAdapter {
         
         StringBuilder query = new StringBuilder();
         
-        Integer lastOpenedFeed = Controller.getInstance().lastOpenedFeed;
+        String lastOpenedFeedsList = Utils.separateItems(Controller.getInstance().lastOpenedFeeds, ",");
         
         boolean displayUnread = Controller.getInstance().onlyUnread();
         boolean invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
@@ -108,7 +109,7 @@ public class FeedAdapter extends MainAdapter {
         if (overrideDisplayUnread)
             displayUnread = false;
         
-        if (lastOpenedFeed != null && !buildSafeQuery) {
+        if (lastOpenedFeedsList.length() > 0 && !buildSafeQuery) {
             query.append("SELECT id,title,unread FROM (");
         }
         
@@ -118,11 +119,11 @@ public class FeedAdapter extends MainAdapter {
         query.append(categoryId);
         query.append(displayUnread ? " AND unread>0" : "");
         
-        if (lastOpenedFeed != null && !buildSafeQuery) {
+        if (lastOpenedFeedsList.length() > 0 && !buildSafeQuery) {
             query.append(" UNION SELECT id,title,unread");
-            query.append(" FROM feeds WHERE id=");
-            query.append(lastOpenedFeed);
-            query.append(")");
+            query.append(" FROM feeds WHERE id IN (");
+            query.append(lastOpenedFeedsList);
+            query.append(" ))");
         }
         
         query.append(" ORDER BY UPPER(title) ");

@@ -24,6 +24,7 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
@@ -149,7 +150,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
     
     private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) { // TODO: true, false liefert
                                                                                            // kein Ergebnis
-        Integer lastOpenedArticle = Controller.getInstance().lastOpenedArticle;
+        String lastOpenedArticlesList = Utils.separateItems(Controller.getInstance().lastOpenedArticles, ",");
         
         boolean displayUnread = Controller.getInstance().onlyUnread();
         boolean invertSortArticles = Controller.getInstance().invertSortArticlelist();
@@ -190,13 +191,14 @@ public class FeedHeadlineAdapter extends MainAdapter {
                 query.append(displayUnread ? " AND a.isUnread>0" : "");
         }
         
-        if (lastOpenedArticle != null && !buildSafeQuery) {
+        if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
             query.append(" UNION SELECT c.id,c.feedId,c.title,c.isUnread AS unread,c.updateDate,c.isStarred,c.isPublished FROM ");
             query.append(DBHelper.TABLE_ARTICLES);
             query.append(" c, ");
             query.append(DBHelper.TABLE_FEEDS);
-            query.append(" d WHERE c.feedId=d.id AND c.id=");
-            query.append(lastOpenedArticle);
+            query.append(" d WHERE c.feedId=d.id AND c.id IN (");
+            query.append(lastOpenedArticlesList);
+            query.append(" )");
         }
         
         query.append(" ORDER BY a.updateDate ");
@@ -205,7 +207,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
     }
     
     private String buildLabelQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
-        Integer lastOpenedArticle = Controller.getInstance().lastOpenedArticle;
+        String lastOpenedArticlesList = Utils.separateItems(Controller.getInstance().lastOpenedArticles, ",");
         
         boolean displayUnread = Controller.getInstance().onlyUnread();
         boolean invertSortArticles = Controller.getInstance().invertSortArticlelist();
@@ -224,7 +226,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         query.append(" AND a2l.labelId=" + feedId);
         query.append(displayUnread ? " AND isUnread>0" : "");
         
-        if (lastOpenedArticle != null && !buildSafeQuery) {
+        if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
             query.append(" UNION SELECT b.id,feedId,b.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
             query.append(DBHelper.TABLE_ARTICLES);
             query.append(" b, ");
@@ -232,7 +234,9 @@ public class FeedHeadlineAdapter extends MainAdapter {
             query.append(" b2m, ");
             query.append(DBHelper.TABLE_FEEDS);
             query.append(" m WHERE b2m.labelId=m.id AND b2m.articleId=b.id");
-            query.append(" AND b.id=" + lastOpenedArticle);
+            query.append(" AND b.id IN (");
+            query.append(lastOpenedArticlesList);
+            query.append(" )");
         }
         
         query.append(" ORDER BY updateDate ");

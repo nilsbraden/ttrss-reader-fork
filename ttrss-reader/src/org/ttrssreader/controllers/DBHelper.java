@@ -608,7 +608,7 @@ public class DBHelper {
             insertArticle.bindString(6, a.articleCommentUrl);
             insertArticle.bindLong(7, a.updateDate.getTime());
             insertArticle.bindString(8, a.content);
-            insertArticle.bindString(9, parseAttachmentSet(a.attachments));
+            insertArticle.bindString(9, Utils.separateItems(a.attachments, ";"));
             insertArticle.bindLong(10, (a.isStarred ? 1 : 0));
             insertArticle.bindLong(11, (a.isPublished ? 1 : 0));
             insertArticle.bindLong(12, a.id); // ID again for the where-clause
@@ -654,7 +654,7 @@ public class DBHelper {
         ret[5] = (articleCommentUrl == null ? "" : articleCommentUrl);
         ret[6] = updateDate.getTime();
         ret[7] = (content == null ? "" : content);
-        ret[8] = parseAttachmentSet(attachments);
+        ret[8] = Utils.separateItems(attachments, ";");
         ret[9] = (isStarred ? 1 : 0);
         ret[10] = (isPublished ? 1 : 0);
         
@@ -1423,20 +1423,6 @@ public class DBHelper {
         }
         
         return ret;
-    }
-    
-    private static String parseAttachmentSet(Set<String> att) {
-        if (att == null)
-            return "";
-        
-        StringBuilder ret = new StringBuilder();
-        for (String s : att) {
-            ret.append(s + ";");
-        }
-        if (att.size() > 0)
-            ret.deleteCharAt(ret.length() - 1);
-        
-        return ret.toString();
     }
     
 }
