@@ -281,10 +281,10 @@ public class CategoryActivity extends MenuActivity {
             
             // Refresh articles for all labels
             for (Feed f : labels) {
-                if (f.unread == 0 && onlyUnreadArticles)
-                    continue;
+//                if (f.unread == 0 && onlyUnreadArticles)
+//                    continue;
                 publishProgress(++progress);
-                Data.getInstance().updateArticles(f.id, onlyUnreadArticles, false, false, forceUpdate);
+                Data.getInstance().updateArticles(f.id, false, false, false, forceUpdate);
             }
             
             publishProgress(++progress); // Move progress to 100%

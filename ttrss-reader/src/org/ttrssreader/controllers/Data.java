@@ -22,11 +22,14 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.R;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 public class Data {
     
@@ -121,7 +124,8 @@ public class Data {
                     // Store all category-ids and ids of all feeds for this category in db
                     articlesChanged.put(-4, articlesCached);
                     for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
-                        articlesChanged.put(f.id, articlesCached);
+                        if (f.id > -11) // Dont store time for labels
+                            articlesChanged.put(f.id, articlesCached);
                     }
                     for (Category c : DBHelper.getInstance().getCategoriesIncludingUncategorized()) {
                         feedsChanged.put(c.id, articlesCached);
@@ -184,9 +188,8 @@ public class Data {
                     
                     if (isCat) {
                         for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
-                            articlesChanged.put(f.id, currentTime);
-                            // UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id,
-                            // f.categoryId);
+                            if (f.id > -11) // Dont store time for labels
+                                articlesChanged.put(f.id, currentTime);
                         }
                     }
                 }
@@ -225,7 +228,7 @@ public class Data {
         if (limit < 300) {
             if (isCat)
                 limit = limit + 100; // Add some so we have a chance of getting not only the newest and possibly read
-                                    // articles but also older ones.
+                                     // articles but also older ones.
             else
                 limit = limit + 50; // Less on feed, more on category...
         }
@@ -276,7 +279,6 @@ public class Data {
                     feedsChanged.put(categoryId, System.currentTimeMillis());
                     UpdateController.getInstance().notifyListeners();
                     for (Feed f : feeds) {
-                        // UpdateController.getInstance().notifyListeners(UpdateController.TYPE_FEED, f.id, categoryId);
                         feedsChanged.put(f.categoryId, System.currentTimeMillis());
                     }
                 }
@@ -452,6 +454,34 @@ public class Data {
         return -1;
     }
     
+    public Set<Label> getLabels(int articleId) {
+        Set<Label> ret = DBHelper.getInstance().getLabelsForArticle(articleId);
+        return ret;
+    }
+    
+    public boolean setLabel(Integer articleId, Label label) {
+        Set<Integer> set = new HashSet<Integer>();
+        set.add(articleId);
+        return setLabel(set, label);
+    }
+    
+    public boolean setLabel(Set<Integer> articleIds, Label label) {
+        
+        DBHelper.getInstance().insertLabels(articleIds, label.getInternalId(), label.checked);
+        UpdateController.getInstance().notifyListeners();
+        
+        boolean erg = false;
+        if (Utils.isConnected(cm)) {
+            try {
+                Log.d(Utils.TAG, "Calling connector with Label: " + label + ") and ids.size() " + articleIds.size());
+                erg = Controller.getInstance().getConnector().setArticleLabel(articleIds, label.getId(), label.checked);
+            } catch (NotInitializedException e) {
+                erg = false;
+            }
+        }
+        return erg;
+    }
+    
     public void synchronizeStatus() throws NotInitializedException {
         if (!Utils.isConnected(cm))
             return;
@@ -483,6 +513,7 @@ public class Data {
                 if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0))
                     DBHelper.getInstance().setMarked(idsUnmark, mark);
             }
+            // TODO: Add synchronization of labels
         }
     }
 }

@@ -31,6 +31,7 @@ import java.util.Set;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -724,13 +725,38 @@ public class DBHelper {
         db.execSQL(stmt.toString());
     }
     
-    private void insertLabel(int articleId, int label) {
-        if (label < -10) {
+    public void insertLabel(int articleId, int labelId) {
+        if (!isDBAvailable())
+            return;
+        
+        if (labelId < -10) {
             synchronized (insertLabel) {
                 insertLabel.bindLong(1, articleId);
-                insertLabel.bindLong(2, label);
+                insertLabel.bindLong(2, labelId);
                 insertLabel.executeInsert();
             }
+        }
+    }
+    
+    public void removeLabel(int articleId, int labelId) {
+        if (!isDBAvailable())
+            return;
+        
+        if (labelId < -10) {
+            String[] args = new String[] { articleId + "", labelId + "" };
+            db.delete(TABLE_ARTICLES2LABELS, "articleId=? AND labelId=?", args);
+        }
+    }
+    
+    public void insertLabels(Set<Integer> articleIds, int label, boolean assign) {
+        if (!isDBAvailable())
+            return;
+        
+        for (Integer articleId : articleIds) {
+            if (assign)
+                insertLabel(articleId, label);
+            else
+                removeLabel(articleId, label);
         }
     }
     
@@ -1105,6 +1131,41 @@ public class DBHelper {
             c = db.query(TABLE_ARTICLES, null, "id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
                 ret = handleArticleCursor(c);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        return ret;
+    }
+    
+    public Set<Label> getLabelsForArticle(int articleId) {
+        Set<Label> ret = new HashSet<Label>();
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = null;
+        try {
+            // @formatter:off
+            String sql =      "SELECT f.id, f.title, 0 checked FROM " + TABLE_FEEDS + " f "
+                      		+ "     WHERE f.id <= -11 AND"
+                    		+ "     NOT EXISTS (SELECT * FROM " + TABLE_ARTICLES2LABELS + " a2l where f.id = a2l.labelId AND a2l.articleId = " + articleId + ")"
+                            + " UNION"
+                            + " SELECT f.id, f.title, 1 checked FROM " + TABLE_FEEDS + " f, " + TABLE_ARTICLES2LABELS + " a2l "
+                            + "     WHERE f.id <= -11 AND f.id = a2l.labelId AND a2l.articleId = " + articleId;
+            // @formatter:on
+            c = db.rawQuery(sql, null);
+            
+            while (c.moveToNext()) {
+                Label label = new Label();
+                label.setInternalId(c.getInt(0));
+                label.caption = c.getString(1);
+                label.checked = c.getInt(2) == 1;
+                ret.add(label);
+            }
             
         } catch (Exception e) {
             e.printStackTrace();
