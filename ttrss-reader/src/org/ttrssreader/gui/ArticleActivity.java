@@ -24,6 +24,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
@@ -41,6 +42,10 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -50,13 +55,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -70,7 +73,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-public class ArticleActivity extends Activity implements IUpdateEndListener, TextInputAlertCallback,
+public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
         IDataChangedListener {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
@@ -137,7 +140,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         buttonNext = (Button) findViewById(R.id.buttonNext);
         swipeView = (TextView) findViewById(R.id.swipeView);
         
-//        webView.getSettings().setJavaScriptEnabled(true);
+        // webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.setWebViewClient(new ArticleWebViewClient(this));
         
@@ -369,7 +372,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = this.getMenuInflater();
+        MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.article, menu);
         return true;
     }
@@ -428,12 +431,15 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             case R.id.Article_Menu_MarkPublishNote:
                 new TextInputAlert(this, article).show(this);
                 return true;
+            case R.id.Article_Menu_AddArticleLabel:
+                DialogFragment dialog = ArticleLabelDialog.newInstance(articleId);
+                dialog.show(getSupportFragmentManager(), "Edit Labels");
+                return true;
             case R.id.Article_Menu_WorkOffline:
                 Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
-                if (!Controller.getInstance().workOffline()) {
-                    // Synchronize status of articles with server
+                // Synchronize status of articles with server
+                if (!Controller.getInstance().workOffline())
                     new Updater(this, new StateSynchronisationUpdater()).execute((Void[]) null);
-                }
                 return true;
             case R.id.Article_Menu_OpenLink:
                 openLink();
