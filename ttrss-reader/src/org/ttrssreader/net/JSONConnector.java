@@ -1032,7 +1032,7 @@ public class JSONConnector {
             params.put(PARAM_VIEWMODE, viewMode);
             params.put(PARAM_SHOW_CONTENT, "1");
             params.put(PARAM_INC_ATTACHMENTS, "1");
-            params.put(PARAM_IS_CAT, (isCategory ? "true" : "false"));
+            params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
             if (sinceId > 0)
                 params.put(PARAM_SINCE_ID, sinceId + "");
             
@@ -1167,7 +1167,7 @@ public class JSONConnector {
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_CATCHUP);
         params.put(PARAM_FEED_ID, id + "");
-        params.put(PARAM_IS_CAT, (isCategory ? "true" : "false"));
+        params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
         return doRequestNoAnswer(params);
     }
     
@@ -1322,7 +1322,7 @@ public class JSONConnector {
             params.put(PARAM_OP, VALUE_SET_LABELS);
             params.put(PARAM_ARTICLE_IDS, idList);
             params.put(VALUE_LABEL_ID, labelId + "");
-            params.put(VALUE_ASSIGN, (assign ? "true" : "false"));
+            params.put(VALUE_ASSIGN, (assign ? "1" : "0"));
             ret = ret && doRequestNoAnswer(params);
         }
         
