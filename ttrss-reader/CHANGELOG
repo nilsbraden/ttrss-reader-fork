@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.4 ==
+  * Added Label-Editing for articles
+  * Fixed some bugs preventing labels from beeing refreshed properly
+  * Fixed some UI glitches concerning the progressbar
+
 == Version 1.39 ==
   * Added preference for "Load images" which, when disabled, forces the Webview to not load any content from the web.
   * Fixed Issue #99 "Sharing with Firefox Sync"

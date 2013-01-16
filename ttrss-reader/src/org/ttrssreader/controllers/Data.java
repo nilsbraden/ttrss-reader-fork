@@ -22,7 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.R;
-import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
@@ -124,8 +123,7 @@ public class Data {
                     // Store all category-ids and ids of all feeds for this category in db
                     articlesChanged.put(-4, articlesCached);
                     for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
-                        if (f.id > -11) // Dont store time for labels
-                            articlesChanged.put(f.id, articlesCached);
+                        articlesChanged.put(f.id, articlesCached);
                     }
                     for (Category c : DBHelper.getInstance().getCategoriesIncludingUncategorized()) {
                         feedsChanged.put(c.id, articlesCached);
@@ -188,8 +186,7 @@ public class Data {
                     
                     if (isCat) {
                         for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
-                            if (f.id > -11) // Dont store time for labels
-                                articlesChanged.put(f.id, currentTime);
+                            articlesChanged.put(f.id, currentTime);
                         }
                     }
                 }

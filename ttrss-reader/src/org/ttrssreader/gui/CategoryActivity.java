@@ -281,8 +281,8 @@ public class CategoryActivity extends MenuActivity {
             
             // Refresh articles for all labels
             for (Feed f : labels) {
-//                if (f.unread == 0 && onlyUnreadArticles)
-//                    continue;
+                if (f.unread == 0 && onlyUnreadArticles)
+                    continue;
                 publishProgress(++progress);
                 Data.getInstance().updateArticles(f.id, false, false, false, forceUpdate);
             }
@@ -294,18 +294,16 @@ public class CategoryActivity extends MenuActivity {
             Data.getInstance().updateVirtualCategories();
             publishProgress(++progress);
             Data.getInstance().updateCategories(false);
-            publishProgress(taskCount);
-            Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
             publishProgress(++progress);
+            Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
+            publishProgress(taskCount); // Move progress forward to 100%
             
             // Silently try to synchronize any ids left in TABLE_MARK
             try {
                 Data.getInstance().synchronizeStatus();
             } catch (NotInitializedException e) {
             }
-            
-            publishProgress(++progress);
-            
+
             return null;
         }
         
