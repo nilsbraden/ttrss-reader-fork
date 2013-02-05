@@ -27,6 +27,8 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
     }
     
     public void uncaughtException(Thread t, Throwable e) {
+        if (e instanceof IllegalStateException)
+            return;
         
         StackTraceElement[] element = e.getStackTrace();
         StringBuilder sb = new StringBuilder();
