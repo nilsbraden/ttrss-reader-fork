@@ -102,7 +102,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private TextView swipeView;
     private Button buttonNext;
     private Button buttonPrev;
-    private GestureDetector mGestureDetector;
+    private GestureDetector gestureDetector;
     
     private String baseUrl = null;
     
@@ -143,7 +143,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         webView.setWebViewClient(new ArticleWebViewClient(this));
         
         // Detect gestures
-        mGestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
+        gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
         webView.setOnKeyListener(keyListener);
         
         buttonNext.setOnClickListener(onButtonPressedListener);
@@ -516,12 +516,15 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
-        boolean temp = super.dispatchTouchEvent(e);
+        boolean temp = false;
         
         if (Controller.getInstance().useSwipe())
-            return mGestureDetector.onTouchEvent(e);
-        else
-            return temp;
+            temp = gestureDetector.onTouchEvent(e);
+        
+        if (!temp)
+            return super.dispatchTouchEvent(e);
+        
+        return temp;
     }
     
     private OnGestureListener onGestureListener = new OnGestureListener() {

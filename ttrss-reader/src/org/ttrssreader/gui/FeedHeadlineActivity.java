@@ -335,8 +335,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
-        super.dispatchTouchEvent(e);
-        return gestureDetector.onTouchEvent(e);
+        if (!gestureDetector.onTouchEvent(e))
+            return super.dispatchTouchEvent(e);
+        return true;
     }
     
     private OnGestureListener onGestureListener = new OnGestureListener() {
