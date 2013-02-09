@@ -48,10 +48,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
-import org.ttrssreader.controllers.ArticleContainer;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
@@ -687,7 +687,7 @@ public class JSONConnector {
         return ret;
     }
     
-    private int parseArticleArray(final Set<ArticleContainer> articles, JsonReader reader, int labelId, int id, boolean isCategory) {
+    private int parseArticleArray(final Set<Article> articles, JsonReader reader, int labelId, int id, boolean isCategory) {
         long time = System.currentTimeMillis();
         int count = 0;
         
@@ -746,7 +746,7 @@ public class JSONConnector {
                 reader.endObject();
                 
                 if (articleId != -1 && title != null) {
-                    articles.add(new ArticleContainer(articleId, feedId, title, isUnread, articleUrl,
+                    articles.add(new Article(articleId, feedId, title, isUnread, articleUrl,
                             articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
                     count++;
                 }
@@ -995,7 +995,7 @@ public class JSONConnector {
     /**
      * @see #getHeadlines(Integer, int, String, boolean, int, int)
      */
-    public void getHeadlines(final Set<ArticleContainer> articles, Integer id, int limit, String viewMode, boolean isCategory) {
+    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory) {
         getHeadlines(articles, id, limit, viewMode, isCategory, 0);
     }
     
@@ -1015,7 +1015,7 @@ public class JSONConnector {
      *            the first ArticleId which is to be retrieved.
      * @return the number of fetched articles.
      */
-    public void getHeadlines(final Set<ArticleContainer> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
+    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
         long time = System.currentTimeMillis();
         int offset = 0;
         int maxSize = articles.size() + limit;

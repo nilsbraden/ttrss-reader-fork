@@ -585,17 +585,17 @@ public class DBHelper {
         }
     }
     
-    private void insertArticleIntern(ArticleContainer a) {
+    private void insertArticleIntern(Article a) {
         if (a.title == null)
             a.title = "";
         if (a.content == null)
             a.content = "";
-        if (a.articleUrl == null)
-            a.articleUrl = "";
-        if (a.articleCommentUrl == null)
-            a.articleCommentUrl = "";
-        if (a.updateDate == null)
-            a.updateDate = new Date();
+        if (a.url == null)
+            a.url = "";
+        if (a.commentUrl == null)
+            a.commentUrl = "";
+        if (a.updated == null)
+            a.updated = new Date();
         if (a.attachments == null)
             a.attachments = new LinkedHashSet<String>();
         
@@ -605,9 +605,9 @@ public class DBHelper {
             insertArticle.bindLong(2, a.feedId);
             insertArticle.bindString(3, a.title);
             insertArticle.bindLong(4, (a.isUnread ? 1 : 0));
-            insertArticle.bindString(5, a.articleUrl);
-            insertArticle.bindString(6, a.articleCommentUrl);
-            insertArticle.bindLong(7, a.updateDate.getTime());
+            insertArticle.bindString(5, a.url);
+            insertArticle.bindString(6, a.commentUrl);
+            insertArticle.bindLong(7, a.updated.getTime());
             insertArticle.bindString(8, a.content);
             insertArticle.bindString(9, Utils.separateItems(a.attachments, ";"));
             insertArticle.bindLong(10, (a.isStarred ? 1 : 0));
@@ -620,14 +620,14 @@ public class DBHelper {
             insertLabel(a.id, a.label);
     }
     
-    public void insertArticle(ArticleContainer a) {
+    public void insertArticle(Article a) {
         if (!isDBAvailable())
             return;
         
         insertArticleIntern(a);
     }
     
-    public void insertArticle(Collection<ArticleContainer> articles) {
+    public void insertArticle(Collection<Article> articles) {
         if (!isDBAvailable())
             return;
         if (articles == null || articles.isEmpty())
@@ -635,7 +635,7 @@ public class DBHelper {
         
         db.beginTransaction();
         try {
-            for (ArticleContainer a : articles) {
+            for (Article a : articles) {
                 insertArticleIntern(a);
             }
             db.setTransactionSuccessful();
@@ -1445,7 +1445,8 @@ public class DBHelper {
                 c.getString(7),                     // content
                 parseAttachments(c.getString(8)),   // attachments
                 (c.getInt(9) != 0),                 // isStarred
-                (c.getInt(10) != 0)                 // isPublished
+                (c.getInt(10) != 0),                 // isPublished
+                -1
         );
         ret.cachedImages = (c.getInt(11) != 0);
         // @formatter:on
