@@ -22,7 +22,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
@@ -42,11 +41,6 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -72,6 +66,10 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
         IDataChangedListener {
@@ -278,69 +276,65 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             return;
         }
         
-        try {
-            // Check for errors
-            if (Controller.getInstance().getConnector().hasLastError()) {
-                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-                setProgressBarIndeterminateVisibility(false);
-                return;
-            }
-            
-            // Get article from DB only if necessary
-            if (article.content == null)
-                return;
-            
-            // Populate information-bar on top of the webView if enabled
-            if (Controller.getInstance().displayArticleHeader()) {
-                headerContainer.populate(article);
-            } else {
-                headerContainer.setVisibility(View.GONE);
-            }
-            
-            // Initialize mainContainer with buttons or swipe-view
-            mainContainer.populate(webView);
-            
-            final int contentLength = article.content.length();
-            
-            // Inject the specific code for attachments, <img> for images, http-link for Videos
-            StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(article.content),
-                    article.attachments);
-            
-            // if (article.cachedImages)
-            // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
-            contentTmp = injectArticleLink(getApplicationContext(), contentTmp);
-            content = injectCachedImages(contentTmp.toString(), articleId);
-            
-            // Load html from Controller and insert content
-            content = Controller.htmlHeader.replace("MARKER", content);
-            
-            // TODO: Whole "switch background-color-thing" needs to be refactored.
-            if (Controller.getInstance().darkBackground()) {
-                webView.setBackgroundColor(Color.BLACK);
-                content = "<font color='white'>" + content + "</font>";
-                
-                setDarkBackground(headerContainer);
-            }
-            
-            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-            baseUrl = StringSupport.getBaseURL(article.url);
-            webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
-            
-            setTitle(article.title);
-            
-            if (!linkAutoOpened && contentLength < 3) {
-                if (Controller.getInstance().openUrlEmptyArticle()) {
-                    Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
-                    linkAutoOpened = true;
-                    openLink();
-                }
-            }
-            
-            // Everything did load, we dont have to do this again.
-            webviewInitialized = true;
-            
-        } catch (NotInitializedException e) {
+        // Check for errors
+        if (Controller.getInstance().getConnector().hasLastError()) {
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+            setProgressBarIndeterminateVisibility(false);
+            return;
         }
+        
+        // Get article from DB only if necessary
+        if (article.content == null)
+            return;
+        
+        // Populate information-bar on top of the webView if enabled
+        if (Controller.getInstance().displayArticleHeader()) {
+            headerContainer.populate(article);
+        } else {
+            headerContainer.setVisibility(View.GONE);
+        }
+        
+        // Initialize mainContainer with buttons or swipe-view
+        mainContainer.populate(webView);
+        
+        final int contentLength = article.content.length();
+        
+        // Inject the specific code for attachments, <img> for images, http-link for Videos
+        StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(article.content),
+                article.attachments);
+        
+        // if (article.cachedImages)
+        // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
+        contentTmp = injectArticleLink(getApplicationContext(), contentTmp);
+        content = injectCachedImages(contentTmp.toString(), articleId);
+        
+        // Load html from Controller and insert content
+        content = Controller.htmlHeader.replace("MARKER", content);
+        
+        // TODO: Whole "switch background-color-thing" needs to be refactored.
+        if (Controller.getInstance().darkBackground()) {
+            webView.setBackgroundColor(Color.BLACK);
+            content = "<font color='white'>" + content + "</font>";
+            
+            setDarkBackground(headerContainer);
+        }
+        
+        // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
+        baseUrl = StringSupport.getBaseURL(article.url);
+        webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
+        
+        setTitle(article.title);
+        
+        if (!linkAutoOpened && contentLength < 3) {
+            if (Controller.getInstance().openUrlEmptyArticle()) {
+                Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+                linkAutoOpened = true;
+                openLink();
+            }
+        }
+        
+        // Everything did load, we dont have to do this again.
+        webviewInitialized = true;
         
         setProgressBarIndeterminateVisibility(false);
     }

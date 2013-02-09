@@ -347,12 +347,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return trustAllSsl;
     }
     
-    public JSONConnector getConnector() throws NotInitializedException {
+    public JSONConnector getConnector() {
         // Initialized inside initializeController();
         if (ttrssConnector != null) {
             return ttrssConnector;
         } else {
-            throw new NotInitializedException(new NullPointerException());
+            throw new RuntimeException("Connector is not initialized.");
         }
     }
     

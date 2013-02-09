@@ -26,7 +26,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
@@ -170,11 +169,8 @@ public class CategoryActivity extends MenuActivity {
         if (adapter != null)
             adapter.refreshQuery();
         
-        try {
-            if (Controller.getInstance().getConnector().hasLastError())
-                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-        } catch (NotInitializedException e) {
-        }
+        if (Controller.getInstance().getConnector().hasLastError())
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         
         if (categoryUpdater == null && !isCacherRunning()) {
             setSupportProgressBarIndeterminateVisibility(false);
@@ -299,11 +295,8 @@ public class CategoryActivity extends MenuActivity {
             publishProgress(taskCount); // Move progress forward to 100%
             
             // Silently try to synchronize any ids left in TABLE_MARK
-            try {
-                Data.getInstance().synchronizeStatus();
-            } catch (NotInitializedException e) {
-            }
-
+            Data.getInstance().synchronizeStatus();
+            
             return null;
         }
         

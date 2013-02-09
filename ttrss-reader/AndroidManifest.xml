@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:installLocation="auto"
-    android:versionCode="1400"
-    android:versionName="1.40" >
+    android:versionCode="1410"
+    android:versionName="1.41" >
 
     <uses-sdk
         android:minSdkVersion="7"
@@ -58,6 +58,19 @@
             android:name=".gui.AboutActivity"
             android:label="@string/AboutActivity.Title"
             android:theme="@android:style/Theme.Dialog" />
+        <activity
+            android:name=".gui.ShareActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/ApplicationName"
+            android:theme="@style/Theme.Sherlock" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
 
         <service android:name=".imageCache.ForegroundService" />
     </application>

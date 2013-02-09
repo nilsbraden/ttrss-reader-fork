@@ -84,12 +84,9 @@ public class Data {
         if (!overrideDelay && countersChanged > System.currentTimeMillis() - Utils.HALF_UPDATE_TIME) {
             return;
         } else if (Utils.isConnected(cm) || overrideOffline) {
-            try {
-                if (Controller.getInstance().getConnector().getCounters()) {
-                    countersChanged = System.currentTimeMillis();
-                    UpdateController.getInstance().notifyListeners();
-                }
-            } catch (NotInitializedException e) {
+            if (Controller.getInstance().getConnector().getCounters()) {
+                countersChanged = System.currentTimeMillis();
+                UpdateController.getInstance().notifyListeners();
             }
         }
     }
@@ -104,32 +101,29 @@ public class Data {
             return;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
             
-            try {
-                int sinceId = Controller.getInstance().getSinceId();
+            int sinceId = Controller.getInstance().getSinceId();
+            
+            Set<ArticleContainer> articles = new HashSet<ArticleContainer>();
+            Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_NEW, true);
+            Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_ALL, true, sinceId);
+            
+            handleInsertArticles(articles, -4, true);
+            
+            // Only mark as updated if the calls were successful
+            int count = articles.size();
+            if (count > -1) {
+                articlesCached = System.currentTimeMillis();
                 
-                Set<ArticleContainer> articles = new HashSet<ArticleContainer>();
-                Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_NEW, true);
-                Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_ALL, true, sinceId);
+                UpdateController.getInstance().notifyListeners();
                 
-                handleInsertArticles(articles, -4, true);
-                
-                // Only mark as updated if the calls were successful
-                int count = articles.size();
-                if (count > -1) {
-                    articlesCached = System.currentTimeMillis();
-                    
-                    UpdateController.getInstance().notifyListeners();
-                    
-                    // Store all category-ids and ids of all feeds for this category in db
-                    articlesChanged.put(-4, articlesCached);
-                    for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
-                        articlesChanged.put(f.id, articlesCached);
-                    }
-                    for (Category c : DBHelper.getInstance().getCategoriesIncludingUncategorized()) {
-                        feedsChanged.put(c.id, articlesCached);
-                    }
+                // Store all category-ids and ids of all feeds for this category in db
+                articlesChanged.put(-4, articlesCached);
+                for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
+                    articlesChanged.put(f.id, articlesCached);
                 }
-            } catch (NotInitializedException e) {
+                for (Category c : DBHelper.getInstance().getCategoriesIncludingUncategorized()) {
+                    feedsChanged.put(c.id, articlesCached);
+                }
             }
         }
     }
@@ -163,34 +157,31 @@ public class Data {
             // Calculate an appropriate upper limit for the number of articles
             int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
             
-            try {
-                String viewMode = (displayOnlyUnread ? VIEW_NEW : VIEW_ALL);
-                Set<ArticleContainer> articles = new HashSet<ArticleContainer>();
+            String viewMode = (displayOnlyUnread ? VIEW_NEW : VIEW_ALL);
+            Set<ArticleContainer> articles = new HashSet<ArticleContainer>();
+            
+            // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
+            if (needUnreadUpdate && !displayOnlyUnread)
+                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_NEW, isCat);
+            
+            Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat);
+            
+            handleInsertArticles(articles, feedId, isCat);
+            
+            // Only mark as updated if the first call was successful
+            int count = articles.size();
+            if (count != -1) {
+                long currentTime = System.currentTimeMillis();
+                // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
+                // requested
+                articlesChanged.put(feedId, currentTime);
+                UpdateController.getInstance().notifyListeners();
                 
-                // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
-                if (needUnreadUpdate && !displayOnlyUnread)
-                    Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_NEW, isCat);
-                
-                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat);
-                
-                handleInsertArticles(articles, feedId, isCat);
-                
-                // Only mark as updated if the first call was successful
-                int count = articles.size();
-                if (count != -1) {
-                    long currentTime = System.currentTimeMillis();
-                    // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
-                    // requested
-                    articlesChanged.put(feedId, currentTime);
-                    UpdateController.getInstance().notifyListeners();
-                    
-                    if (isCat) {
-                        for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
-                            articlesChanged.put(f.id, currentTime);
-                        }
+                if (isCat) {
+                    for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
+                        articlesChanged.put(f.id, currentTime);
                     }
                 }
-            } catch (NotInitializedException e) {
             }
         }
     }
@@ -259,30 +250,27 @@ public class Data {
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
-            try {
-                Set<Feed> ret = new LinkedHashSet<Feed>();
-                Set<Feed> feeds = Controller.getInstance().getConnector().getFeeds();
-                
-                // Only delete feeds if we got new feeds...
-                if (!feeds.isEmpty()) {
-                    for (Feed f : feeds) {
-                        if (categoryId == VCAT_ALL || f.categoryId == categoryId)
-                            ret.add(f);
-                    }
-                    DBHelper.getInstance().deleteFeeds();
-                    DBHelper.getInstance().insertFeeds(feeds);
-                    
-                    // Store requested category-id and ids of all received feeds
-                    feedsChanged.put(categoryId, System.currentTimeMillis());
-                    UpdateController.getInstance().notifyListeners();
-                    for (Feed f : feeds) {
-                        feedsChanged.put(f.categoryId, System.currentTimeMillis());
-                    }
+            Set<Feed> ret = new LinkedHashSet<Feed>();
+            Set<Feed> feeds = Controller.getInstance().getConnector().getFeeds();
+            
+            // Only delete feeds if we got new feeds...
+            if (!feeds.isEmpty()) {
+                for (Feed f : feeds) {
+                    if (categoryId == VCAT_ALL || f.categoryId == categoryId)
+                        ret.add(f);
                 }
+                DBHelper.getInstance().deleteFeeds();
+                DBHelper.getInstance().insertFeeds(feeds);
                 
-                return ret;
-            } catch (NotInitializedException e) {
+                // Store requested category-id and ids of all received feeds
+                feedsChanged.put(categoryId, System.currentTimeMillis());
+                UpdateController.getInstance().notifyListeners();
+                for (Feed f : feeds) {
+                    feedsChanged.put(f.categoryId, System.currentTimeMillis());
+                }
             }
+            
+            return ret;
         }
         return null;
     }
@@ -326,20 +314,17 @@ public class Data {
         if (categoriesChanged > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isConnected(cm) || overrideOffline) {
-            try {
-                Set<Category> categories = Controller.getInstance().getConnector().getCategories();
+            Set<Category> categories = Controller.getInstance().getConnector().getCategories();
+            
+            if (!categories.isEmpty()) {
+                DBHelper.getInstance().deleteCategories(false);
+                DBHelper.getInstance().insertCategories(categories);
                 
-                if (!categories.isEmpty()) {
-                    DBHelper.getInstance().deleteCategories(false);
-                    DBHelper.getInstance().insertCategories(categories);
-                    
-                    categoriesChanged = System.currentTimeMillis();
-                    UpdateController.getInstance().notifyListeners();
-                }
-                
-                return categories;
-            } catch (NotInitializedException e) {
+                categoriesChanged = System.currentTimeMillis();
+                UpdateController.getInstance().notifyListeners();
             }
+            
+            return categories;
         }
         return null;
     }
@@ -349,11 +334,7 @@ public class Data {
     public void setArticleRead(Set<Integer> ids, int articleState) {
         boolean erg = false;
         if (Utils.isConnected(cm))
-            try {
-                erg = Controller.getInstance().getConnector().setArticleRead(ids, articleState);
-            } catch (NotInitializedException e) {
-                return;
-            }
+            erg = Controller.getInstance().getConnector().setArticleRead(ids, articleState);
         
         if (!erg)
             DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, articleState);
@@ -365,11 +346,7 @@ public class Data {
         ids.add(articleId);
         
         if (Utils.isConnected(cm))
-            try {
-                erg = Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
-            } catch (NotInitializedException e) {
-                return;
-            }
+            erg = Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
         
         if (!erg)
             DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, articleState);
@@ -381,11 +358,7 @@ public class Data {
         ids.put(articleId, note);
         
         if (Utils.isConnected(cm))
-            try {
-                erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
-            } catch (NotInitializedException e) {
-                return;
-            }
+            erg = Controller.getInstance().getConnector().setArticlePublished(ids, articleState);
         
         // Write changes to cache if calling the server failed
         if (!erg) {
@@ -405,11 +378,7 @@ public class Data {
         
         boolean erg = false;
         if (Utils.isConnected(cm)) {
-            try {
-                erg = Controller.getInstance().getConnector().setRead(id, isCategory);
-            } catch (NotInitializedException e) {
-                return;
-            }
+            erg = Controller.getInstance().getConnector().setRead(id, isCategory);
         }
         
         if (isCategory || id < 0) {
@@ -421,33 +390,27 @@ public class Data {
         
     }
     
+    public boolean shareToPublished(String title, String url, String content) {
+        if (Utils.isConnected(cm))
+            return Controller.getInstance().getConnector().shareToPublished(title, url, content);
+        return false;
+    }
+    
     public String getPref(String pref) {
         if (Utils.isConnected(cm))
-            try {
-                return Controller.getInstance().getConnector().getPref(pref);
-            } catch (NotInitializedException e) {
-                return null;
-            }
+            return Controller.getInstance().getConnector().getPref(pref);
         return null;
     }
     
     public int getVersion() {
         if (Utils.isConnected(cm))
-            try {
-                return Controller.getInstance().getConnector().getVersion();
-            } catch (NotInitializedException e) {
-                return -1;
-            }
+            return Controller.getInstance().getConnector().getVersion();
         return -1;
     }
     
     public int getApiLevel() {
         if (Utils.isConnected(cm))
-            try {
-                return Controller.getInstance().getConnector().getApiLevel();
-            } catch (NotInitializedException e) {
-                return -1;
-            }
+            return Controller.getInstance().getConnector().getApiLevel();
         return -1;
     }
     
@@ -469,17 +432,13 @@ public class Data {
         
         boolean erg = false;
         if (Utils.isConnected(cm)) {
-            try {
-                Log.d(Utils.TAG, "Calling connector with Label: " + label + ") and ids.size() " + articleIds.size());
-                erg = Controller.getInstance().getConnector().setArticleLabel(articleIds, label.getId(), label.checked);
-            } catch (NotInitializedException e) {
-                erg = false;
-            }
+            Log.d(Utils.TAG, "Calling connector with Label: " + label + ") and ids.size() " + articleIds.size());
+            erg = Controller.getInstance().getConnector().setArticleLabel(articleIds, label.getId(), label.checked);
         }
         return erg;
     }
     
-    public void synchronizeStatus() throws NotInitializedException {
+    public void synchronizeStatus() {
         if (!Utils.isConnected(cm))
             return;
         

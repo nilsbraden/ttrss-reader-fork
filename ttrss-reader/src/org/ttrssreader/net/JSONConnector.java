@@ -107,6 +107,8 @@ public class JSONConnector {
     private static final String VALUE_GET_VERSION = "getVersion";
     private static final String VALUE_GET_LABELS = "getLabels";
     private static final String VALUE_SET_LABELS = "setArticleLabel";
+    private static final String VALUE_SHARE_TO_PUBLISHED = "shareToPublished";
+    
     private static final String VALUE_LABEL_ID = "label_id";
     private static final String VALUE_ASSIGN = "assign";
     private static final String VALUE_API_LEVEL = "getApiLevel";
@@ -122,8 +124,8 @@ public class JSONConnector {
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
     private static final String STATUS = "status";
     
-    private static final String SESSION_ID = "session_id"; // session id as an out parameter
-    private static final String SID = "sid"; // session id as an in parameter
+    private static final String SESSION_ID = "session_id"; // session id as an OUT parameter
+    private static final String SID = "sid"; // session id as an IN parameter
     private static final String ID = "id";
     private static final String TITLE = "title";
     private static final String UNREAD = "unread";
@@ -132,6 +134,7 @@ public class JSONConnector {
     private static final String UPDATED = "updated";
     private static final String CONTENT = "content";
     private static final String URL = "link";
+    private static final String URL_SHARE = "url";
     private static final String FEED_URL = "feed_url";
     private static final String COMMENT_URL = "comments";
     private static final String ATTACHMENTS = "attachments";
@@ -1327,6 +1330,15 @@ public class JSONConnector {
         }
         
         return ret;
+    }
+    
+    public boolean shareToPublished(String title, String url, String content) {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_SHARE_TO_PUBLISHED);
+        params.put(TITLE, title);
+        params.put(URL_SHARE, url);
+        params.put(CONTENT, content);
+        return doRequestNoAnswer(params);
     }
     
     /**
