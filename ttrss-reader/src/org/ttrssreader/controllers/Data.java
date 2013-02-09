@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ttrssreader.R;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
@@ -103,7 +104,7 @@ public class Data {
             
             int sinceId = Controller.getInstance().getSinceId();
             
-            Set<ArticleContainer> articles = new HashSet<ArticleContainer>();
+            Set<Article> articles = new HashSet<Article>();
             Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_NEW, true);
             Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_ALL, true, sinceId);
             
@@ -158,7 +159,7 @@ public class Data {
             int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
             
             String viewMode = (displayOnlyUnread ? VIEW_NEW : VIEW_ALL);
-            Set<ArticleContainer> articles = new HashSet<ArticleContainer>();
+            Set<Article> articles = new HashSet<Article>();
             
             // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
             if (needUnreadUpdate && !displayOnlyUnread)
@@ -223,11 +224,11 @@ public class Data {
         return limit;
     }
     
-    private void handleInsertArticles(Collection<ArticleContainer> articles, int feedId, boolean isCategory) {
+    private void handleInsertArticles(Collection<Article> articles, int feedId, boolean isCategory) {
         int maxArticleId = Integer.MIN_VALUE;
         
         if (articles.size() > 0) {
-            for (ArticleContainer a : articles) {
+            for (Article a : articles) {
                 if (a.id > maxArticleId)
                     maxArticleId = a.id; // Store maximum id
             }
