@@ -197,5 +197,9 @@
     <string name="Cache.service_text">Download läuft…</string>
     <string name="Cache.service_imagecache">Bild-Cache</string>
     <string name="Cache.service_articlecache">Artikel-Cache</string>
+    <string name="Share.title">Titel</string>
+    <string name="Share.url">Adresse</string>
+    <string name="Share.content">Inhalt</string>
+    <string name="Share.ok_button">Absenden</string>
 
 </resources>

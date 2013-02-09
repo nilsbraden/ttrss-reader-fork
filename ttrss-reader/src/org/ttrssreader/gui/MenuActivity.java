@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.gui.dialogs.ErrorDialog;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IConfigurable;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
@@ -48,8 +49,9 @@ import com.actionbarsherlock.view.Window;
 public abstract class MenuActivity extends SherlockFragmentActivity implements IUpdateEndListener, ICacheEndListener,
         IConfigurable, IItemSelectedListener, IDataChangedListener {
     
+    protected final Context context = this;
+    
     protected Updater updater;
-    protected Context context = null;
     protected boolean isTablet = false;
     
     protected static final int MARK_GROUP = 42;
@@ -64,8 +66,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         super.onCreate(instance);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
-        
-        context = getApplicationContext();
         
         // Initialize Singletons for Config, Data-Access and DB
         Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
@@ -174,19 +174,23 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         super.onPrepareOptionsMenu(menu);
         
         MenuItem offline = menu.findItem(R.id.Menu_WorkOffline);
-        if (Controller.getInstance().workOffline()) {
-            offline.setTitle(getString(R.string.UsageOnlineTitle));
-            offline.setIcon(R.drawable.ic_menu_play_clip);
-        } else {
-            offline.setTitle(getString(R.string.UsageOfflineTitle));
-            offline.setIcon(R.drawable.ic_menu_stop);
+        if (offline != null) {
+            if (Controller.getInstance().workOffline()) {
+                offline.setTitle(getString(R.string.UsageOnlineTitle));
+                offline.setIcon(R.drawable.ic_menu_play_clip);
+            } else {
+                offline.setTitle(getString(R.string.UsageOfflineTitle));
+                offline.setIcon(R.drawable.ic_menu_stop);
+            }
         }
         
         MenuItem displayUnread = menu.findItem(R.id.Menu_DisplayOnlyUnread);
-        if (Controller.getInstance().onlyUnread()) {
-            displayUnread.setTitle(getString(R.string.Commons_DisplayAll));
-        } else {
-            displayUnread.setTitle(getString(R.string.Commons_DisplayOnlyUnread));
+        if (displayUnread != null) {
+            if (Controller.getInstance().onlyUnread()) {
+                displayUnread.setTitle(getString(R.string.Commons_DisplayAll));
+            } else {
+                displayUnread.setTitle(getString(R.string.Commons_DisplayOnlyUnread));
+            }
         }
         
         return true;
@@ -300,6 +304,10 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
         // finish();
+    }
+    
+    protected void showErrorDialog(String message) {
+        new ErrorDialog(this, message).show(getSupportFragmentManager(), "error");
     }
     
     protected void refreshAndUpdate() {

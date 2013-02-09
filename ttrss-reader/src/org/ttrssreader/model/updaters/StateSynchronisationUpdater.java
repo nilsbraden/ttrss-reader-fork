@@ -16,17 +16,12 @@
 package org.ttrssreader.model.updaters;
 
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.NotInitializedException;
 
 public class StateSynchronisationUpdater implements IUpdatable {
     
     @Override
     public void update(Updater parent) {
-        try {
-            Data.getInstance().synchronizeStatus();
-        } catch (NotInitializedException e) {
-            return;
-        }
+        Data.getInstance().synchronizeStatus();
     }
     
 }

@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 4.1 ==
+  * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.
+  * 
+
 == Version 1.4 ==
   * Added Label-Editing for articles
   * Fixed some bugs preventing labels from beeing refreshed properly
