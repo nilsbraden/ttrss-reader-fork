@@ -18,6 +18,8 @@
 <resources>
 
     <string-array name="updates">
+    	<item>Version 1.41
+    		\n * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.</item>
         <item>Version 1.4
             \n * Added Label-Editing for articles
 			\n * Fixed some bugs preventing labels from beeing refreshed properly
