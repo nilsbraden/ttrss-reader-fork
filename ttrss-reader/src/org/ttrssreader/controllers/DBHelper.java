@@ -209,6 +209,7 @@ public class DBHelper {
         }
     }
     
+    @SuppressWarnings("deprecation")
     private synchronized boolean initializeDBHelper() {
         
         if (context == null) {

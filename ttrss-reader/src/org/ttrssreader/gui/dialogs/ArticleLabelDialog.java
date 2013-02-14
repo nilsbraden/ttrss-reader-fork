@@ -34,6 +34,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class ArticleLabelDialog extends DialogFragment {
     
@@ -86,6 +87,12 @@ public class ArticleLabelDialog extends DialogFragment {
                 }
             });
             labelsView.addView(checkbox);
+        }
+        
+        if (labels.size() == 0) {
+            TextView tv = new TextView(getActivity());
+            tv.setText(R.string.Labels_NoLabels);
+            labelsView.addView(tv);
         }
     }
     
