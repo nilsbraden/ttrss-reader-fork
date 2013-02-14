@@ -209,5 +209,6 @@
     <string name="Share.url">URL</string>
     <string name="Share.content">Content</string>
     <string name="Share.ok_button">Send</string>
+    <string name="Labels.NoLabels">Keine Labels vorhanden.</string>
 
 </resources>
