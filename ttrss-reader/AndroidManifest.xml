@@ -29,6 +29,7 @@
 
     <application
         android:allowBackup="true"
+        android:backupAgent="MyBackupAgent"
         android:description="@string/ApplicationDescription"
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName" >
@@ -73,6 +74,10 @@
         </activity>
 
         <service android:name=".imageCache.ForegroundService" />
+
+        <meta-data
+            android:name="com.google.android.backup.api_key"
+            android:value="AEdPqrEAAAAIcba0w17UjQDmiw77rvOrW7sum0Q9WDKOSZ2m8Q" />
     </application>
 
 </manifest>
