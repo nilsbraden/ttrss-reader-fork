@@ -56,17 +56,6 @@ public abstract class MainAdapter extends BaseAdapter {
         makeQuery();
     }
     
-    public final void closeCursor() {
-        // TODO: Evaluate possible solution to
-        // "IllegalStateException: The content of the adapter has changed but ListView did not receive a notification"-problem
-        // if (cursor == null || cursor.isClosed())
-        // return;
-        //
-        // synchronized (poorMansMutex) {
-        // closeCursor(cursor);
-        // }
-    }
-    
     public final void closeCursor(Cursor c) {
         if (c == null || c.isClosed())
             return;
