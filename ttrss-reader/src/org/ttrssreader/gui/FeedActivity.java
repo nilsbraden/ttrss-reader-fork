@@ -79,35 +79,11 @@ public class FeedActivity extends MenuActivity {
         refreshAndUpdate();
     }
     
-    private void closeCursor() {
-        if (adapter != null)
-            adapter.closeCursor();
-    }
-    
     @Override
     protected void onPause() {
         super.onPause();
         UpdateController.getInstance().unregisterActivity(this);
     }
-    
-    @Override
-    protected void onStop() {
-        super.onStop();
-        closeCursor();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        closeCursor();
-    }
-    
-    // @Override
-    // protected void onSaveInstanceState(Bundle outState) {
-    // outState.putInt(FEED_CAT_ID, categoryId);
-    // outState.putString(FEED_CAT_TITLE, categoryTitle);
-    // super.onSaveInstanceState(outState);
-    // }
     
     @Override
     protected void doRefresh() {

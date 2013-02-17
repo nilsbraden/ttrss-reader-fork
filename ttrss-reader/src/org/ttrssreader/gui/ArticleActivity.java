@@ -218,12 +218,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         doRefresh();
     }
     
-    private void closeCursor() {
-        if (parentAdapter != null) {
-            parentAdapter.closeCursor();
-        }
-    }
-    
     @Override
     protected void onPause() {
         // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
@@ -240,7 +234,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         super.onStop();
-        closeCursor();
     }
     
     @Override
@@ -254,7 +247,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         webContainer.removeAllViews();
         webView.destroy();
         webView = null;
-        closeCursor();
     }
     
     @Override

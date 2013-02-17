@@ -137,40 +137,12 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         refreshAndUpdate();
     }
     
-    private void closeCursor() {
-        if (adapter != null)
-            adapter.closeCursor();
-        if (parentAdapter != null)
-            parentAdapter.closeCursor();
-    }
-    
     @Override
     protected void onPause() {
         super.onPause();
         
         UpdateController.getInstance().unregisterActivity(this);
     }
-    
-    @Override
-    protected void onStop() {
-        super.onStop();
-        closeCursor();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        closeCursor();
-    }
-    
-    // @Override
-    // protected void onSaveInstanceState(Bundle outState) {
-    // outState.putInt(FEED_CAT_ID, categoryId);
-    // outState.putInt(FEED_ID, feedId);
-    // outState.putString(FEED_TITLE, feedTitle);
-    // outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
-    // super.onSaveInstanceState(outState);
-    // }
     
     @Override
     protected void doRefresh() {

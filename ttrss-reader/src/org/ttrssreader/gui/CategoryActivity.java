@@ -136,27 +136,10 @@ public class CategoryActivity extends MenuActivity {
         refreshAndUpdate();
     }
     
-    private void closeCursor() {
-        if (adapter != null)
-            adapter.closeCursor();
-    }
-    
     @Override
     protected void onPause() {
         super.onPause();
         UpdateController.getInstance().unregisterActivity(this);
-    }
-    
-    @Override
-    protected void onStop() {
-        super.onStop();
-        closeCursor();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        closeCursor();
     }
     
     @Override
