@@ -164,6 +164,10 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
+        initializeArticle();
+    }
+    
+    private void initializeArticle() {
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
@@ -177,14 +181,19 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             return;
         }
         
-        // Mark as read if necessary, do it here because in doRefresh() it will be done several tiumes even if you set
+        // Mark as read if necessary, do it here because in doRefresh() it will be done several times even if you set
         // it to "unread" in the meantime.
         if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead()) {
             article.isUnread = false;
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
             markedRead = true;
         }
+        
         fillParentInformation();
+        
+        // Initialize mainContainer with buttons or swipe-view
+        mainContainer.populate(webView);
+        webviewInitialized = false;
     }
     
     private void fillParentInformation() {
@@ -283,7 +292,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             return;
         }
         
-        // Get article from DB only if necessary
         if (article.content == null)
             return;
         
@@ -294,16 +302,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             headerContainer.setVisibility(View.GONE);
         }
         
-        // Initialize mainContainer with buttons or swipe-view
-        mainContainer.populate(webView);
-        
         final int contentLength = article.content.length();
         
         // Inject the specific code for attachments, <img> for images, http-link for Videos
         StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(article.content),
                 article.attachments);
         
-        // if (article.cachedImages)
         // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
         contentTmp = injectArticleLink(getApplicationContext(), contentTmp);
         content = injectCachedImages(contentTmp.toString(), articleId);
@@ -487,16 +491,20 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             return;
         }
         
-        Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ARTICLE_ID, id);
-        i.putExtra(ARTICLE_FEED_ID, feedId);
-        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        i.putExtra(ARTICLE_MOVE, direction); // Store direction so next article can evaluate if we are running into
-                                             // a "wall"
+        // Intent i = new Intent(this, ArticleActivity.class);
+        // i.putExtra(ARTICLE_ID, id);
+        // i.putExtra(ARTICLE_FEED_ID, feedId);
+        // i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+        // i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        // i.putExtra(ARTICLE_MOVE, direction); // Store direction so next article can evaluate if we are running into a "wall"
+        //
+        // startActivityForResult(i, 0);
+        // finish();
         
-        startActivityForResult(i, 0);
-        finish();
+        this.articleId = id;
+        this.lastMove = direction;
+        initializeArticle();
+        doRefresh();
     }
     
     private boolean doVibrate(int newIndex) {
