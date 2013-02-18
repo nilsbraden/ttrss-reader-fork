@@ -164,10 +164,10 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
-        initializeArticle();
+        initialize();
     }
     
-    private void initializeArticle() {
+    private void initialize() {
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
@@ -483,19 +483,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             return;
         }
         
-        // Intent i = new Intent(this, ArticleActivity.class);
-        // i.putExtra(ARTICLE_ID, id);
-        // i.putExtra(ARTICLE_FEED_ID, feedId);
-        // i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-        // i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        // i.putExtra(ARTICLE_MOVE, direction); // Store direction so next article can evaluate if we are running into a "wall"
-        //
-        // startActivityForResult(i, 0);
-        // finish();
-        
         this.articleId = id;
         this.lastMove = direction;
-        initializeArticle();
+        initialize();
         doRefresh();
     }
     

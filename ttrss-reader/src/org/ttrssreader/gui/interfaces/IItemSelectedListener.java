@@ -22,6 +22,6 @@ public interface IItemSelectedListener {
         CATEGORY, FEED, FEEDHEADLINE, NONE
     }
     
-    public void itemSelected(TYPE type, int selectedIndex, int oldIndex);
+    public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId);
     
 }

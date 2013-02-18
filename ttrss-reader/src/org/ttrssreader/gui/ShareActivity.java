@@ -3,7 +3,6 @@ package org.ttrssreader.gui;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.utils.AsyncTask;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -109,8 +108,7 @@ public class ShareActivity extends MenuActivity {
     }
     
     // @formatter:off // Not needed here:
-    @Override public void setAdapter(MainAdapter adapter) { }
-    @Override public void itemSelected(TYPE type, int selectedIndex, int oldIndex) { }
+    @Override public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) { }
     @Override protected void doRefresh() { }
     @Override protected void doUpdate(boolean forceUpdate) { }
     @Override protected void onDataChanged() { }

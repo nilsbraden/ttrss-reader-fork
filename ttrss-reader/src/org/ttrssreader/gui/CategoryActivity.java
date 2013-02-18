@@ -27,9 +27,9 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.gui.fragments.CategoryListFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
-import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
@@ -50,10 +50,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import com.actionbarsherlock.view.MenuItem;
 
 public class CategoryActivity extends MenuActivity {
@@ -67,18 +63,14 @@ public class CategoryActivity extends MenuActivity {
     private static final int SELECTED_CATEGORY = 2;
     private static final int SELECTED_LABEL = 3;
     
-    private static final int SELECT_ARTICLES = MenuActivity.MARK_GROUP + 54;
-    
     private String applicationName = null;
     public boolean cacherStarted = false;
     
-    private CategoryAdapter adapter = null; // Remember to explicitly check every access to adapter for it beeing null!
     private CategoryUpdater categoryUpdater = null;
     
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        // Log.d(Utils.TAG, "onCreate - CategoryActivity");
         setContentView(R.layout.categorylist);
         
         // Register our own ExceptionHander
@@ -86,6 +78,12 @@ public class CategoryActivity extends MenuActivity {
         
         // Delete DB if requested
         Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
+        
+        CategoryListFragment fragment = new CategoryListFragment();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.category_list, fragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.commit();
         
         if (!Utils.checkFirstRun(this)) { // Check for new installation
             showDialog(DIALOG_WELCOME);
@@ -127,11 +125,7 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     protected void onResume() {
-        if (adapter != null)
-            adapter.makeQuery(true);
-        
         super.onResume();
-        
         UpdateController.getInstance().registerActivity(this);
         refreshAndUpdate();
     }
@@ -149,8 +143,9 @@ public class CategoryActivity extends MenuActivity {
         int unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
         setTitle(MainAdapter.formatTitle(applicationName, unreadCount));
         
-        if (adapter != null)
-            adapter.refreshQuery();
+        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.category_list));
+        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
+        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
         
         if (Controller.getInstance().getConnector().hasLastError())
             openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
@@ -182,40 +177,6 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(MARK_GROUP, SELECT_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
-    }
-    
-    @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        Log.d(Utils.TAG, "CategoryActivity: onContextItemSelected called");
-        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        if (adapter == null)
-            return false;
-        
-        int id = adapter.getId(cmi.position);
-        
-        switch (item.getItemId()) {
-            case MARK_READ:
-                if (id < -10)
-                    new Updater(this, new ReadStateUpdater(id, 42)).exec();
-                new Updater(this, new ReadStateUpdater(id)).exec();
-                return true;
-            case SELECT_ARTICLES:
-                if (id < 0)
-                    return false; // Do nothing for Virtual Category or Labels
-                Intent i = new Intent(context, FeedHeadlineActivity.class);
-                i.putExtra(FeedHeadlineActivity.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
-                i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, id);
-                i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(cmi.position));
-                i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, true);
-                startActivity(i);
-        }
-        return false;
-    }
-    
-    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
@@ -223,10 +184,9 @@ public class CategoryActivity extends MenuActivity {
                 doUpdate(true);
                 return true;
             case R.id.Menu_MarkAllRead:
-                if (adapter != null) {
-                    new Updater(this, new ReadStateUpdater(adapter.getCategories())).exec();
-                    return true;
-                }
+                new Updater(this, new ReadStateUpdater(DBHelper.getInstance().getCategoriesIncludingUncategorized()))
+                        .exec();
+                return true;
             default:
                 return false;
         }
@@ -236,7 +196,7 @@ public class CategoryActivity extends MenuActivity {
         
         private int taskCount = 0;
         private static final int DEFAULT_TASK_COUNT = 4;
-        boolean forceUpdate;
+        private boolean forceUpdate;
         
         public CategoryUpdater(boolean forceUpdate) {
             this.forceUpdate = forceUpdate;
@@ -279,7 +239,6 @@ public class CategoryActivity extends MenuActivity {
             
             // Silently try to synchronize any ids left in TABLE_MARK
             Data.getInstance().synchronizeStatus();
-            
             return null;
         }
         
@@ -290,10 +249,8 @@ public class CategoryActivity extends MenuActivity {
                 setSupportProgressBarVisibility(false);
                 return;
             }
-            
             setProgress((10000 / (taskCount + 1)) * values[0]);
         }
-        
     }
     
     @Override
@@ -303,7 +260,6 @@ public class CategoryActivity extends MenuActivity {
         builder.setCancelable(true);
         
         final Context context = this;
-        
         switch (id) {
             case DIALOG_WELCOME:
                 
@@ -442,19 +398,7 @@ public class CategoryActivity extends MenuActivity {
     }
     
     @Override
-    public void setAdapter(MainAdapter adapter) {
-        if (adapter instanceof CategoryAdapter)
-            this.adapter = (CategoryAdapter) adapter;
-    }
-    
-    @Override
-    public void itemSelected(TYPE type, int selectedIndex, int oldIndex) {
-        // Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
-        if (adapter == null) {
-            Log.w(Utils.TAG, "CategoryActivity: Adapter shouldn't be null here...");
-            return;
-        }
-        
+    public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
         // Who is calling?
         switch (type) {
             case CATEGORY:
@@ -471,9 +415,7 @@ public class CategoryActivity extends MenuActivity {
         }
         
         // Decide what kind of item was selected
-        int selectedId = adapter.getId(selectedIndex);
         final int selection;
-        
         if (selectedId < 0 && selectedId >= -4) {
             selection = SELECTED_VIRTUAL_CATEGORY;
         } else if (selectedId < -10) {
@@ -484,11 +426,7 @@ public class CategoryActivity extends MenuActivity {
         
         // Find out if we are using a wide screen
         ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
-        
         if (secondPane != null && secondPane.isInLayout()) {
-            
-            Log.d(Utils.TAG, "Filling right pane... (" + selectedIndex + " " + oldIndex + ")");
-            
             // Set the list item as checked
             // getListView().setItemChecked(selectedIndex, true);
             
@@ -502,17 +440,15 @@ public class CategoryActivity extends MenuActivity {
             
             switch (selection) {
                 case SELECTED_VIRTUAL_CATEGORY:
-                    feedHeadlineFragment = FeedHeadlineListFragment.newInstance(selectedId,
-                            adapter.getTitle(selectedIndex), 0, false);
-                    ft.replace(R.id.feed_headline_list, feedHeadlineFragment);
+                    feedHeadlineFragment = FeedHeadlineListFragment.newInstance(selectedId, 0, false);
+                    ft.replace(R.id.headline_list, feedHeadlineFragment);
                     break;
                 case SELECTED_LABEL:
-                    feedHeadlineFragment = FeedHeadlineListFragment.newInstance(selectedId,
-                            adapter.getTitle(selectedIndex), -2, false);
-                    ft.replace(R.id.feed_headline_list, feedHeadlineFragment);
+                    feedHeadlineFragment = FeedHeadlineListFragment.newInstance(selectedId, -2, false);
+                    ft.replace(R.id.headline_list, feedHeadlineFragment);
                     break;
                 case SELECTED_CATEGORY:
-                    feedFragment = FeedListFragment.newInstance(selectedId, adapter.getTitle(selectedIndex));
+                    feedFragment = FeedListFragment.newInstance(selectedId);
                     ft.replace(R.id.feed_list, feedFragment);
                     break;
             }
@@ -524,30 +460,23 @@ public class CategoryActivity extends MenuActivity {
             ft.commit();
             
         } else {
-            
-            // This is not a tablet - start a new activity
             Intent i = null;
             switch (selection) {
                 case SELECTED_VIRTUAL_CATEGORY:
                     i = new Intent(context, FeedHeadlineActivity.class);
                     i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
-                    i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
                     break;
                 case SELECTED_LABEL:
                     i = new Intent(context, FeedHeadlineActivity.class);
                     i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
                     i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, -2);
-                    i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
                     break;
                 case SELECTED_CATEGORY:
                     i = new Intent(context, FeedActivity.class);
                     i.putExtra(FeedActivity.FEED_CAT_ID, selectedId);
-                    i.putExtra(FeedActivity.FEED_CAT_TITLE, adapter.getTitle(selectedIndex));
                     break;
             }
-            if (i != null)
-                startActivity(i);
-            
+            startActivity(i);
         }
     }
     

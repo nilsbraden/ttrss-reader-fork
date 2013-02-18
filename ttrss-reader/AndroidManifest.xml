@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ttrssreader"
     android:installLocation="auto"
-    android:versionCode="1411"
-    android:versionName="1.41" >
+    android:versionCode="1420"
+    android:versionName="1.42" >
 
     <uses-sdk
         android:minSdkVersion="7"

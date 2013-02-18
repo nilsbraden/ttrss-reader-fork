@@ -18,31 +18,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    android:baselineAligned="false" >
 
-    <fragment
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/list"
+    <FrameLayout
+        android:id="@+id/category_list"
         android:layout_width="0px"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        class="org.ttrssreader.gui.fragments.CategoryListFragment" />
+        android:layout_weight="1" />
 
-    <fragment
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout
         android:id="@+id/feed_list"
         android:layout_width="0px"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        class="org.ttrssreader.gui.fragments.FeedListFragment" />
+        android:layout_weight="1" />
 
-    <fragment
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/feed_headline_list"
+    <FrameLayout
+        android:id="@+id/headline_list"
         android:layout_width="0px"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        class="org.ttrssreader.gui.fragments.FeedHeadlineListFragment" />
+        android:layout_weight="1" />
 
     <FrameLayout
         android:id="@+id/details"
