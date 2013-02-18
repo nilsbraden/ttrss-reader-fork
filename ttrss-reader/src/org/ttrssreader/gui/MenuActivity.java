@@ -23,7 +23,6 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
-import org.ttrssreader.gui.interfaces.IConfigurable;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
@@ -34,6 +33,7 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -47,19 +47,19 @@ import com.actionbarsherlock.view.Window;
  * FeedHeadlineListActivity).
  */
 public abstract class MenuActivity extends SherlockFragmentActivity implements IUpdateEndListener, ICacheEndListener,
-        IConfigurable, IItemSelectedListener, IDataChangedListener {
+        IItemSelectedListener, IDataChangedListener {
     
     protected final Context context = this;
     
     protected Updater updater;
     protected boolean isTablet = false;
     
-    protected static final int MARK_GROUP = 42;
-    protected static final int MARK_READ = MARK_GROUP + 1;
-    protected static final int MARK_STAR = MARK_GROUP + 2;
-    protected static final int MARK_PUBLISH = MARK_GROUP + 3;
-    protected static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
-    protected static final int MARK_ABOVE_READ = MARK_GROUP + 5;
+    public static final int MARK_GROUP = 42;
+    public static final int MARK_READ = MARK_GROUP + 1;
+    public static final int MARK_STAR = MARK_GROUP + 2;
+    public static final int MARK_PUBLISH = MARK_GROUP + 3;
+    public static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
+    public static final int MARK_ABOVE_READ = MARK_GROUP + 5;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -327,5 +327,12 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected abstract void doUpdate(boolean forceUpdate);
     
     protected abstract void onDataChanged();
+    
+    protected void doRefreshFragment(Fragment fragment) {
+        if (fragment instanceof IUpdateEndListener) {
+            IUpdateEndListener listener = (IUpdateEndListener) fragment;
+            listener.onUpdateEnd();
+        }
+    }
     
 }

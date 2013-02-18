@@ -22,57 +22,53 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
-import org.ttrssreader.model.FeedAdapter;
+import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.Utils;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import com.actionbarsherlock.view.MenuItem;
 
 public class FeedActivity extends MenuActivity {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
-    public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
     
-    // Extras
     private int categoryId;
-    private String categoryTitle;
-    
-    private FeedAdapter adapter = null; // Remember to explicitly check every access to adapter for it beeing null!
     private FeedUpdater feedUpdater = null;
+    private String title = "";
     
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        // Log.d(Utils.TAG, "onCreate - FeedActivity");
         setContentView(R.layout.feedlist);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             categoryId = extras.getInt(FEED_CAT_ID);
-            categoryTitle = extras.getString(FEED_CAT_TITLE);
         } else if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
-            categoryTitle = instance.getString(FEED_CAT_TITLE);
         } else {
             categoryId = -1;
-            categoryTitle = null;
         }
+        
+        FeedListFragment fragment = FeedListFragment.newInstance(categoryId);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.feed_list, fragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.commit();
+        
+        Category category = DBHelper.getInstance().getCategory(categoryId);
+        if (category != null)
+            title = category.title;
     }
     
     @Override
     protected void onResume() {
-        if (adapter != null)
-            adapter.makeQuery(true);
-        
         super.onResume();
         
         UpdateController.getInstance().registerActivity(this);
@@ -88,10 +84,10 @@ public class FeedActivity extends MenuActivity {
     @Override
     protected void doRefresh() {
         int unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
-        setTitle(MainAdapter.formatTitle(categoryTitle, unreadCount));
+        setTitle(MainAdapter.formatTitle(title, unreadCount));
         
-        if (adapter != null)
-            adapter.refreshQuery();
+        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
+        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
         
         if (Controller.getInstance().getConnector().hasLastError())
             openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
@@ -120,16 +116,6 @@ public class FeedActivity extends MenuActivity {
             feedUpdater = new FeedUpdater(forceUpdate);
             feedUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
-    }
-    
-    @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        if (item.getItemId() == MARK_READ) {
-            new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
-            return true;
-        }
-        return false;
     }
     
     @Override
@@ -197,26 +183,9 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    public void setAdapter(MainAdapter adapter) {
-        if (adapter instanceof FeedAdapter)
-            this.adapter = (FeedAdapter) adapter;
-    }
-    
-    @Override
-    public void itemSelected(TYPE type, int selectedIndex, int oldIndex) {
-        // Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
-        if (adapter == null) {
-            Log.w(Utils.TAG, "FeedActivity: Adapter shouldn't be null here...");
-            return;
-        }
-        
-        // Find out if we are using a wide screen
+    public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
         ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
-        
         if (secondPane != null && secondPane.isInLayout()) {
-            
-            Log.d(Utils.TAG, "Filling right pane... (" + selectedIndex + " " + oldIndex + ")");
-            
             // Set the list item as checked
             // getListView().setItemChecked(selectedIndex, true);
             
@@ -227,27 +196,19 @@ public class FeedActivity extends MenuActivity {
             if (details != null && selectedIndex == oldIndex)
                 return;
             
-            details = FeedHeadlineListFragment.newInstance(adapter.getId(selectedIndex),
-                    adapter.getTitle(selectedIndex), categoryId, false);
+            details = FeedHeadlineListFragment.newInstance(selectedId, categoryId, false);
             
-            // Replace the old fragment with the new one
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.details, details);
-            // Use a fade animation. This makes it clear that this is not a new "layer"
-            // above the current, but a replacement
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
             
         } else {
-            
             // This is not a tablet - start a new activity
             Intent i = new Intent(context, FeedHeadlineActivity.class);
             i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedHeadlineActivity.FEED_ID, adapter.getId(selectedIndex));
-            i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
-            if (i != null)
-                startActivity(i);
-            
+            i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
+            startActivity(i);
         }
     }
     
