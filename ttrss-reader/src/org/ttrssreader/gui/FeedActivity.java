@@ -30,6 +30,7 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import com.actionbarsherlock.view.MenuItem;
@@ -56,9 +57,14 @@ public class FeedActivity extends MenuActivity {
             categoryId = -1;
         }
         
+        // Search old fragment, if it exists replace it, else add new fragment
+        Fragment oldFrag = getSupportFragmentManager().findFragmentById(R.id.feed_list);
         FeedListFragment fragment = FeedListFragment.newInstance(categoryId);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.feed_list, fragment);
+        if (oldFrag != null && oldFrag.isVisible())
+            ft.replace(R.id.feed_list, fragment);
+        else
+            ft.add(R.id.feed_list, fragment);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
         

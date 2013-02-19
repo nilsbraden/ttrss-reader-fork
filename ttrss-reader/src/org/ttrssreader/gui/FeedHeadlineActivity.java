@@ -35,6 +35,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.view.GestureDetector;
@@ -81,9 +82,14 @@ public class FeedHeadlineActivity extends MenuActivity {
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
         }
         
+        // Search old fragment, if it exists replace it, else add new fragment
+        Fragment oldFrag = getSupportFragmentManager().findFragmentById(R.id.headline_list);
         ListFragment fragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.headline_list, fragment);
+        if (oldFrag != null && oldFrag.isVisible())
+            ft.replace(R.id.headline_list, fragment);
+        else
+            ft.add(R.id.headline_list, fragment);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
         
