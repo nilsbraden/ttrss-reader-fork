@@ -47,6 +47,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -79,9 +80,14 @@ public class CategoryActivity extends MenuActivity {
         // Delete DB if requested
         Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
         
+        // Search old fragment, if it exists replace it, else add new fragment
+        Fragment oldFrag = getSupportFragmentManager().findFragmentById(R.id.category_list);
         CategoryListFragment fragment = new CategoryListFragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.category_list, fragment);
+        if (oldFrag != null && oldFrag.isVisible())
+            ft.replace(R.id.category_list, fragment);
+        else
+            ft.add(R.id.category_list, fragment);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
         
