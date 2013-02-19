@@ -21,32 +21,30 @@
         android:id="@+id/Article_Menu_MarkRead"
         android:icon="@drawable/ic_menu_mark"
         android:title="@string/Commons.MarkRead"/>
-
     <item
         android:id="@+id/Article_Menu_MarkStar"
         android:icon="@drawable/ic_menu_star"
         android:title="@string/Commons.MarkStar"/>
-
     <item
         android:id="@+id/Article_Menu_MarkPublish"
         android:icon="@drawable/ic_menu_publish"
         android:title="@string/Commons.MarkPublish"/>
-
     <item
         android:id="@+id/Article_Menu_MarkPublishNote"
         android:icon="@drawable/ic_menu_publish"
         android:title="@string/Commons.MarkPublishNote"/>
-
+    <item
+        android:id="@+id/Article_Menu_AddArticleLabel"
+        android:icon="@drawable/perm_group_app_info"
+        android:title="@string/Commons.AddArticleLabel"/>
     <item
         android:id="@+id/Article_Menu_OpenLink"
         android:icon="@drawable/ic_menu_home"
         android:title="@string/ArticleActivity.OpenLink"/>
-
     <item
         android:id="@+id/Article_Menu_ShareLink"
         android:icon="@drawable/ic_menu_send"
         android:title="@string/ArticleActivity.ShareLink"/>
-
     <item
         android:id="@+id/Article_Menu_WorkOffline"
         android:icon="@drawable/ic_menu_stop"

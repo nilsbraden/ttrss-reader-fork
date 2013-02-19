@@ -18,6 +18,15 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.42
+			\n * Switching to next or previous articles/feeds is much faster now
+			\n * Major refactoring to make use of fragments and someday be able to implement a two-pane-layout…</item>
+        <item>Version 1.41
+    		\n * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.</item>
+        <item>Version 1.4
+            \n * Added Label-Editing for articles
+			\n * Fixed some bugs preventing labels from beeing refreshed properly
+			\n * Fixed some UI glitches in the progressbar</item>
         <item>Version 1.39
             \n * Added preference for "Load images" which, when disabled, forces the Webview to not load any content from the web.
 		    \n * Fixed Issue #99 "Sharing with Firefox Sync"
@@ -94,6 +103,9 @@
             \n * Fixed wrong handling of Usage-options
             \n * Trying to fix ActivityNotFoundExceptions which affected some users
             \n * Added preference for "Inject Article-Link"</item>
+
+        <!-- Old Entries: -->
+        <!--
         <item>Version 1.2
             \n * Added compatibility-code for Android 4.0 (API-Level 14)
             \n * Started working on a thre-pane-layout for tablet-devices (not functional yet)
@@ -123,9 +135,6 @@
         <item>Version 1.08
             \n * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
             \n * Added preference to disable swipe and instead use buttons for browsing articles. Still a bit buggy.</item>
-
-        <!-- Old Entries: -->
-        <!--
         <item>Version 1.07
             \n * Improved speed of calls to API and DB access
             \n * Allow receiving of gzip-compressed data
@@ -269,7 +278,7 @@
             \n * Fixed several usability issues (Issues 36,37,38,41)
             \n * Fixed Issue #40 (Better error-handling for disabled API and Not logged in error)
             \n * Size of Swipe-Area now depends on density and screen-size
-            \n * Icons got some polishing...</item>
+            \n * Icons got some polishing…</item>
         <item>Version 0.7.8:
             \n * Added HTTP-Authentication (Issue #32)
             \n * Fixed Issue with display of all articles (Issue #34)</item>
@@ -303,6 +312,6 @@
         <item>Version 0.6.1: Passwords can contain special characters, Download of attached Audio/Video files)</item>
         <item>Version 0.6: Better check for connectivity, show attached videos and play music</item>
         -->
---></string-array>
+    </string-array>
 
 </resources>

@@ -70,6 +70,7 @@
     <string name="Commons.MarkUnstar">Un-Star</string>
     <string name="Commons.MarkPublish">Publish</string>
     <string name="Commons.MarkPublishNote">Publish with a note</string>
+    <string name="Commons.AddArticleLabel">Add label(s)</string>
     <string name="Commons.MarkUnpublish">Un-Publish</string>
     <string name="Commons.MarkAboveRead">Mark articles above read</string>
     <string name="VCategory.AllArticles">All Articles</string>
@@ -204,6 +205,10 @@
     <string name="Cache.service_started">Download started…</string>
     <string name="Cache.service_text">Download is running…</string>
     <string name="Cache.service_imagecache">ImageCache</string>
-    <string name="Cache.service_articlecache">ArticleCache</string>
+    <string name="Cache.service_articlecache">ArticleCache</string><string name="Share.title">Title</string>
+    <string name="Share.url">URL</string>
+    <string name="Share.content">Content</string>
+    <string name="Share.ok_button">Send</string>
+    <string name="Labels.NoLabels">Keine Labels vorhanden.</string>
 
 </resources>

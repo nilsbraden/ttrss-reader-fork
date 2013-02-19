@@ -31,6 +31,7 @@ import java.util.Set;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -584,17 +585,17 @@ public class DBHelper {
         }
     }
     
-    private void insertArticleIntern(ArticleContainer a) {
+    private void insertArticleIntern(Article a) {
         if (a.title == null)
             a.title = "";
         if (a.content == null)
             a.content = "";
-        if (a.articleUrl == null)
-            a.articleUrl = "";
-        if (a.articleCommentUrl == null)
-            a.articleCommentUrl = "";
-        if (a.updateDate == null)
-            a.updateDate = new Date();
+        if (a.url == null)
+            a.url = "";
+        if (a.commentUrl == null)
+            a.commentUrl = "";
+        if (a.updated == null)
+            a.updated = new Date();
         if (a.attachments == null)
             a.attachments = new LinkedHashSet<String>();
         
@@ -604,9 +605,9 @@ public class DBHelper {
             insertArticle.bindLong(2, a.feedId);
             insertArticle.bindString(3, a.title);
             insertArticle.bindLong(4, (a.isUnread ? 1 : 0));
-            insertArticle.bindString(5, a.articleUrl);
-            insertArticle.bindString(6, a.articleCommentUrl);
-            insertArticle.bindLong(7, a.updateDate.getTime());
+            insertArticle.bindString(5, a.url);
+            insertArticle.bindString(6, a.commentUrl);
+            insertArticle.bindLong(7, a.updated.getTime());
             insertArticle.bindString(8, a.content);
             insertArticle.bindString(9, Utils.separateItems(a.attachments, ";"));
             insertArticle.bindLong(10, (a.isStarred ? 1 : 0));
@@ -619,14 +620,14 @@ public class DBHelper {
             insertLabel(a.id, a.label);
     }
     
-    public void insertArticle(ArticleContainer a) {
+    public void insertArticle(Article a) {
         if (!isDBAvailable())
             return;
         
         insertArticleIntern(a);
     }
     
-    public void insertArticle(Collection<ArticleContainer> articles) {
+    public void insertArticle(Collection<Article> articles) {
         if (!isDBAvailable())
             return;
         if (articles == null || articles.isEmpty())
@@ -634,7 +635,7 @@ public class DBHelper {
         
         db.beginTransaction();
         try {
-            for (ArticleContainer a : articles) {
+            for (Article a : articles) {
                 insertArticleIntern(a);
             }
             db.setTransactionSuccessful();
@@ -724,13 +725,38 @@ public class DBHelper {
         db.execSQL(stmt.toString());
     }
     
-    private void insertLabel(int articleId, int label) {
-        if (label < -10) {
+    public void insertLabel(int articleId, int labelId) {
+        if (!isDBAvailable())
+            return;
+        
+        if (labelId < -10) {
             synchronized (insertLabel) {
                 insertLabel.bindLong(1, articleId);
-                insertLabel.bindLong(2, label);
+                insertLabel.bindLong(2, labelId);
                 insertLabel.executeInsert();
             }
+        }
+    }
+    
+    public void removeLabel(int articleId, int labelId) {
+        if (!isDBAvailable())
+            return;
+        
+        if (labelId < -10) {
+            String[] args = new String[] { articleId + "", labelId + "" };
+            db.delete(TABLE_ARTICLES2LABELS, "articleId=? AND labelId=?", args);
+        }
+    }
+    
+    public void insertLabels(Set<Integer> articleIds, int label, boolean assign) {
+        if (!isDBAvailable())
+            return;
+        
+        for (Integer articleId : articleIds) {
+            if (assign)
+                insertLabel(articleId, label);
+            else
+                removeLabel(articleId, label);
         }
     }
     
@@ -1116,6 +1142,41 @@ public class DBHelper {
         return ret;
     }
     
+    public Set<Label> getLabelsForArticle(int articleId) {
+        Set<Label> ret = new HashSet<Label>();
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = null;
+        try {
+            // @formatter:off
+            String sql =      "SELECT f.id, f.title, 0 checked FROM " + TABLE_FEEDS + " f "
+                      		+ "     WHERE f.id <= -11 AND"
+                    		+ "     NOT EXISTS (SELECT * FROM " + TABLE_ARTICLES2LABELS + " a2l where f.id = a2l.labelId AND a2l.articleId = " + articleId + ")"
+                            + " UNION"
+                            + " SELECT f.id, f.title, 1 checked FROM " + TABLE_FEEDS + " f, " + TABLE_ARTICLES2LABELS + " a2l "
+                            + "     WHERE f.id <= -11 AND f.id = a2l.labelId AND a2l.articleId = " + articleId;
+            // @formatter:on
+            c = db.rawQuery(sql, null);
+            
+            while (c.moveToNext()) {
+                Label label = new Label();
+                label.setInternalId(c.getInt(0));
+                label.caption = c.getString(1);
+                label.checked = c.getInt(2) == 1;
+                ret.add(label);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        return ret;
+    }
+    
     public Feed getFeed(int id) {
         Feed ret = new Feed();
         if (!isDBAvailable())
@@ -1384,7 +1445,8 @@ public class DBHelper {
                 c.getString(7),                     // content
                 parseAttachments(c.getString(8)),   // attachments
                 (c.getInt(9) != 0),                 // isStarred
-                (c.getInt(10) != 0)                 // isPublished
+                (c.getInt(10) != 0),                 // isPublished
+                -1
         );
         ret.cachedImages = (c.getInt(11) != 0);
         // @formatter:on

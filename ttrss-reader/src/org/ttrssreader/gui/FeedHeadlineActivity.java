@@ -16,22 +16,17 @@
 
 package org.ttrssreader.gui;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
+import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.model.FeedAdapter;
-import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.MainAdapter;
-import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.updaters.PublishedStateUpdater;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
-import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
@@ -39,48 +34,37 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.util.Log;
-import android.view.ContextMenu;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ListFragment;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
+public class FeedHeadlineActivity extends MenuActivity {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "ARTICLE_FEED_ID";
-    public static final String FEED_TITLE = "FEED_TITLE";
     public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
     public static final String FEED_INDEX = "INDEX";
     public static final int FEED_NO_ID = 37846914;
     
     public boolean flingDetected = false;
     
-    // Extras
     private int categoryId = -1000;
     private int feedId = -1000;
-    private String feedTitle = null;
     private boolean selectArticlesForCategory = false;
     
     private GestureDetector gestureDetector;
     
-    private FeedHeadlineAdapter adapter = null; // Remember to explicitly check every access to adapter for it beeing
-                                                // null!
     private FeedHeadlineUpdater headlineUpdater = null;
-    private FeedAdapter parentAdapter = null;
     private int[] parentIDs = new int[2];
-    private String[] parentTitles = new String[2];
+    private String title = "";
     
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        // Log.d(Utils.TAG, "onCreate - FeedHeadlineActivity");
         setContentView(R.layout.feedheadlinelist);
         
         gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
@@ -89,57 +73,59 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         if (extras != null) {
             categoryId = extras.getInt(FEED_CAT_ID);
             feedId = extras.getInt(FEED_ID);
-            feedTitle = extras.getString(FEED_TITLE);
             selectArticlesForCategory = extras.getBoolean(FEED_SELECT_ARTICLES);
         } else if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
             feedId = instance.getInt(FEED_ID);
-            feedTitle = instance.getString(FEED_TITLE);
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
         }
         
+        ListFragment fragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.headline_list, fragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.commit();
+        
+        initialize();
+    }
+    
+    private void initialize() {
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
         
-        parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
+        if (selectArticlesForCategory) {
+            Category category = DBHelper.getInstance().getCategory(categoryId);
+            if (category != null)
+                title = category.title;
+        } else {
+            Feed feed = DBHelper.getInstance().getFeed(feedId);
+            if (feed != null)
+                title = feed.title;
+        }
+        
         fillParentInformation();
     }
     
     private void fillParentInformation() {
+        FeedAdapter parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
         int index = parentAdapter.getIds().indexOf(feedId);
         if (index >= 0) {
             parentIDs[0] = parentAdapter.getId(index - 1); // Previous
             parentIDs[1] = parentAdapter.getId(index + 1); // Next
-            parentTitles[0] = parentAdapter.getTitle(index - 1);
-            parentTitles[1] = parentAdapter.getTitle(index + 1);
             
-            if (parentIDs[0] == 0) {
+            if (parentIDs[0] == 0)
                 parentIDs[0] = -1;
-                parentTitles[0] = "";
-            }
-            if (parentIDs[1] == 0) {
+            if (parentIDs[1] == 0)
                 parentIDs[1] = -1;
-                parentTitles[1] = "";
-            }
         }
     }
     
     @Override
     protected void onResume() {
-        if (adapter != null)
-            adapter.makeQuery(true);
-        
         super.onResume();
         
         UpdateController.getInstance().registerActivity(this);
         refreshAndUpdate();
-    }
-    
-    private void closeCursor() {
-        if (adapter != null)
-            adapter.closeCursor();
-        if (parentAdapter != null)
-            parentAdapter.closeCursor();
     }
     
     @Override
@@ -150,27 +136,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    protected void onStop() {
-        super.onStop();
-        closeCursor();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        closeCursor();
-    }
-    
-    // @Override
-    // protected void onSaveInstanceState(Bundle outState) {
-    // outState.putInt(FEED_CAT_ID, categoryId);
-    // outState.putInt(FEED_ID, feedId);
-    // outState.putString(FEED_TITLE, feedTitle);
-    // outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
-    // super.onSaveInstanceState(outState);
-    // }
-    
-    @Override
     protected void doRefresh() {
         int unreadCount = 0;
         if (selectArticlesForCategory)
@@ -178,17 +143,13 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         else
             unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
         
-        setTitle(MainAdapter.formatTitle(feedTitle, unreadCount));
+        setTitle(MainAdapter.formatTitle(title, unreadCount));
+        
         flingDetected = false; // reset fling-status
+        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
         
-        if (adapter != null)
-            adapter.refreshQuery();
-        
-        try {
-            if (Controller.getInstance().getConnector().hasLastError())
-                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-        } catch (NotInitializedException e) {
-        }
+        if (Controller.getInstance().getConnector().hasLastError())
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         
         if (headlineUpdater == null) {
             setProgressBarIndeterminateVisibility(false);
@@ -217,83 +178,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        
-        // Get selected Article
-        AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
-        Article a = (Article) adapter.getItem(info.position);
-        menu.removeItem(MARK_READ); // Remove "Mark read" from super-class
-        
-        menu.add(MARK_GROUP, MARK_ABOVE_READ, Menu.NONE, R.string.Commons_MarkAboveRead);
-        
-        if (a.isUnread) {
-            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
-        } else {
-            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkUnread);
-        }
-        
-        if (a.isStarred) {
-            menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkUnstar);
-        } else {
-            menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkStar);
-        }
-        
-        if (a.isPublished) {
-            menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkUnpublish);
-        } else {
-            menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
-            menu.add(MARK_GROUP, MARK_PUBLISH_NOTE, Menu.NONE, R.string.Commons_MarkPublishNote);
-        }
-        
-    }
-    
-    @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        Article a = (Article) adapter.getItem(cmi.position);
-        
-        if (a == null)
-            return false;
-        
-        switch (item.getItemId()) {
-            case MARK_READ:
-                new Updater(this, new ReadStateUpdater(a, feedId, a.isUnread ? 0 : 1)).exec();
-                break;
-            case MARK_STAR:
-                new Updater(this, new StarredStateUpdater(a, a.isStarred ? 0 : 1)).exec();
-                break;
-            case MARK_PUBLISH:
-                new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).exec();
-                break;
-            case MARK_PUBLISH_NOTE:
-                new TextInputAlert(this, a).show(this);
-                break;
-            case MARK_ABOVE_READ:
-                new Updater(this, new ReadStateUpdater(getUnreadArticlesAbove(cmi.position), feedId, 0)).exec();
-                break;
-            default:
-                return false;
-        }
-        return true;
-    }
-    
-    /**
-     * Creates a list of articles which are above the given index in the currently displayed list of items.
-     * 
-     * @param index
-     *            the selected index, will be excluded in returned list
-     * @return a list of items above the selected item
-     */
-    private List<Article> getUnreadArticlesAbove(int index) {
-        List<Article> ret = new ArrayList<Article>();
-        for (int i = 0; i < index; i++) {
-            ret.add((Article) adapter.getItem(i));
-        }
-        return ret;
-    }
-    
-    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
@@ -317,31 +201,35 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             return;
         
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
-        String title = direction < 0 ? parentTitles[0] : parentTitles[1];
-        
         if (id <= 0) {
             if (Controller.getInstance().vibrateOnLastArticle())
                 ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
         
-        Intent i = new Intent(this, getClass());
-        i.putExtra(FEED_ID, id);
-        i.putExtra(FEED_TITLE, title);
-        i.putExtra(FEED_CAT_ID, categoryId);
+        this.feedId = id;
         
-        startActivityForResult(i, 0);
-        finish();
+        FeedHeadlineListFragment feedHeadlineView = FeedHeadlineListFragment.newInstance(feedId, categoryId,
+                selectArticlesForCategory);
+        
+        // Replace the old fragment with the new one
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.headline_list, feedHeadlineView);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+        
+        initialize();
+        doRefresh();
     }
     
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
-        super.dispatchTouchEvent(e);
-        return gestureDetector.onTouchEvent(e);
+        if (!gestureDetector.onTouchEvent(e))
+            return super.dispatchTouchEvent(e);
+        return true;
     }
     
     private OnGestureListener onGestureListener = new OnGestureListener() {
-        
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             int dx = (int) (e2.getX() - e1.getX());
@@ -447,34 +335,14 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    public void setAdapter(MainAdapter adapter) {
-        if (adapter instanceof FeedHeadlineAdapter)
-            this.adapter = (FeedHeadlineAdapter) adapter;
-    }
-    
-    @Override
-    public void itemSelected(TYPE type, int selectedIndex, int oldIndex) {
-        // Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
-        if (adapter == null) {
-            Log.w(Utils.TAG, "FeedHeadlineActivity: Adapter shouldn't be null here...");
-            return;
-        }
-        
-        // This is not a tablet - start a new activity
-        // if (!flingDetected) { // TODO: Think about what to do with the fling-gesture in a three-pane-layout.
+    public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
         Intent i = new Intent(context, ArticleActivity.class);
-        i.putExtra(ArticleActivity.ARTICLE_ID, adapter.getId(selectedIndex));
+        i.putExtra(ArticleActivity.ARTICLE_ID, selectedId);
         i.putExtra(ArticleActivity.ARTICLE_FEED_ID, feedId);
         i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
         i.putExtra(ArticleActivity.ARTICLE_MOVE, ArticleActivity.ARTICLE_MOVE_DEFAULT);
-        if (i != null)
-            startActivity(i);
-        // }
-    }
-    
-    public void onPublishNoteResult(Article a, String note) {
-        new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
+        startActivity(i);
     }
     
     @Override

@@ -22,8 +22,8 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
@@ -41,7 +41,6 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -50,6 +49,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -70,7 +71,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-public class ArticleActivity extends Activity implements IUpdateEndListener, TextInputAlertCallback,
+public class ArticleActivity extends FragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
         IDataChangedListener {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
@@ -101,7 +102,7 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     private TextView swipeView;
     private Button buttonNext;
     private Button buttonPrev;
-    private GestureDetector mGestureDetector;
+    private GestureDetector gestureDetector;
     
     private String baseUrl = null;
     
@@ -137,12 +138,12 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         buttonNext = (Button) findViewById(R.id.buttonNext);
         swipeView = (TextView) findViewById(R.id.swipeView);
         
-//        webView.getSettings().setJavaScriptEnabled(true);
+        // webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.setWebViewClient(new ArticleWebViewClient(this));
         
         // Detect gestures
-        mGestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
+        gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
         webView.setOnKeyListener(keyListener);
         
         buttonNext.setOnClickListener(onButtonPressedListener);
@@ -163,6 +164,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
+        initialize();
+    }
+    
+    private void initialize() {
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
@@ -176,14 +181,19 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             return;
         }
         
-        // Mark as read if necessary, do it here because in doRefresh() it will be done several tiumes even if you set
+        // Mark as read if necessary, do it here because in doRefresh() it will be done several times even if you set
         // it to "unread" in the meantime.
         if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead()) {
             article.isUnread = false;
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
             markedRead = true;
         }
+        
         fillParentInformation();
+        
+        // Initialize mainContainer with buttons or swipe-view
+        mainContainer.populate(webView);
+        webviewInitialized = false;
     }
     
     private void fillParentInformation() {
@@ -208,12 +218,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         doRefresh();
     }
     
-    private void closeCursor() {
-        if (parentAdapter != null) {
-            parentAdapter.closeCursor();
-        }
-    }
-    
     @Override
     protected void onPause() {
         // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
@@ -230,7 +234,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         super.onStop();
-        closeCursor();
     }
     
     @Override
@@ -244,7 +247,6 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
         webContainer.removeAllViews();
         webView.destroy();
         webView = null;
-        closeCursor();
     }
     
     @Override
@@ -275,69 +277,60 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             return;
         }
         
-        try {
-            // Check for errors
-            if (Controller.getInstance().getConnector().hasLastError()) {
-                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-                setProgressBarIndeterminateVisibility(false);
-                return;
-            }
-            
-            // Get article from DB only if necessary
-            if (article.content == null)
-                return;
-            
-            // Populate information-bar on top of the webView if enabled
-            if (Controller.getInstance().displayArticleHeader()) {
-                headerContainer.populate(article);
-            } else {
-                headerContainer.setVisibility(View.GONE);
-            }
-            
-            // Initialize mainContainer with buttons or swipe-view
-            mainContainer.populate(webView);
-            
-            final int contentLength = article.content.length();
-            
-            // Inject the specific code for attachments, <img> for images, http-link for Videos
-            StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(article.content),
-                    article.attachments);
-            
-            // if (article.cachedImages)
-            // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
-            contentTmp = injectArticleLink(getApplicationContext(), contentTmp);
-            content = injectCachedImages(contentTmp.toString(), articleId);
-            
-            // Load html from Controller and insert content
-            content = Controller.htmlHeader.replace("MARKER", content);
-            
-            // TODO: Whole "switch background-color-thing" needs to be refactored.
-            if (Controller.getInstance().darkBackground()) {
-                webView.setBackgroundColor(Color.BLACK);
-                content = "<font color='white'>" + content + "</font>";
-                
-                setDarkBackground(headerContainer);
-            }
-            
-            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-            baseUrl = StringSupport.getBaseURL(article.url);
-            webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
-            
-            setTitle(article.title);
-            
-            if (!linkAutoOpened && contentLength < 3) {
-                if (Controller.getInstance().openUrlEmptyArticle()) {
-                    Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
-                    linkAutoOpened = true;
-                    openLink();
-                }
-            }
-            
-            // Everything did load, we dont have to do this again.
-            webviewInitialized = true;
-            
-        } catch (NotInitializedException e) {
+        // Check for errors
+        if (Controller.getInstance().getConnector().hasLastError()) {
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+            setProgressBarIndeterminateVisibility(false);
+            return;
         }
+        
+        if (article.content == null)
+            return;
+        
+        // Populate information-bar on top of the webView if enabled
+        if (Controller.getInstance().displayArticleHeader()) {
+            headerContainer.populate(article);
+        } else {
+            headerContainer.setVisibility(View.GONE);
+        }
+        
+        final int contentLength = article.content.length();
+        
+        // Inject the specific code for attachments, <img> for images, http-link for Videos
+        StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(article.content),
+                article.attachments);
+        
+        // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
+        contentTmp = injectArticleLink(getApplicationContext(), contentTmp);
+        content = injectCachedImages(contentTmp.toString(), articleId);
+        
+        // Load html from Controller and insert content
+        content = Controller.htmlHeader.replace("MARKER", content);
+        
+        // TODO: Whole "switch background-color-thing" needs to be refactored.
+        if (Controller.getInstance().darkBackground()) {
+            webView.setBackgroundColor(Color.BLACK);
+            content = "<font color='white'>" + content + "</font>";
+            
+            setDarkBackground(headerContainer);
+        }
+        
+        // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
+        baseUrl = StringSupport.getBaseURL(article.url);
+        webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
+        
+        setTitle(article.title);
+        
+        if (!linkAutoOpened && contentLength < 3) {
+            if (Controller.getInstance().openUrlEmptyArticle()) {
+                Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+                linkAutoOpened = true;
+                openLink();
+            }
+        }
+        
+        // Everything did load, we dont have to do this again.
+        webviewInitialized = true;
         
         setProgressBarIndeterminateVisibility(false);
     }
@@ -428,12 +421,15 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             case R.id.Article_Menu_MarkPublishNote:
                 new TextInputAlert(this, article).show(this);
                 return true;
+            case R.id.Article_Menu_AddArticleLabel:
+                DialogFragment dialog = ArticleLabelDialog.newInstance(articleId);
+                dialog.show(getSupportFragmentManager(), "Edit Labels");
+                return true;
             case R.id.Article_Menu_WorkOffline:
                 Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
-                if (!Controller.getInstance().workOffline()) {
-                    // Synchronize status of articles with server
+                // Synchronize status of articles with server
+                if (!Controller.getInstance().workOffline())
                     new Updater(this, new StateSynchronisationUpdater()).execute((Void[]) null);
-                }
                 return true;
             case R.id.Article_Menu_OpenLink:
                 openLink();
@@ -487,16 +483,10 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
             return;
         }
         
-        Intent i = new Intent(this, ArticleActivity.class);
-        i.putExtra(ARTICLE_ID, id);
-        i.putExtra(ARTICLE_FEED_ID, feedId);
-        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        i.putExtra(ARTICLE_MOVE, direction); // Store direction so next article can evaluate if we are running into
-                                             // a "wall"
-        
-        startActivityForResult(i, 0);
-        finish();
+        this.articleId = id;
+        this.lastMove = direction;
+        initialize();
+        doRefresh();
     }
     
     private boolean doVibrate(int newIndex) {
@@ -516,12 +506,15 @@ public class ArticleActivity extends Activity implements IUpdateEndListener, Tex
     
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
-        boolean temp = super.dispatchTouchEvent(e);
+        boolean temp = false;
         
         if (Controller.getInstance().useSwipe())
-            return mGestureDetector.onTouchEvent(e);
-        else
-            return temp;
+            temp = gestureDetector.onTouchEvent(e);
+        
+        if (!temp)
+            return super.dispatchTouchEvent(e);
+        
+        return temp;
     }
     
     private OnGestureListener onGestureListener = new OnGestureListener() {

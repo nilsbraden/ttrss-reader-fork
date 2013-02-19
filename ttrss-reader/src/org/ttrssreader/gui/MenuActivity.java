@@ -15,13 +15,14 @@
 
 package org.ttrssreader.gui;
 
+import java.lang.reflect.Field;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.gui.dialogs.ErrorDialog;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
-import org.ttrssreader.gui.interfaces.IConfigurable;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
@@ -32,11 +33,13 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.Window;
 
 /**
@@ -44,18 +47,19 @@ import android.view.Window;
  * FeedHeadlineListActivity).
  */
 public abstract class MenuActivity extends FragmentActivity implements IUpdateEndListener, ICacheEndListener,
-        IConfigurable, IItemSelectedListener, IDataChangedListener {
+        IItemSelectedListener, IDataChangedListener {
+    
+    protected final Context context = this;
     
     protected Updater updater;
-    protected Context context = null;
     protected boolean isTablet = false;
     
-    protected static final int MARK_GROUP = 42;
-    protected static final int MARK_READ = MARK_GROUP + 1;
-    protected static final int MARK_STAR = MARK_GROUP + 2;
-    protected static final int MARK_PUBLISH = MARK_GROUP + 3;
-    protected static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
-    protected static final int MARK_ABOVE_READ = MARK_GROUP + 5;
+    public static final int MARK_GROUP = 42;
+    public static final int MARK_READ = MARK_GROUP + 1;
+    public static final int MARK_STAR = MARK_GROUP + 2;
+    public static final int MARK_PUBLISH = MARK_GROUP + 3;
+    public static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
+    public static final int MARK_ABOVE_READ = MARK_GROUP + 5;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -63,12 +67,31 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
         
-        context = getApplicationContext();
-        
         // Initialize Singletons for Config, Data-Access and DB
         Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
+        
+        getOverflowMenu();
+    }
+    
+    /**
+     * Force-display the three dots for overflow, would be disabled on devices with a menu-key.
+     * 
+     * @see http://stackoverflow.com/a/13098824
+     */
+    private void getOverflowMenu() {
+        
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     @Override
@@ -144,19 +167,23 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         super.onPrepareOptionsMenu(menu);
         
         MenuItem offline = menu.findItem(R.id.Menu_WorkOffline);
-        if (Controller.getInstance().workOffline()) {
-            offline.setTitle(getString(R.string.UsageOnlineTitle));
-            offline.setIcon(R.drawable.ic_menu_play_clip);
-        } else {
-            offline.setTitle(getString(R.string.UsageOfflineTitle));
-            offline.setIcon(R.drawable.ic_menu_stop);
+        if (offline != null) {
+            if (Controller.getInstance().workOffline()) {
+                offline.setTitle(getString(R.string.UsageOnlineTitle));
+                offline.setIcon(R.drawable.ic_menu_play_clip);
+            } else {
+                offline.setTitle(getString(R.string.UsageOfflineTitle));
+                offline.setIcon(R.drawable.ic_menu_stop);
+            }
         }
         
         MenuItem displayUnread = menu.findItem(R.id.Menu_DisplayOnlyUnread);
-        if (Controller.getInstance().onlyUnread()) {
-            displayUnread.setTitle(getString(R.string.Commons_DisplayAll));
-        } else {
-            displayUnread.setTitle(getString(R.string.Commons_DisplayOnlyUnread));
+        if (displayUnread != null) {
+            if (Controller.getInstance().onlyUnread()) {
+                displayUnread.setTitle(getString(R.string.Commons_DisplayAll));
+            } else {
+                displayUnread.setTitle(getString(R.string.Commons_DisplayOnlyUnread));
+            }
         }
         
         return true;
@@ -266,6 +293,10 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
         // finish();
     }
     
+    protected void showErrorDialog(String message) {
+        new ErrorDialog(this, message).show(getSupportFragmentManager(), "error");
+    }
+    
     protected void refreshAndUpdate() {
         if (Utils.checkConfig()) {
             doRefresh();
@@ -283,5 +314,12 @@ public abstract class MenuActivity extends FragmentActivity implements IUpdateEn
     protected abstract void doUpdate(boolean forceUpdate);
     
     protected abstract void onDataChanged();
+    
+    protected void doRefreshFragment(Fragment fragment) {
+        if (fragment instanceof IUpdateEndListener) {
+            IUpdateEndListener listener = (IUpdateEndListener) fragment;
+            listener.onUpdateEnd();
+        }
+    }
     
 }

@@ -71,7 +71,7 @@ public class Utils {
     /**
      * The time after which data will be fetched again from the server if asked for the data
      */
-    public static final long UPDATE_TIME = 600000;
+    public static final long UPDATE_TIME = SECOND * MINUTE * 30;
     public static final long HALF_UPDATE_TIME = UPDATE_TIME / 2;
     
     /**

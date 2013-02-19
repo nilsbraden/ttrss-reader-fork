@@ -192,7 +192,8 @@ public class ForegroundService extends Service implements ICacheEndListener {
         }
         
         // Display notification
-        Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, true, new Intent());
+        Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, true,
+                new Intent());
         startForegroundCompat(R.string.Cache_service_started, notification);
     }
     

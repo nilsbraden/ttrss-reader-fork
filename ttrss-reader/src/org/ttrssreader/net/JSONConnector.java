@@ -48,12 +48,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
-import org.ttrssreader.controllers.ArticleContainer;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.StringSupport;
@@ -75,6 +76,7 @@ public class JSONConnector {
     private static final String PARAM_PW = "password";
     private static final String PARAM_CAT_ID = "cat_id";
     private static final String PARAM_FEED_ID = "feed_id";
+    private static final String PARAM_ARTICLE_ID = "article_id";
     private static final String PARAM_ARTICLE_IDS = "article_ids";
     private static final String PARAM_LIMIT = "limit";
     private static final int PARAM_LIMIT_MAX_VALUE = 60;
@@ -103,6 +105,12 @@ public class JSONConnector {
     private static final String VALUE_UPDATE_FEED = "updateFeed";
     private static final String VALUE_GET_PREF = "getPref";
     private static final String VALUE_GET_VERSION = "getVersion";
+    private static final String VALUE_GET_LABELS = "getLabels";
+    private static final String VALUE_SET_LABELS = "setArticleLabel";
+    private static final String VALUE_SHARE_TO_PUBLISHED = "shareToPublished";
+    
+    private static final String VALUE_LABEL_ID = "label_id";
+    private static final String VALUE_ASSIGN = "assign";
     private static final String VALUE_API_LEVEL = "getApiLevel";
     private static final String VALUE_GET_COUNTERS = "getCounters";
     private static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
@@ -116,8 +124,8 @@ public class JSONConnector {
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
     private static final String STATUS = "status";
     
-    private static final String SESSION_ID = "session_id"; // session id as an out parameter
-    private static final String SID = "sid"; // session id as an in parameter
+    private static final String SESSION_ID = "session_id"; // session id as an OUT parameter
+    private static final String SID = "sid"; // session id as an IN parameter
     private static final String ID = "id";
     private static final String TITLE = "title";
     private static final String UNREAD = "unread";
@@ -126,6 +134,7 @@ public class JSONConnector {
     private static final String UPDATED = "updated";
     private static final String CONTENT = "content";
     private static final String URL = "link";
+    private static final String URL_SHARE = "url";
     private static final String FEED_URL = "feed_url";
     private static final String COMMENT_URL = "comments";
     private static final String ATTACHMENTS = "attachments";
@@ -135,6 +144,8 @@ public class JSONConnector {
     private static final String VALUE = "value";
     private static final String VERSION = "version";
     private static final String LEVEL = "level";
+    private static final String CAPTION = "caption";
+    private static final String CHECKED = "checked";
     
     private static final String COUNTER_KIND = "kind";
     private static final String COUNTER_CAT = "cat";
@@ -676,13 +687,13 @@ public class JSONConnector {
         return ret;
     }
     
-    private int parseArticleArray(final Set<ArticleContainer> articles, JsonReader reader, int labelId, int id, boolean isCategory) {
+    private int parseArticleArray(final Set<Article> articles, JsonReader reader, int labelId, int id, boolean isCategory) {
         long time = System.currentTimeMillis();
         int count = 0;
         
         try {
             reader.beginArray();
-            while (reader.hasNext()) {              
+            while (reader.hasNext()) {
                 int articleId = -1;
                 String title = null;
                 boolean isUnread = false;
@@ -735,7 +746,7 @@ public class JSONConnector {
                 reader.endObject();
                 
                 if (articleId != -1 && title != null) {
-                    articles.add(new ArticleContainer(articleId, feedId, title, isUnread, articleUrl,
+                    articles.add(new Article(articleId, feedId, title, isUnread, articleUrl,
                             articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
                     count++;
                 }
@@ -984,7 +995,7 @@ public class JSONConnector {
     /**
      * @see #getHeadlines(Integer, int, String, boolean, int, int)
      */
-    public void getHeadlines(final Set<ArticleContainer> articles, Integer id, int limit, String viewMode, boolean isCategory) {
+    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory) {
         getHeadlines(articles, id, limit, viewMode, isCategory, 0);
     }
     
@@ -1004,7 +1015,7 @@ public class JSONConnector {
      *            the first ArticleId which is to be retrieved.
      * @return the number of fetched articles.
      */
-    public void getHeadlines(final Set<ArticleContainer> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
+    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
         long time = System.currentTimeMillis();
         int offset = 0;
         int maxSize = articles.size() + limit;
@@ -1242,6 +1253,92 @@ public class JSONConnector {
         }
         
         return ret;
+    }
+    
+    /**
+     * Returns a Set of all existing labels. If some of the labels are checked for the given article the property
+     * "checked" is true.
+     * 
+     * @return a set of labels.
+     */
+    public Set<Label> getLabels(Integer articleId) {
+        Set<Label> ret = new HashSet<Label>();
+        if (!sessionAlive())
+            return ret;
+        
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_GET_LABELS);
+        params.put(PARAM_ARTICLE_ID, articleId.toString());
+        
+        JsonReader reader = null;
+        Label label = new Label();;
+        try {
+            reader = prepareReader(params);
+            if (reader == null)
+                return ret;
+            
+            reader.beginArray();
+            while (reader.hasNext()) {
+                try {
+                    
+                    reader.beginObject();
+                    label = new Label();
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        if (ID.equals(name)) {
+                            label.setId(reader.nextInt());
+                        } else if (CAPTION.equals(name)) {
+                            label.caption = reader.nextString();
+                        } else if (CHECKED.equals(name)) {
+                            label.checked = reader.nextBoolean();
+                        } else {
+                            reader.skipValue();
+                        }
+                    }
+                    
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
+            }
+            reader.endArray();
+            ret.add(label);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null)
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+        }
+        
+        return ret;
+    }
+    
+    public boolean setArticleLabel(Set<Integer> articleIds, int labelId, boolean assign) {
+        boolean ret = true;
+        if (articleIds.size() == 0)
+            return ret;
+        
+        for (String idList : StringSupport.convertListToString(articleIds, MAX_ID_LIST_LENGTH)) {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(PARAM_OP, VALUE_SET_LABELS);
+            params.put(PARAM_ARTICLE_IDS, idList);
+            params.put(VALUE_LABEL_ID, labelId + "");
+            params.put(VALUE_ASSIGN, (assign ? "1" : "0"));
+            ret = ret && doRequestNoAnswer(params);
+        }
+        
+        return ret;
+    }
+    
+    public boolean shareToPublished(String title, String url, String content) {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_SHARE_TO_PUBLISHED);
+        params.put(TITLE, title);
+        params.put(URL_SHARE, url);
+        params.put(CONTENT, content);
+        return doRequestNoAnswer(params);
     }
     
     /**

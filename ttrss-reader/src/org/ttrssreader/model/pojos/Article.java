@@ -33,12 +33,33 @@ public class Article implements Comparable<Article> {
     public boolean isStarred;
     public boolean isPublished;
     public boolean cachedImages;
+    public int label;
+    
+    /*
+     * public int id;
+     * public boolean unread;
+     * public boolean marked;
+     * public boolean published;
+     * public int updated;
+     * public boolean is_updated;
+     * public String title;
+     * public String link;
+     * public int feed_id;
+     * public List<String> tags;
+     * public List<Attachment> attachments;
+     * public String content;
+     * public List<List<String>> labels;
+     * public String feed_title;
+     * public int comments_count;
+     * public String comments_link;
+     * public boolean always_display_attachments;
+     */
     
     public Article() {
     }
     
     public Article(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
-            Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished) {
+            Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label) {
         this.id = id;
         this.title = title;
         this.feedId = feedId;
@@ -54,6 +75,7 @@ public class Article implements Comparable<Article> {
         this.attachments = attachments;
         this.isStarred = isStarred;
         this.isPublished = isPublished;
+        this.label = label;
     }
     
     @Override
@@ -63,17 +85,18 @@ public class Article implements Comparable<Article> {
     
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Article) {
-            Article other = (Article) o;
-            return (this.id == other.id);
-        } else {
+        if (o == null)
             return false;
+        if (o instanceof Article) {
+            Article ac = (Article) o;
+            return id == ac.id;
         }
+        return false;
     }
     
     @Override
     public int hashCode() {
-        return this.id + "".hashCode();
+        return id;
     }
     
 }

@@ -20,66 +20,57 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.NotInitializedException;
 import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.model.FeedAdapter;
+import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.Utils;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.FragmentTransaction;
 import android.view.MenuItem;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class FeedActivity extends MenuActivity {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
-    public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
     
-    // Extras
     private int categoryId;
-    private String categoryTitle;
-    
-    private FeedAdapter adapter = null; // Remember to explicitly check every access to adapter for it beeing null!
     private FeedUpdater feedUpdater = null;
+    private String title = "";
     
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        // Log.d(Utils.TAG, "onCreate - FeedActivity");
         setContentView(R.layout.feedlist);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             categoryId = extras.getInt(FEED_CAT_ID);
-            categoryTitle = extras.getString(FEED_CAT_TITLE);
         } else if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
-            categoryTitle = instance.getString(FEED_CAT_TITLE);
         } else {
             categoryId = -1;
-            categoryTitle = null;
         }
+        
+        FeedListFragment fragment = FeedListFragment.newInstance(categoryId);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.feed_list, fragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.commit();
+        
+        Category category = DBHelper.getInstance().getCategory(categoryId);
+        if (category != null)
+            title = category.title;
     }
     
     @Override
     protected void onResume() {
-        if (adapter != null)
-            adapter.makeQuery(true);
-        
         super.onResume();
         
         UpdateController.getInstance().registerActivity(this);
         refreshAndUpdate();
-    }
-    
-    private void closeCursor() {
-        if (adapter != null)
-            adapter.closeCursor();
     }
     
     @Override
@@ -89,37 +80,15 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    protected void onStop() {
-        super.onStop();
-        closeCursor();
-    }
-    
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        closeCursor();
-    }
-    
-    // @Override
-    // protected void onSaveInstanceState(Bundle outState) {
-    // outState.putInt(FEED_CAT_ID, categoryId);
-    // outState.putString(FEED_CAT_TITLE, categoryTitle);
-    // super.onSaveInstanceState(outState);
-    // }
-    
-    @Override
     protected void doRefresh() {
         int unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
-        setTitle(MainAdapter.formatTitle(categoryTitle, unreadCount));
+        setTitle(MainAdapter.formatTitle(title, unreadCount));
         
-        if (adapter != null)
-            adapter.refreshQuery();
+        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
+        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
         
-        try {
-            if (Controller.getInstance().getConnector().hasLastError())
-                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-        } catch (NotInitializedException e) {
-        }
+        if (Controller.getInstance().getConnector().hasLastError())
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
         
         if (feedUpdater == null) {
             setProgressBarIndeterminateVisibility(false);
@@ -145,16 +114,6 @@ public class FeedActivity extends MenuActivity {
             feedUpdater = new FeedUpdater(forceUpdate);
             feedUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
-    }
-    
-    @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        if (item.getItemId() == MARK_READ) {
-            new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
-            return true;
-        }
-        return false;
     }
     
     @Override
@@ -222,26 +181,11 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    public void setAdapter(MainAdapter adapter) {
-        if (adapter instanceof FeedAdapter)
-            this.adapter = (FeedAdapter) adapter;
-    }
-    
-    @Override
-    public void itemSelected(TYPE type, int selectedIndex, int oldIndex) {
-        // Log.d(Utils.TAG, this.getClass().getName() + " - itemSelected called. Type: " + type);
-        if (adapter == null) {
-            Log.w(Utils.TAG, "FeedActivity: Adapter shouldn't be null here...");
-            return;
-        }
-        
-        // This is not a tablet - start a new activity
+    public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
         Intent i = new Intent(context, FeedHeadlineActivity.class);
         i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineActivity.FEED_ID, adapter.getId(selectedIndex));
-        i.putExtra(FeedHeadlineActivity.FEED_TITLE, adapter.getTitle(selectedIndex));
-        if (i != null)
-            startActivity(i);
+        i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
+        startActivity(i);
     }
     
     @Override
