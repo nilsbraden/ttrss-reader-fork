@@ -838,7 +838,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public long lastVacuumDate() {
         if (lastVacuumDate == null)
-            lastVacuumDate = prefs.getLong(Constants.LAST_VACUUM_DATE, Constants.LAST_VACUUM_DATE_DEFAULT);
+            lastVacuumDate = prefs.getLong(Constants.LAST_VACUUM_DATE, System.currentTimeMillis());
         return lastVacuumDate;
     }
     
