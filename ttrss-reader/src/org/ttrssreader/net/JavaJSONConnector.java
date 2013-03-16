@@ -48,28 +48,29 @@ public class JavaJSONConnector extends JSONConnector {
         super(context);
     }
     
-    HttpURLConnection con = null;
     TrustManager[] trustManagers = null;
     
     protected InputStream doRequest(Map<String, String> params) {
         try {
+            if (sessionId != null)
+                params.put(SID_Test, sessionId);
+            
             JSONObject json = new JSONObject(params);
             byte[] outputBytes = json.toString().getBytes("UTF-8");
-            
-            if (sessionId != null)
-                params.put(SID, sessionId);
             
             // check if http-Auth-Settings have changed, reload values if necessary
             refreshHTTPAuth();
             
             // Create Connection
-            con = (HttpURLConnection) Controller.getInstance().url().openConnection();
-            con.setChunkedStreamingMode(0);
+            HttpURLConnection con = (HttpURLConnection) Controller.getInstance().url().openConnection();
+            con.setDoInput(true);
             con.setDoOutput(true);
+            con.setUseCaches(false);
             con.setRequestMethod("POST");
-            con.setRequestProperty("Content-Type", "application/json");
-            con.setRequestProperty("Accept", "application/json");
+            // con.setRequestProperty("Content-Type", "application/json");
+            // con.setRequestProperty("Accept", "application/json");
             con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
+            // con.setFixedLengthStreamingMode(outputBytes.length);
             
             // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
             // use longer timeout when lazyServer-Feature is used
@@ -80,17 +81,14 @@ public class JavaJSONConnector extends JSONConnector {
             int timeoutConnection = (int) (8 * Utils.SECOND);
             con.setConnectTimeout(timeoutConnection);
             
-            // Add POST data
-            OutputStream os = con.getOutputStream();
-            os.write(outputBytes);
-            os.flush();
-            
             logRequest(json);
             
             // Add SSL-Stuff
             setupKeystore();
             
-            con.connect();
+            // Add POST data
+            OutputStream os = con.getOutputStream();
+            os.write(outputBytes);
             
             // Try to check for HTTP Status codes
             int code = con.getResponseCode();
@@ -105,24 +103,25 @@ public class JavaJSONConnector extends JSONConnector {
             // Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
             // Not doing anything here since this error should happen only when no certificate is received from the
             // server.
-            Log.w(Utils.TAG, "SSLPeerUnverifiedException (" + e.getMessage() + ") in doRequest()");
+            Log.w(Utils.TAG, "SSLPeerUnverifiedException in doRequest(): " + formatException(e));
         } catch (SSLException e) {
             if ("No peer certificate".equals(e.getMessage())) {
                 // Handle this by ignoring it, this occurrs very often when the connection is instable.
-                Log.w(Utils.TAG, "SSLException on client.execute(post) [ " + e.getMessage() + " ]");
+                Log.w(Utils.TAG, "SSLException in doRequest(): " + formatException(e));
             } else {
                 hasLastError = true;
-                lastError = "SSLException on client.execute(post) [ " + e.getMessage() + " ]";
+                lastError = "SSLException in doRequest(): " + formatException(e);
             }
         } catch (InterruptedIOException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
-            Log.w(Utils.TAG, "InterruptedIOException (" + e.getMessage() + ") in doRequest()");
+            Log.w(Utils.TAG, "InterruptedIOException in doRequest(): " + formatException(e));
         } catch (SocketException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
-            Log.w(Utils.TAG, "SocketException (" + e.getMessage() + ") in doRequest()");
+            Log.w(Utils.TAG, "SocketException in doRequest(): " + formatException(e));
         } catch (Exception e) {
             hasLastError = true;
-            lastError = e.getMessage() + (e.getCause() != null ? "(" + e.getCause() + ")" : "");
+            lastError = "Exception in doRequest(): " + formatException(e);
+            e.printStackTrace();
         }
         
         return null;

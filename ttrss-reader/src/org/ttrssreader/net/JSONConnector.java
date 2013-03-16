@@ -112,9 +112,10 @@ public abstract class JSONConnector {
     protected static final String API_DISABLED = "API_DISABLED";
     protected static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
     protected static final String STATUS = "status";
+    protected static final String API_LEVEL = "api_level";
     
     protected static final String SESSION_ID = "session_id"; // session id as an OUT parameter
-    protected static final String SID = "sid"; // session id as an IN parameter
+    protected static final String SID_Test = "sid"; // session id as an IN parameter
     protected static final String ID = "id";
     protected static final String TITLE = "title";
     protected static final String UNREAD = "unread";
@@ -146,16 +147,16 @@ public abstract class JSONConnector {
     protected String httpUsername;
     protected String httpPassword;
     
-    protected String sessionId;
+    protected String sessionId = null;
     protected String loginLock = "";
     
     protected CredentialsProvider credProvider = null;
     protected DefaultHttpClient client;
     protected Context context;
+    private int apiLevel = -1;
     
     public JSONConnector(Context context) {
         refreshHTTPAuth();
-        this.sessionId = null;
         this.context = context;
     }
     
@@ -189,15 +190,15 @@ public abstract class JSONConnector {
     }
     
     protected void logRequest(final JSONObject json) throws JSONException {
-        if (!Controller.getInstance().logSensitiveData()) {
+        if (Controller.getInstance().logSensitiveData()) {
+            Log.i(Utils.TAG, json.toString());
+        } else {
             // Filter password and session-id
             Object paramPw = json.remove(PARAM_PW);
-            Object paramSID = json.remove(SID);
-            Log.i(Utils.TAG, "Request: " + json);
+            Object paramSID = json.remove(SID_Test);
+            Log.i(Utils.TAG, json.toString());
             json.put(PARAM_PW, paramPw);
-            json.put(SID, paramSID);
-        } else {
-            Log.i(Utils.TAG, "Request: " + json);
+            json.put(SID_Test, paramSID);
         }
     }
     
@@ -229,18 +230,21 @@ public abstract class JSONConnector {
                         
                         if (object.get(SESSION_ID) != null) {
                             ret = object.get(SESSION_ID).getAsString();
-                            break;
-                        } else if (object.get(STATUS) != null) {
+                        }
+                        if (object.get(STATUS) != null) {
                             ret = object.get(STATUS).getAsString();
-                            break;
-                        } else if (object.get(VALUE) != null) {
+                        }
+                        if (object.get(API_LEVEL) != null) {
+                            this.apiLevel = object.get(API_LEVEL).getAsInt();
+                        }
+                        if (object.get(VALUE) != null) {
                             ret = object.get(VALUE).getAsString();
-                            break;
-                        } else if (object.get(ERROR) != null) {
+                        }
+                        if (object.get(ERROR) != null) {
                             String message = object.get(ERROR).getAsString();
                             
                             if (message.contains(NOT_LOGGED_IN)) {
-                                sessionId = null;
+                                lastError = NOT_LOGGED_IN;
                                 if (!login)
                                     return readResult(params, false); // Just do the same request again
                                 else
@@ -283,8 +287,12 @@ public abstract class JSONConnector {
         JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
         
         // Check if content contains array or object, array indicates login-response or error, object is content
-        
-        reader.beginObject();
+        try {
+            reader.beginObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
         while (reader.hasNext()) {
             String name = reader.nextName();
             if (name.equals("content")) {
@@ -303,7 +311,7 @@ public abstract class JSONConnector {
                         String message = object.get(ERROR).toString();
                         
                         if (message.contains(NOT_LOGGED_IN)) {
-                            sessionId = null;
+                            lastError = NOT_LOGGED_IN;
                             if (login())
                                 return prepareReader(params); // Just do the same request again
                             else
@@ -362,7 +370,7 @@ public abstract class JSONConnector {
             e.printStackTrace();
             if (!hasLastError) {
                 hasLastError = true;
-                lastError = ERROR_TEXT + e.getMessage();
+                lastError = ERROR_TEXT + formatException(e);
             }
         }
         
@@ -378,17 +386,17 @@ public abstract class JSONConnector {
         long time = System.currentTimeMillis();
         
         // Just login once, check if already logged in after acquiring the lock on mSessionId
+        if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
+            return true;
+        
         synchronized (loginLock) {
-            if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN)))
+            if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
                 return true; // Login done while we were waiting for the lock
                 
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_LOGIN);
             params.put(PARAM_USER, Controller.getInstance().username());
             params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
-            
-            // No check with assertLogin here, we are about to login so no need for this.
-            sessionId = null;
             
             try {
                 sessionId = readResult(params, true);
@@ -400,7 +408,7 @@ public abstract class JSONConnector {
                 e.printStackTrace();
                 if (!hasLastError) {
                     hasLastError = true;
-                    lastError = ERROR_TEXT + e.getMessage();
+                    lastError = ERROR_TEXT + formatException(e);
                 }
             }
             
@@ -1202,6 +1210,10 @@ public abstract class JSONConnector {
      * @return the API-Level of the server-installation
      */
     public int getApiLevel() {
+        // Directly return api_level which was retrieved with the login, only for 1.6 and above
+        if (apiLevel > -1)
+            return apiLevel;
+        
         int ret = -1;
         if (!sessionAlive())
             return ret;
@@ -1275,6 +1287,10 @@ public abstract class JSONConnector {
         lastError = "";
         hasLastError = false;
         return ret;
+    }
+    
+    protected static String formatException(Exception e) {
+        return e.getMessage() + (e.getCause() != null ? "(" + e.getCause() + ")" : "");
     }
     
 }
