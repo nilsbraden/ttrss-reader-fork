@@ -16,7 +16,6 @@
 
 package org.ttrssreader.controllers;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +57,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static final String MARKER_LINK = "LINK_MARKER";
     private static final String MARKER_LINK_VISITED = "LINK_VISITED_MARKER";
     
-    private boolean initialized = false;
     private Context context;
     private JSONConnector ttrssConnector;
     private ImageCache imageCache;
@@ -68,6 +65,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private boolean imageCacheLocked = false;
     
     private static Controller instance = null;
+    private static Boolean initialized = false;
     private SharedPreferences prefs = null;
     
     private String url = null;
@@ -158,21 +156,25 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return instance;
     }
     
-    public synchronized void checkAndInitializeController(final Context context, final Display display) {
-        this.context = context;
-        
-        if (!initialized) {
-            initializeController(display);
-            initialized = true;
+    public static void checkAndInitializeController(final Context context, boolean force_dummy_parameter) {
+        synchronized (initialized) {
+            Controller.instance = null;
+            Controller.getInstance().checkAndInitializeController(context, null);
         }
     }
     
-    public static synchronized void checkAndInitializeController(final Context context, boolean force_dummy_parameter) {
-        Controller.instance = null;
-        Controller.getInstance().checkAndInitializeController(context, null);
+    public void checkAndInitializeController(final Context context, final Display display) {
+        synchronized (initialized) {
+            this.context = context;
+            
+            if (!initialized) {
+                initializeController(display);
+                initialized = true;
+            }
+        }
     }
     
-    private synchronized void initializeController(final Display display) {
+    private void initializeController(final Display display) {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         
         // Check for new installation
@@ -187,8 +189,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         }
         
         // Attempt to initialize some stuff in a background-thread to reduce loading time
-        // TODO: Check if it works..
-        
         // Start a login-request separately because this takes some time
         new Thread(new Runnable() {
             public void run() {
