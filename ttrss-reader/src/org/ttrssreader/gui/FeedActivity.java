@@ -58,15 +58,17 @@ public class FeedActivity extends MenuActivity {
         }
         
         // Search old fragment, if it exists replace it, else add new fragment
-        Fragment oldFrag = getSupportFragmentManager().findFragmentById(R.id.feed_list);
+        Fragment fragmentOld = getSupportFragmentManager().findFragmentById(R.id.feed_list);
         FeedListFragment fragment = FeedListFragment.newInstance(categoryId);
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        if (oldFrag != null && oldFrag.isVisible())
-            ft.replace(R.id.feed_list, fragment);
-        else
-            ft.add(R.id.feed_list, fragment);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.commit();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (fragmentOld != null) {
+            transaction.replace(R.id.feed_list, fragment);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        } else {
+            transaction.add(R.id.feed_list, fragment);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        }
+        transaction.commit();
         
         Category category = DBHelper.getInstance().getCategory(categoryId);
         if (category != null)
