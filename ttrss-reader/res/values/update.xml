@@ -20,7 +20,9 @@
     <string-array name="updates">
         <item>Version 1.42
 			\n * Switching to next or previous articles/feeds is much faster now
-			\n * Major refactoring to make use of fragments and someday be able to implement a two-pane-layout…</item>
+			\n * Major refactoring to make use of fragments and someday be able to implement a two-pane-layout…
+			\n * Fixed several Bugs, closed forgotten cursors and layout-problems
+			\n * Switched HTTP-Library (Apache -> HttpUrlConnection) for SSL-SNI Support</item>
         <item>Version 1.41
     		\n * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.</item>
         <item>Version 1.4
