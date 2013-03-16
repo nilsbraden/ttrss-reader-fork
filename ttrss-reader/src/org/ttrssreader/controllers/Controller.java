@@ -47,7 +47,7 @@ import android.view.Display;
  */
 public class Controller implements OnSharedPreferenceChangeListener {
     
-    public final static String JSON_END_URL = "api/";
+    public final static String JSON_END_URL = "api/index.php";
     private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
     private static final String MARKER_LINK = "LINK_MARKER";
     private static final String MARKER_LINK_VISITED = "LINK_VISITED_MARKER";
