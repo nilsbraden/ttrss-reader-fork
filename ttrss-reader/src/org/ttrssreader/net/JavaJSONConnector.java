@@ -62,8 +62,9 @@ public class JavaJSONConnector extends JSONConnector {
             JSONObject json = new JSONObject(params);
             byte[] outputBytes = json.toString().getBytes("UTF-8");
             
-            // check if http-Auth-Settings have changed, reload values if necessary
-            refreshHTTPAuth();
+            logRequest(json);
+            setupKeystore(); // Add SSL-Stuff
+            refreshHTTPAuth(); // check if http-Auth-Settings have changed, reload values if necessary
             
             // Create Connection
             HttpURLConnection con = (HttpURLConnection) Controller.getInstance().url().openConnection();
@@ -84,11 +85,6 @@ public class JavaJSONConnector extends JSONConnector {
             // Set the timeout until a connection is established.
             int timeoutConnection = (int) (8 * Utils.SECOND);
             con.setConnectTimeout(timeoutConnection);
-            
-            logRequest(json);
-            
-            // Add SSL-Stuff
-            setupKeystore();
             
             // Add POST data
             OutputStream os = con.getOutputStream();
