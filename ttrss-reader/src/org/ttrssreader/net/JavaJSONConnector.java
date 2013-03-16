@@ -18,7 +18,9 @@ package org.ttrssreader.net;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
+import java.net.PasswordAuthentication;
 import java.net.SocketException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -40,15 +42,17 @@ import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 public class JavaJSONConnector extends JSONConnector {
     
+    TrustManager[] trustManagers = null;
+    
     public JavaJSONConnector(Context context) {
         super(context);
+        disableConnectionReuseIfNecessary();
     }
-    
-    TrustManager[] trustManagers = null;
     
     protected InputStream doRequest(Map<String, String> params) {
         try {
@@ -67,10 +71,10 @@ public class JavaJSONConnector extends JSONConnector {
             con.setDoOutput(true);
             con.setUseCaches(false);
             con.setRequestMethod("POST");
-            // con.setRequestProperty("Content-Type", "application/json");
-            // con.setRequestProperty("Accept", "application/json");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setRequestProperty("Accept", "application/json");
             con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
-            // con.setFixedLengthStreamingMode(outputBytes.length);
+            con.setFixedLengthStreamingMode(outputBytes.length);
             
             // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
             // use longer timeout when lazyServer-Feature is used
@@ -175,6 +179,27 @@ public class JavaJSONConnector extends JSONConnector {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    @Override
+    protected boolean refreshHTTPAuth() {
+        if (!super.refreshHTTPAuth())
+            return false;
+        
+        Authenticator.setDefault(new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(httpUsername, httpPassword.toCharArray());
+            }
+        });
+        return true;
+    }
+    
+    @SuppressWarnings("deprecation")
+    private void disableConnectionReuseIfNecessary() {
+        // Work around pre-Froyo bugs in HTTP connection reuse.
+        if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
+            System.setProperty("http.keepAlive", "false");
         }
     }
     

@@ -28,18 +28,25 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.util.Log;
 
 public class ApacheJSONConnector extends JSONConnector {
+    
+    protected CredentialsProvider credProvider = null;
     
     public ApacheJSONConnector(Context context) {
         super(context);
@@ -180,4 +187,18 @@ public class ApacheJSONConnector extends JSONConnector {
         
         return instream;
     }
+    
+    protected boolean refreshHTTPAuth() {
+        if (!super.refreshHTTPAuth())
+            return false;
+        
+        // Refresh Credentials-Provider
+        if (!httpUsername.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
+            credProvider = new BasicCredentialsProvider();
+            credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                    new UsernamePasswordCredentials(httpUsername, httpPassword));
+        }
+        return true;
+    }
+    
 }
