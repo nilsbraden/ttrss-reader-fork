@@ -28,10 +28,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,7 +38,6 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -149,8 +144,6 @@ public abstract class JSONConnector {
     
     protected String sessionId = null;
     protected String loginLock = "";
-    
-    protected CredentialsProvider credProvider = null;
     protected DefaultHttpClient client;
     protected Context context;
     private int apiLevel = -1;
@@ -162,9 +155,9 @@ public abstract class JSONConnector {
     
     protected abstract InputStream doRequest(Map<String, String> params);
     
-    protected void refreshHTTPAuth() {
+    protected boolean refreshHTTPAuth() {
         if (!Controller.getInstance().useHttpAuth())
-            return;
+            return false;
         
         boolean refreshNeeded = false;
         
@@ -175,18 +168,13 @@ public abstract class JSONConnector {
             refreshNeeded = true;
         
         if (!refreshNeeded)
-            return;
+            return false;
         
         // Refresh data
         httpUsername = Controller.getInstance().httpUsername();
         httpPassword = Controller.getInstance().httpPassword();
         
-        // Refresh Credentials-Provider
-        if (!httpUsername.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
-            credProvider = new BasicCredentialsProvider();
-            credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                    new UsernamePasswordCredentials(httpUsername, httpPassword));
-        }
+        return true;
     }
     
     protected void logRequest(final JSONObject json) throws JSONException {
