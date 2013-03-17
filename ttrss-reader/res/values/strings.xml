@@ -213,5 +213,7 @@
     <string name="Share.content">Content</string>
     <string name="Share.ok_button">Send</string>
     <string name="Labels.NoLabels">Keine Labels vorhanden.</string>
+    <string name="Locale.Load_images">Load images</string>
+    <string name="Locale.Show_notification">Show notification</string>
 
 </resources>

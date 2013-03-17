@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.ttrssreader"
-    android:installLocation="auto"
-    android:versionCode="1422"
+    android:installLocation="internalOnly"
+    android:versionCode="1423"
     android:versionName="1.42" >
 
     <uses-sdk
-        android:minSdkVersion="7"
+        android:minSdkVersion="8"
         android:targetSdkVersion="17" />
 
     <!-- Check connectivity -->
@@ -21,11 +22,13 @@
     <!-- Vibrate on last article/feed -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Although many of these default to true, some users with modified ROMs have trouble seeing apps unless these attributes are explicitly set. -->
     <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"
         android:normalScreens="true"
-        android:smallScreens="true" />
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
 
     <application
         android:allowBackup="true"
@@ -72,6 +75,44 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+
+        <!--
+             Locale will reject plug-in Activities for the following reasons: 
+                 - Missing "android:label=[...]"
+                 - Missing "android:icon=[...]"
+                 - The Activity isn't exported (e.g. android:exported="false")
+                 - The Activity isn't enabled (e.g. android:enabled="false")
+                 - The Activity requires permissions not available to Locale
+        -->
+        <activity
+            android:name=".gui.EditPluginActivity"
+            android:exported="true"
+            android:icon="@drawable/icon"
+            android:label="@string/ApplicationName"
+            android:theme="@style/Theme.Sherlock"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="ExportedActivity" >
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+        <!--
+             Note that Locale will reject plug-in BroadcastReceivers for the following reasons:
+                - The BroadcastReceiver isn't exported (e.g. android:exported="false")
+                - The BroadcastReceiver isn't enabled (e.g. android:enabled="false")
+                - The BroadcastReceiver requires permissions not available to Locale
+                - There are multiple BroadcastReceivers for com.twofortyfouram.locale.intent.action.FIRE_SETTING
+        -->
+        <receiver
+            android:name=".imageCache.PluginReceiver"
+            android:exported="true"
+            android:process=":background"
+            tools:ignore="ExportedReceiver" >
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+            </intent-filter>
+        </receiver>
 
         <service android:name=".imageCache.ForegroundService" />
 
