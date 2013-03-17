@@ -18,6 +18,7 @@ package org.ttrssreader.utils;
 
 import java.io.FileNotFoundException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.http.HttpEntity;
@@ -144,8 +145,12 @@ public class Utils {
      * Checks the config for a user-defined server, returns true if a server has been defined
      */
     public static boolean checkConfig() {
-        URI uri = Controller.getInstance().url();
-        if (uri == null || uri.toASCIIString().equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
+        try {
+            URI uri = Controller.getInstance().uri();
+            if (uri == null || uri.toASCIIString().equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
+                return false;
+            }
+        } catch (URISyntaxException e) {
             return false;
         }
         return true;
@@ -401,7 +406,10 @@ public class Utils {
                 builder.setContentText(text);
                 builder.setContentIntent(pendingIntent);
                 builder.setAutoCancel(autoCancel);
-                notification = builder.getNotification();
+                if (Build.VERSION.SDK_INT < 16)
+                    notification = builder.getNotification();
+                else
+                    notification = builder.build();
             } else {
                 notification = buildOldNotification(context, icon, ticker, title, text, pendingIntent);
             }

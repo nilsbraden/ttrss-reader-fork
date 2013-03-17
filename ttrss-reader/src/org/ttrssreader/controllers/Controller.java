@@ -20,8 +20,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,13 +31,16 @@ import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.imageCache.ImageCache;
+import org.ttrssreader.net.ApacheJSONConnector;
 import org.ttrssreader.net.JSONConnector;
+import org.ttrssreader.net.JavaJSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -47,12 +52,11 @@ import android.view.Display;
  */
 public class Controller implements OnSharedPreferenceChangeListener {
     
-    public final static String JSON_END_URL = "api/";
+    public final static String JSON_END_URL = "api/index.php";
     private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
     private static final String MARKER_LINK = "LINK_MARKER";
     private static final String MARKER_LINK_VISITED = "LINK_VISITED_MARKER";
     
-    private boolean initialized = false;
     private Context context;
     private JSONConnector ttrssConnector;
     private ImageCache imageCache;
@@ -61,6 +65,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private boolean imageCacheLocked = false;
     
     private static Controller instance = null;
+    private static Boolean initialized = false;
     private SharedPreferences prefs = null;
     
     private String url = null;
@@ -70,6 +75,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String httpPassword = null;
     private Boolean useHttpAuth = null;
     private Boolean trustAllSsl = null;
+    private Boolean trustAllHosts = null;
     private Boolean useKeystore = null;
     private String keystorePassword = null;
     private Boolean useOfALazyServer = null;
@@ -150,21 +156,25 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return instance;
     }
     
-    public synchronized void checkAndInitializeController(final Context context, final Display display) {
-        this.context = context;
-        
-        if (!initialized) {
-            initializeController(display);
-            initialized = true;
+    public static void checkAndInitializeController(final Context context, boolean force_dummy_parameter) {
+        synchronized (initialized) {
+            Controller.instance = null;
+            Controller.getInstance().checkAndInitializeController(context, null);
         }
     }
     
-    public static synchronized void checkAndInitializeController(final Context context, boolean force_dummy_parameter) {
-        Controller.instance = null;
-        Controller.getInstance().checkAndInitializeController(context, null);
+    public void checkAndInitializeController(final Context context, final Display display) {
+        synchronized (initialized) {
+            this.context = context;
+            
+            if (!initialized) {
+                initializeController(display);
+                initialized = true;
+            }
+        }
     }
     
-    private synchronized void initializeController(final Display display) {
+    private void initializeController(final Display display) {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         
         // Check for new installation
@@ -172,11 +182,13 @@ public class Controller implements OnSharedPreferenceChangeListener {
             newInstallation = true;
         }
         
-        ttrssConnector = new JSONConnector();
+        if (Build.VERSION.SDK_INT <= 8) {
+            ttrssConnector = new ApacheJSONConnector(context);
+        } else {
+            ttrssConnector = new JavaJSONConnector(context);
+        }
         
         // Attempt to initialize some stuff in a background-thread to reduce loading time
-        // TODO: Check if it works..
-        
         // Start a login-request separately because this takes some time
         new Thread(new Runnable() {
             public void run() {
@@ -267,7 +279,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // ******* CONNECTION-Options ****************************
     
-    public URI url() {
+    public URI uri() throws URISyntaxException {
         if (url == null)
             url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
         
@@ -278,18 +290,21 @@ public class Controller implements OnSharedPreferenceChangeListener {
             url += JSON_END_URL;
         }
         
-        try {
-            return new URI(url);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            // Return default URL if creating an URI from the configured URL fails...
-            try {
-                return new URI(Constants.URL_DEFAULT);
-            } catch (URISyntaxException e1) {
-                e.printStackTrace();
-                throw new RuntimeException(e1);
+        return new URI(url);
+    }
+    
+    public URL url() throws MalformedURLException {
+        if (url == null)
+            url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
+        
+        if (!url.endsWith(JSON_END_URL)) {
+            if (!url.endsWith("/")) {
+                url += "/";
             }
+            url += JSON_END_URL;
         }
+        
+        return new URL(url);
     }
     
     public String updateTriggerURI() {
@@ -344,6 +359,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public boolean trustAllSsl() {
         if (trustAllSsl == null)
             trustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
+        return trustAllSsl;
+    }
+    
+    public boolean trustAllHosts() {
+        if (trustAllHosts == null)
+            trustAllHosts = prefs.getBoolean(Constants.TRUST_ALL_HOSTS, Constants.TRUST_ALL_HOSTS_DEFAULT);
         return trustAllSsl;
     }
     

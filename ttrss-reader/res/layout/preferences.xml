@@ -96,6 +96,13 @@
 
                 <CheckBoxPreference
                     android:defaultValue="false"
+                    android:disableDependentsState="true"
+                    android:key="ConnectionTrustHostsPreference"
+                    android:summary="@string/ConnectionTrustHostsPreferenceSummary"
+                    android:title="@string/ConnectionTrustHostsPreferenceTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
                     android:dependency="ConnectionSSLPreference"
                     android:disableDependentsState="false"
                     android:key="ConnectionUseKeystorePreference"

@@ -83,15 +83,17 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
         
         // Search old fragment, if it exists replace it, else add new fragment
-        Fragment oldFrag = getSupportFragmentManager().findFragmentById(R.id.headline_list);
+        Fragment fragmentOld = getSupportFragmentManager().findFragmentById(R.id.headline_list);
         ListFragment fragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        if (oldFrag != null && oldFrag.isVisible())
-            ft.replace(R.id.headline_list, fragment);
-        else
-            ft.add(R.id.headline_list, fragment);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.commit();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (fragmentOld != null) {
+            transaction.replace(R.id.headline_list, fragment);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        } else {
+            transaction.add(R.id.headline_list, fragment);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        }
+        transaction.commit();
         
         initialize();
     }

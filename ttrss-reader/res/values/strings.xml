@@ -92,6 +92,8 @@
     <string name="ConnectionSslPreferenceCategoryTitle">SSL Settings</string>
     <string name="ConnectionSslPreferenceTitle">SSL</string>
     <string name="ConnectionSslPreferenceSummary">Accept all SSL certificates.</string>
+    <string name="ConnectionTrustHostsPreferenceTitle">Trust all Hosts</string>
+    <string name="ConnectionTrustHostsPreferenceSummary">Accept Certificates from all hosts</string>
     <string name="ConnectionKeystorePasswordPreferenceTitle">Custom Keystore Password</string>
     <string name="ConnectionKeystorePasswordPreferenceSummary">Password to unlock custom keystore</string>
     <string name="ConnectionUseKeystorePreferenceTitle">Custom Keystore</string>
@@ -205,10 +207,13 @@
     <string name="Cache.service_started">Download started…</string>
     <string name="Cache.service_text">Download is running…</string>
     <string name="Cache.service_imagecache">ImageCache</string>
-    <string name="Cache.service_articlecache">ArticleCache</string><string name="Share.title">Title</string>
+    <string name="Cache.service_articlecache">ArticleCache</string>
+    <string name="Share.title">Title</string>
     <string name="Share.url">URL</string>
     <string name="Share.content">Content</string>
     <string name="Share.ok_button">Send</string>
     <string name="Labels.NoLabels">Keine Labels vorhanden.</string>
+    <string name="Locale.Load_images">Load images</string>
+    <string name="Locale.Show_notification">Show notification</string>
 
 </resources>
