@@ -6,6 +6,7 @@
   * Major refactoring to make use of fragments and someday be able to implement a two-pane-layout...  
   * Fixed several Bugs, closed forgotten cursors and layout-problems
   * Switched HTTP-Library (Apache -> HttpUrlConnection) for SSL-SNI Support
+  * Minor bugfixes
 
 == Version 1.41 ==
   * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.
