@@ -21,15 +21,18 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
+import org.ttrssreader.utils.WakeLocker;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 public class ForegroundService extends Service implements ICacheEndListener {
     
     public static final String ACTION_LOAD_IMAGES = "load_images";
     public static final String ACTION_LOAD_ARTICLES = "load_articles";
+    public static final String PARAM_SHOW_NOTIFICATION = "show_notification";
     
     private ImageCacher imageCacher;
     private static ForegroundService instance = null;
@@ -53,11 +56,13 @@ public class ForegroundService extends Service implements ICacheEndListener {
     @Override
     public void onCreate() {
         instance = this;
+        super.onCreate();
     }
     
     @Override
     public void onDestroy() {
         finishService();
+        super.onDestroy();
     }
     
     /**
@@ -72,40 +77,9 @@ public class ForegroundService extends Service implements ICacheEndListener {
     }
     
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        handleCommand(intent);
-        // We want this service to continue running until it is explicitly stopped, so return sticky.
-        return START_STICKY;
-    }
-    
-    void handleCommand(Intent intent) {
-        // Fail-safe
-        if (intent == null || intent.getAction() == null)
-            return;
-        
-        int icon = R.drawable.notification_icon;
-        CharSequence title = "";
-        CharSequence ticker = getText(R.string.Cache_service_started);
-        CharSequence text = getText(R.string.Cache_service_text);
-        
-        if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
-            title = getText(R.string.Cache_service_imagecache);
-            imageCacher = new ImageCacher(this, this, false);
-            imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
-            title = getText(R.string.Cache_service_articlecache);
-            imageCacher = new ImageCacher(this, this, true);
-            imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
-        
-        // Display notification
-        Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text, true,
-                new Intent());
-        startForeground(R.string.Cache_service_started, notification);
-    }
-    
-    @Override
     public void onCacheEnd() {
+        WakeLocker.release();
+        
         // Start a new cacher if images have been requested
         if (imageCache) {
             imageCache = false;
@@ -115,6 +89,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
             finishService();
             this.stopSelf();
         }
+        Log.i(Utils.TAG, "Caching finished.");
     }
     
     @Override
@@ -126,6 +101,42 @@ public class ForegroundService extends Service implements ICacheEndListener {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+    
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && intent.getAction() != null) {
+            CharSequence title = "";
+            
+            if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
+                
+                title = getText(R.string.Cache_service_imagecache);
+                imageCacher = new ImageCacher(this, this, false);
+                imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                Log.i(Utils.TAG, "Caching images started");
+                
+            } else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
+                
+                title = getText(R.string.Cache_service_articlecache);
+                imageCacher = new ImageCacher(this, this, true);
+                imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                Log.i(Utils.TAG, "Caching (articles only) started");
+                
+            }
+            
+            WakeLocker.acquire(this);
+            
+            if (PARAM_SHOW_NOTIFICATION.equals(intent.getBooleanExtra(PARAM_SHOW_NOTIFICATION, false))) {
+                int icon = R.drawable.notification_icon;
+                CharSequence ticker = getText(R.string.Cache_service_started);
+                CharSequence text = getText(R.string.Cache_service_text);
+                Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text,
+                        true, new Intent());
+                startForeground(R.string.Cache_service_started, notification);
+            }
+        }
+        
+        return START_STICKY;
     }
     
 }
