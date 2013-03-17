@@ -199,42 +199,47 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         // DownloadImageTask[] tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
         map = new HashMap<Integer, ImageCacher.DownloadImageTask>();
         
-        Cursor c = DBHelper.getInstance().queryArticlesForImageCache(onlyUnreadImages);
-        if (c != null && c.moveToFirst() && c.getCount() > 0) {
-            while (!c.isAfterLast()) {
-                // Get images included in HTML
-                Set<String> set = new HashSet<String>();
-                
-                for (String url : findAllImageUrls(c.getString(1), c.getInt(0))) {
-                    if (!imageCache.containsKey(url))
-                        set.add(url);
-                }
-                
-                // Get images from attachments separately
-                for (String url : c.getString(2).split(";")) {
-                    for (String ext : FileUtils.IMAGE_EXTENSIONS) {
-                        if (url.toLowerCase(Locale.getDefault()).contains("." + ext) && !imageCache.containsKey(url)) {
+        Cursor c = null;
+        try {
+            c = DBHelper.getInstance().queryArticlesForImageCache(onlyUnreadImages);
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    // Get images included in HTML
+                    Set<String> set = new HashSet<String>();
+                    
+                    for (String url : findAllImageUrls(c.getString(1), c.getInt(0))) {
+                        if (!imageCache.containsKey(url))
                             set.add(url);
-                            break;
+                    }
+                    
+                    // Get images from attachments separately
+                    for (String url : c.getString(2).split(";")) {
+                        for (String ext : FileUtils.IMAGE_EXTENSIONS) {
+                            if (url.toLowerCase(Locale.getDefault()).contains("." + ext)
+                                    && !imageCache.containsKey(url)) {
+                                set.add(url);
+                                break;
+                            }
                         }
                     }
+                    
+                    if (set.size() > 0) {
+                        ImageCacher.DownloadImageTask task = new ImageCacher.DownloadImageTask(imageCache, c.getInt(0),
+                                StringSupport.setToArray(set));
+                        handler.post(task);
+                        map.put(c.getInt(0), task);
+                    }
+                    
+                    if (downloaded > cacheSizeMax) {
+                        Log.w(Utils.TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
+                        break;
+                    }
+                    c.move(1);
                 }
-                
-                if (set.size() > 0) {
-                    ImageCacher.DownloadImageTask task = new ImageCacher.DownloadImageTask(imageCache, c.getInt(0),
-                            StringSupport.setToArray(set));
-                    handler.post(task);
-                    map.put(c.getInt(0), task);
-                }
-                
-                if (downloaded > cacheSizeMax) {
-                    Log.w(Utils.TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
-                    break;
-                }
-                c.move(1);
             }
+        } finally {
+            c.close();
         }
-        c.close();
         
         while (!map.isEmpty()) {
             synchronized (map) {
