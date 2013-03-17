@@ -29,7 +29,7 @@
 
     <application
         android:allowBackup="true"
-        android:backupAgent="MyBackupAgent"
+        android:backupAgent=".preferences.MyPrefsBackupAgent"
         android:description="@string/ApplicationDescription"
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName" >
