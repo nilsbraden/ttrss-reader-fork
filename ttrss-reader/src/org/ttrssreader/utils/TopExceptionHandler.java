@@ -30,69 +30,72 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
         if (e instanceof IllegalStateException)
             return;
         
-        StackTraceElement[] element = e.getStackTrace();
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append(e.toString() + "\n\n");
-        sb.append("--------- Stacktrace ---------\n");
-        
-        for (int i = 0; i < element.length; i++) {
-            sb.append("  " + element[i].toString() + "\n");
-        }
-        
-        sb.append("------------------------------\n\n");
-        
-        // If the exception was thrown in a background thread inside
-        // AsyncTask, then the actual exception can be found with getCause
-        
-        Throwable cause = e.getCause();
-        if (cause != null) {
-            sb.append("--------- Cause --------------\n");
+        try {
+            StackTraceElement[] element = e.getStackTrace();
+            StringBuilder sb = new StringBuilder();
             
-            sb.append(cause.toString() + "\n\n");
-            element = cause.getStackTrace();
+            sb.append(e.toString() + "\n\n");
+            sb.append("--------- Stacktrace ---------\n");
             
             for (int i = 0; i < element.length; i++) {
                 sb.append("  " + element[i].toString() + "\n");
             }
             
             sb.append("------------------------------\n\n");
+            
+            // If the exception was thrown in a background thread inside
+            // AsyncTask, then the actual exception can be found with getCause
+            
+            Throwable cause = e.getCause();
+            if (cause != null) {
+                sb.append("--------- Cause --------------\n");
+                
+                sb.append(cause.toString() + "\n\n");
+                element = cause.getStackTrace();
+                
+                for (int i = 0; i < element.length; i++) {
+                    sb.append("  " + element[i].toString() + "\n");
+                }
+                
+                sb.append("------------------------------\n\n");
+            }
+            
+            sb.append("--------- Device -------------\n");
+            sb.append("Brand: " + Build.BRAND + "\n");
+            sb.append("Device: " + Build.DEVICE + "\n");
+            sb.append("Model: " + Build.MODEL + "\n");
+            sb.append("Id: " + Build.ID + "\n");
+            sb.append("Product: " + Build.PRODUCT + "\n");
+            sb.append("------------------------------\n\n");
+            
+            sb.append("--------- Firmware -----------\n");
+            sb.append("SDK: " + Build.VERSION.SDK_INT + "\n");
+            sb.append("Release: " + Build.VERSION.RELEASE + "\n");
+            sb.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n");
+            sb.append("------------------------------\n\n");
+            
+            PackageManager pm = app.getPackageManager();
+            PackageInfo pi = null;
+            try {
+                pi = pm.getPackageInfo(app.getPackageName(), 0);
+            } catch (Exception ex) {
+            }
+            
+            sb.append("--------- Application --------\n");
+            sb.append("Version: " + Controller.getInstance().getLastVersionRun() + "\n");
+            sb.append("Version-Code: " + (pi != null ? pi.versionCode : "null") + "\n");
+            sb.append("------------------------------\n\n");
+            
+            try {
+                FileOutputStream trace = app.openFileOutput(FILE, Context.MODE_PRIVATE);
+                trace.write(sb.toString().getBytes());
+                trace.close();
+            } catch (Exception ioe) {
+            }
+            
+            handler.uncaughtException(t, e);
+        } catch (Throwable tt) {
         }
-        
-        sb.append("--------- Device -------------\n");
-        sb.append("Brand: " + Build.BRAND + "\n");
-        sb.append("Device: " + Build.DEVICE + "\n");
-        sb.append("Model: " + Build.MODEL + "\n");
-        sb.append("Id: " + Build.ID + "\n");
-        sb.append("Product: " + Build.PRODUCT + "\n");
-        sb.append("------------------------------\n\n");
-        
-        sb.append("--------- Firmware -----------\n");
-        sb.append("SDK: " + Build.VERSION.SDK_INT + "\n");
-        sb.append("Release: " + Build.VERSION.RELEASE + "\n");
-        sb.append("Incremental: " + Build.VERSION.INCREMENTAL + "\n");
-        sb.append("------------------------------\n\n");
-        
-        PackageManager pm = app.getPackageManager();
-        PackageInfo pi = null;
-        try {
-            pi = pm.getPackageInfo(app.getPackageName(), 0);
-        } catch (Exception ex) {
-        }
-        
-        sb.append("--------- Application --------\n");
-        sb.append("Version: " + Controller.getInstance().getLastVersionRun() + "\n");
-        sb.append("Version-Code: " + (pi != null ? pi.versionCode : "null") + "\n");
-        sb.append("------------------------------\n\n");
-        
-        try {
-            FileOutputStream trace = app.openFileOutput(FILE, Context.MODE_PRIVATE);
-            trace.write(sb.toString().getBytes());
-            trace.close();
-        } catch (Exception ioe) {
-        }
-        
-        handler.uncaughtException(t, e);
     }
     
 }

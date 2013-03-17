@@ -67,6 +67,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static Controller instance = null;
     private static Boolean initialized = false;
     private SharedPreferences prefs = null;
+    private static boolean preferencesChanged = false;
     
     private String url = null;
     private String username = null;
@@ -167,7 +168,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         synchronized (initialized) {
             this.context = context;
             
-            if (!initialized) {
+            if (!initialized || instance == null || instance.prefs == null) {
                 initializeController(display);
                 initialized = true;
             }
@@ -182,11 +183,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             newInstallation = true;
         }
         
-        if (Build.VERSION.SDK_INT <= 8) {
-            ttrssConnector = new ApacheJSONConnector(context);
-        } else {
-            ttrssConnector = new JavaJSONConnector(context);
-        }
+        initializeConnector();
         
         // Attempt to initialize some stuff in a background-thread to reduce loading time
         // Start a login-request separately because this takes some time
@@ -246,6 +243,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
             }
         }).start();
         
+    }
+    
+    private synchronized void initializeConnector() {
+        if (ttrssConnector != null)
+            return;
+        
+        if (Build.VERSION.SDK_INT <= 8) {
+            ttrssConnector = new ApacheJSONConnector(context);
+        } else {
+            ttrssConnector = new JavaJSONConnector(context);
+        }
     }
     
     public static void refreshDisplayMetrics(Display display) {
@@ -373,7 +381,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
         if (ttrssConnector != null) {
             return ttrssConnector;
         } else {
-            throw new RuntimeException("Connector is not initialized.");
+            initializeConnector();
+            if (ttrssConnector != null)
+                return ttrssConnector;
+            else
+                throw new RuntimeException("Connector could not be initialized.");
         }
     }
     
@@ -1036,12 +1048,21 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 // reset variable, it will be re-read on next access
                 String fieldName = Constants.constant2Var(field.getName());
                 Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
+                preferencesChanged = true;
                 
             } catch (Exception e) {
                 e.printStackTrace();
             }
             
         }
+    }
+    
+    public boolean isPreferencesChanged() {
+        return preferencesChanged;
+    }
+    
+    public void setPreferencesChanged(boolean preferencesChanged) {
+        this.preferencesChanged = preferencesChanged;
     }
     
 }

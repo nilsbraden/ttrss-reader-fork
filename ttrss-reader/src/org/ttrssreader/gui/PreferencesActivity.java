@@ -25,6 +25,7 @@ import org.ttrssreader.preferences.FileBrowserHelper;
 import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
+import android.app.backup.BackupManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -111,6 +112,7 @@ public class PreferencesActivity extends PreferenceActivity {
         });
         
         // Set up a listener whenever a key changes
+        Controller.getInstance().setPreferencesChanged(false);
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(Controller.getInstance());
     }
     
@@ -150,6 +152,8 @@ public class PreferencesActivity extends PreferenceActivity {
             };
             init.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
+        if (Controller.getInstance().isPreferencesChanged())
+            new BackupManager(this).dataChanged();
     }
     
     @Override
@@ -197,7 +201,7 @@ public class PreferencesActivity extends PreferenceActivity {
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+        
         String path = null;
         if (resultCode == RESULT_OK && data != null) {
             // obtain the filename
