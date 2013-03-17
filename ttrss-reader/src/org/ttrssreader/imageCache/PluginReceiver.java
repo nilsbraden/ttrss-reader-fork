@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  * This is the "fire" BroadcastReceiver for a Locale Plug-in setting.
@@ -64,9 +63,16 @@ public final class PluginReceiver extends BroadcastReceiver {
         
         final boolean images = bundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_IMAGES);
         final boolean notification = bundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_NOTIFICATION);
-        Toast.makeText(context, "This doesn't work yet, sry.", Toast.LENGTH_LONG).show();
-        // Toast.makeText(context, "Called. Images: " + images + " Notification: " + notification, Toast.LENGTH_LONG)
-        // .show();
+        
+        Intent serviceIntent;
+        if (images) {
+            serviceIntent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
+        } else {
+            serviceIntent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);
+        }
+        serviceIntent.setClass(context, ForegroundService.class);
+        serviceIntent.putExtra(ForegroundService.PARAM_SHOW_NOTIFICATION, notification);
+        context.startService(serviceIntent);
     }
     
 }
