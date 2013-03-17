@@ -291,6 +291,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         if (folderSize > cacheSizeMax) {
             // Sort list of files by last access date
             List<File> list = Arrays.asList(cacheFolder.listFiles());
+            if (list == null)
+                return;
             Collections.sort(list, new FileDateComparator());
             
             int i = 0;

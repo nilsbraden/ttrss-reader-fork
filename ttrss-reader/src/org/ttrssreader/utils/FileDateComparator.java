@@ -27,27 +27,17 @@ public class FileDateComparator implements Comparator<File> {
     
     @Override
     public int compare(File f1, File f2) {
-        
         // Shouldn't happen, just to be on the safe side we sort null-values to the end
-        if (f1 == null)
-            return 1;
-        if (f2 == null)
-            return -1;
+        if (f1 == null || f2 == null)
+            throw new ClassCastException("NULL values can not be sorted.");
         
         // Hopefully avoids crashes due to IllegalArgumentExceptions
         if (f1.equals(f2))
             return 0;
         
-        long size1 = f1.lastModified();
-        long size2 = f2.lastModified();
-        
-        if (size1 < size2) {
-            return -1;
-        } else if (size1 > size2) {
-            return 1;
-        }
-        
-        return 0; // equal
+        Long size1 = Long.valueOf(f1.lastModified());
+        Long size2 = Long.valueOf(f2.lastModified());
+        return size1.compareTo(size2);
     }
     
 }
