@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- Try to always show these entries. Hide when using ShareToPublished. -->
+    <group android:id="@+id/group_normal_primary" >
+        <item
+            android:id="@+id/Menu_Refresh"
+            android:icon="@drawable/ic_menu_refresh"
+            android:showAsAction="always|withText"
+            android:title="@string/Main.RefreshMenu"/>
+        <item
+            android:id="@+id/Menu_MarkAllRead"
+            android:icon="@drawable/ic_menu_mark"
+            android:showAsAction="always|withText"
+            android:title="@string/Commons.MarkAllRead"/>
+    </group>
+
+    <!-- Try to show these entries if there is room. Hide when using ShareToPublished. -->
+    <group android:id="@+id/group_normal_secondary" >
+        <item
+            android:id="@+id/Menu_DisplayOnlyUnread"
+            android:icon="@drawable/ic_menu_view"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/Commons.DisplayOnlyUnread"/>
+        <item
+            android:id="@+id/Menu_InvertSort"
+            android:icon="@drawable/ic_menu_rotate"
+            android:showAsAction="never|withText"
+            android:title="@string/Commons.InvertSort"/>
+        <item
+            android:id="@+id/Menu_WorkOffline"
+            android:icon="@drawable/ic_menu_stop"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/UsageOfflineTitle"/>
+    </group>
+
+    <!-- Always show these entries in the menu. Show when using ShareToPublished. -->
+    <group android:id="@+id/group_generic" >
+        <item
+            android:id="@+id/Category_Menu_ImageCache"
+            android:icon="@drawable/ic_menu_save"
+            android:showAsAction="never|withText"
+            android:title="@string/Main.ImageCache"/>
+        <item
+            android:id="@+id/Menu_ShowPreferences"
+            android:icon="@drawable/ic_menu_preferences"
+            android:showAsAction="never|withText"
+            android:title="@string/Main.ShowPreferencesMenu"/>
+        <item
+            android:id="@+id/Menu_About"
+            android:icon="@drawable/ic_menu_help"
+            android:showAsAction="never|withText"
+            android:title="@string/About.about"/>
+    </group>
+
+</menu>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+    Copyright (C) The Developers from K-9 Mail (https://code.google.com/p/k9mail/)
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:my="http://schemas.android.com/apk/res/org.ttrssreader" >
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <org.ttrssreader.gui.view.ArticleHeaderView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/article_header_container"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingRight="2dip"
+            android:paddingTop="2dip" >
+
+            <LinearLayout
+                android:id="@+id/top_container"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="4dip"
+                android:paddingTop="2dip" >
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="fill_horizontal" >
+
+                    <LinearLayout
+                        android:id="@+id/article"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="5"
+                        android:orientation="vertical"
+                        android:paddingLeft="4dip" >
+
+                        <TextView
+                            android:id="@+id/title"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:id="@+id/feed_container"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:baselineAligned="true" >
+
+                            <TextView
+                                android:id="@+id/feed"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:paddingRight="6dip"
+                                android:singleLine="true"
+                                android:textAppearance="?android:attr/textAppearanceSmall" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/topright_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.1"
+                        android:gravity="right"
+                        android:orientation="vertical" >
+
+                        <TextView
+                            android:id="@+id/date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="none"
+                            android:singleLine="true"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textSize="10sp" />
+
+                        <TextView
+                            android:id="@+id/time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="none"
+                            android:singleLine="true"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/icons_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <CheckBox
+                            android:id="@+id/starred"
+                            style="?android:attr/starStyle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:focusable="false" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </org.ttrssreader.gui.view.ArticleHeaderView>
+
+        <org.ttrssreader.gui.view.ArticleView
+            android:id="@+id/article_main_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <RelativeLayout
+                android:id="@+id/centralView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/buttonView"
+                android:orientation="vertical" >
+
+                <FrameLayout
+                    android:id="@+id/webView_Container"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent" />
+                <!--
+                        WebView
+                        android:id="@+id/webView"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent" /
+                -->
+
+                <org.ttrssreader.utils.RotatableTextView
+                    android:id="@+id/swipeView"
+                    android:layout_width="45dip"
+                    android:layout_height="fill_parent"
+                    android:layout_alignRight="@id/webView_Container"
+                    my:backgroundColor="#AA000000"
+                    my:text="@string/ArticleActivity.SwipeNotification"
+                    my:textColor="#FFFFFFFF"
+                    my:textRotation="-90"
+                    my:textSize="25" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/buttonView"
+                android:layout_width="45dip"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:background="@android:drawable/bottom_bar"
+                android:orientation="vertical" >
+
+                <Button
+                    android:id="@+id/buttonNext"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1.0"
+                    android:padding="4dip"
+                    android:text="Up" />
+
+                <Button
+                    android:id="@+id/buttonPrev"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1.0"
+                    android:padding="4dip"
+                    android:text="Down" />
+            </LinearLayout>
+        </org.ttrssreader.gui.view.ArticleView>
+    </LinearLayout>
+
+</merge>
