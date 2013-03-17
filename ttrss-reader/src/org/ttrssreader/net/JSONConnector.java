@@ -191,6 +191,10 @@ public abstract class JSONConnector {
     }
     
     private String readResult(Map<String, String> params, boolean login) throws IOException {
+        return readResult(params, login, true);
+    }
+    
+    private String readResult(Map<String, String> params, boolean login, boolean retry) throws IOException {
         InputStream in = doRequest(params);
         if (in == null)
             return null;
@@ -234,7 +238,7 @@ public abstract class JSONConnector {
                             if (message.contains(NOT_LOGGED_IN)) {
                                 lastError = NOT_LOGGED_IN;
                                 if (!login)
-                                    return readResult(params, false); // Just do the same request again
+                                    return readResult(params, false, false); // Just do the same request again
                                 else
                                     return null;
                             }
