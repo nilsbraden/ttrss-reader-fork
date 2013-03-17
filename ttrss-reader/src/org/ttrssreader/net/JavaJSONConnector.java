@@ -17,7 +17,6 @@ package org.ttrssreader.net;
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
@@ -63,8 +62,8 @@ public class JavaJSONConnector extends JSONConnector {
             byte[] outputBytes = json.toString().getBytes("UTF-8");
             
             logRequest(json);
-            setupKeystore(); // Add SSL-Stuff
-            refreshHTTPAuth(); // check if http-Auth-Settings have changed, reload values if necessary
+            setupKeystore();
+            refreshHTTPAuth();
             
             // Create Connection
             HttpURLConnection con = (HttpURLConnection) Controller.getInstance().url().openConnection();
@@ -75,20 +74,17 @@ public class JavaJSONConnector extends JSONConnector {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
-            con.setFixedLengthStreamingMode(outputBytes.length);
             
-            // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
-            // use longer timeout when lazyServer-Feature is used
+            // Disable streaming. Exception on getResponseCode() AND getInputStream() when HTTP Auth is enabled. See
+            // http://docs.oracle.com/javase/1.5.0/docs/api/java/net/HttpURLConnection.html#setFixedLengthStreamingMode(int)
+            // con.setFixedLengthStreamingMode(outputBytes.length);
+            
             int timeoutSocket = (int) ((Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE : 10 * Utils.SECOND);
             con.setReadTimeout(timeoutSocket);
-            
-            // Set the timeout until a connection is established.
-            int timeoutConnection = (int) (8 * Utils.SECOND);
-            con.setConnectTimeout(timeoutConnection);
+            con.setConnectTimeout((int) (8 * Utils.SECOND));
             
             // Add POST data
-            OutputStream os = con.getOutputStream();
-            os.write(outputBytes);
+            con.getOutputStream().write(outputBytes);
             
             // Try to check for HTTP Status codes
             int code = con.getResponseCode();
