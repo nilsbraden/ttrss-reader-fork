@@ -1,9 +1,15 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.43 ==
+  * Added ability to schedule updates with Tasker/Locale
+  
 == Version 1.42 ==
   * Switching to next or previous articles/feeds is much faster now
   * Major refactoring to make use of fragments and someday be able to implement a two-pane-layout...  
+  * Fixed several Bugs, closed forgotten cursors and layout-problems
+  * Switched HTTP-Library (Apache -> HttpUrlConnection) for SSL-SNI Support
+  * Minor bugfixes
 
 == Version 1.41 ==
   * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.

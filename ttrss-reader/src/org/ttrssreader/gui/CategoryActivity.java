@@ -81,15 +81,17 @@ public class CategoryActivity extends MenuActivity {
         Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
         
         // Search old fragment, if it exists replace it, else add new fragment
-        Fragment oldFrag = getSupportFragmentManager().findFragmentById(R.id.category_list);
+        Fragment fragmentOld = getSupportFragmentManager().findFragmentById(R.id.category_list);
         CategoryListFragment fragment = new CategoryListFragment();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        if (oldFrag != null && oldFrag.isVisible())
-            ft.replace(R.id.category_list, fragment);
-        else
-            ft.add(R.id.category_list, fragment);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.commit();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (fragmentOld != null) {
+            transaction.replace(R.id.category_list, fragment);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        } else {
+            transaction.add(R.id.category_list, fragment);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        }
+        transaction.commit();
         
         if (!Utils.checkFirstRun(this)) { // Check for new installation
             showDialog(DIALOG_WELCOME);

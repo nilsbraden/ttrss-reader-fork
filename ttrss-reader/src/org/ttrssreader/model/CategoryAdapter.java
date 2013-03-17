@@ -159,7 +159,7 @@ public class CategoryAdapter extends MainAdapter {
                 query.append("SELECT id,title,unread FROM ");
                 query.append(DBHelper.TABLE_CATEGORIES);
                 query.append(" WHERE id>=-4 AND id<0 ORDER BY id");
-                insertValues(DBHelper.getInstance().query(query.toString(), null));
+                insertValues(query.toString());
             }
             
             // Labels
@@ -169,15 +169,14 @@ public class CategoryAdapter extends MainAdapter {
             query.append(" WHERE id<-10");
             query.append(displayUnread ? " AND unread>0" : "");
             query.append(" ORDER BY UPPER(title) ASC");
-            insertValues(DBHelper.getInstance().query(query.toString(), null));
+            insertValues(query.toString());
             
             // "Uncategorized Feeds"
             query = new StringBuilder();
             query.append("SELECT id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
             query.append(" WHERE id=0");
-            // query.append(displayUnread ? " AND unread>0" : "");
-            insertValues(DBHelper.getInstance().query(query.toString(), null));
+            insertValues(query.toString());
             
             // Categories
             query = new StringBuilder();
@@ -187,7 +186,7 @@ public class CategoryAdapter extends MainAdapter {
             query.append(displayUnread ? " AND unread>0" : "");
             query.append(" ORDER BY UPPER(title) ");
             query.append(invertSortFeedCats ? "DESC" : "ASC");
-            insertValues(DBHelper.getInstance().query(query.toString(), null));
+            insertValues(query.toString());
             
             String[] columns = { "id", "title", "unread" };
             return db.query(TABLE_NAME, columns, null, null, null, null, null);
@@ -226,19 +225,26 @@ public class CategoryAdapter extends MainAdapter {
         }
     }
     
-    private void insertValues(Cursor c) {
-        if (c == null)
-            return;
-        if (c.isBeforeFirst() && !c.moveToFirst())
-            return;
-        
-        while (true) {
-            insert.bindLong(1, c.getInt(0)); // id
-            insert.bindString(2, c.getString(1)); // title
-            insert.bindLong(3, c.getInt(2)); // unread
-            insert.executeInsert();
-            if (!c.moveToNext())
-                break;
+    private void insertValues(String query) {
+        Cursor c = null;
+        try {
+            c = DBHelper.getInstance().query(query.toString(), null);
+            if (c == null)
+                return;
+            if (c.isBeforeFirst() && !c.moveToFirst())
+                return;
+            
+            while (true) {
+                insert.bindLong(1, c.getInt(0)); // id
+                insert.bindString(2, c.getString(1)); // title
+                insert.bindLong(3, c.getInt(2)); // unread
+                insert.executeInsert();
+                if (!c.moveToNext())
+                    break;
+            }
+        } finally {
+            if (c != null)
+                c.close();
         }
     }
 }

@@ -19,8 +19,6 @@ package org.ttrssreader.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,23 +28,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLPeerUnverifiedException;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -55,122 +38,126 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 
-public class JSONConnector {
+public abstract class JSONConnector {
     
-    private static String lastError = "";
-    private static boolean hasLastError = false;
+    protected static String lastError = "";
+    protected static boolean hasLastError = false;
     
-    private static final String PARAM_OP = "op";
-    private static final String PARAM_USER = "user";
-    private static final String PARAM_PW = "password";
-    private static final String PARAM_CAT_ID = "cat_id";
-    private static final String PARAM_FEED_ID = "feed_id";
-    private static final String PARAM_ARTICLE_ID = "article_id";
-    private static final String PARAM_ARTICLE_IDS = "article_ids";
-    private static final String PARAM_LIMIT = "limit";
-    private static final int PARAM_LIMIT_MAX_VALUE = 60;
-    private static final String PARAM_VIEWMODE = "view_mode";
-    private static final String PARAM_SHOW_CONTENT = "show_content";
-    private static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
-                                                                               // 1.5.3 but is ignored on older versions
-    private static final String PARAM_SINCE_ID = "since_id";
-    private static final String PARAM_SKIP = "skip";
-    private static final String PARAM_MODE = "mode";
-    private static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
-                                                       // level 1)
-    private static final String PARAM_DATA = "data"; // optional data parameter when setting note field
-    private static final String PARAM_IS_CAT = "is_cat";
-    private static final String PARAM_PREF = "pref_name";
-    private static final String PARAM_OUTPUT_MODE = "output_mode"; // output_mode (default: flc) - what kind of
-                                                                   // information to return (f-feeds, l-labels,
-                                                                   // c-categories, t-tags)
+    protected static final String PARAM_OP = "op";
+    protected static final String PARAM_USER = "user";
+    protected static final String PARAM_PW = "password";
+    protected static final String PARAM_CAT_ID = "cat_id";
+    protected static final String PARAM_FEED_ID = "feed_id";
+    protected static final String PARAM_ARTICLE_ID = "article_id";
+    protected static final String PARAM_ARTICLE_IDS = "article_ids";
+    protected static final String PARAM_LIMIT = "limit";
+    protected static final int PARAM_LIMIT_MAX_VALUE = 60;
+    protected static final String PARAM_VIEWMODE = "view_mode";
+    protected static final String PARAM_SHOW_CONTENT = "show_content";
+    protected static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
+                                                                                 // 1.5.3 but is ignored on older
+                                                                                 // versions
+    protected static final String PARAM_SINCE_ID = "since_id";
+    protected static final String PARAM_SKIP = "skip";
+    protected static final String PARAM_MODE = "mode";
+    protected static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
+                                                         // level 1)
+    protected static final String PARAM_DATA = "data"; // optional data parameter when setting note field
+    protected static final String PARAM_IS_CAT = "is_cat";
+    protected static final String PARAM_PREF = "pref_name";
+    protected static final String PARAM_OUTPUT_MODE = "output_mode"; // output_mode (default: flc) - what kind of
+                                                                     // information to return (f-feeds, l-labels,
+                                                                     // c-categories, t-tags)
     
-    private static final String VALUE_LOGIN = "login";
-    private static final String VALUE_GET_CATEGORIES = "getCategories";
-    private static final String VALUE_GET_FEEDS = "getFeeds";
-    private static final String VALUE_GET_HEADLINES = "getHeadlines";
-    private static final String VALUE_UPDATE_ARTICLE = "updateArticle";
-    private static final String VALUE_CATCHUP = "catchupFeed";
-    private static final String VALUE_UPDATE_FEED = "updateFeed";
-    private static final String VALUE_GET_PREF = "getPref";
-    private static final String VALUE_GET_VERSION = "getVersion";
-    private static final String VALUE_GET_LABELS = "getLabels";
-    private static final String VALUE_SET_LABELS = "setArticleLabel";
-    private static final String VALUE_SHARE_TO_PUBLISHED = "shareToPublished";
+    protected static final String VALUE_LOGIN = "login";
+    protected static final String VALUE_GET_CATEGORIES = "getCategories";
+    protected static final String VALUE_GET_FEEDS = "getFeeds";
+    protected static final String VALUE_GET_HEADLINES = "getHeadlines";
+    protected static final String VALUE_UPDATE_ARTICLE = "updateArticle";
+    protected static final String VALUE_CATCHUP = "catchupFeed";
+    protected static final String VALUE_UPDATE_FEED = "updateFeed";
+    protected static final String VALUE_GET_PREF = "getPref";
+    protected static final String VALUE_GET_VERSION = "getVersion";
+    protected static final String VALUE_GET_LABELS = "getLabels";
+    protected static final String VALUE_SET_LABELS = "setArticleLabel";
+    protected static final String VALUE_SHARE_TO_PUBLISHED = "shareToPublished";
     
-    private static final String VALUE_LABEL_ID = "label_id";
-    private static final String VALUE_ASSIGN = "assign";
-    private static final String VALUE_API_LEVEL = "getApiLevel";
-    private static final String VALUE_GET_COUNTERS = "getCounters";
-    private static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
+    protected static final String VALUE_LABEL_ID = "label_id";
+    protected static final String VALUE_ASSIGN = "assign";
+    protected static final String VALUE_API_LEVEL = "getApiLevel";
+    protected static final String VALUE_GET_COUNTERS = "getCounters";
+    protected static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
     
-    private static final String ERROR = "error";
-    private static final String ERROR_TEXT = "Error: ";
-    private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
-    private static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
-    private static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
-    private static final String API_DISABLED = "API_DISABLED";
-    private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
-    private static final String STATUS = "status";
+    protected static final String ERROR = "error";
+    protected static final String ERROR_TEXT = "Error: ";
+    protected static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
+    protected static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
+    protected static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
+    protected static final String API_DISABLED = "API_DISABLED";
+    protected static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
+    protected static final String STATUS = "status";
+    protected static final String API_LEVEL = "api_level";
     
-    private static final String SESSION_ID = "session_id"; // session id as an OUT parameter
-    private static final String SID = "sid"; // session id as an IN parameter
-    private static final String ID = "id";
-    private static final String TITLE = "title";
-    private static final String UNREAD = "unread";
-    private static final String CAT_ID = "cat_id";
-    private static final String FEED_ID = "feed_id";
-    private static final String UPDATED = "updated";
-    private static final String CONTENT = "content";
-    private static final String URL = "link";
-    private static final String URL_SHARE = "url";
-    private static final String FEED_URL = "feed_url";
-    private static final String COMMENT_URL = "comments";
-    private static final String ATTACHMENTS = "attachments";
-    private static final String CONTENT_URL = "content_url";
-    private static final String STARRED = "marked";
-    private static final String PUBLISHED = "published";
-    private static final String VALUE = "value";
-    private static final String VERSION = "version";
-    private static final String LEVEL = "level";
-    private static final String CAPTION = "caption";
-    private static final String CHECKED = "checked";
+    protected static final String SESSION_ID = "session_id"; // session id as an OUT parameter
+    protected static final String SID_Test = "sid"; // session id as an IN parameter
+    protected static final String ID = "id";
+    protected static final String TITLE = "title";
+    protected static final String UNREAD = "unread";
+    protected static final String CAT_ID = "cat_id";
+    protected static final String FEED_ID = "feed_id";
+    protected static final String UPDATED = "updated";
+    protected static final String CONTENT = "content";
+    protected static final String URL = "link";
+    protected static final String URL_SHARE = "url";
+    protected static final String FEED_URL = "feed_url";
+    protected static final String COMMENT_URL = "comments";
+    protected static final String ATTACHMENTS = "attachments";
+    protected static final String CONTENT_URL = "content_url";
+    protected static final String STARRED = "marked";
+    protected static final String PUBLISHED = "published";
+    protected static final String VALUE = "value";
+    protected static final String VERSION = "version";
+    protected static final String LEVEL = "level";
+    protected static final String CAPTION = "caption";
+    protected static final String CHECKED = "checked";
     
-    private static final String COUNTER_KIND = "kind";
-    private static final String COUNTER_CAT = "cat";
-    private static final String COUNTER_ID = "id";
-    private static final String COUNTER_COUNTER = "counter";
+    protected static final String COUNTER_KIND = "kind";
+    protected static final String COUNTER_CAT = "cat";
+    protected static final String COUNTER_ID = "id";
+    protected static final String COUNTER_COUNTER = "counter";
     
-    private static final int MAX_ID_LIST_LENGTH = 100;
+    protected static final int MAX_ID_LIST_LENGTH = 100;
     
-    private String httpUsername;
-    private String httpPassword;
+    protected String httpUsername;
+    protected String httpPassword;
     
-    private String sessionId;
-    private String loginLock = "";
+    protected String sessionId = null;
+    protected String loginLock = "";
+    protected DefaultHttpClient client;
+    protected Context context;
+    private int apiLevel = -1;
     
-    private CredentialsProvider credProvider = null;
-    private DefaultHttpClient client;
-    
-    public JSONConnector() {
+    public JSONConnector(Context context) {
         refreshHTTPAuth();
-        this.sessionId = null;
+        this.context = context;
     }
     
-    private void refreshHTTPAuth() {
+    protected abstract InputStream doRequest(Map<String, String> params);
+    
+    protected boolean refreshHTTPAuth() {
         if (!Controller.getInstance().useHttpAuth())
-            return;
+            return false;
         
         boolean refreshNeeded = false;
         
@@ -181,169 +168,34 @@ public class JSONConnector {
             refreshNeeded = true;
         
         if (!refreshNeeded)
-            return;
+            return false;
         
         // Refresh data
         httpUsername = Controller.getInstance().httpUsername();
         httpPassword = Controller.getInstance().httpPassword();
         
-        // Refresh Credentials-Provider
-        if (!httpUsername.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
-            credProvider = new BasicCredentialsProvider();
-            credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                    new UsernamePasswordCredentials(httpUsername, httpPassword));
+        return true;
+    }
+    
+    protected void logRequest(final JSONObject json) throws JSONException {
+        if (Controller.getInstance().logSensitiveData()) {
+            Log.i(Utils.TAG, json.toString());
+        } else {
+            // Filter password and session-id
+            Object paramPw = json.remove(PARAM_PW);
+            Object paramSID = json.remove(SID_Test);
+            Log.i(Utils.TAG, json.toString());
+            json.put(PARAM_PW, paramPw);
+            json.put(SID_Test, paramSID);
         }
     }
     
-    private InputStream doRequest(Map<String, String> params, boolean firstCall) {
-        HttpPost post = new HttpPost();
-        
-        try {
-            if (sessionId != null) {
-                params.put(SID, sessionId);
-            }
-            
-            // check if http-Auth-Settings have changed, reload values if necessary
-            refreshHTTPAuth();
-            
-            // Set Address
-            post.setURI(Controller.getInstance().url());
-            post.addHeader("Accept-Encoding", "gzip");
-            
-            // Add POST data
-            JSONObject json = new JSONObject(params);
-            StringEntity jsonData = new StringEntity(json.toString(), "UTF-8");
-            jsonData.setContentType("application/json");
-            post.setEntity(jsonData);
-            
-            // Add timeouts for the connection
-            {
-                HttpParams httpParams = post.getParams();
-                
-                // Set the timeout until a connection is established.
-                int timeoutConnection = (int) (8 * Utils.SECOND);
-                HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
-                
-                // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
-                // use longer timeout when lazyServer-Feature is used
-                int timeoutSocket = (int) ((Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE
-                        : 10 * Utils.SECOND);
-                HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
-                
-                post.setParams(httpParams);
-            }
-            
-            // LOG-Output
-            if (!Controller.getInstance().logSensitiveData()) {
-                // Filter password and session-id
-                Object paramPw = json.remove(PARAM_PW);
-                Object paramSID = json.remove(SID);
-                Log.i(Utils.TAG, "Request: " + json);
-                json.put(PARAM_PW, paramPw);
-                json.put(SID, paramSID);
-            } else {
-                Log.i(Utils.TAG, "Request: " + json);
-            }
-            
-            if (client == null)
-                client = HttpClientFactory.getInstance().getHttpClient(post.getParams());
-            else
-                client.setParams(post.getParams());
-            
-            // Add SSL-Stuff
-            if (credProvider != null)
-                client.setCredentialsProvider(credProvider);
-            
-        } catch (Exception e) {
-            hasLastError = true;
-            lastError = "Error creating HTTP-Connection [ " + e.getMessage() + " ]";
-            e.printStackTrace();
-            return null;
-        }
-        
-        HttpResponse response = null;
-        try {
-            response = client.execute(post); // Execute the request
-        } catch (ClientProtocolException e) {
-            hasLastError = true;
-            lastError = "ClientProtocolException on client.execute(post) [ " + e.getMessage() + " ]";
-            e.printStackTrace();
-            return null;
-        } catch (SSLPeerUnverifiedException e) {
-            // Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
-            // Not doing anything here since this error should happen only when no certificate is received from the
-            // server.
-            Log.w(Utils.TAG, "SSLPeerUnverifiedException (" + e.getMessage() + ") in doRequest()");
-            e.printStackTrace();
-            return null;
-        } catch (SSLException e) {
-            if ("No peer certificate".equals(e.getMessage())) {
-                // Handle this by ignoring it, this occurrs very often when the connection is instable.
-                Log.w(Utils.TAG, "SSLException on client.execute(post) [ " + e.getMessage() + " ]");
-            } else {
-                hasLastError = true;
-                lastError = "SSLException on client.execute(post) [ " + e.getMessage() + " ]";
-            }
-            e.printStackTrace();
-            return null;
-        } catch (InterruptedIOException e) {
-            // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
-            Log.w(Utils.TAG, "InterruptedIOException (" + e.getMessage() + ") in doRequest()");
-            return null;
-        } catch (SocketException e) {
-            // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
-            Log.w(Utils.TAG, "SocketException (" + e.getMessage() + ") in doRequest()");
-            e.printStackTrace();
-            return null;
-        } catch (Exception e) {
-            Log.w(Utils.TAG, "Exception (" + e.getMessage() + ") in doRequest()");
-            e.printStackTrace();
-            return null;
-        }
-        
-        // Try to check for HTTP Status codes
-        int code = response.getStatusLine().getStatusCode();
-        if (code == HttpStatus.SC_UNAUTHORIZED) {
-            hasLastError = true;
-            lastError = "Couldn't connect to server. returned status: \"401 Unauthorized (HTTP/1.0 - RFC 1945)\"";
-            return null;
-        }
-        
-        InputStream instream = null;
-        try {
-            HttpEntity entity = response.getEntity();
-            if (entity != null)
-                instream = entity.getContent();
-            
-            // Try to decode gzipped instream, if it is not gzip we stay to normal reading
-            Header contentEncoding = response.getFirstHeader("Content-Encoding");
-            if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip"))
-                instream = new GZIPInputStream(instream);
-            
-            // Header size = response.getFirstHeader("Api-Content-Length");
-            // Log.d(Utils.TAG, "SIZE: " + size.getValue());
-            
-            if (instream == null) {
-                hasLastError = true;
-                lastError = "Couldn't get InputStream in Method doRequest(String url) [instream was null]";
-                return null;
-            }
-        } catch (Exception e) {
-            if (instream != null)
-                try {
-                    instream.close();
-                } catch (IOException e1) {
-                }
-            hasLastError = true;
-            lastError = "Exception: " + e.getMessage();
-            return null;
-        }
-        
-        return instream;
+    private String readResult(Map<String, String> params, boolean login) throws IOException {
+        return readResult(params, login, true);
     }
     
-    private String readResult(Map<String, String> params, boolean login, boolean firstCall) throws IOException {
-        InputStream in = doRequest(params, true);
+    private String readResult(Map<String, String> params, boolean login, boolean retry) throws IOException {
+        InputStream in = doRequest(params);
         if (in == null)
             return null;
         
@@ -370,20 +222,23 @@ public class JSONConnector {
                         
                         if (object.get(SESSION_ID) != null) {
                             ret = object.get(SESSION_ID).getAsString();
-                            break;
-                        } else if (object.get(STATUS) != null) {
+                        }
+                        if (object.get(STATUS) != null) {
                             ret = object.get(STATUS).getAsString();
-                            break;
-                        } else if (object.get(VALUE) != null) {
+                        }
+                        if (object.get(API_LEVEL) != null) {
+                            this.apiLevel = object.get(API_LEVEL).getAsInt();
+                        }
+                        if (object.get(VALUE) != null) {
                             ret = object.get(VALUE).getAsString();
-                            break;
-                        } else if (object.get(ERROR) != null) {
+                        }
+                        if (object.get(ERROR) != null) {
                             String message = object.get(ERROR).getAsString();
                             
                             if (message.contains(NOT_LOGGED_IN)) {
-                                sessionId = null;
-                                if (login())
-                                    return readResult(params, login, false); // Just do the same request again
+                                lastError = NOT_LOGGED_IN;
+                                if (!login)
+                                    return readResult(params, false, false); // Just do the same request again
                                 else
                                     return null;
                             }
@@ -418,18 +273,18 @@ public class JSONConnector {
     }
     
     private JsonReader prepareReader(Map<String, String> params) throws IOException {
-        return prepareReader(params, true);
-    }
-    
-    private JsonReader prepareReader(Map<String, String> params, boolean firstCall) throws IOException {
-        InputStream in = doRequest(params, true);
+        InputStream in = doRequest(params);
         if (in == null)
             return null;
         JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
         
         // Check if content contains array or object, array indicates login-response or error, object is content
-        
-        reader.beginObject();
+        try {
+            reader.beginObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
         while (reader.hasNext()) {
             String name = reader.nextName();
             if (name.equals("content")) {
@@ -448,9 +303,9 @@ public class JSONConnector {
                         String message = object.get(ERROR).toString();
                         
                         if (message.contains(NOT_LOGGED_IN)) {
-                            sessionId = null;
+                            lastError = NOT_LOGGED_IN;
                             if (login())
-                                return prepareReader(params, false); // Just do the same request again
+                                return prepareReader(params); // Just do the same request again
                             else
                                 return null;
                         }
@@ -497,7 +352,7 @@ public class JSONConnector {
             return false;
         
         try {
-            String result = readResult(params, false, true);
+            String result = readResult(params, false);
             // Log.d(Utils.TAG, "Result: " + result);
             if ("OK".equals(result))
                 return true;
@@ -507,7 +362,7 @@ public class JSONConnector {
             e.printStackTrace();
             if (!hasLastError) {
                 hasLastError = true;
-                lastError = ERROR_TEXT + e.getMessage();
+                lastError = ERROR_TEXT + formatException(e);
             }
         }
         
@@ -523,8 +378,11 @@ public class JSONConnector {
         long time = System.currentTimeMillis();
         
         // Just login once, check if already logged in after acquiring the lock on mSessionId
+        if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
+            return true;
+        
         synchronized (loginLock) {
-            if (sessionId != null && !(lastError.equals(NOT_LOGGED_IN)))
+            if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
                 return true; // Login done while we were waiting for the lock
                 
             Map<String, String> params = new HashMap<String, String>();
@@ -532,11 +390,8 @@ public class JSONConnector {
             params.put(PARAM_USER, Controller.getInstance().username());
             params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
             
-            // No check with assertLogin here, we are about to login so no need for this.
-            sessionId = null;
-            
             try {
-                sessionId = readResult(params, true, true);
+                sessionId = readResult(params, true);
                 if (sessionId != null) {
                     Log.d(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
                     return true;
@@ -545,7 +400,7 @@ public class JSONConnector {
                 e.printStackTrace();
                 if (!hasLastError) {
                     hasLastError = true;
-                    lastError = ERROR_TEXT + e.getMessage();
+                    lastError = ERROR_TEXT + formatException(e);
                 }
             }
             
@@ -746,8 +601,8 @@ public class JSONConnector {
                 reader.endObject();
                 
                 if (articleId != -1 && title != null) {
-                    articles.add(new Article(articleId, feedId, title, isUnread, articleUrl,
-                            articleCommentUrl, updated, content, attachments, isStarred, isPublished, labelId));
+                    articles.add(new Article(articleId, feedId, title, isUnread, articleUrl, articleCommentUrl,
+                            updated, content, attachments, isStarred, isPublished, labelId));
                     count++;
                 }
             }
@@ -1190,7 +1045,7 @@ public class JSONConnector {
         params.put(PARAM_PREF, pref);
         
         try {
-            String ret = readResult(params, false, true);
+            String ret = readResult(params, false);
             return ret;
         } catch (IOException e) {
             e.printStackTrace();
@@ -1347,6 +1202,10 @@ public class JSONConnector {
      * @return the API-Level of the server-installation
      */
     public int getApiLevel() {
+        // Directly return api_level which was retrieved with the login, only for 1.6 and above
+        if (apiLevel > -1)
+            return apiLevel;
+        
         int ret = -1;
         if (!sessionAlive())
             return ret;
@@ -1420,6 +1279,10 @@ public class JSONConnector {
         lastError = "";
         hasLastError = false;
         return ret;
+    }
+    
+    protected static String formatException(Exception e) {
+        return e.getMessage() + (e.getCause() != null ? "(" + e.getCause() + ")" : "");
     }
     
 }
