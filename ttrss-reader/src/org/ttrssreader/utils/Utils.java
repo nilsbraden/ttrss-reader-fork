@@ -406,7 +406,10 @@ public class Utils {
                 builder.setContentText(text);
                 builder.setContentIntent(pendingIntent);
                 builder.setAutoCancel(autoCancel);
-                notification = builder.getNotification();
+                if (Build.VERSION.SDK_INT < 16)
+                    notification = builder.getNotification();
+                else
+                    notification = builder.build();
             } else {
                 notification = buildOldNotification(context, icon, ticker, title, text, pendingIntent);
             }
