@@ -77,6 +77,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean useHttpAuth = null;
     private Boolean trustAllSsl = null;
     private Boolean trustAllHosts = null;
+    private Boolean useOldConnector;
     private Boolean useKeystore = null;
     private String keystorePassword = null;
     private Boolean useOfALazyServer = null;
@@ -249,7 +250,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         if (ttrssConnector != null)
             return;
         
-        if (Build.VERSION.SDK_INT <= 8) {
+        if (Build.VERSION.SDK_INT <= 8 || useOldConnector()) {
             ttrssConnector = new ApacheJSONConnector(context);
         } else {
             ttrssConnector = new JavaJSONConnector(context);
@@ -374,6 +375,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
         if (trustAllHosts == null)
             trustAllHosts = prefs.getBoolean(Constants.TRUST_ALL_HOSTS, Constants.TRUST_ALL_HOSTS_DEFAULT);
         return trustAllSsl;
+    }
+    
+    private boolean useOldConnector() {
+        if (useOldConnector == null)
+            useOldConnector = prefs.getBoolean(Constants.USE_OLD_CONNECTOR, Constants.USE_OLD_CONNECTOR_DEFAULT);
+        return useOldConnector;
     }
     
     public JSONConnector getConnector() {
@@ -1062,7 +1069,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public void setPreferencesChanged(boolean preferencesChanged) {
-        this.preferencesChanged = preferencesChanged;
+        Controller.preferencesChanged = preferencesChanged;
     }
     
 }
