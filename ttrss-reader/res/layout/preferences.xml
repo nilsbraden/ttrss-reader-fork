@@ -103,6 +103,13 @@
 
                 <CheckBoxPreference
                     android:defaultValue="false"
+                    android:disableDependentsState="true"
+                    android:key="ConnectionUseOldConnector"
+                    android:summary="@string/ConnectionUseOldConnectorSummary"
+                    android:title="@string/ConnectionUseOldConnectorTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
                     android:dependency="ConnectionSSLPreference"
                     android:disableDependentsState="false"
                     android:key="ConnectionUseKeystorePreference"
