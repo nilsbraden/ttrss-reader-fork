@@ -38,7 +38,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class CategoryListFragment extends ListFragment implements IUpdateEndListener {
-    
+
     private static final TYPE THIS_TYPE = TYPE.CATEGORY;
     
     private static final String SELECTED_INDEX = "selectedIndex";
@@ -50,6 +50,15 @@ public class CategoryListFragment extends ListFragment implements IUpdateEndList
     
     private CategoryAdapter adapter = null;
     private ListView listView;
+    private int scrollPosition;
+    
+    public static CategoryListFragment newInstance() {
+        // Create a new fragment instance
+        CategoryListFragment detail = new CategoryListFragment();
+        detail.setHasOptionsMenu(true);
+        detail.setRetainInstance(true);
+        return detail;
+    }
     
     @Override
     public void onActivityCreated(Bundle instance) {
@@ -62,8 +71,15 @@ public class CategoryListFragment extends ListFragment implements IUpdateEndList
         setListAdapter(adapter);
         
         // Read the selected list item after orientation changes and similar
-        if (instance != null)
+        if (instance != null) {
             selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);
+        }
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(SELECTED_INDEX, selectedIndex);
+        super.onSaveInstanceState(outState);
     }
     
     @Override
@@ -80,6 +96,13 @@ public class CategoryListFragment extends ListFragment implements IUpdateEndList
         getListView().setVisibility(View.VISIBLE);
         Controller.getInstance().lastOpenedFeeds.clear();
         Controller.getInstance().lastOpenedArticles.clear();
+        listView.setSelectionFromTop(scrollPosition, 0);
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        scrollPosition = listView.getFirstVisiblePosition();
     }
     
     @Override

@@ -44,6 +44,7 @@ public class ArticleFragment extends Fragment {
         // detail.selectArticlesForCategory = selectArticles;
         // detail.lastMove = lastMove;
         detail.setHasOptionsMenu(true);
+        detail.setRetainInstance(true);
         return detail;
     }
     
