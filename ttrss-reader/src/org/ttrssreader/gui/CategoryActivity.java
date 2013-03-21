@@ -64,6 +64,8 @@ public class CategoryActivity extends MenuActivity {
     private static final int SELECTED_CATEGORY = 2;
     private static final int SELECTED_LABEL = 3;
     
+    public static final String FRAGMENT = "CATEGORY_FRAGMENT";
+    
     private String applicationName = null;
     public boolean cacherStarted = false;
     
@@ -80,18 +82,13 @@ public class CategoryActivity extends MenuActivity {
         // Delete DB if requested
         Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
         
-        // Search old fragment, if it exists replace it, else add new fragment
-        Fragment fragmentOld = getSupportFragmentManager().findFragmentById(R.id.category_list);
-        CategoryListFragment fragment = new CategoryListFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (fragmentOld != null) {
-            transaction.replace(R.id.category_list, fragment);
-            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        } else {
-            transaction.add(R.id.category_list, fragment);
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
+            Fragment fragment = CategoryListFragment.newInstance();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.headline_list, fragment, FRAGMENT);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            transaction.commit();
         }
-        transaction.commit();
         
         if (!Utils.checkFirstRun(this)) { // Check for new installation
             showDialog(DIALOG_WELCOME);

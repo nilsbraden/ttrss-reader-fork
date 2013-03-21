@@ -52,6 +52,8 @@ public class FeedHeadlineActivity extends MenuActivity {
     public static final String FEED_INDEX = "INDEX";
     public static final int FEED_NO_ID = 37846914;
     
+    public static final String FRAGMENT = "HEADLINE_FRAGMENT";
+    
     public boolean flingDetected = false;
     
     private int categoryId = -1000;
@@ -82,18 +84,13 @@ public class FeedHeadlineActivity extends MenuActivity {
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
         }
         
-        // Search old fragment, if it exists replace it, else add new fragment
-        Fragment fragmentOld = getSupportFragmentManager().findFragmentById(R.id.headline_list);
-        ListFragment fragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (fragmentOld != null) {
-            transaction.replace(R.id.headline_list, fragment);
-            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        } else {
-            transaction.add(R.id.headline_list, fragment);
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
+            Fragment fragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.headline_list, fragment, FRAGMENT);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            transaction.commit();
         }
-        transaction.commit();
         
         initialize();
     }

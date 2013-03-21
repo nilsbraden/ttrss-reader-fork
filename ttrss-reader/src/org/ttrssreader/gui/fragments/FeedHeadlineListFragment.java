@@ -40,7 +40,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class FeedHeadlineListFragment extends ListFragment implements IUpdateEndListener, TextInputAlertCallback {
-    
+
     private static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
@@ -59,6 +59,7 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
     
     private FeedHeadlineAdapter adapter = null;
     private ListView listView;
+    private int scrollPosition;
     
     public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles) {
         FeedHeadlineListFragment detail = new FeedHeadlineListFragment();
@@ -66,6 +67,7 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
         detail.feedId = id;
         detail.selectArticlesForCategory = selectArticles;
         detail.setHasOptionsMenu(true);
+        detail.setRetainInstance(true);
         return detail;
     }
     
@@ -81,6 +83,13 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
         if (adapter != null)
             adapter.makeQuery(true);
         getListView().setVisibility(View.VISIBLE);
+        listView.setSelectionFromTop(scrollPosition, 0);
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        scrollPosition = listView.getFirstVisiblePosition();
     }
     
     @Override

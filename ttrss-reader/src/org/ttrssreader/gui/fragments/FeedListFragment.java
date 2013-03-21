@@ -31,7 +31,7 @@ import android.widget.ListView;
 public class FeedListFragment extends ListFragment implements IUpdateEndListener {
     
     private static final TYPE THIS_TYPE = TYPE.FEED;
-    
+
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
     
@@ -44,12 +44,14 @@ public class FeedListFragment extends ListFragment implements IUpdateEndListener
     private int categoryId;
     private FeedAdapter adapter = null;
     private ListView listView;
+    private int scrollPosition;
     
     public static FeedListFragment newInstance(int id) {
         // Create a new fragment instance
         FeedListFragment detail = new FeedListFragment();
         detail.categoryId = id;
         detail.setHasOptionsMenu(true);
+        detail.setRetainInstance(true);
         return detail;
     }
     
@@ -65,6 +67,13 @@ public class FeedListFragment extends ListFragment implements IUpdateEndListener
         if (adapter != null)
             adapter.makeQuery(true);
         getListView().setVisibility(View.VISIBLE);
+        listView.setSelectionFromTop(scrollPosition, 0);
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        scrollPosition = listView.getFirstVisiblePosition();
     }
     
     @Override
