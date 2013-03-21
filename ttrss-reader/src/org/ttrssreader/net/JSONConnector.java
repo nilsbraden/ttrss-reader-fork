@@ -349,7 +349,7 @@ public abstract class JSONConnector {
         
         try {
             String result = readResult(params, false);
-            // Log.d(Utils.TAG, "Result: " + result);
+             Log.d(Utils.TAG, "Result: " + result);
             if ("OK".equals(result))
                 return true;
             else
