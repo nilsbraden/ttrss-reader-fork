@@ -246,6 +246,12 @@
                     android:maxLength="2"
                     android:summary="@string/HeadlineSizeSummary"
                     android:title="@string/HeadlineSizeTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="true"
+                    android:key="MarkReadInMenuPreference"
+                    android:summary="@string/MarkReadInMenuSummary"
+                    android:title="@string/MarkReadInMenuTitle" />
             </PreferenceCategory>
         </PreferenceScreen>
 

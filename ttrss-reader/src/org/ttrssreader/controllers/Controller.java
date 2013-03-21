@@ -90,6 +90,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean workOffline = null;
     
     private Integer headlineSize = null;
+    private Boolean markReadInMenu = null;
     private Boolean showVirtual = null;
     private Boolean useSwipe = null;
     private Boolean useButtons = null;
@@ -503,6 +504,22 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public void setHeadlineSize(int headlineSize) {
+        put(Constants.HEADLINE_SIZE, headlineSize);
+        this.headlineSize = headlineSize;
+    }
+
+    public boolean markReadInMenu() {
+        if (markReadInMenu == null)
+            markReadInMenu = prefs.getBoolean(Constants.MARK_READ_IN_MENU, Constants.MARK_READ_IN_MENU_DEFAULT);
+        return markReadInMenu;
+    }
+    
+    public void setMarkReadInMenu(boolean markReadInMenu) {
+        put(Constants.MARK_READ_IN_MENU, markReadInMenu);
+        this.markReadInMenu = markReadInMenu;
+    }
+    
+    public void setMarkReadInMenu(int headlineSize) {
         put(Constants.HEADLINE_SIZE, headlineSize);
         this.headlineSize = headlineSize;
     }
