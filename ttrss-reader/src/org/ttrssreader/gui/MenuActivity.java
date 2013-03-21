@@ -193,6 +193,13 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             }
         }
         
+        if (!Controller.getInstance().markReadInMenu()) {
+            // Hide button, show "Display Unread" instead which doesnt change any values on the server 
+            MenuItem markRead = menu.findItem(R.id.Menu_MarkAllRead);
+            markRead.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+            displayUnread.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        }
+        
         return true;
     }
     
