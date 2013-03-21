@@ -18,6 +18,12 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.44
+			\n * Add preference for fallback to old connector which supports digest authentication but doesn\'t support SNI
+			\n * Fixed http-auth for apache connector
+			\n * Added preference to hide the button \"Mark Read\" from the actionbar
+			\n * Restore position in list after orientation change
+			\n * Fixed errors in ShareToPublish and Tasker-Integration</item>
         <item>Version 1.43
             \n * Added ability to schedule updates with Tasker/Locale</item>
         <item>Version 1.42
