@@ -62,7 +62,7 @@ public class FeedActivity extends MenuActivity {
         if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
             Fragment fragment = FeedListFragment.newInstance(categoryId);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.headline_list, fragment, FRAGMENT);
+            transaction.add(R.id.feed_list, fragment, FRAGMENT);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }

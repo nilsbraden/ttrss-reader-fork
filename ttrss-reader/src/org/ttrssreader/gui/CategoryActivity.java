@@ -85,7 +85,7 @@ public class CategoryActivity extends MenuActivity {
         if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
             Fragment fragment = CategoryListFragment.newInstance();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.headline_list, fragment, FRAGMENT);
+            transaction.add(R.id.category_list, fragment, FRAGMENT);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }
