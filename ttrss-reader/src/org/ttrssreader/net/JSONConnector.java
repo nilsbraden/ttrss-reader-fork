@@ -110,7 +110,7 @@ public abstract class JSONConnector {
     protected static final String API_LEVEL = "api_level";
     
     protected static final String SESSION_ID = "session_id"; // session id as an OUT parameter
-    protected static final String SID_Test = "sid"; // session id as an IN parameter
+    protected static final String SID = "sid"; // session id as an IN parameter
     protected static final String ID = "id";
     protected static final String TITLE = "title";
     protected static final String UNREAD = "unread";
@@ -138,7 +138,8 @@ public abstract class JSONConnector {
     protected static final String COUNTER_COUNTER = "counter";
     
     protected static final int MAX_ID_LIST_LENGTH = 100;
-    
+
+    protected boolean httpAuth = false;
     protected String httpUsername;
     protected String httpPassword;
     
@@ -155,26 +156,19 @@ public abstract class JSONConnector {
     
     protected abstract InputStream doRequest(Map<String, String> params);
     
-    protected boolean refreshHTTPAuth() {
-        if (!Controller.getInstance().useHttpAuth())
-            return false;
+    protected void refreshHTTPAuth() {
+        httpAuth = Controller.getInstance().useHttpAuth();
+        if (!httpAuth)
+            return;
         
-        boolean refreshNeeded = false;
-        
-        if (httpUsername == null || !httpUsername.equals(Controller.getInstance().httpUsername()))
-            refreshNeeded = true;
-        
-        if (httpPassword == null || !httpPassword.equals(Controller.getInstance().httpPassword()))
-            refreshNeeded = true;
-        
-        if (!refreshNeeded)
-            return false;
+        if (httpUsername != null && httpUsername.equals(Controller.getInstance().httpUsername()))
+            return;
+        if (httpPassword != null && httpPassword.equals(Controller.getInstance().httpPassword()))
+            return;
         
         // Refresh data
         httpUsername = Controller.getInstance().httpUsername();
         httpPassword = Controller.getInstance().httpPassword();
-        
-        return true;
     }
     
     protected void logRequest(final JSONObject json) throws JSONException {
@@ -183,10 +177,10 @@ public abstract class JSONConnector {
         } else {
             // Filter password and session-id
             Object paramPw = json.remove(PARAM_PW);
-            Object paramSID = json.remove(SID_Test);
+            Object paramSID = json.remove(SID);
             Log.i(Utils.TAG, json.toString());
             json.put(PARAM_PW, paramPw);
-            json.put(SID_Test, paramSID);
+            json.put(SID, paramSID);
         }
     }
     
