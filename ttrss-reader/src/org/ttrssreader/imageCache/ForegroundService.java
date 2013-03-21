@@ -18,6 +18,8 @@ package org.ttrssreader.imageCache;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
@@ -106,6 +108,12 @@ public class ForegroundService extends Service implements ICacheEndListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
+            
+            // Initialize Singletons for Config, Data-Access and DB
+            Controller.getInstance().checkAndInitializeController(this, null);
+            DBHelper.getInstance().checkAndInitializeDB(this);
+            Data.getInstance().checkAndInitializeData(this);
+            
             CharSequence title = "";
             
             if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {

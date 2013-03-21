@@ -87,7 +87,7 @@ public class Data {
         } else if (Utils.isConnected(cm) || overrideOffline) {
             if (Controller.getInstance().getConnector().getCounters()) {
                 countersChanged = System.currentTimeMillis();
-                UpdateController.getInstance().notifyListeners();
+                notifyListeners();
             }
         }
     }
@@ -115,7 +115,7 @@ public class Data {
             if (count > -1) {
                 articlesCached = System.currentTimeMillis();
                 
-                UpdateController.getInstance().notifyListeners();
+                notifyListeners();
                 
                 // Store all category-ids and ids of all feeds for this category in db
                 articlesChanged.put(-4, articlesCached);
@@ -176,7 +176,7 @@ public class Data {
                 // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
                 // requested
                 articlesChanged.put(feedId, currentTime);
-                UpdateController.getInstance().notifyListeners();
+                notifyListeners();
                 
                 if (isCat) {
                     for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
@@ -265,7 +265,7 @@ public class Data {
                 
                 // Store requested category-id and ids of all received feeds
                 feedsChanged.put(categoryId, System.currentTimeMillis());
-                UpdateController.getInstance().notifyListeners();
+                notifyListeners();
                 for (Feed f : feeds) {
                     feedsChanged.put(f.categoryId, System.currentTimeMillis());
                 }
@@ -304,7 +304,7 @@ public class Data {
         vCats.add(new Category(VCAT_UNCAT, uncatFeeds, DBHelper.getInstance().getUnreadCount(VCAT_UNCAT, true)));
         
         DBHelper.getInstance().insertCategories(vCats);
-        UpdateController.getInstance().notifyListeners();
+        notifyListeners();
         
         virtCategoriesChanged = System.currentTimeMillis();
         
@@ -322,7 +322,7 @@ public class Data {
                 DBHelper.getInstance().insertCategories(categories);
                 
                 categoriesChanged = System.currentTimeMillis();
-                UpdateController.getInstance().notifyListeners();
+                notifyListeners();
             }
             
             return categories;
@@ -375,7 +375,7 @@ public class Data {
         else
             DBHelper.getInstance().markFeedRead(id);
         
-        UpdateController.getInstance().notifyListeners();
+        notifyListeners();
         
         boolean erg = false;
         if (Utils.isConnected(cm)) {
@@ -429,7 +429,7 @@ public class Data {
     public boolean setLabel(Set<Integer> articleIds, Label label) {
         
         DBHelper.getInstance().insertLabels(articleIds, label.getInternalId(), label.checked);
-        UpdateController.getInstance().notifyListeners();
+        notifyListeners();
         
         boolean erg = false;
         if (Utils.isConnected(cm)) {
@@ -473,4 +473,15 @@ public class Data {
             // TODO: Add synchronization of labels
         }
     }
+    
+    private void notifyListeners() {
+        try {
+            UpdateController.getInstance().notifyListeners();
+        } catch (Exception e) {
+            // For now, just catch the exceptions. This should only happen when using ImageCache with Tasker/Locale and
+            // then it only happens a few times, so it is no big deal. Bit is IS ugly, I know.
+            Log.d(Utils.TAG, "Catched Exception because of handler in background-thread. I'm sorry about this.");
+        }
+    }
+    
 }
