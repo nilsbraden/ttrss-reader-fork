@@ -236,11 +236,13 @@ public abstract class JSONConnector {
                             String message = object.get(ERROR).getAsString();
                             
                             if (message.contains(NOT_LOGGED_IN)) {
-                                lastError = NOT_LOGGED_IN;
-                                if (!login)
+                                if (!login && login()) {
                                     return readResult(params, false, false); // Just do the same request again
-                                else
+                                } else {
+                                    hasLastError = true;
+                                    lastError = ERROR_TEXT + message;
                                     return null;
+                                }
                             }
                             
                             if (message.contains(API_DISABLED)) {
@@ -391,7 +393,7 @@ public abstract class JSONConnector {
             params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
             
             try {
-                sessionId = readResult(params, true);
+                sessionId = readResult(params, true, false);
                 if (sessionId != null) {
                     Log.d(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
                     return true;
