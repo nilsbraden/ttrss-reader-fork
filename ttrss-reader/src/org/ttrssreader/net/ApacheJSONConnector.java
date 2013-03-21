@@ -149,9 +149,9 @@ public class ApacheJSONConnector extends JSONConnector {
         
         // Try to check for HTTP Status codes
         int code = response.getStatusLine().getStatusCode();
-        if (code == HttpStatus.SC_UNAUTHORIZED) {
+        if (code >= 400 && code < 600) {
             hasLastError = true;
-            lastError = "Couldn't connect to server. returned status: \"401 Unauthorized (HTTP/1.0 - RFC 1945)\"";
+            lastError = "Server returned status: " + code;
             return null;
         }
         
