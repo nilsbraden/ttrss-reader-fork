@@ -58,7 +58,7 @@ public class JavaJSONConnector extends JSONConnector {
     protected InputStream doRequest(Map<String, String> params) {
         try {
             if (sessionId != null)
-                params.put(SID_Test, sessionId);
+                params.put(SID, sessionId);
             
             JSONObject json = new JSONObject(params);
             byte[] outputBytes = json.toString().getBytes("UTF-8");
@@ -177,16 +177,15 @@ public class JavaJSONConnector extends JSONConnector {
     }
     
     @Override
-    protected boolean refreshHTTPAuth() {
-        if (!super.refreshHTTPAuth())
-            return false;
+    protected void refreshHTTPAuth() {
+        if (!httpAuth)
+            return;
         
         Authenticator.setDefault(new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(httpUsername, httpPassword.toCharArray());
             }
         });
-        return true;
     }
     
     @SuppressWarnings("deprecation")

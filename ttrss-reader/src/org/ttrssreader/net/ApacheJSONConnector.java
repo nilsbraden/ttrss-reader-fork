@@ -27,7 +27,6 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
@@ -57,7 +56,7 @@ public class ApacheJSONConnector extends JSONConnector {
         
         try {
             if (sessionId != null)
-                params.put(SID_Test, sessionId);
+                params.put(SID, sessionId);
             
             // check if http-Auth-Settings have changed, reload values if necessary
             refreshHTTPAuth();
@@ -188,17 +187,20 @@ public class ApacheJSONConnector extends JSONConnector {
         return instream;
     }
     
-    protected boolean refreshHTTPAuth() {
-        if (!super.refreshHTTPAuth())
-            return false;
+    protected void refreshHTTPAuth() {
+        super.refreshHTTPAuth();
+        if (!httpAuth) {
+            credProvider = null;
+            return;
+        }
         
         // Refresh Credentials-Provider
-        if (!httpUsername.equals(Constants.EMPTY) && !httpPassword.equals(Constants.EMPTY)) {
+        if (httpUsername.equals(Constants.EMPTY) || httpPassword.equals(Constants.EMPTY)) {
+            credProvider = null;
+        } else {
             credProvider = new BasicCredentialsProvider();
             credProvider.setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
                     new UsernamePasswordCredentials(httpUsername, httpPassword));
         }
-        return true;
     }
-    
 }
