@@ -230,7 +230,7 @@ public abstract class JSONConnector {
                             String message = object.get(ERROR).getAsString();
                             
                             if (message.contains(NOT_LOGGED_IN)) {
-                                if (!login && login()) {
+                                if (!login && retry && login()) {
                                     return readResult(params, false, false); // Just do the same request again
                                 } else {
                                     hasLastError = true;
