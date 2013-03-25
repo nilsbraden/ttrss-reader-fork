@@ -21,17 +21,11 @@ import java.util.Comparator;
  * Compares two files by their last-modified-date.
  * 
  * @author Nils Braden
- * 
  */
 public class FileDateComparator implements Comparator<File> {
     
     @Override
     public int compare(File f1, File f2) {
-        // Shouldn't happen, just to be on the safe side we sort null-values to the end
-        if (f1 == null || f2 == null)
-            throw new ClassCastException("NULL values can not be sorted.");
-        
-        // Hopefully avoids crashes due to IllegalArgumentExceptions
         if (f1.equals(f2))
             return 0;
         
