@@ -136,8 +136,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
-        initUI();
         initData();
+        initUI();
     }
     
     private void initUI() {
@@ -175,8 +175,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.setScrollbarFadingEnabled(true);
         }
         
-        // Initialize mainContainer with buttons or swipe-view
-        webviewInitialized = false;
+        // Populate information-bar on top of the webView if enabled
+        if (Controller.getInstance().displayArticleHeader()) {
+            headerContainer.populate(article);
+        } else {
+            headerContainer.setVisibility(View.GONE);
+        }
         
         // Attach the WebView to its placeholder
         webContainer.addView(webView);
@@ -209,6 +213,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
             markedRead = true;
         }
+        
+        // Reload content on next doRefresh()
+        webviewInitialized = false;
     }
     
     @Override
@@ -221,6 +228,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         setContentView(R.layout.articleitem);
         initUI();
+        doRefresh();
     }
     
     @Override
@@ -319,13 +327,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         if (article.content == null)
             return;
         
-        // Populate information-bar on top of the webView if enabled
-        if (Controller.getInstance().displayArticleHeader()) {
-            headerContainer.populate(article);
-        } else {
-            headerContainer.setVisibility(View.GONE);
-        }
-        
         final int contentLength = article.content.length();
         
         // Inject the specific code for attachments, <img> for images, http-link for Videos
@@ -363,7 +364,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // Everything did load, we dont have to do this again.
         webviewInitialized = true;
-        
         setProgressBarIndeterminateVisibility(false);
     }
     

@@ -81,6 +81,8 @@ public class ArticleHeaderView extends LinearLayout {
     public void populate(Article article) {
         this.article = article;
         initializeLayout();
+        if (article == null)
+            return;
         
         Feed feed = DBHelper.getInstance().getFeed(article.feedId);
         if (feed != null)
