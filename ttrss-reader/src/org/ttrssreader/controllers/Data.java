@@ -96,7 +96,7 @@ public class Data {
     
     public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
         
-        int limit = 500;
+        int limit = 400;
         
         if (!overrideDelay && articlesCached > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
@@ -156,33 +156,46 @@ public class Data {
                 displayOnlyUnread = false; // Display all articles for Starred/Published
                 
             // Calculate an appropriate upper limit for the number of articles
-            int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
-            
-            String viewMode = (displayOnlyUnread ? VIEW_NEW : VIEW_ALL);
+            int todo = calculateLimit(feedId, displayOnlyUnread, isCat);
+            int limit;
             Set<Article> articles = new HashSet<Article>();
             
-            // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
-            if (needUnreadUpdate && !displayOnlyUnread)
-                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_NEW, isCat);
-            
-            Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat);
-            
-            handleInsertArticles(articles, feedId, isCat);
-            
-            // Only mark as updated if the first call was successful
-            int count = articles.size();
-            if (count != -1) {
-                long currentTime = System.currentTimeMillis();
-                // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
-                // requested
-                articlesChanged.put(feedId, currentTime);
-                notifyListeners();
+            while (true) {
+                limit = todo;
+                if (limit > 240) {
+                    limit = 240;
+                    todo = todo - limit;
+                } else if (limit <= 0) {
+                    break;
+                }
                 
-                if (isCat) {
-                    for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
-                        articlesChanged.put(f.id, currentTime);
+                Log.d(Utils.TAG, "UPDATE limit: " + limit + " todo: " + todo);
+                String viewMode = (displayOnlyUnread ? VIEW_NEW : VIEW_ALL);
+                
+                // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
+                if (needUnreadUpdate && !displayOnlyUnread)
+                    Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_NEW, isCat);
+                
+                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat);
+                
+                handleInsertArticles(articles, feedId, isCat);
+                
+                // Only mark as updated if the first call was successful
+                int count = articles.size();
+                if (count != -1) {
+                    long currentTime = System.currentTimeMillis();
+                    // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
+                    // requested
+                    articlesChanged.put(feedId, currentTime);
+                    UpdateController.getInstance().notifyListeners();
+                    
+                    if (isCat) {
+                        for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
+                            articlesChanged.put(f.id, currentTime);
+                        }
                     }
                 }
+                articles.clear();
             }
         }
     }
@@ -211,9 +224,9 @@ public class Data {
             limit = 50; // No unread articles, fetch some stuff
         else if (limit <= 0)
             limit = 100; // No unread, fetch some to make sure we are at least a bit up-to-date
-        else if (limit > 300)
-            limit = 300; // Lots of unread articles, fetch the first 300
-            
+        // else if (limit > 300)
+        // limit = 300; // Lots of unread articles, fetch the first 300
+        
         if (limit < 300) {
             if (isCat)
                 limit = limit + 100; // Add some so we have a chance of getting not only the newest and possibly read
@@ -477,7 +490,7 @@ public class Data {
     private void notifyListeners() {
         try {
             UpdateController.getInstance().notifyListeners();
-        } catch (Exception e) {
+        } catch (Throwable t) {
             // For now, just catch the exceptions. This should only happen when using ImageCache with Tasker/Locale and
             // then it only happens a few times, so it is no big deal. Bit is IS ugly, I know.
             Log.d(Utils.TAG, "Catched Exception because of handler in background-thread. I'm sorry about this.");
