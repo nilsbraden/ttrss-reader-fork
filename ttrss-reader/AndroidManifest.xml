@@ -57,6 +57,7 @@
             android:theme="@style/Theme.Sherlock" />
         <activity
             android:name=".gui.ArticleActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.Sherlock" />
         <activity android:name=".gui.PreferencesActivity" />
         <activity android:name=".gui.MediaPlayerActivity" />
