@@ -162,12 +162,12 @@ public class Data {
             
             while (true) {
                 limit = todo;
-                if (limit > 240) {
+                if (limit > 240)
                     limit = 240;
-                    todo = todo - limit;
-                } else if (limit <= 0) {
+                
+                todo = todo - limit;
+                if (limit <= 0)
                     break;
-                }
                 
                 Log.d(Utils.TAG, "UPDATE limit: " + limit + " todo: " + todo);
                 String viewMode = (displayOnlyUnread ? VIEW_NEW : VIEW_ALL);
