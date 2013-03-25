@@ -134,11 +134,11 @@ public class ForegroundService extends Service implements ICacheEndListener {
             
             WakeLocker.acquire(this);
             
-            if (PARAM_SHOW_NOTIFICATION.equals(intent.getBooleanExtra(PARAM_SHOW_NOTIFICATION, false))) {
+            if (intent.getBooleanExtra(PARAM_SHOW_NOTIFICATION, false)) {
                 int icon = R.drawable.notification_icon;
                 CharSequence ticker = getText(R.string.Cache_service_started);
                 CharSequence text = getText(R.string.Cache_service_text);
-                Notification notification = Utils.buildNotification(getApplicationContext(), icon, ticker, title, text,
+                Notification notification = Utils.buildNotification(this, icon, ticker, title, text,
                         true, new Intent());
                 startForeground(R.string.Cache_service_started, notification);
             }
