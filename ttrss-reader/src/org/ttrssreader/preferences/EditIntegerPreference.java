@@ -40,6 +40,9 @@ public class EditIntegerPreference extends EditTextPreference {
     
     @Override
     protected boolean persistString(String value) {
+        if (value == null || value.length() == 0)
+            return false;
         return persistInt(Integer.valueOf(value));
     }
+    
 }

@@ -6,7 +6,7 @@
   * Reduce memory usage
   * Several bugfixes
 
-== Version 1.45 ==
+== Version 1.44 ==
   * Add preference for fallback to old connector which supports digest authentication but doesn't support SNI
   * Fixed http-auth for apache connector
   * Added preference to hide the button "Mark Read" from the actionbar
