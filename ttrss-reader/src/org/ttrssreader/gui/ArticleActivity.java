@@ -44,6 +44,7 @@ import org.ttrssreader.utils.Utils;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -59,6 +60,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
@@ -112,42 +114,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        // Log.d(Utils.TAG, "onCreate - ArticleActivity");
+        
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        
-        Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        Data.getInstance().checkAndInitializeData(this);
-        
         if (Controller.getInstance().displayArticleHeader())
             requestWindowFeature(Window.FEATURE_NO_TITLE);
         
         setContentView(R.layout.articleitem);
-        headerContainer = (ArticleHeaderView) findViewById(R.id.article_header_container);
-        mainContainer = (ArticleView) findViewById(R.id.article_main_layout);
-        
-        // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
-        // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
-        // Layout-Files are changed due to this and the onDestroy-Method now calls container.removeAllViews() and
-        // webview.destory()...
-        webContainer = (FrameLayout) findViewById(R.id.webView_Container);
-        webView = new WebView(getApplicationContext());
-        webContainer.addView(webView);
-        
-        buttonPrev = (Button) findViewById(R.id.buttonPrev);
-        buttonNext = (Button) findViewById(R.id.buttonNext);
-        swipeView = (TextView) findViewById(R.id.swipeView);
-        
-        // webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.setWebViewClient(new ArticleWebViewClient(this));
-        
-        // Detect gestures
-        gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
-        webView.setOnKeyListener(keyListener);
-        
-        buttonNext.setOnClickListener(onButtonPressedListener);
-        buttonPrev.setOnClickListener(onButtonPressedListener);
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -164,12 +136,61 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
-        initialize();
+        initUI();
+        initData();
     }
     
-    private void initialize() {
+    private void initUI() {
+        // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
+        // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
+        // Layout-Files are changed due to this and the onDestroy-Method now calls container.removeAllViews() and
+        // webview.destory()...
+        webContainer = (FrameLayout) findViewById(R.id.webView_Container);
+        headerContainer = (ArticleHeaderView) findViewById(R.id.article_header_container);
+        mainContainer = (ArticleView) findViewById(R.id.article_main_layout);
+        buttonPrev = (Button) findViewById(R.id.buttonPrev);
+        buttonNext = (Button) findViewById(R.id.buttonNext);
+        swipeView = (TextView) findViewById(R.id.swipeView);
+        
+        buttonPrev.setOnClickListener(onButtonPressedListener);
+        buttonNext.setOnClickListener(onButtonPressedListener);
+        
+        // Initialize the WebView if necessary
+        if (webView == null) {
+            Log.e(Utils.TAG, "Webview ist hier null");
+            webView = new WebView(getApplicationContext());
+            
+            // webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setBuiltInZoomControls(true);
+            webView.setWebViewClient(new ArticleWebViewClient(this));
+            
+            // Detect gestures
+            gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
+            webView.setOnKeyListener(keyListener);
+            
+            webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+            webView.getSettings().setSupportZoom(true);
+            webView.getSettings().setBuiltInZoomControls(true);
+            webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
+            webView.setScrollbarFadingEnabled(true);
+        }
+        
+        // Initialize mainContainer with buttons or swipe-view
+        webviewInitialized = false;
+        
+        // Attach the WebView to its placeholder
+        webContainer.addView(webView);
+        mainContainer.populate(webView);
+    }
+    
+    private void initData() {
+        Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
+        DBHelper.getInstance().checkAndInitializeDB(this);
+        Data.getInstance().checkAndInitializeData(this);
+        
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
+        
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
         fillParentInformation();
         doVibrate(0);
@@ -188,12 +209,40 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
             markedRead = true;
         }
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        if (webView != null) {
+            // Remove the WebView from the old placeholder
+            webContainer.removeView(webView);
+        }
+        super.onConfigurationChanged(newConfig);
         
-        fillParentInformation();
-        
-        // Initialize mainContainer with buttons or swipe-view
-        mainContainer.populate(webView);
-        webviewInitialized = false;
+        setContentView(R.layout.articleitem);
+        initUI();
+    }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle instance) {
+        super.onSaveInstanceState(instance);
+        instance.putInt(ARTICLE_ID, articleId);
+        instance.putInt(ARTICLE_FEED_ID, feedId);
+        instance.putInt(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
+        instance.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        instance.putInt(ARTICLE_MOVE, lastMove);
+        webView.saveState(instance);
+    }
+    
+    @Override
+    protected void onRestoreInstanceState(Bundle instance) {
+        super.onRestoreInstanceState(instance);
+        articleId = instance.getInt(ARTICLE_ID);
+        feedId = instance.getInt(ARTICLE_FEED_ID);
+        categoryId = instance.getInt(FeedHeadlineActivity.FEED_CAT_ID);
+        selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
+        lastMove = instance.getInt(ARTICLE_MOVE);
+        webView.restoreState(instance);
     }
     
     private void fillParentInformation() {
@@ -201,7 +250,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         if (index >= 0) {
             parentIDs[0] = parentAdapter.getId(index - 1); // Previous
             parentIDs[1] = parentAdapter.getId(index + 1); // Next
-            
             if (parentIDs[0] == 0)
                 parentIDs[0] = -1;
             if (parentIDs[1] == 0)
@@ -212,7 +260,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     @Override
     protected void onResume() {
         super.onResume();
-        
         UpdateController.getInstance().registerActivity(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
@@ -222,7 +269,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     protected void onPause() {
         // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
         super.onPause();
-        
         UpdateController.getInstance().unregisterActivity(this);
     }
     
@@ -246,23 +292,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         super.onDestroy();
         webContainer.removeAllViews();
         webView.destroy();
-        webView = null;
-    }
-    
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt(ARTICLE_ID, articleId);
-        outState.putInt(ARTICLE_FEED_ID, feedId);
-        outState.putInt(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-        outState.putBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        outState.putInt(ARTICLE_MOVE, lastMove);
-        super.onSaveInstanceState(outState);
     }
     
     private void doRefresh() {
-        if (webView == null)
-            return;
-        
         setProgressBarIndeterminateVisibility(true);
         
         if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
@@ -408,8 +440,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
-                // new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
-                
                 new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
                 return true;
             case R.id.Article_Menu_MarkStar:
@@ -485,21 +515,21 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         this.articleId = id;
         this.lastMove = direction;
-        initialize();
+        initData();
         doRefresh();
     }
     
     private boolean doVibrate(int newIndex) {
-        if (lastMove != 0) {
-            if (parentAdapter.getIds().indexOf(articleId) != -1) {
-                int index = parentAdapter.getIds().indexOf(articleId) + lastMove;
-                
-                if (index < 0 || index >= parentAdapter.getIds().size()) {
-                    if (Controller.getInstance().vibrateOnLastArticle())
-                        ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
-                    return true;
-                }
-            }
+        if (lastMove == 0)
+            return false;
+        if (parentAdapter.getIds().indexOf(articleId) == -1)
+            return false;
+        
+        int index = parentAdapter.getIds().indexOf(articleId) + lastMove;
+        if (index < 0 || index >= parentAdapter.getIds().size()) {
+            if (Controller.getInstance().vibrateOnLastArticle())
+                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            return true;
         }
         return false;
     }
