@@ -7,6 +7,7 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.utils.AsyncTask;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -89,7 +90,7 @@ public class ShareActivity extends MenuActivity {
                 progress.dismiss();
                 
                 if (ret)
-                    finishAffinity();
+                    finishCompat();
                 else if (Controller.getInstance().getConnector().hasLastError())
                     showErrorDialog(Controller.getInstance().getConnector().pullLastError());
                 else if (Controller.getInstance().workOffline())
@@ -102,6 +103,13 @@ public class ShareActivity extends MenuActivity {
             }
             
             return null;
+        }
+
+        private void finishCompat() {
+            if (Build.VERSION.SDK_INT >= 16)
+                finishAffinity();
+            else
+                finish();
         }
         
     }
