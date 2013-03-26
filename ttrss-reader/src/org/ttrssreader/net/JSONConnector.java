@@ -138,7 +138,7 @@ public abstract class JSONConnector {
     protected static final String COUNTER_COUNTER = "counter";
     
     protected static final int MAX_ID_LIST_LENGTH = 100;
-
+    
     protected boolean httpAuth = false;
     protected String httpUsername;
     protected String httpPassword;
@@ -349,7 +349,7 @@ public abstract class JSONConnector {
         
         try {
             String result = readResult(params, false);
-             Log.d(Utils.TAG, "Result: " + result);
+            Log.d(Utils.TAG, "Result: " + result);
             if ("OK".equals(result))
                 return true;
             else

@@ -98,7 +98,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private boolean linkAutoOpened;
     private boolean markedRead = false;
     
-    private FrameLayout webContainer;
+    private FrameLayout webContainer = null;
     private WebView webView;
     private boolean webviewInitialized = false;
     private TextView swipeView;
@@ -138,6 +138,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         initData();
         initUI();
+        initUIHeader();
     }
     
     private void initUI() {
@@ -157,17 +158,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // Initialize the WebView if necessary
         if (webView == null) {
-            Log.e(Utils.TAG, "Webview ist hier null");
             webView = new WebView(getApplicationContext());
-            
             // webView.getSettings().setJavaScriptEnabled(true);
             webView.getSettings().setBuiltInZoomControls(true);
             webView.setWebViewClient(new ArticleWebViewClient(this));
-            
-            // Detect gestures
             gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
             webView.setOnKeyListener(keyListener);
-            
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             webView.getSettings().setSupportZoom(true);
             webView.getSettings().setBuiltInZoomControls(true);
@@ -175,16 +171,18 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.setScrollbarFadingEnabled(true);
         }
         
+        // Attach the WebView to its placeholder
+        webContainer.addView(webView);
+        mainContainer.populate(webView);
+    }
+    
+    public void initUIHeader() {
         // Populate information-bar on top of the webView if enabled
         if (Controller.getInstance().displayArticleHeader()) {
             headerContainer.populate(article);
         } else {
             headerContainer.setVisibility(View.GONE);
         }
-        
-        // Attach the WebView to its placeholder
-        webContainer.addView(webView);
-        mainContainer.populate(webView);
     }
     
     private void initData() {
@@ -210,8 +208,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         // it to "unread" in the meantime.
         if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead()) {
             article.isUnread = false;
-            new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
             markedRead = true;
+            new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         
         // Reload content on next doRefresh()
@@ -220,14 +218,15 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        if (webView != null) {
-            // Remove the WebView from the old placeholder
+        // Remove the WebView from the old placeholder
+        if (webView != null)
             webContainer.removeView(webView);
-        }
+
         super.onConfigurationChanged(newConfig);
         
         setContentView(R.layout.articleitem);
         initUI();
+        initUIHeader();
         doRefresh();
     }
     
@@ -326,6 +325,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         if (article.content == null)
             return;
+        
+        initUIHeader();
         
         final int contentLength = article.content.length();
         
