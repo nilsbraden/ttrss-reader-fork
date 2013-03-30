@@ -21,7 +21,6 @@ import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
@@ -186,10 +185,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     private void initData() {
-        Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        Data.getInstance().checkAndInitializeData(this);
-        
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
         
@@ -221,7 +216,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         // Remove the WebView from the old placeholder
         if (webView != null)
             webContainer.removeView(webView);
-
+        
         super.onConfigurationChanged(newConfig);
         
         setContentView(R.layout.articleitem);

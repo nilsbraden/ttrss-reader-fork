@@ -18,8 +18,6 @@ package org.ttrssreader.imageCache;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
@@ -109,10 +107,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
             
-            // Initialize Singletons for Config, Data-Access and DB
-            Controller.getInstance().checkAndInitializeController(this, null);
-            DBHelper.getInstance().checkAndInitializeDB(this);
-            Data.getInstance().checkAndInitializeData(this);
+            Controller.getInstance().setHeadless(true);
             
             CharSequence title = "";
             
@@ -138,8 +133,8 @@ public class ForegroundService extends Service implements ICacheEndListener {
                 int icon = R.drawable.notification_icon;
                 CharSequence ticker = getText(R.string.Cache_service_started);
                 CharSequence text = getText(R.string.Cache_service_text);
-                Notification notification = Utils.buildNotification(this, icon, ticker, title, text,
-                        true, new Intent());
+                Notification notification = Utils
+                        .buildNotification(this, icon, ticker, title, text, true, new Intent());
                 startForeground(R.string.Cache_service_started, notification);
             }
         }
