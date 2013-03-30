@@ -66,6 +66,9 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
         
+        if (isCacherRunning())
+            setSupportProgressBarIndeterminateVisibility(true);
+        
         Controller.getInstance().setHeadless(false);
         
         // This is a tablet if this view exists
@@ -271,20 +274,21 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
         }
         intent.setClass(this.getApplicationContext(), ForegroundService.class);
-        
+
+        setSupportProgressBarIndeterminateVisibility(true);
         setSupportProgressBarVisibility(true);
         this.startService(intent);
     }
     
     @Override
     public void onCacheEnd() {
+        setSupportProgressBarIndeterminateVisibility(false);
         setSupportProgressBarVisibility(false);
     }
     
     @Override
     public void onCacheProgress(int taskCount, int progress) {
         if (taskCount == progress) {
-            setSupportProgressBarIndeterminateVisibility(false);
             setSupportProgressBarVisibility(false);
         } else {
             setProgress((10000 / (taskCount + 1)) * progress);
