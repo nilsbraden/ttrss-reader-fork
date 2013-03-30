@@ -19,7 +19,6 @@ import java.lang.reflect.Field;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
@@ -67,10 +66,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
         
-        // Initialize Singletons for Config, Data-Access and DB
-        Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        Data.getInstance().checkAndInitializeData(this);
+        Controller.getInstance().setHeadless(false);
         
         // This is a tablet if this view exists
         View details = findViewById(R.id.details);
@@ -194,7 +190,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         }
         
         if (!Controller.getInstance().markReadInMenu()) {
-            // Hide button, show "Display Unread" instead which doesnt change any values on the server 
+            // Hide button, show "Display Unread" instead which doesnt change any values on the server
             MenuItem markRead = menu.findItem(R.id.Menu_MarkAllRead);
             markRead.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
             displayUnread.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
@@ -341,7 +337,5 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             listener.onUpdateEnd();
         }
     }
-    
-    
     
 }

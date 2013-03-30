@@ -2,7 +2,6 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.utils.AsyncTask;
 import android.app.ProgressDialog;
@@ -31,11 +30,6 @@ public class ShareActivity extends MenuActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sharetopublished);
-        
-        // Initialize Singletons for Config, Data-Access and DB
-        Controller.getInstance().checkAndInitializeController(this, getWindowManager().getDefaultDisplay());
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        Data.getInstance().checkAndInitializeData(this);
         
         String titleValue = getIntent().getStringExtra(Intent.EXTRA_SUBJECT);
         String urlValue = getIntent().getStringExtra(Intent.EXTRA_TEXT);
@@ -104,7 +98,7 @@ public class ShareActivity extends MenuActivity {
             
             return null;
         }
-
+        
         private void finishCompat() {
             if (Build.VERSION.SDK_INT >= 16)
                 finishAffinity();

@@ -61,6 +61,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private JSONConnector ttrssConnector;
     private ImageCache imageCache;
     
+    private boolean isHeadless = false;
     private String imageCacheLock = ""; // Use this to lock access to the cache as workaround for NPE on imageCache
     private boolean imageCacheLocked = false;
     
@@ -419,6 +420,14 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return keystorePassword;
     }
     
+    public boolean isHeadless() {
+        return isHeadless;
+    }
+    
+    public void setHeadless(boolean isHeadless) {
+        this.isHeadless = isHeadless;
+    }
+    
     // ******* USAGE-Options ****************************
     
     public boolean automaticMarkRead() {
@@ -507,7 +516,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         put(Constants.HEADLINE_SIZE, headlineSize);
         this.headlineSize = headlineSize;
     }
-
+    
     public boolean markReadInMenu() {
         if (markReadInMenu == null)
             markReadInMenu = prefs.getBoolean(Constants.MARK_READ_IN_MENU, Constants.MARK_READ_IN_MENU_DEFAULT);

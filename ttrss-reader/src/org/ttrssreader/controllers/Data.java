@@ -488,13 +488,8 @@ public class Data {
     }
     
     private void notifyListeners() {
-        try {
+        if (!Controller.getInstance().isHeadless())
             UpdateController.getInstance().notifyListeners();
-        } catch (Throwable t) {
-            // For now, just catch the exceptions. This should only happen when using ImageCache with Tasker/Locale and
-            // then it only happens a few times, so it is no big deal. Bit is IS ugly, I know.
-            Log.d(Utils.TAG, "Catched Exception because of handler in background-thread. I'm sorry about this.");
-        }
     }
     
 }
