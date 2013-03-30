@@ -138,7 +138,7 @@ public class Utils {
      * Check if vacuum is necessary, returns true if yes.
      */
     public static boolean checkVacuumDB(Context c) {
-        return Controller.getInstance().isVacuumDBScheduled();
+        return false; //Controller.getInstance().isVacuumDBScheduled();
     }
     
     /*
