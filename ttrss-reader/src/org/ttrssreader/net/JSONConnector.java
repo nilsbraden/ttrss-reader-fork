@@ -899,6 +899,8 @@ public abstract class JSONConnector {
             JsonReader reader = null;
             try {
                 reader = prepareReader(params);
+                if (hasLastError)
+                    return;
                 if (reader == null)
                     continue;
                 
