@@ -51,6 +51,8 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
@@ -64,6 +66,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -81,6 +84,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     public static final String ARTICLE_MOVE = "ARTICLE_MOVE";
     public static final int ARTICLE_MOVE_NONE = 0;
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
+    private static final int CONTEXT_MENU_SHARE_URL = 1000;
+    private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
     
     // Extras
     private int articleId = -1;
@@ -109,6 +114,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     private FeedHeadlineAdapter parentAdapter = null;
     private int[] parentIDs = new int[2];
+    private String mUrl;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -170,6 +176,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.setScrollbarFadingEnabled(true);
         }
         
+        registerForContextMenu(webView);
         // Attach the WebView to its placeholder
         webContainer.addView(webView);
         mainContainer.populate(webView);
@@ -393,6 +400,55 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.article, menu);
         return true;
+    }
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        
+        HitTestResult result = ((WebView) v).getHitTestResult();
+        
+        // Create your context menu here
+        menu.setHeaderTitle("Share");
+        // reset class member
+        mUrl = null;
+        if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
+            mUrl = result.getExtra();
+            Log.d(Utils.TAG, "Clicked on " + mUrl);
+            menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_URL, 0, "Share URL");
+        }
+        menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 0, "Share article");
+    }
+    
+    @Override
+    public boolean onContextItemSelected(android.view.MenuItem item) {
+        Intent shareIntent = null;
+        switch (item.getItemId()) {
+            case CONTEXT_MENU_SHARE_URL:
+                if (mUrl != null) {
+                    shareIntent = getUrlShareIntent(mUrl);
+                }
+                // reset class member
+                mUrl = null;
+                break;
+            /*
+             * default behavior is to share the article URL
+             */
+            case CONTEXT_MENU_SHARE_ARTICLE:
+            default:
+                shareIntent = getUrlShareIntent(article.url);
+                break;
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share URL"));
+        return super.onContextItemSelected(item);
+    }
+    
+    private Intent getUrlShareIntent(String url) {
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("text/plain");
+        i.putExtra(Intent.EXTRA_SUBJECT, "Sharing URL");
+        i.putExtra(Intent.EXTRA_TEXT, url);
+        return i;
     }
     
     @Override
