@@ -17,8 +17,13 @@ package org.ttrssreader.net;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -95,23 +100,9 @@ public class HttpClientFactory {
      */
     private static SSLSocketFactory newSslSocketFactory(String keystorePassword) {
         try {
-            KeyStore trusted = KeyStore.getInstance("BKS");
+            KeyStore keystore = Utils.loadKeystore(keystorePassword);
             
-            File file = new File(Environment.getExternalStorageDirectory() + File.separator
-                    + FileUtils.SDCARD_PATH_FILES + "store.bks");
-            
-            if (!file.exists())
-                return null;
-            
-            InputStream in = new FileInputStream(file);
-            
-            try {
-                trusted.load(in, keystorePassword.toCharArray());
-            } finally {
-                in.close();
-            }
-            
-            return new SSLSocketFactory(trusted);
+            return new SSLSocketFactory(keystore);
         } catch (Exception e) {
             e.printStackTrace();
         }
