@@ -23,6 +23,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.os.Message;
+import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -124,11 +125,11 @@ public abstract class MainAdapter extends BaseAdapter {
         return ret;
     }
     
-    public static final String formatTitle(String title, int unread) {
+    public static final CharSequence formatTitle(String title, int unread) {
         if (unread > 0) {
-            return title + " (" + unread + ")";
+            return Html.fromHtml(title + " (" + unread + ")");
         } else {
-            return title;
+            return Html.fromHtml(title);
         }
     }
     
