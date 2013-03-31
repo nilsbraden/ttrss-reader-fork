@@ -16,6 +16,7 @@
 package org.ttrssreader.net;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.Authenticator;
@@ -35,6 +36,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -48,6 +50,7 @@ import android.util.Log;
 public class JavaJSONConnector extends JSONConnector {
     
     TrustManager[] trustManagers = null;
+    SSLSocketFactory sslSocketFactory = null;
     
     public JavaJSONConnector(Context context) {
         super(context);
@@ -76,6 +79,11 @@ public class JavaJSONConnector extends JSONConnector {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
+            
+            if (con instanceof HttpsURLConnection) {
+                HttpsURLConnection secured = (HttpsURLConnection) con;
+                secured.setSSLSocketFactory(sslSocketFactory);
+            }
             
             // Disable streaming. Exception on getResponseCode() AND getInputStream() when HTTP Auth is enabled. See
             // http://docs.oracle.com/javase/1.5.0/docs/api/java/net/HttpURLConnection.html#setFixedLengthStreamingMode(int)
@@ -125,15 +133,27 @@ public class JavaJSONConnector extends JSONConnector {
         return null;
     }
     
-    protected void setupKeystore() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+    protected void setupKeystore() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException, IOException {
+        
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        
         if (trustManagers == null) {
-            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+            KeyStore keystore;
+            if (Controller.getInstance().useKeystore()) {
+                keystore = Utils.loadKeystore(Controller.getInstance().getKeystorePassword());
+            } else {
+                keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            }
+            
+            if (keystore == null)
+                return;
+            
             tmf.init(keystore);
             trustManagers = tmf.getTrustManagers();
             
             SSLContext context = SSLContext.getInstance("TLS");
             context.init(null, trustManagers, null);
+            sslSocketFactory = context.getSocketFactory();
         }
         
         trustAll(Controller.getInstance().trustAllSsl(), Controller.getInstance().trustAllHosts());

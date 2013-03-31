@@ -16,9 +16,17 @@
 
 package org.ttrssreader.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.http.HttpEntity;
@@ -42,6 +50,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 
 public class Utils {
@@ -138,7 +147,7 @@ public class Utils {
      * Check if vacuum is necessary, returns true if yes.
      */
     public static boolean checkVacuumDB(Context c) {
-        return false; //Controller.getInstance().isVacuumDBScheduled();
+        return false; // Controller.getInstance().isVacuumDBScheduled();
     }
     
     /*
@@ -448,6 +457,25 @@ public class Utils {
             ret.deleteCharAt(ret.length() - 1);
         
         return ret.toString();
+    }
+    
+    public static KeyStore loadKeystore(String keystorePassword) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+        KeyStore trusted = KeyStore.getInstance("BKS");
+        
+        File file = new File(Environment.getExternalStorageDirectory() + File.separator + FileUtils.SDCARD_PATH_FILES
+                + "store.bks");
+        
+        if (!file.exists())
+            return null;
+        
+        InputStream in = new FileInputStream(file);
+        
+        try {
+            trusted.load(in, keystorePassword.toCharArray());
+        } finally {
+            in.close();
+        }
+        return trusted;
     }
     
 }
