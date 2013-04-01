@@ -48,6 +48,7 @@ import android.util.Log;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.MalformedJsonException;
 
 public abstract class JSONConnector {
     
@@ -350,10 +351,18 @@ public abstract class JSONConnector {
         try {
             String result = readResult(params, false);
             Log.d(Utils.TAG, "Result: " + result);
+            
+            // Reset error, this is only for an api-bug which returns an empty result for updateFeed
+            if (result == null)
+                pullLastError();
+            
             if ("OK".equals(result))
                 return true;
             else
                 return false;
+        } catch (MalformedJsonException mje) {
+            // Reset error, this is only for an api-bug which returns an empty result for updateFeed
+            pullLastError();
         } catch (IOException e) {
             e.printStackTrace();
             if (!hasLastError) {

@@ -27,11 +27,13 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -49,7 +51,6 @@ import android.util.Log;
 
 public class JavaJSONConnector extends JSONConnector {
     
-    TrustManager[] trustManagers = null;
     SSLSocketFactory sslSocketFactory = null;
     
     public JavaJSONConnector(Context context) {
@@ -75,19 +76,9 @@ public class JavaJSONConnector extends JSONConnector {
             con.setDoInput(true);
             con.setDoOutput(true);
             con.setUseCaches(false);
-            con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
-            
-            if (con instanceof HttpsURLConnection) {
-                HttpsURLConnection secured = (HttpsURLConnection) con;
-                secured.setSSLSocketFactory(sslSocketFactory);
-            }
-            
-            // Disable streaming. Exception on getResponseCode() AND getInputStream() when HTTP Auth is enabled. See
-            // http://docs.oracle.com/javase/1.5.0/docs/api/java/net/HttpURLConnection.html#setFixedLengthStreamingMode(int)
-            // con.setFixedLengthStreamingMode(outputBytes.length);
             
             int timeoutSocket = (int) ((Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE : 10 * Utils.SECOND);
             con.setReadTimeout(timeoutSocket);
@@ -133,30 +124,27 @@ public class JavaJSONConnector extends JSONConnector {
         return null;
     }
     
-    protected void setupKeystore() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException, IOException {
+    protected void setupKeystore() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException, IOException, UnrecoverableKeyException {
+        // Initialize the unsecure SSL stuff
+        trustAll(Controller.getInstance().trustAllSsl(), Controller.getInstance().trustAllHosts());
         
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        
-        if (trustManagers == null) {
-            KeyStore keystore;
-            if (Controller.getInstance().useKeystore()) {
-                keystore = Utils.loadKeystore(Controller.getInstance().getKeystorePassword());
-            } else {
-                keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-            }
-            
+        if (sslSocketFactory == null && Controller.getInstance().useKeystore()) {
+            KeyStore keystore = Utils.loadKeystore(Controller.getInstance().getKeystorePassword());
             if (keystore == null)
                 return;
             
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
             tmf.init(keystore);
-            trustManagers = tmf.getTrustManagers();
             
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, trustManagers, null);
-            sslSocketFactory = context.getSocketFactory();
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("X509");
+            kmf.init(keystore, Controller.getInstance().getKeystorePassword().toCharArray());
+            
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
+            
+            sslSocketFactory = sc.getSocketFactory();
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
         }
-        
-        trustAll(Controller.getInstance().trustAllSsl(), Controller.getInstance().trustAllHosts());
     }
     
     protected static void trustAll(boolean trustAnyCert, boolean trustAnyHost) {
