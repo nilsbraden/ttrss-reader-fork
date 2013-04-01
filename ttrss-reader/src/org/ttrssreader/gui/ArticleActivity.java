@@ -16,6 +16,8 @@
 
 package org.ttrssreader.gui;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Set;
 import org.ttrssreader.R;
@@ -66,6 +68,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -99,6 +102,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     private Article article = null;
     private String content;
+    private String contentNoHtmlHeader;
     private boolean linkAutoOpened;
     private boolean markedRead = false;
     
@@ -165,15 +169,21 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         if (webView == null) {
             webView = new WebView(getApplicationContext());
             // webView.getSettings().setJavaScriptEnabled(true);
-            webView.getSettings().setBuiltInZoomControls(true);
             webView.setWebViewClient(new ArticleWebViewClient(this));
             gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
             webView.setOnKeyListener(keyListener);
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             webView.getSettings().setSupportZoom(true);
             webView.getSettings().setBuiltInZoomControls(true);
+            webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
+            webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
+            
+            // prevent flicker in ics
+            if (android.os.Build.VERSION.SDK_INT >= 11) {
+                webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            }
         }
         
         registerForContextMenu(webView);
@@ -333,23 +343,24 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         final int contentLength = article.content.length();
         
         // Inject the specific code for attachments, <img> for images, http-link for Videos
-        StringBuilder contentTmp = injectAttachments(getApplicationContext(), new StringBuilder(article.content),
-                article.attachments);
+        StringBuilder sb = new StringBuilder(article.content);
+        injectAttachments(getApplicationContext(), sb, article.attachments);
         
         // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
-        contentTmp = injectArticleLink(getApplicationContext(), contentTmp);
-        content = injectCachedImages(contentTmp.toString(), articleId);
-        
-        // Load html from Controller and insert content
-        content = Controller.htmlHeader.replace("MARKER", content);
+        injectArticleLink(getApplicationContext(), sb);
+        injectCachedImages(sb.toString(), articleId);
         
         // TODO: Whole "switch background-color-thing" needs to be refactored.
         if (Controller.getInstance().darkBackground()) {
             webView.setBackgroundColor(Color.BLACK);
-            content = "<font color='white'>" + content + "</font>";
-            
+            sb.insert(0, "<font color='white'>");
+            sb.append("</font>");
             setDarkBackground(headerContainer);
         }
+        
+        // Load html from Controller and insert content
+        contentNoHtmlHeader = sb.toString();
+        content = Controller.htmlHeader.replace("MARKER", sb);
         
         // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
         baseUrl = StringSupport.getBaseURL(article.url);
@@ -549,13 +560,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
     }
     
-    public void onZoomChanged() {
-        if (content == null)
-            content = "";
-        content = Controller.htmlHeaderZoom.replace("MARKER", content);
-        webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
-    }
-    
     private void openNextArticle(int direction) {
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
         
@@ -749,10 +753,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             doRefresh();
     }
     
-    private static StringBuilder injectAttachments(Context context, StringBuilder content, Set<String> attachments) {
-        if (content == null)
-            content = new StringBuilder();
-        
+    private static void injectAttachments(Context context, StringBuilder content, Set<String> attachments) {
         for (String url : attachments) {
             if (url.length() == 0)
                 continue;
@@ -784,12 +785,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 content.append((String) context.getText(R.string.ArticleActivity_MediaDisplayLink)).append("</a>");
             }
         }
-        return content;
     }
     
-    private StringBuilder injectArticleLink(Context context, StringBuilder html) {
+    private void injectArticleLink(Context context, StringBuilder html) {
         if (!Controller.getInstance().injectArticleLink())
-            return html;
+            return;
         
         if ((article.url != null) && (article.url.length() > 0)) {
             html.append("<br>\n");
@@ -797,7 +797,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             html.append((String) context.getText(R.string.ArticleActivity_ArticleLink));
             html.append("</a>");
         }
-        return html;
     }
     
     /**
