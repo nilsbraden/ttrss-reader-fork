@@ -43,6 +43,7 @@
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:baselineAligned="false"
                     android:gravity="fill_horizontal" >
 
                     <LinearLayout
@@ -58,7 +59,7 @@
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:textSize="10sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
 
                         <LinearLayout
@@ -93,7 +94,7 @@
                             android:ellipsize="none"
                             android:singleLine="true"
                             android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:textSize="10sp" />
+                            android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/time"
@@ -102,7 +103,7 @@
                             android:ellipsize="none"
                             android:singleLine="true"
                             android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:textSize="10sp" />
+                            android:textSize="12sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -137,22 +138,6 @@
                     android:id="@+id/webView_Container"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent" />
-                <!--
-                        WebView
-                        android:id="@+id/webView"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent" /
-                -->
-
-                <TextView
-                    android:id="@+id/swipeView"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBottom="@id/webView_Container"
-                    android:background="#AA000000"
-                    android:padding="12dip"
-                    android:text="@string/ArticleActivity.SwipeNotification"
-                    android:textColor="#ffffffff" />
             </RelativeLayout>
 
             <LinearLayout

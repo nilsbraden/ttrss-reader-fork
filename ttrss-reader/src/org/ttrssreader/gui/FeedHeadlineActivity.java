@@ -39,9 +39,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.WindowManager;
 import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineActivity extends MenuActivity {
@@ -71,7 +72,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         super.onCreate(instance);
         setContentView(R.layout.feedheadlinelist);
         
-        gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
+        gestureDetector = new GestureDetector(this, new MyGestureDetector());
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -235,37 +236,36 @@ public class FeedHeadlineActivity extends MenuActivity {
         return true;
     }
     
-    private OnGestureListener onGestureListener = new OnGestureListener() {
+    class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            int dx = (int) (e2.getX() - e1.getX());
-            int dy = (int) (e2.getY() - e1.getY());
+            if (!Controller.getInstance().useSwipe())
+                return false;
             
-            if (Math.abs(dy) > (int) (Controller.absHeight * 0.2)) {
-                return false; // Too much Y-Movement (20% of screen-height)
-            }
+            // Refresh metrics-data in Controller
+            Controller.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE))
+                    .getDefaultDisplay());
             
-            // don't accept the fling if it's too short as it may conflict with a button push
-            if (Math.abs(dx) > Controller.swipeWidth && Math.abs(velocityX) > Math.abs(velocityY)) {
-                flingDetected = true;
-                
-                if (velocityX > 0) {
-                    openNextFeed(-1);
-                } else {
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
+                    return false;
+                if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
+                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                    
+                    // right to left swipe
                     openNextFeed(1);
+                    
+                } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
+                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                    
+                    // left to right swipe
+                    openNextFeed(-1);
+                    
                 }
-                return true;
+            } catch (Exception e) {
             }
             return false;
         }
-        
-        // @formatter:off
-        @Override public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
-        @Override public boolean onSingleTapUp(MotionEvent e) { return false; }
-        @Override public boolean onDown(MotionEvent e) { return false; }
-        @Override public void onLongPress(MotionEvent e) { }
-        @Override public void onShowPress(MotionEvent e) { }
-        // @formatter:on
     };
     
     @Override

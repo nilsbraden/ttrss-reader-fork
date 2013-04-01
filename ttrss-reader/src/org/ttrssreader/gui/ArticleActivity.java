@@ -16,8 +16,6 @@
 
 package org.ttrssreader.gui;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Locale;
 import java.util.Set;
 import org.ttrssreader.R;
@@ -49,14 +47,13 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
-import android.view.GestureDetector.OnGestureListener;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -67,8 +64,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
-import android.webkit.WebView;
 import android.webkit.WebSettings.LayoutAlgorithm;
+import android.webkit.WebView;
 import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -102,14 +99,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     private Article article = null;
     private String content;
-    private String contentNoHtmlHeader;
     private boolean linkAutoOpened;
     private boolean markedRead = false;
     
     private FrameLayout webContainer = null;
     private WebView webView;
     private boolean webviewInitialized = false;
-    private TextView swipeView;
     private Button buttonNext;
     private Button buttonPrev;
     private GestureDetector gestureDetector;
@@ -160,7 +155,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         mainContainer = (ArticleView) findViewById(R.id.article_main_layout);
         buttonPrev = (Button) findViewById(R.id.buttonPrev);
         buttonNext = (Button) findViewById(R.id.buttonNext);
-        swipeView = (TextView) findViewById(R.id.swipeView);
         
         buttonPrev.setOnClickListener(onButtonPressedListener);
         buttonNext.setOnClickListener(onButtonPressedListener);
@@ -170,7 +164,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView = new WebView(getApplicationContext());
             // webView.getSettings().setJavaScriptEnabled(true);
             webView.setWebViewClient(new ArticleWebViewClient(this));
-            gestureDetector = new GestureDetector(getApplicationContext(), onGestureListener);
+            gestureDetector = new GestureDetector(this, new MyGestureDetector());
             webView.setOnKeyListener(keyListener);
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             webView.getSettings().setSupportZoom(true);
@@ -359,7 +353,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
         
         // Load html from Controller and insert content
-        contentNoHtmlHeader = sb.toString();
         content = Controller.htmlHeader.replace("MARKER", sb);
         
         // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
@@ -603,96 +596,36 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         return temp;
     }
     
-    private OnGestureListener onGestureListener = new OnGestureListener() {
-        
+    class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             if (!Controller.getInstance().useSwipe())
                 return false;
             
-            float movement = 0;
-            boolean isSwipe = false;
-            
-            int dx = (int) (e2.getX() - e1.getX());
-            int dy = (int) (e2.getY() - e1.getY());
-            
             // Refresh metrics-data in Controller
             Controller.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay());
             
-            if (Controller.landscape) {
-                
-                // LANDSCAPE
-                // Don't accept the fling if it's too short as it may conflict with a button push
-                if (Math.abs(dy) > Controller.swipeHeight && Math.abs(velocityY) > Math.abs(velocityX))
-                    isSwipe = true;
-                
-                if (Math.abs(dx) > (int) (Controller.absWidth * 0.30))
-                    return false; // Too much X-Movement (30% of screen-width)
-                    
-                // Swipe-Area on RIGHT side of the screen
-                int swipeAreaPosition = webView.getWidth() - Controller.swipeAreaWidth;
-                if (e1.getX() < swipeAreaPosition || e2.getX() < swipeAreaPosition) {
-                    if (isSwipe) {
-                        // Display text for swipe-area
-                        swipeView.setVisibility(TextView.VISIBLE);
-                        new Handler().postDelayed(timerTask, Utils.SECOND);
-                    }
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
                     return false;
-                }
-                
-                if (isSwipe)
-                    movement = velocityY;
-                
-            } else {
-                
-                // PORTRAIT
-                // Don't accept the fling if it's too short as it may conflict with a button push
-                if (Math.abs(dx) > Controller.swipeWidth && Math.abs(velocityX) > Math.abs(velocityY))
-                    isSwipe = true;
-                
-                if (Math.abs(dy) > (int) (Controller.absHeight * 0.2))
-                    return false; // Too much Y-Movement (20% of screen-height)
+                if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
+                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
                     
-                // Check if Swipe-Motion is inside the Swipe-Area
-                int swipeAreaPosition = webView.getHeight() - Controller.swipeAreaHeight;
-                if (e1.getY() < swipeAreaPosition || e2.getY() < swipeAreaPosition) {
-                    if (isSwipe) {
-                        // Display text for swipe-area
-                        swipeView.setVisibility(TextView.VISIBLE);
-                        new Handler().postDelayed(timerTask, Utils.SECOND);
-                    }
-                    return false;
-                }
-                
-                if (isSwipe)
-                    movement = velocityX;
-            }
-            
-            if (isSwipe && movement != 0) {
-                if (movement > 0)
-                    openNextArticle(-1);
-                else
+                    // right to left swipe
                     openNextArticle(1);
-                
-                return true;
+                    
+                } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
+                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                    
+                    // left to right swipe
+                    openNextArticle(-1);
+                    
+                }
+            } catch (Exception e) {
             }
             return false;
-            
         }
-        
-        // @formatter:off
-        private Runnable timerTask = new Runnable() {
-            public void run() { // Need this to set the text invisible after some time
-                swipeView.setVisibility(TextView.INVISIBLE);
-            }
-        };
-        @Override public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) { return false; }
-        @Override public boolean onSingleTapUp(MotionEvent e) { return false; }
-        @Override public boolean onDown(MotionEvent e) { return false; }
-        @Override public void onLongPress(MotionEvent e) { }
-        @Override public void onShowPress(MotionEvent e) { }
-        // @formatter:on
     };
     
     private OnClickListener onButtonPressedListener = new OnClickListener() {

@@ -24,7 +24,6 @@ import android.util.AttributeSet;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * Copied and modified for my purpose, originally developed for K-9 Mail. Source:
@@ -37,7 +36,6 @@ public class ArticleView extends RelativeLayout {
     
     private RelativeLayout centralView;
     private LinearLayout buttonView;
-    private TextView swipeView;
     
     public ArticleView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -47,25 +45,16 @@ public class ArticleView extends RelativeLayout {
     private void initializeLayout(final WebView webView) {
         centralView = (RelativeLayout) findViewById(R.id.centralView);
         buttonView = (LinearLayout) findViewById(R.id.buttonView);
-        swipeView = (TextView) findViewById(R.id.swipeView);
         
         // First check for swipe-option, this overrides the buttons-option
         if (Controller.getInstance().useSwipe()) {
-            swipeView.setVisibility(TextView.INVISIBLE);
-            swipeView.setPadding(16, Controller.padding, 16, Controller.padding);
-            if (Controller.landscape)
-                swipeView.setHeight(Controller.swipeAreaHeight);
-            else
-                swipeView.setWidth(Controller.swipeAreaWidth);
             
             // remove Buttons
             removeView(buttonView);
         } else if (Controller.getInstance().useButtons()) {
-            // Remove Swipe-Area
-            centralView.removeView(swipeView);
+            //
         } else {
             // Both disabled, remove everything
-            centralView.removeView(swipeView);
             removeView(buttonView);
         }
         
