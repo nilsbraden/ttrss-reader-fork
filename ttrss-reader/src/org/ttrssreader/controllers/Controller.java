@@ -136,14 +136,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // Article-View-Stuff
     public static String htmlHeader = "";
-    public static int absHeight = -1;
-    public static int absWidth = -1;
-    public static int swipeAreaHeight = -1;
-    public static int swipeWidth = -1;
-    public static int swipeAreaWidth = -1;
-    public static int swipeHeight = -1;
-    public static int padding = -1;
-    public static boolean landscape = false;
+    public static int relSwipeMinDistance;
+    public static int relSwipeMaxOffPath;
+    public static int relSwipteThresholdVelocity;
     
     // Singleton
     private Controller() {
@@ -256,29 +251,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
         if (display == null)
             return;
         
-        DisplayMetrics metrics = new DisplayMetrics();
-        display.getMetrics(metrics);
+        DisplayMetrics dm = new DisplayMetrics();
+        display.getMetrics(dm);
         
-        absHeight = metrics.heightPixels;
-        absWidth = metrics.widthPixels;
+        int SWIPE_MIN_DISTANCE = 120;
+        int SWIPE_MAX_OFF_PATH = 250;
+        int SWIPE_THRESHOLD_VELOCITY = 200;
         
-        // Portrait-Mode
-        swipeAreaHeight = (int) (absHeight * 0.25); // 25% of absolute height
-        swipeWidth = (int) (absWidth * 0.5); // 50% of absolute width
-        
-        // Landscape-Mode
-        swipeAreaWidth = (int) (absWidth * 0.20); // 20% of absolute width
-        swipeHeight = (int) (absHeight * 0.5); // 50% of absolute height
-        
-        // Is this fine for orientation-recognition? display.getOrientation() is deprecated and
-        // display.getRotation() doesn't give information about which layout is used.
-        if (absWidth > absHeight) {
-            landscape = true;
-            padding = (int) ((swipeAreaWidth / 2) - (16 * metrics.density)); // TODO: Why 16???
-        } else {
-            landscape = false;
-            padding = (int) ((swipeAreaHeight / 2) - (16 * metrics.density)); // TODO: Why 16???
-        }
+        relSwipeMinDistance = (int)(SWIPE_MIN_DISTANCE * dm.densityDpi / 160.0f);
+        relSwipeMaxOffPath = (int)(SWIPE_MAX_OFF_PATH * dm.densityDpi / 160.0f);
+        relSwipteThresholdVelocity = (int)(SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
     }
     
     // ******* CONNECTION-Options ****************************
