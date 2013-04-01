@@ -247,6 +247,15 @@
                     android:summary="@string/HeadlineSizeSummary"
                     android:title="@string/HeadlineSizeTitle" />
 
+                <org.ttrssreader.preferences.EditIntegerPreference
+                    android:name="@string/TextZoomTitle"
+                    android:defaultValue="100"
+                    android:inputType="number"
+                    android:key="TextZoomPreference"
+                    android:maxLength="3"
+                    android:summary="@string/TextZoomSummary"
+                    android:title="@string/TextZoomTitle" />
+
                 <CheckBoxPreference
                     android:defaultValue="true"
                     android:key="MarkReadInMenuPreference"

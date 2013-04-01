@@ -45,7 +45,6 @@ import android.webkit.WebViewClient;
 public class ArticleWebViewClient extends WebViewClient {
     
     private Context context;
-    private float originalScale = Float.MAX_VALUE;
     private ArticleActivity articleActivity;
     
     public ArticleWebViewClient(ArticleActivity a) {
@@ -121,20 +120,6 @@ public class ArticleWebViewClient extends WebViewClient {
         }
         
         return true;
-    }
-    
-    // This calls the webview which loads different HTML-Headers for original zoom and other zoom-factors, we got
-    // original zoom with images scaled to match display-width and other factors to display in original width.
-    @Override
-    public void onScaleChanged(WebView view, float oldScale, float newScale) {
-        super.onScaleChanged(view, oldScale, newScale);
-        Log.d(Utils.TAG,
-                String.format("originalScale: %s, oldScale: %s, newScale: %s", originalScale, oldScale, newScale));
-        if (originalScale == Float.MAX_VALUE) {
-            originalScale = oldScale;
-            articleActivity.onZoomChanged(); // originalScale == newScale);
-        }
-        
     }
     
     private boolean externalStorageState() {
