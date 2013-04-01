@@ -460,7 +460,7 @@ public class Utils {
     }
     
     public static KeyStore loadKeystore(String keystorePassword) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-        KeyStore trusted = KeyStore.getInstance("BKS");
+        KeyStore trusted = KeyStore.getInstance(KeyStore.getDefaultType());
         
         File file = new File(Environment.getExternalStorageDirectory() + File.separator + FileUtils.SDCARD_PATH_FILES
                 + "store.bks");
