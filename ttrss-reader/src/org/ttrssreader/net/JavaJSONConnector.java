@@ -16,18 +16,13 @@
 package org.ttrssreader.net;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.SocketException;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Map;
@@ -57,6 +52,11 @@ public class JavaJSONConnector extends JSONConnector {
         super(context);
         disableConnectionReuseIfNecessary();
         enableHttpResponseCache(context);
+        try {
+            setupKeystore();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     protected InputStream doRequest(Map<String, String> params) {
@@ -68,7 +68,6 @@ public class JavaJSONConnector extends JSONConnector {
             byte[] outputBytes = json.toString().getBytes("UTF-8");
             
             logRequest(json);
-            setupKeystore();
             refreshHTTPAuth();
             
             // Create Connection
@@ -124,7 +123,7 @@ public class JavaJSONConnector extends JSONConnector {
         return null;
     }
     
-    protected void setupKeystore() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException, CertificateException, IOException, UnrecoverableKeyException {
+    protected void setupKeystore() throws Exception {
         // Initialize the unsecure SSL stuff
         trustAll(Controller.getInstance().trustAllSsl(), Controller.getInstance().trustAllHosts());
         
@@ -133,10 +132,10 @@ public class JavaJSONConnector extends JSONConnector {
             if (keystore == null)
                 return;
             
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(keystore);
             
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance("X509");
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmf.init(keystore, Controller.getInstance().getKeystorePassword().toCharArray());
             
             SSLContext sc = SSLContext.getInstance("TLS");
