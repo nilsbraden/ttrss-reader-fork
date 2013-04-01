@@ -19,7 +19,7 @@ import org.ttrssreader.imageCache.bundle.PluginBundleManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Switch;
+import android.widget.CheckBox;
 
 /**
  * This is the "Edit" activity for a Locale Plug-in.
@@ -52,8 +52,8 @@ public final class EditPluginActivity extends AbstractPluginActivity {
             if (PluginBundleManager.isBundleValid(localeBundle)) {
                 final boolean images = localeBundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_IMAGES);
                 final boolean notification = localeBundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_NOTIFICATION);
-                ((Switch) findViewById(R.id.sw_images)).setChecked(images);
-                ((Switch) findViewById(R.id.sw_notification)).setChecked(notification);
+                ((CheckBox) findViewById(R.id.cb_images)).setChecked(images);
+                ((CheckBox) findViewById(R.id.cb_notification)).setChecked(notification);
             }
         }
     }
@@ -61,8 +61,8 @@ public final class EditPluginActivity extends AbstractPluginActivity {
     @Override
     public void finish() {
         if (!isCanceled()) {
-            final boolean images = ((Switch) findViewById(R.id.sw_images)).isChecked();
-            final boolean notification = ((Switch) findViewById(R.id.sw_notification)).isChecked();
+            final boolean images = ((CheckBox) findViewById(R.id.cb_images)).isChecked();
+            final boolean notification = ((CheckBox) findViewById(R.id.cb_notification)).isChecked();
             final Intent resultIntent = new Intent();
             
             /*
