@@ -301,7 +301,7 @@ public abstract class JSONConnector {
                         
                         if (message.contains(NOT_LOGGED_IN)) {
                             lastError = NOT_LOGGED_IN;
-                            if (login())
+                            if (login() && !hasLastError)
                                 return prepareReader(params); // Just do the same request again
                             else
                                 return null;
