@@ -30,6 +30,7 @@ import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
@@ -158,7 +159,9 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
                     R.string.Commons_MarkPublishNote);
         }
         
+        menu.add(MenuActivity.MARK_GROUP, MenuActivity.SHARE, Menu.NONE, R.string.ArticleActivity_ShareLink);
     }
+        
     
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
@@ -183,6 +186,13 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
                 break;
             case MenuActivity.MARK_ABOVE_READ:
                 new Updater(this, new ReadStateUpdater(getUnreadArticlesAbove(cmi.position), feedId, 0)).exec();
+                break;
+            case MenuActivity.SHARE:
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_TEXT, a.url);
+                i.putExtra(Intent.EXTRA_SUBJECT, a.title);
+                startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 break;
             default:
                 return false;
