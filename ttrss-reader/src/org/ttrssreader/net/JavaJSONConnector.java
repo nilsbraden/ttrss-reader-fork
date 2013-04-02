@@ -185,6 +185,7 @@ public class JavaJSONConnector extends JSONConnector {
     
     @Override
     protected void refreshHTTPAuth() {
+        super.refreshHTTPAuth();
         if (!httpAuth)
             return;
         

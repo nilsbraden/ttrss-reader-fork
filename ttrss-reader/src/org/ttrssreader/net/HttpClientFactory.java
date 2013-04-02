@@ -15,15 +15,7 @@
 
 package org.ttrssreader.net;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -33,9 +25,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpParams;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
-import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -56,7 +46,7 @@ public class HttpClientFactory {
         
         SocketFactory socketFactory = null;
         
-        if (useCustomKeyStore) {
+        if (useCustomKeyStore && !trustAllSslCerts) {
             String keystorePassword = Controller.getInstance().getKeystorePassword();
             
             socketFactory = newSslSocketFactory(keystorePassword);
