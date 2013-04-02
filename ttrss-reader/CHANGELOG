@@ -1,6 +1,14 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.46 ==
+  * Fixed bugs in new connection method
+  * Rewrote code for swipe, should work better now on all screen sizes
+  * New Preference: Scale article font by n%
+  * Fixed bugs in tasker integration
+  * Disabled automatic vacuum, this can still be started manually via preferences
+  * Added long-press options in article, share article and (if selected an URL) share URL.
+
 == Version 1.45 ==
   * Remember reading position inside articles
   * Reduce memory usage
