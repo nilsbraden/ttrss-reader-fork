@@ -18,6 +18,13 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.46
+			\n * Fixed bugs in new connection method
+			\n * Rewrote code for swipe, should work better now on all screen sizes
+			\n * New Preference: Scale article font by n%
+			\n * Fixed bugs in tasker integration
+			\n * Disabled automatic vacuum, this can still be started manually via preferences
+			\n * Added long-press options in article, share article and (if selected an URL) share URL.</item>
         <item>Version 1.45
 			\n * Remember reading position inside articles
 			\n * Reduce memory usage
