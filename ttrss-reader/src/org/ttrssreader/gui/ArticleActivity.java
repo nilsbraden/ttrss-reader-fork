@@ -40,12 +40,14 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
+import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
@@ -65,6 +67,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
+import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
@@ -145,6 +148,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         initUIHeader();
     }
     
+    @SuppressWarnings("deprecation")
     private void initUI() {
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
         // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
@@ -169,10 +173,26 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             webView.getSettings().setSupportZoom(true);
             webView.getSettings().setBuiltInZoomControls(true);
-            webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
             webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
+            
+            if (android.os.Build.VERSION.SDK_INT >= 14) {
+                webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
+            } else {
+                // Use rough estimation of new size for old api levels:
+                int size = Controller.getInstance().textZoom();
+                TextSize newSize = TextSize.NORMAL;
+                if (size < 50)
+                    newSize = TextSize.SMALLEST;
+                else if (size < 80)
+                    newSize = TextSize.SMALLER;
+                else if (size > 120)
+                    newSize = TextSize.LARGER;
+                else if (size > 150)
+                    newSize = TextSize.LARGEST;
+                webView.getSettings().setTextSize(newSize);
+            }
             
             // prevent flicker in ics
             if (android.os.Build.VERSION.SDK_INT >= 11) {
