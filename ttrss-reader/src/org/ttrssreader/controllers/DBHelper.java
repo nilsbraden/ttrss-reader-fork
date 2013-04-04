@@ -44,6 +44,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.text.Html;
 import android.util.Log;
 
 public class DBHelper {
@@ -604,7 +605,7 @@ public class DBHelper {
         synchronized (insertArticle) {
             insertArticle.bindLong(1, a.id);
             insertArticle.bindLong(2, a.feedId);
-            insertArticle.bindString(3, a.title);
+            insertArticle.bindString(3, Html.fromHtml(a.title).toString());
             insertArticle.bindLong(4, (a.isUnread ? 1 : 0));
             insertArticle.bindString(5, a.url);
             insertArticle.bindString(6, a.commentUrl);
