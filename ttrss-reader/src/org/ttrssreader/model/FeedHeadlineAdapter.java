@@ -110,10 +110,10 @@ public class FeedHeadlineAdapter extends MainAdapter {
         if (layout == null)
             return new View(context);
         
-        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+        ImageView icon = (ImageView) layout.findViewById(R.id.fh_icon);
         getImage(icon, a);
         
-        TextView title = (TextView) layout.findViewById(R.id.title);
+        TextView title = (TextView) layout.findViewById(R.id.fh_title);
         title.setText(a.title);
         if (a.isUnread) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
@@ -121,11 +121,11 @@ public class FeedHeadlineAdapter extends MainAdapter {
             title.setTypeface(Typeface.DEFAULT, 0);
         }
         
-        TextView updateDate = (TextView) layout.findViewById(R.id.updateDate);
+        TextView updateDate = (TextView) layout.findViewById(R.id.fh_updateDate);
         String date = DateUtils.getDateTime(context, a.updated);
         updateDate.setText(date);
         
-        TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
+        TextView dataSource = (TextView) layout.findViewById(R.id.fh_dataSource);
         // Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category
         if ((feedId < 0 && feedId >= -4) || (selectArticlesForCategory)) {
             Feed f = DBHelper.getInstance().getFeed(a.feedId);

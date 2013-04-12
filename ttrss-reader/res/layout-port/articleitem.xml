@@ -24,7 +24,7 @@
     android:orientation="vertical" >
 
     <FrameLayout
-        android:id="@+id/articleheader"
+        android:id="@+id/article_header"
         android:layout_width="match_parent"
         android:layout_height="75dip"
         android:layout_weight="1.0" />
@@ -36,21 +36,21 @@
         android:layout_weight="1.0" >
 
         <RelativeLayout
-            android:id="@+id/centralView"
+            android:id="@+id/article_central_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/buttonView"
+            android:layout_above="@+id/article_button_view"
             android:orientation="vertical"
             android:padding="6dp" >
 
             <FrameLayout
-                android:id="@+id/webView_Container"
+                android:id="@+id/article_webView_Container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </RelativeLayout>
 
         <LinearLayout
-            android:id="@+id/buttonView"
+            android:id="@+id/article_button_view"
             android:layout_width="match_parent"
             android:layout_height="45dip"
             android:layout_alignParentBottom="true"
@@ -59,7 +59,7 @@
             android:visibility="gone" >
 
             <Button
-                android:id="@+id/buttonNext"
+                android:id="@+id/article_buttonNext"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1.0"
@@ -67,7 +67,7 @@
                 android:text="Up" />
 
             <Button
-                android:id="@+id/buttonPrev"
+                android:id="@+id/article_buttonPrev"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1.0"

@@ -43,8 +43,8 @@ public class ArticleView extends RelativeLayout {
     }
     
     private void initializeLayout(final WebView webView) {
-        centralView = (RelativeLayout) findViewById(R.id.centralView);
-        buttonView = (LinearLayout) findViewById(R.id.buttonView);
+        centralView = (RelativeLayout) findViewById(R.id.article_central_view);
+        buttonView = (LinearLayout) findViewById(R.id.article_button_view);
         
         // First check for swipe-option, this overrides the buttons-option
         if (Controller.getInstance().useSwipe()) {

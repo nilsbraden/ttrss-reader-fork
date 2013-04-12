@@ -41,9 +41,9 @@ public class ShareActivity extends MenuActivity {
             contentValue = savedInstanceState.getString(PARAM_CONTENT);
         }
         
-        title = (EditText) findViewById(R.id.title);
-        url = (EditText) findViewById(R.id.url);
-        content = (EditText) findViewById(R.id.content);
+        title = (EditText) findViewById(R.id.share_title);
+        url = (EditText) findViewById(R.id.share_url);
+        content = (EditText) findViewById(R.id.share_content);
         
         title.setText(titleValue);
         url.setText(urlValue);
@@ -63,9 +63,9 @@ public class ShareActivity extends MenuActivity {
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
         
-        EditText url = (EditText) findViewById(R.id.url);
-        EditText title = (EditText) findViewById(R.id.title);
-        EditText content = (EditText) findViewById(R.id.content);
+        EditText url = (EditText) findViewById(R.id.share_url);
+        EditText title = (EditText) findViewById(R.id.share_title);
+        EditText content = (EditText) findViewById(R.id.share_content);
         out.putString(PARAM_TITLE, title.getText().toString());
         out.putString(PARAM_URL, url.getText().toString());
         out.putString(PARAM_CONTENT, content.getText().toString());

@@ -21,43 +21,44 @@
     android:orientation="horizontal" >
 
     <ImageView
-        android:id="@+id/icon"
+        android:id="@+id/fh_icon"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginRight="10dp" />
 
     <LinearLayout
-        android:id="@+id/textLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/fh_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textIsSelectable="false" />
 
         <LinearLayout
-            android:id="@+id/smallTextLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
             <TextView
-                android:id="@+id/updateDate"
+                android:id="@+id/fh_updateDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="left"
-                android:textSize="10sp" />
+                android:textIsSelectable="false"
+                android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/dataSource"
+                android:id="@+id/fh_dataSource"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
                 android:gravity="right"
-                android:textSize="10sp" />
+                android:textIsSelectable="false"
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 
