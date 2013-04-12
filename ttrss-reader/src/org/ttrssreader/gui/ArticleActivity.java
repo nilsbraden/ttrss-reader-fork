@@ -26,9 +26,8 @@ import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
-import org.ttrssreader.gui.view.ArticleHeaderView;
-import org.ttrssreader.gui.view.ArticleView;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
+import org.ttrssreader.gui.view.HeaderFragment;
 import org.ttrssreader.imageCache.ImageCacher;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
@@ -40,7 +39,6 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
-import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -51,6 +49,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -89,6 +88,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
     private static final int CONTEXT_MENU_SHARE_URL = 1000;
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
+    private static final String FRAGMENT = "headerFragment";
     
     // Extras
     private int articleId = -1;
@@ -97,8 +97,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private boolean selectArticlesForCategory = false;
     private int lastMove = ARTICLE_MOVE_DEFAULT;
     
-    private ArticleHeaderView headerContainer;
-    private ArticleView mainContainer;
+    private HeaderFragment headerFragment;
     
     private Article article = null;
     private String content;
@@ -145,18 +144,22 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         initData();
         initUI();
-        initUIHeader();
+        // initUIHeader();
     }
     
     @SuppressWarnings("deprecation")
     private void initUI() {
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
         // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
-        // Layout-Files are changed due to this and the onDestroy-Method now calls container.removeAllViews() and
-        // webview.destory()...
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
+            headerFragment = HeaderFragment.getInstance();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.articleheader, headerFragment, FRAGMENT);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            transaction.commit();
+        }
+        
         webContainer = (FrameLayout) findViewById(R.id.webView_Container);
-        headerContainer = (ArticleHeaderView) findViewById(R.id.article_header_container);
-        mainContainer = (ArticleView) findViewById(R.id.article_main_layout);
         buttonPrev = (Button) findViewById(R.id.buttonPrev);
         buttonNext = (Button) findViewById(R.id.buttonNext);
         
@@ -168,16 +171,16 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView = new WebView(getApplicationContext());
             // webView.getSettings().setJavaScriptEnabled(true);
             webView.setWebViewClient(new ArticleWebViewClient(this));
-            gestureDetector = new GestureDetector(this, new MyGestureDetector());
-            webView.setOnKeyListener(keyListener);
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             webView.getSettings().setSupportZoom(true);
             webView.getSettings().setBuiltInZoomControls(true);
             webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
+            webView.setOnKeyListener(keyListener);
+            gestureDetector = new GestureDetector(this, new MyGestureDetector());
             
-            if (android.os.Build.VERSION.SDK_INT >= 14) {
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
             } else {
                 // Use rough estimation of new size for old api levels:
@@ -195,7 +198,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             }
             
             // prevent flicker in ics
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             }
         }
@@ -203,15 +206,18 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         registerForContextMenu(webView);
         // Attach the WebView to its placeholder
         webContainer.addView(webView);
-        mainContainer.populate(webView);
+        
+        // mainContainer.populate(webView);
+        if (Controller.getInstance().useButtons())
+            findViewById(R.id.buttonView).setVisibility(View.VISIBLE);
     }
     
     public void initUIHeader() {
         // Populate information-bar on top of the webView if enabled
         if (Controller.getInstance().displayArticleHeader()) {
-            headerContainer.populate(article);
+            headerFragment.populate(article);
         } else {
-            headerContainer.setVisibility(View.GONE);
+            findViewById(R.id.articleheader).setVisibility(View.GONE);
         }
     }
     
@@ -251,6 +257,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         super.onConfigurationChanged(newConfig);
         
         setContentView(R.layout.articleitem);
+        // TODO: Was tun mit dem Fragment???
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.articleheader, headerFragment, FRAGMENT);
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        transaction.commit();
+        
         initUI();
         initUIHeader();
         doRefresh();
@@ -369,7 +381,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.setBackgroundColor(Color.BLACK);
             sb.insert(0, "<font color='white'>");
             sb.append("</font>");
-            setDarkBackground(headerContainer);
+            
+            if (findViewById(R.id.articleheader) instanceof ViewGroup)
+                setDarkBackground((ViewGroup) findViewById(R.id.articleheader));
         }
         
         // Load html from Controller and insert content

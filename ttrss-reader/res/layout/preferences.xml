@@ -103,13 +103,6 @@
 
                 <CheckBoxPreference
                     android:defaultValue="false"
-                    android:disableDependentsState="true"
-                    android:key="ConnectionUseOldConnector"
-                    android:summary="@string/ConnectionUseOldConnectorSummary"
-                    android:title="@string/ConnectionUseOldConnectorTitle" />
-
-                <CheckBoxPreference
-                    android:defaultValue="false"
                     android:dependency="ConnectionSSLPreference"
                     android:disableDependentsState="false"
                     android:key="ConnectionUseKeystorePreference"
@@ -124,6 +117,13 @@
                     android:key="ConnectionKeystorePasswordPreference"
                     android:summary="@string/ConnectionKeystorePasswordPreferenceSummary"
                     android:title="@string/ConnectionKeystorePasswordPreferenceTitle" />
+
+                <CheckBoxPreference
+                    android:defaultValue="false"
+                    android:disableDependentsState="true"
+                    android:key="ConnectionUseOldConnector"
+                    android:summary="@string/ConnectionUseOldConnectorSummary"
+                    android:title="@string/ConnectionUseOldConnectorTitle" />
             </PreferenceCategory>
         </PreferenceScreen>
     </PreferenceCategory>
@@ -136,11 +136,11 @@
 
             <PreferenceCategory android:title="@string/UsagePreferenceCategoryTitle" >
 
-                <CheckBoxPreference
-                    android:defaultValue="false"
-                    android:key="UsageAutomaticMarkReadPreference"
-                    android:summary="@string/UsageAutomaticMarkReadPreferenceSummary"
-                    android:title="@string/UsageAutomaticMarkReadPreferenceTitle" />
+                <!-- <CheckBoxPreference -->
+                <!-- android:defaultValue="false" -->
+                <!-- android:key="UsageAutomaticMarkReadPreference" -->
+                <!-- android:summary="@string/UsageAutomaticMarkReadPreferenceSummary" -->
+                <!-- android:title="@string/UsageAutomaticMarkReadPreferenceTitle" /> -->
 
                 <CheckBoxPreference
                     android:defaultValue="false"
@@ -154,25 +154,23 @@
                     android:summary="@string/UsageUseVolumeKeysSummary"
                     android:title="@string/UsageUseVolumeKeysTitle" />
 
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:disableDependentsState="true"
-                    android:key="DisplayUseSwipePreference"
-                    android:summary="@string/DisplayUseSwipeSummary"
-                    android:title="@string/DisplayUseSwipeTitle" />
+                <!-- <CheckBoxPreference -->
+                <!-- android:defaultValue="true" -->
+                <!-- android:key="DisplayUseSwipePreference" -->
+                <!-- android:summary="@string/DisplayUseSwipeSummary" -->
+                <!-- android:title="@string/DisplayUseSwipeTitle" /> -->
 
                 <CheckBoxPreference
                     android:defaultValue="false"
-                    android:dependency="DisplayUseSwipePreference"
                     android:key="DisplayUseButtonsPreference"
                     android:summary="@string/DisplayUseButtonsSummary"
                     android:title="@string/DisplayUseButtonsTitle" />
 
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="UsageVibrateOnLastArticlePreference"
-                    android:summary="@string/UsageVibrateOnLastArticleSummary"
-                    android:title="@string/UsageVibrateOnLastArticleTitle" />
+                <!-- <CheckBoxPreference -->
+                <!-- android:defaultValue="true" -->
+                <!-- android:key="UsageVibrateOnLastArticlePreference" -->
+                <!-- android:summary="@string/UsageVibrateOnLastArticleSummary" -->
+                <!-- android:title="@string/UsageVibrateOnLastArticleTitle" /> -->
 
                 <CheckBoxPreference
                     android:defaultValue="true"
@@ -240,7 +238,7 @@
 
                 <org.ttrssreader.preferences.EditIntegerPreference
                     android:name="@string/HeadlineSizeTitle"
-                    android:defaultValue="10"
+                    android:defaultValue="16"
                     android:inputType="number"
                     android:key="HeadlineSizePreference"
                     android:maxLength="2"
@@ -282,11 +280,11 @@
                     android:summary="@string/CacheImagesOnlyWifiSummary"
                     android:title="@string/CacheImagesOnlyWifiTitle" />
 
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="CacheImagesUnreadArticlesPreference"
-                    android:summary="@string/CacheImagesUnreadArticlesSummary"
-                    android:title="@string/CacheImagesUnreadArticlesTitle" />
+                <!-- <CheckBoxPreference -->
+                <!-- android:defaultValue="true" -->
+                <!-- android:key="CacheImagesUnreadArticlesPreference" -->
+                <!-- android:summary="@string/CacheImagesUnreadArticlesSummary" -->
+                <!-- android:title="@string/CacheImagesUnreadArticlesTitle" /> -->
 
                 <Preference
                     android:key="SaveAttachmentPreference"
@@ -300,23 +298,24 @@
                     android:summary="- PATH - set by activity -"
                     android:title="@string/CacheFolderTitle" />
 
-                <org.ttrssreader.preferences.EditIntegerPreference
-                    android:name="@string/DisplayArticleLimitTitle"
-                    android:defaultValue="2000"
-                    android:inputType="number"
-                    android:key="DisplayArticleLimitPreference"
-                    android:maxLength="5"
-                    android:summary="@string/DisplayArticleLimitSummary"
-                    android:title="@string/DisplayArticleLimitTitle" />
+                <!-- <org.ttrssreader.preferences.EditIntegerPreference -->
+                <!-- android:name="@string/DisplayArticleLimitTitle" -->
+                <!-- android:defaultValue="2000" -->
+                <!-- android:inputType="number" -->
+                <!-- android:key="DisplayArticleLimitPreference" -->
+                <!-- android:maxLength="5" -->
+                <!-- android:summary="@string/DisplayArticleLimitSummary" -->
+                <!-- android:title="@string/DisplayArticleLimitTitle" /> -->
 
-                <org.ttrssreader.preferences.EditIntegerPreference
-                    android:name="@string/StoreImageLimitTitle"
-                    android:defaultValue="50"
-                    android:inputType="number"
-                    android:key="StoreImageLimitPreference"
-                    android:maxLength="5"
-                    android:summary="@string/StoreImageLimitSummary"
-                    android:title="@string/StoreImageLimitTitle" />
+
+                <!-- <org.ttrssreader.preferences.EditIntegerPreference -->
+                <!-- android:name="@string/StoreImageLimitTitle" -->
+                <!-- android:defaultValue="50" -->
+                <!-- android:inputType="number" -->
+                <!-- android:key="StoreImageLimitPreference" -->
+                <!-- android:maxLength="5" -->
+                <!-- android:summary="@string/StoreImageLimitSummary" -->
+                <!-- android:title="@string/StoreImageLimitTitle" /> -->
 
                 <CheckBoxPreference
                     android:defaultValue="false"

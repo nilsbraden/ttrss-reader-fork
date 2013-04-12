@@ -99,7 +99,7 @@ public class Constants {
     public static final String TIME_STRING = "DisplayTimeFormatPreference";
     public static final String DARK_BACKGROUND = "DisplayDarkBackgroundPreference";
     // Display Default Values
-    public static final int HEADLINE_SIZE_DEFAULT = 10;
+    public static final int HEADLINE_SIZE_DEFAULT = 16;
     public static final int TEXT_ZOOM_DEFAULT = 100;
     public static final boolean MARK_READ_IN_MENU_DEFAULT = true;
     public static final boolean SHOW_VIRTUAL_DEFAULT = true;

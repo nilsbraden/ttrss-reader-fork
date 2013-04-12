@@ -406,7 +406,7 @@ public class Utils {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         
         try {
-            if (Build.VERSION.SDK_INT >= 11) {
+            if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
                 Notification.Builder builder = new Notification.Builder(context);
                 builder.setSmallIcon(icon);
                 builder.setTicker(ticker);
@@ -415,7 +415,7 @@ public class Utils {
                 builder.setContentText(text);
                 builder.setContentIntent(pendingIntent);
                 builder.setAutoCancel(autoCancel);
-                if (Build.VERSION.SDK_INT < 16)
+                if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
                     notification = builder.getNotification();
                 else
                     notification = builder.build();

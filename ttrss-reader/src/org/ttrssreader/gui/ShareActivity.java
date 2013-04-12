@@ -100,7 +100,7 @@ public class ShareActivity extends MenuActivity {
         }
         
         private void finishCompat() {
-            if (Build.VERSION.SDK_INT >= 16)
+            if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
                 finishAffinity();
             else
                 finish();
