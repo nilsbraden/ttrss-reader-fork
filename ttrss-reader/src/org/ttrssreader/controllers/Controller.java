@@ -240,7 +240,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         if (ttrssConnector != null)
             return;
         
-        if (Build.VERSION.SDK_INT <= 8 || useOldConnector()) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO || useOldConnector()) {
             ttrssConnector = new ApacheJSONConnector(context);
         } else {
             ttrssConnector = new JavaJSONConnector(context);
@@ -258,9 +258,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
         int SWIPE_MAX_OFF_PATH = 250;
         int SWIPE_THRESHOLD_VELOCITY = 200;
         
-        relSwipeMinDistance = (int)(SWIPE_MIN_DISTANCE * dm.densityDpi / 160.0f);
-        relSwipeMaxOffPath = (int)(SWIPE_MAX_OFF_PATH * dm.densityDpi / 160.0f);
-        relSwipteThresholdVelocity = (int)(SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
+        relSwipeMinDistance = (int) (SWIPE_MIN_DISTANCE * dm.densityDpi / 160.0f);
+        relSwipeMaxOffPath = (int) (SWIPE_MAX_OFF_PATH * dm.densityDpi / 160.0f);
+        relSwipteThresholdVelocity = (int) (SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
     }
     
     // ******* CONNECTION-Options ****************************
@@ -406,9 +406,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
     // ******* USAGE-Options ****************************
     
     public boolean automaticMarkRead() {
-        if (automaticMarkRead == null)
-            automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
-        return automaticMarkRead;
+        return true;
+        // if (automaticMarkRead == null)
+        // automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
+        // return automaticMarkRead;
     }
     
     public void setAutomaticMarkRead(boolean automaticMarkRead) {
@@ -446,10 +447,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public boolean vibrateOnLastArticle() {
-        if (vibrateOnLastArticle == null)
-            vibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
-                    Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
-        return vibrateOnLastArticle;
+        return true;
+        // if (vibrateOnLastArticle == null)
+        // vibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
+        // Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
+        // return vibrateOnLastArticle;
     }
     
     public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
@@ -531,9 +533,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public boolean useSwipe() {
-        if (useSwipe == null)
-            useSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
-        return useSwipe;
+        return true;
+        // if (useSwipe == null)
+        // useSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
+        // return useSwipe;
     }
     
     public void setUseSwipe(boolean useSwipe) {
@@ -564,9 +567,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public int getArticleLimit() {
-        if (articleLimit == null)
-            articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
-        return articleLimit;
+        return 8000;
+        // if (articleLimit == null)
+        // articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
+        // return articleLimit;
     }
     
     public void setArticleLimit(int articleLimit) {
@@ -679,9 +683,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
     // SYSTEM
     
     public int getImageCacheSize() {
-        if (imageCacheSize == null)
-            imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
-        return imageCacheSize;
+        return 100;
+        // if (imageCacheSize == null)
+        // imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
+        // return imageCacheSize;
     }
     
     public void setImageCacheSize(int imageCacheSize) {
@@ -690,9 +695,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public boolean isImageCacheUnread() {
-        if (imageCacheUnread == null)
-            imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
-        return imageCacheUnread;
+        return true;
+        // if (imageCacheUnread == null)
+        // imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
+        // return imageCacheUnread;
     }
     
     public void setImageCacheUnread(boolean imageCacheUnread) {

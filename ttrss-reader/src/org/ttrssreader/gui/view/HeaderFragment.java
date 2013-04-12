@@ -25,12 +25,15 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.DateUtils;
-import android.content.Context;
+import android.app.Activity;
 import android.graphics.Color;
-import android.util.AttributeSet;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -40,7 +43,7 @@ import android.widget.TextView;
  * @author https://code.google.com/p/k9mail/
  * 
  */
-public class ArticleHeaderView extends LinearLayout {
+public class HeaderFragment extends Fragment {
     
     private TextView feedView;
     private TextView dateView;
@@ -50,26 +53,38 @@ public class ArticleHeaderView extends LinearLayout {
     private CheckBox starred;
     
     private Article article;
-    private Context context;
     
-    public ArticleHeaderView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        setBackgroundColor(Color.WHITE);
-        this.context = context;
+    private Activity activity;
+    
+    public static HeaderFragment getInstance() {
+        HeaderFragment fragment = new HeaderFragment();
+        return fragment;
+    }
+    
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.articleheader, container, false);
+    }
+    
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        activity = getActivity();
     }
     
     private void initializeLayout() {
-        feedView = (TextView) findViewById(R.id.feed);
+        getView().setBackgroundColor(Color.WHITE);
+        
+        feedView = (TextView) getActivity().findViewById(R.id.feed);
         feedView.setTextColor(Color.BLACK);
-        titleView = (TextView) findViewById(R.id.title);
+        titleView = (TextView) getActivity().findViewById(R.id.title);
         titleView.setTextColor(Color.BLACK);
         titleView.setTextSize(Controller.getInstance().headlineSize()); // Read Text-Size for the title from prefs.
-        dateView = (TextView) findViewById(R.id.date);
+        dateView = (TextView) getActivity().findViewById(R.id.date);
         dateView.setTextColor(Color.BLACK);
-        timeView = (TextView) findViewById(R.id.time);
+        timeView = (TextView) getActivity().findViewById(R.id.time);
         timeView.setTextColor(Color.BLACK);
-        starred = (CheckBox) findViewById(R.id.starred);
         
+        starred = (CheckBox) getActivity().findViewById(R.id.starred);
         starred.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,8 +106,8 @@ public class ArticleHeaderView extends LinearLayout {
         titleView.setText(article.title);
         
         Date updated = article.updated;
-        dateView.setText(DateUtils.getDate(context, updated));
-        timeView.setText(DateUtils.getTime(context, updated));
+        dateView.setText(DateUtils.getDate(activity, updated));
+        timeView.setText(DateUtils.getTime(activity, updated));
         starred.setChecked(article.isStarred);
     }
     
