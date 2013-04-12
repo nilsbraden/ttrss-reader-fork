@@ -83,10 +83,10 @@ public class FeedAdapter extends MainAdapter {
         if (layout == null)
             return new View(context);
         
-        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+        ImageView icon = (ImageView) layout.findViewById(R.id.feed_icon);
         icon.setImageResource(getImage(f.unread > 0));
         
-        TextView title = (TextView) layout.findViewById(R.id.title);
+        TextView title = (TextView) layout.findViewById(R.id.feed_title);
         title.setText(formatTitle(f.title, f.unread));
         if (f.unread > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);

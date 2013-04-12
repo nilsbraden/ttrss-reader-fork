@@ -16,7 +16,6 @@
 
 package org.ttrssreader.gui.view;
 
-import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -25,7 +24,6 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.DateUtils;
-import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -49,16 +47,38 @@ public class HeaderFragment extends Fragment {
     private TextView dateView;
     private TextView timeView;
     private TextView titleView;
-    
     private CheckBox starred;
-    
     private Article article;
-    
-    private Activity activity;
     
     public static HeaderFragment getInstance() {
         HeaderFragment fragment = new HeaderFragment();
+        fragment.setRetainInstance(true);
         return fragment;
+    }
+    
+    public void initializeView() {
+        feedView = (TextView) getView().findViewById(R.id.head_feed);
+        titleView = (TextView) getView().findViewById(R.id.head_title);
+        dateView = (TextView) getView().findViewById(R.id.head_date);
+        timeView = (TextView) getView().findViewById(R.id.head_time);
+        starred = (CheckBox) getView().findViewById(R.id.head_starred);
+        
+        getView().setBackgroundColor(Color.WHITE);
+        
+        feedView.setTextColor(Color.BLACK);
+        titleView.setTextColor(Color.BLACK);
+        titleView.setTextSize(Controller.getInstance().headlineSize()); // Read Text-Size for the title from prefs.
+        dateView.setTextColor(Color.BLACK);
+        timeView.setTextColor(Color.BLACK);
+        
+        starred.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (article != null) {
+                    new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
+                }
+            }
+        });
     }
     
     @Override
@@ -66,36 +86,8 @@ public class HeaderFragment extends Fragment {
         return inflater.inflate(R.layout.articleheader, container, false);
     }
     
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        activity = getActivity();
-    }
-    
-    private void initializeLayout() {
-        getView().setBackgroundColor(Color.WHITE);
-        
-        feedView = (TextView) getActivity().findViewById(R.id.feed);
-        feedView.setTextColor(Color.BLACK);
-        titleView = (TextView) getActivity().findViewById(R.id.title);
-        titleView.setTextColor(Color.BLACK);
-        titleView.setTextSize(Controller.getInstance().headlineSize()); // Read Text-Size for the title from prefs.
-        dateView = (TextView) getActivity().findViewById(R.id.date);
-        dateView.setTextColor(Color.BLACK);
-        timeView = (TextView) getActivity().findViewById(R.id.time);
-        timeView.setTextColor(Color.BLACK);
-        
-        starred = (CheckBox) getActivity().findViewById(R.id.starred);
-        starred.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
-            }
-        });
-    }
-    
     public void populate(Article article) {
         this.article = article;
-        initializeLayout();
         if (article == null)
             return;
         
@@ -104,10 +96,8 @@ public class HeaderFragment extends Fragment {
             feedView.setText(feed.title);
         
         titleView.setText(article.title);
-        
-        Date updated = article.updated;
-        dateView.setText(DateUtils.getDate(activity, updated));
-        timeView.setText(DateUtils.getTime(activity, updated));
+        dateView.setText(DateUtils.getDate(getActivity(), article.updated));
+        timeView.setText(DateUtils.getTime(getActivity(), article.updated));
         starred.setChecked(article.isStarred);
     }
     

@@ -121,10 +121,10 @@ public class CategoryAdapter extends MainAdapter {
         if (layout == null)
             return new View(context);
         
-        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+        ImageView icon = (ImageView) layout.findViewById(R.id.cat_icon);
         icon.setImageResource(getImage(c.id, c.unread > 0));
         
-        TextView title = (TextView) layout.findViewById(R.id.title);
+        TextView title = (TextView) layout.findViewById(R.id.cat_title);
         title.setText(formatTitle(c.title, c.unread));
         if (c.unread > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);

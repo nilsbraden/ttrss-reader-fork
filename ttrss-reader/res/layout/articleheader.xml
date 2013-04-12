@@ -26,14 +26,13 @@
     android:paddingTop="6dip" >
 
     <LinearLayout
-        android:id="@+id/article"
         android:layout_width="0dip"
         android:layout_height="wrap_content"
         android:layout_weight="5"
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/feed"
+            android:id="@+id/head_feed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -42,7 +41,7 @@
             android:textIsSelectable="false" />
 
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/head_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
@@ -54,7 +53,6 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/topright_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="2dip"
@@ -63,7 +61,7 @@
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/date"
+            android:id="@+id/head_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="none"
@@ -73,7 +71,7 @@
             android:textSize="12sp" />
 
         <TextView
-            android:id="@+id/time"
+            android:id="@+id/head_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="none"
@@ -84,13 +82,12 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/icons_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="right" >
 
         <CheckBox
-            android:id="@+id/starred"
+            android:id="@+id/head_starred"
             style="?android:attr/starStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

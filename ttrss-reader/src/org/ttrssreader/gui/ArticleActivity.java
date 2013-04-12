@@ -142,6 +142,14 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
+            headerFragment = HeaderFragment.getInstance();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.article_header, headerFragment, FRAGMENT);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            transaction.commit();
+        }
+        
         initData();
         initUI();
         // initUIHeader();
@@ -151,17 +159,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private void initUI() {
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
         // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
-        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
-            headerFragment = HeaderFragment.getInstance();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.articleheader, headerFragment, FRAGMENT);
-            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            transaction.commit();
-        }
-        
-        webContainer = (FrameLayout) findViewById(R.id.webView_Container);
-        buttonPrev = (Button) findViewById(R.id.buttonPrev);
-        buttonNext = (Button) findViewById(R.id.buttonNext);
+        webContainer = (FrameLayout) findViewById(R.id.article_webView_Container);
+        buttonPrev = (Button) findViewById(R.id.article_buttonPrev);
+        buttonNext = (Button) findViewById(R.id.article_buttonNext);
         
         buttonPrev.setOnClickListener(onButtonPressedListener);
         buttonNext.setOnClickListener(onButtonPressedListener);
@@ -209,15 +209,16 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // mainContainer.populate(webView);
         if (Controller.getInstance().useButtons())
-            findViewById(R.id.buttonView).setVisibility(View.VISIBLE);
+            findViewById(R.id.article_button_view).setVisibility(View.VISIBLE);
     }
     
     public void initUIHeader() {
         // Populate information-bar on top of the webView if enabled
         if (Controller.getInstance().displayArticleHeader()) {
+            headerFragment.initializeView();
             headerFragment.populate(article);
         } else {
-            findViewById(R.id.articleheader).setVisibility(View.GONE);
+            findViewById(R.id.article_header).setVisibility(View.GONE);
         }
     }
     
@@ -255,17 +256,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webContainer.removeView(webView);
         
         super.onConfigurationChanged(newConfig);
-        
         setContentView(R.layout.articleitem);
-        // TODO: Was tun mit dem Fragment???
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.articleheader, headerFragment, FRAGMENT);
-        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        transaction.commit();
         
         initUI();
-        initUIHeader();
         doRefresh();
+        initUIHeader();
     }
     
     @Override
@@ -382,8 +377,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             sb.insert(0, "<font color='white'>");
             sb.append("</font>");
             
-            if (findViewById(R.id.articleheader) instanceof ViewGroup)
-                setDarkBackground((ViewGroup) findViewById(R.id.articleheader));
+            if (findViewById(R.id.article_header) instanceof ViewGroup)
+                setDarkBackground((ViewGroup) findViewById(R.id.article_header));
         }
         
         // Load html from Controller and insert content
