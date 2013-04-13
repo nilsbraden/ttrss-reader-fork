@@ -187,7 +187,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
         // Start a login-request separately because this takes some time
         new Thread(new Runnable() {
             public void run() {
-                ttrssConnector.sessionAlive();
+                if (!workOffline())
+                    ttrssConnector.sessionAlive();
             }
         }).start();
         

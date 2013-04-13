@@ -26,7 +26,10 @@
         android:id="@+id/article_header"
         android:layout_width="match_parent"
         android:layout_height="75dip"
-        android:layout_weight="1.0" />
+        android:layout_weight="1.0" >
+
+        <include layout="@layout/articleheader" />
+    </FrameLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
