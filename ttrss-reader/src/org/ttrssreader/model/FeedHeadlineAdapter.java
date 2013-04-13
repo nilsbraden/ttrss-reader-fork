@@ -123,7 +123,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         
         TextView updateDate = (TextView) layout.findViewById(R.id.fh_updateDate);
         String date = DateUtils.getDateTime(context, a.updated);
-        updateDate.setText(date);
+        updateDate.setText("(" + date + ")");
         
         TextView dataSource = (TextView) layout.findViewById(R.id.fh_dataSource);
         // Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category

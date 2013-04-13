@@ -27,15 +27,16 @@ import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
-import org.ttrssreader.gui.view.HeaderFragment;
 import org.ttrssreader.imageCache.ImageCacher;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -49,7 +50,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -70,6 +70,7 @@ import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -88,7 +89,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
     private static final int CONTEXT_MENU_SHARE_URL = 1000;
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
-    private static final String FRAGMENT = "headerFragment";
     
     // Extras
     private int articleId = -1;
@@ -96,8 +96,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private int categoryId = -1000;
     private boolean selectArticlesForCategory = false;
     private int lastMove = ARTICLE_MOVE_DEFAULT;
-    
-    private HeaderFragment headerFragment;
     
     private Article article = null;
     private String content;
@@ -110,6 +108,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private Button buttonNext;
     private Button buttonPrev;
     private GestureDetector gestureDetector;
+    
+    private TextView header_feed;
+    private TextView header_date;
+    private TextView header_time;
+    private TextView header_title;
+    private CheckBox header_starred;
     
     private String baseUrl = null;
     
@@ -142,27 +146,38 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
         
-        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
-            headerFragment = HeaderFragment.getInstance();
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.article_header, headerFragment, FRAGMENT);
-            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            transaction.commit();
-        }
-        
         initData();
         initUI();
-        // initUIHeader();
     }
     
     @SuppressWarnings("deprecation")
     private void initUI() {
+        
+        findViewById(R.id.article_header).setBackgroundColor(Color.WHITE);
+        header_feed = (TextView) findViewById(R.id.head_feed);
+        header_feed.setTextColor(Color.BLACK);
+        header_title = (TextView) findViewById(R.id.head_title);
+        header_title.setTextColor(Color.BLACK);
+        header_title.setTextSize(Controller.getInstance().headlineSize());
+        header_date = (TextView) findViewById(R.id.head_date);
+        header_date.setTextColor(Color.BLACK);
+        header_time = (TextView) findViewById(R.id.head_time);
+        header_time.setTextColor(Color.BLACK);
+        header_starred = (CheckBox) findViewById(R.id.head_starred);
+        header_starred.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (article != null) {
+                    new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
+                }
+            }
+        });
+        
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
         // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
         webContainer = (FrameLayout) findViewById(R.id.article_webView_Container);
         buttonPrev = (Button) findViewById(R.id.article_buttonPrev);
         buttonNext = (Button) findViewById(R.id.article_buttonNext);
-        
         buttonPrev.setOnClickListener(onButtonPressedListener);
         buttonNext.setOnClickListener(onButtonPressedListener);
         
@@ -208,15 +223,19 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         webContainer.addView(webView);
         
         // mainContainer.populate(webView);
-        if (Controller.getInstance().useButtons())
-            findViewById(R.id.article_button_view).setVisibility(View.VISIBLE);
+        findViewById(R.id.article_button_view).setVisibility(
+                Controller.getInstance().useButtons() ? View.VISIBLE : View.GONE);
     }
     
     public void initUIHeader() {
         // Populate information-bar on top of the webView if enabled
         if (Controller.getInstance().displayArticleHeader()) {
-            headerFragment.initializeView();
-            headerFragment.populate(article);
+            Feed feed = DBHelper.getInstance().getFeed(article.feedId);
+            header_feed.setText(feed != null ? feed.title : "");
+            header_title.setText(article.title);
+            header_date.setText(DateUtils.getDate(this, article.updated));
+            header_time.setText(DateUtils.getTime(this, article.updated));
+            header_starred.setChecked(article.isStarred);
         } else {
             findViewById(R.id.article_header).setVisibility(View.GONE);
         }
