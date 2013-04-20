@@ -105,7 +105,7 @@ public class ApacheJSONConnector extends JSONConnector {
             return null;
         } catch (Exception e) {
             hasLastError = true;
-            lastError = "Error creating HTTP-Connection in doRequest(): " + formatException(e);
+            lastError = "Error creating HTTP-Connection in (old) doRequest(): " + formatException(e);
             e.printStackTrace();
             return null;
         }
@@ -115,34 +115,33 @@ public class ApacheJSONConnector extends JSONConnector {
             response = client.execute(post); // Execute the request
         } catch (ClientProtocolException e) {
             hasLastError = true;
-            lastError = "ClientProtocolException in doRequest(): " + formatException(e);
+            lastError = "ClientProtocolException in (old) doRequest(): " + formatException(e);
             return null;
         } catch (SSLPeerUnverifiedException e) {
             // Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
             // Not doing anything here since this error should happen only when no certificate is received from the
             // server.
-            Log.w(Utils.TAG, "SSLPeerUnverifiedException in doRequest(): " + formatException(e));
+            Log.w(Utils.TAG, "SSLPeerUnverifiedException in (old) doRequest(): " + formatException(e));
             return null;
         } catch (SSLException e) {
             if ("No peer certificate".equals(e.getMessage())) {
                 // Handle this by ignoring it, this occurrs very often when the connection is instable.
-                Log.w(Utils.TAG, "SSLException in doRequest(): " + formatException(e));
+                Log.w(Utils.TAG, "SSLException in (old) doRequest(): " + formatException(e));
             } else {
                 hasLastError = true;
-                lastError = "SSLException in doRequest(): " + formatException(e);
+                lastError = "SSLException in (old) doRequest(): " + formatException(e);
             }
             return null;
         } catch (InterruptedIOException e) {
-            // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
-            Log.w(Utils.TAG, "InterruptedIOException in doRequest(): " + formatException(e));
+            Log.w(Utils.TAG, "InterruptedIOException in (old) doRequest(): " + formatException(e));
             return null;
         } catch (SocketException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
-            Log.w(Utils.TAG, "SocketException in doRequest(): " + formatException(e));
+            Log.w(Utils.TAG, "SocketException in (old) doRequest(): " + formatException(e));
             return null;
         } catch (Exception e) {
             hasLastError = true;
-            lastError = "Exception in doRequest(): " + formatException(e);
+            lastError = "Exception in (old) doRequest(): " + formatException(e);
             return null;
         }
         
@@ -170,7 +169,7 @@ public class ApacheJSONConnector extends JSONConnector {
             
             if (instream == null) {
                 hasLastError = true;
-                lastError = "Couldn't get InputStream in Method doRequest(String url) [instream was null]";
+                lastError = "Couldn't get InputStream in (old) Method doRequest(String url) [instream was null]";
                 return null;
             }
         } catch (Exception e) {
@@ -180,7 +179,7 @@ public class ApacheJSONConnector extends JSONConnector {
                 } catch (IOException e1) {
                 }
             hasLastError = true;
-            lastError = "Exception in doRequest(): " + formatException(e);
+            lastError = "Exception in (old) doRequest(): " + formatException(e);
             return null;
         }
         
