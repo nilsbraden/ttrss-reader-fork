@@ -24,15 +24,12 @@
             &lt;style type="text/css">
             * {TEXT_ALIGN_MARKER}
             A:link {LINK_MARKER}
-            A:visited {LINK_VISITED_MARKER}
             body { padding : 0px; margin : 0px; }
             &lt;/style>&lt;/head>
             &lt;body>MARKER&lt;/body>&lt;/html></string>
     <string name="ALIGN_JUSTIFY">text-align:justify;</string>
     <string name="ALIGN_LEFT">text-align:left;</string>
     <string name="COLOR_LINK_LIGHT">color:blue;</string>
-    <string name="COLOR_LINK_DARK">color:red;</string>
-    <string name="COLOR_LINK_LIGHT_VISITED">color:blue;</string>
-    <string name="COLOR_LINK_DARK_VISITED">color:#D00000;</string>
+    <string name="COLOR_LINK_DARK">color:#6C8FFF;</string>
 
 </resources>

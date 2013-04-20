@@ -216,6 +216,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             }
+            
+            if (Controller.getInstance().darkBackground()) {
+                webView.setBackgroundColor(Color.BLACK);
+                if (findViewById(R.id.container) instanceof ViewGroup)
+                    setDarkBackground((ViewGroup) findViewById(R.id.container));
+            }
         }
         
         registerForContextMenu(webView);
@@ -390,14 +396,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         injectArticleLink(getApplicationContext(), sb);
         injectCachedImages(sb.toString(), articleId);
         
-        // TODO: Whole "switch background-color-thing" needs to be refactored.
         if (Controller.getInstance().darkBackground()) {
-            webView.setBackgroundColor(Color.BLACK);
             sb.insert(0, "<font color='white'>");
             sb.append("</font>");
-            
-            if (findViewById(R.id.article_header) instanceof ViewGroup)
-                setDarkBackground((ViewGroup) findViewById(R.id.article_header));
         }
         
         // Load html from Controller and insert content
@@ -435,7 +436,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         for (int i = 0; i < v.getChildCount(); i++) { // View at index 0 seems to be this view itself.
             View vChild = v.getChildAt(i);
             
-            if (vChild == null || vChild.getId() == v.getId())
+            if (vChild == null)
                 continue;
             
             if (vChild instanceof TextView)

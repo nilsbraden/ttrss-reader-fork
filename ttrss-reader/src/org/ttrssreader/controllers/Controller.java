@@ -215,17 +215,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
                     
                     // Replace color-markers with matching colors for the requested background
                     String replaceLink = "";
-                    String replaceLinkVisited = "";
                     if (darkBackground()) {
                         replaceLink = context.getResources().getString(R.string.COLOR_LINK_DARK);
-                        replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_DARK_VISITED);
                         htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
-                        htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
                     } else {
                         replaceLink = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
-                        replaceLinkVisited = context.getResources().getString(R.string.COLOR_LINK_LIGHT_VISITED);
                         htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
-                        htmlHeader = htmlHeader.replace(MARKER_LINK_VISITED, replaceLinkVisited);
                     }
                 }
                 
