@@ -109,7 +109,6 @@ public class JavaJSONConnector extends JSONConnector {
                 lastError = "SSLException in doRequest(): " + formatException(e);
             }
         } catch (InterruptedIOException e) {
-            // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
             Log.w(Utils.TAG, "InterruptedIOException in doRequest(): " + formatException(e));
         } catch (SocketException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
