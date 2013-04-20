@@ -46,17 +46,8 @@ public class ArticleView extends RelativeLayout {
         centralView = (RelativeLayout) findViewById(R.id.article_central_view);
         buttonView = (LinearLayout) findViewById(R.id.article_button_view);
         
-        // First check for swipe-option, this overrides the buttons-option
-        if (Controller.getInstance().useSwipe()) {
-            
-            // remove Buttons
+        if (!Controller.getInstance().useButtons())
             removeView(buttonView);
-        } else if (Controller.getInstance().useButtons()) {
-            //
-        } else {
-            // Both disabled, remove everything
-            removeView(buttonView);
-        }
         
         // Recalculate values
         recomputeViewAttributes(centralView);

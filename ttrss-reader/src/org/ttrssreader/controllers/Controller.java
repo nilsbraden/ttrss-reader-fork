@@ -55,7 +55,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public final static String JSON_END_URL = "api/index.php";
     private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
     private static final String MARKER_LINK = "LINK_MARKER";
-    private static final String MARKER_LINK_VISITED = "LINK_VISITED_MARKER";
     
     private Context context;
     private JSONConnector ttrssConnector;
@@ -83,10 +82,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String keystorePassword = null;
     private Boolean useOfALazyServer = null;
     
-    private Boolean automaticMarkRead = null;
     private Boolean openUrlEmptyArticle = null;
     private Boolean useVolumeKeys = null;
-    private Boolean vibrateOnLastArticle = null;
     private Boolean loadImages = null;
     private Boolean workOffline = null;
     
@@ -94,10 +91,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Integer textZoom = null;
     private Boolean markReadInMenu = null;
     private Boolean showVirtual = null;
-    private Boolean useSwipe = null;
     private Boolean useButtons = null;
     private Boolean onlyUnread = null;
-    private Integer articleLimit = null;
     private Boolean displayArticleHeader = null;
     private Boolean invertSortArticlelist = null;
     private Boolean invertSortFeedscats = null;
@@ -108,8 +103,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String timeString = null;
     private Boolean darkBackground = null;
     
-    private Integer imageCacheSize = null;
-    private Boolean imageCacheUnread = null;
     private String saveAttachment = null;
     private String cacheFolder = null;
     private Boolean vacuumDbScheduled = null;
@@ -401,18 +394,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // ******* USAGE-Options ****************************
     
-    public boolean automaticMarkRead() {
-        return true;
-        // if (automaticMarkRead == null)
-        // automaticMarkRead = prefs.getBoolean(Constants.AUTOMATIC_MARK_READ, Constants.AUTOMATIC_MARK_READ_DEFAULT);
-        // return automaticMarkRead;
-    }
-    
-    public void setAutomaticMarkRead(boolean automaticMarkRead) {
-        put(Constants.AUTOMATIC_MARK_READ, automaticMarkRead);
-        this.automaticMarkRead = automaticMarkRead;
-    }
-    
     public boolean lazyServer() {
         if (useOfALazyServer == null)
             useOfALazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
@@ -440,19 +421,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setUseVolumeKeys(boolean useVolumeKeys) {
         put(Constants.USE_VOLUME_KEYS, useVolumeKeys);
         this.useVolumeKeys = useVolumeKeys;
-    }
-    
-    public boolean vibrateOnLastArticle() {
-        return true;
-        // if (vibrateOnLastArticle == null)
-        // vibrateOnLastArticle = prefs.getBoolean(Constants.VIBRATE_ON_LAST_ARTICLE,
-        // Constants.VIBRATE_ON_LAST_ARTICLE_DEFAULT);
-        // return vibrateOnLastArticle;
-    }
-    
-    public void setVibrateOnLastArticle(boolean vibrateOnLastArticle) {
-        put(Constants.VIBRATE_ON_LAST_ARTICLE, vibrateOnLastArticle);
-        this.vibrateOnLastArticle = vibrateOnLastArticle;
     }
     
     public boolean loadImages() {
@@ -528,18 +496,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.showVirtual = displayVirtuals;
     }
     
-    public boolean useSwipe() {
-        return true;
-        // if (useSwipe == null)
-        // useSwipe = prefs.getBoolean(Constants.USE_SWIPE, Constants.USE_SWIPE_DEFAULT);
-        // return useSwipe;
-    }
-    
-    public void setUseSwipe(boolean useSwipe) {
-        put(Constants.USE_SWIPE, useSwipe);
-        this.useSwipe = useSwipe;
-    }
-    
     public boolean useButtons() {
         if (useButtons == null)
             useButtons = prefs.getBoolean(Constants.USE_BUTTONS, Constants.USE_BUTTONS_DEFAULT);
@@ -560,18 +516,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
         put(Constants.ONLY_UNREAD, displayOnlyUnread);
         this.onlyUnread = displayOnlyUnread;
-    }
-    
-    public int getArticleLimit() {
-        return 8000;
-        // if (articleLimit == null)
-        // articleLimit = prefs.getInt(Constants.ARTICLE_LIMIT, Constants.ARTICLE_LIMIT_DEFAULT);
-        // return articleLimit;
-    }
-    
-    public void setArticleLimit(int articleLimit) {
-        put(Constants.ARTICLE_LIMIT, articleLimit);
-        this.articleLimit = articleLimit;
     }
     
     public boolean displayArticleHeader() {
@@ -677,30 +621,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     // SYSTEM
-    
-    public int getImageCacheSize() {
-        return 100;
-        // if (imageCacheSize == null)
-        // imageCacheSize = prefs.getInt(Constants.IMAGE_CACHE_SIZE, Constants.IMAGE_CACHE_SIZE_DEFAULT);
-        // return imageCacheSize;
-    }
-    
-    public void setImageCacheSize(int imageCacheSize) {
-        put(Constants.IMAGE_CACHE_SIZE, imageCacheSize);
-        this.imageCacheSize = imageCacheSize;
-    }
-    
-    public boolean isImageCacheUnread() {
-        return true;
-        // if (imageCacheUnread == null)
-        // imageCacheUnread = prefs.getBoolean(Constants.IMAGE_CACHE_UNREAD, Constants.IMAGE_CACHE_UNREAD_DEFAULT);
-        // return imageCacheUnread;
-    }
-    
-    public void setImageCacheUnread(boolean imageCacheUnread) {
-        put(Constants.IMAGE_CACHE_UNREAD, imageCacheUnread);
-        this.imageCacheUnread = imageCacheUnread;
-    }
     
     public String saveAttachmentPath() {
         if (saveAttachment == null)

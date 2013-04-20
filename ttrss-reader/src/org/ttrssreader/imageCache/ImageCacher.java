@@ -53,7 +53,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private Context context;
     
     private boolean onlyArticles;
-    private boolean onlyUnreadImages;
     private long cacheSizeMax;
     private ImageCache imageCache;
     private long folderSize;
@@ -135,8 +134,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 break;
             
             // Initialize other preferences
-            this.cacheSizeMax = Controller.getInstance().getImageCacheSize() * 1048576;
-            this.onlyUnreadImages = Controller.getInstance().isImageCacheUnread();
+            this.cacheSizeMax = Utils.IMAGE_CACHE_SIZE * Utils.MB;
             this.imageCache = Controller.getInstance().getImageCache(context);
             if (imageCache == null)
                 break;
@@ -201,7 +199,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         
         Cursor cursor = null;
         try {
-            cursor = DBHelper.getInstance().queryArticlesForImageCache(onlyUnreadImages);
+            cursor = DBHelper.getInstance().queryArticlesForImageCache();
             cursor.moveToFirst();
             
             while (!cursor.isAfterLast()) {

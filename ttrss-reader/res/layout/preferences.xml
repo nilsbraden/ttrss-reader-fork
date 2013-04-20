@@ -136,12 +136,6 @@
 
             <PreferenceCategory android:title="@string/UsagePreferenceCategoryTitle" >
 
-                <!-- <CheckBoxPreference -->
-                <!-- android:defaultValue="false" -->
-                <!-- android:key="UsageAutomaticMarkReadPreference" -->
-                <!-- android:summary="@string/UsageAutomaticMarkReadPreferenceSummary" -->
-                <!-- android:title="@string/UsageAutomaticMarkReadPreferenceTitle" /> -->
-
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="UsageOpenUrlEmptyArticlePreference"
@@ -154,23 +148,11 @@
                     android:summary="@string/UsageUseVolumeKeysSummary"
                     android:title="@string/UsageUseVolumeKeysTitle" />
 
-                <!-- <CheckBoxPreference -->
-                <!-- android:defaultValue="true" -->
-                <!-- android:key="DisplayUseSwipePreference" -->
-                <!-- android:summary="@string/DisplayUseSwipeSummary" -->
-                <!-- android:title="@string/DisplayUseSwipeTitle" /> -->
-
                 <CheckBoxPreference
                     android:defaultValue="false"
                     android:key="DisplayUseButtonsPreference"
                     android:summary="@string/DisplayUseButtonsSummary"
                     android:title="@string/DisplayUseButtonsTitle" />
-
-                <!-- <CheckBoxPreference -->
-                <!-- android:defaultValue="true" -->
-                <!-- android:key="UsageVibrateOnLastArticlePreference" -->
-                <!-- android:summary="@string/UsageVibrateOnLastArticleSummary" -->
-                <!-- android:title="@string/UsageVibrateOnLastArticleTitle" /> -->
 
                 <CheckBoxPreference
                     android:defaultValue="true"
@@ -280,12 +262,6 @@
                     android:summary="@string/CacheImagesOnlyWifiSummary"
                     android:title="@string/CacheImagesOnlyWifiTitle" />
 
-                <!-- <CheckBoxPreference -->
-                <!-- android:defaultValue="true" -->
-                <!-- android:key="CacheImagesUnreadArticlesPreference" -->
-                <!-- android:summary="@string/CacheImagesUnreadArticlesSummary" -->
-                <!-- android:title="@string/CacheImagesUnreadArticlesTitle" /> -->
-
                 <Preference
                     android:key="SaveAttachmentPreference"
                     android:persistent="false"
@@ -297,25 +273,6 @@
                     android:persistent="false"
                     android:summary="- PATH - set by activity -"
                     android:title="@string/CacheFolderTitle" />
-
-                <!-- <org.ttrssreader.preferences.EditIntegerPreference -->
-                <!-- android:name="@string/DisplayArticleLimitTitle" -->
-                <!-- android:defaultValue="2000" -->
-                <!-- android:inputType="number" -->
-                <!-- android:key="DisplayArticleLimitPreference" -->
-                <!-- android:maxLength="5" -->
-                <!-- android:summary="@string/DisplayArticleLimitSummary" -->
-                <!-- android:title="@string/DisplayArticleLimitTitle" /> -->
-
-
-                <!-- <org.ttrssreader.preferences.EditIntegerPreference -->
-                <!-- android:name="@string/StoreImageLimitTitle" -->
-                <!-- android:defaultValue="50" -->
-                <!-- android:inputType="number" -->
-                <!-- android:key="StoreImageLimitPreference" -->
-                <!-- android:maxLength="5" -->
-                <!-- android:summary="@string/StoreImageLimitSummary" -->
-                <!-- android:title="@string/StoreImageLimitTitle" /> -->
 
                 <CheckBoxPreference
                     android:defaultValue="false"
