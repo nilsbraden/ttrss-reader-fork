@@ -264,7 +264,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // Mark as read if necessary, do it here because in doRefresh() it will be done several times even if you set
         // it to "unread" in the meantime.
-        if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead()) {
+        if (article != null && article.isUnread) {
             article.isUnread = false;
             markedRead = true;
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
@@ -341,7 +341,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     protected void onStop() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
-            if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
+            if (article != null && article.isUnread)
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         super.onStop();
@@ -351,7 +351,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     protected void onDestroy() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
-            if (article != null && article.isUnread && Controller.getInstance().automaticMarkRead())
+            if (article != null && article.isUnread)
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         super.onDestroy();
@@ -606,8 +606,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
         
         if (id < 0) {
-            if (Controller.getInstance().vibrateOnLastArticle())
-                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
         
@@ -625,8 +624,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         int index = parentAdapter.getIds().indexOf(articleId) + lastMove;
         if (index < 0 || index >= parentAdapter.getIds().size()) {
-            if (Controller.getInstance().vibrateOnLastArticle())
-                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return true;
         }
         return false;
@@ -634,23 +632,15 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
-        boolean temp = false;
-        
-        if (Controller.getInstance().useSwipe())
-            temp = gestureDetector.onTouchEvent(e);
-        
+        boolean temp = gestureDetector.onTouchEvent(e);
         if (!temp)
             return super.dispatchTouchEvent(e);
-        
         return temp;
     }
     
     class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (!Controller.getInstance().useSwipe())
-                return false;
-            
             // Refresh metrics-data in Controller
             Controller.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay());

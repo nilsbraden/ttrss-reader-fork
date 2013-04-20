@@ -509,17 +509,12 @@ public class DBHelper {
         return cursor;
     }
     
-    public Cursor queryArticlesForImageCache(boolean onlyUnreadImages) {
+    public Cursor queryArticlesForImageCache() {
         if (!isDBAvailable())
             return null;
         
-        // Add where-clause for only unread articles
-        String where = "cachedImages=0";
-        if (onlyUnreadImages)
-            where += " AND isUnread>0";
-        
-        Cursor cursor = db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" }, where, null, null,
-                null, null);
+        Cursor cursor = db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" },
+                "cachedImages=0 AND isUnread>0", null, null, null, null);
         return cursor;
     }
     
@@ -1042,9 +1037,9 @@ public class DBHelper {
      */
     public void purgeArticlesNumber() {
         if (isDBAvailable()) {
-            int number = Controller.getInstance().getArticleLimit();
             String idList = "SELECT id FROM " + TABLE_ARTICLES
-                    + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET " + number;
+                    + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
+                    + Utils.ARTICLE_LIMIT;
             
             db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
             purgeLabels();

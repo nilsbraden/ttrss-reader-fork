@@ -209,8 +209,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
         if (id <= 0) {
-            if (Controller.getInstance().vibrateOnLastArticle())
-                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
         
@@ -239,9 +238,6 @@ public class FeedHeadlineActivity extends MenuActivity {
     class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (!Controller.getInstance().useSwipe())
-                return false;
-            
             // Refresh metrics-data in Controller
             Controller.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay());
