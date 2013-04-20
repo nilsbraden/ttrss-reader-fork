@@ -19,18 +19,19 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:baselineAligned="false"
         android:gravity="fill_horizontal"
         android:orientation="horizontal"
         android:paddingLeft="6dip"
         android:paddingRight="6dip"
-        android:paddingTop="6dip" >
+        android:paddingTop="2dip" >
 
         <LinearLayout
             android:layout_width="0dip"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="5"
+            android:gravity="center_vertical"
             android:orientation="vertical" >
 
             <TextView
@@ -56,10 +57,10 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
-            android:gravity="right"
+            android:gravity="right|center_vertical"
             android:orientation="vertical" >
 
             <TextView
@@ -85,8 +86,8 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="right" >
+            android:layout_height="match_parent"
+            android:gravity="right|center_vertical" >
 
             <CheckBox
                 android:id="@+id/head_starred"
