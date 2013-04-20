@@ -26,12 +26,9 @@ public class FileDateComparator implements Comparator<File> {
     
     @Override
     public int compare(File f1, File f2) {
-        if (f1.equals(f2))
-            return 0;
-        
-        Long size1 = Long.valueOf(f1.lastModified());
-        Long size2 = Long.valueOf(f2.lastModified());
-        return size1.compareTo(size2);
+        // As suggested here:
+        // http://stackoverflow.com/questions/203030/best-way-to-list-files-in-java-sorted-by-date-modified
+        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
     }
     
 }
