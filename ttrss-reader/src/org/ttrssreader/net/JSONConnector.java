@@ -59,7 +59,9 @@ public abstract class JSONConnector {
     protected static final String PARAM_USER = "user";
     protected static final String PARAM_PW = "password";
     protected static final String PARAM_CAT_ID = "cat_id";
+    protected static final String PARAM_CATEGORY_ID = "category_id";
     protected static final String PARAM_FEED_ID = "feed_id";
+    protected static final String PARAM_FEED_URL = "feed_url";
     protected static final String PARAM_ARTICLE_ID = "article_id";
     protected static final String PARAM_ARTICLE_IDS = "article_ids";
     protected static final String PARAM_LIMIT = "limit";
@@ -93,6 +95,8 @@ public abstract class JSONConnector {
     protected static final String VALUE_GET_LABELS = "getLabels";
     protected static final String VALUE_SET_LABELS = "setArticleLabel";
     protected static final String VALUE_SHARE_TO_PUBLISHED = "shareToPublished";
+    protected static final String VALUE_FEED_SUBSCRIBE = "subscribeToFeed";
+    protected static final String VALUE_FEED_UNSUBSCRIBE = "unsubscribeFeed";
     
     protected static final String VALUE_LABEL_ID = "label_id";
     protected static final String VALUE_ASSIGN = "assign";
@@ -287,12 +291,26 @@ public abstract class JSONConnector {
             if (name.equals("content")) {
                 JsonToken t = reader.peek();
                 
-                if (t.equals(JsonToken.BEGIN_OBJECT)) {
-                    // Handle error
+                if (t.equals(JsonToken.BEGIN_ARRAY)) {
+                    return reader;
+                } else if (t.equals(JsonToken.BEGIN_OBJECT)) {
+                    
                     JsonObject object = new JsonObject();
                     reader.beginObject();
+                    
+                    String nextName = reader.nextName();
+                    // We have a BEGIN_OBJECT here but its just the response to call "subscribeToFeed"
+                    if ("status".equals(nextName))
+                        return reader;
+                    
+                    // Handle error
                     while (reader.hasNext()) {
-                        object.addProperty(reader.nextName(), reader.nextString());
+                        if (nextName != null) {
+                            object.addProperty(nextName, reader.nextString());
+                            nextName = null;
+                        } else {
+                            object.addProperty(reader.nextName(), reader.nextString());
+                        }
                     }
                     reader.endObject();
                     
@@ -317,8 +335,6 @@ public abstract class JSONConnector {
                         hasLastError = true;
                         lastError = ERROR_TEXT + message;
                     }
-                } else if (t.equals(JsonToken.BEGIN_ARRAY)) {
-                    return reader;
                 }
                 
             } else {
@@ -1036,6 +1052,13 @@ public abstract class JSONConnector {
         return doRequestNoAnswer(params);
     }
     
+    public boolean feedUnsubscribe(int feed_id) {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_FEED_UNSUBSCRIBE);
+        params.put(PARAM_FEED_ID, feed_id + "");
+        return doRequestNoAnswer(params);
+    }
+    
     /**
      * Returns the value for the given preference-name as a string.
      * 
@@ -1252,6 +1275,60 @@ public abstract class JSONConnector {
                 ret = 0; // Assume Api-Level 0
             } else {
                 ret = Integer.parseInt(response);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null)
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+        }
+        
+        return ret;
+    }
+    
+    public class SubscriptionResponse {
+        public int code = -1;
+        public String message = null;
+    }
+    
+    public SubscriptionResponse feedSubscribe(String feed_url, int category_id) {
+        SubscriptionResponse ret = new SubscriptionResponse();
+        if (!sessionAlive())
+            return ret;
+        
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PARAM_OP, VALUE_FEED_SUBSCRIBE);
+        params.put(PARAM_FEED_URL, feed_url);
+        params.put(PARAM_CATEGORY_ID, category_id + "");
+        
+        String code = "";
+        String message = null;
+        JsonReader reader = null;
+        try {
+            reader = prepareReader(params);
+            if (reader == null)
+                return ret;
+            
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                
+                if (name.equals("code")) {
+                    code = reader.nextString();
+                } else if (name.equals("message")) {
+                    message = reader.nextString();
+                } else {
+                    reader.skipValue();
+                }
+            }
+            
+            if (!code.contains(UNKNOWN_METHOD)) {
+                ret.code = Integer.parseInt(code);
+                ret.message = message;
             }
             
         } catch (Exception e) {
