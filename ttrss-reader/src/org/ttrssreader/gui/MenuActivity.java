@@ -60,6 +60,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     public static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
     public static final int MARK_ABOVE_READ = MARK_GROUP + 5;
     public static final int SHARE = MARK_GROUP + 6;
+    public static final int UNSUBSCRIBE = MARK_GROUP + 7;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -244,6 +245,9 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             case R.id.Category_Menu_ImageCache:
                 doCache(false);
                 return true;
+            case R.id.Menu_FeedSubscribe:
+                startActivity(new Intent(this, SubscribeActivity.class));
+                return true;
             default:
                 return false;
         }
@@ -275,7 +279,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
         }
         intent.setClass(this.getApplicationContext(), ForegroundService.class);
-
+        
         setSupportProgressBarIndeterminateVisibility(true);
         setSupportProgressBarVisibility(true);
         this.startService(intent);

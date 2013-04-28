@@ -26,6 +26,7 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -407,6 +408,18 @@ public class Data {
     public boolean shareToPublished(String title, String url, String content) {
         if (Utils.isConnected(cm))
             return Controller.getInstance().getConnector().shareToPublished(title, url, content);
+        return false;
+    }
+    
+    public JSONConnector.SubscriptionResponse feedSubscribe(String feed_url, int category_id) {
+        if (Utils.isConnected(cm))
+            return Controller.getInstance().getConnector().feedSubscribe(feed_url, category_id);
+        return null;
+    }
+    
+    public boolean feedUnsubscribe(int feed_id) {
+        if (Utils.isConnected(cm))
+            return Controller.getInstance().getConnector().feedUnsubscribe(feed_id);
         return false;
     }
     

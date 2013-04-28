@@ -15,15 +15,20 @@
 
 package org.ttrssreader.gui.fragments;
 
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import com.actionbarsherlock.view.Menu;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.ContextMenu;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
@@ -31,7 +36,7 @@ import android.widget.ListView;
 public class FeedListFragment extends ListFragment implements IUpdateEndListener {
     
     private static final TYPE THIS_TYPE = TYPE.FEED;
-
+    
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
     
@@ -109,10 +114,19 @@ public class FeedListFragment extends ListFragment implements IUpdateEndListener
     }
     
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(MenuActivity.MARK_GROUP, MenuActivity.UNSUBSCRIBE, Menu.NONE, R.string.Subscribe_unsubscribe);
+    }
+    
+    @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (item.getItemId() == MenuActivity.MARK_READ) {
             new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
+            return true;
+        } else if (item.getItemId() == MenuActivity.UNSUBSCRIBE) {
+            new Updater(this, new UnsubscribeUpdater(adapter.getId(cmi.position))).exec();
             return true;
         }
         return false;

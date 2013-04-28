@@ -48,6 +48,11 @@
             android:icon="@drawable/ic_menu_stop"
             android:showAsAction="ifRoom|withText"
             android:title="@string/UsageOfflineTitle"/>
+        <item
+            android:id="@+id/Menu_FeedSubscribe"
+            android:icon="@drawable/ic_menu_compose"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/FeedSubscribeTitle"/>
     </group>
 
     <!-- Always show these entries in the menu. Show when using ShareToPublished. -->
