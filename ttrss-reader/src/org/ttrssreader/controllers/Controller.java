@@ -55,11 +55,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     private Context context;
     private JSONConnector ttrssConnector;
-    private ImageCache imageCache;
+    private ImageCache imageCache = null;
     
     private boolean isHeadless = false;
-    private String imageCacheLock = ""; // Use this to lock access to the cache as workaround for NPE on imageCache
-    private boolean imageCacheLocked = false;
+    private String imageCacheLock = "lock";
     
     private static Controller instance = null;
     private static Boolean initialized = false;
@@ -216,7 +215,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 
                 // This will be accessed when displaying an article or starting the imageCache. When caching it is done
                 // anyway so we can just do it in background and the ImageCache starts once it is done.
-                getImageCache(context);
+                getImageCache();
             }
         }).start();
         
@@ -359,17 +358,19 @@ public class Controller implements OnSharedPreferenceChangeListener {
         }
     }
     
-    public ImageCache getImageCache(Context context) {
-        if (!imageCacheLocked) {
+    public ImageCache getImageCache() {
+        return getImageCache(true);
+    }
+    
+    public ImageCache getImageCache(boolean wait) {
+        if (imageCache == null && wait) {
             synchronized (imageCacheLock) {
-                imageCacheLocked = true;
                 if (imageCache == null) {
-                    imageCache = new ImageCache(2000, cacheFolder());
-                    if (context == null || !imageCache.enableDiskCache()) {
+                    imageCache = new ImageCache(1000, cacheFolder());
+                    if (!imageCache.enableDiskCache()) {
                         imageCache = null;
                     }
                 }
-                imageCacheLocked = false;
             }
         }
         return imageCache;
