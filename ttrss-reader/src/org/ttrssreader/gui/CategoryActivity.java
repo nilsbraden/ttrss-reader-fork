@@ -26,7 +26,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.fragments.CategoryListFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
@@ -131,18 +131,12 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        UpdateController.getInstance().registerActivity(this);
         refreshAndUpdate();
     }
     
     @Override
-    protected void onPause() {
-        super.onPause();
-        UpdateController.getInstance().unregisterActivity(this);
-    }
-    
-    @Override
     protected void doRefresh() {
+        super.doRefresh();
         if (applicationName == null)
             applicationName = getResources().getString(R.string.ApplicationName);
         int unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
@@ -151,14 +145,6 @@ public class CategoryActivity extends MenuActivity {
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.category_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
-        
-        if (Controller.getInstance().getConnector().hasLastError())
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-        
-        if (categoryUpdater == null && !isCacherRunning()) {
-            setSupportProgressBarIndeterminateVisibility(false);
-            setSupportProgressBarVisibility(false);
-        }
     }
     
     @Override
@@ -173,9 +159,6 @@ public class CategoryActivity extends MenuActivity {
         }
         
         if ((!isCacherRunning() && !cacherStarted) || forceUpdate) {
-            setSupportProgressBarIndeterminateVisibility(true);
-            setSupportProgressBarVisibility(true);
-            
             categoryUpdater = new CategoryUpdater(forceUpdate);
             categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -200,11 +183,13 @@ public class CategoryActivity extends MenuActivity {
     public class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
         
         private int taskCount = 0;
-        private static final int DEFAULT_TASK_COUNT = 4;
+        private static final int DEFAULT_TASK_COUNT = 5;
         private boolean forceUpdate;
         
         public CategoryUpdater(boolean forceUpdate) {
             this.forceUpdate = forceUpdate;
+            ProgressBarManager.getInstance().addProgress(activity);
+            setSupportProgressBarVisibility(true);
         }
         
         @Override
@@ -250,8 +235,9 @@ public class CategoryActivity extends MenuActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setSupportProgressBarIndeterminateVisibility(false);
                 setSupportProgressBarVisibility(false);
+                if (!isCacherRunning())
+                    ProgressBarManager.getInstance().removeProgress(activity);
                 return;
             }
             setProgress((10000 / (taskCount + 1)) * values[0]);

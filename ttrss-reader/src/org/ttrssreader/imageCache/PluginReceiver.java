@@ -12,6 +12,7 @@
 
 package org.ttrssreader.imageCache;
 
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.imageCache.bundle.BundleScrubber;
 import org.ttrssreader.imageCache.bundle.PluginBundleManager;
 import org.ttrssreader.utils.Utils;
@@ -60,6 +61,8 @@ public final class PluginReceiver extends BroadcastReceiver {
             Log.e(Utils.TAG, "Received invalid Bundle for action " + intent.getAction());
             return;
         }
+        
+        Controller.getInstance().setHeadless(true);
         
         final boolean images = bundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_IMAGES);
         final boolean notification = bundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_NOTIFICATION);

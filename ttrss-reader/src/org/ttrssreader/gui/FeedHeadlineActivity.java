@@ -20,7 +20,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.model.FeedAdapter;
@@ -130,20 +130,12 @@ public class FeedHeadlineActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        
-        UpdateController.getInstance().registerActivity(this);
         refreshAndUpdate();
     }
     
     @Override
-    protected void onPause() {
-        super.onPause();
-        
-        UpdateController.getInstance().unregisterActivity(this);
-    }
-    
-    @Override
     protected void doRefresh() {
+        super.doRefresh();
         int unreadCount = 0;
         if (selectArticlesForCategory)
             unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
@@ -154,14 +146,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         flingDetected = false; // reset fling-status
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
-        
-        if (Controller.getInstance().getConnector().hasLastError())
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-        
-        if (headlineUpdater == null) {
-            setSupportProgressBarIndeterminateVisibility(false);
-            setSupportProgressBarVisibility(false);
-        }
     }
     
     @Override
@@ -176,9 +160,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
         
         if (!isCacherRunning()) {
-            setSupportProgressBarIndeterminateVisibility(true);
-            setSupportProgressBarVisibility(false);
-            
             headlineUpdater = new FeedHeadlineUpdater(forceUpdate);
             headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -303,6 +284,8 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         public FeedHeadlineUpdater(boolean forceUpdate) {
             this.forceUpdate = forceUpdate;
+            ProgressBarManager.getInstance().addProgress(activity);
+            setSupportProgressBarVisibility(true);
         }
         
         @Override
@@ -326,8 +309,9 @@ public class FeedHeadlineActivity extends MenuActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setSupportProgressBarIndeterminateVisibility(false);
                 setSupportProgressBarVisibility(false);
+                if (!isCacherRunning())
+                    ProgressBarManager.getInstance().removeProgress(activity);
                 return;
             }
             

@@ -134,7 +134,9 @@ public class ShareActivity extends MenuActivity {
     
     // @formatter:off // Not needed here:
     @Override public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) { }
-    @Override protected void doRefresh() { }
+    @Override protected void doRefresh() {
+        super.doRefresh();
+    }
     @Override protected void doUpdate(boolean forceUpdate) { }
     @Override protected void onDataChanged() { }
     //@formatter:on

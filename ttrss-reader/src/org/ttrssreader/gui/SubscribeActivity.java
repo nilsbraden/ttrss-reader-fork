@@ -136,7 +136,7 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
             // if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
             // finishAffinity();
             // else
-                finishActivity(0);
+            finishActivity(0);
         }
     }
     
@@ -151,7 +151,9 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
     
     // @formatter:off // Not needed here:
     @Override public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) { }
-    @Override protected void doRefresh() { }
+    @Override protected void doRefresh() {
+        super.doRefresh();
+    }
     @Override protected void doUpdate(boolean forceUpdate) { }
     @Override protected void onDataChanged() { }
     //@formatter:on

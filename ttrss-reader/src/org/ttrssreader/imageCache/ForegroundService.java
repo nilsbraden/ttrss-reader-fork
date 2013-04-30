@@ -17,7 +17,6 @@
 package org.ttrssreader.imageCache;
 
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
@@ -35,7 +34,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
     public static final String PARAM_SHOW_NOTIFICATION = "show_notification";
     
     private ImageCacher imageCacher;
-    private static ForegroundService instance = null;
+    private static volatile ForegroundService instance = null;
     private static ICacheEndListener parent;
     
     public static boolean isInstanceCreated() {
@@ -59,21 +58,16 @@ public class ForegroundService extends Service implements ICacheEndListener {
         super.onCreate();
     }
     
-    @Override
-    public void onDestroy() {
-        finishService();
-        super.onDestroy();
-    }
-    
     /**
      * Cleans up all running notifications, notifies waiting activities and clears the instance of the service.
      */
     public void finishService() {
         if (instance != null) {
             stopForeground(true);
-            Controller.getInstance().notifyActivities();
             instance = null;
         }
+        if (parent != null)
+            parent.onCacheEnd();
     }
     
     @Override
@@ -89,7 +83,6 @@ public class ForegroundService extends Service implements ICacheEndListener {
             finishService();
             this.stopSelf();
         }
-        Log.i(Utils.TAG, "Caching finished.");
     }
     
     @Override
@@ -107,24 +100,17 @@ public class ForegroundService extends Service implements ICacheEndListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
             
-            Controller.getInstance().setHeadless(true);
-            
             CharSequence title = "";
-            
             if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
-                
                 title = getText(R.string.Cache_service_imagecache);
                 imageCacher = new ImageCacher(this, this, false);
                 imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 Log.i(Utils.TAG, "Caching images started");
-                
             } else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
-                
                 title = getText(R.string.Cache_service_articlecache);
                 imageCacher = new ImageCacher(this, this, true);
                 imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 Log.i(Utils.TAG, "Caching (articles only) started");
-                
             }
             
             WakeLocker.acquire(this);
@@ -137,8 +123,8 @@ public class ForegroundService extends Service implements ICacheEndListener {
                         .buildNotification(this, icon, ticker, title, text, true, new Intent());
                 startForeground(R.string.Cache_service_started, notification);
             }
+            
         }
-        
         return START_STICKY;
     }
     

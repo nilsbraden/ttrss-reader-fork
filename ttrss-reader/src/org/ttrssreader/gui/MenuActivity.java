@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
@@ -52,6 +53,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     protected Updater updater;
     protected boolean isTablet = false;
+    protected SherlockFragmentActivity activity;
     
     public static final int MARK_GROUP = 42;
     public static final int MARK_READ = MARK_GROUP + 1;
@@ -65,11 +67,9 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
+        activity = this;
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
-        
-        if (isCacherRunning())
-            setSupportProgressBarIndeterminateVisibility(true);
         
         Controller.getInstance().setHeadless(false);
         
@@ -89,7 +89,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
      * @see http://stackoverflow.com/a/13098824
      */
     private void getOverflowMenu() {
-        
         try {
             ViewConfiguration config = ViewConfiguration.get(this);
             Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
@@ -98,48 +97,25 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                 menuKeyField.setBoolean(config, false);
             }
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
     
     @Override
     protected void onResume() {
         super.onResume();
-        // Register to be notified when counters were updated
         UpdateController.getInstance().registerActivity(this);
-        
-        // Register for callback of the ImageCache
-        Controller.getInstance().registerActivity(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
-        this.setVisible(true);
-    }
-    
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        this.setVisible(true);
-    }
-    
-    @Override
-    protected void onPause() {
-        super.onPause();
-        this.setVisible(false);
-        Controller.getInstance().unregisterActivity(this);
     }
     
     @Override
     protected void onStop() {
         super.onStop();
-        this.setVisible(false);
+        UpdateController.getInstance().unregisterActivity(this);
     }
     
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.setVisible(false);
-        
-        UpdateController.getInstance().unregisterActivity(this);
-        
         if (updater != null) {
             updater.cancel(true);
             updater = null;
@@ -280,24 +256,21 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         }
         intent.setClass(this.getApplicationContext(), ForegroundService.class);
         
-        setSupportProgressBarIndeterminateVisibility(true);
-        setSupportProgressBarVisibility(true);
         this.startService(intent);
+        
+        ProgressBarManager.getInstance().addProgress(this);
+        setSupportProgressBarVisibility(true);
     }
     
     @Override
     public void onCacheEnd() {
-        setSupportProgressBarIndeterminateVisibility(false);
         setSupportProgressBarVisibility(false);
+        ProgressBarManager.getInstance().removeProgress(this);
     }
     
     @Override
     public void onCacheProgress(int taskCount, int progress) {
-        if (taskCount == progress) {
-            setSupportProgressBarVisibility(false);
-        } else {
-            setProgress((10000 / (taskCount + 1)) * progress);
-        }
+        setProgress((10000 / (taskCount + 1)) * progress);
     }
     
     protected boolean isCacherRunning() {
@@ -311,11 +284,11 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             updater.cancel(true);
             updater = null;
         }
-        setSupportProgressBarIndeterminateVisibility(false);
+        setSupportProgressBarVisibility(false);
+        ProgressBarManager.getInstance().resetProgress(this);
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
-        // finish();
     }
     
     protected void showErrorDialog(String message) {
@@ -334,7 +307,11 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         doRefresh();
     }
     
-    protected abstract void doRefresh();
+    protected void doRefresh() {
+        ProgressBarManager.getInstance().setIndeterminateVisibility(this);
+        if (Controller.getInstance().getConnector().hasLastError())
+            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+    }
     
     protected abstract void doUpdate(boolean forceUpdate);
     

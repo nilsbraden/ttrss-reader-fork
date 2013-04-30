@@ -21,6 +21,7 @@ import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
@@ -325,20 +326,15 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     @Override
     protected void onResume() {
         super.onResume();
+        ProgressBarManager.getInstance().setIndeterminateVisibility(this);
         UpdateController.getInstance().registerActivity(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
     }
     
     @Override
-    protected void onPause() {
-        // First call super.onXXX, then do own clean-up. It actually makes a difference but I got no idea why.
-        super.onPause();
-        UpdateController.getInstance().unregisterActivity(this);
-    }
-    
-    @Override
     protected void onStop() {
+        UpdateController.getInstance().unregisterActivity(this);
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
             if (article != null && article.isUnread)
@@ -360,7 +356,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     private void doRefresh() {
-        setProgressBarIndeterminateVisibility(true);
+        ProgressBarManager.getInstance().addProgress(this);
         
         if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
             webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
@@ -370,14 +366,14 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // No need to reload everything
         if (webviewInitialized) {
-            setProgressBarIndeterminateVisibility(false);
+            ProgressBarManager.getInstance().removeProgress(this);
             return;
         }
         
         // Check for errors
         if (Controller.getInstance().getConnector().hasLastError()) {
             openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-            setProgressBarIndeterminateVisibility(false);
+            ProgressBarManager.getInstance().removeProgress(this);
             return;
         }
         
@@ -420,7 +416,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // Everything did load, we dont have to do this again.
         webviewInitialized = true;
-        setProgressBarIndeterminateVisibility(false);
+        ProgressBarManager.getInstance().removeProgress(this);
     }
     
     /**
