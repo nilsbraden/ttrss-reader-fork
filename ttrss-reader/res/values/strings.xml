@@ -219,6 +219,7 @@
     <string name="Share.content">Content</string>
     <string name="Share.ok_button">Send</string>
     <string name="Subscribe.url">URL</string>
+    <string name="Subscribe.Paste">Paste URL</string>
     <string name="Subscribe.Category_Label">Category:</string>
     <string name="Subscribe.ok_button">OK</string>
     <string name="Subscribe.unsubscribe">Unsubscribe Feed</string>

@@ -28,6 +28,7 @@ import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
@@ -179,6 +180,8 @@ public class FeedHeadlineActivity extends MenuActivity {
                     new Updater(this, new ReadStateUpdater(feedId, 42)).exec();
                 }
                 return true;
+            case R.id.Menu_FeedUnsubscribe:
+                new Updater(this, new UnsubscribeUpdater(feedId)).exec();
             default:
                 return false;
         }

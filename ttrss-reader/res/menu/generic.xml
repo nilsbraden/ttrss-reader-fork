@@ -53,6 +53,11 @@
             android:icon="@drawable/ic_menu_compose"
             android:showAsAction="ifRoom|withText"
             android:title="@string/FeedSubscribeTitle"/>
+        <item
+            android:id="@+id/Menu_FeedUnsubscribe"
+            android:icon="@drawable/ic_menu_clear_playlist"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/FeedUnsubscribeTitle"/>
     </group>
 
     <!-- Always show these entries in the menu. Show when using ShareToPublished. -->
