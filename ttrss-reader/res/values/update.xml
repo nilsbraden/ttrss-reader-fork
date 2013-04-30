@@ -18,6 +18,14 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.47
+			\n * Fixed Activity-Indicators
+			\n * Implemented "Subscribe to Feed" and \"Unsubscribe\" (only Server > 1.7.6)
+			\n * Added Paste-Button for URLs in Subscribe-View
+			\n * Dark background now without white border
+			\n * Link-color for dark background set to light blue
+			\n * Articleheader layout and borders fixed
+			\n * Removed unnecessary preferences</item>
         <item>Version 1.46
 			\n * Fixed bugs in new connection method
 			\n * Rewrote code for swipe, should work better now on all screen sizes

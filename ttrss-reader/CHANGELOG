@@ -1,6 +1,15 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.47 ==
+  * Fixed Activity-Indicators
+  * Implemented "Subscribe to Feed" and "Unsubscribe" (only Server > 1.7.6)
+  * Added Paste-Button for URLs in Subscribe-View
+  * Dark background now without white border
+  * Link-color for dark background set to light blue
+  * Articleheader layout and borders fixed
+  * Removed unnecessary preferences
+
 == Version 1.46 (3) ==
   * Fixed bugs in new connection method
   * Rewrote code for swipe, should work better now on all screen sizes
