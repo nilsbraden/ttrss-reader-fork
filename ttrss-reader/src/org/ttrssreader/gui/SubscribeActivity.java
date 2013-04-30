@@ -22,6 +22,7 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.net.JSONConnector.SubscriptionResponse;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.CustomCursorLoader;
+import org.ttrssreader.utils.Utils;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
@@ -30,6 +31,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -41,6 +43,7 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
     private static final String PARAM_CATEGORY = "category_id";
     
     private Button okButton;
+    private Button feedPasteButton;
     private EditText feedUrl;
     
     private SimpleCursorAdapter categoriesAdapter;
@@ -81,6 +84,29 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
                 new MyPublisherTask().execute();
             }
         });
+        
+        feedPasteButton = (Button) findViewById(R.id.subscribe_paste);
+        feedPasteButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = Utils.getTextFromClipboard(activity);
+                String text = feedUrl.getText() != null ? feedUrl.getText().toString() : "";
+                int start = feedUrl.getSelectionStart();
+                int end = feedUrl.getSelectionEnd();
+                // Insert text at current position, replace text if selected
+                text = text.substring(0, start) + url + text.substring(end, text.length());
+                feedUrl.setText(text);
+                feedUrl.setSelection(end);
+            }
+        });
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Enable/Disable Paste-Button:
+        feedPasteButton.setEnabled(Utils.clipboardHasText(this));
+        doRefresh();
     }
     
     @Override
@@ -96,17 +122,21 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
     public class MyPublisherTask extends AsyncTask<Void, Integer, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            if (Controller.getInstance().workOffline()) {
-                showErrorDialog("Working offline, can't request action from server.");
-                return null;
-            }
-            
-            String urlValue = feedUrl.getText().toString();
-            int category = (int) categorieSpinner.getSelectedItemId();
-            
             try {
+                if (Controller.getInstance().workOffline()) {
+                    showErrorDialog("Working offline, can't request action from server.");
+                    return null;
+                }
+                
+                String urlValue = feedUrl.getText().toString();
+                int category = (int) categorieSpinner.getSelectedItemId();
+                
+                if (!Utils.validateURL(urlValue)) {
+                    showErrorDialog("URL seems to be invalid.");
+                    return null;
+                }
+                
                 SubscriptionResponse ret = Data.getInstance().feedSubscribe(urlValue, category);
-                progress.dismiss();
                 String message = "\n\n(" + ret.message + ")";
                 
                 if (ret.code == 0 || ret.code == 1)
@@ -126,16 +156,15 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
                 else
                     showErrorDialog("Server returned code " + ret.code + " and the following message: " + message);
                 
-            } catch (RuntimeException r) {
-                showErrorDialog(r.getMessage());
+            } catch (Exception e) {
+                showErrorDialog(e.getMessage());
+            } finally {
+                progress.dismiss();
             }
             return null;
         }
         
         private void finishCompat() {
-            // if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
-            // finishAffinity();
-            // else
             finishActivity(0);
         }
     }

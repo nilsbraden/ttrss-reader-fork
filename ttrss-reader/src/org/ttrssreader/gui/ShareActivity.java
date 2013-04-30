@@ -75,6 +75,12 @@ public class ShareActivity extends MenuActivity {
     }
     
     @Override
+    protected void onResume() {
+        super.onResume();
+        doRefresh();
+    }
+    
+    @Override
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
         

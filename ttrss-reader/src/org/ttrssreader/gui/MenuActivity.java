@@ -177,6 +177,10 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             displayUnread.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
         }
         
+        if (!(this instanceof FeedHeadlineActivity)) {
+            menu.removeItem(R.id.Menu_FeedUnsubscribe);
+        }
+        
         return true;
     }
     

@@ -41,6 +41,9 @@ import org.ttrssreader.preferences.Constants;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -49,6 +52,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
@@ -66,7 +70,7 @@ public class Utils {
     public static final long MB = KB * KB;
     
     /**
-     * Maximum size of the ImageCache in MB 
+     * Maximum size of the ImageCache in MB
      */
     public static final int IMAGE_CACHE_SIZE = 80;
     
@@ -411,6 +415,7 @@ public class Utils {
         }
     };
     
+    @SuppressWarnings("deprecation")
     public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, boolean autoCancel, Intent intent) {
         Notification notification = null;
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -447,6 +452,7 @@ public class Utils {
         return notification;
     }
     
+    @SuppressWarnings("deprecation")
     private static Notification buildOldNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, PendingIntent pendingIntent) {
         Notification notification = new Notification(icon, ticker, System.currentTimeMillis());
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
@@ -486,6 +492,54 @@ public class Utils {
             in.close();
         }
         return trusted;
+    }
+    
+    private static final String REGEX_URL = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+    
+    public static boolean validateURL(String url) {
+        return url != null && url.matches(REGEX_URL);
+        
+    }
+    
+    @SuppressWarnings("deprecation")
+    public static String getTextFromClipboard(Context context) {
+        int api = Build.VERSION.SDK_INT;
+        
+        if (api < Build.VERSION_CODES.HONEYCOMB) {
+            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context
+                    .getSystemService(Context.CLIPBOARD_SERVICE);
+            
+            CharSequence chars = clipboard.getText();
+            if (chars != null && chars.length() > 0)
+                return chars.toString();
+            else
+                return null;
+        }
+        
+        // New Clipboard API
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard.hasPrimaryClip()) {
+            
+            if (!clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
+                return null;
+            
+            ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+            CharSequence chars = item.getText();
+            if (chars != null && chars.length() > 0) {
+                return chars.toString();
+            } else {
+                Uri pasteUri = item.getUri();
+                if (pasteUri != null) {
+                    return pasteUri.toString();
+                }
+            }
+            
+        }
+        return null;
+    }
+    
+    public static boolean clipboardHasText(Context context) {
+        return (getTextFromClipboard(context) != null);
     }
     
 }

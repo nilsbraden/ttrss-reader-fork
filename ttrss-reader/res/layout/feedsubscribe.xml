@@ -32,11 +32,19 @@
         <requestFocus />
     </EditText>
 
+    <Button
+        android:id="@+id/subscribe_paste"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/subscribe_url"
+        android:layout_below="@+id/subscribe_url"
+        android:text="@string/Subscribe.Paste" />
+
     <TextView
         android:id="@+id/subscribe_cat_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/subscribe_url"
+        android:layout_below="@+id/subscribe_paste"
         android:paddingTop="20dp"
         android:text="@string/Subscribe.Category_Label" />
 
