@@ -140,7 +140,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             // Initialize other preferences
             this.cacheSizeMax = Utils.IMAGE_CACHE_SIZE * Utils.MB;
-            this.imageCache = Controller.getInstance().getImageCache(context);
+            this.imageCache = Controller.getInstance().getImageCache();
             if (imageCache == null)
                 break;
             
@@ -316,7 +316,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
      *         the imagecache at the moment.
      */
     public static String getCachedImageUrl(String url) {
-        ImageCache cache = Controller.getInstance().getImageCache(null);
+        ImageCache cache = Controller.getInstance().getImageCache(false);
         if (cache != null && cache.containsKey(url)) {
             
             StringBuffer sb = new StringBuffer();
