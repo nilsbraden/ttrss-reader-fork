@@ -53,7 +53,7 @@ public abstract class MainAdapter extends BaseAdapter {
         this.categoryId = categoryId;
         this.selectArticlesForCategory = selectArticlesForCategory;
         this.handler = new MsgHandler(this);
-        makeQuery();
+        makeQuery(false);
     }
     
     public final void closeCursor(Cursor c) {
@@ -147,7 +147,7 @@ public abstract class MainAdapter extends BaseAdapter {
      * Creates a new query if necessary
      */
     public void makeQuery() {
-        makeQuery(false);
+//        makeQuery(false);
     }
     
     /**

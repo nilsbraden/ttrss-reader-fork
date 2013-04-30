@@ -36,13 +36,11 @@ import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
-import org.ttrssreader.utils.WeakReferenceHandler;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 
 public class ImageCacher extends AsyncTask<Void, Integer, Void> {
@@ -68,9 +66,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         this.context = context;
         this.onlyArticles = onlyArticles;
         
-        // Create service-handler
-        serviceHandler = new MsgHandler(parent);
-        
         // Create Handler in a new Thread so all tasks are started in this new thread instead of the main UI-Thread
         myHandler = new MyHandler();
         myHandler.start();
@@ -90,6 +85,16 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     };
     
     public static Thread myHandler;
+    
+    // This method is allowed to be called from any thread
+    public synchronized void requestStop() {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                Looper.myLooper().quit();
+            }
+        });
+    }
     
     @Override
     protected Void doInBackground(Void... params) {
@@ -147,29 +152,14 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
                     cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / Utils.SECOND));
             
-            break; // Always break in the end, "while" is just useful for the different places in which we leave the
-                   // loop
+            break;
         }
         
-        // Call parent from another Thread to avoid Exception.
-        // CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
-        serviceHandler.sendEmptyMessage(0);
+        // Cleanup
+        publishProgress(Integer.MAX_VALUE); // Call onCacheEnd()
+        requestStop();
         return null;
     }
-    
-    // Use handler with weak reference on parent object
-    private static class MsgHandler extends WeakReferenceHandler<ICacheEndListener> {
-        public MsgHandler(ICacheEndListener parent) {
-            super(parent);
-        }
-        
-        @Override
-        public void handleMessage(ICacheEndListener parent, Message msg) {
-            parent.onCacheEnd();
-        }
-    }
-    
-    private static MsgHandler serviceHandler;
     
     /**
      * Calls the parent method to update the progress-bar in the UI while articles are refreshed. This is not called
@@ -177,8 +167,13 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
      */
     @Override
     protected void onProgressUpdate(Integer... values) {
-        if (parent != null)
-            parent.onCacheProgress(taskCount, values[0]);
+        if (parent != null) {
+            if (values[0] == Integer.MAX_VALUE) {
+                parent.onCacheEnd();
+            } else {
+                parent.onCacheProgress(taskCount, values[0]);
+            }
+        }
     }
     
     protected void downloadFinished(int articleId, Long size, boolean ok) {

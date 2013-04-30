@@ -16,7 +16,6 @@
 package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
@@ -25,13 +24,13 @@ import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import com.actionbarsherlock.view.Menu;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
+import com.actionbarsherlock.view.Menu;
 
 public class FeedListFragment extends ListFragment implements IUpdateEndListener {
     
@@ -70,7 +69,7 @@ public class FeedListFragment extends ListFragment implements IUpdateEndListener
     public void onResume() {
         super.onResume();
         if (adapter != null)
-            adapter.makeQuery(true);
+            adapter.refreshQuery();
         getListView().setVisibility(View.VISIBLE);
         listView.setSelectionFromTop(scrollPosition, 0);
     }

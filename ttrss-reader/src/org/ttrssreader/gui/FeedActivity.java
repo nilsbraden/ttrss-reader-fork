@@ -20,7 +20,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.model.MainAdapter;
@@ -75,32 +75,17 @@ public class FeedActivity extends MenuActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        
-        UpdateController.getInstance().registerActivity(this);
         refreshAndUpdate();
     }
     
     @Override
-    protected void onPause() {
-        super.onPause();
-        UpdateController.getInstance().unregisterActivity(this);
-    }
-    
-    @Override
     protected void doRefresh() {
+        super.doRefresh();
         int unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
         setTitle(MainAdapter.formatTitle(title, unreadCount));
         
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
-        
-        if (Controller.getInstance().getConnector().hasLastError())
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-        
-        if (feedUpdater == null) {
-            setSupportProgressBarIndeterminateVisibility(false);
-            setSupportProgressBarVisibility(false);
-        }
     }
     
     @Override
@@ -115,9 +100,6 @@ public class FeedActivity extends MenuActivity {
         }
         
         if (!isCacherRunning()) {
-            setSupportProgressBarIndeterminateVisibility(true);
-            setSupportProgressBarVisibility(false);
-            
             feedUpdater = new FeedUpdater(forceUpdate);
             feedUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
@@ -152,6 +134,8 @@ public class FeedActivity extends MenuActivity {
         
         public FeedUpdater(boolean forceUpdate) {
             this.forceUpdate = forceUpdate;
+            ProgressBarManager.getInstance().addProgress(activity);
+            setSupportProgressBarVisibility(true);
         }
         
         @Override
@@ -177,8 +161,9 @@ public class FeedActivity extends MenuActivity {
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setSupportProgressBarIndeterminateVisibility(false);
                 setSupportProgressBarVisibility(false);
+                if (!isCacherRunning())
+                    ProgressBarManager.getInstance().removeProgress(activity);
                 return;
             }
             

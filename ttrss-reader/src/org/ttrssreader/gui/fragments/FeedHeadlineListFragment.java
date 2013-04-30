@@ -82,7 +82,7 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
     public void onResume() {
         super.onResume();
         if (adapter != null)
-            adapter.makeQuery(true);
+            adapter.refreshQuery();
         getListView().setVisibility(View.VISIBLE);
         listView.setSelectionFromTop(scrollPosition, 0);
     }

@@ -24,12 +24,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.ttrssreader.R;
-import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.net.ApacheJSONConnector;
 import org.ttrssreader.net.JSONConnector;
@@ -925,39 +922,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
             // fall through
         }
         return null;
-    }
-    
-    // ------------------------------
-    // Call all registered instances of MenuActivity when caching is done
-    private List<MenuActivity> callbacks = new ArrayList<MenuActivity>();
-    
-    public void notifyActivities() {
-        synchronized (callbacks) {
-            for (MenuActivity m : callbacks) {
-                m.onCacheEnd();
-            }
-            // Why??
-            // callbacks = new ArrayList<MenuActivity>();
-        }
-    }
-    
-    public void registerActivity(MenuActivity activity) {
-        synchronized (callbacks) {
-            callbacks.add(activity);
-            
-            // Reduce size to maximum of 3 activities
-            if (callbacks.size() > 2) {
-                List<MenuActivity> temp = new ArrayList<MenuActivity>();
-                temp.addAll(callbacks.subList(callbacks.size() - 2, callbacks.size()));
-                callbacks = temp;
-            }
-        }
-    }
-    
-    public void unregisterActivity(MenuActivity activity) {
-        synchronized (callbacks) {
-            callbacks.remove(activity);
-        }
     }
     
     /**

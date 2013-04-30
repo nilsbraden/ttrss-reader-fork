@@ -92,7 +92,7 @@ public class CategoryListFragment extends ListFragment implements IUpdateEndList
     public void onResume() {
         super.onResume();
         if (adapter != null)
-            adapter.makeQuery(true);
+            adapter.refreshQuery();
         getListView().setVisibility(View.VISIBLE);
         Controller.getInstance().lastOpenedFeeds.clear();
         Controller.getInstance().lastOpenedArticles.clear();

@@ -18,6 +18,7 @@ package org.ttrssreader.model;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.utils.AsyncTask;
 import android.app.Application;
 import android.content.Context;
@@ -39,6 +40,7 @@ public class MyApplication extends Application {
     
     protected void initSingletons() {
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        ProgressBarManager.getInstance();
         Controller.getInstance().checkAndInitializeController(this, wm.getDefaultDisplay());
         DBHelper.getInstance().checkAndInitializeDB(this);
         Data.getInstance().checkAndInitializeData(this);
