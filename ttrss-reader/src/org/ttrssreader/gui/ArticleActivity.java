@@ -356,6 +356,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     private void doRefresh() {
+        if (webView == null) // No idea why this happens, but it does
+            return;
+        
         ProgressBarManager.getInstance().addProgress(this);
         
         if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
