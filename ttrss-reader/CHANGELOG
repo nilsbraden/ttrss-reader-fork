@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.47 ==
+== Version 1.47 (1) ==
   * Fixed Activity-Indicators
   * Implemented "Subscribe to Feed" and "Unsubscribe" (only Server > 1.7.6)
   * Added Paste-Button for URLs in Subscribe-View
