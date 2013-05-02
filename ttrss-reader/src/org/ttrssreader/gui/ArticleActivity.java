@@ -361,10 +361,13 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         ProgressBarManager.getInstance().addProgress(this);
         
-        if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
-            webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
-        } else {
-            webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+        WebSettings webSettings = webView.getSettings();
+        if (webSettings != null) {
+            if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
+                webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+            } else {
+                webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+            }
         }
         
         // No need to reload everything
