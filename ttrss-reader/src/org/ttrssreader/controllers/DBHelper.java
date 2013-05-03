@@ -35,6 +35,7 @@ import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -1373,6 +1374,7 @@ public class DBHelper {
         return ret;
     }
     
+    @SuppressLint("UseSparseArrays")
     public Map<Integer, String> getMarked(String mark, int status) {
         Map<Integer, String> ret = new HashMap<Integer, String>();
         if (!isDBAvailable())

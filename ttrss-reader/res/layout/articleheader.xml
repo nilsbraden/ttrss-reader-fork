@@ -23,7 +23,6 @@
         android:baselineAligned="false"
         android:gravity="fill_horizontal"
         android:orientation="horizontal"
-        android:paddingBottom="2dip"
         android:paddingLeft="6dip"
         android:paddingRight="6dip"
         android:paddingTop="2dip" >

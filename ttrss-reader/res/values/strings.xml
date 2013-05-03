@@ -226,5 +226,11 @@
     <string name="Locale.Show_notification">Show notification</string>
     <string name="FeedSubscribeTitle">Subscribe to Feed</string>
     <string name="FeedUnsubscribeTitle">Unsubscribe Feed</string>
+    <string name="Dialog.vacuumText">The DB should sometimes be vacuumed to free space. Do you want to start this process now? It may take up to several minutes.</string>
+    <string name="Dialog.vacuumTitle">VACUUM</string>
+    <string name="Dialog.vacuumProgress">Cleaning the database…</string>
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
+    <string name="NotNow">Not now</string>
 
 </resources>

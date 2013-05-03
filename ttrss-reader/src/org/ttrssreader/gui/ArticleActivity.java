@@ -41,6 +41,7 @@ import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
+import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -79,6 +80,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
+@SuppressWarnings("deprecation")
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
         IDataChangedListener {
     
@@ -147,7 +149,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         initUI();
     }
     
-    @SuppressWarnings("deprecation")
+    @SuppressLint("InlinedApi")
     private void initUI() {
         
         findViewById(R.id.article_header).setBackgroundColor(Color.WHITE);
@@ -192,7 +194,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.setOnKeyListener(keyListener);
             gestureDetector = new GestureDetector(this, new MyGestureDetector());
             
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
             } else {
                 // Use rough estimation of new size for old api levels:
@@ -210,7 +212,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             }
             
             // prevent flicker in ics
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             }
             

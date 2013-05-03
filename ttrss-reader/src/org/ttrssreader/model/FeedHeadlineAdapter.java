@@ -28,6 +28,7 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,6 +68,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return ret;
     }
     
+    @SuppressWarnings("deprecation")
     private void getImage(ImageView icon, Article a) {
         if (a.isUnread) {
             icon.setBackgroundResource(R.drawable.articleunread48);
@@ -81,7 +83,11 @@ public class FeedHeadlineAdapter extends MainAdapter {
         } else if (a.isPublished) {
             icon.setImageResource(R.drawable.published_blue48);
         } else {
-            icon.setBackgroundDrawable(null);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                icon.setBackgroundDrawable(null);
+            } else {
+                icon.setBackground(null);
+            }
             if (a.isUnread) {
                 icon.setImageResource(R.drawable.articleunread48);
             } else {
