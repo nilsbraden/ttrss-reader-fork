@@ -123,8 +123,6 @@
     <string name="DisplayShowUnreadOnlySummary">Versteckt bereits gelesene Inhalte.</string>
     <string name="DisplayArticleLimitTitle">Speicherlimit für Artikel</string>
     <string name="DisplayArticleLimitSummary">Gibt an wieviele Artikel lokal gespeichert werden.</string>
-    <string name="DisplayArticleHeaderTitle">Artikel-Kopfzeile zeigen?</string>
-    <string name="DisplayArticleHeaderSummary">Aktiviert die Anzeige der Artikel-Kopfzeile (Titel, Feed, Datum etc.).</string>
     <string name="HeadlineSizeTitle">Schriftgröße des Titels</string>
     <string name="HeadlineSizeSummary">Stellt die Schriftgröße des Titels in der Artikel-Kopfzeile ein (Standard: 10sp).</string>
     <string name="DisplayArticleLinkTitle">Artikel-Link einfügen</string>
