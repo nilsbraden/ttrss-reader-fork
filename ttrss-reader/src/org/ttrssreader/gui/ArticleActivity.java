@@ -390,7 +390,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
         injectArticleLink(getApplicationContext(), sb);
-        injectCachedImages(sb.toString(), articleId);
         
         if (Controller.getInstance().darkBackground()) {
             sb.insert(0, "<font color='white'>");
@@ -399,6 +398,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // Load html from Controller and insert content
         content = Controller.htmlHeader.replace("MARKER", sb);
+        content = injectCachedImages(content, articleId);
         
         // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
         baseUrl = StringSupport.getBaseURL(article.url);
