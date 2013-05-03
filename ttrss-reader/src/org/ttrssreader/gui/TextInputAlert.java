@@ -26,7 +26,7 @@ public class TextInputAlert {
         alert.setTitle(context.getString(R.string.Commons_MarkPublishNote));
         
         final EditText input = new EditText(context);
-        input.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+        input.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         input.setMinLines(3);
         input.setMaxLines(10);
         alert.setView(input);

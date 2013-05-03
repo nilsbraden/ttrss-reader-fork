@@ -36,6 +36,7 @@ import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -187,6 +188,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         }
     }
     
+    @SuppressLint("UseSparseArrays")
     private void downloadImages() {
         long time = System.currentTimeMillis();
         // DownloadImageTask[] tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];

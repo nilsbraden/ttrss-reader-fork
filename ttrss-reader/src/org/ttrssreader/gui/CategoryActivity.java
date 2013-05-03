@@ -17,16 +17,16 @@
 
 package org.ttrssreader.gui;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.gui.dialogs.ChangelogDialog;
+import org.ttrssreader.gui.dialogs.CrashreportDialog;
+import org.ttrssreader.gui.dialogs.VacuumDialog;
+import org.ttrssreader.gui.dialogs.WelcomeDialog;
 import org.ttrssreader.gui.fragments.CategoryListFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
@@ -37,17 +37,13 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -55,10 +51,10 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class CategoryActivity extends MenuActivity {
     
-    private static final int DIALOG_WELCOME = 1;
-    private static final int DIALOG_UPDATE = 2;
-    private static final int DIALOG_CRASH = 3;
-    private static final int DIALOG_VACUUM = 4;
+    private static final String DIALOG_WELCOME = "welcome";
+    private static final String DIALOG_UPDATE = "update";
+    private static final String DIALOG_CRASH = "crash";
+    private static final String DIALOG_VACUUM = "vacuum";
     
     private static final int SELECTED_VIRTUAL_CATEGORY = 1;
     private static final int SELECTED_CATEGORY = 2;
@@ -82,7 +78,9 @@ public class CategoryActivity extends MenuActivity {
         // Delete DB if requested
         Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
         
-        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
+        FragmentManager fm = getSupportFragmentManager();
+        
+        if (fm.findFragmentByTag(FRAGMENT) == null) {
             Fragment fragment = CategoryListFragment.newInstance();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.add(R.id.category_list, fragment, FRAGMENT);
@@ -90,15 +88,16 @@ public class CategoryActivity extends MenuActivity {
             transaction.commit();
         }
         
-        if (!Utils.checkFirstRun(this)) { // Check for new installation
-            showDialog(DIALOG_WELCOME);
-        } else if (!Utils.checkNewVersion(this)) { // Check for update
-            showDialog(DIALOG_UPDATE);
-        } else if (!Utils.checkCrashReport(this)) { // Check for crash-reports
-            showDialog(DIALOG_CRASH);
-        } else if (Utils.checkVacuumDB(this)) { // Check for scheduled VACUUM
-            showDialog(DIALOG_VACUUM);
-        } else if (!Utils.checkConfig()) {// Check if we have a server specified
+        if (!Utils.checkFirstRun(this)) {
+            WelcomeDialog.getInstance().show(fm, DIALOG_WELCOME);
+        } else if (!Utils.checkNewVersion(this)) {
+            ChangelogDialog.getInstance().show(fm, DIALOG_UPDATE);
+        } else if (!Utils.checkCrashReport(this)) {
+            CrashreportDialog.getInstance().show(fm, DIALOG_CRASH);
+        } else if (Utils.checkVacuumDB(this)) {
+            VacuumDialog.getInstance().show(fm, DIALOG_VACUUM);
+        } else if (!Utils.checkConfig()) {
+            // Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }
         
@@ -242,150 +241,6 @@ public class CategoryActivity extends MenuActivity {
             }
             setProgress((10000 / (taskCount + 1)) * values[0]);
         }
-    }
-    
-    @Override
-    protected final Dialog onCreateDialog(final int id) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setIcon(android.R.drawable.ic_dialog_info);
-        builder.setCancelable(true);
-        
-        final Context context = this;
-        switch (id) {
-            case DIALOG_WELCOME:
-                
-                builder.setTitle(getResources().getString(R.string.Welcome_Title));
-                builder.setMessage(getResources().getString(R.string.Welcome_Message));
-                builder.setNeutralButton((String) getText(R.string.Preferences_Btn),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface d, final int which) {
-                                Intent i = new Intent(context, PreferencesActivity.class);
-                                startActivity(i);
-                                d.dismiss();
-                            }
-                        });
-                break;
-            
-            case DIALOG_UPDATE:
-                
-                builder.setTitle(getResources().getString(R.string.Changelog_Title));
-                final String[] changes = getResources().getStringArray(R.array.updates);
-                final StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < changes.length; i++) {
-                    sb.append("\n\n");
-                    sb.append(changes[i]);
-                    if (sb.length() > 4000) // Don't include all messages, nobody reads the old stuff anyway
-                        break;
-                }
-                builder.setMessage(sb.toString().trim());
-                builder.setPositiveButton(android.R.string.ok, null);
-                builder.setNeutralButton((String) getText(R.string.CategoryActivity_Donate),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface d, final int which) {
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
-                                        R.string.DonateUrl))));
-                                d.dismiss();
-                            }
-                        });
-                break;
-            
-            case DIALOG_CRASH:
-                
-                builder.setTitle(getResources().getString(R.string.ErrorActivity_Title));
-                builder.setMessage(getResources().getString(R.string.Check_Crash));
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface d, final int which) {
-                        sendReport();
-                    }
-                });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface d, final int which) {
-                        deleteFile(TopExceptionHandler.FILE);
-                        d.dismiss();
-                    }
-                });
-                break;
-            
-            case DIALOG_VACUUM:
-                
-                builder.setTitle("VACUUM");
-                builder.setMessage("The DB should sometimes be vacuumed to free space. Do you want to start this process now? It may take up to several minutes.");
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface d, final int which) {
-                        new VacuumTask(ProgressDialog.show(context, "VACUUM", "Cleaning the database...", true))
-                                .execute();
-                        d.dismiss();
-                    }
-                });
-                builder.setNegativeButton("Not now", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface d, final int which) {
-                        d.dismiss();
-                    }
-                });
-                break;
-        
-        }
-        return builder.create();
-    }
-    
-    private class VacuumTask extends AsyncTask<Void, Void, Void> {
-        ProgressDialog dialog = null;
-        
-        public VacuumTask(ProgressDialog dialog) {
-            this.dialog = dialog;
-        }
-        
-        protected Void doInBackground(Void... args) {
-            try {
-                DBHelper.getInstance().vacuum();
-            } finally {
-                // Reset scheduling-data
-                Controller.getInstance().setVacuumDBScheduled(false);
-                Controller.getInstance().setLastVacuumDate();
-            }
-            return null;
-        }
-        
-        @Override
-        protected void onPostExecute(Void result) {
-            dialog.dismiss();
-        }
-    }
-    
-    public void sendReport() {
-        String line = "";
-        StringBuilder sb = new StringBuilder();
-        
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(openFileInput(TopExceptionHandler.FILE)));
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-        } catch (FileNotFoundException fnfe) {
-            // ...
-        } catch (IOException ioe) {
-            // ...
-        }
-        
-        Intent sendIntent = new Intent(Intent.ACTION_SEND);
-        String subject = "Error report";
-        String mail = getResources().getString(R.string.About_mail);
-        String body = "Please mail this to " + mail + ": " + "\n\n" + sb.toString() + "\n\n";
-        
-        sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { mail });
-        sendIntent.putExtra(Intent.EXTRA_TEXT, body);
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        sendIntent.setType("message/rfc822");
-        
-        startActivity(Intent.createChooser(sendIntent, "Title:"));
-        
-        deleteFile(TopExceptionHandler.FILE);
     }
     
     @Override

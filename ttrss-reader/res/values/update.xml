@@ -77,6 +77,9 @@
             \n * Added icons from SDK so all icons look the same
             \n * Cleaned up the ActionBar
             \n * Now using API-Level 17</item>
+
+        <!-- Old Entries: -->
+        <!--
         <item>Version 1.35
             \n * Articles are again marked as read when beeing read in the webinterface as long as there are new articles to be synced (API doesn\'t offer "changes since date/time", I can only guess what has changed)
             \n * Added long-press menu in Article-List: "Mark everything above as read"
@@ -132,9 +135,6 @@
             \n * Fixed wrong handling of Usage-options
             \n * Trying to fix ActivityNotFoundExceptions which affected some users
             \n * Added preference for "Inject Article-Link"</item>
-
-        <!-- Old Entries: -->
-        <!--
         <item>Version 1.2
             \n * Added compatibility-code for Android 4.0 (API-Level 14)
             \n * Started working on a thre-pane-layout for tablet-devices (not functional yet)
