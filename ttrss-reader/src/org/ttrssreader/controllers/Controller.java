@@ -89,7 +89,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean showVirtual = null;
     private Boolean useButtons = null;
     private Boolean onlyUnread = null;
-    private Boolean displayArticleHeader = null;
     private Boolean invertSortArticlelist = null;
     private Boolean invertSortFeedscats = null;
     private Boolean alignFlushLeft = null;
@@ -514,18 +513,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
         put(Constants.ONLY_UNREAD, displayOnlyUnread);
         this.onlyUnread = displayOnlyUnread;
-    }
-    
-    public boolean displayArticleHeader() {
-        if (displayArticleHeader == null)
-            displayArticleHeader = prefs.getBoolean(Constants.DISPLAY_ARTICLE_HEADER,
-                    Constants.DISPLAY_ARTICLE_HEADER_DEFAULT);
-        return displayArticleHeader;
-    }
-    
-    public void setDisplayArticleHeader(boolean displayArticleHeader) {
-        put(Constants.DISPLAY_ARTICLE_HEADER, displayArticleHeader);
-        this.displayArticleHeader = displayArticleHeader;
     }
     
     public boolean invertSortArticlelist() {

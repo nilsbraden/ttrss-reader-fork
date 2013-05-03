@@ -212,12 +212,6 @@
                     android:summary="@string/DisplayDarkBackgroundSummary"
                     android:title="@string/DisplayDarkBackgroundTitle" />
 
-                <CheckBoxPreference
-                    android:defaultValue="true"
-                    android:key="DisplayArticleHeaderPreference"
-                    android:summary="@string/DisplayArticleHeaderSummary"
-                    android:title="@string/DisplayArticleHeaderTitle" />
-
                 <org.ttrssreader.preferences.EditIntegerPreference
                     android:name="@string/HeadlineSizeTitle"
                     android:defaultValue="16"

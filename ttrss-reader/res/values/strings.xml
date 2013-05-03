@@ -136,8 +136,6 @@
     <string name="DisplayShowUnreadOnlySummary">Hide Feeds and Articles that have no unread items.</string>
     <string name="DisplayArticleLimitTitle">Store Articles limit</string>
     <string name="DisplayArticleLimitSummary">How many Articles will be cached locally.</string>
-    <string name="DisplayArticleHeaderTitle">Display Article-Header</string>
-    <string name="DisplayArticleHeaderSummary">Enables display of more information when browsing articles (Title, Feed, Date etc.).</string>
     <string name="HeadlineSizeTitle">Size of the Title-Field from Article-Header</string>
     <string name="HeadlineSizeSummary">Changes the size (default: 10sp) to the given value.</string>
     <string name="TextZoomTitle">Text-Zoom in percent</string>

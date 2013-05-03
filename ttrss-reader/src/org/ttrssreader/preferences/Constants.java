@@ -89,7 +89,6 @@ public class Constants {
     public static final String USE_BUTTONS = "DisplayUseButtonsPreference";
     public static final String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
     public static final String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
-    public static final String DISPLAY_ARTICLE_HEADER = "DisplayArticleHeaderPreference";
     public static final String INVERT_SORT_ARTICLELIST = "InvertSortArticlelistPreference";
     public static final String INVERT_SORT_FEEDSCATS = "InvertSortFeedscatsPreference";
     public static final String ALIGN_FLUSH_LEFT = "DisplayAlignFlushLeftPreference";
@@ -107,7 +106,6 @@ public class Constants {
     public static final boolean USE_BUTTONS_DEFAULT = false;
     public static final boolean ONLY_UNREAD_DEFAULT = false;
     public static final int ARTICLE_LIMIT_DEFAULT = 1000;
-    public static final boolean DISPLAY_ARTICLE_HEADER_DEFAULT = true;
     public static final boolean INVERT_SORT_ARTICLELIST_DEFAULT = false;
     public static final boolean INVERT_SORT_FEEDSCATS_DEFAULT = false;
     public static final boolean ALIGN_FLUSH_LEFT_DEFAULT = false;
