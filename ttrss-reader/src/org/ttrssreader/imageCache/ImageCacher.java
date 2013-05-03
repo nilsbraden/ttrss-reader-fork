@@ -330,11 +330,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             if (file.exists()) {
                 sb.insert(0, "file://"); // Add "file:" at the beginning..
                 return sb.toString();
-            } else {
-                Log.w(Utils.TAG, "File " + sb.toString() + " is in cache but does not exist.");
             }
         }
-        Log.w(Utils.TAG, "File " + url + " could not be found in the cache...");
         return null;
     }
     
