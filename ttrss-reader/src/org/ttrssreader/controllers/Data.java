@@ -28,10 +28,12 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.Utils;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
+@SuppressLint("UseSparseArrays")
 public class Data {
     
     public static final int VCAT_UNCAT = 0;
@@ -198,6 +200,18 @@ public class Data {
                 }
                 articles.clear();
             }
+        }
+    }
+    
+    public void searchArticles(int feedId, boolean isCat, boolean overrideOffline) {
+        if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
+            
+            Set<Article> articles = new HashSet<Article>();
+            Controller.getInstance().getConnector().getHeadlines(articles, feedId, 400, VIEW_ALL, isCat);
+            
+            // TODO: articles in DB packen oder direkt irgendwie zurück geben? Wenn ja, wohin?
+            // Temporäre-DB erstellen und Adapter so umbauen, dass er Suchergebnisse automatisch daraus lädt?
+            
         }
     }
     

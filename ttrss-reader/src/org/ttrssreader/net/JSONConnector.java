@@ -65,13 +65,14 @@ public abstract class JSONConnector {
     protected static final String PARAM_ARTICLE_ID = "article_id";
     protected static final String PARAM_ARTICLE_IDS = "article_ids";
     protected static final String PARAM_LIMIT = "limit";
-    protected static final int PARAM_LIMIT_MAX_VALUE = 60;
+    protected static final int PARAM_LIMIT_MAX_VALUE = 300;
     protected static final String PARAM_VIEWMODE = "view_mode";
     protected static final String PARAM_SHOW_CONTENT = "show_content";
     protected static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
                                                                                  // 1.5.3 but is ignored on older
                                                                                  // versions
     protected static final String PARAM_SINCE_ID = "since_id";
+    protected static final String PARAM_SEARCH = "search";
     protected static final String PARAM_SKIP = "skip";
     protected static final String PARAM_MODE = "mode";
     protected static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
@@ -875,6 +876,13 @@ public abstract class JSONConnector {
     }
     
     /**
+     * @see #getHeadlines(Integer, int, String, boolean, int, int)
+     */
+    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
+        getHeadlines(articles, id, limit, viewMode, isCategory, sinceId, null);
+    }
+    
+    /**
      * Retrieves the specified articles.
      * 
      * @param id
@@ -890,7 +898,7 @@ public abstract class JSONConnector {
      *            the first ArticleId which is to be retrieved.
      * @return the number of fetched articles.
      */
-    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
+    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId, String search) {
         long time = System.currentTimeMillis();
         int offset = 0;
         int maxSize = articles.size() + limit;
@@ -913,6 +921,8 @@ public abstract class JSONConnector {
             params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
             if (sinceId > 0)
                 params.put(PARAM_SINCE_ID, sinceId + "");
+            if (search != null)
+                params.put(PARAM_SEARCH, search);
             
             if (id == Data.VCAT_STAR && !isCategory) // We set isCategory=false for starred/published articles...
                 DBHelper.getInstance().purgeStarredArticles();
