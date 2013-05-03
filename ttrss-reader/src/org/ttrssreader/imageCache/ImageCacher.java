@@ -333,8 +333,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             } else {
                 Log.w(Utils.TAG, "File " + sb.toString() + " is in cache but does not exist.");
             }
-            
         }
+        Log.w(Utils.TAG, "File " + url + " could not be found in the cache...");
         return null;
     }
     
