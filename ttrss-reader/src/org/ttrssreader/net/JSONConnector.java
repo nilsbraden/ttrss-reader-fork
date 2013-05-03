@@ -105,7 +105,6 @@ public abstract class JSONConnector {
     protected static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
     
     protected static final String ERROR = "error";
-    protected static final String ERROR_TEXT = "Error: ";
     protected static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
     protected static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
     protected static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
@@ -239,7 +238,7 @@ public abstract class JSONConnector {
                                     return readResult(params, false, false); // Just do the same request again
                                 } else {
                                     hasLastError = true;
-                                    lastError = ERROR_TEXT + message;
+                                    lastError = message;
                                     return null;
                                 }
                             }
@@ -252,7 +251,7 @@ public abstract class JSONConnector {
                             
                             // Any other error
                             hasLastError = true;
-                            lastError = ERROR_TEXT + message;
+                            lastError = message;
                             return null;
                         }
                     }
@@ -333,7 +332,7 @@ public abstract class JSONConnector {
                         
                         // Any other error
                         hasLastError = true;
-                        lastError = ERROR_TEXT + message;
+                        lastError = message;
                     }
                 }
                 
@@ -383,7 +382,7 @@ public abstract class JSONConnector {
             e.printStackTrace();
             if (!hasLastError) {
                 hasLastError = true;
-                lastError = ERROR_TEXT + formatException(e);
+                lastError = formatException(e);
             }
         }
         
@@ -421,7 +420,7 @@ public abstract class JSONConnector {
                 e.printStackTrace();
                 if (!hasLastError) {
                     hasLastError = true;
-                    lastError = ERROR_TEXT + formatException(e);
+                    lastError = formatException(e);
                 }
             }
             

@@ -104,7 +104,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         while (true) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (!Utils.checkConnected(cm)) {
-                Log.e(Utils.TAG, "Error: No connectivity, aborting...");
+                Log.e(Utils.TAG, "No connectivity, aborting...");
                 break;
             }
             
