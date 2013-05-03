@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.47 (1) ==
+== Version 1.47 (2) ==
   * Fixed Activity-Indicators
   * Implemented "Subscribe to Feed" and "Unsubscribe" (only Server > 1.7.6)
   * Added Paste-Button for URLs in Subscribe-View
@@ -9,6 +9,7 @@
   * Link-color for dark background set to light blue
   * Articleheader layout and borders fixed
   * Removed unnecessary preferences
+  * Bugfixes
 
 == Version 1.46 (3) ==
   * Fixed bugs in new connection method
