@@ -25,9 +25,8 @@
 
     <FrameLayout
         android:id="@+id/article_header"
-        android:layout_width="match_parent"
-        android:layout_height="75dip"
-        android:layout_weight="1.0" >
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
 
         <include layout="@layout/articleheader" />
     </FrameLayout>
@@ -35,8 +34,7 @@
     <RelativeLayout
         android:id="@+id/article_main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1.0" >
+        android:layout_height="wrap_content" >
 
         <RelativeLayout
             android:id="@+id/article_central_view"

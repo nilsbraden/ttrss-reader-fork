@@ -63,7 +63,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
@@ -78,6 +77,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
         IDataChangedListener {
@@ -125,11 +125,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        if (Controller.getInstance().displayArticleHeader())
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-        
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.articleitem);
         
         Bundle extras = getIntent().getExtras();
@@ -235,17 +231,13 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     public void initUIHeader() {
-        // Populate information-bar on top of the webView if enabled
-        if (Controller.getInstance().displayArticleHeader()) {
-            Feed feed = DBHelper.getInstance().getFeed(article.feedId);
-            header_feed.setText(feed != null ? feed.title : "");
-            header_title.setText(article.title);
-            header_date.setText(DateUtils.getDate(this, article.updated));
-            header_time.setText(DateUtils.getTime(this, article.updated));
-            header_starred.setChecked(article.isStarred);
-        } else {
-            findViewById(R.id.article_header).setVisibility(View.GONE);
-        }
+        // Populate information-bar on top of the webView
+        Feed feed = DBHelper.getInstance().getFeed(article.feedId);
+        header_feed.setText(feed != null ? feed.title : "");
+        header_title.setText(article.title);
+        header_date.setText(DateUtils.getDate(this, article.updated));
+        header_time.setText(DateUtils.getTime(this, article.updated));
+        header_starred.setChecked(article.isStarred);
     }
     
     private void initData() {
