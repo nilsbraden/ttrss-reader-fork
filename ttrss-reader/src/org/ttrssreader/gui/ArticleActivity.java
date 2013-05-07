@@ -355,13 +355,17 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         ProgressBarManager.getInstance().addProgress(this);
         
-        WebSettings webSettings = webView.getSettings();
-        if (webSettings != null) {
-            if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
-                webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
-            } else {
-                webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+        try {
+            WebSettings webSettings = webView.getSettings();
+            if (webSettings != null) {
+                if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
+                    webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+                } else {
+                    webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
+                }
             }
+        } catch (Exception e) {
+            Log.w(Utils.TAG, "Couldn't set cache-mode because of Exception in webView.getSettings().");
         }
         
         // No need to reload everything
@@ -381,8 +385,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             return;
         
         initUIHeader();
-        
-        final int contentLength = article.content.length();
         
         // Inject the specific code for attachments, <img> for images, http-link for Videos
         StringBuilder sb = new StringBuilder(article.content);
@@ -406,7 +408,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         setTitle(article.title);
         
-        if (!linkAutoOpened && contentLength < 3) {
+        if (!linkAutoOpened && article.content.length() < 3) {
             if (Controller.getInstance().openUrlEmptyArticle()) {
                 Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
                 linkAutoOpened = true;
