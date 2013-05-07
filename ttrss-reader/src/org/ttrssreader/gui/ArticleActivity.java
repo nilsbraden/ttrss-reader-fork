@@ -353,15 +353,10 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         try {
             ProgressBarManager.getInstance().addProgress(this);
             
-            try {
-                if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
-                    webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
-                } else {
-                    webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
-                }
-            } catch (Exception e) {
-                Log.w(Utils.TAG, "Couldn't set cache-mode because of Exception in webView.getSettings().");
-                return;
+            if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
+                webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+            } else {
+                webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
             }
             
             // No need to reload everything
@@ -411,6 +406,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             
             // Everything did load, we dont have to do this again.
             webviewInitialized = true;
+        } catch (Exception e) {
+            Log.w(Utils.TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause()
+                    + ")");
         } finally {
             ProgressBarManager.getInstance().removeProgress(this);
         }
