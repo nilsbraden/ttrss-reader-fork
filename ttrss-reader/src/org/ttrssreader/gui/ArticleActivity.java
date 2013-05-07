@@ -350,75 +350,70 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     private void doRefresh() {
-        if (webView == null) // No idea why this happens, but it does
-            return;
-        
-        ProgressBarManager.getInstance().addProgress(this);
-        
         try {
-            WebSettings webSettings = webView.getSettings();
-            if (webSettings != null) {
+            ProgressBarManager.getInstance().addProgress(this);
+            
+            try {
                 if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
                     webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
                 } else {
                     webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
                 }
+            } catch (Exception e) {
+                Log.w(Utils.TAG, "Couldn't set cache-mode because of Exception in webView.getSettings().");
+                return;
             }
-        } catch (Exception e) {
-            Log.w(Utils.TAG, "Couldn't set cache-mode because of Exception in webView.getSettings().");
-        }
-        
-        // No need to reload everything
-        if (webviewInitialized) {
-            ProgressBarManager.getInstance().removeProgress(this);
-            return;
-        }
-        
-        // Check for errors
-        if (Controller.getInstance().getConnector().hasLastError()) {
-            openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
-            ProgressBarManager.getInstance().removeProgress(this);
-            return;
-        }
-        
-        if (article.content == null)
-            return;
-        
-        initUIHeader();
-        
-        // Inject the specific code for attachments, <img> for images, http-link for Videos
-        StringBuilder sb = new StringBuilder(article.content);
-        injectAttachments(getApplicationContext(), sb, article.attachments);
-        
-        // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
-        injectArticleLink(getApplicationContext(), sb);
-        
-        if (Controller.getInstance().darkBackground()) {
-            sb.insert(0, "<font color='white'>");
-            sb.append("</font>");
-        }
-        
-        // Load html from Controller and insert content
-        content = Controller.htmlHeader.replace("MARKER", sb);
-        content = injectCachedImages(content, articleId);
-        
-        // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-        baseUrl = StringSupport.getBaseURL(article.url);
-        webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
-        
-        setTitle(article.title);
-        
-        if (!linkAutoOpened && article.content.length() < 3) {
-            if (Controller.getInstance().openUrlEmptyArticle()) {
-                Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
-                linkAutoOpened = true;
-                openLink();
+            
+            // No need to reload everything
+            if (webviewInitialized)
+                return;
+            
+            // Check for errors
+            if (Controller.getInstance().getConnector().hasLastError()) {
+                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+                return;
             }
+            
+            if (article.content == null)
+                return;
+            
+            initUIHeader();
+            
+            // Inject the specific code for attachments, <img> for images, http-link for Videos
+            StringBuilder sb = new StringBuilder(article.content);
+            injectAttachments(getApplicationContext(), sb, article.attachments);
+            
+            // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
+            injectArticleLink(getApplicationContext(), sb);
+            
+            if (Controller.getInstance().darkBackground()) {
+                sb.insert(0, "<font color='white'>");
+                sb.append("</font>");
+            }
+            
+            // Load html from Controller and insert content
+            content = Controller.htmlHeader.replace("MARKER", sb);
+            content = injectCachedImages(content, articleId);
+            
+            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
+            baseUrl = StringSupport.getBaseURL(article.url);
+            webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
+            
+            setTitle(article.title);
+            
+            if (!linkAutoOpened && article.content.length() < 3) {
+                if (Controller.getInstance().openUrlEmptyArticle()) {
+                    Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+                    linkAutoOpened = true;
+                    openLink();
+                }
+            }
+            
+            // Everything did load, we dont have to do this again.
+            webviewInitialized = true;
+        } finally {
+            ProgressBarManager.getInstance().removeProgress(this);
         }
-        
-        // Everything did load, we dont have to do this again.
-        webviewInitialized = true;
-        ProgressBarManager.getInstance().removeProgress(this);
     }
     
     /**
