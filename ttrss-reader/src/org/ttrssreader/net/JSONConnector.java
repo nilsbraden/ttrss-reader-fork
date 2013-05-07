@@ -65,7 +65,8 @@ public abstract class JSONConnector {
     protected static final String PARAM_ARTICLE_ID = "article_id";
     protected static final String PARAM_ARTICLE_IDS = "article_ids";
     protected static final String PARAM_LIMIT = "limit";
-    protected static final int PARAM_LIMIT_MAX_VALUE = 300;
+    protected static final int PARAM_LIMIT_API_5 = 60;
+    protected static final int PARAM_LIMIT_MAX_VALUE = 200;
     protected static final String PARAM_VIEWMODE = "view_mode";
     protected static final String PARAM_SHOW_CONTENT = "show_content";
     protected static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
@@ -901,7 +902,12 @@ public abstract class JSONConnector {
     public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId, String search) {
         long time = System.currentTimeMillis();
         int offset = 0;
+        int count = 0;
         int maxSize = articles.size() + limit;
+        
+        int apiLimit = PARAM_LIMIT_MAX_VALUE;
+        if (apiLevel < 6)
+            apiLimit = PARAM_LIMIT_API_5;
         
         if (!sessionAlive())
             return;
@@ -938,8 +944,8 @@ public abstract class JSONConnector {
                 if (reader == null)
                     continue;
                 
-                int count = parseArticleArray(articles, reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
-                if (count < PARAM_LIMIT_MAX_VALUE)
+                count = parseArticleArray(articles, reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
+                if (count < apiLimit)
                     break;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -951,7 +957,7 @@ public abstract class JSONConnector {
                     }
                 }
             }
-            offset = offset + PARAM_LIMIT_MAX_VALUE;
+            offset = offset + count;
         }
         
         Log.d(Utils.TAG, "getHeadlines: " + (System.currentTimeMillis() - time) + "ms");
