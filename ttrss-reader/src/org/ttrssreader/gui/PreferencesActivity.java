@@ -17,6 +17,7 @@
 package org.ttrssreader.gui;
 
 import java.io.File;
+import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -31,16 +32,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
-public class PreferencesActivity extends PreferenceActivity {
+public class PreferencesActivity extends SherlockPreferenceActivity {
+    
+    private static final String PREFS_DISPLAY = "prefs_display";
+    private static final String PREFS_HEADERS = "prefs_headers";
+    private static final String PREFS_HTTP = "prefs_http";
+    private static final String PREFS_MAIN_TOP = "prefs_main_top";
+    private static final String PREFS_SSL = "prefs_ssl";
+    private static final String PREFS_SYSTEM = "prefs_system";
+    private static final String PREFS_USAGE = "prefs_usage";
     
     public static final int ACTIVITY_SHOW_PREFERENCES = 43;
     public static final int ACTIVITY_CHOOSE_ATTACHMENT_FOLDER = 1;
@@ -49,88 +61,119 @@ public class PreferencesActivity extends PreferenceActivity {
     private static AsyncTask<Void, Void, Void> init;
     
     private Context context;
-    private Preference downloadPath;
-    private Preference cachePath;
+    private static Preference downloadPath;
+    private static Preference cachePath;
     
+    private boolean needResource = false;
+    private static PreferenceActivity activity;
+    
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState); // IMPORTANT!
+        
         context = getApplicationContext();
-        addPreferencesFromResource(R.layout.preferences);
+        activity = this;
         setResult(ACTIVITY_SHOW_PREFERENCES);
         
-        downloadPath = findPreference(Constants.SAVE_ATTACHMENT);
-        downloadPath.setSummary(Controller.getInstance().saveAttachmentPath());
-        downloadPath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FileBrowserHelper.getInstance().showFileBrowserActivity(PreferencesActivity.this,
-                        new File(Controller.getInstance().saveAttachmentPath()), ACTIVITY_CHOOSE_ATTACHMENT_FOLDER,
-                        callbackDownloadPath);
-                return true;
-            }
-            
-            FileBrowserFailOverCallback callbackDownloadPath = new FileBrowserFailOverCallback() {
-                
-                @Override
-                public void onPathEntered(String path) {
-                    downloadPath.setSummary(path);
-                    Controller.getInstance().setSaveAttachmentPath(path);
-                }
-                
-                @Override
-                public void onCancel() {
-                    // canceled, do nothing
-                }
-            };
-        });
+        if (needResource || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            addPreferencesFromResource(R.xml.prefs_main_top);
+            addPreferencesFromResource(R.xml.prefs_http);
+            addPreferencesFromResource(R.xml.prefs_ssl);
+            addPreferencesFromResource(R.xml.prefs_usage);
+            addPreferencesFromResource(R.xml.prefs_display);
+            addPreferencesFromResource(R.xml.prefs_system);
+            addPreferencesFromResource(R.xml.prefs_main_bottom);
+        }
         
-        cachePath = findPreference(Constants.CACHE_FOLDER);
-        cachePath.setSummary(Controller.getInstance().cacheFolder());
-        cachePath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                FileBrowserHelper.getInstance().showFileBrowserActivity(PreferencesActivity.this,
-                        new File(Controller.getInstance().cacheFolder()), ACTIVITY_CHOOSE_CACHE_FOLDER,
-                        callbackCachePath);
-                return true;
-            }
-            
-            FileBrowserFailOverCallback callbackCachePath = new FileBrowserFailOverCallback() {
-                
-                @Override
-                public void onPathEntered(String path) {
-                    cachePath.setSummary(path);
-                    Controller.getInstance().setCacheFolder(path);
-                }
-                
-                @Override
-                public void onCancel() {
-                    // canceled, do nothing
-                }
-            };
-        });
+        initializePreferences(null);
+    }
+    
+    @Override
+    public void onBuildHeaders(List<Header> target) {
+        if (onIsHidingHeaders()) { // || !onIsMultiPane()) {
+            needResource = true;
+        } else {
+            loadHeadersFromResource(R.xml.prefs_headers, target);
+        }
+    }
+    
+    @SuppressWarnings("deprecation")
+    private static void initializePreferences(PreferenceFragment fragment) {
         
-        // Set up a listener whenever a key changes
-        Controller.getInstance().setPreferencesChanged(false);
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(Controller.getInstance());
+        if (fragment != null) {
+            downloadPath = fragment.findPreference(Constants.SAVE_ATTACHMENT);
+            cachePath = fragment.findPreference(Constants.CACHE_FOLDER);
+        } else {
+            downloadPath = activity.findPreference(Constants.SAVE_ATTACHMENT);
+            cachePath = activity.findPreference(Constants.CACHE_FOLDER);
+        }
+        
+        if (downloadPath != null) {
+            downloadPath.setSummary(Controller.getInstance().saveAttachmentPath());
+            downloadPath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    FileBrowserHelper.getInstance().showFileBrowserActivity(activity,
+                            new File(Controller.getInstance().saveAttachmentPath()), ACTIVITY_CHOOSE_ATTACHMENT_FOLDER,
+                            callbackDownloadPath);
+                    return true;
+                }
+                
+                FileBrowserFailOverCallback callbackDownloadPath = new FileBrowserFailOverCallback() {
+                    
+                    @Override
+                    public void onPathEntered(String path) {
+                        downloadPath.setSummary(path);
+                        Controller.getInstance().setSaveAttachmentPath(path);
+                    }
+                    
+                    @Override
+                    public void onCancel() {
+                    }
+                };
+            });
+        }
+        
+        if (cachePath != null) {
+            cachePath.setSummary(Controller.getInstance().cacheFolder());
+            cachePath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    FileBrowserHelper.getInstance().showFileBrowserActivity(activity,
+                            new File(Controller.getInstance().cacheFolder()), ACTIVITY_CHOOSE_CACHE_FOLDER,
+                            callbackCachePath);
+                    return true;
+                }
+                
+                FileBrowserFailOverCallback callbackCachePath = new FileBrowserFailOverCallback() {
+                    
+                    @Override
+                    public void onPathEntered(String path) {
+                        cachePath.setSummary(path);
+                        Controller.getInstance().setCacheFolder(path);
+                    }
+                    
+                    @Override
+                    public void onCancel() {
+                    }
+                };
+            });
+        }
     }
     
     @Override
     protected void onPause() {
         super.onPause();
-        
-        // Unregister the listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(
                 Controller.getInstance());
     }
     
     @Override
     protected void onResume() {
         super.onResume();
-        
-        // Set up a listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(Controller.getInstance());
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(
+                Controller.getInstance());
     }
     
     @Override
@@ -157,51 +200,35 @@ public class PreferencesActivity extends PreferenceActivity {
     }
     
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-    
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = this.getMenuInflater();
+        MenuInflater inflater = this.getSupportMenuInflater();
         inflater.inflate(R.menu.preferences, menu);
         return true;
     }
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
+        ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
         switch (item.getItemId()) {
             case R.id.Preferences_Menu_Reset:
-                resetPreferences();
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                Constants.resetPreferences(prefs);
+                this.finish();
+                startActivity(new Intent().setComponent(comp));
                 return true;
             case R.id.Preferences_Menu_ResetDatabase:
-                resetDB();
+                Controller.getInstance().setDeleteDBScheduled(true);
+                DBHelper.getInstance().checkAndInitializeDB(this);
+                this.finish();
+                startActivity(new Intent().setComponent(comp));
                 return true;
         }
         return false;
     }
     
-    private void resetPreferences() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Constants.resetPreferences(prefs);
-        this.finish();
-        ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
-        startActivity(new Intent().setComponent(comp));
-    }
-    
-    private void resetDB() {
-        Controller.getInstance().setDeleteDBScheduled(true);
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        
-        this.finish();
-        ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
-        startActivity(new Intent().setComponent(comp));
-    }
-    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        
         String path = null;
         if (resultCode == RESULT_OK && data != null) {
             // obtain the filename
@@ -209,7 +236,6 @@ public class PreferencesActivity extends PreferenceActivity {
             if (fileUri != null)
                 path = fileUri.getPath();
         }
-        
         if (path != null) {
             switch (requestCode) {
                 case ACTIVITY_CHOOSE_ATTACHMENT_FOLDER:
@@ -223,7 +249,32 @@ public class PreferencesActivity extends PreferenceActivity {
                     break;
             }
         }
-        
         super.onActivityResult(requestCode, resultCode, data);
     }
+    
+    public static class PreferencesFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            
+            String cat = getArguments().getString("cat");
+            if (PREFS_DISPLAY.equals(cat))
+                addPreferencesFromResource(R.xml.prefs_display);
+            if (PREFS_HEADERS.equals(cat))
+                addPreferencesFromResource(R.xml.prefs_headers);
+            if (PREFS_HTTP.equals(cat))
+                addPreferencesFromResource(R.xml.prefs_http);
+            if (PREFS_MAIN_TOP.equals(cat))
+                addPreferencesFromResource(R.xml.prefs_main_top);
+            if (PREFS_SSL.equals(cat))
+                addPreferencesFromResource(R.xml.prefs_ssl);
+            if (PREFS_SYSTEM.equals(cat)) {
+                addPreferencesFromResource(R.xml.prefs_system);
+                initializePreferences(this); // Manually initialize Listeners for Download- and CachePath
+            }
+            if (PREFS_USAGE.equals(cat))
+                addPreferencesFromResource(R.xml.prefs_usage);
+        }
+    }
+    
 }

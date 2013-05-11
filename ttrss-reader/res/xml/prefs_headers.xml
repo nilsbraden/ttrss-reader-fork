@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!-- CONNECTION -->
+    <header android:title="@string/ConnectionPreferenceCategoryTitle" />
+    <header
+        android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
+        android:icon="@drawable/ic_menu_account_list"
+        android:title="@string/ConnectionPreferenceCategoryTitle" >
+        <extra
+            android:name="cat"
+            android:value="prefs_main_top" />
+    </header>
+    <header
+        android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        android:title="@string/ConnectionHttpPreferenceCategoryTitle" >
+        <extra
+            android:name="cat"
+            android:value="prefs_http" />
+    </header>
+    <header
+        android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
+        android:icon="@drawable/ic_menu_login"
+        android:title="@string/ConnectionSslPreferenceCategoryTitle" >
+        <extra
+            android:name="cat"
+            android:value="prefs_ssl" />
+    </header>
+
+    <!-- MISC -->
+    <header android:title="@string/MiscellaneousPreferenceCategoryTitle" />
+    <header
+        android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
+        android:icon="@drawable/ic_sysbar_quicksettings"
+        android:title="@string/UsagePreferenceCategoryTitle" >
+        <extra
+            android:name="cat"
+            android:value="prefs_usage" />
+    </header>
+    <header
+        android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
+        android:icon="@android:drawable/ic_menu_view"
+        android:title="@string/DisplayPreferenceCategoryTitle" >
+        <extra
+            android:name="cat"
+            android:value="prefs_display" />
+    </header>
+    <header
+        android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="@string/SystemPreferenceCategoryTitle" >
+        <extra
+            android:name="cat"
+            android:value="prefs_system" />
+    </header>
+
+    <!-- ABOUT -->
+    <header android:title="@string/About.about" />
+    <header
+        android:icon="@android:drawable/ic_menu_manage"
+        android:summary="@string/About.project_hint"
+        android:title="@string/About.project" >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://code.google.com/p/ttrss-reader-fork/" />
+    </header>
+    <header
+        android:icon="@android:drawable/ic_menu_manage"
+        android:summary="@string/About.feedback_hint"
+        android:title="@string/About.feedback" >
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://code.google.com/p/ttrss-reader-fork/issues/list" />
+    </header>
+    <header
+        android:icon="@android:drawable/ic_menu_gallery"
+        android:summary="@string/About.about_hint"
+        android:title="@string/About.about" >
+        <intent
+            android:targetClass="org.ttrssreader.gui.AboutActivity"
+            android:targetPackage="org.ttrssreader" />
+    </header>
+
+</preference-headers>
