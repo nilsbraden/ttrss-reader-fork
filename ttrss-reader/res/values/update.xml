@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.48
+			\n * New Preference-Layout, new Icons
+			\n * Fixed progressbar for ImageCache
+			\n * Fixed Exceptions when returning from article
+			\n * Added spanish translation (thanks to Eduardo Ruiz from http://www.edubox.org)</item>
         <item>Version 1.47
 			\n * Fixed Activity-Indicators
 			\n * Implemented "Subscribe to Feed" and \"Unsubscribe\" (only Server > 1.7.6)
