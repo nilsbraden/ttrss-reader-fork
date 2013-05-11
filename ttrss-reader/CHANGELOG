@@ -1,6 +1,12 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.48 ==
+  * New Preference-Layout, new Icons
+  * Fixed progressbar for ImageCache
+  * Fixed Exceptions when returning from article
+  * Added spanish translation (thanks to Eduardo Ruiz from http://www.edubox.org)
+
 == Version 1.47 (2) ==
   * Fixed Activity-Indicators
   * Implemented "Subscribe to Feed" and "Unsubscribe" (only Server > 1.7.6)
