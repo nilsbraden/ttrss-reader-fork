@@ -276,7 +276,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     @Override
     public void onCacheProgress(int taskCount, int progress) {
-        setProgress((10000 / (taskCount + 1)) * progress);
+        setProgress((10000 / taskCount) * progress);
     }
     
     protected boolean isCacherRunning() {

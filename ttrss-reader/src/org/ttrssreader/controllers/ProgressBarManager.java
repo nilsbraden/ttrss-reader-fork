@@ -57,6 +57,10 @@ public class ProgressBarManager {
     public void setIndeterminateVisibility(SherlockFragmentActivity activity) {
         boolean visible = (progressIndeterminateCount > 0);
         activity.setSupportProgressBarIndeterminateVisibility(visible);
+        if (!visible) {
+            activity.setProgress(0);
+            activity.setSupportProgressBarVisibility(false);
+        }
     }
     
 }

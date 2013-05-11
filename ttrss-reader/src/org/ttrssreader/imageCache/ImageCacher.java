@@ -46,7 +46,7 @@ import android.util.Log;
 
 public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
-    private static final int DEFAULT_TASK_COUNT = 3;
+    private static final int DEFAULT_TASK_COUNT = 6;
     
     private ICacheEndListener parent;
     private Context context;
@@ -113,13 +113,14 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             // Only use progress-updates and callbacks for downloading articles, images are done in background
             // completely
             Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
-            taskCount = DEFAULT_TASK_COUNT + labels.size() + 1; // 1 for the caching of all articles
+            taskCount = DEFAULT_TASK_COUNT + labels.size();
             
             int progress = 0;
+            publishProgress(++progress);
             Data.getInstance().updateCounters(true, true);
-            publishProgress(++progress); // Move progress forward
+            publishProgress(++progress);
             Data.getInstance().updateCategories(true);
-            publishProgress(++progress); // Move progress forward
+            publishProgress(++progress);
             Data.getInstance().updateFeeds(Data.VCAT_ALL, true);
             
             // Cache all articles
@@ -129,11 +130,11 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             for (Feed f : labels) {
                 if (f.unread == 0)
                     continue;
-                publishProgress(++progress); // Move progress forward
+                publishProgress(++progress);
                 Data.getInstance().updateArticles(f.id, true, false, false, true);
             }
             
-            publishProgress(taskCount); // Move progress forward
+            publishProgress(++progress);
             Log.i(Utils.TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
             
             if (onlyArticles) // We are done here..
@@ -147,7 +148,9 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             imageCache.fillMemoryCacheFromDisk();
             downloadImages();
-            
+
+            taskCount = DEFAULT_TASK_COUNT + labels.size();
+            publishProgress(++progress);
             purgeCache();
             
             Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
@@ -199,7 +202,12 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             cursor = DBHelper.getInstance().queryArticlesForImageCache();
             cursor.moveToFirst();
             
+            taskCount = cursor.getCount();
+            int progress = 0;
+            
             while (!cursor.isAfterLast()) {
+                publishProgress(++progress);
+                
                 // Get images included in HTML
                 Set<String> set = new HashSet<String>();
                 
