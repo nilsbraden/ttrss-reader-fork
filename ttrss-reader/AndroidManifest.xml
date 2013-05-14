@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.ttrssreader"
     android:installLocation="internalOnly"
-    android:versionCode="1480"
+    android:versionCode="1481"
     android:versionName="1.48" >
 
     <uses-sdk

@@ -5,6 +5,7 @@
   * New Preference-Layout, new Icons
   * Fixed progressbar for ImageCache
   * Fixed Exceptions when returning from article
+  * Fixed problem with ImageCache
   * Added spanish translation (thanks to Eduardo Ruiz from http://www.edubox.org)
 
 == Version 1.47 (2) ==

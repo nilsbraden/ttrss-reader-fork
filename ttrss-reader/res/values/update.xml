@@ -22,6 +22,7 @@
 			\n * New Preference-Layout, new Icons
 			\n * Fixed progressbar for ImageCache
 			\n * Fixed Exceptions when returning from article
+			\n * Fixed problem with ImageCache
 			\n * Added spanish translation (thanks to Eduardo Ruiz from http://www.edubox.org)</item>
         <item>Version 1.47
 			\n * Fixed Activity-Indicators
