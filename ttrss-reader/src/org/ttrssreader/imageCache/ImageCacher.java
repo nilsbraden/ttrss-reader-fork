@@ -48,6 +48,9 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
     private static final int DEFAULT_TASK_COUNT = 6;
     
+    private static Handler handler;
+    private static volatile int progressImageDownload;
+    
     private ICacheEndListener parent;
     private Context context;
     
@@ -58,7 +61,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private long downloaded = 0;
     private int taskCount = 0;
     
-    private static Handler handler;
     private long start;
     private Map<Integer, DownloadImageTask> map;
     
@@ -148,7 +150,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             imageCache.fillMemoryCacheFromDisk();
             downloadImages();
-
+            
             taskCount = DEFAULT_TASK_COUNT + labels.size();
             publishProgress(++progress);
             purgeCache();
@@ -180,17 +182,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         }
     }
     
-    protected void downloadFinished(int articleId, Long size, boolean ok) {
-        synchronized (map) {
-            if (size > 0)
-                downloaded += size;
-            map.remove(articleId);
-            if (ok)
-                DBHelper.getInstance().updateArticleCachedImages(articleId, true);
-            map.notifyAll();
-        }
-    }
-    
     @SuppressLint("UseSparseArrays")
     private void downloadImages() {
         long time = System.currentTimeMillis();
@@ -203,11 +194,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             cursor.moveToFirst();
             
             taskCount = cursor.getCount();
-            int progress = 0;
-            
             while (!cursor.isAfterLast()) {
-                publishProgress(++progress);
-                
                 // Get images included in HTML
                 Set<String> set = new HashSet<String>();
                 
@@ -227,8 +214,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 }
                 
                 if (set.size() > 0) {
-                    ImageCacher.DownloadImageTask task = new ImageCacher.DownloadImageTask(imageCache,
-                            cursor.getInt(0), StringSupport.setToArray(set));
+                    DownloadImageTask task = new DownloadImageTask(imageCache, cursor.getInt(0),
+                            StringSupport.setToArray(set));
                     handler.post(task);
                     map.put(cursor.getInt(0), task);
                 }
@@ -281,7 +268,16 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 else
                     downloaded += size;
             }
-            downloadFinished(articleId, downloaded, allOK);
+            
+            synchronized (map) {
+                if (downloaded > 0)
+                    downloaded += downloaded;
+                map.remove(articleId);
+                publishProgress(++progressImageDownload);
+                if (allOK)
+                    DBHelper.getInstance().updateArticleCachedImages(articleId, true);
+                map.notifyAll();
+            }
         }
     }
     
@@ -355,22 +351,17 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         if (html == null || html.length() < 10)
             return ret;
         
-        for (int i = 0; i < html.length();) {
-            i = html.indexOf("<img", i);
-            if (i == -1)
-                break;
-            
-            // Filter out URLs without leading http, we cannot work with relative URLs yet.
-            Matcher m = Utils.findImageUrlsPattern.matcher(html.substring(i, html.length()));
-            boolean found = m.find();
-            if (found && m.group(1).startsWith("http")) {
-                ret.add(m.group(1));
-                i += m.group(1).length();
-            } else if (found) {
-                i++;
-                continue;
-            } else {
-                i++;
+        int i = html.indexOf("<img");
+        if (i == -1)
+            return ret;
+        
+        // Filter out URLs without leading http, we cannot work with relative URLs (yet?).
+        Matcher m = Utils.findImageUrlsPattern.matcher(html.substring(i, html.length()));
+        
+        while (m.find()) {
+            String url = m.group(1);
+            if (url.startsWith("http")) {
+                ret.add(url);
                 continue;
             }
         }

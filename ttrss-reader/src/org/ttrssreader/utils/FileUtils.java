@@ -83,6 +83,8 @@ public class FileUtils {
             
             URL url = new URL(downloadUrl);
             URLConnection connection = url.openConnection();
+            connection.setConnectTimeout((int) (Utils.SECOND * 2));
+            connection.setReadTimeout((int) Utils.SECOND);
             
             // Check filesize if available from header
             if (connection.getHeaderField("Content-Length") != null) {
@@ -99,7 +101,7 @@ public class FileUtils {
             fos = new FileOutputStream(file);
             InputStream is = connection.getInputStream();
             
-            int size = (int)Utils.KB * 8;
+            int size = (int) Utils.KB * 8;
             byte[] buf = new byte[size];
             int byteRead;
             
