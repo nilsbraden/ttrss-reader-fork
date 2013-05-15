@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.ttrssreader"
     android:installLocation="internalOnly"
-    android:versionCode="1481"
+    android:versionCode="1482"
     android:versionName="1.48" >
 
     <uses-sdk
@@ -39,27 +39,22 @@
         android:backupAgent=".preferences.MyPrefsBackupAgent"
         android:description="@string/ApplicationDescription"
         android:icon="@drawable/icon"
-        android:label="@string/ApplicationName" >
+        android:label="@string/ApplicationName"
+        android:theme="@style/Theme.Sherlock" >
         <activity
             android:name=".gui.CategoryActivity"
-            android:label="@string/ApplicationName"
-            android:theme="@style/Theme.Sherlock" >
+            android:label="@string/ApplicationName" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".gui.FeedActivity"
-            android:theme="@style/Theme.Sherlock" />
-        <activity
-            android:name=".gui.FeedHeadlineActivity"
-            android:theme="@style/Theme.Sherlock" />
+        <activity android:name=".gui.FeedActivity" />
+        <activity android:name=".gui.FeedHeadlineActivity" />
         <activity
             android:name=".gui.ArticleActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-            android:theme="@style/Theme.Sherlock" />
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
         <activity android:name=".gui.PreferencesActivity" />
         <activity android:name=".gui.MediaPlayerActivity" />
         <activity android:name=".gui.ErrorActivity" />
@@ -70,8 +65,7 @@
         <activity
             android:name=".gui.ShareActivity"
             android:excludeFromRecents="true"
-            android:label="@string/ApplicationName"
-            android:theme="@style/Theme.Sherlock" >
+            android:label="@string/ApplicationName" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -82,8 +76,7 @@
         </activity>
         <activity
             android:name=".gui.SubscribeActivity"
-            android:label="@string/ApplicationName"
-            android:theme="@style/Theme.Sherlock" >
+            android:label="@string/ApplicationName" >
 
             <!-- android:excludeFromRecents="true" -->
             <intent-filter>
@@ -108,7 +101,6 @@
             android:exported="true"
             android:icon="@drawable/icon"
             android:label="@string/ApplicationName"
-            android:theme="@style/Theme.Sherlock"
             android:uiOptions="splitActionBarWhenNarrow"
             android:windowSoftInputMode="adjustResize"
             tools:ignore="ExportedActivity" >
