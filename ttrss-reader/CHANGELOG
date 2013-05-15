@@ -1,8 +1,8 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.48 ==
-  * New Preference-Layout, new Icons
+== Version 1.48 (1) ==
+  * New Preference-Layout, new Icons, fixed compatibility with old devices
   * Fixed progressbar for ImageCache
   * Fixed Exceptions when returning from article
   * Fixed problem with ImageCache
