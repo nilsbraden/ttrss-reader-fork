@@ -21,6 +21,7 @@ import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.model.HeaderAdapter;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.preferences.FileBrowserHelper;
 import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
@@ -39,6 +40,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.widget.ListAdapter;
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -59,13 +61,14 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
     public static final int ACTIVITY_CHOOSE_CACHE_FOLDER = 2;
     
     private static AsyncTask<Void, Void, Void> init;
+    private static List<Header> _headers;
     
-    private Context context;
     private static Preference downloadPath;
     private static Preference cachePath;
-    
-    private boolean needResource = false;
     private static PreferenceActivity activity;
+    
+    private Context context;
+    private boolean needResource = false;
     
     @SuppressWarnings("deprecation")
     @Override
@@ -90,11 +93,21 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
     }
     
     @Override
-    public void onBuildHeaders(List<Header> target) {
+    public void onBuildHeaders(List<Header> headers) {
+        _headers = headers;
         if (onIsHidingHeaders()) { // || !onIsMultiPane()) {
             needResource = true;
         } else {
-            loadHeadersFromResource(R.xml.prefs_headers, target);
+            loadHeadersFromResource(R.xml.prefs_headers, headers);
+        }
+    }
+    
+    @Override
+    public void setListAdapter(ListAdapter adapter) {
+        if (adapter == null) {
+            super.setListAdapter(null);
+        } else {
+            super.setListAdapter(new HeaderAdapter(this, _headers));
         }
     }
     
@@ -121,7 +134,6 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
                 }
                 
                 FileBrowserFailOverCallback callbackDownloadPath = new FileBrowserFailOverCallback() {
-                    
                     @Override
                     public void onPathEntered(String path) {
                         downloadPath.setSummary(path);
@@ -147,7 +159,6 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
                 }
                 
                 FileBrowserFailOverCallback callbackCachePath = new FileBrowserFailOverCallback() {
-                    
                     @Override
                     public void onPathEntered(String path) {
                         cachePath.setSummary(path);
