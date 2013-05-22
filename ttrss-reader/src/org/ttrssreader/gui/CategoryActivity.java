@@ -294,8 +294,14 @@ public class CategoryActivity extends MenuActivity {
                     ft.replace(R.id.headline_list, feedHeadlineFragment);
                     break;
                 case SELECTED_CATEGORY:
-                    feedFragment = FeedListFragment.newInstance(selectedId);
-                    ft.replace(R.id.feed_list, feedFragment);
+                    if (Controller.getInstance().invertBrowsing()) {
+                        feedHeadlineFragment = FeedHeadlineListFragment.newInstance(FeedHeadlineActivity.FEED_NO_ID,
+                                selectedId, true);
+                        ft.replace(R.id.headline_list, feedHeadlineFragment);
+                    } else {
+                        feedFragment = FeedListFragment.newInstance(selectedId);
+                        ft.replace(R.id.feed_list, feedFragment);
+                    }
                     break;
             }
             
@@ -318,8 +324,15 @@ public class CategoryActivity extends MenuActivity {
                     i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, -2);
                     break;
                 case SELECTED_CATEGORY:
-                    i = new Intent(context, FeedActivity.class);
-                    i.putExtra(FeedActivity.FEED_CAT_ID, selectedId);
+                    if (Controller.getInstance().invertBrowsing()) {
+                        i = new Intent(context, FeedHeadlineActivity.class);
+                        i.putExtra(FeedHeadlineActivity.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
+                        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, selectedId);
+                        i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, true);
+                    } else {
+                        i = new Intent(context, FeedActivity.class);
+                        i.putExtra(FeedActivity.FEED_CAT_ID, selectedId);
+                    }
                     break;
             }
             startActivity(i);
