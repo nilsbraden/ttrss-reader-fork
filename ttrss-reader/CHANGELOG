@@ -1,6 +1,11 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.49 ==
+  * Added a preference to "Invert browsing articles"
+  * Fixed problems with the new preference-dialog
+  * Added confirmation dialog to unsubscribe from feed
+  
 == Version 1.48 (1) ==
   * New Preference-Layout, new Icons, fixed compatibility with old devices
   * Fixed progressbar for ImageCache

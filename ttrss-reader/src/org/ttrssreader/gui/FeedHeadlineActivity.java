@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.model.FeedAdapter;
@@ -28,7 +29,6 @@ import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
-import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
@@ -181,7 +181,8 @@ public class FeedHeadlineActivity extends MenuActivity {
                 }
                 return true;
             case R.id.Menu_FeedUnsubscribe:
-                new Updater(this, new UnsubscribeUpdater(feedId)).exec();
+                FeedUnsubscribeDialog.getInstance(this, feedId).show(getSupportFragmentManager(),
+                        FeedUnsubscribeDialog.DIALOG_UNSUBSCRIBE);
             default:
                 return false;
         }
