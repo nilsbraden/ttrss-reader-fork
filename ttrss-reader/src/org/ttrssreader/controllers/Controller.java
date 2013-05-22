@@ -81,6 +81,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean openUrlEmptyArticle = null;
     private Boolean useVolumeKeys = null;
     private Boolean loadImages = null;
+    private Boolean invertBrowsing = null;
     private Boolean workOffline = null;
     
     private Integer headlineSize = null;
@@ -429,6 +430,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setLoadImages(boolean loadImages) {
         put(Constants.LOAD_IMAGES, loadImages);
         this.loadImages = loadImages;
+    }
+    
+    public boolean invertBrowsing() {
+        if (invertBrowsing == null)
+            invertBrowsing = prefs.getBoolean(Constants.INVERT_BROWSING, Constants.INVERT_BROWSING_DEFAULT);
+        return invertBrowsing;
+    }
+    
+    public void setInvertBrowsing(boolean invertBrowsing) {
+        put(Constants.INVERT_BROWSING, invertBrowsing);
+        this.invertBrowsing = invertBrowsing;
     }
     
     public boolean workOffline() {

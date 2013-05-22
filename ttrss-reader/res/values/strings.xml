@@ -63,6 +63,7 @@
     <string name="Commons.InvertSort">Invert order</string>
     <string name="Commons.DisplayAll">Display all</string>
     <string name="Commons.SelectArticles">Show all articles</string>
+    <string name="Commons.SelectFeeds">Show all feeds</string>
     <string name="Commons.MarkAllRead">All read</string>
     <string name="Commons.MarkRead">Mark as read</string>
     <string name="Commons.MarkUnread">Mark as unread</string>
@@ -126,6 +127,8 @@
     <string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>
     <string name="DisplayLoadImagesPreferenceTitle">Load images</string>
     <string name="DisplayLoadImagesPreferenceSummary">Uncheck to disable image-loading from external ressources in Webview.</string>
+    <string name="InvertBrowseArticlesPreferenceTitle">Invert browsing articles</string>
+    <string name="InvertBrowseArticlesPreferenceSummary">If checked, opening a category directly opens all articles within, else it shows the feeds.</string>
     <string name="DisplayUseSwipeTitle">Use Swipe</string>
     <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe for navigation. This overrides the \"Use Buttons-Option\".</string>
     <string name="DisplayUseButtonsTitle">Use Buttons</string>

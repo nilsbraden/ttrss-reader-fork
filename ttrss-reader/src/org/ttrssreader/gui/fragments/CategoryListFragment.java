@@ -17,6 +17,7 @@ package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.FeedActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
@@ -47,6 +48,7 @@ public class CategoryListFragment extends ListFragment implements IUpdateEndList
     private int selectedIndexOld = SELECTED_INDEX_DEFAULT;
     
     private static final int SELECT_ARTICLES = MenuActivity.MARK_GROUP + 54;
+    private static final int SELECT_FEEDS = MenuActivity.MARK_GROUP + 55;
     
     private CategoryAdapter adapter = null;
     private ListView listView;
@@ -124,7 +126,11 @@ public class CategoryListFragment extends ListFragment implements IUpdateEndList
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(MenuActivity.MARK_GROUP, SELECT_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
+        if (Controller.getInstance().invertBrowsing())
+            menu.add(MenuActivity.MARK_GROUP, SELECT_FEEDS, Menu.NONE, R.string.Commons_SelectFeeds);
+        else
+            menu.add(MenuActivity.MARK_GROUP, SELECT_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
+        
     }
     
     @Override
@@ -135,6 +141,7 @@ public class CategoryListFragment extends ListFragment implements IUpdateEndList
             return false;
         
         int id = adapter.getId(cmi.position);
+        Intent intent;
         
         switch (item.getItemId()) {
             case MenuActivity.MARK_READ:
@@ -144,12 +151,20 @@ public class CategoryListFragment extends ListFragment implements IUpdateEndList
                 return true;
             case SELECT_ARTICLES:
                 if (id < 0)
-                    return false; // Do nothing for Virtual Category or Labels
-                Intent i = new Intent(getActivity(), FeedHeadlineActivity.class);
-                i.putExtra(FeedHeadlineActivity.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
-                i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, id);
-                i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, true);
-                startActivity(i);
+                    return false;
+                intent = new Intent(getActivity(), FeedHeadlineActivity.class);
+                intent.putExtra(FeedHeadlineActivity.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
+                intent.putExtra(FeedHeadlineActivity.FEED_CAT_ID, id);
+                intent.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, true);
+                startActivity(intent);
+                return true;
+            case SELECT_FEEDS:
+                if (id < 0)
+                    return false;
+                intent = new Intent(getActivity(), FeedActivity.class);
+                intent.putExtra(FeedActivity.FEED_CAT_ID, id);
+                startActivity(intent);
+                return true;
         }
         return false;
     }
