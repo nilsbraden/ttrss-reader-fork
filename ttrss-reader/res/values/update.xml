@@ -18,6 +18,10 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.49
+		  	\n * Added a preference to \"Invert browsing articles\"
+		  	\n * Fixed problems with the new preference-dialog
+		  	\n * Added confirmation dialog to unsubscribe from feed</item>
         <item>Version 1.48
 			\n * New Preference-Layout, new Icons
 			\n * Fixed progressbar for ImageCache
