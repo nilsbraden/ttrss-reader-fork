@@ -806,13 +806,20 @@ public class DBHelper {
         }
         c.close();
         
+        // Update VirtualCategory-Count
         updateCategoryDeltaUnreadCount(Data.VCAT_STAR, countStar * -1);
         updateCategoryDeltaUnreadCount(Data.VCAT_PUB, countPub * -1);
         updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, countFresh * -1);
         updateCategoryDeltaUnreadCount(Data.VCAT_ALL, countAll * -1);
         
+        // Update Category-Count
+        Feed feed = getFeed(feedId);
+        updateCategoryDeltaUnreadCount(feed.categoryId, -1);
+        
+        // Update Feed-Count
         updateFeedUnreadCount(feedId, 0);
         
+        // Update Article
         if (feedId < -10) {
             markLabelRead(feedId);
         } else {
