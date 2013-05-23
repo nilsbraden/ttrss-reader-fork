@@ -50,6 +50,9 @@
     <string name="ArticleActivity.MediaDisplayLink">Open attachment</string>
     <string name="ArticleActivity.SwipeNotification">Swipe here!</string>
     <string name="ArticleActivity.ArticleLink">-> Article-Link</string>
+    <string name="ArticleActivity.ShareURL">Share URL</string>
+    <string name="ArticleActivity.ShareArticle">Share Article</string>
+    <string name="ArticleActivity.ShowCaption">Show image-caption</string>
     <string name="Loading.Headlines">Loading articles…</string>
     <string name="Loading.Feeds">Loading feeds…</string>
     <string name="Loading.Categories">Loading categories…</string>
@@ -234,8 +237,11 @@
     <string name="Dialog.unsubscribeText">Are you sure you want to unsubscribe from this feed?</string>
     <string name="Dialog.unsubscribeTitle">Unsubscribe Feed</string>
     <string name="Dialog.vacuumProgress">Cleaning the database…</string>
+    <string name="Dialog.imageCaptionTitle">Image caption</string>
     <string name="Yes">Yes</string>
     <string name="No">No</string>
+    <string name="Ok">OK</string>
+    <string name="Close">Close</string>
     <string name="NotNow">Not now</string>
 
 </resources>
