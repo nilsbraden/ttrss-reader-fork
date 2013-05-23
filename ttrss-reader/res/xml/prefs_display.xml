@@ -24,15 +24,14 @@
             android:key="DisplayAlignFlushLeftPreference"
             android:summary="@string/DisplayAlignFlushLeftSummary"
             android:title="@string/DisplayAlignFlushLeftTitle" />
-
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="DisplayArticleLinkPreference"
             android:summary="@string/DisplayArticleLinkSummary"
             android:title="@string/DisplayArticleLinkTitle" />
-
         <CheckBoxPreference
             android:defaultValue="true"
+            android:disableDependentsState="true"
             android:key="DisplayDateTimeFormatSystemPreference"
             android:summary="@string/DisplayDateTimeFormatSystemSummary"
             android:title="@string/DisplayDateTimeFormatSystemTitle" />
@@ -40,14 +39,15 @@
         <EditTextPreference
             android:name="@string/DisplayDateFormatTitle"
             android:defaultValue="@string/DisplayDateFormatDefault"
+            android:dependency="DisplayDateTimeFormatSystemPreference"
             android:inputType="textFilter"
             android:key="DisplayDateFormatPreference"
             android:summary="@string/DisplayDateFormatSummary"
             android:title="@string/DisplayDateFormatTitle" />
-
         <EditTextPreference
             android:name="@string/DisplayTimeFormatTitle"
             android:defaultValue="@string/DisplayTimeFormatDefault"
+            android:dependency="DisplayDateTimeFormatSystemPreference"
             android:inputType="textFilter"
             android:key="DisplayTimeFormatPreference"
             android:summary="@string/DisplayTimeFormatSummary"
@@ -67,7 +67,6 @@
             android:maxLength="2"
             android:summary="@string/HeadlineSizeSummary"
             android:title="@string/HeadlineSizeTitle" />
-
         <org.ttrssreader.preferences.EditIntegerPreference
             android:name="@string/TextZoomTitle"
             android:defaultValue="100"
