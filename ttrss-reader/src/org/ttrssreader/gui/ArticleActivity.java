@@ -24,6 +24,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
+import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
@@ -92,6 +93,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
     private static final int CONTEXT_MENU_SHARE_URL = 1000;
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
+    private static final int CONTEXT_MENU_DISPLAY_CAPTION = 1002;
     
     // Extras
     private int articleId = -1;
@@ -122,7 +124,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     private FeedHeadlineAdapter parentAdapter = null;
     private int[] parentIDs = new int[2];
-    private String mUrl;
+    private String mSelectedExtra;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -452,16 +454,38 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         HitTestResult result = ((WebView) v).getHitTestResult();
         
-        // Create your context menu here
-        menu.setHeaderTitle("Share");
-        // reset class member
-        mUrl = null;
+        menu.setHeaderTitle(getResources().getString(R.string.ArticleActivity_ShareLink));
+        mSelectedExtra = null;
         if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
-            mUrl = result.getExtra();
-            Log.d(Utils.TAG, "Clicked on " + mUrl);
-            menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_URL, 0, "Share URL");
+            mSelectedExtra = result.getExtra();
+            menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_URL, 2,
+                    getResources().getString(R.string.ArticleActivity_ShareURL));
         }
-        menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 0, "Share article");
+        if (result.getType() == HitTestResult.IMAGE_TYPE) {
+            mSelectedExtra = getAltTextForImageUrl(result.getExtra());
+            Log.d(Utils.TAG, "Clicked on " + mSelectedExtra);
+            menu.add(ContextMenu.NONE, CONTEXT_MENU_DISPLAY_CAPTION, 1,
+                    getResources().getString(R.string.ArticleActivity_ShowCaption));
+        }
+        menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 10,
+                getResources().getString(R.string.ArticleActivity_ShareArticle));
+    }
+    
+    private String getAltTextForImageUrl(String extra) {
+        if (content == null || !content.contains(extra))
+            return null;
+        
+        int extraPos = content.indexOf(extra);
+        int tagEnd = content.indexOf('>', extraPos);
+        String tag = content.substring(0, tagEnd);
+        int tagBegin = content.lastIndexOf('<', extraPos);
+        tag = tag.substring(tagBegin, tag.length());
+        
+        int altPos = tag.indexOf("alt=\"") + 5;
+        int altEnd = tag.indexOf("\"", altPos);
+        String alt = tag.substring(altPos, altEnd);
+        
+        return alt;
     }
     
     @Override
@@ -469,21 +493,23 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         Intent shareIntent = null;
         switch (item.getItemId()) {
             case CONTEXT_MENU_SHARE_URL:
-                if (mUrl != null) {
-                    shareIntent = getUrlShareIntent(mUrl);
+                if (mSelectedExtra != null) {
+                    shareIntent = getUrlShareIntent(mSelectedExtra);
+                    startActivity(Intent.createChooser(shareIntent, "Share URL"));
                 }
-                // reset class member
-                mUrl = null;
                 break;
-            /*
-             * default behavior is to share the article URL
-             */
+            case CONTEXT_MENU_DISPLAY_CAPTION:
+                ImageCaptionDialog fragment = ImageCaptionDialog.getInstance(mSelectedExtra);
+                fragment.show(getSupportFragmentManager(), ImageCaptionDialog.DIALOG_CAPTION);
+                return true;
             case CONTEXT_MENU_SHARE_ARTICLE:
+                // Fall-through
             default:
+                // default behavior is to share the article URL
                 shareIntent = getUrlShareIntent(article.url);
+                startActivity(Intent.createChooser(shareIntent, "Share URL"));
                 break;
         }
-        startActivity(Intent.createChooser(shareIntent, "Share URL"));
         return super.onContextItemSelected(item);
     }
     
