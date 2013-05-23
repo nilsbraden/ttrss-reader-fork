@@ -13,7 +13,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details. You should have received a
     copy of the GNU General Public License along with this program; If
-    not, see <http://www.gnu.org/licenses/>.
+    not, see <http://www.gnu.org/licenses/>.
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/ConnectionHttpPreferenceCategoryTitle" >
@@ -21,6 +21,7 @@
     <PreferenceCategory android:title="@string/ConnectionHttpPreferenceCategoryTitle" >
         <CheckBoxPreference
             android:defaultValue="false"
+            android:disableDependentsState="false"
             android:key="ConnectionHttpPreference"
             android:summary="@string/ConnectionHttpPreferenceSummary"
             android:title="@string/ConnectionHttpPreferenceTitle" />
@@ -28,14 +29,15 @@
         <EditTextPreference
             android:name="@string/ConnectionHttpUsernamePreferenceTitle"
             android:defaultValue=""
+            android:dependency="ConnectionHttpPreference"
             android:inputType="textFilter"
             android:key="ConnectionHttpUsernamePreference"
             android:summary="@string/ConnectionUsernamePreferenceSummary"
             android:title="@string/ConnectionHttpUsernamePreferenceTitle" />
-
         <EditTextPreference
             android:name="@string/ConnectionHttpPasswordPreferenceTitle"
             android:defaultValue=""
+            android:dependency="ConnectionHttpPreference"
             android:inputType="textPassword"
             android:key="ConnectionHttpPasswordPreference"
             android:summary="@string/ConnectionHttpPasswordPreferenceSummary"
