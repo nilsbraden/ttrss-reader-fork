@@ -49,13 +49,22 @@ public class DateUtils {
         } else {
             
             try {
-                String format = Controller.getInstance().dateString() + " " + Controller.getInstance().timeString();
-                return android.text.format.DateFormat.format(format, date).toString();
+                
+                // Only display delimiter if both formats are available, if the user did set one to an empty string he
+                // doesn't want to see this information and we can hide the delimiter too.
+                String dateStr = Controller.getInstance().dateString();
+                String timeStr = Controller.getInstance().timeString();
+                String delimiter = (dateStr.length() > 0 && timeStr.length() > 0) ? " " : "";
+                String formatted = dateStr + delimiter + timeStr;
+                return android.text.format.DateFormat.format(formatted, date).toString();
+                
             } catch (Exception e) {
+                
                 // Retreat to default date-time-format
-                String format = context.getResources().getString(R.string.DisplayDateFormatDefault)
-                        + " " + context.getResources().getString(R.string.DisplayTimeFormatDefault);
-                return android.text.format.DateFormat.format(format, date).toString();
+                java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(context);
+                java.text.DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(context);
+                return dateFormat.format(date) + " " + timeFormat.format(date);
+                
             }
             
         }
