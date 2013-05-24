@@ -18,6 +18,10 @@ package org.ttrssreader.gui;
 
 import java.util.Locale;
 import java.util.Set;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.HtmlNode;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.TagNodeVisitor;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -125,6 +129,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private FeedHeadlineAdapter parentAdapter = null;
     private int[] parentIDs = new int[2];
     private String mSelectedExtra;
+    private String mSelectedAltText;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -453,40 +458,68 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         super.onCreateContextMenu(menu, v, menuInfo);
         
         HitTestResult result = ((WebView) v).getHitTestResult();
-        
         menu.setHeaderTitle(getResources().getString(R.string.ArticleActivity_ShareLink));
         mSelectedExtra = null;
+        mSelectedAltText = null;
+        
         if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
             mSelectedExtra = result.getExtra();
             menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_URL, 2,
                     getResources().getString(R.string.ArticleActivity_ShareURL));
         }
         if (result.getType() == HitTestResult.IMAGE_TYPE) {
-            mSelectedExtra = getAltTextForImageUrl(result.getExtra());
-            Log.d(Utils.TAG, "Clicked on " + mSelectedExtra);
-            menu.add(ContextMenu.NONE, CONTEXT_MENU_DISPLAY_CAPTION, 1,
-                    getResources().getString(R.string.ArticleActivity_ShowCaption));
+            mSelectedAltText = getAltTextForImageUrl(result.getExtra());
+            if (mSelectedAltText != null)
+                menu.add(ContextMenu.NONE, CONTEXT_MENU_DISPLAY_CAPTION, 1,
+                        getResources().getString(R.string.ArticleActivity_ShowCaption));
         }
         menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 10,
                 getResources().getString(R.string.ArticleActivity_ShareArticle));
     }
     
+    /**
+     * Using a small html parser with a visitor which goes through the html I extract the alt-attribute from the
+     * content. If nothing is found it is left as null and the menu should'nt contain the item to display the caption.
+     * 
+     * @param extra
+     *            the
+     * @return the alt-text or null if none was found.
+     */
     private String getAltTextForImageUrl(String extra) {
         if (content == null || !content.contains(extra))
             return null;
         
-        int extraPos = content.indexOf(extra);
-        int tagEnd = content.indexOf('>', extraPos);
-        String tag = content.substring(0, tagEnd);
-        int tagBegin = content.lastIndexOf('<', extraPos);
-        tag = tag.substring(tagBegin, tag.length());
+        HtmlCleaner cleaner = new HtmlCleaner();
+        TagNode node = cleaner.clean(content);
         
-        int altPos = tag.indexOf("alt=\"") + 5;
-        int altEnd = tag.indexOf("\"", altPos);
-        String alt = tag.substring(altPos, altEnd);
+        MyTagNodeVisitor tnv = new MyTagNodeVisitor(extra);
+        node.traverse(tnv);
         
-        return alt;
+        return tnv.alt;
     }
+    
+    class MyTagNodeVisitor implements TagNodeVisitor {
+        public String alt = null;
+        private String extra;
+        
+        public MyTagNodeVisitor(String extra) {
+            this.extra = extra;
+        }
+        
+        public boolean visit(TagNode tagNode, HtmlNode htmlNode) {
+            if (htmlNode instanceof TagNode) {
+                TagNode tag = (TagNode) htmlNode;
+                String tagName = tag.getName();
+                // Only if the image-url is the same as the url of the image the long-press was on:
+                if ("img".equals(tagName) && extra.equals(tag.getAttributeByName("src"))) {
+                    alt = tag.getAttributeByName("alt");
+                    if (alt != null)
+                        return false;
+                }
+            }
+            return true;
+        }
+    };
     
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
@@ -499,7 +532,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 }
                 break;
             case CONTEXT_MENU_DISPLAY_CAPTION:
-                ImageCaptionDialog fragment = ImageCaptionDialog.getInstance(mSelectedExtra);
+                ImageCaptionDialog fragment = ImageCaptionDialog.getInstance(mSelectedAltText);
                 fragment.show(getSupportFragmentManager(), ImageCaptionDialog.DIALOG_CAPTION);
                 return true;
             case CONTEXT_MENU_SHARE_ARTICLE:
