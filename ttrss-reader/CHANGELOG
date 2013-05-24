@@ -6,6 +6,8 @@
   * Fixed Issue 151: handling of disabled formats entirely
   * Fixed Issue 150: sub date/time options in preferences menu do not auto-disable
   * Issue 140: View image captions
+  * Fixed rotation of article with dark background
+  * Fixed starred/published articles from external source
 
 == Version 1.49 ==
   * Added a preference to "Invert browsing articles"
