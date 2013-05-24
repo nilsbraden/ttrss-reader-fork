@@ -124,8 +124,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private TextView header_title;
     private CheckBox header_starred;
     
-    private String baseUrl = null;
-    
     private FeedHeadlineAdapter parentAdapter = null;
     private int[] parentIDs = new int[2];
     private String mSelectedExtra;
@@ -372,7 +370,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             
             // Check for errors
             if (Controller.getInstance().getConnector().hasLastError()) {
-                openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
+                Intent i = new Intent(this, ErrorActivity.class);
+                i.putExtra(ErrorActivity.ERROR_MESSAGE, Controller.getInstance().getConnector().pullLastError());
+                startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
                 return;
             }
             
@@ -398,7 +398,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             content = injectCachedImages(content, articleId);
             
             // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-            baseUrl = StringSupport.getBaseURL(article.url);
+            String baseUrl = StringSupport.getBaseURL(article.url);
             webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
             
             setTitle(article.title);
@@ -727,6 +727,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
     };
     
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
@@ -740,6 +741,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         return super.onKeyDown(keyCode, event);
     }
     
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP)
@@ -764,12 +766,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
     };
     
-    private void openConnectionErrorDialog(String errorMessage) {
-        Intent i = new Intent(this, ErrorActivity.class);
-        i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
-        startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
-    }
-    
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR)
             doRefresh();
