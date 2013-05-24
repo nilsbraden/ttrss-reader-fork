@@ -2,10 +2,10 @@
 
 = Changes =
 == Version 1.50 ==
-  * Fixed Issue 155: category totals often don't update correctly
-  * Fixed Issue 151: handling of disabled formats entirely
   * Fixed Issue 150: sub date/time options in preferences menu do not auto-disable
-  * Issue 140: View image captions
+  * Fixed Issue 151: handling of disabled date/time format string
+  * Fixed Issue 155: category totals often don't update correctly
+  * Fixed Issue 140: View image captions (longpress on image)
   * Fixed rotation of article with dark background
   * Fixed Issue 145: starred list won't fully sync
   * Temporary workaround for Issue 144: No menu button when viewing articles
