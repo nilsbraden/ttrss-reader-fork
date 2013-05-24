@@ -575,7 +575,7 @@ public abstract class JSONConnector {
                 String title = null;
                 boolean isUnread = false;
                 Date updated = null;
-                int feedId = 0;
+                Integer feedId = 0;
                 String content = null;
                 String articleUrl = null;
                 String articleCommentUrl = null;
@@ -597,7 +597,10 @@ public abstract class JSONConnector {
                         } else if (name.equals(UPDATED)) {
                             updated = new Date(Long.valueOf(reader.nextString() + "000"));
                         } else if (name.equals(FEED_ID)) {
-                            feedId = reader.nextInt();
+                            if (reader.peek() == JsonToken.NULL)
+                                reader.nextNull();
+                            else
+                                feedId = reader.nextInt();
                         } else if (name.equals(CONTENT)) {
                             content = reader.nextString();
                         } else if (name.equals(URL)) {
