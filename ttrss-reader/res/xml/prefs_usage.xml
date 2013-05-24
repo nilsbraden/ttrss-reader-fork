@@ -49,6 +49,11 @@
             android:key="InvertBrowseArticlesPreference"
             android:summary="@string/InvertBrowseArticlesPreferenceSummary"
             android:title="@string/InvertBrowseArticlesPreferenceTitle" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="ArticleUseActionBarPreference"
+            android:summary="@string/ArticleUseActionBarSummary"
+            android:title="@string/ArticleUseActionBarTitle" />
     </PreferenceCategory>
 
 </PreferenceScreen>

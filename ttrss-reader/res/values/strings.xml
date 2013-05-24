@@ -132,6 +132,8 @@
     <string name="DisplayLoadImagesPreferenceSummary">Uncheck to disable image-loading from external ressources in Webview.</string>
     <string name="InvertBrowseArticlesPreferenceTitle">Invert browsing articles</string>
     <string name="InvertBrowseArticlesPreferenceSummary">If checked, opening a category directly opens all articles within, else it shows the feeds.</string>
+    <string name="ArticleUseActionBarTitle">Actionbar in Article</string>
+    <string name="ArticleUseActionBarSummary">Enables the Actionbar for articles, without some devices may not have a menubutton. This should only be a temporary workaround.</string>
     <string name="DisplayUseSwipeTitle">Use Swipe</string>
     <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe for navigation. This overrides the \"Use Buttons-Option\".</string>
     <string name="DisplayUseButtonsTitle">Use Buttons</string>
