@@ -132,7 +132,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        if (!Controller.getInstance().articleUseActionbar())
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.articleitem);
         
         Bundle extras = getIntent().getExtras();
