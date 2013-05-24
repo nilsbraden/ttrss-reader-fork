@@ -222,12 +222,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             }
-            
-            if (Controller.getInstance().darkBackground()) {
-                webView.setBackgroundColor(Color.BLACK);
-                if (findViewById(R.id.container) instanceof ViewGroup)
-                    setDarkBackground((ViewGroup) findViewById(R.id.container));
-            }
+        }
+        
+        if (Controller.getInstance().darkBackground()) {
+            webView.setBackgroundColor(Color.BLACK);
+            if (findViewById(R.id.container) instanceof ViewGroup)
+                setDarkBackground((ViewGroup) findViewById(R.id.container));
         }
         
         registerForContextMenu(webView);
