@@ -17,6 +17,8 @@
 <resources>
 
     <string name="ApplicationName">Tiny Tiny RSS Reader</string>
+    <string name="IntentPublish">Publish content</string>
+    <string name="IntentSubscribe">Subscribe to feed</string>
     <string name="ApplicationDescription">Tiny Tiny RSS Reader is an application for reading your feeds from your Tiny Tiny RSS instance.</string>
     <string name="Main.ShowPreferencesMenu">Preferences</string>
     <string name="Main.RefreshMenu">Refresh</string>

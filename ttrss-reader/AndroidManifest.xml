@@ -65,7 +65,7 @@
         <activity
             android:name=".gui.ShareActivity"
             android:excludeFromRecents="true"
-            android:label="@string/ApplicationName" >
+            android:label="@string/IntentPublish" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
@@ -76,7 +76,7 @@
         </activity>
         <activity
             android:name=".gui.SubscribeActivity"
-            android:label="@string/ApplicationName" >
+            android:label="@string/IntentSubscribe" >
 
             <!-- android:excludeFromRecents="true" -->
             <intent-filter>

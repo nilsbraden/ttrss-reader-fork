@@ -18,6 +18,14 @@
 <resources>
 
     <string-array name="updates">
+        <item> Version 1.50
+			\n * Fixed Issue 140: View image captions (longpress on image)
+			\n * Temporary workaround for devices without menubutton, Preferences \"Show Actionbar\" (Issue 144)
+			\n * Fixed Issue 145: starred list won\'t fully sync
+			\n * Fixed Issue 150: sub date/time options in preferences menu do not auto-disable
+			\n * Fixed Issue 151: handling of disabled date/time format string
+			\n * Fixed Issue 155: category totals often don\'t update correctly
+			\n * Fixed rotation of article with dark background</item>
         <item>Version 1.49
 		  	\n * Added a preference to \"Invert browsing articles\"
 		  	\n * Fixed problems with the new preference-dialog
