@@ -120,6 +120,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Long freshArticleMaxAgeDate = null;
     private Long lastVacuumDate = null;
     private Integer sinceId = null;
+    private Boolean lowMemory = false;
     
     public volatile Set<Integer> lastOpenedFeeds = new HashSet<Integer>();
     public volatile Set<Integer> lastOpenedArticles = new HashSet<Integer>();
@@ -835,6 +836,14 @@ public class Controller implements OnSharedPreferenceChangeListener {
         if (sinceId == null)
             sinceId = prefs.getInt(Constants.SINCE_ID, Constants.SINCE_ID_DEFAULT);
         return sinceId;
+    }
+    
+    public void lowMemory(boolean lowMemory) {
+        this.lowMemory = lowMemory;
+    }
+    
+    public boolean isLowMemory() {
+        return lowMemory;
     }
     
     private AsyncTask<Void, Void, Void> refreshPrefTask;
