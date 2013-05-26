@@ -27,6 +27,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.gui.dialogs.ArticleHeaderDialog;
 import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
@@ -63,6 +64,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -78,12 +80,13 @@ import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 
 @SuppressWarnings("deprecation")
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
@@ -118,6 +121,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private Button buttonPrev;
     private GestureDetector gestureDetector;
     
+    private LinearLayout header_main;
     private TextView header_feed;
     private TextView header_date;
     private TextView header_time;
@@ -132,8 +136,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        if (!Controller.getInstance().articleUseActionbar())
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.articleitem);
         
         Bundle extras = getIntent().getExtras();
@@ -152,23 +154,37 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
         
         initData();
+        initActionbar();
         initUI();
     }
     
-    @SuppressLint("InlinedApi")
-    private void initUI() {
+    private void initActionbar() {
+        ActionBar.LayoutParams params = new ActionBar.LayoutParams(ActionBar.LayoutParams.FILL_PARENT,
+                ActionBar.LayoutParams.FILL_PARENT);
+        LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View actionbarView = inflator.inflate(R.layout.articleactionbar, null);
         
-        findViewById(R.id.article_header).setBackgroundColor(Color.WHITE);
-        header_feed = (TextView) findViewById(R.id.head_feed);
-        header_feed.setTextColor(Color.BLACK);
-        header_title = (TextView) findViewById(R.id.head_title);
-        header_title.setTextColor(Color.BLACK);
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setDisplayShowCustomEnabled(true);
+        ab.setDisplayShowTitleEnabled(false);
+        ab.setCustomView(actionbarView, params);
+        
+        header_main = (LinearLayout) findViewById(R.id.head_main);
+        header_main.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArticleHeaderDialog dialog = ArticleHeaderDialog.newInstance(article);
+                dialog.show(getSupportFragmentManager(), ArticleHeaderDialog.DIALOG_HEADER);
+            }
+        });
+        header_feed = (TextView) actionbarView.findViewById(R.id.head_feed);
+        header_title = (TextView) actionbarView.findViewById(R.id.head_title);
         header_title.setTextSize(Controller.getInstance().headlineSize());
-        header_date = (TextView) findViewById(R.id.head_date);
-        header_date.setTextColor(Color.BLACK);
-        header_time = (TextView) findViewById(R.id.head_time);
-        header_time.setTextColor(Color.BLACK);
-        header_starred = (CheckBox) findViewById(R.id.head_starred);
+        header_date = (TextView) actionbarView.findViewById(R.id.head_date);
+        header_time = (TextView) actionbarView.findViewById(R.id.head_time);
+        header_starred = (CheckBox) actionbarView.findViewById(R.id.head_starred);
         header_starred.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,7 +193,10 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 }
             }
         });
-        
+    }
+    
+    @SuppressLint("InlinedApi")
+    private void initUI() {
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
         // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
         webContainer = (FrameLayout) findViewById(R.id.article_webView_Container);
