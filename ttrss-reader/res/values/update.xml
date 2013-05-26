@@ -18,6 +18,9 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.51
+			\n * Replaced article-header with a custom actionbar-layout (click title to view the full title if it doesn't fit in the space)
+			\n * Reduce memory usage when low-memory conditions are detected</item>
         <item> Version 1.50
 			\n * Fixed Issue 140: View image captions (longpress on image)
 			\n * Temporary workaround for devices without menubutton, Preferences \"Show Actionbar\" (Issue 144)
@@ -74,6 +77,9 @@
             \n * Added Label-Editing for articles
 			\n * Fixed some bugs preventing labels from beeing refreshed properly
 			\n * Fixed some UI glitches in the progressbar</item>
+
+        <!-- Old Entries: -->
+        <!--
         <item>Version 1.39
             \n * Added preference for "Load images" which, when disabled, forces the Webview to not load any content from the web.
 		    \n * Fixed Issue #99 "Sharing with Firefox Sync"
@@ -95,9 +101,6 @@
             \n * Added icons from SDK so all icons look the same
             \n * Cleaned up the ActionBar
             \n * Now using API-Level 17</item>
-
-        <!-- Old Entries: -->
-        <!--
         <item>Version 1.35
             \n * Articles are again marked as read when beeing read in the webinterface as long as there are new articles to be synced (API doesn\'t offer "changes since date/time", I can only guess what has changed)
             \n * Added long-press menu in Article-List: "Mark everything above as read"
