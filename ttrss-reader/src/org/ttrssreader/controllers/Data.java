@@ -100,6 +100,8 @@ public class Data {
     public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
         
         int limit = 400;
+        if (Controller.getInstance().isLowMemory())
+            limit = limit / 2;
         
         if (!overrideDelay && articlesCached > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
@@ -249,6 +251,10 @@ public class Data {
             else
                 limit = limit + 50; // Less on feed, more on category...
         }
+        
+        if (Controller.getInstance().isLowMemory())
+            limit = limit / 2;
+        
         return limit;
     }
     

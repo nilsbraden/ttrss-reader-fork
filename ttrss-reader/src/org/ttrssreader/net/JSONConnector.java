@@ -632,6 +632,8 @@ public abstract class JSONConnector {
                 }
             }
             reader.endArray();
+        } catch (OutOfMemoryError e) {
+            Controller.getInstance().lowMemory(true); // Low memory detected
         } catch (Exception e) {
             Log.e(Utils.TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
         }
