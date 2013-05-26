@@ -72,7 +72,6 @@ public class Constants {
     public static final String VIBRATE_ON_LAST_ARTICLE = "UsageVibrateOnLastArticlePreference";
     public static final String LOAD_IMAGES = "DisplayLoadImagesPreference";
     public static final String INVERT_BROWSING = "InvertBrowseArticlesPreference";
-    public static final String ARTICLE_USE_ACTIONBAR = "ArticleUseActionBarPreference";
     public static final String WORK_OFFLINE = "UsageWorkOfflinePreference";
     // Usage Default Values
     public static final boolean AUTOMATIC_MARK_READ_DEFAULT = true;
@@ -81,7 +80,6 @@ public class Constants {
     public static final boolean VIBRATE_ON_LAST_ARTICLE_DEFAULT = true;
     public static final boolean LOAD_IMAGES_DEFAULT = true;
     public static final boolean INVERT_BROWSING_DEFAULT = false;
-    public static final boolean ARTICLE_USE_ACTIONBAR_DEFAULT = false;
     public static final boolean WORK_OFFLINE_DEFAULT = false;
     
     // Display

@@ -23,14 +23,6 @@
     android:background="#FFFFFF"
     android:orientation="vertical" >
 
-    <FrameLayout
-        android:id="@+id/article_header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <include layout="@layout/articleheader" />
-    </FrameLayout>
-
     <RelativeLayout
         android:id="@+id/article_main"
         android:layout_width="match_parent"

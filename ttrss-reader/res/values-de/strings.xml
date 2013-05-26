@@ -124,7 +124,7 @@
     <string name="DisplayArticleLimitTitle">Speicherlimit für Artikel</string>
     <string name="DisplayArticleLimitSummary">Gibt an wieviele Artikel lokal gespeichert werden.</string>
     <string name="HeadlineSizeTitle">Schriftgröße des Titels</string>
-    <string name="HeadlineSizeSummary">Stellt die Schriftgröße des Titels in der Artikel-Kopfzeile ein (Standard: 10sp).</string>
+    <string name="HeadlineSizeSummary">Stellt die Schriftgröße des Titels in der Artikel-Kopfzeile ein (Standard: 16sp).</string>
     <string name="DisplayArticleLinkTitle">Artikel-Link einfügen</string>
     <string name="DisplayArticleLinkSummary">Aktivieren um am Ende des angezeigten Artikels einen klickbaren Link zur Webseite des Artikels einzufügen.</string>
     <string name="CacheImagesOnStartupTitle">ImageCache beim Start?</string>

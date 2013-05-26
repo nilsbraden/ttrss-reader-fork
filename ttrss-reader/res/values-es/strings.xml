@@ -137,7 +137,7 @@
     <string name="DisplayArticleLimitTitle">Límite de almacenamiento de artículos</string>
     <string name="DisplayArticleLimitSummary">Cuántos artículos serán almacenados localmente.</string>
     <string name="HeadlineSizeTitle">Tamaño del campo título de la cabecera del artículo</string>
-    <string name="HeadlineSizeSummary">Cambiar tamaño (por defecto: 10sp) al indicado.</string>
+    <string name="HeadlineSizeSummary">Cambiar tamaño (por defecto: 16sp) al indicado.</string>
     <string name="TextZoomTitle">Porcentaje zoom del texto</string>
     <string name="TextZoomSummary">Zoom (textual) del contenido de los artículos en %.</string>
     <string name="MarkReadInMenuTitle">Mostrar botón \"Leidos\"</string>

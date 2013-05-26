@@ -134,8 +134,6 @@
     <string name="DisplayLoadImagesPreferenceSummary">Uncheck to disable image-loading from external ressources in Webview.</string>
     <string name="InvertBrowseArticlesPreferenceTitle">Invert browsing articles</string>
     <string name="InvertBrowseArticlesPreferenceSummary">If checked, opening a category directly opens all articles within, else it shows the feeds.</string>
-    <string name="ArticleUseActionBarTitle">Actionbar in Article</string>
-    <string name="ArticleUseActionBarSummary">Enables the Actionbar for articles, without some devices may not have a menubutton. This should only be a temporary workaround.</string>
     <string name="DisplayUseSwipeTitle">Use Swipe</string>
     <string name="DisplayUseSwipeSummary">Use Left/Right-Swipe for navigation. This overrides the \"Use Buttons-Option\".</string>
     <string name="DisplayUseButtonsTitle">Use Buttons</string>
@@ -147,7 +145,7 @@
     <string name="DisplayArticleLimitTitle">Store Articles limit</string>
     <string name="DisplayArticleLimitSummary">How many Articles will be cached locally.</string>
     <string name="HeadlineSizeTitle">Size of the Title-Field from Article-Header</string>
-    <string name="HeadlineSizeSummary">Changes the size (default: 10sp) to the given value.</string>
+    <string name="HeadlineSizeSummary">Changes the size (default: 16sp) to the given value.</string>
     <string name="TextZoomTitle">Text-Zoom in percent</string>
     <string name="TextZoomSummary">Zoom (textual) content of articles by n%.</string>
     <string name="MarkReadInMenuTitle">Show \"MarkRead\" Button</string>
