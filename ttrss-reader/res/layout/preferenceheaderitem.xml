@@ -28,6 +28,7 @@
         android:layout_marginLeft="7dp"
         android:layout_marginRight="3dp"
         android:layout_marginTop="7dp"
+        android:contentDescription="@string/Empty"
         android:gravity="center" />
 
     <LinearLayout

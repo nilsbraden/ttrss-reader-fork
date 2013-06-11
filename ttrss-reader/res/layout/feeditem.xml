@@ -24,7 +24,8 @@
         android:id="@+id/feed_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="10dp" />
+        android:layout_marginRight="10dp"
+        android:contentDescription="@string/Empty" />
 
     <TextView
         android:id="@+id/feed_title"

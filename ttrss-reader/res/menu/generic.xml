@@ -61,7 +61,7 @@
     </group>
 
     <!-- Always show these entries in the menu. Show when using ShareToPublished. -->
-    <group android:id="@+id/group_generic" >
+    <group>
         <item
             android:id="@+id/Category_Menu_ImageCache"
             android:icon="@drawable/ic_menu_save"
