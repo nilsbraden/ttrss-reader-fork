@@ -162,7 +162,7 @@
     <string name="DisplayDarkBackgroundSummary">Activar para mostrar los artículos con fondo oscuro para lectura por la noche.</string>
     <string name="SystemPreferenceCategoryTitle">Sistema</string>
     <string name="StoreImageLimitTitle">Tamaño de la cache de imágenes (en MB)</string>
-    <string name="StoreImageLimitSummary">Tamaño de la cache de imágenes de la tarjeta SD para uso fuera de linea.</string>
+    <string name="StoreImageLimitSummary">Tamaño de la cache de imágenes de la tarjeta SD para uso fuera de línea.</string>
     <string name="CacheImagesUnreadArticlesTitle">Cache de imágenes no leídos solo</string>
     <string name="CacheImagesUnreadArticlesSummary">¿Cache de imágenes solo pra artículos s¡n leer?</string>
     <string name="SplitLongGetRequestsTitle">Partir peticiones GET largas</string>

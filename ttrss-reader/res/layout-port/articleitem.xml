@@ -24,12 +24,10 @@
     android:orientation="vertical" >
 
     <RelativeLayout
-        android:id="@+id/article_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <RelativeLayout
-            android:id="@+id/article_central_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/article_button_view"
@@ -57,7 +55,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1.0"
                 android:padding="4dip"
-                android:text="Up" />
+                android:text="@string/Up" />
 
             <Button
                 android:id="@+id/article_buttonPrev"
@@ -65,7 +63,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1.0"
                 android:padding="4dip"
-                android:text="Down" />
+                android:text="@string/Down" />
         </LinearLayout>
     </RelativeLayout>
 
