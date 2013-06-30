@@ -275,6 +275,10 @@ public abstract class JSONConnector {
     }
     
     private JsonReader prepareReader(Map<String, String> params) throws IOException {
+        return prepareReader(params, true);
+    }
+    
+    private JsonReader prepareReader(Map<String, String> params, boolean firstCall) throws IOException {
         InputStream in = doRequest(params);
         if (in == null)
             return null;
@@ -320,8 +324,8 @@ public abstract class JSONConnector {
                         
                         if (message.contains(NOT_LOGGED_IN)) {
                             lastError = NOT_LOGGED_IN;
-                            if (login() && !hasLastError)
-                                return prepareReader(params); // Just do the same request again
+                            if (firstCall && login() && !hasLastError)
+                                return prepareReader(params, false); // Just do the same request again
                             else
                                 return null;
                         }

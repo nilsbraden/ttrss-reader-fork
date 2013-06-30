@@ -101,8 +101,8 @@
     <string name="UsageOpenUrlEmptyArticleSummary">Automatically visits the Website of the article in the browser if the content is empty.</string>
     <string name="UsageUseVolumeKeysTitle">Navigate with volume-keys</string>
     <string name="UsageUseVolumeKeysSummary">Press up for the next newer article, down for older article.</string>
-    <string name="UsageOfflineTitle">Offline</string>
-    <string name="UsageOnlineTitle">Online</string>
+    <string name="UsageOfflineTitle">Work offline</string>
+    <string name="UsageOnlineTitle">Work online</string>
     <string name="DisplayPreferenceCategoryTitle">Display</string>
     <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
     <string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>

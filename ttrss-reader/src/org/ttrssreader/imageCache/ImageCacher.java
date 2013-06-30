@@ -48,7 +48,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
     private static final int DEFAULT_TASK_COUNT = 6;
     
-    private static Handler handler;
     private static volatile int progressImageDownload;
     
     private ICacheEndListener parent;
@@ -74,6 +73,10 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         myHandler.start();
     }
     
+    private static Thread myHandler;
+    private static Handler handler;
+    private static volatile Boolean handlerInitialized = false;
+    
     private static class MyHandler extends Thread {
         // Source: http://mindtherobot.com/blog/159/android-guts-intro-to-loopers-and-handlers/
         @Override
@@ -81,16 +84,31 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             try {
                 Looper.prepare();
                 handler = new Handler();
+                synchronized (handlerInitialized) {
+                    handlerInitialized = true;
+                    handlerInitialized.notifyAll();
+                }
                 Looper.loop();
             } catch (Throwable t) {
             }
         }
     };
     
-    public static Thread myHandler;
-    
     // This method is allowed to be called from any thread
     public synchronized void requestStop() {
+        // Wait for the handler to be fully initialized:
+        long wait = Utils.SECOND * 2;
+        if (!handlerInitialized) {
+            synchronized (handlerInitialized) {
+                while (!handlerInitialized && wait > 0) {
+                    try {
+                        wait = wait - 300;
+                        handlerInitialized.wait(300);
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+        }
         handler.post(new Runnable() {
             @Override
             public void run() {

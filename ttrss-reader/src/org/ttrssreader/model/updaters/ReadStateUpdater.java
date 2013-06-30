@@ -124,7 +124,7 @@ public class ReadStateUpdater implements IUpdatable {
                 // Check if is a fresh article and modify that count too
                 long ms = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
                 Date maxAge = new Date(ms);
-                if (article.updated.after(maxAge))
+                if (article.updated != null && article.updated.after(maxAge))
                     DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, delta);
                 
                 // Check if it is a starred article and modify that count too
