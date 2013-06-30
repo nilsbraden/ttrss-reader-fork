@@ -370,8 +370,10 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         super.onDestroy();
-        webContainer.removeAllViews();
-        webView.destroy();
+        if (webContainer != null)
+            webContainer.removeAllViews();
+        if (webView != null)
+            webView.destroy();
     }
     
     private void doRefresh() {
@@ -578,25 +580,27 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         
-        MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
-        if (article.isUnread) {
-            read.setTitle(getString(R.string.Commons_MarkRead));
-        } else {
-            read.setTitle(getString(R.string.Commons_MarkUnread));
-        }
-        
-        MenuItem publish = menu.findItem(R.id.Article_Menu_MarkStar);
-        if (article.isStarred) {
-            publish.setTitle(getString(R.string.Commons_MarkUnstar));
-        } else {
-            publish.setTitle(getString(R.string.Commons_MarkStar));
-        }
-        
-        MenuItem star = menu.findItem(R.id.Article_Menu_MarkPublish);
-        if (article.isPublished) {
-            star.setTitle(getString(R.string.Commons_MarkUnpublish));
-        } else {
-            star.setTitle(getString(R.string.Commons_MarkPublish));
+        if (article != null) {
+            MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
+            if (article.isUnread) {
+                read.setTitle(getString(R.string.Commons_MarkRead));
+            } else {
+                read.setTitle(getString(R.string.Commons_MarkUnread));
+            }
+            
+            MenuItem publish = menu.findItem(R.id.Article_Menu_MarkStar);
+            if (article.isStarred) {
+                publish.setTitle(getString(R.string.Commons_MarkUnstar));
+            } else {
+                publish.setTitle(getString(R.string.Commons_MarkStar));
+            }
+            
+            MenuItem star = menu.findItem(R.id.Article_Menu_MarkPublish);
+            if (article.isPublished) {
+                star.setTitle(getString(R.string.Commons_MarkUnpublish));
+            } else {
+                star.setTitle(getString(R.string.Commons_MarkPublish));
+            }
         }
         
         MenuItem offline = menu.findItem(R.id.Article_Menu_WorkOffline);

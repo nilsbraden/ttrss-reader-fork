@@ -28,7 +28,18 @@ public class FileDateComparator implements Comparator<File> {
     public int compare(File f1, File f2) {
         // As suggested here:
         // http://stackoverflow.com/questions/203030/best-way-to-list-files-in-java-sorted-by-date-modified
-        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+        // return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+        
+        // Last solution somehow also produced errors ("Comparison method violates its general contract!"), this one is
+        // copied from LastModifiedFileComparator.java (Apache Commons IO):
+        long result = f1.lastModified() - f2.lastModified();
+        if (result < 0) {
+            return -1;
+        } else if (result > 0) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
     
 }
