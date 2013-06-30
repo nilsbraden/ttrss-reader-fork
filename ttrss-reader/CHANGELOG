@@ -1,9 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.51 ==
+== Version 1.51 (1) ==
   * Replaced article-header with a custom actionbar-layout (click title to view the full title if it doesn't fit in the space)
   * Reduce memory usage when low-memory conditions are detected
+  * Bugfixes
 
 == Version 1.50 ==
   * Fixed Issue 150: sub date/time options in preferences menu do not auto-disable
