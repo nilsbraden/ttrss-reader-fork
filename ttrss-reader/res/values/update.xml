@@ -20,7 +20,8 @@
     <string-array name="updates">
         <item>Version 1.51
 			\n * Replaced article-header with a custom actionbar-layout (click title to view the full title if it doesn\'t fit in the space)
-			\n * Reduce memory usage when low-memory conditions are detected</item>
+			\n * Reduce memory usage when low-memory conditions are detected
+			\n * Bugfixes</item>
         <item> Version 1.50
 			\n * Fixed Issue 140: View image captions (longpress on image)
 			\n * Temporary workaround for devices without menubutton, Preferences \"Show Actionbar\" (Issue 144)
