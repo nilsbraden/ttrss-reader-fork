@@ -75,6 +75,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
     private static Thread myHandler;
     private static Handler handler;
+    
+    private static String myLock = "";
     private static volatile Boolean handlerInitialized = false;
     
     private static class MyHandler extends Thread {
@@ -84,12 +86,13 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             try {
                 Looper.prepare();
                 handler = new Handler();
-                synchronized (handlerInitialized) {
+                synchronized (myLock) {
                     handlerInitialized = true;
-                    handlerInitialized.notifyAll();
+                    myLock.notifyAll();
                 }
                 Looper.loop();
             } catch (Throwable t) {
+                t.printStackTrace();
             }
         }
     };
@@ -99,11 +102,11 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         // Wait for the handler to be fully initialized:
         long wait = Utils.SECOND * 2;
         if (!handlerInitialized) {
-            synchronized (handlerInitialized) {
+            synchronized (myLock) {
                 while (!handlerInitialized && wait > 0) {
                     try {
                         wait = wait - 300;
-                        handlerInitialized.wait(300);
+                        myLock.wait(300);
                     } catch (InterruptedException e) {
                     }
                 }
@@ -253,6 +256,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             synchronized (map) {
                 try {
                     map.wait(Utils.SECOND);
+                    map.notifyAll();
                 } catch (InterruptedException e) {
                     Log.d(Utils.TAG, "Got an InterruptedException!");
                 }
