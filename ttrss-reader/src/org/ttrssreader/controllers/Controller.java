@@ -1,13 +1,13 @@
 /*
  * ttrss-reader-fork for Android
- * 
+ *
  * Copyright (C) 2010 N. Braden.
  * Copyright (C) 2009-2010 J. Devauchelle.
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
@@ -48,23 +48,27 @@ import android.view.Display;
  * isn't one in here but it's called like that and I don't have a better name so we stay with it.
  */
 public class Controller implements OnSharedPreferenceChangeListener {
-    
+
     public final static String JSON_END_URL = "api/index.php";
     private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
     private static final String MARKER_LINK = "LINK_MARKER";
-    
+    private static final String MARKER_TEXT = "TEXT_MARKER";
+    private static final String MARKER_JS = "JS_MARKER";
+    private static final String MARKER_LANG = "LANG_MARKER";
+    public static final String MARKER_CONTENT = "CONTENT_MARKER";
+
     private Context context;
     private JSONConnector ttrssConnector;
     private ImageCache imageCache = null;
-    
+
     private boolean isHeadless = false;
     private String imageCacheLock = "lock";
-    
+
     private static Controller instance = null;
     private static Boolean initialized = false;
     private SharedPreferences prefs = null;
     private static boolean preferencesChanged = false;
-    
+
     private String url = null;
     private String username = null;
     private String password = null;
@@ -77,15 +81,18 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean useKeystore = null;
     private String keystorePassword = null;
     private Boolean useOfALazyServer = null;
-    
+
     private Boolean openUrlEmptyArticle = null;
     private Boolean useVolumeKeys = null;
     private Boolean loadImages = null;
     private Boolean invertBrowsing = null;
     private Boolean workOffline = null;
-    
+
     private Integer headlineSize = null;
     private Integer textZoom = null;
+    private Boolean supportZoomControls = null;
+    private Boolean allowHyphenation = null;
+    private String hyphenationLanguage = null;
     private Boolean markReadInMenu = null;
     private Boolean showVirtual = null;
     private Boolean useButtons = null;
@@ -98,7 +105,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String dateString = null;
     private String timeString = null;
     private Boolean darkBackground = null;
-    
+
     private String saveAttachment = null;
     private String cacheFolder = null;
     private Boolean vacuumDbScheduled = null;
@@ -107,7 +114,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean cacheImagesOnStartup = null;
     private Boolean cacheImagesOnlyWifi = null;
     private Boolean logSensitiveData = null;
-    
+
     private Long apiLevelUpdated = null;
     private Integer apiLevel = null;
     private Long appVersionCheckTime = null;
@@ -120,20 +127,20 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Long lastVacuumDate = null;
     private Integer sinceId = null;
     private Boolean lowMemory = false;
-    
+
     public volatile Set<Integer> lastOpenedFeeds = new HashSet<Integer>();
     public volatile Set<Integer> lastOpenedArticles = new HashSet<Integer>();
-    
+
     // Article-View-Stuff
-    public static String htmlHeader = "";
+    public static String htmlTemplate = "";
     public static int relSwipeMinDistance;
     public static int relSwipeMaxOffPath;
     public static int relSwipteThresholdVelocity;
-    
+
     // Singleton
     private Controller() {
     }
-    
+
     public static Controller getInstance() {
         if (instance == null || instance.prefs == null) {
             synchronized (Controller.class) {
@@ -144,35 +151,35 @@ public class Controller implements OnSharedPreferenceChangeListener {
         }
         return instance;
     }
-    
+
     public static void checkAndInitializeController(final Context context, boolean force_dummy_parameter) {
         synchronized (initialized) {
             Controller.instance = null;
             Controller.getInstance().checkAndInitializeController(context, null);
         }
     }
-    
+
     public void checkAndInitializeController(final Context context, final Display display) {
         synchronized (initialized) {
             this.context = context;
-            
+
             if (!initialized || instance == null || instance.prefs == null) {
                 initializeController(display);
                 initialized = true;
             }
         }
     }
-    
+
     private void initializeController(final Display display) {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        
+
         // Check for new installation
         if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
             newInstallation = true;
         }
-        
+
         initializeConnector();
-        
+
         // Attempt to initialize some stuff in a background-thread to reduce loading time
         // Start a login-request separately because this takes some time
         new Thread(new Runnable() {
@@ -181,171 +188,185 @@ public class Controller implements OnSharedPreferenceChangeListener {
                     ttrssConnector.sessionAlive();
             }
         }).start();
-        
+
         new Thread(new Runnable() {
             public void run() {
-                
+
                 // Only need once we are displaying the feed-list or an article...
                 refreshDisplayMetrics(display);
-                
+
                 // This is only needed once an article is displayed
-                synchronized (htmlHeader) {
+                synchronized (htmlTemplate) {
                     // Article-Prefetch-Stuff from Raw-Ressources and System
-                    htmlHeader = context.getResources().getString(R.string.INJECT_HTML_HEAD);
-                    
+                    htmlTemplate = context.getResources().getString(R.string.HTML_TEMPLATE);
+
                     // Replace alignment-marker with the requested layout, align:left or justified
                     String replaceAlign = "";
                     if (alignFlushLeft()) {
                         replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
-                        htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
                     } else {
                         replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
-                        htmlHeader = htmlHeader.replace(MARKER_ALIGN, replaceAlign);
                     }
-                    
+                    htmlTemplate = htmlTemplate.replace(MARKER_ALIGN, replaceAlign);
+
+
                     // Replace color-markers with matching colors for the requested background
-                    String replaceLink = "";
+                    String linkStyles = "";
+                    String textStyles = "";
                     if (darkBackground()) {
-                        replaceLink = context.getResources().getString(R.string.COLOR_LINK_DARK);
-                        htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
+                        linkStyles = context.getResources().getString(R.string.COLOR_LINK_DARK);
+                        textStyles = context.getResources().getString(R.string.COLOR_TEXT_DARK);
                     } else {
-                        replaceLink = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
-                        htmlHeader = htmlHeader.replace(MARKER_LINK, replaceLink);
+                        linkStyles = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
                     }
+                    htmlTemplate = htmlTemplate.
+                      replace(MARKER_LINK, linkStyles).
+                      replace(MARKER_TEXT, textStyles);
+
+                    String javascriptTemplate = "";
+                    String lang = "";
+                    if (allowHyphenation()) {
+                      javascriptTemplate = javascriptTemplate +
+                        context.getResources ().getString (R.string.JAVASCRIPT_HYPHENATION_TEMPLATE);
+                      lang = hyphenationLanguage ();
+                    }
+                    htmlTemplate = htmlTemplate.
+                      replace (MARKER_JS, javascriptTemplate).
+                      replaceAll (MARKER_LANG, lang);
                 }
-                
+
                 // This will be accessed when displaying an article or starting the imageCache. When caching it is done
                 // anyway so we can just do it in background and the ImageCache starts once it is done.
                 getImageCache();
             }
         }).start();
-        
+
     }
-    
+
     private synchronized void initializeConnector() {
         if (ttrssConnector != null)
             return;
-        
+
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO || useOldConnector()) {
             ttrssConnector = new ApacheJSONConnector(context);
         } else {
             ttrssConnector = new JavaJSONConnector(context);
         }
     }
-    
+
     public static void refreshDisplayMetrics(Display display) {
         if (display == null)
             return;
-        
+
         DisplayMetrics dm = new DisplayMetrics();
         display.getMetrics(dm);
-        
+
         int SWIPE_MIN_DISTANCE = 120;
         int SWIPE_MAX_OFF_PATH = 250;
         int SWIPE_THRESHOLD_VELOCITY = 200;
-        
+
         relSwipeMinDistance = (int) (SWIPE_MIN_DISTANCE * dm.densityDpi / 160.0f);
         relSwipeMaxOffPath = (int) (SWIPE_MAX_OFF_PATH * dm.densityDpi / 160.0f);
         relSwipteThresholdVelocity = (int) (SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
     }
-    
+
     // ******* CONNECTION-Options ****************************
-    
+
     public URI uri() throws URISyntaxException {
         if (url == null)
             url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
-        
+
         if (!url.endsWith(JSON_END_URL)) {
             if (!url.endsWith("/")) {
                 url += "/";
             }
             url += JSON_END_URL;
         }
-        
+
         return new URI(url);
     }
-    
+
     public URL url() throws MalformedURLException {
         if (url == null)
             url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
-        
+
         if (!url.endsWith(JSON_END_URL)) {
             if (!url.endsWith("/")) {
                 url += "/";
             }
             url += JSON_END_URL;
         }
-        
+
         return new URL(url);
     }
-    
+
     public String updateTriggerURI() {
         String url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
-        
+
         if (!url.endsWith(JSON_END_URL)) {
             if (!url.endsWith("/")) {
                 url += "/";
             }
         }
-        
+
         final String updateSuffix = "backend.php?op=globalUpdateFeeds&daemon=1";
         return url + updateSuffix;
     }
-    
+
     public String username() {
         if (username == null)
             username = prefs.getString(Constants.USERNAME, Constants.EMPTY);
         return username;
     }
-    
+
     public String password() {
         if (password == null)
             password = prefs.getString(Constants.PASSWORD, Constants.EMPTY);
         return password;
     }
-    
+
     public boolean useHttpAuth() {
         if (useHttpAuth == null)
             useHttpAuth = prefs.getBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
         return useHttpAuth;
     }
-    
+
     public String httpUsername() {
         if (httpUsername == null)
             httpUsername = prefs.getString(Constants.HTTP_USERNAME, Constants.EMPTY);
         return httpUsername;
     }
-    
+
     public String httpPassword() {
         if (httpPassword == null)
             httpPassword = prefs.getString(Constants.HTTP_PASSWORD, Constants.EMPTY);
         return httpPassword;
     }
-    
+
     public boolean useKeystore() {
         if (useKeystore == null)
             useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
         return useKeystore;
     }
-    
+
     public boolean trustAllSsl() {
         if (trustAllSsl == null)
             trustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
         return trustAllSsl;
     }
-    
+
     public boolean trustAllHosts() {
         if (trustAllHosts == null)
             trustAllHosts = prefs.getBoolean(Constants.TRUST_ALL_HOSTS, Constants.TRUST_ALL_HOSTS_DEFAULT);
         return trustAllSsl;
     }
-    
+
     private boolean useOldConnector() {
         if (useOldConnector == null)
             useOldConnector = prefs.getBoolean(Constants.USE_OLD_CONNECTOR, Constants.USE_OLD_CONNECTOR_DEFAULT);
         return useOldConnector;
     }
-    
+
     public JSONConnector getConnector() {
         // Initialized inside initializeController();
         if (ttrssConnector != null) {
@@ -358,11 +379,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 throw new RuntimeException("Connector could not be initialized.");
         }
     }
-    
+
     public ImageCache getImageCache() {
         return getImageCache(true);
     }
-    
+
     public ImageCache getImageCache(boolean wait) {
         if (imageCache == null && wait) {
             synchronized (imageCacheLock) {
@@ -376,299 +397,332 @@ public class Controller implements OnSharedPreferenceChangeListener {
         }
         return imageCache;
     }
-    
+
     public String getKeystorePassword() {
         if (keystorePassword == null)
             keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
         return keystorePassword;
     }
-    
+
     public boolean isHeadless() {
         return isHeadless;
     }
-    
+
     public void setHeadless(boolean isHeadless) {
         this.isHeadless = isHeadless;
     }
-    
+
     // ******* USAGE-Options ****************************
-    
+
     public boolean lazyServer() {
         if (useOfALazyServer == null)
             useOfALazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
         return useOfALazyServer;
     }
-    
+
     public boolean openUrlEmptyArticle() {
         if (openUrlEmptyArticle == null)
             openUrlEmptyArticle = prefs.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE,
                     Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
         return openUrlEmptyArticle;
     }
-    
+
     public void setOpenUrlEmptyArticle(boolean openUrlEmptyArticle) {
         put(Constants.OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
         this.openUrlEmptyArticle = openUrlEmptyArticle;
     }
-    
+
     public boolean useVolumeKeys() {
         if (useVolumeKeys == null)
             useVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
         return useVolumeKeys;
     }
-    
+
     public void setUseVolumeKeys(boolean useVolumeKeys) {
         put(Constants.USE_VOLUME_KEYS, useVolumeKeys);
         this.useVolumeKeys = useVolumeKeys;
     }
-    
+
     public boolean loadImages() {
         if (loadImages == null)
             loadImages = prefs.getBoolean(Constants.LOAD_IMAGES, Constants.LOAD_IMAGES_DEFAULT);
         return loadImages;
     }
-    
+
     public void setLoadImages(boolean loadImages) {
         put(Constants.LOAD_IMAGES, loadImages);
         this.loadImages = loadImages;
     }
-    
+
     public boolean invertBrowsing() {
         if (invertBrowsing == null)
             invertBrowsing = prefs.getBoolean(Constants.INVERT_BROWSING, Constants.INVERT_BROWSING_DEFAULT);
         return invertBrowsing;
     }
-    
+
     public void setInvertBrowsing(boolean invertBrowsing) {
         put(Constants.INVERT_BROWSING, invertBrowsing);
         this.invertBrowsing = invertBrowsing;
     }
-    
+
     public boolean workOffline() {
         if (workOffline == null)
             workOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
         return workOffline;
     }
-    
+
     public void setWorkOffline(boolean workOffline) {
         put(Constants.WORK_OFFLINE, workOffline);
         this.workOffline = workOffline;
     }
-    
+
     // ******* DISPLAY-Options ****************************
-    
+
     public int headlineSize() {
         if (headlineSize == null)
             headlineSize = prefs.getInt(Constants.HEADLINE_SIZE, Constants.HEADLINE_SIZE_DEFAULT);
         return headlineSize;
     }
-    
+
     public void setHeadlineSize(int headlineSize) {
         put(Constants.HEADLINE_SIZE, headlineSize);
         this.headlineSize = headlineSize;
     }
-    
+
     public int textZoom() {
         if (textZoom == null)
             textZoom = prefs.getInt(Constants.TEXT_ZOOM, Constants.TEXT_ZOOM_DEFAULT);
         return textZoom;
     }
-    
+
     public void setTextZoom(int textZoom) {
         put(Constants.TEXT_ZOOM, textZoom);
         this.textZoom = textZoom;
     }
-    
+
+    public boolean supportZoomControls() {
+        if (supportZoomControls == null)
+            supportZoomControls = prefs.getBoolean (Constants.SUPPORT_ZOOM_CONTROLS, Constants.SUPPORT_ZOOM_CONTROLS_DEFAULT);
+        return supportZoomControls;
+    }
+
+    public void setSupportZoomControls(boolean supportZoomControls) {
+        put(Constants.SUPPORT_ZOOM_CONTROLS, supportZoomControls);
+        this.supportZoomControls = supportZoomControls;
+    }
+
+    public boolean allowHyphenation() {
+        if (allowHyphenation == null)
+            allowHyphenation = prefs.getBoolean (Constants.ALLOW_HYPHENATION, Constants.ALLOW_HYPHENATION_DEFAULT);
+        return allowHyphenation;
+    }
+
+    public void setAllowHyphenation(boolean allowHyphenation) {
+        put(Constants.ALLOW_HYPHENATION, allowHyphenation);
+        this.allowHyphenation = allowHyphenation;
+    }
+
+    public String hyphenationLanguage() {
+        if (hyphenationLanguage == null)
+            hyphenationLanguage = prefs.getString (Constants.HYPHENATION_LANGUAGE, Constants.HYPHENATION_LANGUAGE_DEFAULT);
+        return hyphenationLanguage;
+    }
+
+    public void setHyphenationLanguage(String hyphenationLanguage) {
+        put(Constants.HYPHENATION_LANGUAGE, hyphenationLanguage);
+        this.hyphenationLanguage = hyphenationLanguage;
+    }
+
     public boolean markReadInMenu() {
         if (markReadInMenu == null)
             markReadInMenu = prefs.getBoolean(Constants.MARK_READ_IN_MENU, Constants.MARK_READ_IN_MENU_DEFAULT);
         return markReadInMenu;
     }
-    
+
     public void setMarkReadInMenu(boolean markReadInMenu) {
         put(Constants.MARK_READ_IN_MENU, markReadInMenu);
         this.markReadInMenu = markReadInMenu;
     }
-    
+
     public void setMarkReadInMenu(int headlineSize) {
         put(Constants.HEADLINE_SIZE, headlineSize);
         this.headlineSize = headlineSize;
     }
-    
+
     public boolean showVirtual() {
         if (showVirtual == null)
             showVirtual = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
         return showVirtual;
     }
-    
+
     public void setDisplayVirtuals(boolean displayVirtuals) {
         put(Constants.SHOW_VIRTUAL, displayVirtuals);
         this.showVirtual = displayVirtuals;
     }
-    
+
     public boolean useButtons() {
         if (useButtons == null)
             useButtons = prefs.getBoolean(Constants.USE_BUTTONS, Constants.USE_BUTTONS_DEFAULT);
         return useButtons;
     }
-    
+
     public void setUseButtons(boolean useButtons) {
         put(Constants.USE_BUTTONS, useButtons);
         this.useButtons = useButtons;
     }
-    
+
     public boolean onlyUnread() {
         if (onlyUnread == null)
             onlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
         return onlyUnread;
     }
-    
+
     public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
         put(Constants.ONLY_UNREAD, displayOnlyUnread);
         this.onlyUnread = displayOnlyUnread;
     }
-    
+
     public boolean invertSortArticlelist() {
         if (invertSortArticlelist == null)
             invertSortArticlelist = prefs.getBoolean(Constants.INVERT_SORT_ARTICLELIST,
                     Constants.INVERT_SORT_ARTICLELIST_DEFAULT);
         return invertSortArticlelist;
     }
-    
+
     public void setInvertSortArticleList(boolean invertSortArticleList) {
         put(Constants.INVERT_SORT_ARTICLELIST, invertSortArticleList);
         this.invertSortArticlelist = invertSortArticleList;
     }
-    
+
     public boolean invertSortFeedscats() {
         if (invertSortFeedscats == null)
             invertSortFeedscats = prefs.getBoolean(Constants.INVERT_SORT_FEEDSCATS,
                     Constants.INVERT_SORT_FEEDSCATS_DEFAULT);
         return invertSortFeedscats;
     }
-    
+
     public void setInvertSortFeedsCats(boolean invertSortFeedsCats) {
         put(Constants.INVERT_SORT_FEEDSCATS, invertSortFeedsCats);
         this.invertSortFeedscats = invertSortFeedsCats;
     }
-    
+
     public boolean alignFlushLeft() {
         if (alignFlushLeft == null)
             alignFlushLeft = prefs.getBoolean(Constants.ALIGN_FLUSH_LEFT, Constants.ALIGN_FLUSH_LEFT_DEFAULT);
         return alignFlushLeft;
     }
-    
+
     public void setAlignFlushLeft(boolean alignFlushLeft) {
         put(Constants.ALIGN_FLUSH_LEFT, alignFlushLeft);
         this.alignFlushLeft = alignFlushLeft;
     }
-    
+
     public boolean injectArticleLink() {
         if (injectArticleLink == null)
             injectArticleLink = prefs.getBoolean(Constants.INJECT_ARTICLE_LINK, Constants.INJECT_ARTICLE_LINK_DEFAULT);
         return injectArticleLink;
     }
-    
+
     public void setInjectArticleLink(boolean injectArticleLink) {
         put(Constants.INJECT_ARTICLE_LINK, injectArticleLink);
         this.injectArticleLink = injectArticleLink;
     }
-    
+
     public boolean dateTimeSystem() {
         if (dateTimeSystem == null)
             dateTimeSystem = prefs.getBoolean(Constants.DATE_TIME_SYSTEM, Constants.DATE_TIME_SYSTEM_DEFAULT);
         return dateTimeSystem;
     }
-    
+
     public void setDateTimeSystem(boolean dateTimeSystem) {
         put(Constants.DATE_TIME_SYSTEM, dateTimeSystem);
         this.dateTimeSystem = dateTimeSystem;
     }
-    
+
     public String dateString() {
         if (dateString == null)
             dateString = prefs.getString(Constants.DATE_STRING, Constants.DATE_STRING_DEFAULT);
         return dateString;
     }
-    
+
     public void setDateString(String dateString) {
         put(Constants.DATE_STRING, dateString);
         this.dateString = dateString;
     }
-    
+
     public String timeString() {
         if (timeString == null)
             timeString = prefs.getString(Constants.TIME_STRING, Constants.TIME_STRING_DEFAULT);
         return timeString;
     }
-    
+
     public void setTimeString(String timeString) {
         put(Constants.TIME_STRING, timeString);
         this.timeString = timeString;
     }
-    
+
     public boolean darkBackground() {
         if (darkBackground == null)
             darkBackground = prefs.getBoolean(Constants.DARK_BACKGROUND, Constants.DARK_BACKGROUND_DEFAULT);
         return darkBackground;
     }
-    
+
     public void setDarkBackground(boolean darkBackground) {
         put(Constants.DARK_BACKGROUND, darkBackground);
         this.darkBackground = darkBackground;
     }
-    
+
     // SYSTEM
-    
+
     public String saveAttachmentPath() {
         if (saveAttachment == null)
             saveAttachment = prefs.getString(Constants.SAVE_ATTACHMENT, Constants.SAVE_ATTACHMENT_DEFAULT);
         return saveAttachment;
     }
-    
+
     public void setSaveAttachmentPath(String saveAttachment) {
         put(Constants.SAVE_ATTACHMENT, saveAttachment);
         this.saveAttachment = saveAttachment;
     }
-    
+
     public String cacheFolder() {
         if (cacheFolder == null)
             cacheFolder = prefs.getString(Constants.CACHE_FOLDER, Constants.CACHE_FOLDER_DEFAULT);
         return cacheFolder;
     }
-    
+
     public void setCacheFolder(String cacheFolder) {
         put(Constants.CACHE_FOLDER, cacheFolder);
         this.cacheFolder = cacheFolder;
     }
-    
+
     public boolean isVacuumDBScheduled() {
         long time = System.currentTimeMillis();
-        
+
         if (lastVacuumDate() < (time - Utils.MONTH))
             return true;
-        
+
         if (vacuumDbScheduled == null)
             vacuumDbScheduled = prefs.getBoolean(Constants.VACUUM_DB_SCHEDULED, Constants.VACUUM_DB_SCHEDULED_DEFAULT);
         return vacuumDbScheduled;
     }
-    
+
     public void setVacuumDBScheduled(boolean isVacuumDBScheduled) {
         put(Constants.VACUUM_DB_SCHEDULED, isVacuumDBScheduled);
         this.vacuumDbScheduled = isVacuumDBScheduled;
     }
-    
+
     public boolean isDeleteDBScheduled() {
         if (deleteDbScheduled == null)
             deleteDbScheduled = prefs.getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
         return deleteDbScheduled;
     }
-    
+
     public void setDeleteDBScheduled(boolean isDeleteDBScheduled) {
         put(Constants.DELETE_DB_SCHEDULED, isDeleteDBScheduled);
         this.deleteDbScheduled = isDeleteDBScheduled;
     }
-    
+
     // Reset to false if preference to delete on every start is not set
     public void resetDeleteDBScheduled() {
         if (!isDeleteDBOnStartup()) {
@@ -676,176 +730,176 @@ public class Controller implements OnSharedPreferenceChangeListener {
             this.deleteDbScheduled = Constants.DELETE_DB_SCHEDULED_DEFAULT;
         }
     }
-    
+
     public boolean isDeleteDBOnStartup() {
         if (deleteDbOnStartup == null)
             deleteDbOnStartup = prefs
                     .getBoolean(Constants.DELETE_DB_ON_STARTUP, Constants.DELETE_DB_ON_STARTUP_DEFAULT);
         return deleteDbOnStartup;
     }
-    
+
     public void setDeleteDBOnStartup(boolean isDeleteDBOnStartup) {
         put(Constants.DELETE_DB_ON_STARTUP, isDeleteDBOnStartup);
         this.deleteDbOnStartup = isDeleteDBOnStartup;
         setDeleteDBScheduled(isDeleteDBOnStartup);
     }
-    
+
     public boolean cacheImagesOnStartup() {
         if (cacheImagesOnStartup == null)
             cacheImagesOnStartup = prefs.getBoolean(Constants.CACHE_IMAGES_ON_STARTUP,
                     Constants.CACHE_IMAGES_ON_STARTUP_DEFAULT);
         return cacheImagesOnStartup;
     }
-    
+
     public void setCacheImagesOnStartup(boolean cacheImagesOnStartup) {
         put(Constants.CACHE_IMAGES_ON_STARTUP, cacheImagesOnStartup);
         this.cacheImagesOnStartup = cacheImagesOnStartup;
     }
-    
+
     public boolean cacheImagesOnlyWifi() {
         if (cacheImagesOnlyWifi == null)
             cacheImagesOnlyWifi = prefs.getBoolean(Constants.CACHE_IMAGES_ONLY_WIFI,
                     Constants.CACHE_IMAGES_ONLY_WIFI_DEFAULT);
         return cacheImagesOnlyWifi;
     }
-    
+
     public void setCacheImagesOnlyWifi(boolean cacheImagesOnlyWifi) {
         put(Constants.CACHE_IMAGES_ONLY_WIFI, cacheImagesOnlyWifi);
         this.cacheImagesOnlyWifi = cacheImagesOnlyWifi;
     }
-    
+
     public boolean logSensitiveData() {
         if (logSensitiveData == null)
             logSensitiveData = prefs.getBoolean(Constants.LOG_SENSITIVE_DATA, Constants.LOG_SENSITIVE_DATA_DEFAULT);
         return logSensitiveData;
     }
-    
+
     public void setLogSensitiveData(boolean logSensitiveData) {
         put(Constants.LOG_SENSITIVE_DATA, logSensitiveData);
         this.logSensitiveData = logSensitiveData;
     }
-    
+
     // ******* INTERNAL Data ****************************
-    
+
     public long apiLevelUpdated() {
         if (apiLevelUpdated == null)
             apiLevelUpdated = prefs.getLong(Constants.API_LEVEL_UPDATED, Constants.API_LEVEL_UPDATED_DEFAULT);
         return apiLevelUpdated;
     }
-    
+
     private void setApiLevelUpdated(long apiLevelUpdated) {
         put(Constants.APP_VERSION_CHECK_TIME, apiLevelUpdated);
         this.apiLevelUpdated = apiLevelUpdated;
     }
-    
+
     public int apiLevel() {
         if (apiLevel == null)
             apiLevel = prefs.getInt(Constants.API_LEVEL, Constants.API_LEVEL_DEFAULT);
         return apiLevel;
     }
-    
+
     public void setApiLevel(int apiLevel) {
         put(Constants.API_LEVEL, apiLevel);
         this.apiLevel = apiLevel;
         setApiLevelUpdated(System.currentTimeMillis());
     }
-    
+
     public long appVersionCheckTime() {
         if (appVersionCheckTime == null)
             appVersionCheckTime = prefs.getLong(Constants.APP_VERSION_CHECK_TIME,
                     Constants.APP_VERSION_CHECK_TIME_DEFAULT);
         return appVersionCheckTime;
     }
-    
+
     private void setAppVersionCheckTime(long appVersionCheckTime) {
         put(Constants.APP_VERSION_CHECK_TIME, appVersionCheckTime);
         this.appVersionCheckTime = appVersionCheckTime;
     }
-    
+
     public int appLatestVersion() {
         if (appLatestVersion == null)
             appLatestVersion = prefs.getInt(Constants.APP_LATEST_VERSION, Constants.APP_LATEST_VERSION_DEFAULT);
         return appLatestVersion;
     }
-    
+
     public void setAppLatestVersion(int appLatestVersion) {
         put(Constants.APP_LATEST_VERSION, appLatestVersion);
         this.appLatestVersion = appLatestVersion;
         setAppVersionCheckTime(System.currentTimeMillis());
         // Set current time, this only changes when it has been fetched from the server
     }
-    
+
     public long getLastUpdateTime() {
         if (lastUpdateTime == null)
             lastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
         return lastUpdateTime;
     }
-    
+
     public void setLastUpdateTime(long lastUpdateTime) {
         put(Constants.LAST_UPDATE_TIME, lastUpdateTime);
         this.lastUpdateTime = lastUpdateTime;
     }
-    
+
     public String getLastVersionRun() {
         if (lastVersionRun == null)
             lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
         return lastVersionRun;
     }
-    
+
     public void setLastVersionRun(String lastVersionRun) {
         put(Constants.LAST_VERSION_RUN, lastVersionRun);
         this.lastVersionRun = lastVersionRun;
     }
-    
+
     public boolean newInstallation() {
         // Initialized inside initializeController();
         return newInstallation;
     }
-    
+
     public void setLastVacuumDate() {
         long time = System.currentTimeMillis();
         put(Constants.LAST_VACUUM_DATE, time);
         this.lastVacuumDate = time;
     }
-    
+
     public long lastVacuumDate() {
         if (lastVacuumDate == null)
             lastVacuumDate = prefs.getLong(Constants.LAST_VACUUM_DATE, System.currentTimeMillis());
         return lastVacuumDate;
     }
-    
+
     public void setSinceId(int sinceId) {
         put(Constants.SINCE_ID, sinceId);
         this.sinceId = sinceId;
     }
-    
+
     public int getSinceId() {
         if (sinceId == null)
             sinceId = prefs.getInt(Constants.SINCE_ID, Constants.SINCE_ID_DEFAULT);
         return sinceId;
     }
-    
+
     public void lowMemory(boolean lowMemory) {
         this.lowMemory = lowMemory;
     }
-    
+
     public boolean isLowMemory() {
         return lowMemory;
     }
-    
+
     private AsyncTask<Void, Void, Void> refreshPrefTask;
-    
+
     public long getFreshArticleMaxAge() {
         if (freshArticleMaxAge == null)
             freshArticleMaxAge = prefs
                     .getLong(Constants.FRESH_ARTICLE_MAX_AGE, Constants.FRESH_ARTICLE_MAX_AGE_DEFAULT);
-        
+
         if (freshArticleMaxAgeDate == null)
             freshArticleMaxAgeDate = prefs.getLong(Constants.FRESH_ARTICLE_MAX_AGE_DATE,
                     Constants.FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT);
-        
+
         if (freshArticleMaxAgeDate < System.currentTimeMillis() - (Utils.DAY * 2)) {
-            
+
             // Only start task if none existing yet
             if (refreshPrefTask == null) {
                 refreshPrefTask = new AsyncTask<Void, Void, Void>() {
@@ -854,10 +908,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
                         String s = "";
                         try {
                             s = Data.getInstance().getPref("FRESH_ARTICLE_MAX_AGE");
-                            
+
                             freshArticleMaxAge = Long.parseLong(s) * Utils.HOUR;
                             put(Constants.FRESH_ARTICLE_MAX_AGE, freshArticleMaxAge);
-                            
+
                             freshArticleMaxAgeDate = System.currentTimeMillis();
                             put(Constants.FRESH_ARTICLE_MAX_AGE_DATE, freshArticleMaxAgeDate);
                         } catch (Exception e) {
@@ -866,14 +920,14 @@ public class Controller implements OnSharedPreferenceChangeListener {
                         return null;
                     }
                 };
-                
+
                 refreshPrefTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
         }
-        
+
         return freshArticleMaxAge;
     }
-    
+
     /*
      * Generic method to insert values into the preferences store
      */
@@ -888,19 +942,19 @@ public class Controller implements OnSharedPreferenceChangeListener {
         } else if (o instanceof Boolean) {
             editor.putBoolean(constant, (Boolean) o);
         }
-        
+
         /*
          * The following Code is extracted from
          * https://code.google.com/p/zippy-android/source/browse/trunk/examples/SharedPreferencesCompat.java
-         * 
+         *
          * Copyright (C) 2010 The Android Open Source Project
-         * 
+         *
          * Licensed under the Apache License, Version 2.0 (the "License");
          * you may not use this file except in compliance with the License.
          * You may obtain a copy of the License at
-         * 
+         *
          * http://www.apache.org/licenses/LICENSE-2.0
-         * 
+         *
          * Unless required by applicable law or agreed to in writing, software
          * distributed under the License is distributed on an "AS IS" BASIS,
          * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -920,9 +974,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
         }
         editor.commit();
     }
-    
+
     private static final Method sApplyMethod = findApplyMethod();
-    
+
     private static Method findApplyMethod() {
         try {
             Class<?> cls = SharedPreferences.Editor.class;
@@ -932,7 +986,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         }
         return null;
     }
-    
+
     /**
      * If provided "key" resembles a setting as declared in Constants.java the corresponding variable in this class will
      * be reset to null. Variable-Name ist built from the name of the field in Contants.java which holds the value from
@@ -940,43 +994,43 @@ public class Controller implements OnSharedPreferenceChangeListener {
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        
+
         for (Field field : Constants.class.getDeclaredFields()) {
-            
+
             // No default-values
             if (field.getName().endsWith(Constants.APPENDED_DEFAULT))
                 continue;
-            
+
             // Only use public static fields
             if (!Modifier.isStatic(field.getModifiers()) || !Modifier.isPublic(field.getModifiers()))
                 continue;
-            
+
             try {
                 Object f = field.get(this);
                 if (!(f instanceof String))
                     continue;
-                
+
                 if (!key.equals((String) f))
                     continue;
-                
+
                 // reset variable, it will be re-read on next access
                 String fieldName = Constants.constant2Var(field.getName());
                 Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
                 preferencesChanged = true;
-                
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
+
         }
     }
-    
+
     public boolean isPreferencesChanged() {
         return preferencesChanged;
     }
-    
+
     public void setPreferencesChanged(boolean preferencesChanged) {
         Controller.preferencesChanged = preferencesChanged;
     }
-    
+
 }

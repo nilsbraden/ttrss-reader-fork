@@ -1,13 +1,13 @@
 /*
  * ttrss-reader-fork for Android
- * 
+ *
  * Copyright (C) 2010 N. Braden.
  * Copyright (C) 2009-2010 J. Devauchelle.
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
@@ -91,53 +91,53 @@ import com.actionbarsherlock.view.MenuItem;
 @SuppressWarnings("deprecation")
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
         IDataChangedListener {
-    
+
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
-    
+
     public static final String ARTICLE_MOVE = "ARTICLE_MOVE";
     public static final int ARTICLE_MOVE_NONE = 0;
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
     private static final int CONTEXT_MENU_SHARE_URL = 1000;
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
     private static final int CONTEXT_MENU_DISPLAY_CAPTION = 1002;
-    
+
     // Extras
     private int articleId = -1;
     private int feedId = -1;
     private int categoryId = -1000;
     private boolean selectArticlesForCategory = false;
     private int lastMove = ARTICLE_MOVE_DEFAULT;
-    
+
     private Article article = null;
     private String content;
     private boolean linkAutoOpened;
     private boolean markedRead = false;
-    
+
     private FrameLayout webContainer = null;
     private WebView webView;
     private boolean webviewInitialized = false;
     private Button buttonNext;
     private Button buttonPrev;
     private GestureDetector gestureDetector;
-    
+
     private LinearLayout header_main;
     private TextView header_feed;
     private TextView header_date;
     private TextView header_time;
     private TextView header_title;
     private CheckBox header_starred;
-    
+
     private FeedHeadlineAdapter parentAdapter = null;
     private int[] parentIDs = new int[2];
     private String mSelectedExtra;
     private String mSelectedAltText;
-    
+
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         setContentView(R.layout.articleitem);
-        
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             articleId = extras.getInt(ARTICLE_ID);
@@ -152,25 +152,25 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
-        
+
         initData();
         initActionbar();
         initUI();
     }
-    
+
     private void initActionbar() {
         ActionBar.LayoutParams params = new ActionBar.LayoutParams(ActionBar.LayoutParams.FILL_PARENT,
                 ActionBar.LayoutParams.FILL_PARENT);
         LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView = inflator.inflate(R.layout.articleactionbar, null);
-        
+
         ActionBar ab = getSupportActionBar();
         ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowCustomEnabled(true);
         ab.setDisplayShowTitleEnabled(false);
         ab.setCustomView(actionbarView, params);
-        
+
         header_main = (LinearLayout) findViewById(R.id.head_main);
         header_main.setOnClickListener(new OnClickListener() {
             @Override
@@ -194,7 +194,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             }
         });
     }
-    
+
     @SuppressLint("InlinedApi")
     private void initUI() {
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
@@ -204,21 +204,22 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         buttonNext = (Button) findViewById(R.id.article_buttonNext);
         buttonPrev.setOnClickListener(onButtonPressedListener);
         buttonNext.setOnClickListener(onButtonPressedListener);
-        
+
         // Initialize the WebView if necessary
         if (webView == null) {
             webView = new WebView(getApplicationContext());
             // webView.getSettings().setJavaScriptEnabled(true);
             webView.setWebViewClient(new ArticleWebViewClient(this));
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-            webView.getSettings().setSupportZoom(true);
-            webView.getSettings().setBuiltInZoomControls(true);
+            boolean supportZoomControls = Controller.getInstance ().supportZoomControls ();
+            webView.getSettings().setSupportZoom(supportZoomControls);
+            webView.getSettings().setBuiltInZoomControls(supportZoomControls);
             webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
             webView.setOnKeyListener(keyListener);
             gestureDetector = new GestureDetector(this, new MyGestureDetector());
-            
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
             } else {
@@ -235,28 +236,28 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                     newSize = TextSize.LARGEST;
                 webView.getSettings().setTextSize(newSize);
             }
-            
+
             // prevent flicker in ics
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             }
         }
-        
+
         if (Controller.getInstance().darkBackground()) {
             webView.setBackgroundColor(Color.BLACK);
             if (findViewById(R.id.container) instanceof ViewGroup)
                 setDarkBackground((ViewGroup) findViewById(R.id.container));
         }
-        
+
         registerForContextMenu(webView);
         // Attach the WebView to its placeholder
         webContainer.addView(webView);
-        
+
         // mainContainer.populate(webView);
         findViewById(R.id.article_button_view).setVisibility(
                 Controller.getInstance().useButtons() ? View.VISIBLE : View.GONE);
     }
-    
+
     public void initUIHeader() {
         // Populate information-bar on top of the webView
         Feed feed = DBHelper.getInstance().getFeed(article.feedId);
@@ -266,22 +267,22 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         header_time.setText(DateUtils.getTime(this, article.updated));
         header_starred.setChecked(article.isStarred);
     }
-    
+
     private void initData() {
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
-        
+
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
         fillParentInformation();
         doVibrate(0);
-        
+
         // Get article from DB
         article = DBHelper.getInstance().getArticle(articleId);
         if (article == null) {
             finish();
             return;
         }
-        
+
         // Mark as read if necessary, do it here because in doRefresh() it will be done several times even if you set
         // it to "unread" in the meantime.
         if (article != null && article.isUnread) {
@@ -289,25 +290,25 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             markedRead = true;
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
-        
+
         // Reload content on next doRefresh()
         webviewInitialized = false;
     }
-    
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         // Remove the WebView from the old placeholder
         if (webView != null)
             webContainer.removeView(webView);
-        
+
         super.onConfigurationChanged(newConfig);
         setContentView(R.layout.articleitem);
-        
+
         initUI();
         doRefresh();
         initUIHeader();
     }
-    
+
     @Override
     protected void onSaveInstanceState(Bundle instance) {
         super.onSaveInstanceState(instance);
@@ -318,7 +319,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         instance.putInt(ARTICLE_MOVE, lastMove);
         webView.saveState(instance);
     }
-    
+
     @Override
     protected void onRestoreInstanceState(Bundle instance) {
         super.onRestoreInstanceState(instance);
@@ -329,7 +330,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         lastMove = instance.getInt(ARTICLE_MOVE);
         webView.restoreState(instance);
     }
-    
+
     private void fillParentInformation() {
         int index = parentAdapter.getIds().indexOf(articleId);
         if (index >= 0) {
@@ -341,7 +342,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 parentIDs[1] = -1;
         }
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -350,7 +351,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         DBHelper.getInstance().checkAndInitializeDB(this);
         doRefresh();
     }
-    
+
     @Override
     protected void onStop() {
         UpdateController.getInstance().unregisterActivity(this);
@@ -361,7 +362,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
         super.onStop();
     }
-    
+
     @Override
     protected void onDestroy() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
@@ -375,21 +376,21 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         if (webView != null)
             webView.destroy();
     }
-    
+
     private void doRefresh() {
         try {
             ProgressBarManager.getInstance().addProgress(this);
-            
+
             if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
                 webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
             } else {
                 webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
             }
-            
+
             // No need to reload everything
             if (webviewInitialized)
                 return;
-            
+
             // Check for errors
             if (Controller.getInstance().getConnector().hasLastError()) {
                 Intent i = new Intent(this, ErrorActivity.class);
@@ -397,34 +398,33 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
                 return;
             }
-            
+
             if (article.content == null)
                 return;
-            
+
             initUIHeader();
-            
+
             // Inject the specific code for attachments, <img> for images, http-link for Videos
             StringBuilder sb = new StringBuilder(article.content);
             injectAttachments(getApplicationContext(), sb, article.attachments);
-            
+
             // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
             injectArticleLink(getApplicationContext(), sb);
-            
-            if (Controller.getInstance().darkBackground()) {
-                sb.insert(0, "<font color='white'>");
-                sb.append("</font>");
-            }
-            
+
             // Load html from Controller and insert content
-            content = Controller.htmlHeader.replace("MARKER", sb);
+            content = Controller.htmlTemplate.replace(Controller.MARKER_CONTENT, sb);
             content = injectCachedImages(content, articleId);
-            
+
             // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
             String baseUrl = StringSupport.getBaseURL(article.url);
+            if (Controller.getInstance ().allowHyphenation ()) {
+              baseUrl = "fake://ForJS";
+              webView.getSettings().setJavaScriptEnabled(true);
+            }
             webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
-            
+
             setTitle(article.title);
-            
+
             if (!linkAutoOpened && article.content.length() < 3) {
                 if (Controller.getInstance().openUrlEmptyArticle()) {
                     Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
@@ -432,7 +432,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                     openLink();
                 }
             }
-            
+
             // Everything did load, we dont have to do this again.
             webviewInitialized = true;
         } catch (Exception e) {
@@ -442,31 +442,31 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             ProgressBarManager.getInstance().removeProgress(this);
         }
     }
-    
+
     /**
      * Recursively walks all viewGroups and their Views inside the given ViewGroup and sets the background to black and,
      * in case a TextView is found, the Text-Color to white.
-     * 
+     *
      * @param v
      *            the ViewGroup to walk through
      */
     private void setDarkBackground(ViewGroup v) {
         v.setBackgroundColor(Color.BLACK);
-        
+
         for (int i = 0; i < v.getChildCount(); i++) { // View at index 0 seems to be this view itself.
             View vChild = v.getChildAt(i);
-            
+
             if (vChild == null)
                 continue;
-            
+
             if (vChild instanceof TextView)
                 ((TextView) vChild).setTextColor(Color.WHITE);
-            
+
             if (vChild instanceof ViewGroup)
                 setDarkBackground(((ViewGroup) vChild));
         }
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -474,16 +474,16 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         inflater.inflate(R.menu.article, menu);
         return true;
     }
-    
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        
+
         HitTestResult result = ((WebView) v).getHitTestResult();
         menu.setHeaderTitle(getResources().getString(R.string.ArticleActivity_ShareLink));
         mSelectedExtra = null;
         mSelectedAltText = null;
-        
+
         if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
             mSelectedExtra = result.getExtra();
             menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_URL, 2,
@@ -498,11 +498,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 10,
                 getResources().getString(R.string.ArticleActivity_ShareArticle));
     }
-    
+
     /**
      * Using a small html parser with a visitor which goes through the html I extract the alt-attribute from the
      * content. If nothing is found it is left as null and the menu should'nt contain the item to display the caption.
-     * 
+     *
      * @param extra
      *            the
      * @return the alt-text or null if none was found.
@@ -510,24 +510,24 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private String getAltTextForImageUrl(String extra) {
         if (content == null || !content.contains(extra))
             return null;
-        
+
         HtmlCleaner cleaner = new HtmlCleaner();
         TagNode node = cleaner.clean(content);
-        
+
         MyTagNodeVisitor tnv = new MyTagNodeVisitor(extra);
         node.traverse(tnv);
-        
+
         return tnv.alt;
     }
-    
+
     class MyTagNodeVisitor implements TagNodeVisitor {
         public String alt = null;
         private String extra;
-        
+
         public MyTagNodeVisitor(String extra) {
             this.extra = extra;
         }
-        
+
         public boolean visit(TagNode tagNode, HtmlNode htmlNode) {
             if (htmlNode instanceof TagNode) {
                 TagNode tag = (TagNode) htmlNode;
@@ -542,7 +542,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             return true;
         }
     };
-    
+
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         Intent shareIntent = null;
@@ -567,7 +567,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
         return super.onContextItemSelected(item);
     }
-    
+
     private Intent getUrlShareIntent(String url) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("text/plain");
@@ -575,11 +575,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         i.putExtra(Intent.EXTRA_TEXT, url);
         return i;
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        
+
         if (article != null) {
             MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
             if (article.isUnread) {
@@ -587,14 +587,14 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             } else {
                 read.setTitle(getString(R.string.Commons_MarkUnread));
             }
-            
+
             MenuItem publish = menu.findItem(R.id.Article_Menu_MarkStar);
             if (article.isStarred) {
                 publish.setTitle(getString(R.string.Commons_MarkUnstar));
             } else {
                 publish.setTitle(getString(R.string.Commons_MarkStar));
             }
-            
+
             MenuItem star = menu.findItem(R.id.Article_Menu_MarkPublish);
             if (article.isPublished) {
                 star.setTitle(getString(R.string.Commons_MarkUnpublish));
@@ -602,7 +602,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 star.setTitle(getString(R.string.Commons_MarkPublish));
             }
         }
-        
+
         MenuItem offline = menu.findItem(R.id.Article_Menu_WorkOffline);
         if (Controller.getInstance().workOffline()) {
             offline.setTitle(getString(R.string.UsageOnlineTitle));
@@ -611,10 +611,10 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             offline.setTitle(getString(R.string.UsageOfflineTitle));
             offline.setIcon(R.drawable.ic_menu_stop);
         }
-        
+
         return true;
     }
-    
+
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
@@ -654,7 +654,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 return false;
         }
     }
-    
+
     /**
      * Starts a new activity with the url of the current article. This should open a webbrowser in most cases. If the
      * url contains spaces or newline-characters it is first trim()'ed.
@@ -662,11 +662,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private void openLink() {
         if (article.url == null || article.url.length() == 0)
             return;
-        
+
         String url = article.url;
         if (article.url.contains(" ") || article.url.contains("\n"))
             url = url.trim();
-        
+
         try {
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
@@ -675,27 +675,27 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             Log.e(Utils.TAG, "Couldn't find a suitable activity for the uri: " + url);
         }
     }
-    
+
     private void openNextArticle(int direction) {
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
-        
+
         if (id < 0) {
             ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
-        
+
         this.articleId = id;
         this.lastMove = direction;
         initData();
         doRefresh();
     }
-    
+
     private boolean doVibrate(int newIndex) {
         if (lastMove == 0)
             return false;
         if (parentAdapter.getIds().indexOf(articleId) == -1)
             return false;
-        
+
         int index = parentAdapter.getIds().indexOf(articleId) + lastMove;
         if (index < 0 || index >= parentAdapter.getIds().size()) {
             ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
@@ -703,7 +703,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
         return false;
     }
-    
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent e) {
         boolean temp = gestureDetector.onTouchEvent(e);
@@ -711,36 +711,36 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             return super.dispatchTouchEvent(e);
         return temp;
     }
-    
+
     class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             // Refresh metrics-data in Controller
             Controller.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay());
-            
+
             try {
                 if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
                     return false;
                 if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                    
+
                     // right to left swipe
                     openNextArticle(1);
-                    
+
                 } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                    
+
                     // left to right swipe
                     openNextArticle(-1);
-                    
+
                 }
             } catch (Exception e) {
             }
             return false;
         }
     };
-    
+
     private OnClickListener onButtonPressedListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -750,7 +750,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 openNextArticle(1);
         }
     };
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
@@ -764,7 +764,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
         return super.onKeyDown(keyCode, event);
     }
-    
+
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
@@ -773,7 +773,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
         return super.onKeyUp(keyCode, event);
     }
-    
+
     private OnKeyListener keyListener = new OnKeyListener() {
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -789,24 +789,24 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             return false;
         }
     };
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == ErrorActivity.ACTIVITY_SHOW_ERROR)
             doRefresh();
     }
-    
+
     private static void injectAttachments(Context context, StringBuilder content, Set<String> attachments) {
         for (String url : attachments) {
             if (url.length() == 0)
                 continue;
-            
+
             boolean image = false;
             for (String s : FileUtils.IMAGE_EXTENSIONS) {
                 if (url.toLowerCase(Locale.getDefault()).contains("." + s))
                     image = true;
             }
-            
+
             boolean audioOrVideo = false;
             for (String s : FileUtils.AUDIO_EXTENSIONS) {
                 if (url.toLowerCase(Locale.getDefault()).contains("." + s))
@@ -816,7 +816,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 if (url.toLowerCase(Locale.getDefault()).contains("." + s))
                     audioOrVideo = true;
             }
-            
+
             content.append("<br>\n");
             if (image) {
                 content.append("<img src=\"").append(url).append("\" /><br>\n");
@@ -829,11 +829,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             }
         }
     }
-    
+
     private void injectArticleLink(Context context, StringBuilder html) {
         if (!Controller.getInstance().injectArticleLink())
             return;
-        
+
         if ((article.url != null) && (article.url.length() > 0)) {
             html.append("<br>\n");
             html.append("<a href=\"").append(article.url).append("\" rel=\"alternate\">");
@@ -841,11 +841,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             html.append("</a>");
         }
     }
-    
+
     /**
      * Injects the local path to every image which could be found in the local cache, replacing the original URLs in the
      * html.
-     * 
+     *
      * @param html
      *            the original html
      * @return the altered html with the URLs replaced so they point on local files if available
@@ -853,7 +853,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private static String injectCachedImages(String html, int articleId) {
         if (html == null || html.length() < 40) // Random. Chosen by fair dice-roll.
             return html;
-        
+
         for (String url : ImageCacher.findAllImageUrls(html, articleId)) {
             String localUrl = ImageCacher.getCachedImageUrl(url);
             if (localUrl != null) {
@@ -862,19 +862,19 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
         return html;
     }
-    
+
     @Override
     public void onUpdateEnd() { /* Not necessary here */
     }
-    
+
     @Override
     public void onPublishNoteResult(Article a, String note) {
         new Updater(null, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
     }
-    
+
     @Override
     public void dataChanged() {
         doRefresh();
     }
-    
+
 }
