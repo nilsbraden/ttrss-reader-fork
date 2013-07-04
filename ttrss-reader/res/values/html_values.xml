@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
  * ttrss-reader-fork for Android
- * 
+ *
  * Copyright (C) 2010 N. Braden.
  * Copyright (C) 2009-2010 J. Devauchelle.
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
@@ -16,20 +16,34 @@
 -->
 <resources>
 
-    <string name="INJECT_HTML_HEAD" formatted="false">&lt;?xml version="1.0" encoding="UTF-8" ?>
-            &lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-            &lt;html xmlns="http://www.w3.org/1999/xhtml">
-            &lt;head>
-            &lt;meta content="text/html; charset=utf-8" http-equiv="content-type">
-            &lt;style type="text/css">
-            * {TEXT_ALIGN_MARKER}
-            A:link {LINK_MARKER}
-            body { padding : 0px; margin : 0px; }
-            &lt;/style>&lt;/head>
-            &lt;body>MARKER&lt;/body>&lt;/html></string>
-    <string name="ALIGN_JUSTIFY">text-align:justify;</string>
-    <string name="ALIGN_LEFT">text-align:left;</string>
-    <string name="COLOR_LINK_LIGHT">color:blue;</string>
-    <string name="COLOR_LINK_DARK">color:#6C8FFF;</string>
+  <string name="HTML_TEMPLATE" formatted="false"><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <style type="text/css">
+      body {
+        padding : 0px;
+        margin : 0px;
+        background: transparent;
+        TEXT_ALIGN_MARKER
+        TEXT_MARKER
+      }
+      a:link {
+        LINK_MARKER
+      }
+    </style>
+    JS_MARKER
+  </head>
+  <body class="hyphenate" lang="LANG_MARKER">CONTENT_MARKER</body>
+</html>]]></string>
+  <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false"><![CDATA[<script src="file:///android_asset/Hyphenator.js" type="text/javascript"></script>
+    <script type="text/javascript">Hyphenator.run();</script>
+    <script type="text/javascript" src="file:///android_asset/patterns/LANG_MARKER.js"></script>]]></string>
+  <string name="ALIGN_JUSTIFY">text-align:justify;</string>
+  <string name="ALIGN_LEFT">text-align:left;</string>
+  <string name="COLOR_LINK_LIGHT">color:blue;</string>
+  <string name="COLOR_LINK_DARK">color:#6C8FFF;</string>
+  <string name="COLOR_TEXT_DARK">color:white;</string>
 
 </resources>
