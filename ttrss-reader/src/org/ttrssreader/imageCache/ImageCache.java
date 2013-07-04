@@ -1,13 +1,13 @@
 /*
  * Copyright (c) 2009 Matthias Kaeppler
  * Modified 2010 by Nils Braden
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,30 +30,30 @@ import android.util.Log;
 /**
  * Implements a cache capable of caching image files. It exposes helper methods to immediately
  * access binary image data as {@link Bitmap} objects.
- * 
+ *
  * @author Matthias Kaeppler
  * @author Nils Braden (modified some stuff)
  */
 public class ImageCache extends AbstractCache<String, byte[]> {
-    
+
     public ImageCache(int initialCapacity, String cacheDir) {
         super("ImageCache", initialCapacity, 1);
         this.diskCacheDir = cacheDir;
     }
-    
+
     /**
      * Enable caching to the phone's SD card.
-     * 
+     *
      * @param context
      *            the current context
      * @return
      */
     public boolean enableDiskCache() {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            
+
             // Use configured output directory
             File folder = new File(diskCacheDir);
-            
+
             if (!folder.exists()) {
                 if (!folder.mkdirs()) {
                     // Folder could not be created, fallback to internal directory on sdcard
@@ -62,12 +62,12 @@ public class ImageCache extends AbstractCache<String, byte[]> {
                     folder = new File(diskCacheDir);
                 }
             }
-            
+
             if (!folder.exists())
                 folder.mkdirs();
-            
+
             isDiskCacheEnabled = folder.exists();
-            
+
             // Create .nomedia File in Cache-Folder so android doesn't generate thumbnails
             File nomediaFile = new File(diskCacheDir + File.separator + ".nomedia");
             if (!nomediaFile.exists()) {
@@ -77,21 +77,21 @@ public class ImageCache extends AbstractCache<String, byte[]> {
                 }
             }
         }
-        
+
         if (!isDiskCacheEnabled)
             Log.e(Utils.TAG, "Failed creating disk cache directory " + diskCacheDir);
-        
+
         return isDiskCacheEnabled;
     }
-    
+
     public void fillMemoryCacheFromDisk() {
         byte[] b = new byte[] {};
         File folder = new File(diskCacheDir);
         File[] files = folder.listFiles();
-        
+
         if (files == null)
             return;
-        
+
         for (File file : files) {
             try {
                 cache.put(file.getName(), b);
@@ -100,34 +100,34 @@ public class ImageCache extends AbstractCache<String, byte[]> {
             }
         }
     }
-    
+
     public boolean containsKey(String key) {
         if (cache.containsKey(getFileNameForKey(key)))
             return true;
-        
+
         return (isDiskCacheEnabled && getCacheFile((String) key).exists());
     }
-    
+
     @Override
     public String getFileNameForKey(String imageUrl) {
-        return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,%?&=]", "+").replaceAll("[+]+", "+");
+        return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,%?&=]+", "+");
     }
-    
+
     public File getCacheFile(String key) {
         File f = new File(diskCacheDir);
         if (!f.exists())
             f.mkdirs();
-        
+
         return new File(diskCacheDir + "/" + getFileNameForKey(key));
     }
-    
+
     @Override
     protected byte[] readValueFromDisk(File file) throws IOException {
         return null;
     }
-    
+
     @Override
     protected void writeValueToDisk(BufferedOutputStream ostream, byte[] value) throws IOException {
     }
-    
+
 }
