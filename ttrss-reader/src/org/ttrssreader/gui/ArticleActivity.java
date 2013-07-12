@@ -38,6 +38,7 @@ import org.ttrssreader.imageCache.ImageCacher;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -45,7 +46,6 @@ import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.FileUtils;
-import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
@@ -72,6 +72,7 @@ import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+//import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebSettings.TextSize;
@@ -87,6 +88,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import org.stringtemplate.v4.ST;
 
 @SuppressWarnings("deprecation")
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
@@ -101,6 +103,15 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private static final int CONTEXT_MENU_SHARE_URL = 1000;
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
     private static final int CONTEXT_MENU_DISPLAY_CAPTION = 1002;
+
+    private final static char TEMPLATE_DELIMITER_START = '$';
+    private final static char TEMPLATE_DELIMITER_END = '$';
+
+    private static final String TEMPLATE_ARTICLE_VAR = "article";
+    private static final String MARKER_LABELS = "LABELS";
+    private static final String MARKER_UPDATED = "UPDATED";
+    private static final String MARKER_CONTENT = "CONTENT";
+    private static final String MARKER_ATTACHMENTS = "ATTACHMENTS";
 
     // Extras
     private int articleId = -1;
@@ -133,6 +144,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private String mSelectedExtra;
     private String mSelectedAltText;
 
+    private ArticleJSInterface articleJSInterface;
+
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
@@ -152,6 +165,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
             lastMove = instance.getInt(ARTICLE_MOVE);
         }
+
+        articleJSInterface = new ArticleJSInterface (this);
 
         initData();
         initActionbar();
@@ -404,26 +419,44 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
 
             initUIHeader();
 
+            StringBuilder sb = new StringBuilder();
             // Inject the specific code for attachments, <img> for images, http-link for Videos
-            StringBuilder sb = new StringBuilder(article.content);
             injectAttachments(getApplicationContext(), sb, article.attachments);
 
-            // Do this anyway, article.cachedImages can be true if some images were fetched and others produced errors
-            injectArticleLink(getApplicationContext(), sb);
+            String localContent = injectCachedImages(article.content, articleId);
+
+            StringBuilder labels = new StringBuilder ();
+
+            for (Label label: DBHelper.getInstance().getLabelsForArticle (articleId))
+            {
+              if (labels.length () > 0)
+                labels.append (", ");
+              labels.append (label.caption);
+            }
 
             // Load html from Controller and insert content
-            content = Controller.htmlTemplate.replace(Controller.MARKER_CONTENT, sb);
-            content = injectCachedImages(content, articleId);
+            ST contentTemplate = new ST (Controller.htmlTemplate,
+              TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
 
-            // Use if loadDataWithBaseURL, 'cause loadData is buggy (encoding error & don't support "%" in html).
-            String baseUrl = StringSupport.getBaseURL(article.url);
-            if (Controller.getInstance ().allowHyphenation ()) {
-              baseUrl = "fake://ForJS";
-              webView.getSettings().setJavaScriptEnabled(true);
-            }
-            webView.loadDataWithBaseURL(baseUrl, content, "text/html", "utf-8", "about:blank");
+            contentTemplate.add (TEMPLATE_ARTICLE_VAR, article);
+            contentTemplate.add (MARKER_LABELS, labels.toString ());
 
-            setTitle(article.title);
+            contentTemplate.add (MARKER_UPDATED,
+              DateUtils.getDateTimeCustom (getApplicationContext (),
+              article.updated));
+
+            contentTemplate.add (MARKER_CONTENT, localContent);
+            contentTemplate.add (MARKER_ATTACHMENTS, sb.toString ());
+
+            webView.getSettings().setLightTouchEnabled (true);
+            webView.getSettings ().setJavaScriptEnabled (true);
+
+            webView.addJavascriptInterface (articleJSInterface, "a");
+
+            webView.loadDataWithBaseURL ("fake://ForJS",
+              contentTemplate.render (), "text/html", "utf-8", null);
+
+            setTitle (article.title);
 
             if (!linkAutoOpened && article.content.length() < 3) {
                 if (Controller.getInstance().openUrlEmptyArticle()) {
@@ -830,18 +863,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
     }
 
-    private void injectArticleLink(Context context, StringBuilder html) {
-        if (!Controller.getInstance().injectArticleLink())
-            return;
-
-        if ((article.url != null) && (article.url.length() > 0)) {
-            html.append("<br>\n");
-            html.append("<a href=\"").append(article.url).append("\" rel=\"alternate\">");
-            html.append((String) context.getText(R.string.ArticleActivity_ArticleLink));
-            html.append("</a>");
-        }
-    }
-
     /**
      * Injects the local path to every image which could be found in the local cache, replacing the original URLs in the
      * html.
@@ -877,4 +898,62 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         doRefresh();
     }
 
+
+  /**
+   * this class represents an object, which methods can be called from article's
+   * {@code WebView} javascript to manipulate the article activity
+   */
+  public class ArticleJSInterface
+  {
+
+    /**
+     * current article activity
+     */
+    ArticleActivity articleActivity;
+
+
+    /**
+     * public constructor, which saves calling activity as member variable
+     *
+     * @param aa current article activity
+     */
+    public ArticleJSInterface (ArticleActivity aa)
+    {
+      articleActivity = aa;
+    }
+
+
+    /**
+     * go to previous article
+     */
+//              @JavascriptInterface
+    public void prev ()
+    {
+      Log.d ("JS", "PREV");
+      articleActivity.runOnUiThread (new Runnable ()
+      {
+        public void run ()
+        {
+          openNextArticle (-1);
+        }
+      });
+    }
+
+
+    /**
+     * go to next article
+     */
+//              @JavascriptInterface
+    public void next ()
+    {
+      Log.d ("JS", "NEXT");
+      articleActivity.runOnUiThread (new Runnable ()
+      {
+        public void run ()
+        {
+          openNextArticle (1);
+        }
+      });
+    }
+  }
 }
