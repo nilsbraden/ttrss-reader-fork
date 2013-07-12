@@ -52,6 +52,14 @@
       android:key="DisplayTimeFormatPreference"
       android:summary="@string/DisplayTimeFormatSummary"
       android:title="@string/DisplayTimeFormatTitle" />
+    <EditTextPreference
+      android:name="@string/DisplayDateTimeFormatTitle"
+      android:defaultValue="@string/DisplayDateTimeFormatDefault"
+      android:dependency="DisplayDateTimeFormatSystemPreference"
+      android:inputType="textFilter"
+      android:key="DisplayDateTimeFormatPreference"
+      android:summary="@string/DisplayDateTimeFormatSummary"
+      android:title="@string/DisplayDateTimeFormatTitle" />
 
     <CheckBoxPreference
       android:defaultValue="false"
