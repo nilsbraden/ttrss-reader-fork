@@ -23,23 +23,65 @@
     <meta content="text/html; charset=utf-8" http-equiv="content-type">
     <style type="text/css">
       body {
-        padding : 0px;
-        margin : 0px;
+        padding : 0;
+        margin : 0;
+        padding-bottom : 2em
         background: transparent;
-        TEXT_ALIGN_MARKER
-        TEXT_MARKER
+        $TEXT_ALIGN_MARKER$
+        $TEXT_MARKER$
+      }
+      .header {
+        margin-bottom: 1em;
+      }
+      .header h1 {
+        font-size: 120%;
+      }
+      .header .labels,
+      .header .updated {
+        text-align: right;
+        color: lime;
       }
       a:link {
-        LINK_MARKER
+        $LINK_MARKER$
+      }
+      .footer {
+        text-align: justify;
+      }
+      .footer button {
+        display: block;
+        width: 45%;
+        font-size: 230%;
+      }
+      .footer button.first {
+        float: left;
+      }
+      .footer button.last {
+        float: right;
       }
     </style>
-    JS_MARKER
+    $JS_MARKER$
   </head>
-  <body class="hyphenate" lang="LANG_MARKER">CONTENT_MARKER</body>
+  <body class="hyphenate" lang="$LANG_MARKER$">$CONTENT_MARKER$</body>
 </html>]]></string>
   <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false"><![CDATA[<script src="file:///android_asset/Hyphenator.js" type="text/javascript"></script>
     <script type="text/javascript">Hyphenator.run();</script>
-    <script type="text/javascript" src="file:///android_asset/patterns/LANG_MARKER.js"></script>]]></string>
+    <script type="text/javascript" src="file:///android_asset/patterns/$LANG_MARKER$.js"></script>]]></string>
+  <string name="CONTENT_TEMPLATE" formatted="false"><![CDATA[
+<div class="header">
+  <h1><a href="$article.url$" rel="alternate">$article.title$</a></h1>
+  <div class="labels">$LABELS$</div>
+  <div class="updated">$UPDATED$</div>
+</div>
+<div class="mainContent">
+$CONTENT$
+</div>
+<div class="footer">
+$ATTACHMENTS$
+</div>
+<div class="footer">
+  <button id="btnPrev" class="first prev" onclick="a.prev();">&leftarrow;</button>
+  <button id="btnNext" class="last next" onclick="a.next();">&rightarrow;</button>
+</div>]]></string>
   <string name="ALIGN_JUSTIFY">text-align:justify;</string>
   <string name="ALIGN_LEFT">text-align:left;</string>
   <string name="COLOR_LINK_LIGHT">color:blue;</string>
