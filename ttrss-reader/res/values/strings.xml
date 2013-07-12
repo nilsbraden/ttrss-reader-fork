@@ -183,6 +183,9 @@
   <string name="DisplayTimeFormatTitle">Custom time format</string>
   <string name="DisplayTimeFormatSummary">Specify a DateFormat string for the time (see Wiki). Defaults to \"kk:mm\". Invalid values will be silently ignored and the default will be used.</string>
   <string name="DisplayTimeFormatDefault">kk:mm</string>
+  <string name="DisplayDateTimeFormatTitle">Custom date with time format</string>
+  <string name="DisplayDateTimeFormatSummary">Specify a format string for the date with time (see Wiki). Defaults to \"dd.MM.yyyy kk:mm\". Invalid values will be silently ignored and the default will be used.</string>
+  <string name="DisplayDateTimeFormatDefault">dd.MM.yyyy kk:mm</string>
   <string name="DisplayDarkBackgroundTitle">Use dark background?</string>
   <string name="DisplayDarkBackgroundSummary">Enable this to display the articles with a dark background for easier reading at night.</string>
   <string name="SystemPreferenceCategoryTitle">System</string>
