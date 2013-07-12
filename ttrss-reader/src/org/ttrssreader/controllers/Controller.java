@@ -42,6 +42,7 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import org.stringtemplate.v4.ST;
 
 /**
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
@@ -50,12 +51,16 @@ import android.view.Display;
 public class Controller implements OnSharedPreferenceChangeListener {
 
     public final static String JSON_END_URL = "api/index.php";
+
+    private final static char TEMPLATE_DELIMITER_START = '$';
+    private final static char TEMPLATE_DELIMITER_END = '$';
+
     private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
     private static final String MARKER_LINK = "LINK_MARKER";
     private static final String MARKER_TEXT = "TEXT_MARKER";
     private static final String MARKER_JS = "JS_MARKER";
     private static final String MARKER_LANG = "LANG_MARKER";
-    public static final String MARKER_CONTENT = "CONTENT_MARKER";
+    private static final String MARKER_CONTENT = "CONTENT_MARKER";
 
     private Context context;
     private JSONConnector ttrssConnector;
@@ -104,6 +109,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean dateTimeSystem = null;
     private String dateString = null;
     private String timeString = null;
+    private String dateTimeString = null;
     private Boolean darkBackground = null;
 
     private String saveAttachment = null;
@@ -195,44 +201,52 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 // Only need once we are displaying the feed-list or an article...
                 refreshDisplayMetrics(display);
 
+                // Article-Prefetch-Stuff from Raw-Ressources and System
+                ST htmlTmpl = new ST (
+                  context.getResources().getString(R.string.HTML_TEMPLATE),
+                  TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
+
+                // Replace alignment-marker with the requested layout, align:left or justified
+                String replaceAlign = "";
+                if (alignFlushLeft()) {
+                    replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
+                } else {
+                    replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
+                }
+
+
+                // Replace color-markers with matching colors for the requested background
+                String linkStyles = "";
+                String textStyles = "";
+                if (darkBackground()) {
+                    linkStyles = context.getResources().getString(R.string.COLOR_LINK_DARK);
+                    textStyles = context.getResources().getString(R.string.COLOR_TEXT_DARK);
+                } else {
+                    linkStyles = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
+                }
+
+                String javascriptTemplate = "";
+                String lang = "";
+                if (allowHyphenation()) {
+                  ST javascriptTmpl = new ST (context.getResources ().
+                    getString (R.string.JAVASCRIPT_HYPHENATION_TEMPLATE),
+                    TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
+                  lang = hyphenationLanguage ();
+                  javascriptTmpl.add (MARKER_LANG, lang);
+                  javascriptTemplate = javascriptTmpl.render ();
+                }
+
+                htmlTmpl.add (MARKER_ALIGN, replaceAlign);
+                htmlTmpl.add (MARKER_LINK, linkStyles);
+                htmlTmpl.add (MARKER_TEXT, textStyles);
+                htmlTmpl.add (MARKER_JS, javascriptTemplate);
+                htmlTmpl.add (MARKER_LANG, lang);
+                htmlTmpl.add (MARKER_CONTENT, context.getResources ().
+                   getString (R.string.CONTENT_TEMPLATE));
+
                 // This is only needed once an article is displayed
                 synchronized (htmlTemplate) {
-                    // Article-Prefetch-Stuff from Raw-Ressources and System
-                    htmlTemplate = context.getResources().getString(R.string.HTML_TEMPLATE);
-
-                    // Replace alignment-marker with the requested layout, align:left or justified
-                    String replaceAlign = "";
-                    if (alignFlushLeft()) {
-                        replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
-                    } else {
-                        replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
-                    }
-                    htmlTemplate = htmlTemplate.replace(MARKER_ALIGN, replaceAlign);
-
-
-                    // Replace color-markers with matching colors for the requested background
-                    String linkStyles = "";
-                    String textStyles = "";
-                    if (darkBackground()) {
-                        linkStyles = context.getResources().getString(R.string.COLOR_LINK_DARK);
-                        textStyles = context.getResources().getString(R.string.COLOR_TEXT_DARK);
-                    } else {
-                        linkStyles = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
-                    }
-                    htmlTemplate = htmlTemplate.
-                      replace(MARKER_LINK, linkStyles).
-                      replace(MARKER_TEXT, textStyles);
-
-                    String javascriptTemplate = "";
-                    String lang = "";
-                    if (allowHyphenation()) {
-                      javascriptTemplate = javascriptTemplate +
-                        context.getResources ().getString (R.string.JAVASCRIPT_HYPHENATION_TEMPLATE);
-                      lang = hyphenationLanguage ();
-                    }
-                    htmlTemplate = htmlTemplate.
-                      replace (MARKER_JS, javascriptTemplate).
-                      replaceAll (MARKER_LANG, lang);
+                    htmlTemplate = htmlTmpl.render ();
                 }
 
                 // This will be accessed when displaying an article or starting the imageCache. When caching it is done
@@ -659,6 +673,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setTimeString(String timeString) {
         put(Constants.TIME_STRING, timeString);
         this.timeString = timeString;
+    }
+
+    public String dateTimeString() {
+        if (dateTimeString == null)
+            dateTimeString = prefs.getString(Constants.DATETIME_STRING, Constants.DATETIME_STRING_DEFAULT);
+        return dateTimeString;
+    }
+
+    public void setDateTimeString(String dateTimeString) {
+        put(Constants.DATETIME_STRING, dateTimeString);
+        this.dateTimeString = dateTimeString;
     }
 
     public boolean darkBackground() {
