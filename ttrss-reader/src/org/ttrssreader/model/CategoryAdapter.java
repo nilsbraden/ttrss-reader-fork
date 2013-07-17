@@ -1,13 +1,13 @@
 /*
  * ttrss-reader-fork for Android
- * 
+ *
  * Copyright (C) 2010 N. Braden.
  * Copyright (C) 2009-2010 J. Devauchelle.
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
@@ -37,18 +37,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class CategoryAdapter extends MainAdapter {
-    
+
     public CategoryAdapter(Context context) {
         super(context);
     }
-    
+
     @Override
     public Object getItem(int position) {
         Category ret = new Category();
         synchronized (poorMansMutex) {
             if (cursor.isClosed())
                 makeQuery();
-            
+
             if (cursor.getCount() >= position) {
                 if (cursor.moveToPosition(position)) {
                     ret.id = cursor.getInt(0);
@@ -59,7 +59,7 @@ public class CategoryAdapter extends MainAdapter {
         }
         return ret;
     }
-    
+
     public List<Category> getCategories() {
         List<Category> result = new ArrayList<Category>();
         synchronized (poorMansMutex) {
@@ -76,7 +76,7 @@ public class CategoryAdapter extends MainAdapter {
         }
         return result;
     }
-    
+
     private int getImage(int id, boolean unread) {
         if (id == Data.VCAT_STAR) {
             return R.drawable.star48;
@@ -100,14 +100,14 @@ public class CategoryAdapter extends MainAdapter {
             }
         }
     }
-    
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (position >= getCount() || position < 0)
             return new View(context);
-        
+
         Category c = (Category) getItem(position);
-        
+
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;
         if (convertView == null) {
@@ -117,41 +117,41 @@ public class CategoryAdapter extends MainAdapter {
                 layout = (LinearLayout) convertView;
             }
         }
-        
+
         if (layout == null)
             return new View(context);
-        
+
         ImageView icon = (ImageView) layout.findViewById(R.id.cat_icon);
         icon.setImageResource(getImage(c.id, c.unread > 0));
-        
+
         TextView title = (TextView) layout.findViewById(R.id.cat_title);
-        title.setText(formatTitle(c.title, c.unread));
+        title.setText(formatEntryTitle (c.title, c.unread));
         if (c.unread > 0) {
             title.setTypeface(Typeface.DEFAULT_BOLD, 1);
         } else {
             title.setTypeface(Typeface.DEFAULT, 0);
         }
-        
+
         return layout;
     }
-    
+
     protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
-        
+
         synchronized (poorMansMutex) {
-            
+
             boolean displayUnread = Controller.getInstance().onlyUnread();
             boolean invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
-            
+
             if (overrideDisplayUnread)
                 displayUnread = false;
-            
+
             if (db != null)
                 db.close();
-            
+
             OpenHelper openHelper = new OpenHelper(context);
             db = openHelper.getWritableDatabase();
             insert = db.compileStatement(INSERT);
-            
+
             StringBuilder query;
             // Virtual Feeds
             if (Controller.getInstance().showVirtual()) {
@@ -161,7 +161,7 @@ public class CategoryAdapter extends MainAdapter {
                 query.append(" WHERE id>=-4 AND id<0 ORDER BY id");
                 insertValues(query.toString());
             }
-            
+
             // Labels
             query = new StringBuilder();
             query.append("SELECT id,title,unread FROM ");
@@ -170,14 +170,14 @@ public class CategoryAdapter extends MainAdapter {
             query.append(displayUnread ? " AND unread>0" : "");
             query.append(" ORDER BY UPPER(title) ASC");
             insertValues(query.toString());
-            
+
             // "Uncategorized Feeds"
             query = new StringBuilder();
             query.append("SELECT id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
             query.append(" WHERE id=0");
             insertValues(query.toString());
-            
+
             // Categories
             query = new StringBuilder();
             query.append("SELECT id,title,unread FROM ");
@@ -187,12 +187,12 @@ public class CategoryAdapter extends MainAdapter {
             query.append(" ORDER BY UPPER(title) ");
             query.append(invertSortFeedCats ? "DESC" : "ASC");
             insertValues(query.toString());
-            
+
             String[] columns = { "id", "title", "unread" };
             return db.query(TABLE_NAME, columns, null, null, null, null, null);
         }
     }
-    
+
     /*
      * This is quite a hack. Since partial-sorting of sql-results is not possible I wasn't able to sort virtual
      * categories by id, Labels by title, insert uncategorized feeds there and sort categories by title again.
@@ -205,12 +205,12 @@ public class CategoryAdapter extends MainAdapter {
             + "(id, title, unread, sortId) VALUES (?, ?, ?, null)";
     private SQLiteDatabase db;
     private SQLiteStatement insert;
-    
+
     private static class OpenHelper extends SQLiteOpenHelper {
         OpenHelper(Context context) {
             super(context, null, null, 1);
         }
-        
+
         /**
          * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
          */
@@ -219,12 +219,12 @@ public class CategoryAdapter extends MainAdapter {
             db.execSQL("CREATE TABLE " + TABLE_NAME
                     + " (id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
         }
-        
+
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         }
     }
-    
+
     private void insertValues(String query) {
         Cursor c = null;
         try {
@@ -233,7 +233,7 @@ public class CategoryAdapter extends MainAdapter {
                 return;
             if (c.isBeforeFirst() && !c.moveToFirst())
                 return;
-            
+
             while (true) {
                 insert.bindLong(1, c.getInt(0)); // id
                 insert.bindString(2, c.getString(1)); // title
