@@ -89,6 +89,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import org.stringtemplate.v4.ST;
+import org.ttrssreader.model.MainAdapter;
 
 @SuppressWarnings("deprecation")
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
@@ -276,7 +277,14 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     public void initUIHeader() {
         // Populate information-bar on top of the webView
         Feed feed = DBHelper.getInstance().getFeed(article.feedId);
-        header_feed.setText(feed != null ? feed.title : "");
+        int unreadCount = 0;
+        String feedTitle = "";
+        if (feed != null)
+        {
+          unreadCount = feed.unread;
+          feedTitle = feed.title;
+        }
+        header_feed.setText(MainAdapter.formatTitle(feedTitle, unreadCount));
         header_title.setText(article.title);
         header_date.setText(DateUtils.getDate(this, article.updated));
         header_time.setText(DateUtils.getTime(this, article.updated));
@@ -455,8 +463,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
 
             webView.loadDataWithBaseURL ("fake://ForJS",
               contentTemplate.render (), "text/html", "utf-8", null);
-
-            setTitle (article.title);
 
             if (!linkAutoOpened && article.content.length() < 3) {
                 if (Controller.getInstance().openUrlEmptyArticle()) {
