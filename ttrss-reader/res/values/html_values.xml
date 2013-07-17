@@ -23,12 +23,12 @@
     <meta content="text/html; charset=utf-8" http-equiv="content-type">
     <style type="text/css">
       body {
-        padding : 0;
-        margin : 0;
-        padding-bottom : 2em
-        background: transparent;
+        padding: 0;
+        margin: 0;
+        padding-bottom: 2em;
         $TEXT_ALIGN_MARKER$
         $TEXT_MARKER$
+        $BACKGROUND_MARKER$
       }
       .header {
         margin-bottom: 1em;
@@ -84,7 +84,9 @@ $ATTACHMENTS$
 </div>]]></string>
   <string name="ALIGN_JUSTIFY">text-align:justify;</string>
   <string name="ALIGN_LEFT">text-align:left;</string>
+  <string name="COLOR_BACKGROUND_LIGHT">background-color:white;</string>
   <string name="COLOR_LINK_LIGHT">color:blue;</string>
+  <string name="COLOR_BACKGROUND_DARK">background-color:black;</string>
   <string name="COLOR_LINK_DARK">color:#6C8FFF;</string>
   <string name="COLOR_TEXT_DARK">color:white;</string>
 

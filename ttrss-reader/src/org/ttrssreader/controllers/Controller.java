@@ -58,6 +58,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
     private static final String MARKER_LINK = "LINK_MARKER";
     private static final String MARKER_TEXT = "TEXT_MARKER";
+    private static final String MARKER_BACKGROUND = "BACKGROUND_MARKER";
     private static final String MARKER_JS = "JS_MARKER";
     private static final String MARKER_LANG = "LANG_MARKER";
     private static final String MARKER_CONTENT = "CONTENT_MARKER";
@@ -217,11 +218,14 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 // Replace color-markers with matching colors for the requested background
                 String linkStyles = "";
                 String textStyles = "";
+                String backgroundStyles = "";
                 if (darkBackground()) {
                     linkStyles = context.getResources().getString(R.string.COLOR_LINK_DARK);
                     textStyles = context.getResources().getString(R.string.COLOR_TEXT_DARK);
+                    backgroundStyles = context.getResources().getString(R.string.COLOR_BACKGROUND_DARK);
                 } else {
                     linkStyles = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
+                    backgroundStyles = context.getResources().getString(R.string.COLOR_BACKGROUND_LIGHT);
                 }
 
                 String javascriptTemplate = "";
@@ -238,6 +242,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 htmlTmpl.add (MARKER_ALIGN, replaceAlign);
                 htmlTmpl.add (MARKER_LINK, linkStyles);
                 htmlTmpl.add (MARKER_TEXT, textStyles);
+                htmlTmpl.add (MARKER_BACKGROUND, backgroundStyles);
                 htmlTmpl.add (MARKER_JS, javascriptTemplate);
                 htmlTmpl.add (MARKER_LANG, lang);
                 htmlTmpl.add (MARKER_CONTENT, context.getResources ().
