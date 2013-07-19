@@ -44,24 +44,13 @@
       a:link {
         $LINK_MARKER$
       }
-      .footer {
-        text-align: justify;
-      }
-      .footer button {
-        display: block;
-        width: 45%;
-        font-size: 230%;
-      }
-      .footer button.first {
-        float: left;
-      }
-      .footer button.last {
-        float: right;
-      }
     </style>
     $JS_MARKER$
   </head>
-  <body class="hyphenate" lang="$LANG_MARKER$">$CONTENT_MARKER$</body>
+  <body class="hyphenate" lang="$LANG_MARKER$">
+    $CONTENT_MARKER$
+    $BUTTONS$
+  </body>
 </html>]]></string>
   <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false"><![CDATA[<script src="file:///android_asset/Hyphenator.js" type="text/javascript"></script>
     <script type="text/javascript">Hyphenator.run();</script>
@@ -75,12 +64,29 @@
 <div class="mainContent">
 $CONTENT$
 </div>
-<div class="footer">
+<div class="attachments">
 $ATTACHMENTS$
-</div>
-<div class="footer">
-  <button id="btnPrev" class="first prev" onclick="a.prev();">&leftarrow;</button>
-  <button id="btnNext" class="last next" onclick="a.next();">&rightarrow;</button>
+</div>]]></string>
+  <string name="BUTTONS_TEMPLATE" formatted="false"><![CDATA[
+<style type="text/css">
+  .buttons {
+    text-align: justify;
+  }
+  .buttons button {
+    display: block;
+    width: 45%;
+    font-size: 230%;
+  }
+  .buttons button.first {
+    float: left;
+  }
+  .buttons button.last {
+    float: right;
+  }
+</style>
+<div class="buttons">
+  <button id="btnPrev" class="first prev" onclick="articleController.prev();">&leftarrow;</button>
+  <button id="btnNext" class="last next" onclick="articleController.next();">&rightarrow;</button>
 </div>]]></string>
   <string name="ALIGN_JUSTIFY">text-align:justify;</string>
   <string name="ALIGN_LEFT">text-align:left;</string>

@@ -110,8 +110,11 @@
   <string name="DisplayLoadImagesPreferenceSummary">Uncheck to disable image-loading from external ressources in Webview.</string>
   <string name="InvertBrowseArticlesPreferenceTitle">Invert browsing articles</string>
   <string name="InvertBrowseArticlesPreferenceSummary">If checked, opening a category directly opens all articles within, else it shows the feeds.</string>
-  <string name="DisplayUseButtonsTitle">Use Buttons</string>
-  <string name="DisplayUseButtonsSummary">Use Buttons for navigation (reduces space on screen).</string>
+  <string name="ShowButtonsModeTitle">Select Navigation Buttons Mode</string>
+  <string name="ShowButtonsModeSummary">How navigation buttons in article view should be shown.</string>
+  <string name="ShowButtonsMode_none">Do not show buttons</string>
+  <string name="ShowButtonsMode_allways">Always show (reduces space on screen)</string>
+  <string name="ShowButtonsMode_html">Show at the end of article text</string>
   <string name="HeadlineSizeTitle">Size of the Title-Field from Article-Header</string>
   <string name="HeadlineSizeSummary">Changes the size (default: 16sp) to the given value.</string>
   <string name="TextZoomTitle">Text-Zoom in percent</string>

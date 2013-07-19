@@ -102,8 +102,6 @@
   <string name="DisplayVirtualPreferenceSummary">Desmarcar para esconder fuentes virtuales de TTRSS.</string>
   <string name="DisplayLoadImagesPreferenceTitle">Cargar imágenes</string>
   <string name="DisplayLoadImagesPreferenceSummary">Desmarcar para desactivar la carga de las imágenes desde recursos externos en vista web.</string>
-  <string name="DisplayUseButtonsTitle">Usar botones</string>
-  <string name="DisplayUseButtonsSummary">Usar botones para la navegación (reduce el espacio en pantalla).</string>
   <string name="HeadlineSizeTitle">Tamaño del campo título de la cabecera del artículo</string>
   <string name="HeadlineSizeSummary">Cambiar tamaño (por defecto: 16sp) al indicado.</string>
   <string name="TextZoomTitle">Porcentaje zoom del texto</string>

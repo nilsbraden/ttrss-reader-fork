@@ -91,7 +91,7 @@ public class Constants {
     public static final String MARK_READ_IN_MENU = "MarkReadInMenuPreference";
     public static final String SHOW_VIRTUAL = "DisplayShowVirtualPreference";
     public static final String USE_SWIPE = "DisplayUseSwipePreference";
-    public static final String USE_BUTTONS = "DisplayUseButtonsPreference";
+    public static final String SHOW_BUTTONS_MODE = "ShowButtonsModePreference";
     public static final String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
     public static final String ARTICLE_LIMIT = "DisplayArticleLimitPreference";
     public static final String INVERT_SORT_ARTICLELIST = "InvertSortArticlelistPreference";
@@ -111,7 +111,10 @@ public class Constants {
     public static final boolean MARK_READ_IN_MENU_DEFAULT = true;
     public static final boolean SHOW_VIRTUAL_DEFAULT = true;
     public static final boolean USE_SWIPE_DEFAULT = true;
-    public static final boolean USE_BUTTONS_DEFAULT = false;
+    public static final String SHOW_BUTTONS_MODE_DEFAULT = "0";
+    public static final int SHOW_BUTTONS_MODE_NONE = 0;
+    public static final int SHOW_BUTTONS_MODE_ALLWAYS = 1;
+    public static final int SHOW_BUTTONS_MODE_HTML = 2;
     public static final boolean ONLY_UNREAD_DEFAULT = false;
     public static final int ARTICLE_LIMIT_DEFAULT = 1000;
     public static final boolean INVERT_SORT_ARTICLELIST_DEFAULT = false;
