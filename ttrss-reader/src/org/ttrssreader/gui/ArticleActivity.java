@@ -90,6 +90,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import org.stringtemplate.v4.ST;
 import org.ttrssreader.model.MainAdapter;
+import org.ttrssreader.preferences.Constants;
 
 @SuppressWarnings("deprecation")
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
@@ -271,7 +272,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
 
         // mainContainer.populate(webView);
         findViewById(R.id.article_button_view).setVisibility(
-                Controller.getInstance().useButtons() ? View.VISIBLE : View.GONE);
+                Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE : View.GONE);
     }
 
     public void initUIHeader() {
@@ -459,7 +460,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.getSettings().setLightTouchEnabled (true);
             webView.getSettings ().setJavaScriptEnabled (true);
 
-            webView.addJavascriptInterface (articleJSInterface, "a");
+            webView.addJavascriptInterface (articleJSInterface,
+              "articleController");
 
             webView.loadDataWithBaseURL ("fake://ForJS",
               contentTemplate.render (), "text/html", "utf-8", null);

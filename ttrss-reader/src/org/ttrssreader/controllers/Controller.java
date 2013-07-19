@@ -62,6 +62,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static final String MARKER_JS = "JS_MARKER";
     private static final String MARKER_LANG = "LANG_MARKER";
     private static final String MARKER_CONTENT = "CONTENT_MARKER";
+    private static final String MARKER_BUTTONS = "BUTTONS";
 
     private Context context;
     private JSONConnector ttrssConnector;
@@ -101,7 +102,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String hyphenationLanguage = null;
     private Boolean markReadInMenu = null;
     private Boolean showVirtual = null;
-    private Boolean useButtons = null;
+    private Integer showButtonsMode = null;
     private Boolean onlyUnread = null;
     private Boolean invertSortArticlelist = null;
     private Boolean invertSortFeedscats = null;
@@ -239,6 +240,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
                   javascriptTemplate = javascriptTmpl.render ();
                 }
 
+                String buttonsTemplate = (
+                  showButtonsMode () == Constants.SHOW_BUTTONS_MODE_HTML ?
+                  context.getResources ().getString (R.string.BUTTONS_TEMPLATE) :
+                  "");
+
                 htmlTmpl.add (MARKER_ALIGN, replaceAlign);
                 htmlTmpl.add (MARKER_LINK, linkStyles);
                 htmlTmpl.add (MARKER_TEXT, textStyles);
@@ -247,6 +253,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 htmlTmpl.add (MARKER_LANG, lang);
                 htmlTmpl.add (MARKER_CONTENT, context.getResources ().
                    getString (R.string.CONTENT_TEMPLATE));
+                htmlTmpl.add (MARKER_BUTTONS, buttonsTemplate);
 
                 // This is only needed once an article is displayed
                 synchronized (htmlTemplate) {
@@ -578,15 +585,15 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.showVirtual = displayVirtuals;
     }
 
-    public boolean useButtons() {
-        if (useButtons == null)
-            useButtons = prefs.getBoolean(Constants.USE_BUTTONS, Constants.USE_BUTTONS_DEFAULT);
-        return useButtons;
+    public Integer showButtonsMode() {
+        if (showButtonsMode == null)
+            showButtonsMode = Integer.parseInt(prefs.getString (Constants.SHOW_BUTTONS_MODE, Constants.SHOW_BUTTONS_MODE_DEFAULT));
+        return showButtonsMode;
     }
 
-    public void setUseButtons(boolean useButtons) {
-        put(Constants.USE_BUTTONS, useButtons);
-        this.useButtons = useButtons;
+    public void setShowButtonsMode(Integer showButtonsMode) {
+        put(Constants.SHOW_BUTTONS_MODE, showButtonsMode);
+        this.showButtonsMode = showButtonsMode;
     }
 
     public boolean onlyUnread() {

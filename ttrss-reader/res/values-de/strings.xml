@@ -89,8 +89,11 @@
   <string name="DisplayPreferenceCategoryTitle">Darstellung</string>
   <string name="DisplayVirtualPreferenceTitle">Virtuelle Feeds anzeigen</string>
   <string name="DisplayVirtualPreferenceSummary">Aktiviert die Anzeige virtueller Feeds wie \"Alle Artikel\".</string>
-  <string name="DisplayUseButtonsTitle">Knopfsteuerung</string>
-  <string name="DisplayUseButtonsSummary">Knöpfe zum Navigieren verwenden (verknappt den Platz auf dem Bildschirm).</string>
+  <string name="ShowButtonsModeTitle">Navigationstasten-Modus Auswahl</string>
+  <string name="ShowButtonsModeSummary">Wie sollten die Navigationstasten in Artikelansicht angezeigt werden?</string>
+  <string name="ShowButtonsMode_none">Nicht anzeigen</string>
+  <string name="ShowButtonsMode_allways">Immer sichtbar (verringert den Platz auf dem Bildschirm)</string>
+  <string name="ShowButtonsMode_html">Am Ende des Artikels anzeigen</string>
   <string name="HeadlineSizeTitle">Schriftgröße des Titels</string>
   <string name="HeadlineSizeSummary">Stellt die Schriftgröße des Titels in der Artikel-Kopfzeile ein (Standard: 16sp).</string>
   <string name="CacheImagesOnStartupTitle">ImageCache beim Start?</string>
