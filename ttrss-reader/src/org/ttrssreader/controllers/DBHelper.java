@@ -65,7 +65,7 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 51;
+    public static final int DATABASE_VERSION = 52;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -95,8 +95,8 @@ public class DBHelper {
     private static final String INSERT_ARTICLE = 
         "INSERT OR REPLACE INTO "
         + TABLE_ARTICLES
-        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages)" 
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE id=?), 0))";
+        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages, articleLabels)" 
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE id=?), 0), ?)";
     // This should insert new values or replace existing values but should always keep an already inserted value for "cachedImages".
     // When inserting it is set to the default value which is 0 (not "NULL").
     
@@ -321,7 +321,8 @@ public class DBHelper {
                     + " attachments TEXT,"
                     + " isStarred INTEGER,"
                     + " isPublished INTEGER,"
-                    + " cachedImages INTEGER DEFAULT 0)");
+                    + " cachedImages INTEGER DEFAULT 0,"
+                    + " articleLabels TEXT)");
             
             db.execSQL(
                     "CREATE TABLE " 
@@ -485,6 +486,18 @@ public class DBHelper {
                 didUpgrade = true;
             }
             
+            if (oldVersion < 52) {
+                // @formatter:off
+                String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN articleLabels TEXT";
+                // @formatter:on
+                
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 52.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                
+                db.execSQL(sql);
+                didUpgrade = true;
+            }
+            
             if (didUpgrade == false) {
                 Log.i(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
@@ -596,7 +609,10 @@ public class DBHelper {
             a.updated = new Date();
         if (a.attachments == null)
             a.attachments = new LinkedHashSet<String>();
-        
+        if (a.labels == null)
+            a.labels = new LinkedHashSet<Label>();
+            
+        //articleLabels
         long retId = -1;
         synchronized (insertArticle) {
             insertArticle.bindLong(1, a.id);
@@ -611,11 +627,12 @@ public class DBHelper {
             insertArticle.bindLong(10, (a.isStarred ? 1 : 0));
             insertArticle.bindLong(11, (a.isPublished ? 1 : 0));
             insertArticle.bindLong(12, a.id); // ID again for the where-clause
+            insertArticle.bindString(13, Utils.separateItems(a.labels, "---"));
             retId = insertArticle.executeInsert();
         }
         
         if (retId != -1)
-            insertLabel(a.id, a.label);
+            insertLabel(a.id, a.labelId);
     }
     
     public void insertArticle(Article a) {
@@ -642,8 +659,8 @@ public class DBHelper {
         }
     }
     
-    public static Object[] prepareArticleArray(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label) {
-        Object[] ret = new Object[11];
+    public static Object[] prepareArticleArray(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label, Set<Label> labels) {
+        Object[] ret = new Object[12];
         
         ret[0] = id;
         ret[1] = feedId;
@@ -656,6 +673,7 @@ public class DBHelper {
         ret[8] = Utils.separateItems(attachments, ";");
         ret[9] = (isStarred ? 1 : 0);
         ret[10] = (isPublished ? 1 : 0);
+        ret[11] = labels;
         
         return ret;
     }
@@ -1451,8 +1469,9 @@ public class DBHelper {
                 c.getString(7),                     // content
                 parseAttachments(c.getString(8)),   // attachments
                 (c.getInt(9) != 0),                 // isStarred
-                (c.getInt(10) != 0),                 // isPublished
-                -1
+                (c.getInt(10) != 0),                // isPublished
+                c.getInt(11),                       // Label-ID
+                parseArticleLabels(c.getString(12)) // Labels
         );
         ret.cachedImages = (c.getInt(11) != 0);
         // @formatter:on
@@ -1488,6 +1507,35 @@ public class DBHelper {
         
         for (String s : att.split(";")) {
             ret.add(s);
+        }
+        
+        return ret;
+    }
+    
+    /*
+     * Parse labels from string of the form "label;;label;;...;;label" where each label is of the following format:
+     * "caption;forground;background"
+     */
+    private static Set<Label> parseArticleLabels(String labelStr) {
+        Set<Label> ret = new LinkedHashSet<Label>();
+        if (labelStr == null)
+            return ret;
+        
+        int i = 0;
+        for (String s : labelStr.split("---")) {
+            String[] l = s.split(";");
+            if (l.length > 0) {
+                i++;
+                Label label = new Label();
+                label.setId(i);
+                label.checked = true;
+                label.caption = l[0];
+                if (l.length > 1 && l[1].startsWith("#"))
+                    label.foregroundColor = l[1];
+                if (l.length > 2 && l[1].startsWith("#"))
+                    label.backgroundColor = l[2];
+                ret.add(label);
+            }
         }
         
         return ret;

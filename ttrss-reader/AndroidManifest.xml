@@ -40,7 +40,7 @@
         android:description="@string/ApplicationDescription"
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName"
-        android:theme="@style/Theme.Sherlock" >
+        android:theme="@style/Theme.MyAppTheme" >
         <activity
             android:name=".gui.CategoryActivity"
             android:label="@string/ApplicationName" >

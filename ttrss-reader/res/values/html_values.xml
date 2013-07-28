@@ -38,9 +38,11 @@
 	        font-size: 120%;
 	      }
 	      .header .labels,
-	      .header .updated {
+	      .header .updated,
+	      .header .attachments {
 	        text-align: right;
-	        color: lime;
+	        color: #04B404;
+	        background-color: #424242;
 	      }
 	      a:link {
 	        $LINK_MARKER$

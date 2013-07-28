@@ -584,6 +584,7 @@ public abstract class JSONConnector {
                 String articleUrl = null;
                 String articleCommentUrl = null;
                 Set<String> attachments = null;
+                Set<Label> labels = null;
                 boolean isStarred = false;
                 boolean isPublished = false;
                 
@@ -617,6 +618,8 @@ public abstract class JSONConnector {
                             isStarred = reader.nextBoolean();
                         } else if (name.equals(PUBLISHED)) {
                             isPublished = reader.nextBoolean();
+                        } else if (name.equals("labels")) {
+                            labels = parseLabels(reader);
                         } else {
                             reader.skipValue();
                         }
@@ -631,7 +634,7 @@ public abstract class JSONConnector {
                 
                 if (articleId != -1 && title != null) {
                     articles.add(new Article(articleId, feedId, title, isUnread, articleUrl, articleCommentUrl,
-                            updated, content, attachments, isStarred, isPublished, labelId));
+                            updated, content, attachments, isStarred, isPublished, labelId, labels));
                     count++;
                 }
             }
@@ -645,6 +648,48 @@ public abstract class JSONConnector {
         Log.d(Utils.TAG, "parseArticleArray: parsing " + count + " articles took "
                 + (System.currentTimeMillis() - time) + "ms");
         return count;
+    }
+    
+    private Set<Label> parseLabels(final JsonReader reader) throws IOException {
+        Set<Label> ret = new HashSet<Label>();
+        
+        if (reader.peek().equals(JsonToken.BEGIN_ARRAY)) {
+            reader.beginArray();
+        } else {
+            reader.skipValue();
+            return ret;
+        }
+        
+        try {
+            while (reader.hasNext()) {
+                
+                Label label = new Label();
+                reader.beginArray();
+                try {
+                    label.setId(Integer.parseInt(reader.nextString()));
+                    label.caption = reader.nextString();
+                    label.foregroundColor = reader.nextString();
+                    label.backgroundColor = reader.nextString();
+                    label.checked = true;
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                    reader.skipValue();
+                    continue;
+                }
+                ret.add(label);
+                reader.endArray();
+            }
+            reader.endArray();
+        } catch (Exception e) {
+            // Ignore exceptions here
+            try {
+                if (reader.peek().equals(JsonToken.END_ARRAY))
+                    reader.endArray();
+            } catch (Exception ee) {
+            }
+        }
+        
+        return ret;
     }
     
     // ***************** Retrieve-Data-Methods **************************************************
@@ -788,7 +833,7 @@ public abstract class JSONConnector {
             while (reader.hasNext()) {
                 
                 int categoryId = -1;
-                int id = 0;
+                int id = Integer.MIN_VALUE;
                 String title = null;
                 String feedUrl = null;
                 int unread = 0;
@@ -821,8 +866,8 @@ public abstract class JSONConnector {
                 }
                 reader.endObject();
                 
-                if (id != -1 || categoryId == -2) // normal feed (>0) or label (-2)
-                    if (title != null) // Dont like complicated if-statements..
+                if (id != Integer.MIN_VALUE || categoryId == -2) // normal feed (>0) or label (-2)
+                    if (title != null)
                         ret.add(new Feed(id, categoryId, title, feedUrl, unread));
                 
             }

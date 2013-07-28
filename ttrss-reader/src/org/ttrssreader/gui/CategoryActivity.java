@@ -30,7 +30,6 @@ import org.ttrssreader.gui.dialogs.WelcomeDialog;
 import org.ttrssreader.gui.fragments.CategoryListFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
-import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -139,7 +138,8 @@ public class CategoryActivity extends MenuActivity {
         if (applicationName == null)
             applicationName = getResources().getString(R.string.ApplicationName);
         int unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
-        setTitle(MainAdapter.formatTitle(applicationName, unreadCount));
+        setTitle(applicationName);
+        setUnread(unreadCount);
         
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.category_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
