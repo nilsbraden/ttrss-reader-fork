@@ -23,7 +23,6 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
-import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -82,7 +81,8 @@ public class FeedActivity extends MenuActivity {
     protected void doRefresh() {
         super.doRefresh();
         int unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
-        setTitle(MainAdapter.formatTitle(title, unreadCount));
+        setTitle(title);
+        setUnread(unreadCount);
         
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));

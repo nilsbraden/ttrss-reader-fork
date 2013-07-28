@@ -21,6 +21,8 @@ public class Label implements Comparable<Label> {
     public String caption;
     public boolean checked;
     public boolean checkedChanged = false;
+    public String foregroundColor;
+    public String backgroundColor;
     
     public void setId(int id) {
         this.id = id;
@@ -60,7 +62,7 @@ public class Label implements Comparable<Label> {
     
     @Override
     public String toString() {
-        return "ID: " + id + " (internal: " + getInternalId() + "), checked: " + checked + ", caption: " + caption;
+        return caption + ";" + foregroundColor + ";" + backgroundColor;
     }
     
 }

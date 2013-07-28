@@ -25,7 +25,6 @@ import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.model.FeedAdapter;
-import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
@@ -143,7 +142,8 @@ public class FeedHeadlineActivity extends MenuActivity {
         else
             unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
         
-        setTitle(MainAdapter.formatTitle(title, unreadCount));
+        setTitle(title);
+        setUnread(unreadCount);
         
         flingDetected = false; // reset fling-status
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));

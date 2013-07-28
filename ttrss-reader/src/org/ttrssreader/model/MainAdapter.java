@@ -124,14 +124,6 @@ public abstract class MainAdapter extends BaseAdapter {
         return ret;
     }
 
-    public static final CharSequence formatTitle(String title, int unread) {
-        if (unread > 0) {
-            return unread + ": " + title;
-        } else {
-            return title;
-        }
-    }
-
     public static final CharSequence formatEntryTitle(String title, int unread) {
         if (unread > 0) {
             return title + " (" + unread + ")";

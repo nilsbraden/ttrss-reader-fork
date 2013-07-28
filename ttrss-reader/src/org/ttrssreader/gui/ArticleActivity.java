@@ -37,7 +37,6 @@ import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.imageCache.ImageCacher;
 import org.ttrssreader.model.FeedHeadlineAdapter;
-import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
@@ -90,6 +89,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+
 // import android.webkit.JavascriptInterface;
 
 @SuppressWarnings("deprecation")
@@ -109,9 +109,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private final static char TEMPLATE_DELIMITER_START = '$';
     private final static char TEMPLATE_DELIMITER_END = '$';
     
-    private static final String TEMPLATE_ARTICLE_VAR = "article";
+    // private static final String TEMPLATE_ARTICLE_VAR = "article";
     private static final String MARKER_LABELS = "LABELS";
-    private static final String MARKER_UPDATED = "UPDATED";
+    // private static final String MARKER_UPDATED = "UPDATED";
     private static final String MARKER_CONTENT = "CONTENT";
     private static final String MARKER_ATTACHMENTS = "ATTACHMENTS";
     
@@ -225,7 +225,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         // Initialize the WebView if necessary
         if (webView == null) {
             webView = new WebView(getApplicationContext());
-            // webView.getSettings().setJavaScriptEnabled(true);
             webView.setWebViewClient(new ArticleWebViewClient(this));
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             boolean supportZoomControls = Controller.getInstance().supportZoomControls();
@@ -279,13 +278,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     public void initUIHeader() {
         // Populate information-bar on top of the webView
         Feed feed = DBHelper.getInstance().getFeed(article.feedId);
-        int unreadCount = 0;
         String feedTitle = "";
-        if (feed != null) {
-            unreadCount = feed.unread;
+        if (feed != null)
             feedTitle = feed.title;
-        }
-        header_feed.setText(MainAdapter.formatTitle(feedTitle, unreadCount));
+        
+        header_feed.setText(feedTitle);
         header_title.setText(article.title);
         header_date.setText(DateUtils.getDate(this, article.updated));
         header_time.setText(DateUtils.getTime(this, article.updated));
@@ -401,6 +398,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.destroy();
     }
     
+    @SuppressLint("SetJavaScriptEnabled")
     private void doRefresh() {
         try {
             ProgressBarManager.getInstance().addProgress(this);
@@ -435,28 +433,39 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             String localContent = injectCachedImages(article.content, articleId);
             
             StringBuilder labels = new StringBuilder();
-            
-            for (Label label : DBHelper.getInstance().getLabelsForArticle(articleId)) {
-                if (labels.length() > 0)
-                    labels.append(", ");
-                labels.append(label.caption);
+            for (Label label : article.labels) { //DBHelper.getInstance().getLabelsForArticle(articleId)) {
+                if (label.checked) {
+                    if (labels.length() > 0)
+                        labels.append(", ");
+                    
+                    String labelString = label.caption;
+                    if (label.foregroundColor != null && label.backgroundColor != null)
+                        labelString = String.format(LABEL_COLOR_STRING, label.foregroundColor, label.backgroundColor,
+                                label.caption);
+                    labels.append(labelString);
+                }
             }
             
             // Load html from Controller and insert content
             ST contentTemplate = new ST(Controller.htmlTemplate, TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
             
-            contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
+            // contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
             contentTemplate.add(MARKER_LABELS, labels.toString());
             
-            contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getApplicationContext(), article.updated));
+            // contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getApplicationContext(),
+            // article.updated));
             
             contentTemplate.add(MARKER_CONTENT, localContent);
             contentTemplate.add(MARKER_ATTACHMENTS, sb.toString());
             
             webView.getSettings().setLightTouchEnabled(true);
-            webView.getSettings().setJavaScriptEnabled(true);
             
-            webView.addJavascriptInterface(articleJSInterface, "articleController");
+            if (Controller.getInstance().allowHyphenation()) {
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.addJavascriptInterface(articleJSInterface, "articleController");
+            } else {
+                webView.getSettings().setJavaScriptEnabled(false);
+            }
             
             webView.loadDataWithBaseURL("fake://ForJS", contentTemplate.render(), "text/html", "utf-8", null);
             
@@ -477,6 +486,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             ProgressBarManager.getInstance().removeProgress(this);
         }
     }
+    
+    private static final String LABEL_COLOR_STRING = "<span style=\"color: %s; background-color: %s\">%s</span>";
     
     /**
      * Recursively walks all viewGroups and their Views inside the given ViewGroup and sets the background to black and,

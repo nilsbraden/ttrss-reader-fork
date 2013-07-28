@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- AlertDialog text color fix thanks to Shawn Castrianni, see: http://groups.google.com/group/android-developers/browse_thread/thread/f0b34621d3a70c4b -->
     <style name="AboutDialog" parent="@android:style/Theme.Dialog">
         <item name="android:textColor">?android:attr/textColorPrimaryInverseDisableOnly</item>
+    </style>
+
+    <style name="Theme.MyAppTheme" parent="Theme.Sherlock">
+        <item name="android:actionBarStyle">@style/Theme.MyAppTheme.ActionBar</item>
+        <item name="actionBarStyle">@style/Theme.MyAppTheme.ActionBar</item>
+    </style>
+
+    <style name="Theme.MyAppTheme.ActionBar" parent="Widget.Sherlock.ActionBar">
+        <item name="android:background">#222222</item>
+        <item name="background">#222222</item>
+        <item name="android:height">64dip</item>
+        <item name="height">64dip</item>
     </style>
 
 </resources>

@@ -33,7 +33,8 @@ public class Article implements Comparable<Article> {
     public boolean isStarred;
     public boolean isPublished;
     public boolean cachedImages;
-    public int label;
+    public int labelId;
+    public Set<Label> labels;
     
     /*
      * public int id;
@@ -59,7 +60,8 @@ public class Article implements Comparable<Article> {
     }
     
     public Article(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
-            Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label) {
+            Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished,
+            int labelId, Set<Label> labels) {
         this.id = id;
         this.title = title;
         this.feedId = feedId;
@@ -75,7 +77,8 @@ public class Article implements Comparable<Article> {
         this.attachments = attachments;
         this.isStarred = isStarred;
         this.isPublished = isPublished;
-        this.label = label;
+        this.labelId = labelId;
+        this.labels = labels;
     }
     
     @Override
