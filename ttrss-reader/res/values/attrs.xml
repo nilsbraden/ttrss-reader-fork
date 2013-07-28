@@ -19,11 +19,11 @@
 <resources>
 
     <declare-styleable name="RotatableTextView">
-        <attr format="string" name="text" />
-        <attr format="color" name="textColor" />
-        <attr format="integer" name="textSize" />
-        <attr format="integer" name="textRotation" />
-        <attr format="color" name="backgroundColor" />
+        <attr name="text" format="string" />
+        <attr name="textColor" format="color" />
+        <attr name="textSize" format="integer" />
+        <attr name="textRotation" format="integer" />
+        <attr name="backgroundColor" format="color" />
     </declare-styleable>
 
 </resources>
