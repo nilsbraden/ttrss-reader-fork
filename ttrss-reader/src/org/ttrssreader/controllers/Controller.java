@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import org.stringtemplate.v4.ST;
 import org.ttrssreader.R;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.net.ApacheJSONConnector;
@@ -42,7 +43,6 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import org.stringtemplate.v4.ST;
 
 /**
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There

@@ -106,8 +106,8 @@ public class Constants {
     public static final int HEADLINE_SIZE_DEFAULT = 16;
     public static final int TEXT_ZOOM_DEFAULT = 100;
     public static final boolean SUPPORT_ZOOM_CONTROLS_DEFAULT = true;
-    public static final boolean ALLOW_HYPHENATION_DEFAULT = true;
-    public static final String HYPHENATION_LANGUAGE_DEFAULT = "en-ru";
+    public static final boolean ALLOW_HYPHENATION_DEFAULT = false;
+    public static final String HYPHENATION_LANGUAGE_DEFAULT = "en-gb";
     public static final boolean MARK_READ_IN_MENU_DEFAULT = true;
     public static final boolean SHOW_VIRTUAL_DEFAULT = true;
     public static final boolean USE_SWIPE_DEFAULT = true;

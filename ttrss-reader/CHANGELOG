@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.52 ==
+  * Improvements by Igor Lyubimov (Hyphenation, better HTML-Template, performance improvements, better date/time formatting, better button navigation)
+  * 
+
 == Version 1.51 (1) ==
   * Replaced article-header with a custom actionbar-layout (click title to view the full title if it doesn't fit in the space)
   * Reduce memory usage when low-memory conditions are detected
