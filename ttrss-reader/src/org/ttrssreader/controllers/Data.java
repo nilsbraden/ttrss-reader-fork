@@ -138,6 +138,7 @@ public class Data {
         // Check if unread-count and actual number of unread articles match, if not do a seperate call with
         // displayOnlyUnread=true
         boolean needUnreadUpdate = false;
+        isCat = isCat || (feedId < 0);
         if (!isCat) {
             int unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
             if (unreadCount > DBHelper.getInstance().getUnreadArticles(feedId).size()) {
