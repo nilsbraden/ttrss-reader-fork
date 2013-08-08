@@ -171,12 +171,10 @@ public class CategoryActivity extends MenuActivity {
                 doUpdate(true);
                 return true;
             case R.id.Menu_MarkAllRead:
-                new Updater(this, new ReadStateUpdater(DBHelper.getInstance().getCategoriesIncludingUncategorized()))
-                        .exec();
-
-                if (Controller.getInstance ().goBackAfterMakeAllRead ())
-                  onBackPressed ();
-
+                new Updater(this, new ReadStateUpdater(DBHelper.getInstance().getAllCategories())).exec();
+                // Not on main view, you'll leave the app...
+                // if (Controller.getInstance().goBackAfterMakeAllRead())
+                // onBackPressed();
                 return true;
             default:
                 return false;

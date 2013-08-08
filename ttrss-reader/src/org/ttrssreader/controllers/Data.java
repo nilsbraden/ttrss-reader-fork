@@ -167,7 +167,7 @@ public class Data {
                 for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
                     articlesChanged.put(f.id, articlesCached);
                 }
-                for (Category c : DBHelper.getInstance().getCategoriesIncludingUncategorized()) {
+                for (Category c : DBHelper.getInstance().getAllCategories()) {
                     feedsChanged.put(c.id, articlesCached);
                 }
             }

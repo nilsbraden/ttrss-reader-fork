@@ -1166,10 +1166,7 @@ public class DBHelper {
         }
     }
     
-    /**
-     * FIXME: Still necessary?
-     */
-    @Deprecated
+    /* FIXME: Still necessary?
     public void purgePublishedArticles() {
         if (isDBAvailable()) {
             db.delete(TABLE_ARTICLES, "isPublished>0", null);
@@ -1177,16 +1174,13 @@ public class DBHelper {
         }
     }
     
-    /**
-     * FIXME: Still necessary?
-     */
-    @Deprecated
     public void purgeStarredArticles() {
         if (isDBAvailable()) {
             db.delete(TABLE_ARTICLES, "isStarred>0", null);
             purgeLabels();
         }
     }
+    */
     
     /**
      * delete articles, which belongs to given IDs
@@ -1527,7 +1521,7 @@ public class DBHelper {
         return ret;
     }
     
-    public Set<Category> getCategoriesIncludingUncategorized() {
+    public Set<Category> getAllCategories() {
         Set<Category> ret = new LinkedHashSet<Category>();
         if (!isDBAvailable())
             return ret;
