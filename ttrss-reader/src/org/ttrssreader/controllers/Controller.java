@@ -62,7 +62,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static final String MARKER_JS = "JS_MARKER";
     private static final String MARKER_LANG = "LANG_MARKER";
     private static final String MARKER_CONTENT = "CONTENT_MARKER";
-    private static final String MARKER_BUTTONS = "BUTTONS";
+    private static final String MARKER_BUTTONS = "BOTTOM_NAVIGATION_MARKER";
 
     private Context context;
     private JSONConnector ttrssConnector;
@@ -240,11 +240,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
                   javascriptTmpl.add (MARKER_LANG, lang);
                   javascriptTemplate = javascriptTmpl.render ();
                 }
-
-                String buttonsTemplate = (
-                  showButtonsMode () == Constants.SHOW_BUTTONS_MODE_HTML ?
-                  context.getResources ().getString (R.string.BUTTONS_TEMPLATE) :
-                  "");
+                
+                String buttonsTemplate = "";
+                if (showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML)
+                    buttonsTemplate = context.getResources().getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
 
                 htmlTmpl.add (MARKER_ALIGN, replaceAlign);
                 htmlTmpl.add (MARKER_LINK, linkStyles);

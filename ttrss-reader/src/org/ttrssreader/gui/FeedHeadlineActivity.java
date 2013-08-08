@@ -104,6 +104,10 @@ public class FeedHeadlineActivity extends MenuActivity {
             Category category = DBHelper.getInstance().getCategory(categoryId);
             if (category != null)
                 title = category.title;
+        } else if (feedId >= -4 && feedId < 0) { // Virtual Category
+            Category category = DBHelper.getInstance().getCategory(feedId);
+            if (category != null)
+                title = category.title;
         } else {
             Feed feed = DBHelper.getInstance().getFeed(feedId);
             if (feed != null)

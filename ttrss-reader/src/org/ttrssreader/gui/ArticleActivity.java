@@ -223,7 +223,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         // Initialize the WebView if necessary
         if (webView == null) {
             webView = new WebView(getApplicationContext());
-            // webView.getSettings().setJavaScriptEnabled(true);
             webView.setWebViewClient(new ArticleWebViewClient(this));
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             boolean supportZoomControls = Controller.getInstance().supportZoomControls();
@@ -397,7 +396,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     @SuppressLint("SetJavaScriptEnabled")
-    private void doRefresh() {
+	private void doRefresh() {
         try {
             ProgressBarManager.getInstance().addProgress(this);
             
@@ -460,14 +459,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
               injectCachedImages(sb.toString ()));
             
             webView.getSettings().setLightTouchEnabled(true);
-            
-            if (Controller.getInstance().allowHyphenation()) {
-                webView.getSettings().setJavaScriptEnabled(true);
-                webView.addJavascriptInterface(articleJSInterface, "articleController");
-            } else {
-                webView.getSettings().setJavaScriptEnabled(false);
-            }
-            
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.addJavascriptInterface(articleJSInterface, "articleController");
             webView.loadDataWithBaseURL("fake://ForJS", contentTemplate.render(), "text/html", "utf-8", null);
             
             if (!linkAutoOpened && article.content.length() < 3) {
@@ -931,6 +924,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
          */
         public ArticleJSInterface(ArticleActivity aa) {
             articleActivity = aa;
+            Log.d(Utils.TAG, "== KONSTRUKTOR ==");
         }
         
         /**
@@ -938,9 +932,10 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
          */
         // @JavascriptInterface
         public void prev() {
-            Log.d("JS", "PREV");
+            Log.d(Utils.TAG, "JS: PREV");
             articleActivity.runOnUiThread(new Runnable() {
                 public void run() {
+                    Log.d(Utils.TAG, "JS: PREV");
                     openNextArticle(-1);
                 }
             });
@@ -951,10 +946,50 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
          */
         // @JavascriptInterface
         public void next() {
-            Log.d("JS", "NEXT");
+            Log.d(Utils.TAG, "JS: NEXT");
             articleActivity.runOnUiThread(new Runnable() {
                 public void run() {
+                    Log.d(Utils.TAG, "JS: NEXT");
                     openNextArticle(1);
+                }
+            });
+        }
+        
+        /**
+         * publish article
+         */
+        // @JavascriptInterface
+        public void publish() {
+            Log.d(Utils.TAG, "JS: PUBLISH");
+            articleActivity.runOnUiThread(new Runnable() {
+                public void run() {
+                    Log.d(Utils.TAG, "JS: PUBLISH");
+                }
+            });
+        }
+        
+        /**
+         * star article
+         */
+        // @JavascriptInterface
+        public void star() {
+            Log.d(Utils.TAG, "JS: STAR");
+            articleActivity.runOnUiThread(new Runnable() {
+                public void run() {
+                    Log.d(Utils.TAG, "JS: STAR");
+                }
+            });
+        }
+        
+        /**
+         * open menu
+         */
+        // @JavascriptInterface
+        public void menu() {
+            Log.d(Utils.TAG, "JS: MENU");
+            articleActivity.runOnUiThread(new Runnable() {
+                public void run() {
+                    Log.d(Utils.TAG, "JS: MENU");
                 }
             });
         }
