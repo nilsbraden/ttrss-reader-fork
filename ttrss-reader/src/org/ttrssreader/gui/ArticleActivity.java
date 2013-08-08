@@ -269,7 +269,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // mainContainer.populate(webView);
         findViewById(R.id.article_button_view).setVisibility(
-                Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE : View.GONE);
+                Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
+                        : View.GONE);
     }
     
     public void initUIHeader() {
@@ -278,7 +279,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         String feedTitle = "";
         if (feed != null)
             feedTitle = feed.title;
-       
+        
         header_feed.setText(feedTitle);
         header_title.setText(article.title);
         header_date.setText(DateUtils.getDate(this, article.updated));
@@ -396,7 +397,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     @SuppressLint("SetJavaScriptEnabled")
-	private void doRefresh() {
+    private void doRefresh() {
         try {
             ProgressBarManager.getInstance().addProgress(this);
             
@@ -430,7 +431,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             String localContent = injectCachedImages(article.content);
             
             StringBuilder labels = new StringBuilder();
-            for (Label label : article.labels) { //DBHelper.getInstance().getLabelsForArticle(articleId)) {
+            for (Label label : article.labels) { // DBHelper.getInstance().getLabelsForArticle(articleId)) {
                 if (label.checked) {
                     if (labels.length() > 0)
                         labels.append(", ");
@@ -444,19 +445,15 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             }
             
             // Load html from Controller and insert content
-            ST contentTemplate = new ST (Controller.htmlTemplate,
-              TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
+            ST contentTemplate = new ST(Controller.htmlTemplate, TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
             
-            contentTemplate.add (TEMPLATE_ARTICLE_VAR, article);
+            contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
             contentTemplate.add(MARKER_LABELS, labels.toString());
             
-            contentTemplate.add (MARKER_UPDATED,
-              DateUtils.getDateTimeCustom (getApplicationContext (),
-              article.updated));
+            contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getApplicationContext(), article.updated));
             
             contentTemplate.add(MARKER_CONTENT, localContent);
-            contentTemplate.add (MARKER_ATTACHMENTS,
-              injectCachedImages(sb.toString ()));
+            contentTemplate.add(MARKER_ATTACHMENTS, injectCachedImages(sb.toString()));
             
             webView.getSettings().setLightTouchEnabled(true);
             webView.getSettings().setJavaScriptEnabled(true);

@@ -41,7 +41,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class FeedHeadlineListFragment extends ListFragment implements IUpdateEndListener, TextInputAlertCallback {
-
+    
     private static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
@@ -161,7 +161,6 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
         
         menu.add(MenuActivity.MARK_GROUP, MenuActivity.SHARE, Menu.NONE, R.string.ArticleActivity_ShareLink);
     }
-        
     
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {

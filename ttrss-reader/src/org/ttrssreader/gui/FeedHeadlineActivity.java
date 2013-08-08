@@ -184,9 +184,9 @@ public class FeedHeadlineActivity extends MenuActivity {
                     new Updater(this, new ReadStateUpdater(feedId, 42)).exec();
                 }
                 
-                if (Controller.getInstance ().goBackAfterMakeAllRead ())
-                  onBackPressed ();
-
+                if (Controller.getInstance().goBackAfterMakeAllRead())
+                    onBackPressed();
+                
                 return true;
             case R.id.Menu_FeedUnsubscribe:
                 FeedUnsubscribeDialog.getInstance(this, feedId).show(getSupportFragmentManager(),

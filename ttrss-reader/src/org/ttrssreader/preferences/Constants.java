@@ -1,13 +1,13 @@
 /*
  * ttrss-reader-fork for Android
- *
+ * 
  * Copyright (C) 2010 N. Braden.
  * Copyright (C) 2009-2010 J. Devauchelle.
- *
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 3 as published by the Free Software Foundation.
- *
+ * 
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
@@ -27,22 +27,22 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 
 public class Constants {
-
+    
     public static final String EMPTY = "";
     public static final String APPENDED_DEFAULT = "_DEFAULT";
-
+    
     static {
         StringBuilder sbAttachments = new StringBuilder();
         sbAttachments.append(Environment.getExternalStorageDirectory()).append(File.separator)
                 .append(FileUtils.SDCARD_PATH_FILES);
         SAVE_ATTACHMENT_DEFAULT = sbAttachments.toString();
-
+        
         StringBuilder sbCache = new StringBuilder();
         sbCache.append(Environment.getExternalStorageDirectory()).append(File.separator)
                 .append(FileUtils.SDCARD_PATH_CACHE);
         CACHE_FOLDER_DEFAULT = sbCache.toString();
     }
-
+    
     // Connection
     public static final String URL = "ConnectionUrlPreference";
     public static final String USERNAME = "ConnectionUsernamePreference";
@@ -64,7 +64,7 @@ public class Constants {
     public static final boolean USE_OLD_CONNECTOR_DEFAULT = false;
     public static final boolean USE_KEYSTORE_DEFAULT = false;
     public static final boolean USE_OF_A_LAZY_SERVER_DEFAULT = false;
-
+    
     // Usage
     public static final String AUTOMATIC_MARK_READ = "UsageAutomaticMarkReadPreference";
     public static final String OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
@@ -83,7 +83,7 @@ public class Constants {
     public static final boolean INVERT_BROWSING_DEFAULT = false;
     public static final boolean WORK_OFFLINE_DEFAULT = false;
     public static final boolean GO_BACK_AFTER_MARK_ALL_READ_DEFAULT = false;
-
+    
     // Display
     public static final String HEADLINE_SIZE = "HeadlineSizePreference";
     public static final String TEXT_ZOOM = "TextZoomPreference";
@@ -128,7 +128,7 @@ public class Constants {
     public static final String TIME_STRING_DEFAULT = "kk:mm";
     public static final String DATETIME_STRING_DEFAULT = "dd.MM.yyyy kk:mm";
     public static final boolean DARK_BACKGROUND_DEFAULT = false;
-
+    
     // System
     public static final String IMAGE_CACHE_SIZE = "StoreImageLimitPreference";
     public static final String IMAGE_CACHE_UNREAD = "CacheImagesUnreadArticlesPreference";
@@ -157,7 +157,7 @@ public class Constants {
     public static final boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
     public static final boolean CACHE_IMAGES_ONLY_WIFI_DEFAULT = false;
     public static final boolean LOG_SENSITIVE_DATA_DEFAULT = false;
-
+    
     // Internal
     public static final String API_LEVEL_UPDATED = "apiLevelUpdated";
     public static final String API_LEVEL = "apiLevel";
@@ -182,20 +182,20 @@ public class Constants {
     public static final long FRESH_ARTICLE_MAX_AGE_DEFAULT = Utils.DAY;
     public static final long FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT = 0;
     public static final int SINCE_ID_DEFAULT = 0;
-
+    
     /*
      * Returns a list of the values of all constants in this class which represent preferences. Allows for easier
      * watching the changes in the preferences-activity.
      */
     public static List<String> getConstants() {
         List<String> ret = new ArrayList<String>();
-
+        
         // Iterate over all fields
         for (Field field : Constants.class.getDeclaredFields()) {
             // Continue on "_DEFAULT"-Fields, these hold only the default values for a preference
             if (field.getName().endsWith(APPENDED_DEFAULT))
                 continue;
-
+            
             try {
                 // Return all String-Fields, these hold the preference-name
                 if (field.get(null) instanceof String) {
@@ -207,50 +207,50 @@ public class Constants {
         }
         return ret;
     }
-
+    
     /*
      * Resets all preferences to their default values. Only preferences which are mentioned in this class are reset, old
      * or unsused values don't get reset.
      */
     public static void resetPreferences(SharedPreferences prefs) {
         SharedPreferences.Editor editor = prefs.edit();
-
+        
         // Iterate over all fields
         for (Field field : Constants.class.getDeclaredFields()) {
-
+            
             // Continue on "_DEFAULT"-Fields, these hold only the default values for a preference
             if (field.getName().endsWith(APPENDED_DEFAULT))
                 continue;
-
+            
             try {
                 // Get the default value
                 Field fieldDefault = Constants.class.getDeclaredField(field.getName() + APPENDED_DEFAULT);
                 String value = (String) field.get(new Constants());
-
+                
                 // Get the default type and store value for the specific type
                 String type = fieldDefault.getType().getSimpleName();
                 if (type.equals("String")) {
-
+                    
                     String defaultValue = (String) fieldDefault.get(null);
                     editor.putString(value, defaultValue);
-
+                    
                 } else if (type.equals("boolean")) {
-
+                    
                     boolean defaultValue = fieldDefault.getBoolean(null);
                     editor.putBoolean(value, defaultValue);
-
+                    
                 } else if (type.equals("int")) {
-
+                    
                     int defaultValue = fieldDefault.getInt(null);
                     editor.putInt(value, defaultValue);
-
+                    
                 } else if (type.equals("long")) {
-
+                    
                     long defaultValue = fieldDefault.getLong(null);
                     editor.putLong(value, defaultValue);
-
+                    
                 }
-
+                
             } catch (SecurityException e) {
                 e.printStackTrace();
             } catch (NoSuchFieldException e) {
@@ -262,11 +262,11 @@ public class Constants {
                 e.printStackTrace();
             }
         }
-
+        
         // Commit when finished
         editor.commit();
     }
-
+    
     public static String constant2Var(String s) {
         String[] parts = s.split("_");
         String camelCaseString = "";
@@ -276,9 +276,9 @@ public class Constants {
         // We want the String to starrt with a lower-case letter...
         return camelCaseString.substring(0, 1).toLowerCase(Locale.getDefault()) + camelCaseString.substring(1);
     }
-
+    
     static String toProperCase(String s) {
         return s.substring(0, 1).toUpperCase(Locale.getDefault()) + s.substring(1).toLowerCase(Locale.getDefault());
     }
-
+    
 }
