@@ -39,7 +39,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
 public class CategoryListFragment extends ListFragment implements IUpdateEndListener {
-
+    
     private static final TYPE THIS_TYPE = TYPE.CATEGORY;
     
     private static final String SELECTED_INDEX = "selectedIndex";

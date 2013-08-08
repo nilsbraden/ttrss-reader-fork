@@ -1166,21 +1166,22 @@ public class DBHelper {
         }
     }
     
-    /* FIXME: Still necessary?
-    public void purgePublishedArticles() {
-        if (isDBAvailable()) {
-            db.delete(TABLE_ARTICLES, "isPublished>0", null);
-            purgeLabels();
-        }
-    }
-    
-    public void purgeStarredArticles() {
-        if (isDBAvailable()) {
-            db.delete(TABLE_ARTICLES, "isStarred>0", null);
-            purgeLabels();
-        }
-    }
-    */
+    /*
+     * FIXME: Still necessary?
+     * public void purgePublishedArticles() {
+     * if (isDBAvailable()) {
+     * db.delete(TABLE_ARTICLES, "isPublished>0", null);
+     * purgeLabels();
+     * }
+     * }
+     * 
+     * public void purgeStarredArticles() {
+     * if (isDBAvailable()) {
+     * db.delete(TABLE_ARTICLES, "isStarred>0", null);
+     * purgeLabels();
+     * }
+     * }
+     */
     
     /**
      * delete articles, which belongs to given IDs

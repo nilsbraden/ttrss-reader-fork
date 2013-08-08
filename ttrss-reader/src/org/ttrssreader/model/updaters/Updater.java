@@ -43,6 +43,7 @@ public class Updater extends AsyncTask<Void, Void, Void> {
             parent.onUpdateEnd();
         }
     }
+    
     private MsgHandler handler;
     
     @Override

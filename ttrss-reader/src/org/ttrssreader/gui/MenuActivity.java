@@ -103,7 +103,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         ab.setDisplayShowCustomEnabled(true);
         ab.setDisplayShowTitleEnabled(false);
         ab.setCustomView(actionbarView, params);
-
+        
         header_unread = (TextView) actionbarView.findViewById(R.id.head_unread);
         header_title = (TextView) actionbarView.findViewById(R.id.head_title);
         header_title.setText(getString(R.string.ApplicationName));
