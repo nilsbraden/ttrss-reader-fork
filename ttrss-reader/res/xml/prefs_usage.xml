@@ -51,6 +51,11 @@
       android:key="InvertBrowseArticlesPreference"
       android:summary="@string/InvertBrowseArticlesPreferenceSummary"
       android:title="@string/InvertBrowseArticlesPreferenceTitle" />
+    <CheckBoxPreference
+      android:defaultValue="false"
+      android:key="GoBackAfterMarkAllReadPreference"
+      android:summary="@string/GoBackAfterMarkAllReadPreferenceSummary"
+      android:title="@string/GoBackAfterMarkAllReadPreferenceTitle" />
   </PreferenceCategory>
 
 </PreferenceScreen>

@@ -90,8 +90,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
-// import android.webkit.JavascriptInterface;
-
 @SuppressWarnings("deprecation")
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
         IDataChangedListener {
@@ -109,9 +107,9 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private final static char TEMPLATE_DELIMITER_START = '$';
     private final static char TEMPLATE_DELIMITER_END = '$';
     
-    // private static final String TEMPLATE_ARTICLE_VAR = "article";
+    private static final String TEMPLATE_ARTICLE_VAR = "article";
     private static final String MARKER_LABELS = "LABELS";
-    // private static final String MARKER_UPDATED = "UPDATED";
+    private static final String MARKER_UPDATED = "UPDATED";
     private static final String MARKER_CONTENT = "CONTENT";
     private static final String MARKER_ATTACHMENTS = "ATTACHMENTS";
     
@@ -225,6 +223,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         // Initialize the WebView if necessary
         if (webView == null) {
             webView = new WebView(getApplicationContext());
+            // webView.getSettings().setJavaScriptEnabled(true);
             webView.setWebViewClient(new ArticleWebViewClient(this));
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             boolean supportZoomControls = Controller.getInstance().supportZoomControls();
@@ -271,8 +270,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // mainContainer.populate(webView);
         findViewById(R.id.article_button_view).setVisibility(
-                Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
-                        : View.GONE);
+                Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE : View.GONE);
     }
     
     public void initUIHeader() {
@@ -281,7 +279,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         String feedTitle = "";
         if (feed != null)
             feedTitle = feed.title;
-        
+       
         header_feed.setText(feedTitle);
         header_title.setText(article.title);
         header_date.setText(DateUtils.getDate(this, article.updated));
@@ -430,7 +428,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             // Inject the specific code for attachments, <img> for images, http-link for Videos
             injectAttachments(getApplicationContext(), sb, article.attachments);
             
-            String localContent = injectCachedImages(article.content, articleId);
+            String localContent = injectCachedImages(article.content);
             
             StringBuilder labels = new StringBuilder();
             for (Label label : article.labels) { //DBHelper.getInstance().getLabelsForArticle(articleId)) {
@@ -447,16 +445,19 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             }
             
             // Load html from Controller and insert content
-            ST contentTemplate = new ST(Controller.htmlTemplate, TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
+            ST contentTemplate = new ST (Controller.htmlTemplate,
+              TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
             
-            // contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
+            contentTemplate.add (TEMPLATE_ARTICLE_VAR, article);
             contentTemplate.add(MARKER_LABELS, labels.toString());
             
-            // contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getApplicationContext(),
-            // article.updated));
+            contentTemplate.add (MARKER_UPDATED,
+              DateUtils.getDateTimeCustom (getApplicationContext (),
+              article.updated));
             
             contentTemplate.add(MARKER_CONTENT, localContent);
-            contentTemplate.add(MARKER_ATTACHMENTS, sb.toString());
+            contentTemplate.add (MARKER_ATTACHMENTS,
+              injectCachedImages(sb.toString ()));
             
             webView.getSettings().setLightTouchEnabled(true);
             
@@ -884,11 +885,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
      *            the original html
      * @return the altered html with the URLs replaced so they point on local files if available
      */
-    private static String injectCachedImages(String html, int articleId) {
+    private static String injectCachedImages(String html) {
         if (html == null || html.length() < 40) // Random. Chosen by fair dice-roll.
             return html;
         
-        for (String url : ImageCacher.findAllImageUrls(html, articleId)) {
+        for (String url : ImageCacher.findAllImageUrls(html)) {
             String localUrl = ImageCacher.getCachedImageUrl(url);
             if (localUrl != null) {
                 html = html.replace(url, localUrl);

@@ -89,6 +89,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
         File folder = new File(diskCacheDir);
         File[] files = folder.listFiles();
 
+        Log.d (Utils.TAG, "Image cache before fillMemoryCacheFromDisk: " + cache.size ());
         if (files == null)
             return;
 
@@ -99,6 +100,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
                 Log.e(Utils.TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
             }
         }
+        Log.d (Utils.TAG, "Image cache after fillMemoryCacheFromDisk: " + cache.size ());
     }
 
     public boolean containsKey(String key) {

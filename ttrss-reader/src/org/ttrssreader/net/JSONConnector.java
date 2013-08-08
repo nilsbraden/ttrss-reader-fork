@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -118,20 +119,28 @@ public abstract class JSONConnector {
     protected static final String SESSION_ID = "session_id"; // session id as an OUT parameter
     protected static final String SID = "sid"; // session id as an IN parameter
     protected static final String ID = "id";
-    protected static final String TITLE = "title";
-    protected static final String UNREAD = "unread";
+
+    public static final String TITLE = "title";
+    public static final String UNREAD = "unread";
+
     protected static final String CAT_ID = "cat_id";
-    protected static final String FEED_ID = "feed_id";
-    protected static final String UPDATED = "updated";
-    protected static final String CONTENT = "content";
-    protected static final String URL = "link";
+
+    public static final String FEED_ID = "feed_id";
+    public static final String UPDATED = "updated";
+    public static final String CONTENT = "content";
+    public static final String URL = "link";
+
     protected static final String URL_SHARE = "url";
     protected static final String FEED_URL = "feed_url";
-    protected static final String COMMENT_URL = "comments";
-    protected static final String ATTACHMENTS = "attachments";
+
+    public static final String COMMENT_URL = "comments";
+    public static final String ATTACHMENTS = "attachments";
+
     protected static final String CONTENT_URL = "content_url";
-    protected static final String STARRED = "marked";
-    protected static final String PUBLISHED = "published";
+
+    public static final String STARRED = "marked";
+    public static final String PUBLISHED = "published";
+
     protected static final String VALUE = "value";
     protected static final String VERSION = "version";
     protected static final String LEVEL = "level";
@@ -567,8 +576,20 @@ public abstract class JSONConnector {
         reader.endArray();
         return ret;
     }
-    
-    private int parseArticleArray(final Set<Article> articles, JsonReader reader, int labelId, int id, boolean isCategory) {
+
+    /**
+     * parse articles from JSON-reader
+     *
+     * @param articles  container, where parsed articles will be stored
+     * @param reader    JSON-reader, containing articles (received from server)
+     * @param labelId   ID of label to be added to each parsed article
+     * @param skipNames set of names (article properties), which should not be
+     *                  processed
+     *
+     * @return          amount of processed articles
+     */
+    private int parseArticleArray(final Set<Article> articles,
+      JsonReader reader, int labelId, Set<String> skipNames) {
         long time = System.currentTimeMillis();
         int count = 0;
         
@@ -593,6 +614,11 @@ public abstract class JSONConnector {
                     String name = reader.nextName();
                     
                     try {
+                        if (skipNames.contains (name)) {
+                            reader.skipValue();
+                            continue;
+                        }
+
                         if (name.equals(ID)) {
                             articleId = reader.nextInt();
                         } else if (name.equals(TITLE)) {
@@ -695,9 +721,11 @@ public abstract class JSONConnector {
     // ***************** Retrieve-Data-Methods **************************************************
     
     /**
-     * Retrieves a set of maps which map strings to the information, e.g. "id" -> 42, containing the counters for every
-     * category and feed. The retrieved information is directly inserted into the database.
-     * 
+     * Retrieves counters information, containing the counters for every
+     * category and feed from server. The retrieved information is directly
+     * inserted into the database.
+     * Each counter is a map of category/feed to amount of entries e.g. "id" -> 42
+     *
      * @return true if the request succeeded.
      */
     public boolean getCounters() {
@@ -806,7 +834,15 @@ public abstract class JSONConnector {
         Log.d(Utils.TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
-    
+
+    /**
+     * get current feeds from server
+     *
+     * @param tolerateWrongUnreadInformation  if set to {@code false}, then
+     *                                        lazy server will be updated before
+     *
+     * @return                                set of actual feeds on server
+     */
     private Set<Feed> getFeeds(boolean tolerateWrongUnreadInformation) {
         long time = System.currentTimeMillis();
         Set<Feed> ret = new LinkedHashSet<Feed>();
@@ -833,7 +869,7 @@ public abstract class JSONConnector {
             while (reader.hasNext()) {
                 
                 int categoryId = -1;
-                int id = Integer.MIN_VALUE;
+                int id = 0;
                 String title = null;
                 String feedUrl = null;
                 int unread = 0;
@@ -865,9 +901,9 @@ public abstract class JSONConnector {
                     
                 }
                 reader.endObject();
-                
-                if (id != Integer.MIN_VALUE || categoryId == -2) // normal feed (>0) or label (-2)
-                    if (title != null)
+
+                if (id != -1 || categoryId == -2) // normal feed (>0) or label (-2)
+                    if (title != null) // Dont like complicated if-statements..
                         ret.add(new Feed(id, categoryId, title, feedUrl, unread));
                 
             }
@@ -887,9 +923,9 @@ public abstract class JSONConnector {
     }
     
     /**
-     * Retrieves all feeds, mapped to their categories.
-     * 
-     * @return a map of all feeds mapped to the categories.
+     * Retrieves all feeds from server.
+     *
+     * @return    a set of all feeds on server.
      */
     public Set<Feed> getFeeds() {
         return getFeeds(false);
@@ -934,12 +970,14 @@ public abstract class JSONConnector {
      * @see #getHeadlines(Integer, int, String, boolean, int, int)
      */
     public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
-        getHeadlines(articles, id, limit, viewMode, isCategory, sinceId, null);
+        getHeadlines(articles, id, limit, viewMode, isCategory, sinceId, null, Collections.<String>emptySet ());
     }
     
     /**
      * Retrieves the specified articles.
-     * 
+     *
+     * @param articles
+     *            container for retrieved articles
      * @param id
      *            the id of the feed/category
      * @param limit
@@ -951,9 +989,14 @@ public abstract class JSONConnector {
      *            indicates if we are dealing with a category or a feed
      * @param sinceId
      *            the first ArticleId which is to be retrieved.
-     * @return the number of fetched articles.
+     * @param search
+     *            search query
+     * @param skipProperties
+     *            set of article properties, which should not be parsed
      */
-    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId, String search) {
+    public void getHeadlines(final Set<Article> articles, Integer id,
+      int limit, String viewMode, boolean isCategory, int sinceId,
+      String search, Set<String>skipProperties) {
         long time = System.currentTimeMillis();
         int offset = 0;
         int count = 0;
@@ -973,32 +1016,44 @@ public abstract class JSONConnector {
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_GET_HEADLINES);
             params.put(PARAM_FEED_ID, id + "");
-            params.put(PARAM_LIMIT, PARAM_LIMIT_MAX_VALUE + "");
+            params.put(PARAM_LIMIT, apiLimit + "");
             params.put(PARAM_SKIP, offset + "");
             params.put(PARAM_VIEWMODE, viewMode);
-            params.put(PARAM_SHOW_CONTENT, "1");
-            params.put(PARAM_INC_ATTACHMENTS, "1");
+
+            if (!skipProperties.contains (CONTENT))
+                params.put(PARAM_SHOW_CONTENT, "1");
+
+            if (!skipProperties.contains (ATTACHMENTS))
+                params.put(PARAM_INC_ATTACHMENTS, "1");
+
             params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
+
             if (sinceId > 0)
                 params.put(PARAM_SINCE_ID, sinceId + "");
+
             if (search != null)
                 params.put(PARAM_SEARCH, search);
-            
-            if (id == Data.VCAT_STAR && !isCategory) // We set isCategory=false for starred/published articles...
-                DBHelper.getInstance().purgeStarredArticles();
-            
-            if (id == Data.VCAT_PUB && !isCategory)
-                DBHelper.getInstance().purgePublishedArticles();
-            
+
+            // FIXME: I think, here is not the right place to make DB changes
+            //if (id == Data.VCAT_STAR && !isCategory) // We set isCategory=false for starred/published articles...
+            //    DBHelper.getInstance().purgeStarredArticles();
+
+            //if (id == Data.VCAT_PUB && !isCategory)
+            //    DBHelper.getInstance().purgePublishedArticles();
+
             JsonReader reader = null;
             try {
                 reader = prepareReader(params);
+
                 if (hasLastError)
                     return;
+
                 if (reader == null)
                     continue;
-                
-                count = parseArticleArray(articles, reader, (!isCategory && id < -10 ? id : -1), id, isCategory);
+
+                count = parseArticleArray(articles, reader,
+                  (!isCategory && id < -10 ? id : -1), skipProperties);
+
                 if (count < apiLimit)
                     break;
             } catch (IOException e) {
@@ -1011,7 +1066,8 @@ public abstract class JSONConnector {
                     }
                 }
             }
-            offset = offset + count;
+
+            offset += count;
         }
         
         Log.d(Utils.TAG, "getHeadlines: " + (System.currentTimeMillis() - time) + "ms");
@@ -1025,12 +1081,12 @@ public abstract class JSONConnector {
      * @param articleState
      *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
      */
-    public boolean setArticleRead(Set<Integer> ids, int articleState) {
+    public boolean setArticleRead(Set<Integer> articlesIds, int articleState) {
         boolean ret = true;
-        if (ids.size() == 0)
+        if (articlesIds.isEmpty ())
             return ret;
-        
-        for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
+
+        for (String idList : StringSupport.convertListToString(articlesIds, MAX_ID_LIST_LENGTH)) {
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
             params.put(PARAM_ARTICLE_IDS, idList);

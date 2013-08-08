@@ -76,11 +76,15 @@ public class FileUtils {
     public static long downloadToFile(String downloadUrl, File file, long maxSize) {
         FileOutputStream fos = null;
         int byteWritten = 0;
-        
+
+        Log.d (Utils.TAG, String.format (
+          "Start download from url '%s' to file '%s'", downloadUrl,
+          file.getAbsolutePath ()));
+
         try {
             if (file.exists())
-                file.delete();
-            
+                return file.length ();
+
             URL url = new URL(downloadUrl);
             URLConnection connection = url.openConnection();
             connection.setConnectTimeout((int) (Utils.SECOND * 2));
@@ -119,6 +123,7 @@ public class FileUtils {
             }
         } catch (Exception e) {
             Log.e(Utils.TAG, "Download not finished properly. Exception: " + e.getMessage());
+            e.printStackTrace ();
             byteWritten = -1;
         } finally {
             if (fos != null) {
@@ -128,6 +133,9 @@ public class FileUtils {
                 }
             }
         }
+
+        Log.d(Utils.TAG, String.format ("Stop download from url '%s'. Downloaded %d bytes", downloadUrl, byteWritten));
+
         return byteWritten;
     }
     

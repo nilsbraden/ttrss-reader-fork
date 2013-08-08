@@ -18,10 +18,8 @@ package org.ttrssreader.model.updaters;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.UpdateController;
@@ -110,46 +108,46 @@ public class ReadStateUpdater implements IUpdatable {
                 
                 // Build a list of article ids to update.
                 ids.add(article.id);
-                
-                // Set ArticleItem-State directly because the Activity uses this object
-                article.isUnread = boolState;
-                
-                int feedId = article.feedId;
-                Feed mFeed = DBHelper.getInstance().getFeed(feedId);
-                int categoryId = mFeed.categoryId;
-                
-                DBHelper.getInstance().updateFeedDeltaUnreadCount(feedId, delta);
-                DBHelper.getInstance().updateCategoryDeltaUnreadCount(categoryId, delta);
-                
-                // Check if is a fresh article and modify that count too
-                long ms = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
-                Date maxAge = new Date(ms);
-                if (article.updated != null && article.updated.after(maxAge))
-                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, delta);
-                
-                // Check if it is a starred article and modify that count too
-                if (article.isStarred && pid != Data.VCAT_STAR)
-                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_STAR, delta);
-                
-                // Check if it is a published article and modify that count too
-                if (article.isPublished && pid != Data.VCAT_PUB)
-                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_PUB, delta);
+
+//                // Set ArticleItem-State directly because the Activity uses this object
+//                article.isUnread = boolState;
+//
+//                int feedId = article.feedId;
+//                Feed mFeed = DBHelper.getInstance().getFeed(feedId);
+//                int categoryId = mFeed.categoryId;
+//
+//                DBHelper.getInstance().updateFeedDeltaUnreadCount(feedId, delta);
+//                DBHelper.getInstance().updateCategoryDeltaUnreadCount(categoryId, delta);
+//
+//                // Check if is a fresh article and modify that count too
+//                long ms = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
+//                Date maxAge = new Date(ms);
+//                if (article.updated != null && article.updated.after(maxAge))
+//                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, delta);
+//
+//                // Check if it is a starred article and modify that count too
+//                if (article.isStarred && pid != Data.VCAT_STAR)
+//                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_STAR, delta);
+//
+//                // Check if it is a published article and modify that count too
+//                if (article.isPublished && pid != Data.VCAT_PUB)
+//                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_PUB, delta);
             }
-            
-            if (ids.size() > 0) {
+
+            if (!ids.isEmpty ()) {
                 DBHelper.getInstance().markArticles(ids, "isUnread", articleState);
-                
-                int deltaUnread = articleState == 1 ? ids.size() : -ids.size();
-                DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_ALL, deltaUnread);
-                
-                if (pid < 0 && pid >= -3) {
-                    // If on a virtual category also update article state in it.
-                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(pid, deltaUnread);
-                } else if (pid < -10) {
-                    // Article belongs to a label, modify that count too
-                    DBHelper.getInstance().updateFeedDeltaUnreadCount(pid, deltaUnread);
-                }
-                
+
+//                int deltaUnread = articleState == 1 ? ids.size() : -ids.size();
+//                DBHelper.getInstance().updateCategoryDeltaUnreadCount(Data.VCAT_ALL, deltaUnread);
+//
+//                if (pid < 0 && pid >= -3) {
+//                    // If on a virtual category also update article state in it.
+//                    DBHelper.getInstance().updateCategoryDeltaUnreadCount(pid, deltaUnread);
+//                } else if (pid < -10) {
+//                    // Article belongs to a label, modify that count too
+//                    DBHelper.getInstance().updateFeedDeltaUnreadCount(pid, deltaUnread);
+//                }
+
                 // Notify about changes
                 UpdateController.getInstance().notifyListeners();
                 

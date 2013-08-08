@@ -103,7 +103,7 @@ public class Utils {
     /**
      * The Pattern to match image-urls inside HTML img-tags.
      */
-    public static final Pattern findImageUrlsPattern = Pattern.compile("<img.+?src=\"([^\\\"]*)\"[^>]*?>",
+    public static final Pattern findImageUrlsPattern = Pattern.compile("<img[^>]+?src=[\"']([^\\\"']*)",
             Pattern.CASE_INSENSITIVE);
     
     private static final int ID_RUNNING = 4564561;
@@ -463,7 +463,7 @@ public class Utils {
     public static String separateItems(Set<?> att, String separator) {
         if (att == null)
             return "";
-        
+       
         String ret;
         StringBuilder sb = new StringBuilder();
         for (Object s : att) {
@@ -475,7 +475,7 @@ public class Utils {
         } else {
             ret = sb.toString();
         }
-        
+       
         return ret;
     }
     
