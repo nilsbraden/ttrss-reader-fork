@@ -15,6 +15,7 @@
 
 package org.ttrssreader.controllers;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,18 +37,30 @@ import android.util.Log;
 @SuppressLint("UseSparseArrays")
 public class Data {
 
+    /** uncategorized */
     public static final int VCAT_UNCAT = 0;
+
+    /** starred */
     public static final int VCAT_STAR = -1;
+
+    /** published */
     public static final int VCAT_PUB = -2;
+
+    /** fresh */
     public static final int VCAT_FRESH = -3;
+
+    /** all articles */
     public static final int VCAT_ALL = -4;
+
+    /** read articles */
+    public static final int VCAT_READ = -6;
 
     public static final int TIME_CATEGORY = 1;
     public static final int TIME_FEED = 2;
     public static final int TIME_FEEDHEADLINE = 3;
 
     private static final String VIEW_ALL = "all_articles";
-    private static final String VIEW_NEW = "unread";
+    private static final String VIEW_UNREAD = "unread";
 
     private static Data instance = null;
     private Context context;
@@ -55,6 +68,8 @@ public class Data {
     private long articlesCached = 0;
 
     private Map<Integer, Long> articlesChanged = new HashMap<Integer, Long>();
+
+    /** map of category id to last changed time */
     private Map<Integer, Long> feedsChanged = new HashMap<Integer, Long>();
     private long virtCategoriesChanged = 0;
     private long categoriesChanged = 0;
@@ -84,6 +99,14 @@ public class Data {
 
     // *** COUNTERS *********************************************************************
 
+    /**
+     * update actual counter information from server
+     *
+     * @param overrideOffline   do not check connected state
+     * @param overrideDelay     if set to {@code true} enforces the update,
+     *                          otherwise the time from last update will be
+     *                          considered
+     */
     public void updateCounters(boolean overrideOffline, boolean overrideDelay) {
         if (!overrideDelay && countersChanged > System.currentTimeMillis() - Utils.HALF_UPDATE_TIME) {
             return;
@@ -97,31 +120,50 @@ public class Data {
 
     // *** ARTICLES *********************************************************************
 
-    public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
-        if (!overrideDelay && articlesCached > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+    /**
+     * cache all articles
+     *
+     * @param overrideOffline   do not check connected state
+     * @param overrideDelay     if set to {@code true} enforces the update,
+     *                          otherwise the time from last update will be
+     *                          considered
+     */
+     public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
+
+        int limit = 400;
+        if (Controller.getInstance().isLowMemory())
+            limit = limit / 2;
+
+        if (!overrideDelay &&
+          (articlesCached > (System.currentTimeMillis() - Utils.UPDATE_TIME))) {
+            Log.d (Utils.TAG, "Skip articles caching");
             return;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
 
-            int limit = 400;
-            if (Controller.getInstance().isLowMemory())
-                limit = limit / 2;
-            int sinceId = Controller.getInstance().getSinceId();
+            int sinceId = DBHelper.getInstance().getSinceId();
+
+            Log.d (Utils.TAG, "Start articles caching since: " + sinceId);
 
             Set<Article> articles = new HashSet<Article>();
-            Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_NEW, true);
-            Controller.getInstance().getConnector().getHeadlines(articles, -4, limit, VIEW_ALL, true, sinceId);
 
-            handleInsertArticles(articles, -4, true);
+            Controller.getInstance().getConnector().getHeadlines(articles,
+              VCAT_ALL, limit, VIEW_UNREAD, true/*, sinceId*/);
+
+            Controller.getInstance().getConnector().getHeadlines(articles,
+              VCAT_ALL, limit, VIEW_ALL, true, sinceId);
+
+            Log.d (Utils.TAG, "Got " + articles.size () + " articles to be cached");
+
+            handleInsertArticles(articles, VCAT_ALL, true);
 
             // Only mark as updated if the calls were successful
-            int count = articles.size();
-            if (count > -1) {
+            if (!articles.isEmpty ()) {
                 articlesCached = System.currentTimeMillis();
 
                 notifyListeners();
 
                 // Store all category-ids and ids of all feeds for this category in db
-                articlesChanged.put(-4, articlesCached);
+                articlesChanged.put(VCAT_ALL, articlesCached);
                 for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
                     articlesChanged.put(f.id, articlesCached);
                 }
@@ -132,14 +174,24 @@ public class Data {
         }
     }
 
+    /**
+     * update articles for specified feed/category
+     *
+     * @param feedId              feed/category to be updated
+     * @param displayOnlyUnread   flag, that indicates, that only unread
+     *                            articles should be shown
+     * @param isCat               if set to {@code true}, then {@code feedId}
+     *                            is actually the category ID
+     * @param overrideOffline     should the "work offline" state be ignored?
+     * @param overrideDelay       should the last update time be ignored?
+     */
     public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline, boolean overrideDelay) {
         // Check if unread-count and actual number of unread articles match, if not do a seperate call with
         // displayOnlyUnread=true
         boolean needUnreadUpdate = false;
-        isCat = isCat || (feedId < 0);
         if (!isCat) {
             int unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
-            if (unreadCount > DBHelper.getInstance().getUnreadArticles(feedId).size()) {
+            if (unreadCount != DBHelper.getInstance().getUnreadArticles(feedId).size()) {
                 needUnreadUpdate = true;
             }
         }
@@ -150,7 +202,7 @@ public class Data {
             time = feedsChanged.get(feedId);
 
         if (time == null)
-            time = Long.valueOf(0);
+            time = 0l;
 
         if (!overrideDelay && !needUnreadUpdate && time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
@@ -169,16 +221,16 @@ public class Data {
                 if (limit > 240)
                     limit = 240;
 
-                todo = todo - limit;
+                todo -= limit;
                 if (limit <= 0)
                     break;
 
                 Log.d(Utils.TAG, "UPDATE limit: " + limit + " todo: " + todo);
-                String viewMode = (displayOnlyUnread ? VIEW_NEW : VIEW_ALL);
+                String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
 
                 // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
                 if (needUnreadUpdate && !displayOnlyUnread)
-                    Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_NEW, isCat);
+                    Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat);
 
                 Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat);
 
@@ -257,29 +309,61 @@ public class Data {
         return limit;
     }
 
+    /**
+     * prepare the DB and store given articles
+     *
+     * @param articles      articles to be stored
+     * @param feedId
+     * @param isCategory
+     */
     private void handleInsertArticles(Collection<Article> articles, int feedId, boolean isCategory) {
-        int maxArticleId = Integer.MIN_VALUE;
+//        int maxArticleId = Integer.MIN_VALUE;
 
-        if (articles.size() > 0) {
-            for (Article a : articles) {
-                if (a.id > maxArticleId)
-                    maxArticleId = a.id; // Store maximum id
+        if (!articles.isEmpty ()) {
+//            for (Article a : articles) {
+//                if (a.id > maxArticleId)
+//                    maxArticleId = a.id; // Store maximum id
+//            }
+
+            DBHelper.getInstance().purgeLastArticles (articles.size ());
+
+            // Nothing should be marked as read, instead {@code synchronizeStatus}
+            // method should be improved (to retrieve read messages from server)
+            // and called while sync process
+            //DBHelper.getInstance().markFeedOnlyArticlesRead(feedId, isCategory, -1);
+
+            DBHelper.getInstance().insertArticles(articles);
+
+            // correct counters according to real local DB-Data
+            if (DBHelper.getInstance().calculateCounters ())
+            {
+              countersChanged = System.currentTimeMillis ();
+              notifyListeners ();
             }
 
-            DBHelper.getInstance().markFeedOnlyArticlesRead(feedId, isCategory, -1);
-            DBHelper.getInstance().insertArticle(articles);
-            DBHelper.getInstance().purgeArticlesNumber();
-            Controller.getInstance().setSinceId(maxArticleId);
+//            // FIXME: sinceId should probably be removed from preferencies
+//            // DB request could be used instead.
+//            // The problem is, that if only one feed is synced, then this
+//            // ID could not be the maximun
+//            Controller.getInstance().setSinceId(maxArticleId);
         }
     }
 
     // *** FEEDS ************************************************************************
 
+  /**
+   * update DB (delete/insert) with actual feeds information from server
+   *
+   * @param categoryId        id of category, which feeds should be returned
+   * @param overrideOffline   do not check connected state
+   *
+   * @return                  actual feeds for given category
+   */
     public Set<Feed> updateFeeds(int categoryId, boolean overrideOffline) {
 
         Long time = feedsChanged.get(categoryId);
         if (time == null)
-            time = Long.valueOf(0);
+            time = 0l;
 
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
@@ -292,16 +376,19 @@ public class Data {
                 for (Feed f : feeds) {
                     if (categoryId == VCAT_ALL || f.categoryId == categoryId)
                         ret.add(f);
+
+                    feedsChanged.put(f.categoryId, System.currentTimeMillis());
                 }
                 DBHelper.getInstance().deleteFeeds();
                 DBHelper.getInstance().insertFeeds(feeds);
 
+                // articles, which belongs to feeds, which does not exist
+                // on the server should be also deleted
+                DBHelper.getInstance().purgeOrphanedArticles ();
+
                 // Store requested category-id and ids of all received feeds
                 feedsChanged.put(categoryId, System.currentTimeMillis());
                 notifyListeners();
-                for (Feed f : feeds) {
-                    feedsChanged.put(f.categoryId, System.currentTimeMillis());
-                }
             }
 
             return ret;
@@ -344,6 +431,13 @@ public class Data {
         return vCats;
     }
 
+  /**
+   * update DB (delete/insert) with actual categories information from server
+   *
+   * @param overrideOffline   do not check connected state
+   *
+   * @return    actual categories
+   */
     public Set<Category> updateCategories(boolean overrideOffline) {
         if (categoriesChanged > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
@@ -401,25 +495,31 @@ public class Data {
         }
     }
 
+    /**
+     * mark all articles in given category/feed as read
+     *
+     * @param id            category/feed ID
+     * @param isCategory    if set to {@code true}, then given id is category
+     *                      ID, otherwise - feed ID
+     */
     public void setRead(int id, boolean isCategory) {
 
-        if (isCategory || id < 0)
-            DBHelper.getInstance().markCategoryRead(id);
-        else
-            DBHelper.getInstance().markFeedRead(id);
+        Collection<Integer> markedArticleIds =
+          DBHelper.getInstance().markRead(id, isCategory);
 
-        notifyListeners();
+        if (markedArticleIds != null) {
+            notifyListeners();
 
-        boolean erg = false;
-        if (Utils.isConnected(cm)) {
-            erg = Controller.getInstance().getConnector().setRead(id, isCategory);
-        }
+            boolean isSync = false;
+            if (Utils.isConnected(cm)) {
+                isSync = Controller.getInstance().getConnector().setRead(id,
+                  isCategory);
+            }
 
-        if (isCategory || id < 0) {
-            if (!erg)
-                DBHelper.getInstance().markUnsynchronizedStatesCategory(id);
-        } else {
-            DBHelper.getInstance().markUnsynchronizedStatesFeed(id);
+            if (!isSync) {
+                DBHelper.getInstance().markUnsynchronizedStates (
+                  markedArticleIds, DBHelper.MARK_READ, 0);
+            }
         }
 
     }
@@ -484,15 +584,23 @@ public class Data {
         return erg;
     }
 
+    /**
+     * syncronize read, starred, published articles and notes with server
+     */
     public void synchronizeStatus() {
-        if (!Utils.isConnected(cm))
+        if (!Utils.checkConnected (cm,
+          Controller.getInstance ().cacheImagesOnlyWifi ()))
             return;
+
+        Log.d(Utils.TAG, "Start status sync");
 
         String[] marks = new String[] { DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH,
                 DBHelper.MARK_NOTE };
         for (String mark : marks) {
             Map<Integer, String> idsMark = DBHelper.getInstance().getMarked(mark, 1);
             Map<Integer, String> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
+
+            Log.d (Utils.TAG, "Syncing status '" + mark + "' mark count: " + idsMark.size () + " unmark count:" + idsUnmark.size ());
 
             if (DBHelper.MARK_READ.equals(mark)) {
                 if (Controller.getInstance().getConnector().setArticleRead(idsMark.keySet(), 1))
@@ -517,6 +625,34 @@ public class Data {
             }
             // TODO: Add synchronization of labels
         }
+
+        Log.d (Utils.TAG, "Get read articles from server");
+
+        // get read articles from server
+        Set<Article> readArticles = new HashSet<Article> ();
+
+        Controller.getInstance().getConnector().getHeadlines(readArticles,
+          VCAT_READ, 400, VIEW_ALL, true,
+          DBHelper.getInstance ().getMinUnreadId (), null,
+          new HashSet<String>(Arrays.asList(new String[]{
+          JSONConnector.TITLE, JSONConnector.UNREAD, JSONConnector.UPDATED,
+          JSONConnector.FEED_ID, JSONConnector.CONTENT, JSONConnector.URL,
+          JSONConnector.COMMENT_URL, JSONConnector.ATTACHMENTS,
+          JSONConnector.STARRED, JSONConnector.PUBLISHED})));
+
+        Log.d (Utils.TAG, "Amount of read articles on server:" + readArticles.size ());
+
+        if (!readArticles.isEmpty ()) {
+          Set<Integer> articleIds = new HashSet<Integer> ();
+
+          for (Article a: readArticles) {
+            articleIds.add (a.id);
+          }
+
+          DBHelper.getInstance ().markArticles (articleIds, "isUnread", 0);
+        }
+
+        Log.d(Utils.TAG, "Status is synced");
     }
 
     private void notifyListeners() {

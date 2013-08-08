@@ -93,6 +93,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean useVolumeKeys = null;
     private Boolean loadImages = null;
     private Boolean invertBrowsing = null;
+    private Boolean goBackAfterMakeAllRead = null;
     private Boolean workOffline = null;
 
     private Integer headlineSize = null;
@@ -499,6 +500,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setWorkOffline(boolean workOffline) {
         put(Constants.WORK_OFFLINE, workOffline);
         this.workOffline = workOffline;
+    }
+
+    public boolean goBackAfterMakeAllRead() {
+        if (goBackAfterMakeAllRead == null)
+            goBackAfterMakeAllRead = prefs.getBoolean(Constants.GO_BACK_AFTER_MARK_ALL_READ, Constants.GO_BACK_AFTER_MARK_ALL_READ_DEFAULT);
+        return goBackAfterMakeAllRead;
+    }
+
+    public void setGoBackAfterMakeAllRead(boolean goBackAfterMakeAllRead) {
+        put(Constants.GO_BACK_AFTER_MARK_ALL_READ, goBackAfterMakeAllRead);
+        this.goBackAfterMakeAllRead = goBackAfterMakeAllRead;
     }
 
     // ******* DISPLAY-Options ****************************

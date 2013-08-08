@@ -110,6 +110,8 @@
     <string name="DisplayLoadImagesPreferenceSummary">Uncheck to disable image-loading from external ressources in Webview.</string>
     <string name="InvertBrowseArticlesPreferenceTitle">Invert browsing articles</string>
     <string name="InvertBrowseArticlesPreferenceSummary">If checked, opening a category directly opens all articles within, else it shows the feeds.</string>
+  <string name="GoBackAfterMarkAllReadPreferenceTitle">Go back after mark all items as read</string>
+  <string name="GoBackAfterMarkAllReadPreferenceSummary">If checked, then go one level up after mark all current items as read.</string>
     <string name="ShowButtonsModeTitle">Select Navigation Buttons Mode</string>
     <string name="ShowButtonsModeSummary">How navigation buttons in article view should be shown.</string>
     <string name="ShowButtonsMode_none">Do not show buttons</string>

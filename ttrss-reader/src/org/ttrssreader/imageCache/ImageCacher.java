@@ -133,6 +133,10 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
             // Update all articles
             long timeArticles = System.currentTimeMillis();
+
+            // sync local status changes to server
+            Data.getInstance().synchronizeStatus();
+
             // Only use progress-updates and callbacks for downloading articles, images are done in background
             // completely
             Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
@@ -215,15 +219,22 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             cursor.moveToFirst();
 
             taskCount = cursor.getCount();
+            Log.d (Utils.TAG, "Articles count for image caching: " + taskCount);
+
             while (!cursor.isAfterLast()) {
+                int articleId = cursor.getInt (0);
+
+                Log.d (Utils.TAG, "Cache images for article ID: " + articleId);
+
                 // Get images included in HTML
                 Set<String> set = new HashSet<String>();
 
                 try {
-                  for (String url : findAllImageUrls(cursor.getString(1), cursor.getInt(0))) {
+                  for (String url : findAllImageUrls(cursor.getString(1))) {
                       if (!imageCache.containsKey(url))
                           set.add(url);
                   }
+                  Log.d (Utils.TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size ());
 
                   // Get images from attachments separately
                   for (String url : cursor.getString(2).split(";")) {
@@ -234,6 +245,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                           }
                       }
                   }
+                  Log.d (Utils.TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size ());
                 }
                 catch (IllegalStateException e)
                 {
@@ -242,11 +254,15 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                   e.printStackTrace();
                 }
 
-                if (set.size() > 0) {
-                    DownloadImageTask task = new DownloadImageTask(imageCache, cursor.getInt(0),
-                            StringSupport.setToArray(set));
+                if (!set.isEmpty ()) {
+                    DownloadImageTask task = new DownloadImageTask(imageCache, articleId,
+                        StringSupport.setToArray(set));
                     handler.post(task);
-                    map.put(cursor.getInt(0), task);
+                    map.put(articleId, task);
+                }
+                else
+                {
+                    DBHelper.getInstance().updateArticleCachedImages(articleId, true);
                 }
 
                 if (downloaded > cacheSizeMax) {
@@ -290,6 +306,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         @Override
         public void run() {
             long downloaded = 0;
+            Log.d (Utils.TAG, "Start download " + params.length + " images for article ID " + articleId);
             for (String url : params) {
                 long size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
 
@@ -299,13 +316,20 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     downloaded += size;
             }
 
+            Log.d (Utils.TAG, "Downloaded " + downloaded + " bytes for article ID " + articleId);
+
             synchronized (map) {
                 if (downloaded > 0)
                     downloaded += downloaded;
                 map.remove(articleId);
                 publishProgress(++progressImageDownload);
-                if (allOK)
+
+                if (allOK || downloaded > 0)
                     DBHelper.getInstance().updateArticleCachedImages(articleId, true);
+
+                Log.d (Utils.TAG, "Download for article: " + articleId +
+                  " done. Success: " + allOK +" Downloaded: " + downloaded);
+
                 map.notifyAll();
             }
         }
@@ -376,7 +400,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
      *            the html code which is to be searched
      * @return a set of URLs in their string representation
      */
-    public static Set<String> findAllImageUrls(String html, int articleId) {
+    public static Set<String> findAllImageUrls(String html) {
         Set<String> ret = new LinkedHashSet<String>();
         if (html == null || html.length() < 10)
             return ret;

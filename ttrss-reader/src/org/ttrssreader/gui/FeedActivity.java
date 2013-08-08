@@ -114,6 +114,10 @@ public class FeedActivity extends MenuActivity {
                 return true;
             case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(categoryId)).exec();
+                
+                if (Controller.getInstance ().goBackAfterMakeAllRead ())
+                  onBackPressed ();
+
                 return true;
             default:
                 return false;

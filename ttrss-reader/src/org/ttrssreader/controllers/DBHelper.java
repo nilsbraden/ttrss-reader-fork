@@ -18,6 +18,7 @@ package org.ttrssreader.controllers;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -277,6 +278,30 @@ public class DBHelper {
         }
         
         return false;
+    }
+    
+    /**
+     * FIXME: this method should be replaced by StringSupport.convertListToString
+     * 
+     * convert given collection of integers (IDs) into comma separated list
+     * 
+     * @param idList
+     *            collection of numerical IDs
+     * 
+     * @return comma separated list of IDs (as String)
+     * 
+     * @deprecated use {@code StringSupport.convertListToString} instead
+     */
+    @Deprecated
+    public String idsToString(Collection<Integer> idList) {
+        StringBuilder sb = new StringBuilder();
+        for (Integer i : idList) {
+            if (sb.length() > 0) {
+                sb.append(",");
+            }
+            sb.append(i);
+        }
+        return sb.toString();
     }
     
     private static class OpenHelper extends SQLiteOpenHelper {
@@ -611,8 +636,8 @@ public class DBHelper {
             a.attachments = new LinkedHashSet<String>();
         if (a.labels == null)
             a.labels = new LinkedHashSet<Label>();
-            
-        //articleLabels
+        
+        // articleLabels
         long retId = -1;
         synchronized (insertArticle) {
             insertArticle.bindLong(1, a.id);
@@ -642,7 +667,7 @@ public class DBHelper {
         insertArticleIntern(a);
     }
     
-    public void insertArticle(Collection<Article> articles) {
+    public void insertArticles(Collection<Article> articles) {
         if (!isDBAvailable())
             return;
         if (articles == null || articles.isEmpty())
@@ -778,73 +803,53 @@ public class DBHelper {
     
     // *******| UPDATE |*******************************************************************
     
-    public void markCategoryRead(int categoryId) {
+    /**
+     * set read status in DB for given category/feed
+     * 
+     * @param id
+     *            category/feed ID
+     * @param isCategory
+     *            if set to {@code true}, then given id is category
+     *            ID, otherwise - feed ID
+     * 
+     * @return collection of article IDs, which was marked as read or {@code null} if nothing was changed
+     */
+    public Collection<Integer> markRead(int id, boolean isCategory) {
+        Collection<Integer> markedIds = null;
         if (isDBAvailable()) {
-            updateCategoryUnreadCount(categoryId, 0);
-            for (Feed f : getFeeds(categoryId)) {
-                markFeedRead(f.id);
+            db.beginTransaction();
+            try {
+                String feedIdsCluause = (isCategory || id < 0) ? "select id from " + TABLE_FEEDS + " where categoryId="
+                        + id : String.valueOf(id);
+                
+                // select id from articles where categoryId in (XXX)
+                Cursor c = db.query(TABLE_ARTICLES, new String[] { "id" }, "feedId in (" + feedIdsCluause
+                        + ") and isUnread>0", null, null, null, null);
+                
+                int articlesCount = c.getCount();
+                
+                if (articlesCount > 0) {
+                    markedIds = new ArrayDeque<Integer>(articlesCount);
+                    
+                    while (c.moveToNext()) {
+                        markedIds.add(c.getInt(0));
+                    }
+                    
+                    ContentValues cv = new ContentValues();
+                    cv.put("isUnread", 0);
+                    
+                    db.update(TABLE_ARTICLES, cv, "feedId in (" + feedIdsCluause + ") and isUnread>0", null);
+                    
+                    calculateCounters();
+                }
+                
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
         }
-    }
-    
-    public void markFeedRead(int feedId) {
-        if (isDBAvailable()) {
-            markFeedReadIntern(feedId);
-        }
-    }
-    
-    private void markFeedReadIntern(int feedId) {
-        String[] cols = new String[] { "isStarred", "isPublished", "updateDate" };
-        Cursor c = db.query(TABLE_ARTICLES, cols, "isUnread>0 AND feedId=" + feedId, null, null, null, null);
         
-        int countStar = 0;
-        int countPub = 0;
-        int countFresh = 0;
-        int countAll = 0;
-        long ms = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
-        Date maxAge = new Date(ms);
-        
-        if (c.moveToFirst()) {
-            while (true) {
-                countAll++;
-                
-                if (c.getInt(0) > 0)
-                    countStar++;
-                
-                if (c.getInt(1) > 0)
-                    countPub++;
-                
-                Date d = new Date(c.getLong(2));
-                if (d.after(maxAge))
-                    countFresh++;
-                
-                if (!c.move(1))
-                    break;
-            }
-        }
-        c.close();
-        
-        // Update VirtualCategory-Count
-        updateCategoryDeltaUnreadCount(Data.VCAT_STAR, countStar * -1);
-        updateCategoryDeltaUnreadCount(Data.VCAT_PUB, countPub * -1);
-        updateCategoryDeltaUnreadCount(Data.VCAT_FRESH, countFresh * -1);
-        updateCategoryDeltaUnreadCount(Data.VCAT_ALL, countAll * -1);
-        
-        // Update Category-Count
-        Feed feed = getFeed(feedId);
-        updateCategoryDeltaUnreadCount(feed.categoryId, -1);
-        
-        // Update Feed-Count
-        updateFeedUnreadCount(feedId, 0);
-        
-        // Update Article
-        if (feedId < -10) {
-            markLabelRead(feedId);
-        } else {
-            ContentValues cv = new ContentValues();
-            cv.put("isUnread", 0);
-            db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId=" + feedId, null);
-        }
+        return markedIds;
     }
     
     public void markLabelRead(int labelId) {
@@ -859,50 +864,24 @@ public class DBHelper {
         }
     }
     
-    // Marks only the articles as read so the JSONConnector can retrieve new articles and overwrite the old articles
-    // minArticleId is the minimum article id which is marked so only articles within the range of updated articles are
-    // marked.
-    public void markFeedOnlyArticlesRead(int id, boolean isCat, int minArticleId) {
-        
-        if (!isCat && id < -10) {
-            markLabelRead(id);
-            return;
-        }
-        
-        if (isDBAvailable()) {
-            ContentValues cv = new ContentValues();
-            cv.put("isUnread", 0);
-            
-            // Mark all articles from feed or category as read, depending on isCat. Just use idList with only one feedId
-            // if it is just a feed, else create a list of feedIds.
-            // Special treatment for special categories (eg. -4)
-            String idList = "";
-            if (isCat) {
-                if (id < 0) {
-                    idList = "SELECT id FROM " + TABLE_FEEDS;
-                } else {
-                    idList = "SELECT id FROM " + TABLE_FEEDS + " WHERE categoryId=" + id;
-                }
-            } else {
-                idList = id + "";
-            }
-            
-            String minPart = " and id >= " + minArticleId;
-            if (minArticleId <= 0 || minArticleId == Integer.MAX_VALUE)
-                minPart = "";
-            
-            db.update(TABLE_ARTICLES, cv, "isUnread>0 AND feedId IN(" + idList + ")" + minPart, null);
-        }
-    }
-    
-    public void markArticles(Set<Integer> iDlist, String mark, int state) {
-        if (isDBAvailable()) {
-            
+    /**
+     * mark given property of given articles with given state
+     * 
+     * @param idList
+     *            set of article IDs, which should be processed
+     * @param mark
+     *            mark to be set
+     * @param state
+     *            value for the mark
+     */
+    public void markArticles(Set<Integer> idList, String mark, int state) {
+        if (isDBAvailable() && !idList.isEmpty()) {
             db.beginTransaction();
             try {
-                for (Integer id : iDlist) {
-                    markArticle(id, mark, state);
-                }
+                markArticles(idsToString(idList), mark, state);
+                
+                calculateCounters();
+                
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
@@ -910,37 +889,49 @@ public class DBHelper {
         }
     }
     
+    /**
+     * mark given property of given article with given state
+     * 
+     * @param id
+     *            set of article IDs, which should be processed
+     * @param mark
+     *            mark to be set
+     * @param state
+     *            value for the mark
+     */
     public void markArticle(int id, String mark, int state) {
         if (isDBAvailable()) {
-            String sql = String.format("UPDATE %s SET %s=%s WHERE id=%s", TABLE_ARTICLES, mark, state, id);
+            db.beginTransaction();
+            try {
+                markArticles("" + id, mark, state);
+                
+                calculateCounters();
+                
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
+    }
+    
+    /**
+     * mark given property of given articles with given state
+     * 
+     * @param idList
+     *            set of article IDs, which should be processed
+     * @param mark
+     *            mark to be set
+     * @param state
+     *            value for the mark
+     */
+    public void markArticles(String idList, String mark, int state) {
+        if (isDBAvailable()) {
+            String sql = String.format("UPDATE %s SET %s=%s WHERE id IN (%s)", TABLE_ARTICLES, mark, state, idList);
             db.execSQL(sql);
         }
     }
     
-    public void markUnsynchronizedStatesCategory(int categoryId) {
-        Set<Integer> ids = new HashSet<Integer>();
-        for (Feed f : getFeeds(categoryId)) {
-            if (f.unread > 0) {
-                for (Article a : getUnreadArticles(f.id)) {
-                    ids.add(a.id);
-                }
-            }
-        }
-        markUnsynchronizedStates(ids, MARK_READ, 0);
-    }
-    
-    public void markUnsynchronizedStatesFeed(int feedId) {
-        Feed f = getFeed(feedId);
-        if (f != null && f.unread > 0) {
-            Set<Integer> ids = new HashSet<Integer>();
-            for (Article a : getUnreadArticles(f.id)) {
-                ids.add(a.id);
-            }
-            markUnsynchronizedStates(ids, MARK_READ, 0);
-        }
-    }
-    
-    public void markUnsynchronizedStates(Set<Integer> ids, String mark, int state) {
+    public void markUnsynchronizedStates(Collection<Integer> ids, String mark, int state) {
         if (!isDBAvailable())
             return;
         
@@ -991,39 +982,122 @@ public class DBHelper {
         }
     }
     
-    public void updateCategoryUnreadCount(int id, int count) {
+    // public void updateCategoryUnreadCount(int id, int count) {
+    // if (isDBAvailable()) {
+    // if (count >= 0) {
+    // ContentValues cv = new ContentValues();
+    // cv.put("unread", count);
+    //
+    // db.update(TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+    // }
+    // }
+    // }
+    //
+    // public void updateCategoryDeltaUnreadCount(int id, int delta) {
+    // Category c = getCategory(id);
+    // int count = c.unread;
+    // count += delta;
+    // updateCategoryUnreadCount(id, count);
+    // }
+    //
+    // public void updateFeedUnreadCount(int id, int count) {
+    // if (isDBAvailable()) {
+    // if (count >= 0) {
+    // ContentValues cv = new ContentValues();
+    // cv.put("unread", count);
+    // db.update(TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
+    // }
+    // }
+    // }
+    //
+    // public void updateFeedDeltaUnreadCount(int id, int delta) {
+    // Feed f = getFeed(id);
+    // int count = f.unread;
+    // count += delta;
+    // updateFeedUnreadCount(id, count);
+    // }
+    
+    /**
+     * set unread counters for feeds and categories according to real amount
+     * of unread articles
+     * 
+     * @return {@code true} if counters was successfully updated, {@code false} otherwise
+     */
+    public boolean calculateCounters() {
+        boolean success = false;
+        
         if (isDBAvailable()) {
-            if (count >= 0) {
-                ContentValues cv = new ContentValues();
-                cv.put("unread", count);
+            db.beginTransaction();
+            Cursor c = null;
+            ContentValues cv = null;
+            try {
+                Log.d(Utils.TAG, "Start counter update");
                 
-                db.update(TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
+                int updateCount = 0;
+                
+                cv = new ContentValues();
+                cv.put("unread", 0);
+                updateCount = db.update(TABLE_FEEDS, cv, null, null);
+                updateCount = db.update(TABLE_CATEGORIES, cv, null, null);
+                
+                // select feedId, count(*) from articles where isUnread>0 group by feedId
+                c = db.query(TABLE_ARTICLES, new String[] { "feedId", "count(*)" }, "isUnread>0", null, "feedId", null,
+                        null, null);
+                
+                int total = 0;
+                
+                // update feeds
+                while (c.moveToNext()) {
+                    int feedId = c.getInt(0);
+                    int unreadCount = c.getInt(1);
+                    
+                    total += unreadCount;
+                    
+                    cv = new ContentValues();
+                    cv.put("unread", unreadCount);
+                    updateCount = db.update(TABLE_FEEDS, cv, "id=" + feedId, null);
+                    Log.d(Utils.TAG, "Updated " + updateCount + " feeds for feedId=" + feedId);
+                }
+                
+                // select categoryId, sum(unread) from feeds where categoryId > 0 group by categoryId
+                c = db.query(TABLE_FEEDS, new String[] { "categoryId", "sum(unread)" }, "categoryId>0", null,
+                        "categoryId", null, null, null);
+                
+                // update real categories
+                while (c.moveToNext()) {
+                    int categoryId = c.getInt(0);
+                    int unreadCount = c.getInt(1);
+                    
+                    cv = new ContentValues();
+                    cv.put("unread", unreadCount);
+                    updateCount = db.update(TABLE_CATEGORIES, cv, "id=" + categoryId, null);
+                    Log.d(Utils.TAG, "Updated " + updateCount + " categories for feedId=" + categoryId);
+                }
+                
+                cv = new ContentValues();
+                
+                cv.put("unread", total);
+                db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_ALL, null);
+                
+                cv.put("unread", getUnreadCount(Data.VCAT_FRESH, true));
+                db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_FRESH, null);
+                
+                cv.put("unread", getUnreadCount(Data.VCAT_PUB, true));
+                db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_PUB, null);
+                
+                cv.put("unread", getUnreadCount(Data.VCAT_STAR, true));
+                db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_STAR, null);
+                
+                db.setTransactionSuccessful();
+                success = true;
+            } finally {
+                db.endTransaction();
             }
         }
-    }
-    
-    public void updateCategoryDeltaUnreadCount(int id, int delta) {
-        Category c = getCategory(id);
-        int count = c.unread;
-        count += delta;
-        updateCategoryUnreadCount(id, count);
-    }
-    
-    public void updateFeedUnreadCount(int id, int count) {
-        if (isDBAvailable()) {
-            if (count >= 0) {
-                ContentValues cv = new ContentValues();
-                cv.put("unread", count);
-                db.update(TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
-            }
-        }
-    }
-    
-    public void updateFeedDeltaUnreadCount(int id, int delta) {
-        Feed f = getFeed(id);
-        int count = f.unread;
-        count += delta;
-        updateFeedUnreadCount(id, count);
+        
+        Log.i(Utils.TAG, "Fix counters success:" + success);
+        
+        return success;
     }
     
     public void updateAllArticlesCachedImages(boolean isCachedImages) {
@@ -1037,8 +1111,8 @@ public class DBHelper {
     public void updateArticleCachedImages(int id, boolean isCachedImages) {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues();
-            cv.put("cachedImages", isCachedImages);
-            db.update(TABLE_ARTICLES, cv, "cachedImages=0 & id=" + id, null); // Only apply if not yet applied and ID
+            cv.put("cachedImages", isCachedImages ? 1 : 0);
+            db.update(TABLE_ARTICLES, cv, "cachedImages=0 AND id=" + id, null); // Only apply if not yet applied and ID
         }
     }
     
@@ -1051,6 +1125,9 @@ public class DBHelper {
         }
     }
     
+    /**
+     * delete all rows from feeds table
+     */
     public void deleteFeeds() {
         if (isDBAvailable()) {
             db.delete(TABLE_FEEDS, null, null);
@@ -1059,7 +1136,7 @@ public class DBHelper {
     
     /**
      * Deletes articles until the configured number of articles is matched. Published and Starred articles are ignored
-     * so the configured limit is not an exact upper limit to the numbe rof articles in the database.
+     * so the configured limit is not an exact upper limit to the number of articles in the database.
      */
     public void purgeArticlesNumber() {
         if (isDBAvailable()) {
@@ -1072,6 +1149,27 @@ public class DBHelper {
         }
     }
     
+    /**
+     * delete given amount of last articles from DB
+     * 
+     * @param amountToPurge
+     *            amount of articles to be purged
+     */
+    public void purgeLastArticles(int amountToPurge) {
+        if (isDBAvailable()) {
+            String idList = "SELECT id FROM " + TABLE_ARTICLES
+                    + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
+                    + (Utils.ARTICLE_LIMIT - amountToPurge);
+            
+            db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
+            purgeLabels();
+        }
+    }
+    
+    /**
+     * FIXME: Still necessary?
+     */
+    @Deprecated
     public void purgePublishedArticles() {
         if (isDBAvailable()) {
             db.delete(TABLE_ARTICLES, "isPublished>0", null);
@@ -1079,9 +1177,36 @@ public class DBHelper {
         }
     }
     
+    /**
+     * FIXME: Still necessary?
+     */
+    @Deprecated
     public void purgeStarredArticles() {
         if (isDBAvailable()) {
             db.delete(TABLE_ARTICLES, "isStarred>0", null);
+            purgeLabels();
+        }
+    }
+    
+    /**
+     * delete articles, which belongs to given IDs
+     * 
+     * @param feedIds
+     *            IDs of removed feeds
+     */
+    public void purgeFeedsArticles(Collection<Integer> feedIds) {
+        if (isDBAvailable()) {
+            db.delete(TABLE_ARTICLES, "feedId IN (" + feedIds + ")", null);
+            purgeLabels();
+        }
+    }
+    
+    /**
+     * delete articles, which belongs to non-existent feeds
+     */
+    public void purgeOrphanedArticles() {
+        if (isDBAvailable()) {
+            db.delete(TABLE_ARTICLES, "feedId NOT IN (SELECT id FROM " + TABLE_FEEDS + ")", null);
             purgeLabels();
         }
     }
@@ -1137,6 +1262,65 @@ public class DBHelper {
         } finally {
             if (c != null)
                 c.close();
+        }
+        
+        return ret;
+    }
+    
+    /**
+     * get minimal ID of unread article, stored in DB
+     * 
+     * @return minimal ID of unread article
+     */
+    public int getMinUnreadId() {
+        int ret = 0;
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = null;
+        try {
+            
+            c = db.query(TABLE_ARTICLES, new String[] { "min(id)" }, "isUnread>0", null, null, null, null, null);
+            if (c.moveToFirst())
+                ret = c.getInt(0);
+            else
+                return 0;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        return ret;
+    }
+    
+    /**
+     * get amount of articles stored in the DB
+     * 
+     * @return amount of articles stored in the DB
+     */
+    public int countArticles() {
+        int ret = -1;
+        
+        if (isDBAvailable()) {
+            Cursor c = null;
+            try {
+                
+                c = db.query(TABLE_ARTICLES, new String[] { "count(*)" }, null, null, null, null, null, null);
+                
+                if (c.moveToFirst()) {
+                    ret = c.getInt(0);
+                }
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
         }
         
         return ret;
@@ -1366,7 +1550,7 @@ public class DBHelper {
         return ret;
     }
     
-    public int getUnreadCount(int id, boolean isCat) {
+    public int getUnreadCountOld(int id, boolean isCat) {
         int ret = 0;
         if (!isDBAvailable())
             return ret;
@@ -1399,6 +1583,71 @@ public class DBHelper {
         return ret;
     }
     
+    public int getUnreadCount(int id, boolean isCat) {
+        int ret = 0;
+        if (isDBAvailable()) {
+            StringBuilder selection = new StringBuilder("isUnread>0");
+            String[] selectionArgs = new String[] { String.valueOf(id) };
+            
+            if (isCat && id >= 0) {
+                // real categories
+                selection.append(" and feedId in (select id from feeds where categoryId=?)");
+            } else {
+                if (id < 0) {
+                    // virtual categories
+                    switch (id) {
+                    // All Articles
+                        case Data.VCAT_ALL:
+                            selectionArgs = null;
+                            break;
+                        
+                        // Fresh Articles
+                        case Data.VCAT_FRESH:
+                            selection.append(" and updateDate>?");
+                            selectionArgs = new String[] { String.valueOf(new Date().getTime()
+                                    - Controller.getInstance().getFreshArticleMaxAge()) };
+                            break;
+                        
+                        // Published Articles
+                        case Data.VCAT_PUB:
+                            selection.append(" and isPublished>0");
+                            selectionArgs = null;
+                            break;
+                        
+                        // Starred Articles
+                        case Data.VCAT_STAR:
+                            selection.append(" and isStarred>0");
+                            selectionArgs = null;
+                            break;
+                    }
+                } else {
+                    // feeds
+                    selection.append(" and feedId=?");
+                }
+            }
+            
+            // Read count for given feed
+            Cursor c = null;
+            try {
+                c = db.query(TABLE_ARTICLES, new String[] { "count(*)" }, selection.toString(), selectionArgs, null,
+                        null, null, null);
+                
+                if (c.moveToFirst()) {
+                    ret = c.getInt(0);
+                }
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
+        }
+        
+        return ret;
+    }
+    
     @SuppressLint("UseSparseArrays")
     public Map<Integer, String> getMarked(String mark, int status) {
         Map<Integer, String> ret = new HashMap<Integer, String>();
@@ -1424,13 +1673,22 @@ public class DBHelper {
         return ret;
     }
     
+    /**
+     * remove specified mark in the temporary mark table for specified
+     * articles and then cleanup this table
+     * 
+     * @param ids
+     *            article IDs, which mark should be reseted
+     * @param mark
+     *            article mark to be reseted
+     */
     public void setMarked(Map<Integer, String> ids, String mark) {
         if (!isDBAvailable())
             return;
         
         db.beginTransaction();
         try {
-            for (String idList : StringSupport.convertListToString(ids.keySet(), 100)) {
+            for (String idList : StringSupport.convertListToString(ids.keySet(), 1000)) {
                 ContentValues cv = new ContentValues();
                 cv.putNull(mark);
                 db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
