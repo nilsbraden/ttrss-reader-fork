@@ -74,6 +74,7 @@ import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebSettings.TextSize;
@@ -449,9 +450,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             
             contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
             contentTemplate.add(MARKER_LABELS, labels.toString());
-            
             contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getApplicationContext(), article.updated));
-            
             contentTemplate.add(MARKER_CONTENT, localContent);
             contentTemplate.add(MARKER_ATTACHMENTS, injectCachedImages(sb.toString()));
             
@@ -921,13 +920,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
          */
         public ArticleJSInterface(ArticleActivity aa) {
             articleActivity = aa;
-            Log.d(Utils.TAG, "== KONSTRUKTOR ==");
         }
         
         /**
          * go to previous article
          */
-        // @JavascriptInterface
+        @JavascriptInterface
         public void prev() {
             Log.d(Utils.TAG, "JS: PREV");
             articleActivity.runOnUiThread(new Runnable() {
@@ -941,7 +939,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         /**
          * go to next article
          */
-        // @JavascriptInterface
+        @JavascriptInterface
         public void next() {
             Log.d(Utils.TAG, "JS: NEXT");
             articleActivity.runOnUiThread(new Runnable() {
@@ -955,12 +953,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         /**
          * publish article
          */
-        // @JavascriptInterface
+        @JavascriptInterface
         public void publish() {
             Log.d(Utils.TAG, "JS: PUBLISH");
             articleActivity.runOnUiThread(new Runnable() {
                 public void run() {
-                    Log.d(Utils.TAG, "JS: PUBLISH");
+                    new Updater(null, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
                 }
             });
         }
@@ -968,12 +966,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         /**
          * star article
          */
-        // @JavascriptInterface
+        @JavascriptInterface
         public void star() {
             Log.d(Utils.TAG, "JS: STAR");
             articleActivity.runOnUiThread(new Runnable() {
-                public void run() {
-                    Log.d(Utils.TAG, "JS: STAR");
+                public void run() {                
+                    new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
                 }
             });
         }
@@ -981,12 +979,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         /**
          * open menu
          */
-        // @JavascriptInterface
+        @JavascriptInterface
         public void menu() {
             Log.d(Utils.TAG, "JS: MENU");
             articleActivity.runOnUiThread(new Runnable() {
                 public void run() {
-                    Log.d(Utils.TAG, "JS: MENU");
+                    articleActivity.openOptionsMenu();
                 }
             });
         }

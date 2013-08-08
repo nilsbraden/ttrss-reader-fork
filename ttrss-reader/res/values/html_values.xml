@@ -18,108 +18,110 @@
 
     <!-- MAIN TEMPLATE -->
     <string name="HTML_TEMPLATE" formatted="false">
-<![CDATA[<?xml version="1.0" encoding="UTF-8" ?>
-	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-	<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-	  <head>
-	    <meta content="text/html; charset=utf-8" http-equiv="content-type">
-	    <style type="text/css">
-	      body {
-	        padding: 0;
-	        margin: 0;
-	        padding-bottom: 2em;
-	        $TEXT_ALIGN_MARKER$
-	        $TEXT_MARKER$
-	        $BACKGROUND_MARKER$
-	      }
-	      .header {
-	        margin-bottom: 1em;
-	        background-color: #424242;
-	      }
-	      .header h1 {
-	        font-size: 120%;
-	      }
-	      .header .labels,
-	      .header .updated,
-	      .attachments {
-	        text-align: right;
-	        color: #04B404;
-	      }
-	      a:link {
-	        $LINK_MARKER$
-	      }
-	    </style>
-	    $JS_MARKER$
-	  </head>
-	  <body class="hyphenate" lang="$LANG_MARKER$">
-	    $TOP_NAVIGATION_MARKER$
-	    $CONTENT_MARKER$
-	    $BOTTOM_NAVIGATION_MARKER$
-	  </body>
-	</html>]]>
+<![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+    <style type="text/css">
+      body {
+        padding: 0;
+        margin: 0;
+        padding-bottom: 2em;
+        $TEXT_ALIGN_MARKER$
+        $TEXT_MARKER$
+        $BACKGROUND_MARKER$
+      }
+      .header {
+        margin-bottom: 1em;
+        background-color: #424242;
+      }
+      .header h1 {
+        font-size: 120%;
+      }
+      .header .labels,
+      .header .updated,
+      .attachments {
+        text-align: right;
+        color: #04B404;
+      }
+      a:link {
+        $LINK_MARKER$
+      }
+    </style>
+    $JS_MARKER$
+  </head>
+  <body class="hyphenate" lang="$LANG_MARKER$">
+    $TOP_NAVIGATION_MARKER$
+    $CONTENT_MARKER$
+	$BOTTOM_NAVIGATION_MARKER$
+  </body>
+</html>]]>
     </string>
 
     <!-- HYPHENATION -->
     <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">
-<![CDATA[<script src="file:///android_asset/Hyphenator.js" type="text/javascript"></script>
-    <script type="text/javascript">Hyphenator.run();</script>
-    <script type="text/javascript" src="file:///android_asset/patterns/$LANG_MARKER$.js"></script>]]>
+<![CDATA[
+<script src="file:///android_asset/Hyphenator.js" type="text/javascript"></script>
+<script type="text/javascript">Hyphenator.run();</script>
+<script type="text/javascript" src="file:///android_asset/patterns/$LANG_MARKER$.js"></script>]]>
     </string>
 
     <!-- CONTENT -->
     <string name="CONTENT_TEMPLATE" formatted="false">
 <![CDATA[
-    <style type="text/css">
-	  .top_navigation {
-	    text-align: justify;
-	  }
-	  .top_navigation button {
-	    display: block;
-	    width: 25%;
-	    font-size: 150%;
-	  }
-	</style>
-	<div class="header">
-	  <div class="top_navigation">
-	    <button id="btnStar" class="button star" onclick="articleController.star();">Star</button>
-	    <button id="btnPublish" class="button publish" onclick="articleController.publish();">Publish</button>
-	    <button id="btnMenu" class="button menu" onclick="articleController.menu();">Publish</button>
-	  </div>
-	  <h1><a href="$article.url$" rel="alternate">$article.title$</a></h1>
-	  <div class="labels">$LABELS$</div>
-	  <div class="updated">$UPDATED$</div>
-	</div>
-	<div class="mainContent">
-	$CONTENT$
-	</div>
-	<div class="attachments">
-	$ATTACHMENTS$
-	</div>]]>
+<style type="text/css">
+.top_navigation {
+  text-align: justify;
+}
+.top_navigation button {
+  display: block;
+  width: 25%;
+  font-size: 150%;
+}
+</style>
+<div class="header">
+  <div class="top_navigation">
+    <button id="btnStar" class="button star" onclick="articleController.star();">Star</button>
+    <button id="btnPublish" class="button publish" onclick="articleController.publish();">Publish</button>
+    <button id="btnMenu" class="button menu" onclick="articleController.menu();">Menu</button>
+  </div>
+  <h1><a href="$article.url$" rel="alternate">$article.title$</a></h1>
+  <div class="labels">$LABELS$</div>
+  <div class="updated">$UPDATED$</div>
+</div>
+<div class="mainContent">
+  $CONTENT$
+</div>
+<div class="attachments">
+  $ATTACHMENTS$
+</div>]]>
     </string>
 
     <!-- BOTTOM NAVIGATION -->
     <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
 <![CDATA[
-	<style type="text/css">
-	  .bottom_navigation {
-	    text-align: justify;
-	  }
-	  .bottom_navigation button {
-	    display: block;
-	    width: 45%;
-	    font-size: 230%;
-	  }
-	  .bottom_navigation button.first {
-	    float: left;
-	  }
-	  .bottom_navigation button.last {
-	    float: right;
-	  }
-	</style>
-	<div class="bottom_navigation">
-	  <button id="btnPrev" class="first prev" onclick="articleController.prev();">&leftarrow;</button>
-	  <button id="btnNext" class="last next" onclick="articleController.next();">&rightarrow;</button>
-	</div>]]>
+<style type="text/css">
+  .bottom_navigation {
+    text-align: justify;
+  }
+  .bottom_navigation button {
+    display: block;
+    width: 45%;
+    font-size: 230%;
+  }
+  .bottom_navigation button.first {
+    float: left;
+  }
+  .bottom_navigation button.last {
+    float: right;
+  }
+</style>
+<div class="bottom_navigation">
+  <button id="btnPrev" class="first prev" onclick="articleController.prev();">&leftarrow;</button>
+  <button id="btnNext" class="last next" onclick="articleController.next();">&rightarrow;</button>
+</div>]]>
     </string>
 
     <!-- EVERYTHING ELSE -->
