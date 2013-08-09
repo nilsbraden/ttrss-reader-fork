@@ -144,6 +144,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public static int relSwipeMinDistance;
     public static int relSwipeMaxOffPath;
     public static int relSwipteThresholdVelocity;
+    public static int displayHeight;
+    public static int displayWidth;
     
     // Singleton
     private Controller() {
@@ -289,6 +291,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
         relSwipeMinDistance = (int) (SWIPE_MIN_DISTANCE * dm.densityDpi / 160.0f);
         relSwipeMaxOffPath = (int) (SWIPE_MAX_OFF_PATH * dm.densityDpi / 160.0f);
         relSwipteThresholdVelocity = (int) (SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
+        displayHeight = dm.heightPixels;
+        displayWidth = dm.widthPixels;
     }
     
     // ******* CONNECTION-Options ****************************

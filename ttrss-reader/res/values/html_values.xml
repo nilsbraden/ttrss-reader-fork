@@ -71,22 +71,7 @@
     <!-- CONTENT -->
     <string name="CONTENT_TEMPLATE" formatted="false">
 <![CDATA[
-<style type="text/css">
-.top_navigation {
-  text-align: justify;
-}
-.top_navigation button {
-  display: block;
-  width: 25%;
-  font-size: 150%;
-}
-</style>
 <div class="header">
-  <div class="top_navigation">
-    <button id="btnStar" class="button star" onclick="articleController.star();">Star</button>
-    <button id="btnPublish" class="button publish" onclick="articleController.publish();">Publish</button>
-    <button id="btnMenu" class="button menu" onclick="articleController.menu();">Menu</button>
-  </div>
   <h1><a href="$article.url$" rel="alternate">$article.title$</a></h1>
   <div class="labels">$LABELS$</div>
   <div class="updated">$UPDATED$</div>
