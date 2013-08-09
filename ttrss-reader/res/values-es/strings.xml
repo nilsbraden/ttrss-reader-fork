@@ -16,7 +16,6 @@
 -->
 <resources>
 
-    <string name="ApplicationName">Tiny Tiny RSS Reader</string>
     <string name="ApplicationDescription">Tiny Tiny RSS Reader es una aplicación para leer los feeds desde tu servidor Tiny Tiny RSS.</string>
     <string name="Main.ShowPreferencesMenu">Preferencias</string>
     <string name="Main.RefreshMenu">Refrescar</string>
