@@ -39,6 +39,7 @@ import org.ttrssreader.gui.view.MyWebView.OnEdgeReachedListener;
 import org.ttrssreader.imageCache.ImageCacher;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
@@ -106,6 +107,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private final static char TEMPLATE_DELIMITER_END = '$';
     
     private static final String TEMPLATE_ARTICLE_VAR = "article";
+    private static final String TEMPLATE_FEED_VAR = "feed";
     private static final String MARKER_LABELS = "LABELS";
     private static final String MARKER_UPDATED = "UPDATED";
     private static final String MARKER_CONTENT = "CONTENT";
@@ -119,6 +121,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private int lastMove = ARTICLE_MOVE_DEFAULT;
     
     private Article article = null;
+    private Feed feed = null;
     private String content;
     private boolean linkAutoOpened;
     private boolean markedRead = false;
@@ -262,6 +265,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // Get article from DB
         article = DBHelper.getInstance().getArticle(articleId);
+        feed = DBHelper.getInstance().getFeed(article.feedId);
         if (article == null) {
             finish();
             return;
@@ -413,6 +417,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             ST contentTemplate = new ST(Controller.htmlTemplate, TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
             
             contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
+            contentTemplate.add(TEMPLATE_FEED_VAR, feed);
             contentTemplate.add(MARKER_LABELS, labels.toString());
             contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getApplicationContext(), article.updated));
             contentTemplate.add(MARKER_CONTENT, localContent);

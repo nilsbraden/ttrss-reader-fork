@@ -40,9 +40,13 @@
       .header h1 {
         font-size: 120%;
       }
+      .header h2 {
+        font-size: 90%;
+      }
       .header .labels,
       .header .updated,
       .attachments {
+        font-size: 90%;
         text-align: right;
         color: #04B404;
       }
@@ -72,6 +76,7 @@
     <string name="CONTENT_TEMPLATE" formatted="false">
 <![CDATA[
 <div class="header">
+  <h2>$feed.title$</h2>
   <h1><a href="$article.url$" rel="alternate">$article.title$</a></h1>
   <div class="labels">$LABELS$</div>
   <div class="updated">$UPDATED$</div>
