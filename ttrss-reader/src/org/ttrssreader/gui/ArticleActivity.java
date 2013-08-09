@@ -28,17 +28,17 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.gui.dialogs.ArticleHeaderDialog;
 import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
+import org.ttrssreader.gui.view.MyWebView;
+import org.ttrssreader.gui.view.MyWebView.OnEdgeReachedListener;
 import org.ttrssreader.imageCache.ImageCacher;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
@@ -66,7 +66,6 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -81,9 +80,7 @@ import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -93,7 +90,7 @@ import com.actionbarsherlock.view.MenuItem;
 
 @SuppressWarnings("deprecation")
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
-        IDataChangedListener {
+        IDataChangedListener, OnEdgeReachedListener {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
@@ -127,18 +124,14 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private boolean markedRead = false;
     
     private FrameLayout webContainer = null;
-    private WebView webView;
+    private MyWebView webView;
     private boolean webviewInitialized = false;
     private Button buttonNext;
     private Button buttonPrev;
     private GestureDetector gestureDetector;
     
-    private LinearLayout header_main;
-    private TextView header_feed;
-    private TextView header_date;
-    private TextView header_time;
-    private TextView header_title;
-    private CheckBox header_starred;
+    private boolean isActionBarShowing = true;
+    private long switchedActionBarStatus = 0;
     
     private FeedHeadlineAdapter parentAdapter = null;
     private int[] parentIDs = new int[2];
@@ -175,40 +168,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     private void initActionbar() {
-        ActionBar.LayoutParams params = new ActionBar.LayoutParams(ActionBar.LayoutParams.FILL_PARENT,
-                ActionBar.LayoutParams.FILL_PARENT);
-        LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View actionbarView = inflator.inflate(R.layout.articleactionbar, null);
-        
         ActionBar ab = getSupportActionBar();
-        ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        ab.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO);
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowCustomEnabled(true);
         ab.setDisplayShowTitleEnabled(false);
-        ab.setCustomView(actionbarView, params);
-        
-        header_main = (LinearLayout) findViewById(R.id.head_main);
-        header_main.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArticleHeaderDialog dialog = ArticleHeaderDialog.newInstance(article);
-                dialog.show(getSupportFragmentManager(), ArticleHeaderDialog.DIALOG_HEADER);
-            }
-        });
-        header_feed = (TextView) actionbarView.findViewById(R.id.head_feed);
-        header_title = (TextView) actionbarView.findViewById(R.id.head_title);
-        header_title.setTextSize(Controller.getInstance().headlineSize());
-        header_date = (TextView) actionbarView.findViewById(R.id.head_date);
-        header_time = (TextView) actionbarView.findViewById(R.id.head_time);
-        header_starred = (CheckBox) actionbarView.findViewById(R.id.head_starred);
-        header_starred.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (article != null) {
-                    new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
-                }
-            }
-        });
     }
     
     @SuppressLint("InlinedApi")
@@ -223,7 +187,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         // Initialize the WebView if necessary
         if (webView == null) {
-            webView = new WebView(getApplicationContext());
+            webView = new MyWebView(getApplicationContext());
             webView.setWebViewClient(new ArticleWebViewClient(this));
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             boolean supportZoomControls = Controller.getInstance().supportZoomControls();
@@ -233,6 +197,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
             webView.setOnKeyListener(keyListener);
+            // webView.setOnTopReachedListener(this, 30);
+            // webView.setOnBottomReachedListener(this, 30);
             gestureDetector = new GestureDetector(this, new MyGestureDetector());
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -275,17 +241,15 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     public void initUIHeader() {
-        // Populate information-bar on top of the webView
-        Feed feed = DBHelper.getInstance().getFeed(article.feedId);
-        String feedTitle = "";
-        if (feed != null)
-            feedTitle = feed.title;
-        
-        header_feed.setText(feedTitle);
-        header_title.setText(article.title);
-        header_date.setText(DateUtils.getDate(this, article.updated));
-        header_time.setText(DateUtils.getTime(this, article.updated));
-        header_starred.setChecked(article.isStarred);
+        // // Populate information-bar on top of the webView
+        // Feed feed = DBHelper.getInstance().getFeed(article.feedId);
+        // String feedTitle = "";
+        // if (feed != null)
+        // feedTitle = feed.title;
+        //
+        // header_feed.setText(feedTitle);
+        // header_date.setText(DateUtils.getDate(this, article.updated));
+        // header_time.setText(DateUtils.getTime(this, article.updated));
     }
     
     private void initData() {
@@ -467,6 +431,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 }
             }
             
+            invalidateOptionsMenu(); // Force redraw of menu items in actionbar
+            
             // Everything did load, we dont have to do this again.
             webviewInitialized = true;
         } catch (Exception e) {
@@ -624,18 +590,22 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 read.setTitle(getString(R.string.Commons_MarkUnread));
             }
             
-            MenuItem publish = menu.findItem(R.id.Article_Menu_MarkStar);
-            if (article.isStarred) {
-                publish.setTitle(getString(R.string.Commons_MarkUnstar));
+            MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
+            if (article.isPublished) {
+                publish.setTitle(getString(R.string.Commons_MarkUnpublish));
+                publish.setIcon(R.drawable.ic_menu_published);
             } else {
-                publish.setTitle(getString(R.string.Commons_MarkStar));
+                publish.setTitle(getString(R.string.Commons_MarkPublish));
+                publish.setIcon(R.drawable.ic_menu_publish);
             }
             
-            MenuItem star = menu.findItem(R.id.Article_Menu_MarkPublish);
-            if (article.isPublished) {
-                star.setTitle(getString(R.string.Commons_MarkUnpublish));
+            MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
+            if (article.isStarred) {
+                star.setTitle(getString(R.string.Commons_MarkUnstar));
+                star.setIcon(R.drawable.ic_menu_starred);
             } else {
-                star.setTitle(getString(R.string.Commons_MarkPublish));
+                star.setTitle(getString(R.string.Commons_MarkStar));
+                star.setIcon(R.drawable.ic_menu_star);
             }
         }
         
@@ -659,12 +629,15 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 return true;
             case R.id.Article_Menu_MarkStar:
                 new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
+                invalidateOptionsMenu();
                 return true;
             case R.id.Article_Menu_MarkPublish:
                 new Updater(null, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
+                invalidateOptionsMenu();
                 return true;
             case R.id.Article_Menu_MarkPublishNote:
                 new TextInputAlert(this, article).show(this);
+                invalidateOptionsMenu();
                 return true;
             case R.id.Article_Menu_AddArticleLabel:
                 DialogFragment dialog = ArticleLabelDialog.newInstance(articleId);
@@ -675,6 +648,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 // Synchronize status of articles with server
                 if (!Controller.getInstance().workOffline())
                     new Updater(this, new StateSynchronisationUpdater()).execute((Void[]) null);
+                invalidateOptionsMenu();
                 return true;
             case R.id.Article_Menu_OpenLink:
                 openLink();
@@ -949,44 +923,38 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 }
             });
         }
+    }
+    
+    /**
+     * Hides the bar when the user scrolled away from top-region. This is delayed a bit to avoid stuttering.
+     */
+    @Override
+    public void onTopReached(View v, boolean reached) {
+        toggleActionBar(v, reached);
+    }
+    
+    @Override
+    public void onBottomReached(View v, boolean reached) {
+        toggleActionBar(v, reached);
+    }
+    
+    public void toggleActionBar(View v, boolean reached) {
+        if (System.currentTimeMillis() - switchedActionBarStatus < 1000)
+            return;
         
-        /**
-         * publish article
-         */
-        @JavascriptInterface
-        public void publish() {
-            Log.d(Utils.TAG, "JS: PUBLISH");
-            articleActivity.runOnUiThread(new Runnable() {
-                public void run() {
-                    new Updater(null, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
-                }
-            });
+        if (reached && !isActionBarShowing) {
+            Log.d(Utils.TAG, "Edge reached, show Bar...");
+            isActionBarShowing = true;
+            switchedActionBarStatus = System.currentTimeMillis();
+            getSupportActionBar().show();
         }
         
-        /**
-         * star article
-         */
-        @JavascriptInterface
-        public void star() {
-            Log.d(Utils.TAG, "JS: STAR");
-            articleActivity.runOnUiThread(new Runnable() {
-                public void run() {                
-                    new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
-                }
-            });
-        }
-        
-        /**
-         * open menu
-         */
-        @JavascriptInterface
-        public void menu() {
-            Log.d(Utils.TAG, "JS: MENU");
-            articleActivity.runOnUiThread(new Runnable() {
-                public void run() {
-                    articleActivity.openOptionsMenu();
-                }
-            });
+        if (!reached && isActionBarShowing) {
+            Log.d(Utils.TAG, "Edge not reached anymore, hide Bar...");
+            isActionBarShowing = false;
+            switchedActionBarStatus = System.currentTimeMillis();
+            getSupportActionBar().hide();
         }
     }
+    
 }

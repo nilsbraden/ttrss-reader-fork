@@ -56,11 +56,11 @@
     <string name="Commons.MarkRead">Mark as read</string>
     <string name="Commons.MarkUnread">Mark as unread</string>
     <string name="Commons.MarkStar">Star</string>
-    <string name="Commons.MarkUnstar">Un-Star</string>
+    <string name="Commons.MarkUnstar">Starred</string>
     <string name="Commons.MarkPublish">Publish</string>
     <string name="Commons.MarkPublishNote">Publish with a note</string>
     <string name="Commons.AddArticleLabel">Add label(s)</string>
-    <string name="Commons.MarkUnpublish">Un-Publish</string>
+    <string name="Commons.MarkUnpublish">Published</string>
     <string name="Commons.MarkAboveRead">Mark articles above read</string>
     <string name="VCategory.AllArticles">All Articles</string>
     <string name="VCategory.FreshArticles">Fresh Articles</string>
@@ -110,8 +110,8 @@
     <string name="DisplayLoadImagesPreferenceSummary">Uncheck to disable image-loading from external ressources in Webview.</string>
     <string name="InvertBrowseArticlesPreferenceTitle">Invert browsing articles</string>
     <string name="InvertBrowseArticlesPreferenceSummary">If checked, opening a category directly opens all articles within, else it shows the feeds.</string>
-  <string name="GoBackAfterMarkAllReadPreferenceTitle">Go back after mark all items as read</string>
-  <string name="GoBackAfterMarkAllReadPreferenceSummary">If checked, then go one level up after mark all current items as read.</string>
+    <string name="GoBackAfterMarkAllReadPreferenceTitle">Go back after mark all items as read</string>
+    <string name="GoBackAfterMarkAllReadPreferenceSummary">If checked, then go one level up after mark all current items as read.</string>
     <string name="ShowButtonsModeTitle">Select Navigation Buttons Mode</string>
     <string name="ShowButtonsModeSummary">How navigation buttons in article view should be shown.</string>
     <string name="ShowButtonsMode_none">Do not show buttons</string>
