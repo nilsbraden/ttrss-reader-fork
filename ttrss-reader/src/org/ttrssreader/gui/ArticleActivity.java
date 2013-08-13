@@ -107,8 +107,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     private static final String TEMPLATE_ARTICLE_VAR = "article";
     private static final String TEMPLATE_FEED_VAR = "feed";
-    private static final String MARKER_LABELS = "LABELS";
     private static final String MARKER_UPDATED = "UPDATED";
+    private static final String MARKER_LABELS = "LABELS";
     private static final String MARKER_CONTENT = "CONTENT";
     private static final String MARKER_ATTACHMENTS = "ATTACHMENTS";
     
@@ -446,7 +446,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
      *            the ViewGroup to walk through
      */
     private void setDarkBackground(ViewGroup v) {
-        v.setBackgroundColor(Color.BLACK);
+        v.setBackgroundColor(getResources().getColor(R.color.darkBackground));
         
         for (int i = 0; i < v.getChildCount(); i++) { // View at index 0 seems to be this view itself.
             View vChild = v.getChildAt(i);

@@ -19,47 +19,109 @@
     <!-- MAIN TEMPLATE -->
     <string name="HTML_TEMPLATE" formatted="false">
 <![CDATA[
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta content="text/html; charset=utf-8" http-equiv="content-type">
-    <style type="text/css">
-      body {
-        padding: 0;
-        margin: 0;
-        padding-bottom: 2em;
-        $TEXT_ALIGN_MARKER$
-        $TEXT_MARKER$
-        $BACKGROUND_MARKER$
-      }
-      .header {
-        margin-bottom: 1em;
-        background-color: #424242;
-      }
-      .header h1 {
-        font-size: 110%;
-      }
-      .header h2 {
-        font-size: 90%;
-      }
-      .header .labels,
-      .header .updated,
-      .attachments {
-        font-size: 90%;
-        text-align: right;
-        color: #04B404;
-      }
-      a:link {
-        $LINK_MARKER$
-      }
-    </style>
-    $JS_MARKER$
-  </head>
-  <body class="hyphenate" lang="$LANG_MARKER$">
+<!DOCTYPE html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <style type="text/css">
+  body {
+    padding: 1.5%;
+  }
+  body#darkTheme {
+    font-size: 16px;
+    font-weight: normal;
+    background-color: #222;
+    color: #EEE;
+  }
+  body#lightTheme {
+    font-size: 16px;
+    font-weight: normal;
+    background-color: #E1E1E1;
+    color: #333;
+  }
+  body#lightTheme #header {
+    background-color: #B8B3B3; padding: 2px
+  }
+  body#darkTheme #header {
+    background-color: #454545; padding: 2px
+  }
+  body#darkTheme a:link, a:active, a:hover {
+    color: #E1E1E1 !important;  
+  }
+  body#darkTheme a:visited {
+    color: #FFF !important;
+  }
+  body#lightTheme a:link, a:active, a:hover {
+    color: #555 !important;  
+  }
+  body#lightTheme a:visited {
+    color: #000 !important;
+  }
+  body, blockquote, img, iframe, video, div, table, tbody, tr, td, pre, code, blockquote, p, em, b {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+  }
+  pre, code, blockquote, p, em, b {
+    white-space: -moz-pre-wrap !important;
+    white-space: -pre-wrap !important;
+    white-space: -o-pre-wrap !important;
+    white-space: normal !important; /* used to be "pre-wrap" but I dont know why and it breaks "align:justify" */
+    word-wrap: break-word !important;
+  }
+  body {
+    word-wrap: break-word !important;
+  }
+  #header {
+    font-size: 18px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    background-color: #424242;
+  }
+  #header a:link, a:active, a:hover, a:visited {  
+    color: #DADADA !important;
+    text-decoration: none !important;
+  }
+  #header_small_text {
+    overflow: auto;
+  }
+  #subscription, #datetime, #labels {
+    font-size: 11px;
+  }
+  #subscription {
+    float: left;
+  }
+  #datetime {
+    float: right;
+  }
+  #labels {
+    color: #04B404;
+    margin: 0 auto;
+  }
+  #zierleiste {  
+    margin-top: 2px !important;
+    height: 1px !important;  
+  }
+  #content {
+    margin-top: 10px;
+    text-align: $TEXT_ALIGN_MARKER$;
+  }
+  #content table {
+    width: 100% !important;
+    table-layout: fixed;
+  }
+  #attachments {
+    font-size: 11px;
+    text-align: right;
+    color: #04B404;
+  }
+  </style>
+  $JS_MARKER$
+</head>
+<body id="$THEME_MARKER$" class="hyphenate" lang="$LANG_MARKER$">
     $TOP_NAVIGATION_MARKER$
+    <div id="zierleiste"></div>
     $CONTENT_MARKER$
-	$BOTTOM_NAVIGATION_MARKER$
+    $BOTTOM_NAVIGATION_MARKER$
   </body>
 </html>]]>
     </string>
@@ -72,19 +134,32 @@
 <script type="text/javascript" src="file:///android_asset/patterns/$LANG_MARKER$.js"></script>]]>
     </string>
 
+    <!-- HEADER -->
+    <string name="TOP_NAVIGATION_TEMPLATE" formatted="false">
+<![CDATA[
+<div id="header">
+  <a href="$article.url$" rel="alternate">$article.title$</a>
+  <div id="header_small_text">
+    <div id="subscription">
+      $feed.title$
+    </div>
+    <div id="datetime">
+      $UPDATED$
+    </div>
+  </div>
+  <div id="labels">
+    $LABELS$
+  </div>
+</div>]]>
+    </string>
+
     <!-- CONTENT -->
     <string name="CONTENT_TEMPLATE" formatted="false">
 <![CDATA[
-<div class="header">
-  <h2>$feed.title$</h2>
-  <h1><a href="$article.url$" rel="alternate">$article.title$</a></h1>
-  <div class="labels">$LABELS$</div>
-  <div class="updated">$UPDATED$</div>
-</div>
-<div class="mainContent">
+<div id="content">
   $CONTENT$
 </div>
-<div class="attachments">
+<div id="attachments">
   $ATTACHMENTS$
 </div>]]>
     </string>
@@ -98,7 +173,7 @@
   }
   .bottom_navigation button {
     display: block;
-    width: 45%;
+    width: 40%;
     font-size: 230%;
   }
   .bottom_navigation button.first {
@@ -115,12 +190,9 @@
     </string>
 
     <!-- EVERYTHING ELSE -->
-    <string name="ALIGN_JUSTIFY">text-align:justify;</string>
-    <string name="ALIGN_LEFT">text-align:left;</string>
-    <string name="COLOR_BACKGROUND_LIGHT">background-color:white;</string>
-    <string name="COLOR_LINK_LIGHT">color:blue;</string>
-    <string name="COLOR_BACKGROUND_DARK">background-color:black;</string>
-    <string name="COLOR_LINK_DARK">color:#6C8FFF;</string>
-    <string name="COLOR_TEXT_DARK">color:white;</string>
+    <string name="ALIGN_JUSTIFY">justify</string>
+    <string name="ALIGN_LEFT">left</string>
+    <string name="THEME_LIGHT">lightTheme</string>
+    <string name="THEME_DARK">darkTheme</string>
 
 </resources>
