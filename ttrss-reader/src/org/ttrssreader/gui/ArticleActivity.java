@@ -176,6 +176,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowCustomEnabled(true);
         ab.setDisplayShowTitleEnabled(false);
+        ab.hide();
     }
     
     @SuppressLint("InlinedApi")
