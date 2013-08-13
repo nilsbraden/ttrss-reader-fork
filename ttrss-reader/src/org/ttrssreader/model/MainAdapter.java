@@ -178,23 +178,18 @@ public abstract class MainAdapter extends BaseAdapter {
             }
             
             try {
-                tempCursor = executeQuery(false, false); // normal query
-                
-                // Only check for unread articles in normal feeds. Published, starred, all, fresh often don't have
-                // unread articles so dont check there. But do check in labels and Uncategorized feeds...
-                
-                if (!checkUnread(tempCursor)) {
+                if (categoryId == 0 && (feedId == -1 || feedId == -2)) {
                     
-                    boolean failsafe = false;
-                    if (categoryId == 0 && feedId == Integer.MIN_VALUE)
-                        failsafe = true;
-                    if (categoryId == -2 || feedId >= 0)
-                        failsafe = true;
-                    if (failsafe && Controller.getInstance().onlyUnread())
-                        failsafe = true;
-                    if (failsafe)
+                    tempCursor = executeQuery(true, false); // Starred/Published
+                    
+                } else {
+                    
+                    tempCursor = executeQuery(false, false); // normal query
+                    
+                    if ((categoryId == -2 || feedId >= 0) && Controller.getInstance().onlyUnread()
+                            && !checkUnread(tempCursor)) {
                         tempCursor = executeQuery(true, false); // Override unread if query was empty
-                    
+                    }
                 }
                 
             } catch (Exception e) {

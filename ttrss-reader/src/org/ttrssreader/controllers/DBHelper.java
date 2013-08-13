@@ -803,6 +803,14 @@ public class DBHelper {
     
     // *******| UPDATE |*******************************************************************
     
+    public Collection<Integer> markAllRead() {
+        return markRead(-1, false, true);
+    }
+    
+    public Collection<Integer> markRead(int id, boolean isCategory) {
+        return markRead(id, isCategory, false);
+    }
+    
     /**
      * set read status in DB for given category/feed
      * 
@@ -814,39 +822,47 @@ public class DBHelper {
      * 
      * @return collection of article IDs, which was marked as read or {@code null} if nothing was changed
      */
-    public Collection<Integer> markRead(int id, boolean isCategory) {
+    public Collection<Integer> markRead(int id, boolean isCategory, boolean markAllRead) {
         Collection<Integer> markedIds = null;
-        if (isDBAvailable()) {
-            db.beginTransaction();
-            try {
-                String feedIdsCluause = (isCategory || id < 0) ? "select id from " + TABLE_FEEDS + " where categoryId="
-                        + id : String.valueOf(id);
+        if (!isDBAvailable())
+            return markedIds;
+        
+        db.beginTransaction();
+        try {
+            String where = "";
+            
+            if (!markAllRead) {
+                String feedIds;
+                if (isCategory || id < 0)
+                    feedIds = "select id from " + TABLE_FEEDS + " where categoryId=" + id;
+                else
+                    feedIds = String.valueOf(id);
                 
-                // select id from articles where categoryId in (XXX)
-                Cursor c = db.query(TABLE_ARTICLES, new String[] { "id" }, "feedId in (" + feedIdsCluause
-                        + ") and isUnread>0", null, null, null, null);
+                where = "feedId in (" + feedIds + ") and isUnread>0";
+            }
+            
+            // select id from articles where categoryId in (...)
+            Cursor c = db.query(TABLE_ARTICLES, new String[] { "id" }, where, null, null, null, null);
+            
+            int count = c.getCount();
+            
+            if (count > 0) {
+                markedIds = new ArrayDeque<Integer>(count);
                 
-                int articlesCount = c.getCount();
-                
-                if (articlesCount > 0) {
-                    markedIds = new ArrayDeque<Integer>(articlesCount);
-                    
-                    while (c.moveToNext()) {
-                        markedIds.add(c.getInt(0));
-                    }
-                    
-                    ContentValues cv = new ContentValues();
-                    cv.put("isUnread", 0);
-                    
-                    db.update(TABLE_ARTICLES, cv, "feedId in (" + feedIdsCluause + ") and isUnread>0", null);
-                    
-                    calculateCounters();
+                while (c.moveToNext()) {
+                    markedIds.add(c.getInt(0));
                 }
                 
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
+                ContentValues cv = new ContentValues();
+                cv.put("isUnread", 0);
+                db.update(TABLE_ARTICLES, cv, where, null);
+                
+                calculateCounters();
             }
+            
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
         
         return markedIds;
@@ -886,12 +902,6 @@ public class DBHelper {
             } finally {
                 db.endTransaction();
             }
-        }
-    }
-    
-    public void markAllRead() {
-        for (Category c : getAllCategories()) {
-            markRead(c.id, true);
         }
     }
     
@@ -987,41 +997,6 @@ public class DBHelper {
             db.endTransaction();
         }
     }
-    
-    // public void updateCategoryUnreadCount(int id, int count) {
-    // if (isDBAvailable()) {
-    // if (count >= 0) {
-    // ContentValues cv = new ContentValues();
-    // cv.put("unread", count);
-    //
-    // db.update(TABLE_CATEGORIES, cv, "id=?", new String[] { id + "" });
-    // }
-    // }
-    // }
-    //
-    // public void updateCategoryDeltaUnreadCount(int id, int delta) {
-    // Category c = getCategory(id);
-    // int count = c.unread;
-    // count += delta;
-    // updateCategoryUnreadCount(id, count);
-    // }
-    //
-    // public void updateFeedUnreadCount(int id, int count) {
-    // if (isDBAvailable()) {
-    // if (count >= 0) {
-    // ContentValues cv = new ContentValues();
-    // cv.put("unread", count);
-    // db.update(TABLE_FEEDS, cv, "id=?", new String[] { id + "" });
-    // }
-    // }
-    // }
-    //
-    // public void updateFeedDeltaUnreadCount(int id, int delta) {
-    // Feed f = getFeed(id);
-    // int count = f.unread;
-    // count += delta;
-    // updateFeedUnreadCount(id, count);
-    // }
     
     /**
      * set unread counters for feeds and categories according to real amount
