@@ -1238,6 +1238,10 @@ public class DBHelper {
     
     // *******| SELECT |*******************************************************************
     
+    /**
+     * Unused...
+     */
+    @Deprecated
     public int getSinceId() {
         int ret = 0;
         if (!isDBAvailable())
@@ -1262,6 +1266,10 @@ public class DBHelper {
         return ret;
     }
     
+    /**
+     * Unused...
+     */
+    @Deprecated
     public int getSinceId(int feedId, boolean isCat) {
         int ret = 0;
         if (!isDBAvailable())

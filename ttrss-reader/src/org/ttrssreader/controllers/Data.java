@@ -144,11 +144,12 @@ public class Data {
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
             
             Set<Article> articles = new HashSet<Article>();
+            int sinceId = Controller.getInstance().getSinceId();
             Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true);
-            Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, -1);
+            Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId);
             
             Log.d(Utils.TAG, "Got " + articles.size() + " articles to be cached");
-            handleInsertArticles(articles, VCAT_ALL, true);
+            handleInsertArticles(articles, VCAT_ALL, true, true);
             
             // Only mark as updated if the calls were successful
             if (!articles.isEmpty()) {
@@ -229,9 +230,10 @@ public class Data {
                 if (needUnreadUpdate && !displayOnlyUnread)
                     Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat);
                 
-                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat);
+                int sinceId = Controller.getInstance().getSinceId();
+                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId);
                 
-                handleInsertArticles(articles, feedId, isCat);
+                handleInsertArticles(articles, feedId, isCat, false);
                 
                 // Only mark as updated if the first call was successful
                 int count = articles.size();
@@ -298,7 +300,7 @@ public class Data {
             else
                 limit = limit + 50; // Less on feed, more on category...
         }
-
+        
         if (Controller.getInstance().isLowMemory())
             limit = limit / 2;
         
@@ -313,14 +315,13 @@ public class Data {
      * @param feedId
      * @param isCategory
      */
-    private void handleInsertArticles(Collection<Article> articles, int feedId, boolean isCategory) {
-        // int maxArticleId = Integer.MIN_VALUE;
-        
+    private void handleInsertArticles(Collection<Article> articles, int feedId, boolean isCategory, boolean isCaching) {
         if (!articles.isEmpty()) {
-            // for (Article a : articles) {
-            // if (a.id > maxArticleId)
-            // maxArticleId = a.id; // Store maximum id
-            // }
+            int maxArticleId = Integer.MIN_VALUE;
+            for (Article a : articles) {
+                if (a.id > maxArticleId)
+                    maxArticleId = a.id; // Store maximum id
+            }
             
             DBHelper.getInstance().purgeLastArticles(articles.size());
             
@@ -336,6 +337,10 @@ public class Data {
                 countersChanged = System.currentTimeMillis();
                 notifyListeners();
             }
+            
+            // Only store sinceId when doing a full cache of new articles, else it doesn't work.
+            if (isCaching)
+                Controller.getInstance().setSinceId(maxArticleId);
         }
     }
     
