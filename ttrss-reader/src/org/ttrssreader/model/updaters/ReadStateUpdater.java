@@ -66,6 +66,7 @@ public class ReadStateUpdater implements IUpdatable {
         this.articles = new ArrayList<Article>();
         this.articles.add(article);
         this.articleState = articleState;
+        article.isUnread = (articleState > 0);
     }
     
     /* articleState: 0 = mark as read, 1 = mark as unread */
@@ -73,6 +74,9 @@ public class ReadStateUpdater implements IUpdatable {
         this.articles = new ArrayList<Article>();
         this.articles.addAll(articles);
         this.articleState = articleState;
+        for (Article article : articles) {
+            article.isUnread = (articleState > 0);
+        }
     }
     
     @Override
@@ -94,6 +98,7 @@ public class ReadStateUpdater implements IUpdatable {
             Set<Integer> ids = new HashSet<Integer>();
             for (Article article : articles) {
                 ids.add(article.id);
+                article.isUnread = (articleState > 0);
             }
             
             if (!ids.isEmpty()) {

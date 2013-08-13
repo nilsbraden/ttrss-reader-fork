@@ -18,6 +18,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/Article_Menu_MarkRead"
+        android:icon="@drawable/ic_menu_mark"
+        android:showAsAction="always|withText"
+        android:title="@string/Commons.MarkRead"/>
+    <item
         android:id="@+id/Article_Menu_ShareLink"
         android:icon="@drawable/ic_menu_share"
         android:showAsAction="always|withText"
@@ -37,11 +42,6 @@
         android:icon="@drawable/ic_menu_publish"
         android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.MarkPublishNote"/>
-    <item
-        android:id="@+id/Article_Menu_MarkRead"
-        android:icon="@drawable/ic_menu_mark"
-        android:showAsAction="ifRoom|withText"
-        android:title="@string/Commons.MarkRead"/>
     <item
         android:id="@+id/Article_Menu_AddArticleLabel"
         android:icon="@drawable/perm_group_app_info"
