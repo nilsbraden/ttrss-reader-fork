@@ -244,18 +244,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                         : View.GONE);
     }
     
-    public void initUIHeader() {
-        // // Populate information-bar on top of the webView
-        // Feed feed = DBHelper.getInstance().getFeed(article.feedId);
-        // String feedTitle = "";
-        // if (feed != null)
-        // feedTitle = feed.title;
-        //
-        // header_feed.setText(feedTitle);
-        // header_date.setText(DateUtils.getDate(this, article.updated));
-        // header_time.setText(DateUtils.getTime(this, article.updated));
-    }
-    
     private void initData() {
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
@@ -295,7 +283,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         
         initUI();
         doRefresh();
-        initUIHeader();
     }
     
     @Override
@@ -391,8 +378,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             
             if (article.content == null)
                 return;
-            
-            initUIHeader();
             
             StringBuilder sb = new StringBuilder();
             // Inject the specific code for attachments, <img> for images, http-link for Videos
@@ -592,8 +577,10 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
             if (article.isUnread) {
                 read.setTitle(getString(R.string.Commons_MarkRead));
+                read.setIcon(R.drawable.ic_menu_clear_playlist);
             } else {
                 read.setTitle(getString(R.string.Commons_MarkUnread));
+                read.setIcon(R.drawable.ic_menu_mark);
             }
             
             MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
@@ -632,6 +619,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
                 new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
+                invalidateOptionsMenu();
                 return true;
             case R.id.Article_Menu_MarkStar:
                 new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
