@@ -47,12 +47,13 @@ public class MyGestureDetector implements OnGestureListener {
         if (System.currentTimeMillis() - lastShow < 700)
             return false;
         
-        if (distanceY < 0) {
+        if (distanceY < -10) {
             actionBar.show();
-        } else {
+            lastShow = System.currentTimeMillis();
+        } else if (distanceY > 10) {
             actionBar.hide();
+            lastShow = System.currentTimeMillis();
         }
-        lastShow = System.currentTimeMillis();
         
         return false;
     }
