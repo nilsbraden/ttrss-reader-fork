@@ -34,6 +34,7 @@ import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
+import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
 import org.ttrssreader.gui.view.MyWebView.OnEdgeReachedListener;
 import org.ttrssreader.imageCache.ImageCacher;
@@ -65,7 +66,6 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -202,7 +202,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.setOnKeyListener(keyListener);
             // webView.setOnTopReachedListener(this, 30);
             // webView.setOnBottomReachedListener(this, 30);
-            gestureDetector = new GestureDetector(this, new MyGestureDetector());
+            gestureDetector = new GestureDetector(this, new ArticleGestureDetector(getSupportActionBar()));
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
@@ -727,7 +727,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         return temp;
     }
     
-    class MyGestureDetector extends SimpleOnGestureListener {
+    class ArticleGestureDetector extends MyGestureDetector {
+        public ArticleGestureDetector(ActionBar actionBar) {
+            super(actionBar);
+        }
+        
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             // Refresh metrics-data in Controller
