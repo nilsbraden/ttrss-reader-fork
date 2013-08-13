@@ -34,17 +34,17 @@ public abstract class MainAdapter extends BaseAdapter {
     private Cursor tempCursor = null;
     protected String poorMansMutex = "poorMansMutex";
     
-    protected int categoryId;
-    protected int feedId;
+    protected int categoryId = Integer.MIN_VALUE;
+    protected int feedId = Integer.MIN_VALUE;
     
     protected boolean selectArticlesForCategory;
     
     public MainAdapter(Context context) {
-        this(context, -1);
+        this(context, Integer.MIN_VALUE);
     }
     
     public MainAdapter(Context context, int categoryId) {
-        this(context, -1, categoryId, false);
+        this(context, Integer.MIN_VALUE, categoryId, false);
     }
     
     public MainAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
@@ -181,9 +181,20 @@ public abstract class MainAdapter extends BaseAdapter {
                 tempCursor = executeQuery(false, false); // normal query
                 
                 // Only check for unread articles in normal feeds. Published, starred, all, fresh often don't have
-                // unread articles so dont check there.
-                if (feedId >= 0 && Controller.getInstance().onlyUnread() && !checkUnread(tempCursor)) {
-                    tempCursor = executeQuery(true, false); // Override unread if query was empty
+                // unread articles so dont check there. But do check in labels and Uncategorized feeds...
+                
+                if (!checkUnread(tempCursor)) {
+                    
+                    boolean failsafe = false;
+                    if (categoryId == 0 && feedId == Integer.MIN_VALUE)
+                        failsafe = true;
+                    if (categoryId == -2 || feedId >= 0)
+                        failsafe = true;
+                    if (failsafe && Controller.getInstance().onlyUnread())
+                        failsafe = true;
+                    if (failsafe)
+                        tempCursor = executeQuery(true, false); // Override unread if query was empty
+                    
                 }
                 
             } catch (Exception e) {
