@@ -1262,6 +1262,35 @@ public class DBHelper {
         return ret;
     }
     
+    public int getSinceId(int feedId, boolean isCat) {
+        int ret = 0;
+        if (!isDBAvailable())
+            return ret;
+        
+        Cursor c = null;
+        try {
+            String where;
+            if (isCat)
+                where = "isUnread>0 and categoryId=" + feedId;
+            else
+                where = "isUnread>0 and feedId=" + feedId;
+            
+            c = db.query(TABLE_ARTICLES, new String[] { "max(id)" }, where, null, null, null, null, null);
+            if (c.moveToFirst())
+                ret = c.getInt(0);
+            else
+                return 0;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null)
+                c.close();
+        }
+        
+        return ret;
+    }
+    
     /**
      * get minimal ID of unread article, stored in DB
      * 
@@ -1614,7 +1643,7 @@ public class DBHelper {
                             selection.append(" and isStarred>0");
                             selectionArgs = null;
                             break;
-                            
+                        
                         default:
                             // Probably a label...
                             selection.append(" and feedId=?");

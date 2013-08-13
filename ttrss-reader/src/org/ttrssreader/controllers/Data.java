@@ -143,27 +143,16 @@ public class Data {
             return;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
             
-            int sinceId = DBHelper.getInstance().getSinceId();
-            
-            Log.d(Utils.TAG, "Start articles caching since: " + sinceId);
-            
             Set<Article> articles = new HashSet<Article>();
-            
-            Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true/*
-                                                                                                              * ,
-                                                                                                              * sinceId
-                                                                                                              */);
-            
-            Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId);
+            Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true);
+            Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, -1);
             
             Log.d(Utils.TAG, "Got " + articles.size() + " articles to be cached");
-            
             handleInsertArticles(articles, VCAT_ALL, true);
             
             // Only mark as updated if the calls were successful
             if (!articles.isEmpty()) {
                 articlesCached = System.currentTimeMillis();
-                
                 notifyListeners();
                 
                 // Store all category-ids and ids of all feeds for this category in db
@@ -300,8 +289,7 @@ public class Data {
             limit = 50; // No unread articles, fetch some stuff
         else if (limit <= 0)
             limit = 100; // No unread, fetch some to make sure we are at least a bit up-to-date
-        // else if (limit > 300)
-        // limit = 300; // Lots of unread articles, fetch the first 300
+        // else if (limit > 300) limit = 300; // Lots of unread articles
         
         if (limit < 300) {
             if (isCat)
@@ -310,7 +298,7 @@ public class Data {
             else
                 limit = limit + 50; // Less on feed, more on category...
         }
-        
+
         if (Controller.getInstance().isLowMemory())
             limit = limit / 2;
         
@@ -348,12 +336,6 @@ public class Data {
                 countersChanged = System.currentTimeMillis();
                 notifyListeners();
             }
-            
-            // // FIXME: sinceId should probably be removed from preferencies
-            // // DB request could be used instead.
-            // // The problem is, that if only one feed is synced, then this
-            // // ID could not be the maximun
-            // Controller.getInstance().setSinceId(maxArticleId);
         }
     }
     
