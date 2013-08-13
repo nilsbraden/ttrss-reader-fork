@@ -39,7 +39,7 @@ import android.widget.TextView;
 public class FeedHeadlineAdapter extends MainAdapter {
     
     public FeedHeadlineAdapter(Context context, int feedId) {
-        super(context, feedId, -1, false);
+        super(context, feedId, Integer.MIN_VALUE, false);
     }
     
     public FeedHeadlineAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
