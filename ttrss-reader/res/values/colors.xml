@@ -17,5 +17,7 @@
 <resources>
 
     <color name="white">#FFFFFFFF</color>
+    <color name="darkBackground">#222222</color>
+    <color name="lightBackground">#E1E1E1</color>
 
 </resources>

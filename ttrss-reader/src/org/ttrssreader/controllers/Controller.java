@@ -56,13 +56,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private final static char TEMPLATE_DELIMITER_END = '$';
     
     private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
-    private static final String MARKER_LINK = "LINK_MARKER";
-    private static final String MARKER_TEXT = "TEXT_MARKER";
-    private static final String MARKER_BACKGROUND = "BACKGROUND_MARKER";
     private static final String MARKER_JS = "JS_MARKER";
+    private static final String MARKER_THEME = "THEME_MARKER";
     private static final String MARKER_LANG = "LANG_MARKER";
+    private static final String MARKER_TOP_NAV = "TOP_NAVIGATION_MARKER";
     private static final String MARKER_CONTENT = "CONTENT_MARKER";
-    private static final String MARKER_BUTTONS = "BOTTOM_NAVIGATION_MARKER";
+    private static final String MARKER_BOTTOM_NAV = "BOTTOM_NAVIGATION_MARKER";
     
     private Context context;
     private JSONConnector ttrssConnector;
@@ -201,7 +200,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         
         new Thread(new Runnable() {
             public void run() {
-                
                 // Only need once we are displaying the feed-list or an article...
                 refreshDisplayMetrics(display);
                 
@@ -210,48 +208,42 @@ public class Controller implements OnSharedPreferenceChangeListener {
                         TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
                 
                 // Replace alignment-marker with the requested layout, align:left or justified
-                String replaceAlign = "";
+                String replaceAlign;
                 if (alignFlushLeft()) {
                     replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
                 } else {
                     replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
                 }
                 
-                // Replace color-markers with matching colors for the requested background
-                String linkStyles = "";
-                String textStyles = "";
-                String backgroundStyles = "";
+                // Set light or dark theme for CSS
+                String theme;
                 if (darkBackground()) {
-                    linkStyles = context.getResources().getString(R.string.COLOR_LINK_DARK);
-                    textStyles = context.getResources().getString(R.string.COLOR_TEXT_DARK);
-                    backgroundStyles = context.getResources().getString(R.string.COLOR_BACKGROUND_DARK);
+                    theme = context.getResources().getString(R.string.THEME_DARK);
                 } else {
-                    linkStyles = context.getResources().getString(R.string.COLOR_LINK_LIGHT);
-                    backgroundStyles = context.getResources().getString(R.string.COLOR_BACKGROUND_LIGHT);
+                    theme = context.getResources().getString(R.string.THEME_LIGHT);
                 }
                 
-                String javascriptTemplate = "";
+                String javascript = "";
                 String lang = "";
                 if (allowHyphenation()) {
-                    ST javascriptTmpl = new ST(context.getResources().getString(
-                            R.string.JAVASCRIPT_HYPHENATION_TEMPLATE), TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
-                    lang = hyphenationLanguage();
-                    javascriptTmpl.add(MARKER_LANG, lang);
-                    javascriptTemplate = javascriptTmpl.render();
+                    ST javascriptST = new ST(
+                            context.getResources().getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE),
+                            TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
+                    javascriptST.add(MARKER_LANG, hyphenationLanguage());
+                    javascript = javascriptST.render();
                 }
                 
-                String buttonsTemplate = "";
+                String buttons = "";
                 if (showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML)
-                    buttonsTemplate = context.getResources().getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
+                    buttons = context.getResources().getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
                 
                 htmlTmpl.add(MARKER_ALIGN, replaceAlign);
-                htmlTmpl.add(MARKER_LINK, linkStyles);
-                htmlTmpl.add(MARKER_TEXT, textStyles);
-                htmlTmpl.add(MARKER_BACKGROUND, backgroundStyles);
-                htmlTmpl.add(MARKER_JS, javascriptTemplate);
+                htmlTmpl.add(MARKER_THEME, theme);
+                htmlTmpl.add(MARKER_JS, javascript);
                 htmlTmpl.add(MARKER_LANG, lang);
+                htmlTmpl.add(MARKER_TOP_NAV, context.getResources().getString(R.string.TOP_NAVIGATION_TEMPLATE));
                 htmlTmpl.add(MARKER_CONTENT, context.getResources().getString(R.string.CONTENT_TEMPLATE));
-                htmlTmpl.add(MARKER_BUTTONS, buttonsTemplate);
+                htmlTmpl.add(MARKER_BOTTOM_NAV, buttons);
                 
                 // This is only needed once an article is displayed
                 synchronized (htmlTemplate) {
