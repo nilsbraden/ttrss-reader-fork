@@ -18,37 +18,25 @@ package org.ttrssreader.gui.fragments;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
-import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ListView;
 import com.actionbarsherlock.view.Menu;
 
-public class FeedListFragment extends ListFragment implements IUpdateEndListener {
+public class FeedListFragment extends MainListFragment {
     
-    private static final TYPE THIS_TYPE = TYPE.FEED;
+    protected static final TYPE THIS_TYPE = TYPE.FEED;
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
     
-    private static final String SELECTED_INDEX = "selectedIndex";
-    private static final int SELECTED_INDEX_DEFAULT = -1;
-    private int selectedIndex = SELECTED_INDEX_DEFAULT;
-    private int selectedIndexOld = SELECTED_INDEX_DEFAULT;
-    
     // Extras
     private int categoryId;
-    private FeedAdapter adapter = null;
-    private ListView listView;
-    private int scrollPosition;
     
     public static FeedListFragment newInstance(int id) {
         // Create a new fragment instance
@@ -60,32 +48,8 @@ public class FeedListFragment extends ListFragment implements IUpdateEndListener
     }
     
     @Override
-    public void onStop() {
-        super.onStop();
-        getListView().setVisibility(View.GONE);
-    }
-    
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (adapter != null)
-            adapter.refreshQuery();
-        getListView().setVisibility(View.VISIBLE);
-        listView.setSelectionFromTop(scrollPosition, 0);
-    }
-    
-    @Override
-    public void onPause() {
-        super.onPause();
-        scrollPosition = listView.getFirstVisiblePosition();
-    }
-    
-    @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
-        
-        listView = getListView();
-        registerForContextMenu(listView);
         
         if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
@@ -100,16 +64,6 @@ public class FeedListFragment extends ListFragment implements IUpdateEndListener
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(FEED_CAT_ID, categoryId);
         super.onSaveInstanceState(outState);
-    }
-    
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        selectedIndexOld = selectedIndex;
-        selectedIndex = position; // Set selected item
-        
-        if (getActivity() instanceof IItemSelectedListener)
-            ((IItemSelectedListener) getActivity()).itemSelected(THIS_TYPE, selectedIndex, selectedIndexOld,
-                    adapter.getId(selectedIndex));
     }
     
     @Override
@@ -130,11 +84,6 @@ public class FeedListFragment extends ListFragment implements IUpdateEndListener
             return true;
         }
         return false;
-    }
-    
-    @Override
-    public void onUpdateEnd() {
-        adapter.refreshQuery();
     }
     
 }

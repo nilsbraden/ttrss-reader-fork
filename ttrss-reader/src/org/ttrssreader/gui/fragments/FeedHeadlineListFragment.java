@@ -20,9 +20,7 @@ import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
-import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
@@ -32,17 +30,15 @@ import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ListView;
 
-public class FeedHeadlineListFragment extends ListFragment implements IUpdateEndListener, TextInputAlertCallback {
+public class FeedHeadlineListFragment extends MainListFragment implements TextInputAlertCallback {
     
-    private static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
+    protected static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "ARTICLE_FEED_ID";
@@ -50,17 +46,9 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
     public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
     public static final String FEED_INDEX = "INDEX";
     
-    private static final int SELECTED_INDEX_DEFAULT = -1;
-    private int selectedIndex = SELECTED_INDEX_DEFAULT;
-    private int selectedIndexOld = SELECTED_INDEX_DEFAULT;
-    
     private int categoryId = -1000;
     private int feedId = -1000;
     private boolean selectArticlesForCategory = false;
-    
-    private FeedHeadlineAdapter adapter = null;
-    private ListView listView;
-    private int scrollPosition;
     
     public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles) {
         FeedHeadlineListFragment detail = new FeedHeadlineListFragment();
@@ -73,32 +61,8 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
     }
     
     @Override
-    public void onStop() {
-        super.onStop();
-        getListView().setVisibility(View.GONE);
-    }
-    
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (adapter != null)
-            adapter.refreshQuery();
-        getListView().setVisibility(View.VISIBLE);
-        listView.setSelectionFromTop(scrollPosition, 0);
-    }
-    
-    @Override
-    public void onPause() {
-        super.onPause();
-        scrollPosition = listView.getFirstVisiblePosition();
-    }
-    
-    @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
-        
-        listView = getListView();
-        registerForContextMenu(listView);
         
         if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
@@ -116,16 +80,6 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
         outState.putInt(FEED_ID, feedId);
         outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
         super.onSaveInstanceState(outState);
-    }
-    
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        selectedIndexOld = selectedIndex;
-        selectedIndex = position; // Set selected item
-        
-        if (getActivity() instanceof IItemSelectedListener)
-            ((IItemSelectedListener) getActivity()).itemSelected(THIS_TYPE, selectedIndex, selectedIndexOld,
-                    adapter.getId(selectedIndex));
     }
     
     @Override
@@ -212,11 +166,6 @@ public class FeedHeadlineListFragment extends ListFragment implements IUpdateEnd
             ret.add((Article) adapter.getItem(i));
         }
         return ret;
-    }
-    
-    @Override
-    public void onUpdateEnd() {
-        adapter.refreshQuery();
     }
     
     public void onPublishNoteResult(Article a, String note) {

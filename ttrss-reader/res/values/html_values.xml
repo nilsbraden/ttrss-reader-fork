@@ -38,7 +38,7 @@
         background-color: #424242;
       }
       .header h1 {
-        font-size: 120%;
+        font-size: 110%;
       }
       .header h2 {
         font-size: 90%;
