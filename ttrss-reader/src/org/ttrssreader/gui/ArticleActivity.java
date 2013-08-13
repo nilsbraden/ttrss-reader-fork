@@ -36,7 +36,6 @@ import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
-import org.ttrssreader.gui.view.MyWebView.OnEdgeReachedListener;
 import org.ttrssreader.imageCache.ImageCacher;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
@@ -91,7 +90,7 @@ import com.actionbarsherlock.view.MenuItem;
 
 @SuppressWarnings("deprecation")
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
-        IDataChangedListener, OnEdgeReachedListener {
+        IDataChangedListener {
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
@@ -126,15 +125,13 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     private boolean linkAutoOpened;
     private boolean markedRead = false;
     
+    private ActionBar actionBar = null;
     private FrameLayout webContainer = null;
     private MyWebView webView;
     private boolean webviewInitialized = false;
     private Button buttonNext;
     private Button buttonPrev;
     private GestureDetector gestureDetector;
-    
-    private boolean isActionBarShowing = true;
-    private long switchedActionBarStatus = 0;
     
     private FeedHeadlineAdapter parentAdapter = null;
     private int[] parentIDs = new int[2];
@@ -170,13 +167,18 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         initUI();
     }
     
+    /**
+     * Initialize ActionBar, just hide it if it already exists.
+     */
     private void initActionbar() {
-        ActionBar ab = getSupportActionBar();
-        ab.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO);
-        ab.setDisplayHomeAsUpEnabled(true);
-        ab.setDisplayShowCustomEnabled(true);
-        ab.setDisplayShowTitleEnabled(false);
-        ab.hide();
+        if (actionBar == null) {
+            actionBar = getSupportActionBar();
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowCustomEnabled(true);
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
+        actionBar.hide();
     }
     
     @SuppressLint("InlinedApi")
@@ -691,6 +693,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         this.articleId = id;
         this.lastMove = direction;
         initData();
+        initActionbar();
         doRefresh();
     }
     
@@ -920,38 +923,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                     openNextArticle(1);
                 }
             });
-        }
-    }
-    
-    /**
-     * Hides the bar when the user scrolled away from top-region. This is delayed a bit to avoid stuttering.
-     */
-    @Override
-    public void onTopReached(View v, boolean reached) {
-        toggleActionBar(v, reached);
-    }
-    
-    @Override
-    public void onBottomReached(View v, boolean reached) {
-        toggleActionBar(v, reached);
-    }
-    
-    public void toggleActionBar(View v, boolean reached) {
-        if (System.currentTimeMillis() - switchedActionBarStatus < 1000)
-            return;
-        
-        if (reached && !isActionBarShowing) {
-            Log.d(Utils.TAG, "Edge reached, show Bar...");
-            isActionBarShowing = true;
-            switchedActionBarStatus = System.currentTimeMillis();
-            getSupportActionBar().show();
-        }
-        
-        if (!reached && isActionBarShowing) {
-            Log.d(Utils.TAG, "Edge not reached anymore, hide Bar...");
-            isActionBarShowing = false;
-            switchedActionBarStatus = System.currentTimeMillis();
-            getSupportActionBar().hide();
         }
     }
     

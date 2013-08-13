@@ -64,8 +64,9 @@ public class Data {
     private static Data instance = null;
     private Context context;
     
-    private long articlesCached = 0;
+    private long time = 0;
     
+    private long articlesCached;
     private Map<Integer, Long> articlesChanged = new HashMap<Integer, Long>();
     
     /** map of category id to last changed time */
@@ -137,7 +138,7 @@ public class Data {
         if (Controller.getInstance().isLowMemory())
             limit = limit / 2;
         
-        if (!overrideDelay && (articlesCached > (System.currentTimeMillis() - Utils.UPDATE_TIME))) {
+        if (!overrideDelay && (time > (System.currentTimeMillis() - Utils.UPDATE_TIME))) {
             Log.d(Utils.TAG, "Skip articles caching");
             return;
         } else if (!Utils.isConnected(cm) && !(overrideOffline && Utils.checkConnected(cm))) {
@@ -150,20 +151,17 @@ public class Data {
         Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId);
         
         Log.d(Utils.TAG, "Got " + articles.size() + " articles to be cached");
-        handleInsertArticles(articles, VCAT_ALL, true, true);
+        handleInsertArticles(articles, true, true);
         
         // Only mark as updated if the calls were successful
         if (!articles.isEmpty()) {
-            articlesCached = System.currentTimeMillis();
+            time = System.currentTimeMillis();
             notifyListeners();
             
             // Store all category-ids and ids of all feeds for this category in db
-            articlesChanged.put(VCAT_ALL, articlesCached);
-            for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
-                articlesChanged.put(f.id, articlesCached);
-            }
+            articlesCached = time;
             for (Category c : DBHelper.getInstance().getAllCategories()) {
-                feedsChanged.put(c.id, articlesCached);
+                feedsChanged.put(c.id, time);
             }
             
             updateUnreadCount(articles);
@@ -177,7 +175,7 @@ public class Data {
                 articleUnreadIds.add(Integer.valueOf(a.id));
             }
         }
-        Log.d(Utils.TAG, "== Amount of unread articles: " + articleUnreadIds.size());
+        Log.d(Utils.TAG, "Amount of unread articles: " + articleUnreadIds.size());
         DBHelper.getInstance().markAllRead();
         DBHelper.getInstance().markArticles(articleUnreadIds, "isUnread", 1);
     }
@@ -201,7 +199,7 @@ public class Data {
         // Check if unread-count and actual number of unread articles match, if not do a seperate call with
         // displayOnlyUnread=true
         boolean needUnreadUpdate = false;
-        if (!isCat) {
+        if (!isCat && !(feedId >= -4 && feedId < 0)) {
             int unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
             if (unreadCount != DBHelper.getInstance().getUnreadArticles(feedId).size()) {
                 needUnreadUpdate = true;
@@ -209,12 +207,14 @@ public class Data {
         }
         
         Long time = articlesChanged.get(feedId);
-        
         if (isCat) // Category-Ids are in feedsChanged
             time = feedsChanged.get(feedId);
         
         if (time == null)
             time = 0l;
+        
+        if (articlesCached > time && !(feedId == VCAT_PUB || feedId == VCAT_STAR))
+            time = articlesCached;
         
         if (!overrideDelay && !needUnreadUpdate && time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
@@ -222,13 +222,16 @@ public class Data {
             return;
         }
         
-        if (feedId == VCAT_PUB || feedId == VCAT_STAR)
+        int sinceId = Controller.getInstance().getSinceId();
+        
+        if (feedId == VCAT_PUB || feedId == VCAT_STAR) {
             displayOnlyUnread = false; // Display all articles for Starred/Published
-            
+            sinceId = 0; // Also reset sinceId since we explicitly want older articles too
+        }
+        
         // Calculate an appropriate upper limit for the number of articles
         int todo = calculateLimit(feedId, displayOnlyUnread, isCat);
         int limit = 0;
-        int count = 0;
         
         while (true) {
             Set<Article> articles = new HashSet<Article>();
@@ -247,26 +250,22 @@ public class Data {
             if (needUnreadUpdate && !displayOnlyUnread)
                 Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat);
             
-            int sinceId = Controller.getInstance().getSinceId();
             Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId);
             
-            handleInsertArticles(articles, feedId, isCat, false);
+            handleInsertArticles(articles, isCat, false);
             
             // Only mark as updated if the first call was successful
-            count += articles.size();
+            articles.size();
         }
         
-        if (count > 0) {
-            long currentTime = System.currentTimeMillis();
-            // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
-            // requested
-            articlesChanged.put(feedId, currentTime);
-            UpdateController.getInstance().notifyListeners();
-            
-            if (isCat) {
-                for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
-                    articlesChanged.put(f.id, currentTime);
-                }
+        long currentTime = System.currentTimeMillis();
+        // Store requested feed-/category-id and ids of all feeds in db for this category if a category was requested
+        articlesChanged.put(feedId, currentTime);
+        UpdateController.getInstance().notifyListeners();
+        
+        if (isCat) {
+            for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
+                articlesChanged.put(f.id, currentTime);
             }
         }
     }
@@ -328,10 +327,9 @@ public class Data {
      * 
      * @param articles
      *            articles to be stored
-     * @param feedId
      * @param isCategory
      */
-    private void handleInsertArticles(Collection<Article> articles, int feedId, boolean isCategory, boolean isCaching) {
+    private void handleInsertArticles(Collection<Article> articles, boolean isCategory, boolean isCaching) {
         if (!articles.isEmpty()) {
             int maxArticleId = Integer.MIN_VALUE;
             for (Article a : articles) {

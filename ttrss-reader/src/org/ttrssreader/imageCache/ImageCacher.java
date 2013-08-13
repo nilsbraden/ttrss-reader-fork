@@ -144,7 +144,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             int progress = 0;
             publishProgress(++progress);
-            Data.getInstance().updateCounters(true, true);
+//            Data.getInstance().updateCounters(true, true);
             publishProgress(++progress);
             Data.getInstance().updateCategories(true);
             publishProgress(++progress);

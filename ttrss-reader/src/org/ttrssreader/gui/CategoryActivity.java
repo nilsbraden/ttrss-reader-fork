@@ -203,7 +203,7 @@ public class CategoryActivity extends MenuActivity {
             int progress = 0;
             publishProgress(++progress); // Move progress forward
             
-            Data.getInstance().updateCounters(false, forceUpdate);
+//            Data.getInstance().updateCounters(false, forceUpdate);
             
             // Cache articles for all categories
             publishProgress(++progress);
