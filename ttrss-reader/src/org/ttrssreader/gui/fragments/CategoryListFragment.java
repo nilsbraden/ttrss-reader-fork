@@ -62,12 +62,6 @@ public class CategoryListFragment extends MainListFragment {
     }
     
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(SELECTED_INDEX, selectedIndex);
-        super.onSaveInstanceState(outState);
-    }
-    
-    @Override
     public void onResume() {
         super.onResume();
         Controller.getInstance().lastOpenedFeeds.clear();

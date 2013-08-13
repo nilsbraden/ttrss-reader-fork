@@ -1614,6 +1614,10 @@ public class DBHelper {
                             selection.append(" and isStarred>0");
                             selectionArgs = null;
                             break;
+                            
+                        default:
+                            // Probably a label...
+                            selection.append(" and feedId=?");
                     }
                 } else {
                     // feeds
