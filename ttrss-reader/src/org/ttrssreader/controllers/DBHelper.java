@@ -889,6 +889,12 @@ public class DBHelper {
         }
     }
     
+    public void markAllRead() {
+        for (Category c : getAllCategories()) {
+            markRead(c.id, true);
+        }
+    }
+    
     /**
      * mark given property of given article with given state
      * 
@@ -1023,81 +1029,74 @@ public class DBHelper {
      * 
      * @return {@code true} if counters was successfully updated, {@code false} otherwise
      */
-    public boolean calculateCounters() {
-        boolean success = false;
+    public void calculateCounters() {
+        if (!isDBAvailable())
+            return;
         
-        if (isDBAvailable()) {
-            db.beginTransaction();
-            Cursor c = null;
-            ContentValues cv = null;
-            try {
-                Log.d(Utils.TAG, "Start counter update");
+        int total = 0;
+        Cursor c = null;
+        ContentValues cv = null;
+        
+        db.beginTransaction();
+        try {
+            @SuppressWarnings("unused")
+            int updateCount = 0;
+            
+            cv = new ContentValues();
+            cv.put("unread", 0);
+            updateCount = db.update(TABLE_FEEDS, cv, null, null);
+            updateCount = db.update(TABLE_CATEGORIES, cv, null, null);
+            
+            // select feedId, count(*) from articles where isUnread>0 group by feedId
+            c = db.query(TABLE_ARTICLES, new String[] { "feedId", "count(*)" }, "isUnread>0", null, "feedId", null,
+                    null, null);
+            
+            // update feeds
+            while (c.moveToNext()) {
+                int feedId = c.getInt(0);
+                int unreadCount = c.getInt(1);
                 
-                int updateCount = 0;
-                
-                cv = new ContentValues();
-                cv.put("unread", 0);
-                updateCount = db.update(TABLE_FEEDS, cv, null, null);
-                updateCount = db.update(TABLE_CATEGORIES, cv, null, null);
-                
-                // select feedId, count(*) from articles where isUnread>0 group by feedId
-                c = db.query(TABLE_ARTICLES, new String[] { "feedId", "count(*)" }, "isUnread>0", null, "feedId", null,
-                        null, null);
-                
-                int total = 0;
-                
-                // update feeds
-                while (c.moveToNext()) {
-                    int feedId = c.getInt(0);
-                    int unreadCount = c.getInt(1);
-                    
-                    total += unreadCount;
-                    
-                    cv = new ContentValues();
-                    cv.put("unread", unreadCount);
-                    updateCount = db.update(TABLE_FEEDS, cv, "id=" + feedId, null);
-                    Log.d(Utils.TAG, "Updated " + updateCount + " feeds for feedId=" + feedId);
-                }
-                
-                // select categoryId, sum(unread) from feeds where categoryId > 0 group by categoryId
-                c = db.query(TABLE_FEEDS, new String[] { "categoryId", "sum(unread)" }, "categoryId>0", null,
-                        "categoryId", null, null, null);
-                
-                // update real categories
-                while (c.moveToNext()) {
-                    int categoryId = c.getInt(0);
-                    int unreadCount = c.getInt(1);
-                    
-                    cv = new ContentValues();
-                    cv.put("unread", unreadCount);
-                    updateCount = db.update(TABLE_CATEGORIES, cv, "id=" + categoryId, null);
-                    Log.d(Utils.TAG, "Updated " + updateCount + " categories for feedId=" + categoryId);
-                }
+                total += unreadCount;
                 
                 cv = new ContentValues();
-                
-                cv.put("unread", total);
-                db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_ALL, null);
-                
-                cv.put("unread", getUnreadCount(Data.VCAT_FRESH, true));
-                db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_FRESH, null);
-                
-                cv.put("unread", getUnreadCount(Data.VCAT_PUB, true));
-                db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_PUB, null);
-                
-                cv.put("unread", getUnreadCount(Data.VCAT_STAR, true));
-                db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_STAR, null);
-                
-                db.setTransactionSuccessful();
-                success = true;
-            } finally {
-                db.endTransaction();
+                cv.put("unread", unreadCount);
+                updateCount = db.update(TABLE_FEEDS, cv, "id=" + feedId, null);
             }
+            
+            // select categoryId, sum(unread) from feeds where categoryId >= 0 group by categoryId
+            c = db.query(TABLE_FEEDS, new String[] { "categoryId", "sum(unread)" }, "categoryId>=0", null,
+                    "categoryId", null, null, null);
+            
+            // update real categories
+            while (c.moveToNext()) {
+                int categoryId = c.getInt(0);
+                int unreadCount = c.getInt(1);
+                
+                cv = new ContentValues();
+                cv.put("unread", unreadCount);
+                updateCount = db.update(TABLE_CATEGORIES, cv, "id=" + categoryId, null);
+            }
+            
+            cv = new ContentValues();
+            
+            cv.put("unread", total);
+            db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_ALL, null);
+            
+            cv.put("unread", getUnreadCount(Data.VCAT_FRESH, true));
+            db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_FRESH, null);
+            
+            cv.put("unread", getUnreadCount(Data.VCAT_PUB, true));
+            db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_PUB, null);
+            
+            cv.put("unread", getUnreadCount(Data.VCAT_STAR, true));
+            db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_STAR, null);
+            
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
         
-        Log.i(Utils.TAG, "Fix counters success:" + success);
-        
-        return success;
+        Log.i(Utils.TAG, "Fixed counters, total unread: " + total);
     }
     
     public void updateAllArticlesCachedImages(boolean isCachedImages) {

@@ -313,7 +313,6 @@ public class FeedHeadlineActivity extends MenuActivity {
             } else {
                 Data.getInstance().updateArticles(feedId, displayUnread, false, false, forceUpdate);
             }
-            
             publishProgress(taskCount); // Move progress forward to 100%
             return null;
         }

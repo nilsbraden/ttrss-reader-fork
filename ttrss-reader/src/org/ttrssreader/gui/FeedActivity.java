@@ -157,7 +157,6 @@ public class FeedActivity extends MenuActivity {
             if (c.unread != 0)
                 Data.getInstance()
                         .updateArticles(c.id, Controller.getInstance().onlyUnread(), true, false, forceUpdate);
-            
             publishProgress(taskCount); // Move progress forward to 100%
             return null;
         }
