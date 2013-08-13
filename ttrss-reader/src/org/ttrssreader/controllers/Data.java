@@ -15,7 +15,6 @@
 
 package org.ttrssreader.controllers;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,31 +140,46 @@ public class Data {
         if (!overrideDelay && (articlesCached > (System.currentTimeMillis() - Utils.UPDATE_TIME))) {
             Log.d(Utils.TAG, "Skip articles caching");
             return;
-        } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
+        } else if (!Utils.isConnected(cm) && !(overrideOffline && Utils.checkConnected(cm))) {
+            return;
+        }
+        
+        Set<Article> articles = new HashSet<Article>();
+        int sinceId = Controller.getInstance().getSinceId();
+        Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true);
+        Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId);
+        
+        Log.d(Utils.TAG, "Got " + articles.size() + " articles to be cached");
+        handleInsertArticles(articles, VCAT_ALL, true, true);
+        
+        // Only mark as updated if the calls were successful
+        if (!articles.isEmpty()) {
+            articlesCached = System.currentTimeMillis();
+            notifyListeners();
             
-            Set<Article> articles = new HashSet<Article>();
-            int sinceId = Controller.getInstance().getSinceId();
-            Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true);
-            Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId);
+            // Store all category-ids and ids of all feeds for this category in db
+            articlesChanged.put(VCAT_ALL, articlesCached);
+            for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
+                articlesChanged.put(f.id, articlesCached);
+            }
+            for (Category c : DBHelper.getInstance().getAllCategories()) {
+                feedsChanged.put(c.id, articlesCached);
+            }
             
-            Log.d(Utils.TAG, "Got " + articles.size() + " articles to be cached");
-            handleInsertArticles(articles, VCAT_ALL, true, true);
-            
-            // Only mark as updated if the calls were successful
-            if (!articles.isEmpty()) {
-                articlesCached = System.currentTimeMillis();
-                notifyListeners();
-                
-                // Store all category-ids and ids of all feeds for this category in db
-                articlesChanged.put(VCAT_ALL, articlesCached);
-                for (Feed f : DBHelper.getInstance().getFeeds(-4)) {
-                    articlesChanged.put(f.id, articlesCached);
-                }
-                for (Category c : DBHelper.getInstance().getAllCategories()) {
-                    feedsChanged.put(c.id, articlesCached);
-                }
+            updateUnreadCount(articles);
+        }
+    }
+    
+    private void updateUnreadCount(Set<Article> articles) {
+        Set<Integer> articleUnreadIds = new HashSet<Integer>();
+        for (Article a : articles) {
+            if (a.isUnread) {
+                articleUnreadIds.add(Integer.valueOf(a.id));
             }
         }
+        Log.d(Utils.TAG, "== Amount of unread articles: " + articleUnreadIds.size());
+        DBHelper.getInstance().markAllRead();
+        DBHelper.getInstance().markArticles(articleUnreadIds, "isUnread", 1);
     }
     
     /**
@@ -204,53 +218,55 @@ public class Data {
         
         if (!overrideDelay && !needUnreadUpdate && time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
-        } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
+        } else if (!Utils.isConnected(cm) && !(overrideOffline && Utils.checkConnected(cm))) {
+            return;
+        }
+        
+        if (feedId == VCAT_PUB || feedId == VCAT_STAR)
+            displayOnlyUnread = false; // Display all articles for Starred/Published
             
-            if (feedId == VCAT_PUB || feedId == VCAT_STAR)
-                displayOnlyUnread = false; // Display all articles for Starred/Published
-                
-            // Calculate an appropriate upper limit for the number of articles
-            int todo = calculateLimit(feedId, displayOnlyUnread, isCat);
-            int limit;
+        // Calculate an appropriate upper limit for the number of articles
+        int todo = calculateLimit(feedId, displayOnlyUnread, isCat);
+        int limit = 0;
+        int count = 0;
+        
+        while (true) {
             Set<Article> articles = new HashSet<Article>();
+            limit = todo;
+            if (limit > 240)
+                limit = 240;
             
-            while (true) {
-                limit = todo;
-                if (limit > 240)
-                    limit = 240;
-                
-                todo -= limit;
-                if (limit <= 0)
-                    break;
-                
-                Log.d(Utils.TAG, "UPDATE limit: " + limit + " todo: " + todo);
-                String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
-                
-                // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
-                if (needUnreadUpdate && !displayOnlyUnread)
-                    Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat);
-                
-                int sinceId = Controller.getInstance().getSinceId();
-                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId);
-                
-                handleInsertArticles(articles, feedId, isCat, false);
-                
-                // Only mark as updated if the first call was successful
-                int count = articles.size();
-                if (count != -1) {
-                    long currentTime = System.currentTimeMillis();
-                    // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
-                    // requested
-                    articlesChanged.put(feedId, currentTime);
-                    UpdateController.getInstance().notifyListeners();
-                    
-                    if (isCat) {
-                        for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
-                            articlesChanged.put(f.id, currentTime);
-                        }
-                    }
+            todo -= limit;
+            if (limit <= 0)
+                break;
+            
+            Log.d(Utils.TAG, "UPDATE limit: " + limit + " todo: " + todo);
+            String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
+            
+            // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
+            if (needUnreadUpdate && !displayOnlyUnread)
+                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat);
+            
+            int sinceId = Controller.getInstance().getSinceId();
+            Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId);
+            
+            handleInsertArticles(articles, feedId, isCat, false);
+            
+            // Only mark as updated if the first call was successful
+            count += articles.size();
+        }
+        
+        if (count > 0) {
+            long currentTime = System.currentTimeMillis();
+            // Store requested feed-/category-id and ids of all feeds in db for this category if a category was
+            // requested
+            articlesChanged.put(feedId, currentTime);
+            UpdateController.getInstance().notifyListeners();
+            
+            if (isCat) {
+                for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
+                    articlesChanged.put(f.id, currentTime);
                 }
-                articles.clear();
             }
         }
     }
@@ -324,19 +340,12 @@ public class Data {
             }
             
             DBHelper.getInstance().purgeLastArticles(articles.size());
-            
-            // Nothing should be marked as read, instead {@code synchronizeStatus}
-            // method should be improved (to retrieve read messages from server)
-            // and called while sync process
-            // DBHelper.getInstance().markFeedOnlyArticlesRead(feedId, isCategory, -1);
-            
             DBHelper.getInstance().insertArticles(articles);
             
             // correct counters according to real local DB-Data
-            if (DBHelper.getInstance().calculateCounters()) {
-                countersChanged = System.currentTimeMillis();
-                notifyListeners();
-            }
+            DBHelper.getInstance().calculateCounters();
+            countersChanged = System.currentTimeMillis();
+            notifyListeners();
             
             // Only store sinceId when doing a full cache of new articles, else it doesn't work.
             if (isCaching)
@@ -585,7 +594,7 @@ public class Data {
      * syncronize read, starred, published articles and notes with server
      */
     public void synchronizeStatus() {
-        if (!Utils.checkConnected(cm, Controller.getInstance().cacheImagesOnlyWifi()))
+        if (!Utils.isConnected(cm))
             return;
         
         Log.d(Utils.TAG, "Start status sync");
@@ -623,38 +632,22 @@ public class Data {
             // TODO: Add synchronization of labels
         }
         
-        Log.d(Utils.TAG, "Get read articles from server");
+        /*
+         * Server doesn't seem to support ID -6 for "read articles" so I'll stick with the already fetched articles. In
+         * the case that we had a cache-run before we can just mark everything as read, then mark all cached articles as
+         * unread and we're done.
+         */
         
         // get read articles from server
-        Set<Article> readArticles = new HashSet<Article>();
-        
-        Controller
-                .getInstance()
-                .getConnector()
-                .getHeadlines(
-                        readArticles,
-                        VCAT_READ,
-                        400,
-                        VIEW_ALL,
-                        true,
-                        DBHelper.getInstance().getMinUnreadId(),
-                        null,
-                        new HashSet<String>(Arrays.asList(new String[] { JSONConnector.TITLE, JSONConnector.UNREAD,
-                                JSONConnector.UPDATED, JSONConnector.FEED_ID, JSONConnector.CONTENT, JSONConnector.URL,
-                                JSONConnector.COMMENT_URL, JSONConnector.ATTACHMENTS, JSONConnector.STARRED,
-                                JSONConnector.PUBLISHED })));
-        
-        Log.d(Utils.TAG, "Amount of read articles on server:" + readArticles.size());
-        
-        if (!readArticles.isEmpty()) {
-            Set<Integer> articleIds = new HashSet<Integer>();
-            
-            for (Article a : readArticles) {
-                articleIds.add(a.id);
-            }
-            
-            DBHelper.getInstance().markArticles(articleIds, "isUnread", 0);
-        }
+        // articles = new HashSet<Article>();
+        // int minUnread = DBHelper.getInstance().getMinUnreadId();
+        // Set<String> skipProperties = new HashSet<String>(Arrays.asList(new String[] { JSONConnector.TITLE,
+        // JSONConnector.UNREAD, JSONConnector.UPDATED, JSONConnector.FEED_ID, JSONConnector.CONTENT,
+        // JSONConnector.URL, JSONConnector.COMMENT_URL, JSONConnector.ATTACHMENTS, JSONConnector.STARRED,
+        // JSONConnector.PUBLISHED }));
+        //
+        // Controller.getInstance().getConnector()
+        // .getHeadlines(articles, VCAT_ALL, 400, VIEW_ALL, true, minUnread, null, skipProperties);
         
         Log.d(Utils.TAG, "Status is synced");
     }

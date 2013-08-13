@@ -1036,13 +1036,6 @@ public abstract class JSONConnector {
             if (search != null)
                 params.put(PARAM_SEARCH, search);
             
-            // FIXME: I think, here is not the right place to make DB changes
-            // if (id == Data.VCAT_STAR && !isCategory) // We set isCategory=false for starred/published articles...
-            // DBHelper.getInstance().purgeStarredArticles();
-            
-            // if (id == Data.VCAT_PUB && !isCategory)
-            // DBHelper.getInstance().purgePublishedArticles();
-            
             JsonReader reader = null;
             try {
                 reader = prepareReader(params);
