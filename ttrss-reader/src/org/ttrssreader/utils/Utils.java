@@ -36,7 +36,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.preferences.Constants;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -155,13 +154,6 @@ public class Utils {
         } catch (FileNotFoundException e) {
             return true;
         }
-    }
-    
-    /*
-     * Check if vacuum is necessary, returns true if yes.
-     */
-    public static boolean checkVacuumDB(Context c) {
-        return false; // Controller.getInstance().isVacuumDBScheduled();
     }
     
     /*
@@ -404,13 +396,6 @@ public class Utils {
                     Controller.getInstance().setAppLatestVersion(remote);
             }
             
-            // Also fetch the current API-Level from the server. This may be helpful later.
-            last = Controller.getInstance().apiLevelUpdated();
-            if (time - last > 86400000) { // One day
-                int apiLevel = Data.getInstance().getApiLevel();
-                Controller.getInstance().setApiLevel(apiLevel);
-            }
-            
             return null;
         }
     };
@@ -463,7 +448,7 @@ public class Utils {
     public static String separateItems(Set<?> att, String separator) {
         if (att == null)
             return "";
-       
+        
         String ret;
         StringBuilder sb = new StringBuilder();
         for (Object s : att) {
@@ -475,7 +460,7 @@ public class Utils {
         } else {
             ret = sb.toString();
         }
-       
+        
         return ret;
     }
     

@@ -95,7 +95,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean goBackAfterMakeAllRead = null;
     private Boolean workOffline = null;
     
-    private Integer headlineSize = null;
     private Integer textZoom = null;
     private Boolean supportZoomControls = null;
     private Boolean allowHyphenation = null;
@@ -115,23 +114,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     private String saveAttachment = null;
     private String cacheFolder = null;
-    private Boolean vacuumDbScheduled = null;
     private Boolean deleteDbScheduled = null;
-    private Boolean deleteDbOnStartup = null;
     private Boolean cacheImagesOnStartup = null;
     private Boolean cacheImagesOnlyWifi = null;
-    private Boolean logSensitiveData = null;
     
-    private Long apiLevelUpdated = null;
-    private Integer apiLevel = null;
     private Long appVersionCheckTime = null;
     private Integer appLatestVersion = null;
-    private Long lastUpdateTime = null;
     private String lastVersionRun = null;
     private Boolean newInstallation = false;
     private Long freshArticleMaxAge = null;
     private Long freshArticleMaxAgeDate = null;
-    private Long lastVacuumDate = null;
     private Integer sinceId = null;
     private Boolean lowMemory = false;
     
@@ -317,19 +309,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return new URL(url);
     }
     
-    public String updateTriggerURI() {
-        String url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
-        
-        if (!url.endsWith(JSON_END_URL)) {
-            if (!url.endsWith("/")) {
-                url += "/";
-            }
-        }
-        
-        final String updateSuffix = "backend.php?op=globalUpdateFeeds&daemon=1";
-        return url + updateSuffix;
-    }
-    
     public String username() {
         if (username == null)
             username = prefs.getString(Constants.USERNAME, Constants.EMPTY);
@@ -507,17 +486,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // ******* DISPLAY-Options ****************************
     
-    public int headlineSize() {
-        if (headlineSize == null)
-            headlineSize = prefs.getInt(Constants.HEADLINE_SIZE, Constants.HEADLINE_SIZE_DEFAULT);
-        return headlineSize;
-    }
-    
-    public void setHeadlineSize(int headlineSize) {
-        put(Constants.HEADLINE_SIZE, headlineSize);
-        this.headlineSize = headlineSize;
-    }
-    
     public int textZoom() {
         if (textZoom == null)
             textZoom = prefs.getInt(Constants.TEXT_ZOOM, Constants.TEXT_ZOOM_DEFAULT);
@@ -573,11 +541,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setMarkReadInMenu(boolean markReadInMenu) {
         put(Constants.MARK_READ_IN_MENU, markReadInMenu);
         this.markReadInMenu = markReadInMenu;
-    }
-    
-    public void setMarkReadInMenu(int headlineSize) {
-        put(Constants.HEADLINE_SIZE, headlineSize);
-        this.headlineSize = headlineSize;
     }
     
     public boolean showVirtual() {
@@ -728,22 +691,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.cacheFolder = cacheFolder;
     }
     
-    public boolean isVacuumDBScheduled() {
-        long time = System.currentTimeMillis();
-        
-        if (lastVacuumDate() < (time - Utils.MONTH))
-            return true;
-        
-        if (vacuumDbScheduled == null)
-            vacuumDbScheduled = prefs.getBoolean(Constants.VACUUM_DB_SCHEDULED, Constants.VACUUM_DB_SCHEDULED_DEFAULT);
-        return vacuumDbScheduled;
-    }
-    
-    public void setVacuumDBScheduled(boolean isVacuumDBScheduled) {
-        put(Constants.VACUUM_DB_SCHEDULED, isVacuumDBScheduled);
-        this.vacuumDbScheduled = isVacuumDBScheduled;
-    }
-    
     public boolean isDeleteDBScheduled() {
         if (deleteDbScheduled == null)
             deleteDbScheduled = prefs.getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
@@ -753,27 +700,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setDeleteDBScheduled(boolean isDeleteDBScheduled) {
         put(Constants.DELETE_DB_SCHEDULED, isDeleteDBScheduled);
         this.deleteDbScheduled = isDeleteDBScheduled;
-    }
-    
-    // Reset to false if preference to delete on every start is not set
-    public void resetDeleteDBScheduled() {
-        if (!isDeleteDBOnStartup()) {
-            put(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
-            this.deleteDbScheduled = Constants.DELETE_DB_SCHEDULED_DEFAULT;
-        }
-    }
-    
-    public boolean isDeleteDBOnStartup() {
-        if (deleteDbOnStartup == null)
-            deleteDbOnStartup = prefs
-                    .getBoolean(Constants.DELETE_DB_ON_STARTUP, Constants.DELETE_DB_ON_STARTUP_DEFAULT);
-        return deleteDbOnStartup;
-    }
-    
-    public void setDeleteDBOnStartup(boolean isDeleteDBOnStartup) {
-        put(Constants.DELETE_DB_ON_STARTUP, isDeleteDBOnStartup);
-        this.deleteDbOnStartup = isDeleteDBOnStartup;
-        setDeleteDBScheduled(isDeleteDBOnStartup);
     }
     
     public boolean cacheImagesOnStartup() {
@@ -800,41 +726,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.cacheImagesOnlyWifi = cacheImagesOnlyWifi;
     }
     
-    public boolean logSensitiveData() {
-        if (logSensitiveData == null)
-            logSensitiveData = prefs.getBoolean(Constants.LOG_SENSITIVE_DATA, Constants.LOG_SENSITIVE_DATA_DEFAULT);
-        return logSensitiveData;
-    }
-    
-    public void setLogSensitiveData(boolean logSensitiveData) {
-        put(Constants.LOG_SENSITIVE_DATA, logSensitiveData);
-        this.logSensitiveData = logSensitiveData;
-    }
-    
     // ******* INTERNAL Data ****************************
-    
-    public long apiLevelUpdated() {
-        if (apiLevelUpdated == null)
-            apiLevelUpdated = prefs.getLong(Constants.API_LEVEL_UPDATED, Constants.API_LEVEL_UPDATED_DEFAULT);
-        return apiLevelUpdated;
-    }
-    
-    private void setApiLevelUpdated(long apiLevelUpdated) {
-        put(Constants.APP_VERSION_CHECK_TIME, apiLevelUpdated);
-        this.apiLevelUpdated = apiLevelUpdated;
-    }
-    
-    public int apiLevel() {
-        if (apiLevel == null)
-            apiLevel = prefs.getInt(Constants.API_LEVEL, Constants.API_LEVEL_DEFAULT);
-        return apiLevel;
-    }
-    
-    public void setApiLevel(int apiLevel) {
-        put(Constants.API_LEVEL, apiLevel);
-        this.apiLevel = apiLevel;
-        setApiLevelUpdated(System.currentTimeMillis());
-    }
     
     public long appVersionCheckTime() {
         if (appVersionCheckTime == null)
@@ -861,17 +753,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         // Set current time, this only changes when it has been fetched from the server
     }
     
-    public long getLastUpdateTime() {
-        if (lastUpdateTime == null)
-            lastUpdateTime = prefs.getLong(Constants.LAST_UPDATE_TIME, Constants.LAST_UPDATE_TIME_DEFAULT);
-        return lastUpdateTime;
-    }
-    
-    public void setLastUpdateTime(long lastUpdateTime) {
-        put(Constants.LAST_UPDATE_TIME, lastUpdateTime);
-        this.lastUpdateTime = lastUpdateTime;
-    }
-    
     public String getLastVersionRun() {
         if (lastVersionRun == null)
             lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
@@ -886,18 +767,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public boolean newInstallation() {
         // Initialized inside initializeController();
         return newInstallation;
-    }
-    
-    public void setLastVacuumDate() {
-        long time = System.currentTimeMillis();
-        put(Constants.LAST_VACUUM_DATE, time);
-        this.lastVacuumDate = time;
-    }
-    
-    public long lastVacuumDate() {
-        if (lastVacuumDate == null)
-            lastVacuumDate = prefs.getLong(Constants.LAST_VACUUM_DATE, System.currentTimeMillis());
-        return lastVacuumDate;
     }
     
     public void setSinceId(int sinceId) {
@@ -1048,7 +917,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 // reset variable, it will be re-read on next access
                 String fieldName = Constants.constant2Var(field.getName());
                 Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
-                preferencesChanged = true;
+                setPreferencesChanged(true);
                 
             } catch (Exception e) {
                 e.printStackTrace();

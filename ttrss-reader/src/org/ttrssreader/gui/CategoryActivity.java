@@ -25,7 +25,6 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.dialogs.ChangelogDialog;
 import org.ttrssreader.gui.dialogs.CrashreportDialog;
-import org.ttrssreader.gui.dialogs.VacuumDialog;
 import org.ttrssreader.gui.dialogs.WelcomeDialog;
 import org.ttrssreader.gui.fragments.CategoryListFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
@@ -53,7 +52,6 @@ public class CategoryActivity extends MenuActivity {
     private static final String DIALOG_WELCOME = "welcome";
     private static final String DIALOG_UPDATE = "update";
     private static final String DIALOG_CRASH = "crash";
-    private static final String DIALOG_VACUUM = "vacuum";
     
     private static final int SELECTED_VIRTUAL_CATEGORY = 1;
     private static final int SELECTED_CATEGORY = 2;
@@ -74,9 +72,6 @@ public class CategoryActivity extends MenuActivity {
         // Register our own ExceptionHander
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         
-        // Delete DB if requested
-        Controller.getInstance().setDeleteDBScheduled(Controller.getInstance().isDeleteDBOnStartup());
-        
         FragmentManager fm = getSupportFragmentManager();
         
         if (fm.findFragmentByTag(FRAGMENT) == null) {
@@ -93,8 +88,6 @@ public class CategoryActivity extends MenuActivity {
             ChangelogDialog.getInstance().show(fm, DIALOG_UPDATE);
         } else if (!Utils.checkCrashReport(this)) {
             CrashreportDialog.getInstance().show(fm, DIALOG_CRASH);
-        } else if (Utils.checkVacuumDB(this)) {
-            VacuumDialog.getInstance().show(fm, DIALOG_VACUUM);
         } else if (!Utils.checkConfig()) {
             // Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
@@ -203,7 +196,7 @@ public class CategoryActivity extends MenuActivity {
             int progress = 0;
             publishProgress(++progress); // Move progress forward
             
-//            Data.getInstance().updateCounters(false, forceUpdate);
+            // Data.getInstance().updateCounters(false, forceUpdate);
             
             // Cache articles for all categories
             publishProgress(++progress);

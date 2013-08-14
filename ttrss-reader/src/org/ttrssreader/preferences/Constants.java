@@ -123,21 +123,15 @@ public class Constants {
     // System
     public static final String SAVE_ATTACHMENT = "SaveAttachmentPreference";
     public static final String CACHE_FOLDER = "CacheFolderPreference";
-    public static final String VACUUM_DB_SCHEDULED = "VacuumDBScheduledPreference";
     public static final String DELETE_DB_SCHEDULED = "DeleteDBScheduledPreference";
-    public static final String DELETE_DB_ON_STARTUP = "DeleteDBOnStartupPreference";
     public static final String CACHE_IMAGES_ON_STARTUP = "CacheImagesOnStartupPreference";
     public static final String CACHE_IMAGES_ONLY_WIFI = "CacheImagesOnlyWifiPreference";
-    public static final String LOG_SENSITIVE_DATA = "LogSensitiveDataPreference";
     // System Default Values
     public static final String SAVE_ATTACHMENT_DEFAULT;
     public static final String CACHE_FOLDER_DEFAULT;
-    public static final boolean VACUUM_DB_SCHEDULED_DEFAULT = false;
     public static final boolean DELETE_DB_SCHEDULED_DEFAULT = false;
-    public static final boolean DELETE_DB_ON_STARTUP_DEFAULT = false;
     public static final boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
     public static final boolean CACHE_IMAGES_ONLY_WIFI_DEFAULT = false;
-    public static final boolean LOG_SENSITIVE_DATA_DEFAULT = false;
     
     // Internal
     public static final String API_LEVEL_UPDATED = "apiLevelUpdated";
@@ -146,7 +140,6 @@ public class Constants {
     public static final String APP_LATEST_VERSION = "appLatestVersion";
     public static final String LAST_UPDATE_TIME = "LastUpdateTime";
     public static final String LAST_VERSION_RUN = "LastVersionRun";
-    public static final String LAST_VACUUM_DATE = "lastVacuumDate";
     public static final String FRESH_ARTICLE_MAX_AGE = "freshArticleMaxAge";
     public static final String FRESH_ARTICLE_MAX_AGE_DATE = "freshArticleMaxAgeDate";
     public static final String SINCE_ID = "sinceId";
@@ -157,7 +150,6 @@ public class Constants {
     public static final int APP_LATEST_VERSION_DEFAULT = 0;
     public static final long LAST_UPDATE_TIME_DEFAULT = 1;
     public static final String LAST_VERSION_RUN_DEFAULT = "1";
-    public static final long LAST_VACUUM_DATE_DEFAULT = 0;
     public static final long FRESH_ARTICLE_MAX_AGE_DEFAULT = Utils.DAY;
     public static final long FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT = 0;
     public static final int SINCE_ID_DEFAULT = 0;
