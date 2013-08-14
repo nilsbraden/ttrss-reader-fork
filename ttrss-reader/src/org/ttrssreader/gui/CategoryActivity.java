@@ -66,6 +66,12 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     protected void onCreate(Bundle instance) {
+        // Only needed to debug ANRs:
+        // StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls().detectDiskReads()
+        // .detectDiskWrites().detectNetwork().penaltyLog().penaltyLog().build());
+        // StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
+        // .detectLeakedClosableObjects().penaltyLog().build());
+        
         super.onCreate(instance);
         setContentView(R.layout.categorylist);
         
@@ -130,7 +136,7 @@ public class CategoryActivity extends MenuActivity {
         super.doRefresh();
         if (applicationName == null)
             applicationName = getResources().getString(R.string.ApplicationName);
-        int unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
+        int unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true); // TODO
         setTitle(applicationName);
         setUnread(unreadCount);
         
@@ -164,10 +170,7 @@ public class CategoryActivity extends MenuActivity {
                 doUpdate(true);
                 return true;
             case R.id.Menu_MarkAllRead:
-                new Updater(this, new ReadStateUpdater(DBHelper.getInstance().getAllCategories())).exec();
-                // Not on main view, you'll leave the app...
-                // if (Controller.getInstance().goBackAfterMakeAllRead())
-                // onBackPressed();
+                new Updater(this, new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES)).exec();
                 return true;
             default:
                 return false;

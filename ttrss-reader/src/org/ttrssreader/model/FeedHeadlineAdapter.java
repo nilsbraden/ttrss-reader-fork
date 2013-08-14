@@ -38,10 +38,6 @@ import android.widget.TextView;
 
 public class FeedHeadlineAdapter extends MainAdapter {
     
-    public FeedHeadlineAdapter(Context context, int feedId) {
-        super(context, feedId, Integer.MIN_VALUE, false);
-    }
-    
     public FeedHeadlineAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
         super(context, feedId, categoryId, selectArticlesForCategory);
     }
@@ -50,9 +46,6 @@ public class FeedHeadlineAdapter extends MainAdapter {
     public Object getItem(int position) {
         Article ret = new Article();
         synchronized (poorMansMutex) {
-            if (cursor.isClosed())
-                makeQuery();
-            
             if (cursor.getCount() >= position) {
                 if (cursor.moveToPosition(position)) {
                     ret.id = cursor.getInt(0);

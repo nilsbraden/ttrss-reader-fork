@@ -66,7 +66,7 @@ public class FeedActivity extends MenuActivity {
             transaction.commit();
         }
         
-        Category category = DBHelper.getInstance().getCategory(categoryId);
+        Category category = DBHelper.getInstance().getCategory(categoryId); // TODO
         if (category != null)
             title = category.title;
     }
@@ -80,7 +80,7 @@ public class FeedActivity extends MenuActivity {
     @Override
     protected void doRefresh() {
         super.doRefresh();
-        int unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
+        int unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true); // TODO
         setTitle(title);
         setUnread(unreadCount);
         

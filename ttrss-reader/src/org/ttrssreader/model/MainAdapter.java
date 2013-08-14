@@ -21,7 +21,6 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.WeakReferenceHandler;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +30,6 @@ public abstract class MainAdapter extends BaseAdapter {
     
     protected Context context;
     protected Cursor cursor;
-    private Cursor tempCursor = null;
     protected String poorMansMutex = "poorMansMutex";
     
     protected int categoryId = Integer.MIN_VALUE;
@@ -56,23 +54,20 @@ public abstract class MainAdapter extends BaseAdapter {
         makeQuery(false);
     }
     
+    public final void close() {
+        closeCursor(cursor);
+    }
+    
     public final void closeCursor(Cursor c) {
         if (c == null || c.isClosed())
             return;
         
-        // Catch all SQLiteExceptions to make sure no "unable to close due to unfinalised statements" errors arise
-        try {
-            c.close();
-        } catch (SQLiteException e) {
-        }
+        c.close();
     }
     
     @Override
     public final int getCount() {
         synchronized (poorMansMutex) {
-            if (cursor.isClosed())
-                makeQuery();
-            
             return cursor.getCount();
         }
     }
@@ -85,9 +80,6 @@ public abstract class MainAdapter extends BaseAdapter {
     public final int getId(int position) {
         int ret = 0;
         synchronized (poorMansMutex) {
-            if (cursor.isClosed())
-                makeQuery();
-            
             if (cursor.getCount() >= position)
                 if (cursor.moveToPosition(position))
                     ret = cursor.getInt(0);
@@ -98,9 +90,6 @@ public abstract class MainAdapter extends BaseAdapter {
     public final List<Integer> getIds() {
         List<Integer> result = new ArrayList<Integer>();
         synchronized (poorMansMutex) {
-            if (cursor.isClosed())
-                makeQuery();
-            
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
                     result.add(cursor.getInt(0));
@@ -114,9 +103,6 @@ public abstract class MainAdapter extends BaseAdapter {
     public final String getTitle(int position) {
         String ret = "";
         synchronized (poorMansMutex) {
-            if (cursor.isClosed())
-                makeQuery();
-            
             if (cursor.getCount() >= position)
                 if (cursor.moveToPosition(position))
                     ret = cursor.getString(1);
@@ -146,13 +132,6 @@ public abstract class MainAdapter extends BaseAdapter {
     /**
      * Creates a new query if necessary
      */
-    public void makeQuery() {
-        // makeQuery(false);
-    }
-    
-    /**
-     * Creates a new query if necessary
-     */
     public void makeQuery(boolean force) {
         makeQuery(force, false);
     }
@@ -177,30 +156,39 @@ public abstract class MainAdapter extends BaseAdapter {
                     return;
             }
             
+            Cursor tempCursor = null;
             try {
                 if (categoryId == 0 && (feedId == -1 || feedId == -2)) {
                     
+                    closeCursor(tempCursor);
                     tempCursor = executeQuery(true, false); // Starred/Published
                     
                 } else {
                     
+                    closeCursor(tempCursor);
                     tempCursor = executeQuery(false, false); // normal query
                     
                     // (categoryId == -2 || feedId >= 0): Normal feeds
                     // (categoryId == 0 || feedId == Integer.MIN_VALUE): Uncategorized Feeds
                     if ((categoryId == -2 || feedId >= 0) || (categoryId == 0 || feedId == Integer.MIN_VALUE)) {
                         if (Controller.getInstance().onlyUnread() && !checkUnread(tempCursor)) {
+                            
+                            closeCursor(tempCursor);
                             tempCursor = executeQuery(true, false); // Override unread if query was empty
+                            
                         }
                     }
                 }
                 
             } catch (Exception e) {
+                
+                closeCursor(tempCursor);
                 tempCursor = executeQuery(false, true); // Fail-safe-query
+                
             }
             
             // Try to almost atomically switch the old for the new cursor and close the old one afterwards
-            if (tempCursor != null) {
+            if (tempCursor != null && !tempCursor.isClosed()) {
                 // Hold a reference
                 Cursor oldCur = cursor;
                 
