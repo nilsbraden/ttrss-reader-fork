@@ -80,6 +80,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
     
     private final AtomicBoolean mTaskInvoked = new AtomicBoolean();
     
+    // TODO: ArrayDeque doesnt work in lower API Levels!
     // private static class SerialExecutor implements Executor {
     // final ArrayDeque<Runnable> mTasks = new ArrayDeque<Runnable>();
     // Runnable mActive;

@@ -18,7 +18,6 @@ package org.ttrssreader.controllers;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Method;
-import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
@@ -846,7 +846,7 @@ public class DBHelper {
                 int count = c.getCount();
                 
                 if (count > 0) {
-                    markedIds = new ArrayDeque<Integer>(count);
+                    markedIds = new Vector<Integer>(count);
                     
                     while (c.moveToNext()) {
                         markedIds.add(c.getInt(0));
