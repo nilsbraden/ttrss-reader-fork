@@ -107,7 +107,6 @@
     <string name="TextZoomSummary">Zoom (textual) del contenido de los artículos en %.</string>
     <string name="MarkReadInMenuTitle">Mostrar botón \"Leidos\"</string>
     <string name="MarkReadInMenuSummary">Cuando está desactivado solo es accesible por medio del menu</string>
-    <string name="DisplayArticleLinkSummary">Activar para añadir un link pulsable a la web del artículo al final del artículo mostrado.</string>
     <string name="CacheImagesOnStartupTitle">¿Iniciar cache de imágenes al comienzo?</string>
     <string name="CacheImagesOnStartupSummary">Activar para iniciar la cache de imágenes cada vez que se arranque el lector, todos los artículos serán descargados en segundo plano.</string>
     <string name="CacheImagesOnlyWifiTitle">¿Solo por Wifi?</string>
