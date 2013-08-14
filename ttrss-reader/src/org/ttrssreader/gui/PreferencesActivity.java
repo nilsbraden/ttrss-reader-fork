@@ -206,8 +206,10 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
             };
             init.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
-        if (Controller.getInstance().isPreferencesChanged())
+        if (Controller.getInstance().isPreferencesChanged()) {
             new BackupManager(this).dataChanged();
+            Controller.getInstance().setPreferencesChanged(false);
+        }
     }
     
     @Override

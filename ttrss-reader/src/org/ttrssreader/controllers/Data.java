@@ -558,12 +558,6 @@ public class Data {
         return -1;
     }
     
-    public int getApiLevel() {
-        if (Utils.isConnected(cm))
-            return Controller.getInstance().getConnector().getApiLevel();
-        return -1;
-    }
-    
     public Set<Label> getLabels(int articleId) {
         Set<Label> ret = DBHelper.getInstance().getLabelsForArticle(articleId);
         return ret;

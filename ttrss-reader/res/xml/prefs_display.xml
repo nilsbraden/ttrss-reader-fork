@@ -63,14 +63,6 @@
       android:title="@string/DisplayDarkBackgroundTitle" />
 
     <org.ttrssreader.preferences.EditIntegerPreference
-      android:name="@string/HeadlineSizeTitle"
-      android:defaultValue="16"
-      android:inputType="number"
-      android:key="HeadlineSizePreference"
-      android:maxLength="2"
-      android:summary="@string/HeadlineSizeSummary"
-      android:title="@string/HeadlineSizeTitle" />
-    <org.ttrssreader.preferences.EditIntegerPreference
       android:name="@string/TextZoomTitle"
       android:defaultValue="100"
       android:inputType="number"
@@ -98,11 +90,9 @@
       android:summary="@string/HyphenationLanguageSummary"
       android:title="@string/HyphenationLanguageTitle" />
 
-    <CheckBoxPreference
-      android:defaultValue="true"
-      android:key="MarkReadInMenuPreference"
-      android:summary="@string/MarkReadInMenuSummary"
-      android:title="@string/MarkReadInMenuTitle" />
+    <CheckBoxPreference android:defaultValue="true"
+	android:key="MarkReadInMenuPreference" android:summary="@string/MarkReadInMenuSummary"
+	android:title="@string/MarkReadInMenuTitle" />
   </PreferenceCategory>
 
 </PreferenceScreen>

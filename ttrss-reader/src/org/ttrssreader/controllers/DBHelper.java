@@ -137,8 +137,8 @@ public class DBHelper {
         // Check if deleteDB is scheduled or if DeleteOnStartup is set
         if (Controller.getInstance().isDeleteDBScheduled()) {
             if (deleteDB()) {
+                Controller.getInstance().setDeleteDBScheduled(false);
                 initializeDBHelper();
-                Controller.getInstance().resetDeleteDBScheduled();
                 return; // Don't need to check if DB is corrupted, it is NEW!
             }
         }

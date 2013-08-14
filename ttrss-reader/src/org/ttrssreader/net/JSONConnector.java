@@ -187,16 +187,12 @@ public abstract class JSONConnector {
     }
     
     protected void logRequest(final JSONObject json) throws JSONException {
-        if (Controller.getInstance().logSensitiveData()) {
-            Log.i(Utils.TAG, json.toString());
-        } else {
-            // Filter password and session-id
-            Object paramPw = json.remove(PARAM_PW);
-            Object paramSID = json.remove(SID);
-            Log.i(Utils.TAG, json.toString());
-            json.put(PARAM_PW, paramPw);
-            json.put(SID, paramSID);
-        }
+        // Filter password and session-id
+        Object paramPw = json.remove(PARAM_PW);
+        Object paramSID = json.remove(SID);
+        Log.i(Utils.TAG, json.toString());
+        json.put(PARAM_PW, paramPw);
+        json.put(SID, paramSID);
     }
     
     private String readResult(Map<String, String> params, boolean login) throws IOException {
@@ -1343,70 +1339,6 @@ public abstract class JSONConnector {
         params.put(URL_SHARE, url);
         params.put(CONTENT, content);
         return doRequestNoAnswer(params);
-    }
-    
-    /**
-     * Retrieves the API-Level of the currently used server-installation.
-     * 
-     * @return the API-Level of the server-installation
-     */
-    public int getApiLevel() {
-        // Directly return api_level which was retrieved with the login, only for 1.6 and above
-        if (apiLevel > -1)
-            return apiLevel;
-        
-        int ret = -1;
-        if (!sessionAlive())
-            return ret;
-        
-        Map<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_OP, VALUE_API_LEVEL);
-        
-        String response = "";
-        JsonReader reader = null;
-        try {
-            reader = prepareReader(params);
-            if (reader == null)
-                return ret;
-            
-            reader.beginArray();
-            while (reader.hasNext()) {
-                try {
-                    
-                    reader.beginObject();
-                    while (reader.hasNext()) {
-                        String name = reader.nextName();
-                        
-                        if (name.equals(LEVEL)) {
-                            response = reader.nextString();
-                        } else {
-                            reader.skipValue();
-                        }
-                        
-                    }
-                    
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                }
-            }
-            
-            if (response.contains(UNKNOWN_METHOD)) {
-                ret = 0; // Assume Api-Level 0
-            } else {
-                ret = Integer.parseInt(response);
-            }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null)
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                }
-        }
-        
-        return ret;
     }
     
     public class SubscriptionResponse {
