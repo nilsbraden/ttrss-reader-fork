@@ -186,9 +186,12 @@ public abstract class MainAdapter extends BaseAdapter {
                     
                     tempCursor = executeQuery(false, false); // normal query
                     
-                    if ((categoryId == -2 || feedId >= 0) && Controller.getInstance().onlyUnread()
-                            && !checkUnread(tempCursor)) {
-                        tempCursor = executeQuery(true, false); // Override unread if query was empty
+                    // (categoryId == -2 || feedId >= 0): Normal feeds
+                    // (categoryId == 0 || feedId == Integer.MIN_VALUE): Uncategorized Feeds
+                    if ((categoryId == -2 || feedId >= 0) || (categoryId == 0 || feedId == Integer.MIN_VALUE)) {
+                        if (Controller.getInstance().onlyUnread() && !checkUnread(tempCursor)) {
+                            tempCursor = executeQuery(true, false); // Override unread if query was empty
+                        }
                     }
                 }
                 
