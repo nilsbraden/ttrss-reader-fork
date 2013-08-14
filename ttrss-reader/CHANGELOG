@@ -2,8 +2,12 @@
 
 = Changes =
 == Version 1.52 ==
-  * Improvements by Igor Lyubimov (Hyphenation, better HTML-Template, performance improvements, better date/time formatting, better button navigation)
-  * 
+  * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
+  * Hide ActionBar while scrolling down
+  * Better dark/light themes for articles
+  * Performance: faster refresh on startup
+  * Counters managed locally (reduces server communication)
+  * ActionBar buttons: read/unread, star, publish, share
 
 == Version 1.51 (1) ==
   * Replaced article-header with a custom actionbar-layout (click title to view the full title if it doesn't fit in the space)
