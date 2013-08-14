@@ -41,9 +41,6 @@ public class FeedAdapter extends MainAdapter {
     public Object getItem(int position) {
         Feed ret = new Feed();
         synchronized (poorMansMutex) {
-            if (cursor.isClosed())
-                makeQuery();
-            
             if (cursor.getCount() >= position) {
                 if (cursor.moveToPosition(position)) {
                     ret.id = cursor.getInt(0);

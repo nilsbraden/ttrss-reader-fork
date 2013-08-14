@@ -250,12 +250,14 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
         
+        if (parentAdapter != null)
+            parentAdapter.close();
         parentAdapter = new FeedHeadlineAdapter(getApplicationContext(), feedId, categoryId, selectArticlesForCategory);
         fillParentInformation();
         doVibrate(0);
         
         // Get article from DB
-        article = DBHelper.getInstance().getArticle(articleId);
+        article = DBHelper.getInstance().getArticle(articleId); // TODO
         feed = DBHelper.getInstance().getFeed(article.feedId);
         if (article == null) {
             finish();
@@ -348,6 +350,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             if (article != null && article.isUnread)
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
+        if (parentAdapter != null)
+            parentAdapter.close();
         super.onDestroy();
         if (webContainer != null)
             webContainer.removeAllViews();

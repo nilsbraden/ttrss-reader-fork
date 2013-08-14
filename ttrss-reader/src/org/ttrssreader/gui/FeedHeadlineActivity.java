@@ -101,15 +101,15 @@ public class FeedHeadlineActivity extends MenuActivity {
         Controller.getInstance().lastOpenedArticles.clear();
         
         if (selectArticlesForCategory) {
-            Category category = DBHelper.getInstance().getCategory(categoryId);
+            Category category = DBHelper.getInstance().getCategory(categoryId); // TODO
             if (category != null)
                 title = category.title;
         } else if (feedId >= -4 && feedId < 0) { // Virtual Category
-            Category category = DBHelper.getInstance().getCategory(feedId);
+            Category category = DBHelper.getInstance().getCategory(feedId); // TODO
             if (category != null)
                 title = category.title;
         } else {
-            Feed feed = DBHelper.getInstance().getFeed(feedId);
+            Feed feed = DBHelper.getInstance().getFeed(feedId); // TODO
             if (feed != null)
                 title = feed.title;
         }
@@ -118,16 +118,22 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
     
     private void fillParentInformation() {
-        FeedAdapter parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
-        int index = parentAdapter.getIds().indexOf(feedId);
-        if (index >= 0) {
-            parentIDs[0] = parentAdapter.getId(index - 1); // Previous
-            parentIDs[1] = parentAdapter.getId(index + 1); // Next
-            
-            if (parentIDs[0] == 0)
-                parentIDs[0] = -1;
-            if (parentIDs[1] == 0)
-                parentIDs[1] = -1;
+        FeedAdapter parentAdapter = null;
+        try {
+            parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
+            int index = parentAdapter.getIds().indexOf(feedId);
+            if (index >= 0) {
+                parentIDs[0] = parentAdapter.getId(index - 1); // Previous
+                parentIDs[1] = parentAdapter.getId(index + 1); // Next
+                
+                if (parentIDs[0] == 0)
+                    parentIDs[0] = -1;
+                if (parentIDs[1] == 0)
+                    parentIDs[1] = -1;
+            }
+        } finally {
+            if (parentAdapter != null)
+                parentAdapter.close();
         }
     }
     
@@ -142,9 +148,9 @@ public class FeedHeadlineActivity extends MenuActivity {
         super.doRefresh();
         int unreadCount = 0;
         if (selectArticlesForCategory)
-            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
+            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true); // TODO
         else
-            unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
+            unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false); // TODO
         
         setTitle(title);
         setUnread(unreadCount);

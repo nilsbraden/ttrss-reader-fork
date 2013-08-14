@@ -46,9 +46,6 @@ public class CategoryAdapter extends MainAdapter {
     public Object getItem(int position) {
         Category ret = new Category();
         synchronized (poorMansMutex) {
-            if (cursor.isClosed())
-                makeQuery();
-            
             if (cursor.getCount() >= position) {
                 if (cursor.moveToPosition(position)) {
                     ret.id = cursor.getInt(0);

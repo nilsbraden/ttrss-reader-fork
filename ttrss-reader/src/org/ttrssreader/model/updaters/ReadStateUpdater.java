@@ -29,51 +29,66 @@ import org.ttrssreader.model.pojos.Feed;
 
 public class ReadStateUpdater implements IUpdatable {
     
-    private int articleState;
+    private int state;
     
     private Collection<Category> categories = null;
     private Collection<Feed> feeds = null;
     private Collection<Article> articles = null;
     
-    public ReadStateUpdater(Collection<Category> collection) {
-        this.categories = new HashSet<Category>(collection);
+    public static enum TYPE {
+        ALL_CATEGORIES, ALL_FEEDS
+    }
+    
+    public ReadStateUpdater(TYPE type) {
+        this(type, -1);
+    }
+    
+    public ReadStateUpdater(TYPE type, int id) {
+        switch (type) {
+            case ALL_CATEGORIES:
+                categories = DBHelper.getInstance().getAllCategories();
+                break;
+            case ALL_FEEDS:
+                feeds = DBHelper.getInstance().getFeeds(id);
+                break;
+        }
     }
     
     public ReadStateUpdater(int categoryId) {
-        this.categories = new HashSet<Category>();
+        categories = new HashSet<Category>();
         Category ci = DBHelper.getInstance().getCategory(categoryId);
         if (ci != null) {
-            this.categories.add(ci);
+            categories.add(ci);
         }
     }
     
     public ReadStateUpdater(int feedId, int dummy) {
         if (feedId <= 0 && feedId >= -4) { // Virtual Category...
-            this.categories = new HashSet<Category>();
+            categories = new HashSet<Category>();
             Category ci = DBHelper.getInstance().getCategory(feedId);
             if (ci != null)
-                this.categories.add(ci);
+                categories.add(ci);
         } else {
-            this.feeds = new HashSet<Feed>();
+            feeds = new HashSet<Feed>();
             Feed fi = DBHelper.getInstance().getFeed(feedId);
             if (fi != null)
-                this.feeds.add(fi);
+                feeds.add(fi);
         }
     }
     
     /* articleState: 0 = mark as read, 1 = mark as unread */
     public ReadStateUpdater(Article article, int pid, int articleState) {
-        this.articles = new ArrayList<Article>();
-        this.articles.add(article);
-        this.articleState = articleState;
+        articles = new ArrayList<Article>();
+        articles.add(article);
+        state = articleState;
         article.isUnread = (articleState > 0);
     }
     
     /* articleState: 0 = mark as read, 1 = mark as unread */
     public ReadStateUpdater(Collection<Article> articles, int pid, int articleState) {
-        this.articles = new ArrayList<Article>();
-        this.articles.addAll(articles);
-        this.articleState = articleState;
+        articles = new ArrayList<Article>();
+        articles.addAll(articles);
+        state = articleState;
         for (Article article : articles) {
             article.isUnread = (articleState > 0);
         }
@@ -98,13 +113,13 @@ public class ReadStateUpdater implements IUpdatable {
             Set<Integer> ids = new HashSet<Integer>();
             for (Article article : articles) {
                 ids.add(article.id);
-                article.isUnread = (articleState > 0);
+                article.isUnread = (state > 0);
             }
             
             if (!ids.isEmpty()) {
-                DBHelper.getInstance().markArticles(ids, "isUnread", articleState);
+                DBHelper.getInstance().markArticles(ids, "isUnread", state);
                 UpdateController.getInstance().notifyListeners();
-                Data.getInstance().setArticleRead(ids, articleState);
+                Data.getInstance().setArticleRead(ids, state);
             }
         }
     }
