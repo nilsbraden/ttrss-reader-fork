@@ -18,6 +18,13 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.52
+			\n * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
+			\n * Hide ActionBar while scrolling down
+			\n * Better dark/light themes for articles
+			\n * Performance: faster refresh on startup
+			\n * Counters managed locally (reduces server communication)
+			\n * ActionBar buttons: read/unread, star, publish, share</item>
         <item>Version 1.51
 			\n * Replaced article-header with a custom actionbar-layout (click title to view the full title if it doesn\'t fit in the space)
 			\n * Reduce memory usage when low-memory conditions are detected
