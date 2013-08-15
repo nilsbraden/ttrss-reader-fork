@@ -201,7 +201,7 @@ public class Data {
             time = feedsChanged.get(feedId);
         
         if (time == null)
-            time = 0l;
+            time = Long.valueOf(0);
         
         if (articlesCached > time && !(feedId == VCAT_PUB || feedId == VCAT_STAR))
             time = articlesCached;
@@ -357,7 +357,7 @@ public class Data {
         
         Long time = feedsChanged.get(categoryId);
         if (time == null)
-            time = 0l;
+            time = Long.valueOf(0);
         
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
