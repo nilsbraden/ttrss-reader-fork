@@ -24,10 +24,6 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Category;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,31 +41,21 @@ public class CategoryAdapter extends MainAdapter {
     @Override
     public Object getItem(int position) {
         Category ret = new Category();
-        synchronized (poorMansMutex) {
-            if (cursor.getCount() >= position) {
-                if (cursor.moveToPosition(position)) {
-                    ret.id = cursor.getInt(0);
-                    ret.title = cursor.getString(1);
-                    ret.unread = cursor.getInt(2);
-                }
-            }
-        }
+        Object[] o = content.get(position);
+        ret.id = (Integer) o[POS_ID];
+        ret.title = (String) o[POS_TITLE];
+        ret.unread = (Integer) o[POS_UNREAD];
         return ret;
     }
     
     public List<Category> getCategories() {
-        List<Category> result = new ArrayList<Category>();
-        synchronized (poorMansMutex) {
-            if (cursor.moveToFirst()) {
-                while (!cursor.isAfterLast()) {
-                    Category c = new Category();
-                    c.id = cursor.getInt(0);
-                    c.title = cursor.getString(1);
-                    c.unread = cursor.getInt(2);
-                    result.add(c);
-                    cursor.move(1);
-                }
-            }
+        List<Category> result = new ArrayList<Category>(content.size());
+        for (Object[] o : content) {
+            Category ret = new Category();
+            ret.id = (Integer) o[POS_ID];
+            ret.title = (String) o[POS_TITLE];
+            ret.unread = (Integer) o[POS_UNREAD];
+            result.add(ret);
         }
         return result;
     }
@@ -132,116 +118,54 @@ public class CategoryAdapter extends MainAdapter {
         return layout;
     }
     
-    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+    protected ArrayList<Object[]> executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+        boolean displayUnread = Controller.getInstance().onlyUnread();
+        boolean invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
         
-        synchronized (poorMansMutex) {
-            
-            boolean displayUnread = Controller.getInstance().onlyUnread();
-            boolean invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
-            
-            if (overrideDisplayUnread)
-                displayUnread = false;
-            
-            if (db != null)
-                db.close();
-            
-            OpenHelper openHelper = new OpenHelper(context);
-            db = openHelper.getWritableDatabase();
-            insert = db.compileStatement(INSERT);
-            
-            StringBuilder query;
-            // Virtual Feeds
-            if (Controller.getInstance().showVirtual()) {
-                query = new StringBuilder();
-                query.append("SELECT id,title,unread FROM ");
-                query.append(DBHelper.TABLE_CATEGORIES);
-                query.append(" WHERE id>=-4 AND id<0 ORDER BY id");
-                insertValues(query.toString());
-            }
-            
-            // Labels
-            query = new StringBuilder();
-            query.append("SELECT id,title,unread FROM ");
-            query.append(DBHelper.TABLE_FEEDS);
-            query.append(" WHERE id<-10");
-            query.append(displayUnread ? " AND unread>0" : "");
-            query.append(" ORDER BY UPPER(title) ASC");
-            insertValues(query.toString());
-            
-            // "Uncategorized Feeds"
+        if (overrideDisplayUnread)
+            displayUnread = false;
+        
+        ArrayList<Object[]> ret = new ArrayList<Object[]>();
+        StringBuilder query;
+        
+        // Virtual Feeds
+        if (Controller.getInstance().showVirtual()) {
             query = new StringBuilder();
             query.append("SELECT id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
-            query.append(" WHERE id=0");
-            insertValues(query.toString());
-            
-            // Categories
-            query = new StringBuilder();
-            query.append("SELECT id,title,unread FROM ");
-            query.append(DBHelper.TABLE_CATEGORIES);
-            query.append(" WHERE id>0");
-            query.append(displayUnread ? " AND unread>0" : "");
-            query.append(" ORDER BY UPPER(title) ");
-            query.append(invertSortFeedCats ? "DESC" : "ASC");
-            insertValues(query.toString());
-            
-            String[] columns = { "id", "title", "unread" };
-            return db.query(TABLE_NAME, columns, null, null, null, null, null);
-        }
-    }
-    
-    /*
-     * This is quite a hack. Since partial-sorting of sql-results is not possible I wasn't able to sort virtual
-     * categories by id, Labels by title, insert uncategorized feeds there and sort categories by title again.
-     * No I insert these results one by one in a memory-table in the right order, add an auto-increment-column
-     * ("sortId INTEGER PRIMARY KEY") and afterwards select everything from this memory-table sorted by sortId.
-     * Works fine!
-     */
-    private static final String TABLE_NAME = "categories_memory_db";
-    private static final String INSERT = "REPLACE INTO " + TABLE_NAME
-            + "(id, title, unread, sortId) VALUES (?, ?, ?, null)";
-    private SQLiteDatabase db;
-    private SQLiteStatement insert;
-    
-    private static class OpenHelper extends SQLiteOpenHelper {
-        OpenHelper(Context context) {
-            super(context, null, null, 1);
+            query.append(" WHERE id>=-4 AND id<0 ORDER BY id");
+            DBHelper.getInstance().queryCategories(ret, query.toString());
         }
         
-        /**
-         * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-         */
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + TABLE_NAME
-                    + " (id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
-        }
+        // Labels
+        query = new StringBuilder();
+        query.append("SELECT id,title,unread FROM ");
+        query.append(DBHelper.TABLE_FEEDS);
+        query.append(" WHERE id<-10");
+        query.append(displayUnread ? " AND unread>0" : "");
+        query.append(" ORDER BY UPPER(title) ASC");
+        query.append(" LIMIT 1000");
+        DBHelper.getInstance().queryCategories(ret, query.toString());
         
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        }
+        // "Uncategorized Feeds"
+        query = new StringBuilder();
+        query.append("SELECT id,title,unread FROM ");
+        query.append(DBHelper.TABLE_CATEGORIES);
+        query.append(" WHERE id=0");
+        DBHelper.getInstance().queryCategories(ret, query.toString());
+        
+        // Categories
+        query = new StringBuilder();
+        query.append("SELECT id,title,unread FROM ");
+        query.append(DBHelper.TABLE_CATEGORIES);
+        query.append(" WHERE id>0");
+        query.append(displayUnread ? " AND unread>0" : "");
+        query.append(" ORDER BY UPPER(title) ");
+        query.append(invertSortFeedCats ? "DESC" : "ASC");
+        query.append(" LIMIT 1000");
+        DBHelper.getInstance().queryCategories(ret, query.toString());
+        
+        return ret;
     }
     
-    private void insertValues(String query) {
-        Cursor c = null;
-        try {
-            c = DBHelper.getInstance().query(query.toString(), null);
-            if (c == null)
-                return;
-            if (c.isBeforeFirst() && !c.moveToFirst())
-                return;
-            
-            while (true) {
-                insert.bindLong(1, c.getInt(0)); // id
-                insert.bindString(2, c.getString(1)); // title
-                insert.bindLong(3, c.getInt(2)); // unread
-                insert.executeInsert();
-                if (!c.moveToNext())
-                    break;
-            }
-        } finally {
-            if (c != null)
-                c.close();
-        }
-    }
 }
