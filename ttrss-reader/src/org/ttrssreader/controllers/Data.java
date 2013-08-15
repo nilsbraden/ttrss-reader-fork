@@ -176,7 +176,7 @@ public class Data {
             }
         }
         Log.d(Utils.TAG, "Amount of unread articles: " + articleUnreadIds.size());
-        DBHelper.getInstance().markAllRead();
+        DBHelper.getInstance().markRead(VCAT_ALL, false);
         DBHelper.getInstance().markArticles(articleUnreadIds, "isUnread", 1);
     }
     
@@ -224,7 +224,7 @@ public class Data {
         if (Controller.getInstance().isLowMemory())
             limit = limit / 2;
         
-        Log.d(Utils.TAG, "UPDATE limit: " + limit + " todo: " + limit);
+        Log.d(Utils.TAG, "UPDATE limit: " + limit);
         String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
         
         Set<Article> articles = new HashSet<Article>();
