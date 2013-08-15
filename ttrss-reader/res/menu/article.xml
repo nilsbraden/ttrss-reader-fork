@@ -15,31 +15,36 @@
     copy of the GNU General Public License along with this program; If
     not, see <http://www.gnu.org/licenses/>.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" >
 
     <item
         android:id="@+id/Article_Menu_MarkRead"
         android:icon="@drawable/ic_menu_mark"
         android:showAsAction="always|withText"
-        android:title="@string/Commons.MarkRead"/>
+        android:title="@string/Commons.MarkRead"
+        tools:ignore="AlwaysShowAction"/>
     <item
         android:id="@+id/Article_Menu_ShareLink"
         android:icon="@drawable/ic_menu_share"
         android:showAsAction="always|withText"
-        android:title="@string/ArticleActivity.ShareLink"/>
+        android:title="@string/ArticleActivity.ShareLink"
+        tools:ignore="AlwaysShowAction"/>
     <item
         android:id="@+id/Article_Menu_MarkStar"
         android:icon="@drawable/ic_menu_star"
         android:showAsAction="always|withText"
-        android:title="@string/Commons.MarkStar"/>
+        android:title="@string/Commons.MarkStar"
+        tools:ignore="AlwaysShowAction"/>
     <item
         android:id="@+id/Article_Menu_MarkPublish"
-        android:icon="@drawable/ic_menu_publish"
+        android:icon="@drawable/menu_publish"
         android:showAsAction="always|withText"
-        android:title="@string/Commons.MarkPublish"/>
+        android:title="@string/Commons.MarkPublish"
+        tools:ignore="AlwaysShowAction"/>
     <item
         android:id="@+id/Article_Menu_MarkPublishNote"
-        android:icon="@drawable/ic_menu_publish"
+        android:icon="@drawable/menu_publish"
         android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.MarkPublishNote"/>
     <item

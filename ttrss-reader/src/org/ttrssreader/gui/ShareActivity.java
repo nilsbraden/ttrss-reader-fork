@@ -45,6 +45,7 @@ public class ShareActivity extends MenuActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sharetopublished);
+        setTitle(R.string.IntentPublish);
         
         String titleValue = getIntent().getStringExtra(Intent.EXTRA_SUBJECT);
         String urlValue = getIntent().getStringExtra(Intent.EXTRA_TEXT);

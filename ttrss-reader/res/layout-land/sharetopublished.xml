@@ -17,30 +17,59 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="10dp" >
+
+    <TextView
+        android:id="@+id/labelTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/share_title"
+        android:text="@string/Share.title" />
 
     <EditText
         android:id="@+id/share_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/share_content"
+        android:layout_marginTop="10dip"
+        android:layout_toRightOf="@+id/labelTitle"
         android:hint="@string/Share.title"
         android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/labelURL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/share_url"
+        android:text="@string/Share.url" />
 
     <EditText
         android:id="@+id/share_url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/share_content"
         android:layout_below="@+id/share_title"
+        android:layout_marginTop="10dip"
+        android:layout_toRightOf="@+id/labelURL"
         android:hint="@string/Share.url"
         android:inputType="textUri"
         android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/labelContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/share_content"
+        android:text="@string/Share.content" />
 
     <EditText
         android:id="@+id/share_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/share_url"
+        android:layout_marginTop="10dip"
+        android:layout_toRightOf="@+id/labelContent"
         android:hint="@string/Share.content"
         android:inputType="textMultiLine"
         android:maxLines="3" >

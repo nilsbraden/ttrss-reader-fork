@@ -27,9 +27,11 @@ public class ErrorDialog extends DialogFragment {
     Context context;
     String message;
     
-    public ErrorDialog(Context context, String message) {
-        this.context = context;
-        this.message = message;
+    public static ErrorDialog getInstance(Context context, String message) {
+        ErrorDialog dialog = new ErrorDialog();
+        dialog.context = context;
+        dialog.message = message;
+        return dialog;
     }
     
     @Override

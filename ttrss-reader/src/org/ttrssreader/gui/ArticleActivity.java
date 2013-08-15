@@ -592,16 +592,16 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
             if (article.isPublished) {
                 publish.setTitle(getString(R.string.Commons_MarkUnpublish));
-                publish.setIcon(R.drawable.ic_menu_published);
+                publish.setIcon(R.drawable.menu_published);
             } else {
                 publish.setTitle(getString(R.string.Commons_MarkPublish));
-                publish.setIcon(R.drawable.ic_menu_publish);
+                publish.setIcon(R.drawable.menu_publish);
             }
             
             MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
             if (article.isStarred) {
                 star.setTitle(getString(R.string.Commons_MarkUnstar));
-                star.setIcon(R.drawable.ic_menu_starred);
+                star.setIcon(R.drawable.menu_starred);
             } else {
                 star.setTitle(getString(R.string.Commons_MarkStar));
                 star.setIcon(R.drawable.ic_menu_star);
