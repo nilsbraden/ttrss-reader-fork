@@ -222,7 +222,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             if (markRead != null) {
                 markRead.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
                 if (displayUnread != null)
-                    displayUnread.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+                    displayUnread.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             }
         }
         
@@ -346,7 +346,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void showErrorDialog(String message) {
-        new ErrorDialog(this, message).show(getSupportFragmentManager(), "error");
+        ErrorDialog.getInstance(this, message).show(getSupportFragmentManager(), "error");
     }
     
     protected void refreshAndUpdate() {

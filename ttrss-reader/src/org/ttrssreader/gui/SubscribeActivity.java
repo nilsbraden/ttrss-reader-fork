@@ -56,6 +56,7 @@ public class SubscribeActivity extends MenuActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.feedsubscribe);
+        setTitle(R.string.IntentSubscribe);
         
         String urlValue = getIntent().getStringExtra(Intent.EXTRA_TEXT);
         
