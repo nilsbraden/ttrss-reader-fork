@@ -151,7 +151,7 @@ public class Data {
         Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId);
         
         Log.d(Utils.TAG, "Got " + articles.size() + " articles to be cached");
-        handleInsertArticles(articles, true, true);
+        handleInsertArticles(articles, VCAT_ALL, true, true);
         
         // Only mark as updated if the calls were successful
         if (!articles.isEmpty()) {
@@ -220,33 +220,20 @@ public class Data {
         }
         
         // Calculate an appropriate upper limit for the number of articles
-        int todo = calculateLimit(feedId, displayOnlyUnread, isCat);
-        int limit = 0;
+        int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
+        if (Controller.getInstance().isLowMemory())
+            limit = limit / 2;
         
-        while (true) {
-            Set<Article> articles = new HashSet<Article>();
-            limit = todo;
-            if (limit > 240)
-                limit = 240;
-            
-            todo -= limit;
-            if (limit <= 0)
-                break;
-            
-            Log.d(Utils.TAG, "UPDATE limit: " + limit + " todo: " + todo);
-            String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
-            
+        Log.d(Utils.TAG, "UPDATE limit: " + limit + " todo: " + limit);
+        String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
+        
+        Set<Article> articles = new HashSet<Article>();
+        if (!displayOnlyUnread) {
             // If not displaying only unread articles: Refresh unread articles to get them too.
-            if (!displayOnlyUnread)
-                Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat);
-            
-            Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId);
-            
-            handleInsertArticles(articles, isCat, false);
-            
-            // Only mark as updated if the first call was successful
-            articles.size();
+            Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat);
         }
+        Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId);
+        handleInsertArticles(articles, feedId, isCat, false);
         
         long currentTime = System.currentTimeMillis();
         // Store requested feed-/category-id and ids of all feeds in db for this category if a category was requested
@@ -272,15 +259,15 @@ public class Data {
         }
     }
     
-    /*
+    /**
      * Calculate an appropriate upper limit for the number of articles
      */
     private int calculateLimit(int feedId, boolean displayOnlyUnread, boolean isCat) {
-        int limit = 50;
+        int limit = -1;
         switch (feedId) {
             case VCAT_STAR: // Starred
             case VCAT_PUB: // Published
-                limit = 300;
+                limit = JSONConnector.PARAM_LIMIT_MAX_VALUE;
                 break;
             case VCAT_FRESH: // Fresh
                 limit = DBHelper.getInstance().getUnreadCount(feedId, true);
@@ -291,24 +278,6 @@ public class Data {
             default: // Normal categories
                 limit = DBHelper.getInstance().getUnreadCount(feedId, isCat);
         }
-        
-        if (limit <= 0 && displayOnlyUnread)
-            limit = 50; // No unread articles, fetch some stuff
-        else if (limit <= 0)
-            limit = 100; // No unread, fetch some to make sure we are at least a bit up-to-date
-        // else if (limit > 300) limit = 300; // Lots of unread articles
-        
-        if (limit < 300) {
-            if (isCat)
-                limit = limit + 100; // Add some so we have a chance of getting not only the newest and possibly read
-                                     // articles but also older ones.
-            else
-                limit = limit + 50; // Less on feed, more on category...
-        }
-        
-        if (Controller.getInstance().isLowMemory())
-            limit = limit / 2;
-        
         return limit;
     }
     
@@ -319,15 +288,25 @@ public class Data {
      *            articles to be stored
      * @param isCategory
      */
-    private void handleInsertArticles(Collection<Article> articles, boolean isCategory, boolean isCaching) {
+    private void handleInsertArticles(final Collection<Article> articles, int feedId, boolean isCategory, boolean isCaching) {
         if (!articles.isEmpty()) {
-            int maxArticleId = Integer.MIN_VALUE;
-            for (Article a : articles) {
-                if (a.id > maxArticleId)
-                    maxArticleId = a.id; // Store maximum id
+            
+            // Search min and max ids
+            int minId = Integer.MAX_VALUE;
+            int maxId = Integer.MIN_VALUE;
+            for (Article article : articles) {
+                if (article.id > maxId)
+                    maxId = article.id;
+                if (article.id < minId)
+                    minId = article.id;
             }
             
             DBHelper.getInstance().purgeLastArticles(articles.size());
+            
+            // We set isCategory=false for starred/published articles...
+            if ((feedId == Data.VCAT_STAR || feedId == Data.VCAT_PUB) && !isCategory)
+                DBHelper.getInstance().purgeVirtualCategories(minId);
+            
             DBHelper.getInstance().insertArticles(articles);
             
             // correct counters according to real local DB-Data
@@ -337,7 +316,7 @@ public class Data {
             
             // Only store sinceId when doing a full cache of new articles, else it doesn't work.
             if (isCaching)
-                Controller.getInstance().setSinceId(maxArticleId);
+                Controller.getInstance().setSinceId(maxId);
         }
     }
     

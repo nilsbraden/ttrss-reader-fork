@@ -67,7 +67,7 @@ public abstract class JSONConnector {
     protected static final String PARAM_ARTICLE_IDS = "article_ids";
     protected static final String PARAM_LIMIT = "limit";
     protected static final int PARAM_LIMIT_API_5 = 60;
-    protected static final int PARAM_LIMIT_MAX_VALUE = 200;
+    public static final int PARAM_LIMIT_MAX_VALUE = 200;
     protected static final String PARAM_VIEWMODE = "view_mode";
     protected static final String PARAM_SHOW_CONTENT = "show_content";
     protected static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
@@ -1000,12 +1000,15 @@ public abstract class JSONConnector {
         int count = 0;
         int maxSize = articles.size() + limit;
         
-        int apiLimit = PARAM_LIMIT_MAX_VALUE;
-        if (apiLevel < 6)
-            apiLimit = PARAM_LIMIT_API_5;
-        
         if (!sessionAlive())
             return;
+        
+        int limitParam = PARAM_LIMIT_MAX_VALUE;
+        if (apiLevel < 6)
+            limitParam = PARAM_LIMIT_API_5;
+        
+        if (limit < limitParam)
+            limitParam = limit;
         
         makeLazyServerWork(id);
         
@@ -1014,7 +1017,7 @@ public abstract class JSONConnector {
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_GET_HEADLINES);
             params.put(PARAM_FEED_ID, id + "");
-            params.put(PARAM_LIMIT, apiLimit + "");
+            params.put(PARAM_LIMIT, limitParam + "");
             params.put(PARAM_SKIP, offset + "");
             params.put(PARAM_VIEWMODE, viewMode);
             
@@ -1044,8 +1047,10 @@ public abstract class JSONConnector {
                 
                 count = parseArticleArray(articles, reader, (!isCategory && id < -10 ? id : -1), skipProperties);
                 
-                if (count < apiLimit)
+                if (count < limitParam)
                     break;
+                else
+                    offset += count;
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -1056,8 +1061,6 @@ public abstract class JSONConnector {
                     }
                 }
             }
-            
-            offset += count;
         }
         
         Log.d(Utils.TAG, "getHeadlines: " + (System.currentTimeMillis() - time) + "ms");

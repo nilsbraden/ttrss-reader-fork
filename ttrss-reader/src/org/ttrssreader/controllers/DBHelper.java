@@ -1155,6 +1155,15 @@ public class DBHelper {
         purgeLabels();
     }
     
+    public void purgeVirtualCategories(int minId) {
+        if (!isDBAvailable())
+            return;
+        
+        String[] args = new String[] { minId + "" };
+        db.delete(TABLE_ARTICLES, " ( isPublished>0 OR isStarred>0 ) AND id >= ? ", args);
+        purgeLabels();
+    }
+    
     private void purgeLabels() {
         // @formatter:off
         String idsArticles = "SELECT a2l.articleId FROM "
