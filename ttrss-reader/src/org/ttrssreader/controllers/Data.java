@@ -196,16 +196,6 @@ public class Data {
      *            should the last update time be ignored?
      */
     public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline, boolean overrideDelay) {
-        // Check if unread-count and actual number of unread articles match, if not do a seperate call with
-        // displayOnlyUnread=true
-        boolean needUnreadUpdate = false;
-        if (!isCat && !(feedId >= -4 && feedId < 0)) {
-            int unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false);
-            if (unreadCount != DBHelper.getInstance().getUnreadArticles(feedId).size()) {
-                needUnreadUpdate = true;
-            }
-        }
-        
         Long time = articlesChanged.get(feedId);
         if (isCat) // Category-Ids are in feedsChanged
             time = feedsChanged.get(feedId);
@@ -216,7 +206,7 @@ public class Data {
         if (articlesCached > time && !(feedId == VCAT_PUB || feedId == VCAT_STAR))
             time = articlesCached;
         
-        if (!overrideDelay && !needUnreadUpdate && time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
+        if (!overrideDelay && time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return;
         } else if (!Utils.isConnected(cm) && !(overrideOffline && Utils.checkConnected(cm))) {
             return;
@@ -246,8 +236,8 @@ public class Data {
             Log.d(Utils.TAG, "UPDATE limit: " + limit + " todo: " + todo);
             String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
             
-            // If necessary and not displaying only unread articles: Refresh unread articles to get them too.
-            if (needUnreadUpdate && !displayOnlyUnread)
+            // If not displaying only unread articles: Refresh unread articles to get them too.
+            if (!displayOnlyUnread)
                 Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat);
             
             Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId);
