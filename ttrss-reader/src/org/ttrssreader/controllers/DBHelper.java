@@ -766,14 +766,6 @@ public class DBHelper {
     
     // *******| UPDATE |*******************************************************************
     
-    public Collection<Integer> markAllRead() {
-        return markRead(-1, false, true);
-    }
-    
-    public Collection<Integer> markRead(int id, boolean isCategory) {
-        return markRead(id, isCategory, false);
-    }
-    
     /**
      * set read status in DB for given category/feed
      * 
@@ -785,7 +777,7 @@ public class DBHelper {
      * 
      * @return collection of article IDs, which was marked as read or {@code null} if nothing was changed
      */
-    public Collection<Integer> markRead(int id, boolean isCategory, boolean markAllRead) {
+    public Collection<Integer> markRead(int id, boolean isCategory) {
         Collection<Integer> markedIds = null;
         if (!isDBAvailable())
             return markedIds;
@@ -794,15 +786,33 @@ public class DBHelper {
         try {
             String where = "";
             
-            if (!markAllRead) {
-                String feedIds;
-                if (isCategory || id < 0)
-                    feedIds = "select id from " + TABLE_FEEDS + " where categoryId=" + id;
-                else
-                    feedIds = String.valueOf(id);
-                
-                where = "feedId in (" + feedIds + ") and isUnread>0";
+            String feedIds;
+            switch (id) {
+                case Data.VCAT_ALL:
+                    where = " 1 "; // Select everything...
+                    break;
+                case Data.VCAT_FRESH:
+                    long time = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
+                    where = " updateDate > " + time;
+                    break;
+                case Data.VCAT_PUB:
+                    where = " isPublished > 0 ";
+                    break;
+                case Data.VCAT_STAR:
+                    where = " isStarred > 0 ";
+                    break;
+                default:
+                    if (isCategory) {
+                        feedIds = "select id from " + TABLE_FEEDS + " where categoryId=" + id;
+                        where = " feedId in (" + feedIds + ") ";
+                    } else {
+                        feedIds = String.valueOf(id);
+                        where = " feedId in (" + feedIds + ") ";
+                    }
+                    break;
             }
+            
+            where = where + " and isUnread>0 ";
             
             Cursor c = null;
             try {
