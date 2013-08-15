@@ -85,9 +85,9 @@ public class ReadStateUpdater implements IUpdatable {
     }
     
     /* articleState: 0 = mark as read, 1 = mark as unread */
-    public ReadStateUpdater(Collection<Article> articles, int pid, int articleState) {
+    public ReadStateUpdater(Collection<Article> articlesList, int pid, int articleState) {
         articles = new ArrayList<Article>();
-        articles.addAll(articles);
+        articles.addAll(articlesList);
         state = articleState;
         for (Article article : articles) {
             article.isUnread = (articleState > 0);
