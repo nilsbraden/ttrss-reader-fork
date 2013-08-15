@@ -16,6 +16,7 @@
 package org.ttrssreader.imageCache;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.FileDateComparator;
@@ -38,7 +40,6 @@ import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -144,7 +145,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             int progress = 0;
             publishProgress(++progress);
-//            Data.getInstance().updateCounters(true, true);
+            // Data.getInstance().updateCounters(true, true);
             publishProgress(++progress);
             Data.getInstance().updateCategories(true);
             publishProgress(++progress);
@@ -213,63 +214,54 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         // DownloadImageTask[] tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
         map = new HashMap<Integer, ImageCacher.DownloadImageTask>();
         
-        Cursor cursor = null;
-        try {
-            cursor = DBHelper.getInstance().queryArticlesForImageCache();
-            cursor.moveToFirst();
+        ArrayList<Article> articles = DBHelper.getInstance().queryArticles();
+        
+        taskCount = articles.size();
+        Log.d(Utils.TAG, "Articles count for image caching: " + taskCount);
+        
+        for (Article article : articles) {
+            int articleId = article.id;
             
-            taskCount = cursor.getCount();
-            Log.d(Utils.TAG, "Articles count for image caching: " + taskCount);
+            Log.d(Utils.TAG, "Cache images for article ID: " + articleId);
             
-            while (!cursor.isAfterLast()) {
-                int articleId = cursor.getInt(0);
+            // Get images included in HTML
+            Set<String> set = new HashSet<String>();
+            
+            try {
+                for (String url : findAllImageUrls(article.content)) {
+                    if (!imageCache.containsKey(url))
+                        set.add(url);
+                }
+                Log.d(Utils.TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size());
                 
-                Log.d(Utils.TAG, "Cache images for article ID: " + articleId);
-                
-                // Get images included in HTML
-                Set<String> set = new HashSet<String>();
-                
-                try {
-                    for (String url : findAllImageUrls(cursor.getString(1))) {
-                        if (!imageCache.containsKey(url))
+                // Get images from attachments separately
+                for (String url : article.attachments) {
+                    for (String ext : FileUtils.IMAGE_EXTENSIONS) {
+                        if (url.toLowerCase(Locale.getDefault()).contains("." + ext) && !imageCache.containsKey(url)) {
                             set.add(url);
-                    }
-                    Log.d(Utils.TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size());
-                    
-                    // Get images from attachments separately
-                    for (String url : cursor.getString(2).split(";")) {
-                        for (String ext : FileUtils.IMAGE_EXTENSIONS) {
-                            if (url.toLowerCase(Locale.getDefault()).contains("." + ext)
-                                    && !imageCache.containsKey(url)) {
-                                set.add(url);
-                                break;
-                            }
+                            break;
                         }
                     }
-                    Log.d(Utils.TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size());
-                } catch (IllegalStateException e) {
-                    // sometimes get Cursor error, the String (content) could not
-                    // be read, so just skip such records
-                    e.printStackTrace();
                 }
-                
-                if (!set.isEmpty()) {
-                    DownloadImageTask task = new DownloadImageTask(imageCache, articleId, StringSupport.setToArray(set));
-                    handler.post(task);
-                    map.put(articleId, task);
-                } else {
-                    DBHelper.getInstance().updateArticleCachedImages(articleId, true);
-                }
-                
-                if (downloaded > cacheSizeMax) {
-                    Log.w(Utils.TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
-                    break;
-                }
-                cursor.moveToNext();
+                Log.d(Utils.TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size());
+            } catch (IllegalStateException e) {
+                // sometimes get Cursor error, the String (content) could not
+                // be read, so just skip such records
+                e.printStackTrace();
             }
             
-        } finally {
-            cursor.close();
+            if (!set.isEmpty()) {
+                DownloadImageTask task = new DownloadImageTask(imageCache, articleId, StringSupport.setToArray(set));
+                handler.post(task);
+                map.put(articleId, task);
+            } else {
+                DBHelper.getInstance().updateArticleCachedImages(articleId, true);
+            }
+            
+            if (downloaded > cacheSizeMax) {
+                Log.w(Utils.TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
+                break;
+            }
         }
         
         while (!map.isEmpty()) {

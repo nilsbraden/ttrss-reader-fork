@@ -240,7 +240,7 @@ public class CategoryAdapter extends MainAdapter {
                     break;
             }
         } finally {
-            if (c != null)
+            if (c != null && !c.isClosed())
                 c.close();
         }
     }
