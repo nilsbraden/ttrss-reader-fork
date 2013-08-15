@@ -125,7 +125,7 @@ public class FeedAdapter extends MainAdapter {
         
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
-        query.append(buildSafeQuery ? " LIMIT 200" : " LIMIT 1000");
+        query.append(buildSafeQuery ? " LIMIT 200" : " LIMIT 600");
         
         return DBHelper.getInstance().query(query.toString(), null);
     }

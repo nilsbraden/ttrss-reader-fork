@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -115,40 +116,34 @@ public class StringSupport {
      *            the maximum length of each list
      * @return a set of Strings with comma-separated ids
      */
-    public static Set<String> convertListToString(Set<Integer> ids, int maxCount) {
+    public static <T> Set<String> convertListToString(Collection<T> values, int maxCount) {
         Set<String> ret = new HashSet<String>();
-        Iterator<Integer> it = ids.iterator();
-        StringBuilder idList = new StringBuilder();
+        if (values == null || values.isEmpty())
+            return ret;
         
+        StringBuilder sb = new StringBuilder();
         int count = 0;
+        
+        Iterator<T> it = values.iterator();
         while (it.hasNext()) {
-            
-            Integer next = it.next();
-            if (next == null)
+            Object o = it.next();
+            if (o == null)
                 continue;
             
-            idList.append(next);
+            sb.append(o);
             
             if (count == maxCount) {
-                ret.add(idList.toString());
-                idList = new StringBuilder();
-                count = 0;
+                ret.add(sb.substring(0, sb.length() - 1));
+                sb = new StringBuilder();
             } else {
+                sb.append(",");
                 count++;
-                if (it.hasNext())
-                    idList.append(",");
             }
         }
         
-        String list = idList.toString();
+        if (sb.length() > 0)
+            ret.add(sb.substring(0, sb.length() - 1));
         
-        // Should not happen, but happens anyway: Cut of leading and trailing commas
-        if (list.startsWith(","))
-            list = list.substring(1);
-        if (list.endsWith(","))
-            list = list.substring(0, list.length() - 1);
-        
-        ret.add(list);
         return ret;
     }
     

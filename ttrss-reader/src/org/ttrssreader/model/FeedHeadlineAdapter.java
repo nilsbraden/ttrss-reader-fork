@@ -202,6 +202,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         
         query.append(" ORDER BY a.updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
+        query.append(" LIMIT 600 ");
         return query.toString();
     }
     
@@ -240,6 +241,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         
         query.append(" ORDER BY updateDate ");
         query.append(invertSortArticles ? "ASC" : "DESC");
+        query.append(" LIMIT 600 ");
         return query.toString();
     }
     

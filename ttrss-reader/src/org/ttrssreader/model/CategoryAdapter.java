@@ -166,6 +166,7 @@ public class CategoryAdapter extends MainAdapter {
             query.append(" WHERE id<-10");
             query.append(displayUnread ? " AND unread>0" : "");
             query.append(" ORDER BY UPPER(title) ASC");
+            query.append(" LIMIT 500 ");
             insertValues(query.toString());
             
             // "Uncategorized Feeds"
@@ -183,10 +184,11 @@ public class CategoryAdapter extends MainAdapter {
             query.append(displayUnread ? " AND unread>0" : "");
             query.append(" ORDER BY UPPER(title) ");
             query.append(invertSortFeedCats ? "DESC" : "ASC");
+            query.append(" LIMIT 500 ");
             insertValues(query.toString());
             
             String[] columns = { "id", "title", "unread" };
-            return db.query(TABLE_NAME, columns, null, null, null, null, null);
+            return db.query(TABLE_NAME, columns, null, null, null, null, null, "600");
         }
     }
     
