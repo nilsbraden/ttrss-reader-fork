@@ -18,6 +18,7 @@ package org.ttrssreader.controllers;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -232,6 +233,7 @@ public class DBHelper {
         insertArticle = db.compileStatement(INSERT_ARTICLE);
         insertLabel = db.compileStatement(INSERT_LABEL);
         
+        db.acquireReference();
         initialized = true;
         return true;
     }
@@ -253,6 +255,7 @@ public class DBHelper {
     }
     
     private void closeDB() {
+        db.releaseReference();
         db.close();
         db = null;
     }
@@ -278,30 +281,6 @@ public class DBHelper {
         }
         
         return false;
-    }
-    
-    /**
-     * FIXME: this method should be replaced by StringSupport.convertListToString
-     * 
-     * convert given collection of integers (IDs) into comma separated list
-     * 
-     * @param idList
-     *            collection of numerical IDs
-     * 
-     * @return comma separated list of IDs (as String)
-     * 
-     * @deprecated use {@code StringSupport.convertListToString} instead
-     */
-    @Deprecated
-    public String idsToString(Collection<Integer> idList) {
-        StringBuilder sb = new StringBuilder();
-        for (Integer i : idList) {
-            if (sb.length() > 0) {
-                sb.append(",");
-            }
-            sb.append(i);
-        }
-        return sb.toString();
     }
     
     private static class OpenHelper extends SQLiteOpenHelper {
@@ -536,30 +515,17 @@ public class DBHelper {
     }
     
     /**
-     * Used by MainAdapter to directly access the DB and get a cursor for the ListViews.<br>
+     * Used by SubscribeActivity to directly access the DB and get a cursor for the List of Categories.<br>
      * PLEASE NOTE: Don't forget to close the received cursor!
      * 
      * @see android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])
      */
+    @Deprecated
     public Cursor query(String sql, String[] selectionArgs) {
         if (!isDBAvailable())
             return null;
         
         Cursor cursor = db.rawQuery(sql, selectionArgs);
-        return cursor;
-    }
-    
-    /**
-     * PLEASE NOTE: Don't forget to close the received cursor!
-     * 
-     * @return
-     */
-    public Cursor queryArticlesForImageCache() {
-        if (!isDBAvailable())
-            return null;
-        
-        Cursor cursor = db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" },
-                "cachedImages=0 AND isUnread>0", null, null, null, null);
         return cursor;
     }
     
@@ -899,7 +865,9 @@ public class DBHelper {
         
         db.beginTransaction();
         try {
-            markArticles(idsToString(idList), mark, state);
+            for (String ids : StringSupport.convertListToString(idList, 100)) {
+                markArticles(ids, mark, state);
+            }
             
             calculateCounters();
             
@@ -1295,9 +1263,8 @@ public class DBHelper {
     }
     
     public Set<Label> getLabelsForArticle(int articleId) {
-        Set<Label> ret = new HashSet<Label>();
         if (!isDBAvailable())
-            return ret;
+            return new HashSet<Label>();
         
         Cursor c = null;
         try {
@@ -1310,7 +1277,7 @@ public class DBHelper {
                             + "     WHERE f.id <= -11 AND f.id = a2l.labelId AND a2l.articleId = " + articleId;
             // @formatter:on
             c = db.rawQuery(sql, null);
-            
+            Set<Label> ret = new HashSet<Label>(c.getCount());
             while (c.moveToNext()) {
                 Label label = new Label();
                 label.setInternalId(c.getInt(0));
@@ -1318,13 +1285,12 @@ public class DBHelper {
                 label.checked = c.getInt(2) == 1;
                 ret.add(label);
             }
+            return ret;
             
         } finally {
             if (c != null && !c.isClosed())
                 c.close();
         }
-        
-        return ret;
     }
     
     public Feed getFeed(int id) {
@@ -1368,25 +1334,24 @@ public class DBHelper {
     }
     
     public Set<Article> getUnreadArticles(int feedId) {
-        Set<Article> ret = new LinkedHashSet<Article>();
         if (!isDBAvailable())
-            return ret;
+            return new LinkedHashSet<Article>();
         
         Cursor c = null;
         try {
             
             c = db.query(TABLE_ARTICLES, null, "feedId=? AND isUnread>0", new String[] { feedId + "" }, null, null,
                     null, null);
+            Set<Article> ret = new LinkedHashSet<Article>(c.getCount());
             while (c.moveToNext()) {
                 ret.add(handleArticleCursor(c));
             }
+            return ret;
             
         } finally {
             if (c != null && !c.isClosed())
                 c.close();
         }
-        
-        return ret;
     }
     
     /**
@@ -1400,9 +1365,9 @@ public class DBHelper {
      * @return
      */
     public Set<Feed> getFeeds(int categoryId) {
-        Set<Feed> ret = new LinkedHashSet<Feed>();
+        
         if (!isDBAvailable())
-            return ret;
+            return new LinkedHashSet<Feed>();
         
         Cursor c = null;
         try {
@@ -1427,58 +1392,57 @@ public class DBHelper {
             }
             
             c = db.query(TABLE_FEEDS, null, where, null, null, null, "UPPER(title) ASC");
+            Set<Feed> ret = new LinkedHashSet<Feed>(c.getCount());
             while (c.moveToNext()) {
                 ret.add(handleFeedCursor(c));
             }
+            return ret;
             
         } finally {
             if (c != null && !c.isClosed())
                 c.close();
         }
-        
-        return ret;
     }
     
     public Set<Category> getVirtualCategories() {
-        Set<Category> ret = new LinkedHashSet<Category>();
         if (!isDBAvailable())
-            return ret;
+            return new LinkedHashSet<Category>();
         
         Cursor c = null;
         try {
             
             c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
+            
+            Set<Category> ret = new LinkedHashSet<Category>(c.getCount());
             while (c.moveToNext()) {
                 ret.add(handleCategoryCursor(c));
             }
+            return ret;
             
         } finally {
             if (c != null && !c.isClosed())
                 c.close();
         }
-        
-        return ret;
     }
     
     public Set<Category> getAllCategories() {
-        Set<Category> ret = new LinkedHashSet<Category>();
         if (!isDBAvailable())
-            return ret;
+            return new LinkedHashSet<Category>();
         
         Cursor c = null;
         try {
             
             c = db.query(TABLE_CATEGORIES, null, "id>=0", null, null, null, "title ASC");
+            Set<Category> ret = new LinkedHashSet<Category>(c.getCount());
             while (c.moveToNext()) {
                 ret.add(handleCategoryCursor(c));
             }
+            return ret;
             
         } finally {
             if (c != null && !c.isClosed())
                 c.close();
         }
-        
-        return ret;
     }
     
     public int getUnreadCountOld(int id, boolean isCat) {
@@ -1580,25 +1544,23 @@ public class DBHelper {
     
     @SuppressLint("UseSparseArrays")
     public Map<Integer, String> getMarked(String mark, int status) {
-        Map<Integer, String> ret = new HashMap<Integer, String>();
         if (!isDBAvailable())
-            return ret;
+            return new HashMap<Integer, String>();
         
         Cursor c = null;
         try {
             c = db.query(TABLE_MARK, new String[] { "id", MARK_NOTE }, mark + "=" + status, null, null, null, null,
                     null);
-            
+            Map<Integer, String> ret = new HashMap<Integer, String>(c.getCount());
             while (c.moveToNext()) {
                 ret.put(c.getInt(0), c.getString(1));
             }
+            return ret;
             
         } finally {
             if (c != null && !c.isClosed())
                 c.close();
         }
-        
-        return ret;
     }
     
     /**
@@ -1725,6 +1687,31 @@ public class DBHelper {
         }
         
         return ret;
+    }
+    
+    public ArrayList<Article> queryArticles() {
+        if (!isDBAvailable())
+            return null;
+        
+        Cursor c = null;
+        try {
+            c = db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" },
+                    "cachedImages=0 AND isUnread>0", null, null, null, null, "LIMIT 1000");
+            
+            ArrayList<Article> ret = new ArrayList<Article>(c.getCount());
+            while (c.moveToNext()) {
+                Article a = new Article();
+                a.id = c.getInt(0);
+                a.content = c.getString(1);
+                a.attachments = parseAttachments(c.getString(2));
+                ret.add(a);
+            }
+            return ret;
+            
+        } finally {
+            if (c != null && !c.isClosed())
+                c.close();
+        }
     }
     
 }
