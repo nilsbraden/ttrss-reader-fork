@@ -1689,7 +1689,7 @@ public class DBHelper {
         return ret;
     }
     
-    public ArrayList<Article> queryArticles() {
+    public ArrayList<Article> queryArticlesForImagecache() {
         if (!isDBAvailable())
             return null;
         

@@ -214,7 +214,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         // DownloadImageTask[] tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
         map = new HashMap<Integer, ImageCacher.DownloadImageTask>();
         
-        ArrayList<Article> articles = DBHelper.getInstance().queryArticles();
+        ArrayList<Article> articles = DBHelper.getInstance().queryArticlesForImagecache();
         
         taskCount = articles.size();
         Log.d(Utils.TAG, "Articles count for image caching: " + taskCount);
