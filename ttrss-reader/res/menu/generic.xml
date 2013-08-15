@@ -44,11 +44,6 @@
             android:showAsAction="never|withText"
             android:title="@string/Commons.InvertSort"/>
         <item
-            android:id="@+id/Menu_WorkOffline"
-            android:icon="@drawable/ic_menu_stop"
-            android:showAsAction="ifRoom|withText"
-            android:title="@string/UsageOfflineTitle"/>
-        <item
             android:id="@+id/Menu_FeedSubscribe"
             android:icon="@drawable/ic_menu_compose"
             android:showAsAction="ifRoom|withText"
@@ -62,6 +57,11 @@
 
     <!-- Always show these entries in the menu. Show when using ShareToPublished. -->
     <group>
+        <item
+            android:id="@+id/Menu_WorkOffline"
+            android:icon="@drawable/ic_menu_stop"
+            android:showAsAction="ifRoom|withText"
+            android:title="@string/UsageOfflineTitle"/>
         <item
             android:id="@+id/Category_Menu_ImageCache"
             android:icon="@drawable/ic_menu_save"

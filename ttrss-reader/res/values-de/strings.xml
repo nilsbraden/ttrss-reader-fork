@@ -38,6 +38,12 @@
     <string name="ArticleActivity.MediaPlay">Mediendatei Anhang abspielen</string>
     <string name="ArticleActivity.MediaDisplayLink">Anhang öffnen</string>
     <string name="ArticleActivity.ArticleLink">-> Artikel-Link</string>
+    <string name="SubscribeActivity.offline">Arbeite offline, Server kann nicht kontaktiert werden.</string>
+    <string name="SubscribeActivity.invalidUrl">Die Adresse ist ungültig.</string>
+    <string name="SubscribeActivity.contentIsHTML">Seite enthält HTML, keine Feeds.</string>
+    <string name="SubscribeActivity.multipleFeeds">Seite enthält HTML mit mehreren Feeds. Hier muss extractfeedurls im RPC-Backend aufgerufen werden um alle möglichen Feeds zu extrahieren.</string>
+    <string name="SubscribeActivity.cannotDownload">Konnte die Seite nicht laden.</string>
+    <string name="SubscribeActivity.errorCode">Server hat den Fehlercode %s und die folgende Nachricht zurückgegeben:</string>
     <string name="Commons.DisplayOnlyUnread">Ungelesene zeigen</string>
     <string name="Commons.InvertSort">Umkehren</string>
     <string name="Commons.DisplayAll">Alle zeigen</string>

@@ -192,15 +192,18 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         super.onPrepareOptionsMenu(menu);
         
         MenuItem offline = menu.findItem(R.id.Menu_WorkOffline);
+        MenuItem refresh = menu.findItem(R.id.Menu_Refresh);
         if (offline != null) {
             if (Controller.getInstance().workOffline()) {
                 offline.setTitle(getString(R.string.UsageOnlineTitle));
                 offline.setIcon(R.drawable.ic_menu_play_clip);
-                menu.findItem(R.id.Menu_Refresh).setVisible(false);
+                if (refresh != null)
+                    menu.findItem(R.id.Menu_Refresh).setVisible(false);
             } else {
                 offline.setTitle(getString(R.string.UsageOfflineTitle));
                 offline.setIcon(R.drawable.ic_menu_stop);
-                menu.findItem(R.id.Menu_Refresh).setVisible(true);
+                if (refresh != null)
+                    menu.findItem(R.id.Menu_Refresh).setVisible(true);
             }
         }
         
@@ -218,7 +221,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             MenuItem markRead = menu.findItem(R.id.Menu_MarkAllRead);
             if (markRead != null) {
                 markRead.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-                displayUnread.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+                if (displayUnread != null)
+                    displayUnread.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             }
         }
         

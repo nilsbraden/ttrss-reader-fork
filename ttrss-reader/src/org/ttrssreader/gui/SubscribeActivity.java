@@ -15,40 +15,40 @@
 
 package org.ttrssreader.gui;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.net.JSONConnector.SubscriptionResponse;
 import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.CustomCursorLoader;
 import org.ttrssreader.utils.Utils;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 
-public class SubscribeActivity extends MenuActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class SubscribeActivity extends MenuActivity {
     
     private static final String PARAM_FEEDURL = "feed_url";
-    private static final String PARAM_CATEGORY = "category_id";
     
     private Button okButton;
     private Button feedPasteButton;
     private EditText feedUrl;
     
-    private SimpleCursorAdapter categoriesAdapter;
+    private ArrayAdapter<Category> categoriesAdapter;
     private Spinner categorieSpinner;
-    private int selectedCategory = -1;
     
     private ProgressDialog progress;
     
@@ -61,20 +61,19 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
         
         if (savedInstanceState != null) {
             urlValue = savedInstanceState.getString(PARAM_FEEDURL);
-            selectedCategory = savedInstanceState.getInt(PARAM_CATEGORY);
         }
         
         feedUrl = (EditText) findViewById(R.id.subscribe_url);
         feedUrl.setText(urlValue);
         
-        // Map column "title" to field text1
-        categoriesAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item, null,
-                new String[] { "title" }, new int[] { android.R.id.text1 }, 0);
+        List<Category> catList = new ArrayList<Category>();
+        catList.addAll(DBHelper.getInstance().getAllCategories());
+        
+        categoriesAdapter = new SimpleCategoryAdapter(context, catList);
         categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         
         categorieSpinner = (Spinner) findViewById(R.id.subscribe_categories);
         categorieSpinner.setAdapter(categoriesAdapter);
-        getSupportLoaderManager().initLoader(0, null, this);
         
         okButton = (Button) findViewById(R.id.subscribe_ok_button);
         okButton.setOnClickListener(new View.OnClickListener() {
@@ -112,11 +111,8 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
     @Override
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
-        
         EditText url = (EditText) findViewById(R.id.subscribe_url);
-        Spinner categories = (Spinner) findViewById(R.id.subscribe_categories);
         out.putString(PARAM_FEEDURL, url.getText().toString());
-        out.putInt(PARAM_CATEGORY, categories.getSelectedItemPosition());
     }
     
     public class MyPublisherTask extends AsyncTask<Void, Integer, Void> {
@@ -124,7 +120,7 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
         protected Void doInBackground(Void... params) {
             try {
                 if (Controller.getInstance().workOffline()) {
-                    showErrorDialog("Working offline, can't request action from server.");
+                    showErrorDialog(getResources().getString(R.string.SubscribeActivity_offline));
                     return null;
                 }
                 
@@ -132,7 +128,7 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
                 int category = (int) categorieSpinner.getSelectedItemId();
                 
                 if (!Utils.validateURL(urlValue)) {
-                    showErrorDialog("URL seems to be invalid.");
+                    showErrorDialog(getResources().getString(R.string.SubscribeActivity_invalidUrl));
                     return null;
                 }
                 
@@ -140,21 +136,20 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
                 String message = "\n\n(" + ret.message + ")";
                 
                 if (ret.code == 0 || ret.code == 1)
-                    finishCompat();
+                    finish();
                 else if (Controller.getInstance().getConnector().hasLastError())
                     showErrorDialog(Controller.getInstance().getConnector().pullLastError());
                 else if (ret.code == 2)
-                    showErrorDialog("Server returned: Invalid URL." + message);
+                    showErrorDialog(getResources().getString(R.string.SubscribeActivity_invalidUrl) + " " + message);
                 else if (ret.code == 3)
-                    showErrorDialog("Server returned: URL content is HTML, no feeds available." + message);
+                    showErrorDialog(getResources().getString(R.string.SubscribeActivity_contentIsHTML) + " " + message);
                 else if (ret.code == 4)
-                    showErrorDialog("Server returned: URL content is HTML which contains multiple feeds."
-                            + "Here you should call extractfeedurls in rpc-backend to get all possible feeds."
-                            + message);
-                else if (ret.code == 4)
-                    showErrorDialog("Server returned: Couldn't download the URL content." + message);
+                    showErrorDialog(getResources().getString(R.string.SubscribeActivity_multipleFeeds) + " " + message);
+                else if (ret.code == 5)
+                    showErrorDialog(getResources().getString(R.string.SubscribeActivity_cannotDownload) + " " + message);
                 else
-                    showErrorDialog("Server returned code " + ret.code + " and the following message: " + message);
+                    showErrorDialog(String.format(getResources().getString(R.string.SubscribeActivity_errorCode),
+                            ret.code) + " " + message);
                 
             } catch (Exception e) {
                 showErrorDialog(e.getMessage());
@@ -162,10 +157,6 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
                 progress.dismiss();
             }
             return null;
-        }
-        
-        private void finishCompat() {
-            finishActivity(0);
         }
     }
     
@@ -187,29 +178,28 @@ public class SubscribeActivity extends MenuActivity implements LoaderManager.Loa
     @Override protected void onDataChanged() { }
     //@formatter:on
     
-    @Override
-    public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-        // Loads uncategorized Feeds and all other categories afterwards
-        StringBuilder query = new StringBuilder();
-        query.append(" SELECT 1 a, id _id, title FROM ");
-        query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id=0 ");
-        query.append(" UNION ");
-        query.append(" SELECT 2 a, id _id, title FROM ");
-        query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id>0 ORDER BY a, title ASC ");
-        return new CustomCursorLoader(this, query.toString(), null);
-    }
-    
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        categoriesAdapter.changeCursor(data);
-        categorieSpinner.setSelection(selectedCategory);
-    }
-    
-    @Override
-    public void onLoaderReset(Loader<Cursor> arg0) {
-        categoriesAdapter.changeCursor(null);
+    class SimpleCategoryAdapter extends ArrayAdapter<Category> {
+        public SimpleCategoryAdapter(Context context, List<Category> objects) {
+            super(context, android.R.layout.simple_list_item_1, objects);
+        }
+        
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return initView(position, convertView);
+        }
+        
+        @Override
+        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return initView(position, convertView);
+        }
+        
+        private View initView(int position, View convertView) {
+            if (convertView == null)
+                convertView = View.inflate(getContext(), android.R.layout.simple_list_item_1, null);
+            TextView tvText1 = (TextView) convertView.findViewById(android.R.id.text1);
+            tvText1.setText(getItem(position).title);
+            return convertView;
+        }
     }
     
 }
