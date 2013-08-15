@@ -28,9 +28,12 @@ import android.widget.BaseAdapter;
 
 public abstract class MainAdapter extends BaseAdapter {
     
+    protected ArrayList<Object[]> content;
+    public static final int POS_ID = 0;
+    public static final int POS_TITLE = 1;
+    public static final int POS_UNREAD = 2;
+    
     protected Context context;
-    protected Cursor cursor;
-    protected String poorMansMutex = "poorMansMutex";
     
     protected int categoryId = Integer.MIN_VALUE;
     protected int feedId = Integer.MIN_VALUE;
@@ -55,7 +58,7 @@ public abstract class MainAdapter extends BaseAdapter {
     }
     
     public final void close() {
-        closeCursor(cursor);
+        // closeCursor(cursor);
     }
     
     public final void closeCursor(Cursor c) {
@@ -67,9 +70,9 @@ public abstract class MainAdapter extends BaseAdapter {
     
     @Override
     public final int getCount() {
-        synchronized (poorMansMutex) {
-            return cursor.getCount();
-        }
+        if (content == null)
+            return 0;
+        return content.size();
     }
     
     @Override
@@ -78,36 +81,28 @@ public abstract class MainAdapter extends BaseAdapter {
     }
     
     public final int getId(int position) {
-        int ret = 0;
-        synchronized (poorMansMutex) {
-            if (cursor.getCount() >= position)
-                if (cursor.moveToPosition(position))
-                    ret = cursor.getInt(0);
-        }
-        return ret;
+        if (position >= 0 && content != null)
+            return (Integer) (content.get(position)[POS_ID]);
+        else
+            return -1;
     }
     
     public final List<Integer> getIds() {
-        List<Integer> result = new ArrayList<Integer>();
-        synchronized (poorMansMutex) {
-            if (cursor.moveToFirst()) {
-                while (!cursor.isAfterLast()) {
-                    result.add(cursor.getInt(0));
-                    cursor.move(1);
-                }
-            }
+        if (content == null)
+            return new ArrayList<Integer>();
+        
+        List<Integer> result = new ArrayList<Integer>(content.size());
+        for (Object[] o : content) {
+            result.add((Integer) (o[POS_ID]));
         }
         return result;
     }
     
     public final String getTitle(int position) {
-        String ret = "";
-        synchronized (poorMansMutex) {
-            if (cursor.getCount() >= position)
-                if (cursor.moveToPosition(position))
-                    ret = cursor.getString(1);
-        }
-        return ret;
+        if (position >= 0 && content != null)
+            return (String) (content.get(position)[POS_TITLE]);
+        else
+            return "";
     }
     
     public static final CharSequence formatEntryTitle(String title, int unread) {
@@ -144,37 +139,34 @@ public abstract class MainAdapter extends BaseAdapter {
      */
     public void makeQuery(boolean force, boolean overrideUnreadCheck) {
         if (!force) {
-            if (cursor != null && !cursor.isClosed())
+            if (content != null && !content.isEmpty())
                 return;
         }
         
-        synchronized (poorMansMutex) {
+        synchronized (this) {
             
             // Check again to reduce the number of unnecessary new cursors
             if (!force) {
-                if (cursor != null && !cursor.isClosed() && cursor.getCount() > 0)
+                if (content != null && !content.isEmpty())
                     return;
             }
             
-            Cursor tempCursor = null;
+            ArrayList<Object[]> contentTest = null;
             try {
                 if (categoryId == 0 && (feedId == -1 || feedId == -2)) {
                     
-                    closeCursor(tempCursor);
-                    tempCursor = executeQuery(true, false); // Starred/Published
+                    contentTest = executeQuery(true, false); // Starred/Published
                     
                 } else {
                     
-                    closeCursor(tempCursor);
-                    tempCursor = executeQuery(false, false); // normal query
+                    contentTest = executeQuery(false, false); // normal query
                     
                     // (categoryId == -2 || feedId >= 0): Normal feeds
                     // (categoryId == 0 || feedId == Integer.MIN_VALUE): Uncategorized Feeds
                     if ((categoryId == -2 || feedId >= 0) || (categoryId == 0 || feedId == Integer.MIN_VALUE)) {
-                        if (Controller.getInstance().onlyUnread() && !checkUnread(tempCursor)) {
+                        if (Controller.getInstance().onlyUnread() && !checkUnread(contentTest)) {
                             
-                            closeCursor(tempCursor);
-                            tempCursor = executeQuery(true, false); // Override unread if query was empty
+                            contentTest = executeQuery(true, false); // Override unread if query was empty
                             
                         }
                     }
@@ -182,23 +174,14 @@ public abstract class MainAdapter extends BaseAdapter {
                 
             } catch (Exception e) {
                 
-                closeCursor(tempCursor);
-                tempCursor = executeQuery(false, true); // Fail-safe-query
+                contentTest = executeQuery(false, true); // Fail-safe-query
                 
             }
             
             // Try to almost atomically switch the old for the new cursor and close the old one afterwards
-            if (tempCursor != null && !tempCursor.isClosed()) {
-                // Hold a reference
-                Cursor oldCur = cursor;
-                
-                // Swap cursor
-                cursor = tempCursor;
+            if (contentTest != null && !contentTest.isEmpty()) {
+                content = contentTest;
                 handler.sendEmptyMessage(0);
-                
-                // Clean-up
-                tempCursor = null;
-                closeCursor(oldCur);
             }
         }
     }
@@ -210,19 +193,16 @@ public abstract class MainAdapter extends BaseAdapter {
      *            the cursor.
      * @return true if there are unread articles in the dataset, else false.
      */
-    private final boolean checkUnread(Cursor cursor) {
-        if (cursor == null || cursor.isClosed())
-            return false; // Check null or closed
-            
-        if (!cursor.moveToFirst())
-            return false; // Check empty
-            
-        do {
-            if (cursor.getInt(cursor.getColumnIndex("unread")) > 0)
-                return cursor.moveToFirst(); // One unread article found, move to first entry
-        } while (cursor.moveToNext());
+    private final boolean checkUnread(ArrayList<Object[]> contentTest) {
+        if (contentTest == null || contentTest.isEmpty())
+            return false;
         
-        cursor.moveToFirst();
+        for (Object[] o : contentTest) {
+            if (((Integer) o[POS_UNREAD]) > 0) {
+                return true;
+            }
+        }
+        
         return false;
     }
     
@@ -245,7 +225,7 @@ public abstract class MainAdapter extends BaseAdapter {
      *            this indicates that a refresh of the cursor should be forced.
      * @return a valid SQL-Query string for this adapter.
      */
-    protected abstract Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
+    protected abstract ArrayList<Object[]> executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
     
     // Use handler with weak reference on parent object
     private static class MsgHandler extends WeakReferenceHandler<BaseAdapter> {

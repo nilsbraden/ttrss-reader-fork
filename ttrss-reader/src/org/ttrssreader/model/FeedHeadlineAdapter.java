@@ -16,6 +16,7 @@
 
 package org.ttrssreader.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -26,7 +27,6 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -37,6 +37,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class FeedHeadlineAdapter extends MainAdapter {
+    public static final int POS_FEEDID = 3;
+    public static final int POS_UPDATED = 4;
+    public static final int POS_STARRED = 5;
+    public static final int POS_PUBLISHED = 6;
     
     public FeedHeadlineAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
         super(context, feedId, categoryId, selectArticlesForCategory);
@@ -45,19 +49,14 @@ public class FeedHeadlineAdapter extends MainAdapter {
     @Override
     public Object getItem(int position) {
         Article ret = new Article();
-        synchronized (poorMansMutex) {
-            if (cursor.getCount() >= position) {
-                if (cursor.moveToPosition(position)) {
-                    ret.id = cursor.getInt(0);
-                    ret.feedId = cursor.getInt(1);
-                    ret.title = cursor.getString(2);
-                    ret.isUnread = cursor.getInt(3) != 0;
-                    ret.updated = new Date(cursor.getLong(4));
-                    ret.isStarred = cursor.getInt(5) != 0;
-                    ret.isPublished = cursor.getInt(6) != 0;
-                }
-            }
-        }
+        Object[] o = content.get(position);
+        ret.id = (Integer) o[POS_ID];
+        ret.title = (String) o[POS_TITLE];
+        ret.isUnread = (Boolean) o[POS_UNREAD];
+        ret.feedId = (Integer) o[POS_FEEDID];
+        ret.updated = ((Date) o[POS_UPDATED]);
+        ret.isStarred = (Boolean) o[POS_STARRED];
+        ret.isPublished = (Boolean) o[POS_PUBLISHED];
         return ret;
     }
     
@@ -136,7 +135,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return layout;
     }
     
-    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+    protected ArrayList<Object[]> executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         
         String query;
         if (feedId > -10)
@@ -144,11 +143,10 @@ public class FeedHeadlineAdapter extends MainAdapter {
         else
             query = buildLabelQuery(overrideDisplayUnread, buildSafeQuery);
         
-        return DBHelper.getInstance().query(query, null);
+        return DBHelper.getInstance().queryArticles(query);
     }
     
-    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) { // TODO: true, false liefert
-                                                                                           // kein Ergebnis
+    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         String lastOpenedArticlesList = Utils.separateItems(Controller.getInstance().lastOpenedArticles, ",");
         
         boolean displayUnread = Controller.getInstance().onlyUnread();

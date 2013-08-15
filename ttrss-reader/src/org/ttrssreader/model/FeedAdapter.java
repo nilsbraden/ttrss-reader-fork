@@ -16,13 +16,13 @@
 
 package org.ttrssreader.model;
 
+import java.util.ArrayList;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,15 +40,10 @@ public class FeedAdapter extends MainAdapter {
     @Override
     public Object getItem(int position) {
         Feed ret = new Feed();
-        synchronized (poorMansMutex) {
-            if (cursor.getCount() >= position) {
-                if (cursor.moveToPosition(position)) {
-                    ret.id = cursor.getInt(0);
-                    ret.title = cursor.getString(1);
-                    ret.unread = cursor.getInt(2);
-                }
-            }
-        }
+        Object[] o = content.get(position);
+        ret.id = (Integer) o[POS_ID];
+        ret.title = (String) o[POS_TITLE];
+        ret.unread = (Integer) o[POS_UNREAD];
         return ret;
     }
     
@@ -94,7 +89,7 @@ public class FeedAdapter extends MainAdapter {
         return layout;
     }
     
-    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+    protected ArrayList<Object[]> executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         
         StringBuilder query = new StringBuilder();
         
@@ -127,7 +122,7 @@ public class FeedAdapter extends MainAdapter {
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         query.append(buildSafeQuery ? " LIMIT 200" : " LIMIT 1000");
         
-        return DBHelper.getInstance().query(query.toString(), null);
+        return DBHelper.getInstance().queryFeeds(query.toString());
     }
     
 }

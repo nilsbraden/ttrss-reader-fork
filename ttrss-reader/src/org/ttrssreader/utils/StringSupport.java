@@ -107,8 +107,7 @@ public class StringSupport {
     }
     
     /**
-     * Splits the ids into Sets of Strings with maxCount ids each if configured in preferences, else only splits on 500 to
-     * avoid extremely large requests.
+     * Splits the ids into Sets of Strings with maxCount ids each.
      * 
      * @param ids
      *            the set of ids to be split
@@ -172,8 +171,8 @@ public class StringSupport {
     
     public static String convertStreamToString(InputStream inputStream) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        InputStream in = new BufferedInputStream(inputStream, (int)Utils.KB);
-        byte[] buffer = new byte[(int)Utils.KB];
+        InputStream in = new BufferedInputStream(inputStream, (int) Utils.KB);
+        byte[] buffer = new byte[(int) Utils.KB];
         int n = 0;
         try {
             while (-1 != (n = in.read(buffer))) {
