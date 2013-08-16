@@ -369,8 +369,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     protected abstract void doUpdate(boolean forceUpdate);
     
-    protected abstract void onDataChanged();
-    
     protected void doRefreshFragment(Fragment fragment) {
         if (fragment instanceof IUpdateEndListener) {
             IUpdateEndListener listener = (IUpdateEndListener) fragment;

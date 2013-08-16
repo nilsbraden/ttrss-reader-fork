@@ -205,9 +205,4 @@ public class FeedActivity extends MenuActivity {
         }
     }
     
-    @Override
-    protected void onDataChanged() {
-        doRefresh();
-    }
-    
 }
