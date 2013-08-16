@@ -418,7 +418,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             webView.getSettings().setLightTouchEnabled(true);
             webView.getSettings().setJavaScriptEnabled(true);
             webView.addJavascriptInterface(articleJSInterface, "articleController");
-            webView.loadDataWithBaseURL("fake://ForJS", contentTemplate.render(), "text/html", "utf-8", null);
+            content = contentTemplate.render();
+            webView.loadDataWithBaseURL("fake://ForJS", content, "text/html", "utf-8", null);
             
             if (!linkAutoOpened && article.content.length() < 3) {
                 if (Controller.getInstance().openUrlEmptyArticle()) {
