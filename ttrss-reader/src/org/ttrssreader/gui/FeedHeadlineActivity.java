@@ -139,6 +139,8 @@ public class FeedHeadlineActivity extends MenuActivity {
             if (feed != null)
                 title = feed.title;
         }
+        unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
+                selectArticlesForCategory);
     }
     
     @Override
@@ -304,10 +306,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         @Override
         protected Void doInBackground(Void... params) {
-            if ("".equals(title))
-                fillTitleInformation();
-            unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
-                    selectArticlesForCategory);
+            fillTitleInformation();
             UpdateController.getInstance().notifyListeners();
             
             taskCount = DEFAULT_TASK_COUNT;
