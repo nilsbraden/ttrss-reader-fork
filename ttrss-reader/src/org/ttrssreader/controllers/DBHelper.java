@@ -16,12 +16,8 @@
 package org.ttrssreader.controllers;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,17 +26,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import org.ttrssreader.gui.dialogs.ErrorDialog;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -164,51 +159,18 @@ public class DBHelper {
                     c.getInt(0);
                 
             } catch (Exception e) {
-                Log.e(Utils.TAG, "Database was corrupted, creating a new one...");
-                
+                Log.e(Utils.TAG, "Database was corrupted, creating a new one...", e);
                 closeDB();
-                backupAndRemoveDB();
-                
-                // Initialize again...
-                initializeDBHelper();
+                File dbFile = context.getDatabasePath(DATABASE_NAME);
+                if (dbFile.delete())
+                    initializeDBHelper();
+                ErrorDialog
+                        .getInstance(
+                                context,
+                                "The Database was corrupted and had to be recreated. If this happened more than once to you please let me know under what circumstances this happened.");
             } finally {
                 if (c != null && !c.isClosed())
                     c.close();
-            }
-        }
-    }
-    
-    private synchronized void backupAndRemoveDB() {
-        // Move DB-File to backup
-        File f = context.getDatabasePath(DATABASE_NAME);
-        f.renameTo(new File(f.getAbsolutePath() + DATABASE_BACKUP_NAME + System.currentTimeMillis()));
-        
-        // Find setReadble method in old api
-        try {
-            Class<?> cls = SharedPreferences.Editor.class;
-            Method m = cls.getMethod("setReadble");
-            m.invoke(f, true, false);
-        } catch (Exception e1) {
-        }
-        
-        // Check if there are too many old backups
-        FilenameFilter fnf = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String filename) {
-                if (filename.contains(DATABASE_BACKUP_NAME))
-                    return true;
-                return false;
-            }
-        };
-        File[] backups = f.getParentFile().listFiles(fnf);
-        if (backups != null && backups.length > 3) {
-            // Sort list of files by last access date
-            List<File> list = Arrays.asList(backups);
-            Collections.sort(list, new FileDateComparator());
-            
-            for (int i = list.size(); i > 2; i++) {
-                // Delete all except the 2 newest backups
-                list.get(i).delete();
             }
         }
     }

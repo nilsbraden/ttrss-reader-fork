@@ -1,41 +1,74 @@
 /*
- * ttrss-reader-fork for Android
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  * 
- * Copyright (C) 2010 N. Braden.
+ * http://www.apache.org/licenses/LICENSE-2.0
  * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 3 as published by the Free Software Foundation.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.ttrssreader.utils;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * Compares two files by their last-modified-date.
+ * Compare the <b>last modified date/time</b> of two files for order
+ * (see {@link File#lastModified()}).
+ * <p>
+ * This comparator can be used to sort lists or arrays of files by their last modified date/time.
+ * <p>
+ * Example of sorting a list of files using the {@link #LASTMODIFIED_COMPARATOR} singleton instance:
  * 
- * @author Nils Braden
+ * <pre>
+ *       List&lt;File&gt; list = ...
+ *       Collections.sort(list, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
+ * </pre>
+ * <p>
+ * Example of doing a <i>reverse</i> sort of an array of files using the {@link #LASTMODIFIED_REVERSE} singleton
+ * instance:
+ * 
+ * <pre>
+ *       File[] array = ...
+ *       Arrays.sort(array, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+ * </pre>
+ * <p>
+ * 
+ * @version $Revision: 609243 $ $Date: 2008-01-06 00:30:42 +0000 (Sun, 06 Jan 2008) $
+ * @since Commons IO 1.4
  */
-public class FileDateComparator implements Comparator<File> {
+@SuppressWarnings("serial")
+public class FileDateComparator implements Comparator<File>, Serializable {
     
-    @Override
-    public int compare(File f1, File f2) {
-        // As suggested here:
-        // http://stackoverflow.com/questions/203030/best-way-to-list-files-in-java-sorted-by-date-modified
-        // return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
-        
-        // Last solution somehow also produced errors ("Comparison method violates its general contract!"), this one is
-        // copied from LastModifiedFileComparator.java (Apache Commons IO):
-        long result = f1.lastModified() - f2.lastModified();
-        if (result < 0l) {
+    /** Last modified comparator instance */
+    public static final Comparator<File> LASTMODIFIED_COMPARATOR = new FileDateComparator();
+    
+    /**
+     * Compare the last the last modified date/time of two files.
+     * 
+     * @param obj1
+     *            The first file to compare
+     * @param obj2
+     *            The second file to compare
+     * @return a negative value if the first file's lastmodified date/time
+     *         is less than the second, zero if the lastmodified date/time are the
+     *         same and a positive value if the first files lastmodified date/time
+     *         is greater than the second file.
+     * 
+     */
+    public int compare(File obj1, File obj2) {
+        long result = obj1.lastModified() - obj2.lastModified();
+        if (result < 0) {
             return -1;
-        } else if (result > 0l) {
+        } else if (result > 0) {
             return 1;
         } else {
             return 0;
