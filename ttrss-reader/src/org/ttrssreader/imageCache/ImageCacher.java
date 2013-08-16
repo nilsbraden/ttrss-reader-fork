@@ -339,7 +339,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             List<File> list = Arrays.asList(cacheFolder.listFiles());
             if (list == null)
                 return;
-            Collections.sort(list, new FileDateComparator());
+            Collections.sort(list, FileDateComparator.LASTMODIFIED_COMPARATOR);
             
             int i = 0;
             while (folderSize > cacheSizeMax) {
