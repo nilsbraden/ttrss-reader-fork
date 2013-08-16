@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Comparator;
 import android.util.Log;
 
 /**
@@ -76,15 +75,14 @@ public class FileUtils {
     public static long downloadToFile(String downloadUrl, File file, long maxSize) {
         FileOutputStream fos = null;
         int byteWritten = 0;
-
-        Log.d (Utils.TAG, String.format (
-          "Start download from url '%s' to file '%s'", downloadUrl,
-          file.getAbsolutePath ()));
-
+        
+        Log.d(Utils.TAG,
+                String.format("Start download from url '%s' to file '%s'", downloadUrl, file.getAbsolutePath()));
+        
         try {
             if (file.exists())
-                return file.length ();
-
+                return file.length();
+            
             URL url = new URL(downloadUrl);
             URLConnection connection = url.openConnection();
             connection.setConnectTimeout((int) (Utils.SECOND * 2));
@@ -123,7 +121,7 @@ public class FileUtils {
             }
         } catch (Exception e) {
             Log.e(Utils.TAG, "Download not finished properly. Exception: " + e.getMessage());
-            e.printStackTrace ();
+            e.printStackTrace();
             byteWritten = -1;
         } finally {
             if (fos != null) {
@@ -133,29 +131,10 @@ public class FileUtils {
                 }
             }
         }
-
-        Log.d(Utils.TAG, String.format ("Stop download from url '%s'. Downloaded %d bytes", downloadUrl, byteWritten));
-
+        
+        Log.d(Utils.TAG, String.format("Stop download from url '%s'. Downloaded %d bytes", downloadUrl, byteWritten));
+        
         return byteWritten;
-    }
-    
-    /**
-     * Sums up the size of a folder including all files and subfolders.
-     * 
-     * @param folder
-     *            the folder
-     * @return the size of the folder
-     */
-    public static long getFolderSize(File folder) {
-        long size = 0;
-        for (File f : folder.listFiles()) {
-            if (f.isDirectory()) {
-                size += getFolderSize(f);
-            } else {
-                size += f.length();
-            }
-        }
-        return size;
     }
     
     /**
@@ -188,29 +167,6 @@ public class FileUtils {
         }
         
         return ret;
-    }
-    
-    public class FileDateComparator implements Comparator<File> {
-        
-        @Override
-        public int compare(File f1, File f2) {
-            
-            // Hopefully avoids crashes due to IllegalArgumentExceptions
-            if (f1.equals(f2))
-                return 0;
-            
-            long size1 = f1.lastModified();
-            long size2 = f2.lastModified();
-            
-            if (size1 < size2) {
-                return -1;
-            } else if (size1 > size2) {
-                return 1;
-            }
-            
-            return 0; // equal
-        }
-        
     }
     
 }

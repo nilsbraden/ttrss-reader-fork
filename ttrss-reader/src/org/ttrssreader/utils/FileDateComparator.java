@@ -33,9 +33,9 @@ public class FileDateComparator implements Comparator<File> {
         // Last solution somehow also produced errors ("Comparison method violates its general contract!"), this one is
         // copied from LastModifiedFileComparator.java (Apache Commons IO):
         long result = f1.lastModified() - f2.lastModified();
-        if (result < 0) {
+        if (result < 0l) {
             return -1;
-        } else if (result > 0) {
+        } else if (result > 0l) {
             return 1;
         } else {
             return 0;
