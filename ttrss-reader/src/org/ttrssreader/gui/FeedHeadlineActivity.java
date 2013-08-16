@@ -100,6 +100,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
         fillParentInformation();
+        fillHeaderInformation();
     }
     
     private void fillParentInformation() {
@@ -122,30 +123,36 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
     }
     
-    /**
-     * Only called from within the FeedHeadlineUpdater to make sure we dont have any DB-Access from main thread!
-     */
-    private void fillTitleInformation() {
-        if (selectArticlesForCategory) {
-            Category category = DBHelper.getInstance().getCategory(categoryId);
-            if (category != null)
-                title = category.title;
-        } else if (feedId >= -4 && feedId < 0) { // Virtual Category
-            Category category = DBHelper.getInstance().getCategory(feedId);
-            if (category != null)
-                title = category.title;
-        } else {
-            Feed feed = DBHelper.getInstance().getFeed(feedId);
-            if (feed != null)
-                title = feed.title;
-        }
-        unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
-                selectArticlesForCategory);
+    private void fillHeaderInformation() {
+        AsyncTask<Void, Void, Void> headerTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                if (selectArticlesForCategory) {
+                    Category category = DBHelper.getInstance().getCategory(categoryId);
+                    if (category != null)
+                        title = category.title;
+                } else if (feedId >= -4 && feedId < 0) { // Virtual Category
+                    Category category = DBHelper.getInstance().getCategory(feedId);
+                    if (category != null)
+                        title = category.title;
+                } else {
+                    Feed feed = DBHelper.getInstance().getFeed(feedId);
+                    if (feed != null)
+                        title = feed.title;
+                }
+                unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
+                        selectArticlesForCategory);
+                UpdateController.getInstance().notifyListeners();
+                return null;
+            }
+        };
+        headerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
+        fillHeaderInformation();
         refreshAndUpdate();
     }
     
@@ -306,9 +313,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         @Override
         protected Void doInBackground(Void... params) {
-            fillTitleInformation();
-            UpdateController.getInstance().notifyListeners();
-            
             taskCount = DEFAULT_TASK_COUNT;
             
             int progress = 0;
