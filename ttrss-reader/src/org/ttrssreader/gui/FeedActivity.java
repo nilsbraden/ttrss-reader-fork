@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.model.pojos.Category;
@@ -38,11 +39,12 @@ public class FeedActivity extends MenuActivity {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     
-    public static final String FRAGMENT = "FEED_FRAGMENT";
+    private static final String FRAGMENT = "FEED_FRAGMENT";
     
     private int categoryId;
     private FeedUpdater feedUpdater = null;
     private String title = "";
+    private int unreadCount = 0;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -65,7 +67,9 @@ public class FeedActivity extends MenuActivity {
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }
-        
+    }
+    
+    private void fillTitleInformation() {
         Category category = DBHelper.getInstance().getCategory(categoryId); // TODO
         if (category != null)
             title = category.title;
@@ -80,7 +84,6 @@ public class FeedActivity extends MenuActivity {
     @Override
     protected void doRefresh() {
         super.doRefresh();
-        int unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true); // TODO
         setTitle(title);
         setUnread(unreadCount);
         
@@ -144,6 +147,11 @@ public class FeedActivity extends MenuActivity {
         
         @Override
         protected Void doInBackground(Void... params) {
+            if ("".equals(title))
+                fillTitleInformation();
+            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
+            UpdateController.getInstance().notifyListeners();
+            
             Category c = DBHelper.getInstance().getCategory(categoryId);
             taskCount = DEFAULT_TASK_COUNT + (c.unread != 0 ? 1 : 0);
             
