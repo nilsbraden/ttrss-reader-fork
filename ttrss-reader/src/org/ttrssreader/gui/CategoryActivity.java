@@ -23,6 +23,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ChangelogDialog;
 import org.ttrssreader.gui.dialogs.CrashreportDialog;
 import org.ttrssreader.gui.dialogs.WelcomeDialog;
@@ -57,10 +58,11 @@ public class CategoryActivity extends MenuActivity {
     private static final int SELECTED_CATEGORY = 2;
     private static final int SELECTED_LABEL = 3;
     
-    public static final String FRAGMENT = "CATEGORY_FRAGMENT";
+    private static final String FRAGMENT = "CATEGORY_FRAGMENT";
     
     private String applicationName = null;
-    public boolean cacherStarted = false;
+    private int unreadCount = 0;
+    private boolean cacherStarted = false;
     
     private CategoryUpdater categoryUpdater = null;
     
@@ -136,10 +138,9 @@ public class CategoryActivity extends MenuActivity {
         super.doRefresh();
         if (applicationName == null)
             applicationName = getResources().getString(R.string.ApplicationName);
-        int unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true); // TODO
         setTitle(applicationName);
         setUnread(unreadCount);
-        
+    
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.category_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
@@ -191,6 +192,9 @@ public class CategoryActivity extends MenuActivity {
         
         @Override
         protected Void doInBackground(Void... params) {
+            unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
+            UpdateController.getInstance().notifyListeners();
+            
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
             
             Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);

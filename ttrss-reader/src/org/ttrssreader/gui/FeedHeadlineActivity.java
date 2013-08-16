@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
@@ -53,9 +54,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     public static final String FEED_INDEX = "INDEX";
     public static final int FEED_NO_ID = 37846914;
     
-    public static final String FRAGMENT = "HEADLINE_FRAGMENT";
-    
-    public boolean flingDetected = false;
+    private static final String FRAGMENT = "HEADLINE_FRAGMENT";
     
     private int categoryId = -1000;
     private int feedId = -1000;
@@ -66,6 +65,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     private FeedHeadlineUpdater headlineUpdater = null;
     private int[] parentIDs = new int[2];
     private String title = "";
+    private int unreadCount = 0;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -99,21 +99,6 @@ public class FeedHeadlineActivity extends MenuActivity {
     private void initialize() {
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
-        
-        if (selectArticlesForCategory) {
-            Category category = DBHelper.getInstance().getCategory(categoryId); // TODO
-            if (category != null)
-                title = category.title;
-        } else if (feedId >= -4 && feedId < 0) { // Virtual Category
-            Category category = DBHelper.getInstance().getCategory(feedId); // TODO
-            if (category != null)
-                title = category.title;
-        } else {
-            Feed feed = DBHelper.getInstance().getFeed(feedId); // TODO
-            if (feed != null)
-                title = feed.title;
-        }
-        
         fillParentInformation();
     }
     
@@ -137,6 +122,25 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
     }
     
+    /**
+     * Only called from within the FeedHeadlineUpdater to make sure we dont have any DB-Access from main thread!
+     */
+    private void fillTitleInformation() {
+        if (selectArticlesForCategory) {
+            Category category = DBHelper.getInstance().getCategory(categoryId);
+            if (category != null)
+                title = category.title;
+        } else if (feedId >= -4 && feedId < 0) { // Virtual Category
+            Category category = DBHelper.getInstance().getCategory(feedId);
+            if (category != null)
+                title = category.title;
+        } else {
+            Feed feed = DBHelper.getInstance().getFeed(feedId);
+            if (feed != null)
+                title = feed.title;
+        }
+    }
+    
     @Override
     protected void onResume() {
         super.onResume();
@@ -146,16 +150,8 @@ public class FeedHeadlineActivity extends MenuActivity {
     @Override
     protected void doRefresh() {
         super.doRefresh();
-        int unreadCount = 0;
-        if (selectArticlesForCategory)
-            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true); // TODO
-        else
-            unreadCount = DBHelper.getInstance().getUnreadCount(feedId, false); // TODO
-        
         setTitle(title);
         setUnread(unreadCount);
-        
-        flingDetected = false; // reset fling-status
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
     }
     
@@ -308,6 +304,12 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         @Override
         protected Void doInBackground(Void... params) {
+            if ("".equals(title))
+                fillTitleInformation();
+            unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
+                    selectArticlesForCategory);
+            UpdateController.getInstance().notifyListeners();
+            
             taskCount = DEFAULT_TASK_COUNT;
             
             int progress = 0;
