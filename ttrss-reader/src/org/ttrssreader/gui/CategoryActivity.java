@@ -125,11 +125,30 @@ public class CategoryActivity extends MenuActivity {
                 doCache(false); // images
             }
         }
+        
+        initialize();
+    }
+    
+    private void initialize() {
+        fillHeaderInformation();
+    }
+    
+    private void fillHeaderInformation() {
+        AsyncTask<Void, Void, Void> headerTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
+                UpdateController.getInstance().notifyListeners();
+                return null;
+            }
+        };
+        headerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
+        fillHeaderInformation();
         refreshAndUpdate();
     }
     
@@ -141,7 +160,7 @@ public class CategoryActivity extends MenuActivity {
             setTitle(applicationName);
         }
         setUnread(unreadCount);
-    
+        
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.category_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
@@ -193,9 +212,6 @@ public class CategoryActivity extends MenuActivity {
         
         @Override
         protected Void doInBackground(Void... params) {
-            unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
-            UpdateController.getInstance().notifyListeners();
-            
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
             
             Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
