@@ -19,6 +19,7 @@ package org.ttrssreader.model;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
@@ -128,6 +129,14 @@ public class FeedAdapter extends MainAdapter {
         query.append(buildSafeQuery ? " LIMIT 200" : " LIMIT 600");
         
         return DBHelper.getInstance().query(query.toString(), null);
+    }
+    
+    @Override
+    protected void fetchOtherData() {
+        Category category = DBHelper.getInstance().getCategory(categoryId);
+        if (category != null)
+            title = category.title;
+        unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
     }
     
 }

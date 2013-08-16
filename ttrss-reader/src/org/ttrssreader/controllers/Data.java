@@ -73,7 +73,6 @@ public class Data {
     private Map<Integer, Long> feedsChanged = new HashMap<Integer, Long>();
     private long virtCategoriesChanged = 0;
     private long categoriesChanged = 0;
-    private long countersChanged = 0;
     
     private ConnectivityManager cm;
     
@@ -95,29 +94,6 @@ public class Data {
         this.context = context;
         if (context != null)
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    }
-    
-    // *** COUNTERS *********************************************************************
-    
-    /**
-     * update actual counter information from server
-     * 
-     * @param overrideOffline
-     *            do not check connected state
-     * @param overrideDelay
-     *            if set to {@code true} enforces the update,
-     *            otherwise the time from last update will be
-     *            considered
-     */
-    public void updateCounters(boolean overrideOffline, boolean overrideDelay) {
-        if (!overrideDelay && countersChanged > System.currentTimeMillis() - Utils.HALF_UPDATE_TIME) {
-            return;
-        } else if (Utils.isConnected(cm) || overrideOffline) {
-            if (Controller.getInstance().getConnector().getCounters()) {
-                countersChanged = System.currentTimeMillis();
-                notifyListeners();
-            }
-        }
     }
     
     // *** ARTICLES *********************************************************************
@@ -238,7 +214,7 @@ public class Data {
         long currentTime = System.currentTimeMillis();
         // Store requested feed-/category-id and ids of all feeds in db for this category if a category was requested
         articlesChanged.put(feedId, currentTime);
-        UpdateController.getInstance().notifyListeners();
+        notifyListeners();
         
         if (isCat) {
             for (Feed f : DBHelper.getInstance().getFeeds(feedId)) {
@@ -311,7 +287,6 @@ public class Data {
             
             // correct counters according to real local DB-Data
             DBHelper.getInstance().calculateCounters();
-            countersChanged = System.currentTimeMillis();
             notifyListeners();
             
             // Only store sinceId when doing a full cache of new articles, else it doesn't work.

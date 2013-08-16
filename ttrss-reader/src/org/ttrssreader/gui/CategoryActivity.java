@@ -23,7 +23,6 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
-import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ChangelogDialog;
 import org.ttrssreader.gui.dialogs.CrashreportDialog;
 import org.ttrssreader.gui.dialogs.WelcomeDialog;
@@ -60,8 +59,6 @@ public class CategoryActivity extends MenuActivity {
     
     private static final String FRAGMENT = "CATEGORY_FRAGMENT";
     
-    private String applicationName = null;
-    private int unreadCount = 0;
     private boolean cacherStarted = false;
     
     private CategoryUpdater categoryUpdater = null;
@@ -125,42 +122,17 @@ public class CategoryActivity extends MenuActivity {
                 doCache(false); // images
             }
         }
-        
-        initialize();
-    }
-    
-    private void initialize() {
-        fillHeaderInformation();
-    }
-    
-    private void fillHeaderInformation() {
-        AsyncTask<Void, Void, Void> headerTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
-                UpdateController.getInstance().notifyListeners();
-                return null;
-            }
-        };
-        headerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
-        fillHeaderInformation();
         refreshAndUpdate();
     }
     
     @Override
     protected void doRefresh() {
         super.doRefresh();
-        if (applicationName == null) {
-            applicationName = getResources().getString(R.string.ApplicationName);
-            setTitle(applicationName);
-        }
-        setUnread(unreadCount);
-        
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.category_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));

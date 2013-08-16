@@ -22,6 +22,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.Utils;
@@ -147,8 +148,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return DBHelper.getInstance().query(query, null);
     }
     
-    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) { // TODO: true, false liefert
-                                                                                           // kein Ergebnis
+    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
         String lastOpenedArticlesList = Utils.separateItems(Controller.getInstance().lastOpenedArticles, ",");
         
         boolean displayUnread = Controller.getInstance().onlyUnread();
@@ -243,6 +243,25 @@ public class FeedHeadlineAdapter extends MainAdapter {
         query.append(invertSortArticles ? "ASC" : "DESC");
         query.append(" LIMIT 600 ");
         return query.toString();
+    }
+    
+    @Override
+    protected void fetchOtherData() {
+        if (selectArticlesForCategory) {
+            Category category = DBHelper.getInstance().getCategory(categoryId);
+            if (category != null)
+                title = category.title;
+        } else if (feedId >= -4 && feedId < 0) { // Virtual Category
+            Category category = DBHelper.getInstance().getCategory(feedId);
+            if (category != null)
+                title = category.title;
+        } else {
+            Feed feed = DBHelper.getInstance().getFeed(feedId);
+            if (feed != null)
+                title = feed.title;
+        }
+        unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
+                selectArticlesForCategory);
     }
     
 }

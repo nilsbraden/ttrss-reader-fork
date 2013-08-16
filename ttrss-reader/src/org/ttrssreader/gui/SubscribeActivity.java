@@ -67,14 +67,23 @@ public class SubscribeActivity extends MenuActivity {
         feedUrl = (EditText) findViewById(R.id.subscribe_url);
         feedUrl.setText(urlValue);
         
-        List<Category> catList = new ArrayList<Category>();
-        catList.addAll(DBHelper.getInstance().getAllCategories());
-        
-        categoriesAdapter = new SimpleCategoryAdapter(context, catList);
-        categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        AsyncTask<Void, Void, Void> headerTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                
+                // Fill the adapter for the spinner in the background to avoid direct DB-access
+                List<Category> catList = new ArrayList<Category>();
+                catList.addAll(DBHelper.getInstance().getAllCategories());
+                categoriesAdapter = new SimpleCategoryAdapter(context, catList);
+                categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                categorieSpinner.setAdapter(categoriesAdapter);
+                
+                return null;
+            }
+        };
+        headerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         
         categorieSpinner = (Spinner) findViewById(R.id.subscribe_categories);
-        categorieSpinner.setAdapter(categoriesAdapter);
         
         okButton = (Button) findViewById(R.id.subscribe_ok_button);
         okButton.setOnClickListener(new View.OnClickListener() {
@@ -170,11 +179,6 @@ public class SubscribeActivity extends MenuActivity {
         return true;
     }
     
-    // @formatter:off // Not needed here:
-    @Override public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) { }
-    @Override protected void doUpdate(boolean forceUpdate) { }
-    //@formatter:on
-    
     class SimpleCategoryAdapter extends ArrayAdapter<Category> {
         public SimpleCategoryAdapter(Context context, List<Category> objects) {
             super(context, android.R.layout.simple_list_item_1, objects);
@@ -198,5 +202,10 @@ public class SubscribeActivity extends MenuActivity {
             return convertView;
         }
     }
+    
+    // @formatter:off // Not needed here:
+    @Override public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) { }
+    @Override protected void doUpdate(boolean forceUpdate) { }
+    // @formatter:on
     
 }
