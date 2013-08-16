@@ -70,9 +70,10 @@ public class FeedActivity extends MenuActivity {
     }
     
     private void fillTitleInformation() {
-        Category category = DBHelper.getInstance().getCategory(categoryId); // TODO
+        Category category = DBHelper.getInstance().getCategory(categoryId);
         if (category != null)
             title = category.title;
+        unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
     }
     
     @Override
@@ -147,9 +148,7 @@ public class FeedActivity extends MenuActivity {
         
         @Override
         protected Void doInBackground(Void... params) {
-            if ("".equals(title))
-                fillTitleInformation();
-            unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
+            fillTitleInformation();
             UpdateController.getInstance().notifyListeners();
             
             Category c = DBHelper.getInstance().getCategory(categoryId);
