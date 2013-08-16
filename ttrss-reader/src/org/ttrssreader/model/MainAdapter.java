@@ -37,6 +37,9 @@ public abstract class MainAdapter extends BaseAdapter {
     
     protected boolean selectArticlesForCategory;
     
+    public String title = null;
+    public int unreadCount = -1;
+    
     public MainAdapter(Context context) {
         this(context, Integer.MIN_VALUE);
     }
@@ -200,6 +203,8 @@ public abstract class MainAdapter extends BaseAdapter {
                 tempCursor = null;
                 closeCursor(oldCur);
             }
+            
+            fetchOtherData();
         }
     }
     
@@ -246,6 +251,7 @@ public abstract class MainAdapter extends BaseAdapter {
      * @return a valid SQL-Query string for this adapter.
      */
     protected abstract Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
+    protected abstract void fetchOtherData();
     
     // Use handler with weak reference on parent object
     private static class MsgHandler extends WeakReferenceHandler<BaseAdapter> {

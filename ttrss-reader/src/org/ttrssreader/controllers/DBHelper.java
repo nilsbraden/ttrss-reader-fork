@@ -105,7 +105,7 @@ public class DBHelper {
     // @formatter:on
     
     private Context context;
-    public SQLiteDatabase db;
+    private SQLiteDatabase db;
     
     private SQLiteStatement insertCategory;
     private SQLiteStatement insertFeed;

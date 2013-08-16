@@ -19,21 +19,18 @@ package org.ttrssreader.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
@@ -42,9 +39,7 @@ import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
@@ -104,7 +99,6 @@ public abstract class JSONConnector {
     protected static final String VALUE_LABEL_ID = "label_id";
     protected static final String VALUE_ASSIGN = "assign";
     protected static final String VALUE_API_LEVEL = "getApiLevel";
-    protected static final String VALUE_GET_COUNTERS = "getCounters";
     protected static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
     
     protected static final String ERROR = "error";
@@ -446,97 +440,6 @@ public abstract class JSONConnector {
     
     // ***************** Helper-Methods **************************************************
     
-    private void parseCounter(JsonReader reader) {
-        
-        final int isCat = 0;
-        final int id = 1;
-        final int unreadCount = 2;
-        
-        long time = System.currentTimeMillis();
-        
-        List<int[]> list = new ArrayList<int[]>();
-        try {
-            reader.beginArray();
-            while (reader.hasNext()) {
-                
-                int[] values = new int[] { 0, Integer.MAX_VALUE, 0 };
-                
-                reader.beginObject();
-                while (reader.hasNext()) {
-                    
-                    try {
-                        String name = reader.nextName();
-                        
-                        if (name.equals(COUNTER_KIND)) {
-                            values[isCat] = reader.nextString().equals(COUNTER_CAT) ? 1 : 0;
-                        } else if (name.equals(COUNTER_ID)) {
-                            String value = reader.nextString();
-                            // Check if id is a string, then it would be a global counter
-                            if (value.equals("global-unread") || value.equals("subscribed-feeds"))
-                                continue;
-                            values[id] = Integer.parseInt(value);
-                        } else if (name.equals(COUNTER_COUNTER)) {
-                            String value = reader.nextString();
-                            // Check if null because of an API-bug
-                            if (!value.equals("null"))
-                                values[unreadCount] = Integer.parseInt(value);
-                        } else {
-                            reader.skipValue();
-                        }
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                        reader.skipValue();
-                        continue;
-                    }
-                    
-                }
-                reader.endObject();
-                list.add(values);
-                
-            }
-            reader.endArray();
-        } catch (IllegalStateException ise) {
-        } catch (IOException e) {
-        }
-        
-        Log.d(Utils.TAG, "Counters: parsing took " + (System.currentTimeMillis() - time) + "ms");
-        time = System.currentTimeMillis();
-        
-        SQLiteDatabase db = DBHelper.getInstance().db;
-        try {
-            db.beginTransaction();
-            
-            for (int[] values : list) { // TODO: Optimize!!!
-                if (values[id] == Integer.MAX_VALUE)
-                    continue;
-                
-                ContentValues cv = new ContentValues();
-                cv.put("unread", values[unreadCount]);
-                
-                if (values[isCat] > 0 && values[id] >= 0) {
-                    // Category
-                    db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { values[id] + "" });
-                } else if (values[isCat] == 0 && values[id] < 0 && values[id] >= -4) {
-                    // Virtual Category
-                    db.update(DBHelper.TABLE_CATEGORIES, cv, "id=?", new String[] { values[id] + "" });
-                } else if (values[isCat] == 0 && values[id] > 0) {
-                    // Feed
-                    db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { values[id] + "" });
-                } else if (values[isCat] == 0 && values[id] < -10) {
-                    // Label
-                    db.update(DBHelper.TABLE_FEEDS, cv, "id=?", new String[] { values[id] + "" });
-                }
-            }
-            
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-            DBHelper.getInstance().purgeArticlesNumber();
-        }
-        
-        Log.d(Utils.TAG, "Counters: inserting took " + (System.currentTimeMillis() - time) + "ms");
-    }
-    
     private Set<String> parseAttachments(JsonReader reader) throws IOException {
         Set<String> ret = new HashSet<String>();
         reader.beginArray();
@@ -718,49 +621,6 @@ public abstract class JSONConnector {
     }
     
     // ***************** Retrieve-Data-Methods **************************************************
-    
-    /**
-     * Retrieves counters information, containing the counters for every
-     * category and feed from server. The retrieved information is directly
-     * inserted into the database.
-     * Each counter is a map of category/feed to amount of entries e.g. "id" -> 42
-     * 
-     * @return true if the request succeeded.
-     */
-    public boolean getCounters() {
-        boolean ret = true;
-        makeLazyServerWork(); // otherwise the unread counters may be outdated
-        
-        if (!sessionAlive())
-            return false;
-        
-        long time = System.currentTimeMillis();
-        Map<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_OP, VALUE_GET_COUNTERS);
-        params.put(PARAM_OUTPUT_MODE, VALUE_OUTPUT_MODE);
-        
-        JsonReader reader = null;
-        try {
-            reader = prepareReader(params);
-            if (reader == null)
-                return false;
-            
-            parseCounter(reader);
-            
-        } catch (IOException e) {
-            e.printStackTrace();
-            ret = false;
-        } finally {
-            if (reader != null)
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                }
-        }
-        
-        Log.d(Utils.TAG, "getCounters: " + (System.currentTimeMillis() - time) + "ms");
-        return ret;
-    }
     
     /**
      * Retrieves all categories.

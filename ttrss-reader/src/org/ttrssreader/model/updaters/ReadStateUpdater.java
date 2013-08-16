@@ -104,10 +104,12 @@ public class ReadStateUpdater implements IUpdatable {
                 } else {
                     Data.getInstance().setRead(ci.id, false);
                 }
+                UpdateController.getInstance().notifyListeners();
             }
         } else if (feeds != null) {
             for (Feed fi : feeds) {
                 Data.getInstance().setRead(fi.id, false);
+                UpdateController.getInstance().notifyListeners();
             }
         } else if (articles != null) {
             Set<Integer> ids = new HashSet<Integer>();

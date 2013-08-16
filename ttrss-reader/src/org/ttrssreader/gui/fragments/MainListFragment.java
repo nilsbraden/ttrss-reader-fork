@@ -15,14 +15,17 @@
 
 package org.ttrssreader.gui.fragments;
 
+import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
+import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -89,8 +92,11 @@ public class MainListFragment extends ListFragment implements IUpdateEndListener
     @Override
     public void onResume() {
         super.onResume();
-        if (adapter != null)
+        if (adapter != null) {
             adapter.refreshQuery();
+            Log.d(Utils.TAG, "onResume -> setTitleAfterUpdate()");
+            setTitleAfterUpdate();
+        }
         getListView().setVisibility(View.VISIBLE);
         listView.setSelectionFromTop(scrollPosition, 0);
     }
@@ -115,6 +121,16 @@ public class MainListFragment extends ListFragment implements IUpdateEndListener
     @Override
     public void onUpdateEnd() {
         adapter.refreshQuery();
+        Log.d(Utils.TAG, "onUpdateEnd -> setTitleAfterUpdate()");
+        setTitleAfterUpdate();
+    }
+
+    private void setTitleAfterUpdate() {
+        MenuActivity activity = (MenuActivity) getActivity();
+        if (adapter.title != null)
+            activity.setTitle(adapter.title);
+        if (adapter.unreadCount >= 0)
+            activity.setUnread(adapter.unreadCount);
     }
     
 }

@@ -67,33 +67,11 @@ public class FeedActivity extends MenuActivity {
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }
-        
-        initialize();
-    }
-    
-    private void initialize() {
-        fillHeaderInformation();
-    }
-    
-    private void fillHeaderInformation() {
-        AsyncTask<Void, Void, Void> headerTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                Category category = DBHelper.getInstance().getCategory(categoryId);
-                if (category != null)
-                    title = category.title;
-                unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
-                UpdateController.getInstance().notifyListeners();
-                return null;
-            }
-        };
-        headerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
     
     @Override
     protected void onResume() {
         super.onResume();
-        fillHeaderInformation();
         refreshAndUpdate();
     }
     
@@ -163,7 +141,6 @@ public class FeedActivity extends MenuActivity {
         
         @Override
         protected Void doInBackground(Void... params) {
-            fillHeaderInformation();
             UpdateController.getInstance().notifyListeners();
             
             Category c = DBHelper.getInstance().getCategory(categoryId);

@@ -192,6 +192,12 @@ public class CategoryAdapter extends MainAdapter {
         }
     }
     
+    @Override
+    protected void fetchOtherData() {
+        title = context.getResources().getString(R.string.ApplicationName);
+        unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
+    }
+    
     /*
      * This is quite a hack. Since partial-sorting of sql-results is not possible I wasn't able to sort virtual
      * categories by id, Labels by title, insert uncategorized feeds there and sort categories by title again.

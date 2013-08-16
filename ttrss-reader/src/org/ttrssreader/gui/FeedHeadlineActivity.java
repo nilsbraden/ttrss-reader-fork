@@ -18,16 +18,12 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
-import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.model.FeedAdapter;
-import org.ttrssreader.model.pojos.Category;
-import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
@@ -100,7 +96,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
         fillParentInformation();
-        fillHeaderInformation();
     }
     
     private void fillParentInformation() {
@@ -123,36 +118,9 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
     }
     
-    private void fillHeaderInformation() {
-        AsyncTask<Void, Void, Void> headerTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                if (selectArticlesForCategory) {
-                    Category category = DBHelper.getInstance().getCategory(categoryId);
-                    if (category != null)
-                        title = category.title;
-                } else if (feedId >= -4 && feedId < 0) { // Virtual Category
-                    Category category = DBHelper.getInstance().getCategory(feedId);
-                    if (category != null)
-                        title = category.title;
-                } else {
-                    Feed feed = DBHelper.getInstance().getFeed(feedId);
-                    if (feed != null)
-                        title = feed.title;
-                }
-                unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
-                        selectArticlesForCategory);
-                UpdateController.getInstance().notifyListeners();
-                return null;
-            }
-        };
-        headerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-    }
-    
     @Override
     protected void onResume() {
         super.onResume();
-        fillHeaderInformation();
         refreshAndUpdate();
     }
     
