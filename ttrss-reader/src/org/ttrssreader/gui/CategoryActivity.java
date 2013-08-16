@@ -136,9 +136,10 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void doRefresh() {
         super.doRefresh();
-        if (applicationName == null)
+        if (applicationName == null) {
             applicationName = getResources().getString(R.string.ApplicationName);
-        setTitle(applicationName);
+            setTitle(applicationName);
+        }
         setUnread(unreadCount);
     
         doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.category_list));
