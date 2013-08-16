@@ -337,9 +337,4 @@ public class CategoryActivity extends MenuActivity {
         }
     }
     
-    @Override
-    protected void onDataChanged() {
-        doRefresh();
-    }
-    
 }
