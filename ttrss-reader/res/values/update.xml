@@ -18,6 +18,12 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.53
+			\n * Added all drawables for different screen-sizes
+			\n * Modified "Subscribe to feed" and "Share to published" layouts
+			\n * Allow API-Level 18
+			\n * French translation (thanks to Jean-François BILGER)
+			\n * Lots of background changes and bugfixes</item>
         <item>Version 1.52
 			\n * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
 			\n * Hide ActionBar while scrolling down
