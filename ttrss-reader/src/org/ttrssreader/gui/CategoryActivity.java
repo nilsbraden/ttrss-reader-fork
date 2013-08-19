@@ -236,21 +236,6 @@ public class CategoryActivity extends MenuActivity {
     
     @Override
     public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
-        // Who is calling?
-        switch (type) {
-            case CATEGORY:
-                Log.d(Utils.TAG, "CATEGORY selected. Index: " + selectedIndex);
-                break;
-            case FEED:
-                Log.d(Utils.TAG, "FEED selected. Index: " + selectedIndex);
-                break;
-            case FEEDHEADLINE:
-                Log.d(Utils.TAG, "FEEDHEADLINE selected. Index: " + selectedIndex);
-                break;
-            case NONE:
-                break;
-        }
-        
         // Decide what kind of item was selected
         final int selection;
         if (selectedId < 0 && selectedId >= -4) {

@@ -541,8 +541,8 @@ public class Data {
             Map<Integer, String> idsMark = DBHelper.getInstance().getMarked(mark, 1);
             Map<Integer, String> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
             
-            Log.d(Utils.TAG, "Syncing status '" + mark + "' mark count: " + idsMark.size() + " unmark count:"
-                    + idsUnmark.size());
+            // Log.d(Utils.TAG, "Syncing status '" + mark + "' mark count: " + idsMark.size() + " unmark count:"
+            // + idsUnmark.size());
             
             if (DBHelper.MARK_READ.equals(mark)) {
                 if (Controller.getInstance().getConnector().setArticleRead(idsMark.keySet(), 1))

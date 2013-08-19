@@ -135,6 +135,7 @@ public class StringSupport {
             if (count == maxCount) {
                 ret.add(sb.substring(0, sb.length() - 1));
                 sb = new StringBuilder();
+                count = 0;
             } else {
                 sb.append(",");
                 count++;
