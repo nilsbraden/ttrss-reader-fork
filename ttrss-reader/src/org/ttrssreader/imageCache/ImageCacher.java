@@ -222,7 +222,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         for (Article article : articles) {
             int articleId = article.id;
             
-            Log.d(Utils.TAG, "Cache images for article ID: " + articleId);
+            // Log.d(Utils.TAG, "Cache images for article ID: " + articleId);
             
             // Get images included in HTML
             Set<String> set = new HashSet<String>();
@@ -232,7 +232,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     if (!imageCache.containsKey(url))
                         set.add(url);
                 }
-                Log.d(Utils.TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size());
+                // Log.d(Utils.TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size());
                 
                 // Get images from attachments separately
                 for (String url : article.attachments) {
@@ -243,7 +243,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                         }
                     }
                 }
-                Log.d(Utils.TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size());
+                // Log.d(Utils.TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size());
             } catch (IllegalStateException e) {
                 // sometimes get Cursor error, the String (content) could not
                 // be read, so just skip such records
@@ -294,7 +294,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         @Override
         public void run() {
             long downloaded = 0;
-            Log.d(Utils.TAG, "Start download " + params.length + " images for article ID " + articleId);
+            // Log.d(Utils.TAG, "Start download " + params.length + " images for article ID " + articleId);
             for (String url : params) {
                 long size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
                 
@@ -304,7 +304,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     downloaded += size;
             }
             
-            Log.d(Utils.TAG, "Downloaded " + downloaded + " bytes for article ID " + articleId);
+            // Log.d(Utils.TAG, "Downloaded " + downloaded + " bytes for article ID " + articleId);
             
             synchronized (map) {
                 if (downloaded > 0)
@@ -315,8 +315,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 if (allOK || downloaded > 0)
                     DBHelper.getInstance().updateArticleCachedImages(articleId, true);
                 
-                Log.d(Utils.TAG, "Download for article: " + articleId + " done. Success: " + allOK + " Downloaded: "
-                        + downloaded);
+                // Log.d(Utils.TAG, "Download for article: " + articleId + " done. Success: " + allOK + " Downloaded: "
+                // + downloaded);
                 
                 map.notifyAll();
             }

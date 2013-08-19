@@ -21,11 +21,9 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
-import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -94,7 +92,6 @@ public class MainListFragment extends ListFragment implements IUpdateEndListener
         super.onResume();
         if (adapter != null) {
             adapter.refreshQuery();
-            Log.d(Utils.TAG, "onResume -> setTitleAfterUpdate()");
             setTitleAfterUpdate();
         }
         getListView().setVisibility(View.VISIBLE);
@@ -123,7 +120,7 @@ public class MainListFragment extends ListFragment implements IUpdateEndListener
         adapter.refreshQuery();
         setTitleAfterUpdate();
     }
-
+    
     private void setTitleAfterUpdate() {
         MenuActivity activity = (MenuActivity) getActivity();
         if (adapter.title != null)

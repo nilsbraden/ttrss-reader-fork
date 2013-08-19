@@ -1677,7 +1677,7 @@ public class DBHelper {
         Cursor c = null;
         try {
             c = db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" },
-                    "cachedImages=0 AND isUnread>0", null, null, null, null, "LIMIT 1000");
+                    "cachedImages=0 AND isUnread>0", null, null, null, null, "1000");
             
             ArrayList<Article> ret = new ArrayList<Article>(c.getCount());
             while (c.moveToNext()) {
