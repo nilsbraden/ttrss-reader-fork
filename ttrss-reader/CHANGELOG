@@ -9,7 +9,7 @@
   * Fix Issue #170: Mark as Read in All Articles no longer works (Modified new markRead() method in DBHelper to work with virtual categories (all, fresh, published, starred))
   * Fix Issue #168: "Mark articles above read" no longer works as of v 1.52 (Small Bugfix)
   * Fix Issue #172: Can't view image alt-text (Small Bugfix, store content again to allow HTML-parsing for ALT-Text of images)
-  * French translation (thanks to Jean-François BILGER)
+  * French translation (thanks to Jean-FranÃ§ois BILGER)
 
 == Version 1.52 (2) ==
   * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)

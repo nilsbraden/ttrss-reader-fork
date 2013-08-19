@@ -76,8 +76,8 @@ public class FileUtils {
         FileOutputStream fos = null;
         int byteWritten = 0;
         
-        Log.d(Utils.TAG,
-                String.format("Start download from url '%s' to file '%s'", downloadUrl, file.getAbsolutePath()));
+        // Log.d(Utils.TAG,
+        // String.format("Start download from url '%s' to file '%s'", downloadUrl, file.getAbsolutePath()));
         
         try {
             if (file.exists())
@@ -120,8 +120,7 @@ public class FileUtils {
                 }
             }
         } catch (Exception e) {
-            Log.e(Utils.TAG, "Download not finished properly. Exception: " + e.getMessage());
-            e.printStackTrace();
+            Log.e(Utils.TAG, "Download not finished properly. Exception: " + e.getMessage(), e);
             byteWritten = -1;
         } finally {
             if (fos != null) {
