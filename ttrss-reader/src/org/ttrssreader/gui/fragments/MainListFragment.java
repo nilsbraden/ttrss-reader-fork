@@ -121,7 +121,6 @@ public class MainListFragment extends ListFragment implements IUpdateEndListener
     @Override
     public void onUpdateEnd() {
         adapter.refreshQuery();
-        Log.d(Utils.TAG, "onUpdateEnd -> setTitleAfterUpdate()");
         setTitleAfterUpdate();
     }
 
