@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.53 ==
+== Version 1.53 (1) ==
   * Added all drawables for different screen-sizes
   * Modified "Subscribe to feed" and "Share to published" layouts
   * Allow API-Level 18
@@ -10,6 +10,7 @@
   * Fix Issue #168: "Mark articles above read" no longer works as of v 1.52 (Small Bugfix)
   * Fix Issue #172: Can't view image alt-text (Small Bugfix, store content again to allow HTML-parsing for ALT-Text of images)
   * French translation (thanks to Jean-François BILGER)
+  * Fixed bug in ImageCache
 
 == Version 1.52 (2) ==
   * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
