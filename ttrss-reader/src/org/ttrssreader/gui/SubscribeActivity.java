@@ -16,11 +16,11 @@
 package org.ttrssreader.gui;
 
 import java.util.ArrayList;
-import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.net.JSONConnector.SubscriptionResponse;
 import org.ttrssreader.utils.AsyncTask;
@@ -57,6 +57,8 @@ public class SubscribeActivity extends MenuActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.feedsubscribe);
         setTitle(R.string.IntentSubscribe);
+        ProgressBarManager.getInstance().addProgress(activity);
+        setSupportProgressBarVisibility(true);
         
         String urlValue = getIntent().getStringExtra(Intent.EXTRA_TEXT);
         
@@ -67,23 +69,13 @@ public class SubscribeActivity extends MenuActivity {
         feedUrl = (EditText) findViewById(R.id.subscribe_url);
         feedUrl.setText(urlValue);
         
-        AsyncTask<Void, Void, Void> headerTask = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                
-                // Fill the adapter for the spinner in the background to avoid direct DB-access
-                List<Category> catList = new ArrayList<Category>();
-                catList.addAll(DBHelper.getInstance().getAllCategories());
-                categoriesAdapter = new SimpleCategoryAdapter(context, catList);
-                categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                categorieSpinner.setAdapter(categoriesAdapter);
-                
-                return null;
-            }
-        };
-        headerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        
+        categoriesAdapter = new SimpleCategoryAdapter(context);
+        categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorieSpinner = (Spinner) findViewById(R.id.subscribe_categories);
+        categorieSpinner.setAdapter(categoriesAdapter);
+        
+        CategoryUpdater categoryUpdater = new CategoryUpdater();
+        categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         
         okButton = (Button) findViewById(R.id.subscribe_ok_button);
         okButton.setOnClickListener(new View.OnClickListener() {
@@ -180,8 +172,8 @@ public class SubscribeActivity extends MenuActivity {
     }
     
     class SimpleCategoryAdapter extends ArrayAdapter<Category> {
-        public SimpleCategoryAdapter(Context context, List<Category> objects) {
-            super(context, android.R.layout.simple_list_item_1, objects);
+        public SimpleCategoryAdapter(Context context) {
+            super(context, android.R.layout.simple_list_item_1);
         }
         
         @Override
@@ -200,6 +192,26 @@ public class SubscribeActivity extends MenuActivity {
             TextView tvText1 = (TextView) convertView.findViewById(android.R.id.text1);
             tvText1.setText(getItem(position).title);
             return convertView;
+        }
+    }
+    
+    // Fill the adapter for the spinner in the background to avoid direct DB-access
+    class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
+        ArrayList<Category> catList = null;
+        
+        @Override
+        protected Void doInBackground(Void... params) {
+            catList = new ArrayList<Category>(DBHelper.getInstance().getAllCategories());
+            publishProgress(0);
+            return null;
+        }
+        
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            if (catList != null && !catList.isEmpty())
+                categoriesAdapter.addAll(catList);
+            ProgressBarManager.getInstance().removeProgress(activity);
+            setSupportProgressBarVisibility(false);
         }
     }
     
