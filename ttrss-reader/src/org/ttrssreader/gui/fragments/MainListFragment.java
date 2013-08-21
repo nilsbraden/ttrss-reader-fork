@@ -123,10 +123,12 @@ public class MainListFragment extends ListFragment implements IUpdateEndListener
     
     private void setTitleAfterUpdate() {
         MenuActivity activity = (MenuActivity) getActivity();
-        if (adapter.title != null)
-            activity.setTitle(adapter.title);
-        if (adapter.unreadCount >= 0)
-            activity.setUnread(adapter.unreadCount);
+        if (adapter != null) {
+            if (adapter.title != null)
+                activity.setTitle(adapter.title);
+            if (adapter.unreadCount >= 0)
+                activity.setUnread(adapter.unreadCount);
+        }
     }
     
 }
