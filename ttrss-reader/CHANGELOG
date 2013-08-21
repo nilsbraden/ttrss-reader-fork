@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.53 (1) ==
+== Version 1.53 (2) ==
   * Added all drawables for different screen-sizes
   * Modified "Subscribe to feed" and "Share to published" layouts
   * Allow API-Level 18
@@ -11,6 +11,7 @@
   * Fix Issue #172: Can't view image alt-text (Small Bugfix, store content again to allow HTML-parsing for ALT-Text of images)
   * French translation (thanks to Jean-François BILGER)
   * Fixed bug in ImageCache
+  * Fixed NPE and a bug in SubscribeActivity
 
 == Version 1.52 (2) ==
   * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
