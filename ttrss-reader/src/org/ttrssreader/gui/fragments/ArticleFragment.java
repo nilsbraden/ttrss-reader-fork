@@ -426,6 +426,10 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
         }
     }
     
+    public Article getArticle() {
+        return article;
+    }
+    
     private boolean doVibrate(int newIndex) {
         if (lastMove == 0)
             return false;
