@@ -142,10 +142,21 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         return true;
     }
     
+    private void getArticle() {
+        if (article == null) {
+            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.article_view);
+            if (fragment instanceof ArticleFragment) {
+                ArticleFragment aFrag = (ArticleFragment) fragment;
+                article = aFrag.getArticle();
+            }
+        }
+    }
+    
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         
+        getArticle();
         if (article != null) {
             MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
             if (article.isUnread) {
@@ -189,6 +200,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
+        getArticle();
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
                 new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
@@ -319,7 +331,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     @Override
-    public void onUpdateEnd() { /* Not necessary here */
+    public void onUpdateEnd() {
+        
     }
     
     @Override
