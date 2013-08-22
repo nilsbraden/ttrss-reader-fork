@@ -203,20 +203,16 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         getArticle();
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
-                new Updater(null, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
-                invalidateOptionsMenu();
+                new Updater(this, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
                 return true;
             case R.id.Article_Menu_MarkStar:
-                new Updater(null, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
-                invalidateOptionsMenu();
+                new Updater(this, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
                 return true;
             case R.id.Article_Menu_MarkPublish:
-                new Updater(null, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
-                invalidateOptionsMenu();
+                new Updater(this, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
                 return true;
             case R.id.Article_Menu_MarkPublishNote:
                 new TextInputAlert(this, article).show(this);
-                invalidateOptionsMenu();
                 return true;
             case R.id.Article_Menu_AddArticleLabel:
                 DialogFragment dialog = ArticleLabelDialog.newInstance(articleId);
@@ -227,7 +223,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 // Synchronize status of articles with server
                 if (!Controller.getInstance().workOffline())
                     new Updater(this, new StateSynchronisationUpdater()).execute((Void[]) null);
-                invalidateOptionsMenu();
                 return true;
             case R.id.Article_Menu_OpenLink:
                 openLink();
@@ -332,12 +327,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     @Override
     public void onUpdateEnd() {
-        
+        invalidateOptionsMenu();
     }
     
     @Override
     public void onPublishNoteResult(Article a, String note) {
-        new Updater(null, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
+        new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
     }
     
     @Override

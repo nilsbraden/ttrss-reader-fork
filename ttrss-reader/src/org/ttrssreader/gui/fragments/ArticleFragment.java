@@ -158,6 +158,7 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
         articleJSInterface = new ArticleJSInterface(getSherlockActivity());
         initData();
         initUI();
+        doRefresh();
     }
     
     @Override
@@ -716,7 +717,6 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
     
     @Override
     public void onUpdateEnd() {
-        doRefresh();
     }
     
 }
