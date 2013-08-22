@@ -150,13 +150,13 @@ public class FeedActivity extends MenuActivity {
     
     @Override
     public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
-        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.articleView);
+        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.article_view);
         if (secondPane != null && secondPane.isInLayout()) {
             // Set the list item as checked
             // getListView().setItemChecked(selectedIndex, true);
             
             // Get the fragment instance
-            ListFragment details = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.articleView);
+            ListFragment details = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.article_view);
             
             // Is the current selected ondex the same as the clicked? If so, there is no need to update
             if (details != null && selectedIndex == oldIndex)
@@ -165,7 +165,7 @@ public class FeedActivity extends MenuActivity {
             details = FeedHeadlineListFragment.newInstance(selectedId, categoryId, false);
             
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.articleView, details);
+            ft.replace(R.id.article_view, details);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
             

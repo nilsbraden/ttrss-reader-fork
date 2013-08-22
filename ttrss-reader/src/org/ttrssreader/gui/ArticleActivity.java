@@ -23,6 +23,7 @@ import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
+import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
@@ -39,6 +40,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -52,78 +54,51 @@ import com.actionbarsherlock.view.MenuItem;
 public class ArticleActivity extends SherlockFragmentActivity implements IUpdateEndListener, TextInputAlertCallback,
         IDataChangedListener {
     
-    // public static final String ARTICLE_ID = "ARTICLE_ID";
-    // public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
-    //
-    // public static final String ARTICLE_MOVE = "ARTICLE_MOVE";
+    private static final String FRAGMENT = "ARTICLE_FRAGMENT";
     public static final int ARTICLE_MOVE_NONE = 0;
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
-    // private static final int CONTEXT_MENU_SHARE_URL = 1000;
-    // private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
-    // private static final int CONTEXT_MENU_DISPLAY_CAPTION = 1002;
-    //
-    // private final static char TEMPLATE_DELIMITER_START = '$';
-    // private final static char TEMPLATE_DELIMITER_END = '$';
-    //
-    // private static final String TEMPLATE_ARTICLE_VAR = "article";
-    // private static final String TEMPLATE_FEED_VAR = "feed";
-    // private static final String MARKER_UPDATED = "UPDATED";
-    // private static final String MARKER_LABELS = "LABELS";
-    // private static final String MARKER_CONTENT = "CONTENT";
-    // private static final String MARKER_ATTACHMENTS = "ATTACHMENTS";
     
     // Extras
     private int articleId = -1;
     private int feedId = -1;
-    // private int categoryId = -1000;
-    // private boolean selectArticlesForCategory = false;
-    // private int lastMove = ARTICLE_MOVE_DEFAULT;
+    private int categoryId = -1000;
+    private boolean selectForCategory = false;
+    private int lastMove = ARTICLE_MOVE_DEFAULT;
     
     private Article article = null;
-    // private Feed feed = null;
-    // private String content;
-    // private boolean linkAutoOpened;
-    // private boolean markedRead = false;
-    //
     private ActionBar actionBar = null;
-    
-    // private FrameLayout webContainer = null;
-    // private MyWebView webView;
-    // private boolean webviewInitialized = false;
-    // private Button buttonNext;
-    // private Button buttonPrev;
     private GestureDetector gestureDetector;
-    
-    // private FeedHeadlineAdapter parentAdapter = null;
-    // private int[] parentIDs = new int[2];
-    // private String mSelectedExtra;
-    // private String mSelectedAltText;
-    //
-    // private ArticleJSInterface articleJSInterface;
     
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         setContentView(R.layout.articleitem);
+        gestureDetector = new GestureDetector(this, new ArticleGestureDetector(getSupportActionBar()));
         
-        // Bundle extras = getIntent().getExtras();
-        // if (extras != null) {
-        // articleId = extras.getInt(ARTICLE_ID);
-        // feedId = extras.getInt(ARTICLE_FEED_ID);
-        // categoryId = extras.getInt(FeedHeadlineActivity.FEED_CAT_ID);
-        // selectArticlesForCategory = extras.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
-        // lastMove = extras.getInt(ARTICLE_MOVE);
-        // } else if (instance != null) {
-        // articleId = instance.getInt(ARTICLE_ID);
-        // feedId = instance.getInt(ARTICLE_FEED_ID);
-        // categoryId = instance.getInt(FeedHeadlineActivity.FEED_CAT_ID);
-        // selectArticlesForCategory = instance.getBoolean(FeedHeadlineActivity.FEED_SELECT_ARTICLES);
-        // lastMove = instance.getInt(ARTICLE_MOVE);
-        // }
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            articleId = extras.getInt(ArticleFragment.ARTICLE_ID);
+            feedId = extras.getInt(ArticleFragment.ARTICLE_FEED_ID);
+            categoryId = extras.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
+            selectForCategory = extras.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
+            lastMove = extras.getInt(ArticleFragment.ARTICLE_MOVE);
+        } else if (instance != null) {
+            articleId = instance.getInt(ArticleFragment.ARTICLE_ID);
+            feedId = instance.getInt(ArticleFragment.ARTICLE_FEED_ID);
+            categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
+            selectForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
+            lastMove = instance.getInt(ArticleFragment.ARTICLE_MOVE);
+        }
+        
+        if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
+            Fragment fragment = ArticleFragment.newInstance(articleId, feedId, categoryId, selectForCategory, lastMove);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.article_view, fragment, FRAGMENT);
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            transaction.commit();
+        }
         
         initActionbar();
-        
-        gestureDetector = new GestureDetector(this, new ArticleGestureDetector(getSupportActionBar()));
     }
     
     /**
@@ -150,7 +125,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     private void doRefresh() {
-        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.articleView));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.article_view));
     }
     
     @Override
@@ -322,7 +297,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     };
     
     private void openNextArticle(int direction) {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.articleView);
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.article_view);
         if (fragment instanceof ArticleFragment) {
             ArticleFragment aFrag = (ArticleFragment) fragment;
             aFrag.openNextArticle(direction);
@@ -330,7 +305,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     private void openLink() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.articleView);
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.article_view);
         if (fragment instanceof ArticleFragment) {
             ArticleFragment aFrag = (ArticleFragment) fragment;
             aFrag.openLink();

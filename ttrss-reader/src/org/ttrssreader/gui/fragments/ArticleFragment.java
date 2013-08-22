@@ -28,6 +28,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.ErrorActivity;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
+import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.gui.view.MyWebView;
 import org.ttrssreader.imageCache.ImageCacher;
@@ -56,6 +57,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -73,7 +75,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 
 @SuppressWarnings("deprecation")
-public class ArticleFragment extends SherlockFragment {
+public class ArticleFragment extends SherlockFragment implements IUpdateEndListener {
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
     
@@ -99,7 +101,7 @@ public class ArticleFragment extends SherlockFragment {
     private int articleId = -1;
     private int feedId = -1;
     private int categoryId = -1000;
-    private boolean selectArticlesForCategory = false;
+    private boolean selectForCategory = false;
     private int lastMove = ARTICLE_MOVE_DEFAULT;
     
     private Article article = null;
@@ -128,7 +130,7 @@ public class ArticleFragment extends SherlockFragment {
         detail.articleId = id;
         detail.feedId = feedId;
         detail.categoryId = categoryId;
-        detail.selectArticlesForCategory = selectArticles;
+        detail.selectForCategory = selectArticles;
         detail.lastMove = lastMove;
         detail.setHasOptionsMenu(true);
         detail.setRetainInstance(true);
@@ -136,27 +138,24 @@ public class ArticleFragment extends SherlockFragment {
     }
     
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.articleitem, container, false);
+    }
+    
+    @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
         
-        Bundle extras = getSherlockActivity().getIntent().getExtras();
-        if (extras != null) {
-            articleId = extras.getInt(ARTICLE_ID);
-            feedId = extras.getInt(ARTICLE_FEED_ID);
-            categoryId = extras.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
-            selectArticlesForCategory = extras.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
-            lastMove = extras.getInt(ARTICLE_MOVE);
-        } else if (instance != null) {
+        if (instance != null) {
             articleId = instance.getInt(ARTICLE_ID);
             feedId = instance.getInt(ARTICLE_FEED_ID);
             categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
-            selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
+            selectForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
             lastMove = instance.getInt(ARTICLE_MOVE);
             webView.restoreState(instance);
         }
         
         articleJSInterface = new ArticleJSInterface(getSherlockActivity());
-        
         initData();
         initUI();
     }
@@ -179,7 +178,7 @@ public class ArticleFragment extends SherlockFragment {
         instance.putInt(ARTICLE_ID, articleId);
         instance.putInt(ARTICLE_FEED_ID, feedId);
         instance.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
-        instance.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        instance.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectForCategory);
         instance.putInt(ARTICLE_MOVE, lastMove);
         webView.saveState(instance);
     }
@@ -246,8 +245,8 @@ public class ArticleFragment extends SherlockFragment {
         
         if (Controller.getInstance().darkBackground()) {
             webView.setBackgroundColor(Color.BLACK);
-            if (getSherlockActivity().findViewById(R.id.container) instanceof ViewGroup)
-                setDarkBackground((ViewGroup) getSherlockActivity().findViewById(R.id.container));
+            if (getSherlockActivity().findViewById(R.id.article_view) instanceof ViewGroup)
+                setDarkBackground((ViewGroup) getSherlockActivity().findViewById(R.id.article_view));
         }
         
         registerForContextMenu(webView);
@@ -267,7 +266,7 @@ public class ArticleFragment extends SherlockFragment {
         if (parentAdapter != null)
             parentAdapter.close();
         parentAdapter = new FeedHeadlineAdapter(getSherlockActivity().getApplicationContext(), feedId, categoryId,
-                selectArticlesForCategory);
+                selectForCategory);
         fillParentInformation();
         doVibrate(0);
         
@@ -292,6 +291,12 @@ public class ArticleFragment extends SherlockFragment {
     }
     
     @Override
+    public void onResume() {
+        super.onResume();
+        getView().setVisibility(View.VISIBLE);
+    }
+    
+    @Override
     public void onStop() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
@@ -299,9 +304,11 @@ public class ArticleFragment extends SherlockFragment {
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         super.onStop();
-        
-        // @Override
-        // public void onDestroy() {
+        getView().setVisibility(View.GONE);
+    }
+    
+    @Override
+    public void onDestroy() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
             if (article != null && article.isUnread)
@@ -701,6 +708,11 @@ public class ArticleFragment extends SherlockFragment {
                 }
             });
         }
+    }
+    
+    @Override
+    public void onUpdateEnd() {
+        doRefresh();
     }
     
 }
