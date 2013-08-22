@@ -26,12 +26,12 @@ import java.net.URL;
 import java.util.Locale;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.ArticleActivity;
 import org.ttrssreader.gui.MediaPlayerActivity;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -45,10 +45,10 @@ import android.webkit.WebViewClient;
 public class ArticleWebViewClient extends WebViewClient {
     
     private Context context;
-    private ArticleActivity articleActivity;
+    private Activity activity;
     
-    public ArticleWebViewClient(ArticleActivity a) {
-        this.articleActivity = a;
+    public ArticleWebViewClient(Activity a) {
+        this.activity = a;
     }
     
     @Override
@@ -78,7 +78,7 @@ public class ArticleWebViewClient extends WebViewClient {
                     (String) context.getText(R.string.WebViewClientActivity_Download) };
             // @formatter:on
             
-            AlertDialog.Builder builder = new AlertDialog.Builder(articleActivity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle("What shall we do?");
             builder.setItems(items, new DialogInterface.OnClickListener() {
                 

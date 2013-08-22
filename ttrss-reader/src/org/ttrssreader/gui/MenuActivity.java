@@ -29,11 +29,11 @@ import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,7 +77,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         Controller.getInstance().setHeadless(false);
         
         // This is a tablet if this view exists
-        View details = findViewById(R.id.details);
+        View details = findViewById(R.id.articleView);
         isTablet = details != null && details.getVisibility() == View.VISIBLE;
         
         initActionbar();
@@ -369,10 +369,28 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     protected abstract void doUpdate(boolean forceUpdate);
     
-    protected void doRefreshFragment(Fragment fragment) {
-        if (fragment instanceof IUpdateEndListener) {
-            IUpdateEndListener listener = (IUpdateEndListener) fragment;
-            listener.onUpdateEnd();
+    /**
+     * Can be used in child activities to update their data and get a UI refresh afterwards.
+     */
+    abstract class ActivityUpdater extends AsyncTask<Void, Integer, Void> {
+        protected int taskCount = 0;
+        protected boolean forceUpdate;
+        
+        public ActivityUpdater(boolean forceUpdate) {
+            this.forceUpdate = forceUpdate;
+            ProgressBarManager.getInstance().addProgress(activity);
+            setSupportProgressBarVisibility(true);
+        }
+        
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            if (values[0] == taskCount) {
+                setSupportProgressBarVisibility(false);
+                if (!isCacherRunning())
+                    ProgressBarManager.getInstance().removeProgress(activity);
+                return;
+            }
+            setProgress((10000 / (taskCount + 1)) * values[0]);
         }
     }
     

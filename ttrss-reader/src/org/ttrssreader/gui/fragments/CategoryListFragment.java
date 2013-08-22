@@ -98,16 +98,16 @@ public class CategoryListFragment extends MainListFragment {
                 if (id < 0)
                     return false;
                 intent = new Intent(getActivity(), FeedHeadlineActivity.class);
-                intent.putExtra(FeedHeadlineActivity.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
-                intent.putExtra(FeedHeadlineActivity.FEED_CAT_ID, id);
-                intent.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, true);
+                intent.putExtra(FeedHeadlineListFragment.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
+                intent.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, id);
+                intent.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, true);
                 startActivity(intent);
                 return true;
             case SELECT_FEEDS:
                 if (id < 0)
                     return false;
                 intent = new Intent(getActivity(), FeedActivity.class);
-                intent.putExtra(FeedActivity.FEED_CAT_ID, id);
+                intent.putExtra(FeedListFragment.FEED_CAT_ID, id);
                 startActivity(intent);
                 return true;
         }

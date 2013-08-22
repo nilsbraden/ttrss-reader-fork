@@ -22,7 +22,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.dialogs.ChangelogDialog;
 import org.ttrssreader.gui.dialogs.CrashreportDialog;
 import org.ttrssreader.gui.dialogs.WelcomeDialog;
@@ -133,9 +132,9 @@ public class CategoryActivity extends MenuActivity {
     @Override
     protected void doRefresh() {
         super.doRefresh();
-        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.category_list));
-        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
-        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.category_list));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
     }
     
     @Override
@@ -170,16 +169,14 @@ public class CategoryActivity extends MenuActivity {
         }
     }
     
-    public class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
-        
-        private int taskCount = 0;
+    /**
+     * This does a full update including all labels, feeds, categories and all articles.
+     */
+    public class CategoryUpdater extends ActivityUpdater {
         private static final int DEFAULT_TASK_COUNT = 5;
-        private boolean forceUpdate;
         
         public CategoryUpdater(boolean forceUpdate) {
-            this.forceUpdate = forceUpdate;
-            ProgressBarManager.getInstance().addProgress(activity);
-            setSupportProgressBarVisibility(true);
+            super(forceUpdate);
         }
         
         @Override
@@ -221,17 +218,6 @@ public class CategoryActivity extends MenuActivity {
             Data.getInstance().synchronizeStatus();
             return null;
         }
-        
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            if (values[0] == taskCount) {
-                setSupportProgressBarVisibility(false);
-                if (!isCacherRunning())
-                    ProgressBarManager.getInstance().removeProgress(activity);
-                return;
-            }
-            setProgress((10000 / (taskCount + 1)) * values[0]);
-        }
     }
     
     @Override
@@ -247,7 +233,7 @@ public class CategoryActivity extends MenuActivity {
         }
         
         // Find out if we are using a wide screen
-        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
+        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.articleView);
         if (secondPane != null && secondPane.isInLayout()) {
             // Set the list item as checked
             // getListView().setItemChecked(selectedIndex, true);
@@ -292,22 +278,22 @@ public class CategoryActivity extends MenuActivity {
             switch (selection) {
                 case SELECTED_VIRTUAL_CATEGORY:
                     i = new Intent(context, FeedHeadlineActivity.class);
-                    i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
+                    i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
                     break;
                 case SELECTED_LABEL:
                     i = new Intent(context, FeedHeadlineActivity.class);
-                    i.putExtra(FeedHeadlineActivity.FEED_ID, selectedId);
-                    i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, -2);
+                    i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
+                    i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, -2);
                     break;
                 case SELECTED_CATEGORY:
                     if (Controller.getInstance().invertBrowsing()) {
                         i = new Intent(context, FeedHeadlineActivity.class);
-                        i.putExtra(FeedHeadlineActivity.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
-                        i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, selectedId);
-                        i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, true);
+                        i.putExtra(FeedHeadlineListFragment.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
+                        i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, selectedId);
+                        i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, true);
                     } else {
                         i = new Intent(context, FeedActivity.class);
-                        i.putExtra(FeedActivity.FEED_CAT_ID, selectedId);
+                        i.putExtra(FeedListFragment.FEED_CAT_ID, selectedId);
                     }
                     break;
             }
