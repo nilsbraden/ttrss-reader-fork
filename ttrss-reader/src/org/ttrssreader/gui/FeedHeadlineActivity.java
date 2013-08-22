@@ -285,14 +285,14 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     @Override
     public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
-        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.articleView);
+        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.article_view);
         if (secondPane != null && secondPane.isInLayout()) {
             // Set the list item as checked
             // getListView().setItemChecked(selectedIndex, true);
             
             // Get the fragment instance
             ArticleFragment articleView = (ArticleFragment) getSupportFragmentManager().findFragmentById(
-                    R.id.articleView);
+                    R.id.article_view);
             
             // Is the current selected ondex the same as the clicked? If so, there is no need to update
             if (articleView != null && selectedIndex == oldIndex)
@@ -303,7 +303,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             
             // Replace the old fragment with the new one
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.articleView, articleView);
+            ft.replace(R.id.article_view, articleView);
             // Use a fade animation. This makes it clear that this is not a new "layer"
             // above the current, but a replacement
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);

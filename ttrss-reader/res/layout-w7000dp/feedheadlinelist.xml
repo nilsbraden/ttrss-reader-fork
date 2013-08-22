@@ -28,7 +28,7 @@
         android:layout_weight="0.50" />
 
     <FrameLayout
-        android:id="@+id/articleView"
+        android:id="@+id/article_view"
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:layout_weight="1" />
