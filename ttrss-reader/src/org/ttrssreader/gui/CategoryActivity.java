@@ -234,7 +234,7 @@ public class CategoryActivity extends MenuActivity {
         
         // Find out if we are using a wide screen
         ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.article_view);
-        if (secondPane != null && secondPane.isInLayout()) {
+        if (isTablet && secondPane != null && secondPane.isInLayout()) {
             // Set the list item as checked
             // getListView().setItemChecked(selectedIndex, true);
             
