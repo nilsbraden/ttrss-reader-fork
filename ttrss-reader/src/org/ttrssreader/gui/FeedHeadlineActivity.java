@@ -19,7 +19,6 @@ package org.ttrssreader.gui;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
@@ -44,12 +43,7 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineActivity extends MenuActivity {
     
-    public static final String FEED_CAT_ID = "FEED_CAT_ID";
-    public static final String FEED_ID = "ARTICLE_FEED_ID";
-    public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
-    public static final String FEED_INDEX = "INDEX";
     public static final int FEED_NO_ID = 37846914;
-    
     private static final String FRAGMENT = "HEADLINE_FRAGMENT";
     
     private int categoryId = -1000;
@@ -72,13 +66,13 @@ public class FeedHeadlineActivity extends MenuActivity {
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            categoryId = extras.getInt(FEED_CAT_ID);
-            feedId = extras.getInt(FEED_ID);
-            selectArticlesForCategory = extras.getBoolean(FEED_SELECT_ARTICLES);
+            categoryId = extras.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
+            feedId = extras.getInt(FeedHeadlineListFragment.FEED_ID);
+            selectArticlesForCategory = extras.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
         } else if (instance != null) {
-            categoryId = instance.getInt(FEED_CAT_ID);
-            feedId = instance.getInt(FEED_ID);
-            selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
+            categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
+            feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
+            selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
         }
         
         if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
@@ -129,7 +123,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         super.doRefresh();
         setTitle(title);
         setUnread(unreadCount);
-        doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
     }
     
     @Override
@@ -262,21 +256,13 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
     
     /**
-     * 
-     * 
-     * @author n
-     * 
+     * Updates all articles from the selected feed.
      */
-    public class FeedHeadlineUpdater extends AsyncTask<Void, Integer, Void> {
-        
-        private int taskCount = 0;
+    public class FeedHeadlineUpdater extends ActivityUpdater {
         private static final int DEFAULT_TASK_COUNT = 2;
-        boolean forceUpdate;
         
         public FeedHeadlineUpdater(boolean forceUpdate) {
-            this.forceUpdate = forceUpdate;
-            ProgressBarManager.getInstance().addProgress(activity);
-            setSupportProgressBarVisibility(true);
+            super(forceUpdate);
         }
         
         @Override
@@ -295,24 +281,11 @@ public class FeedHeadlineActivity extends MenuActivity {
             publishProgress(taskCount); // Move progress forward to 100%
             return null;
         }
-        
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            if (values[0] == taskCount) {
-                setSupportProgressBarVisibility(false);
-                if (!isCacherRunning())
-                    ProgressBarManager.getInstance().removeProgress(activity);
-                return;
-            }
-            
-            setProgress((10000 / (taskCount + 1)) * values[0]);
-        }
-        
     }
     
     @Override
     public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
-        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.details);
+        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.articleView);
         if (secondPane != null && secondPane.isInLayout()) {
             // Set the list item as checked
             // getListView().setItemChecked(selectedIndex, true);
@@ -326,11 +299,11 @@ public class FeedHeadlineActivity extends MenuActivity {
                 return;
             
             articleView = ArticleFragment.newInstance(selectedId, feedId, categoryId, selectArticlesForCategory,
-                    ArticleActivity.ARTICLE_MOVE_DEFAULT);
+                    ArticleFragment.ARTICLE_MOVE_DEFAULT);
             
             // Replace the old fragment with the new one
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.details, articleView);
+            ft.replace(R.id.articleView, articleView);
             // Use a fade animation. This makes it clear that this is not a new "layer"
             // above the current, but a replacement
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -339,11 +312,11 @@ public class FeedHeadlineActivity extends MenuActivity {
         } else {
             // This is not a tablet - start a new activity
             Intent i = new Intent(context, ArticleActivity.class);
-            i.putExtra(ArticleActivity.ARTICLE_ID, selectedId);
-            i.putExtra(ArticleActivity.ARTICLE_FEED_ID, feedId);
-            i.putExtra(FeedHeadlineActivity.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedHeadlineActivity.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-            i.putExtra(ArticleActivity.ARTICLE_MOVE, ArticleActivity.ARTICLE_MOVE_DEFAULT);
+            i.putExtra(ArticleFragment.ARTICLE_ID, selectedId);
+            i.putExtra(ArticleFragment.ARTICLE_FEED_ID, feedId);
+            i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
+            i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+            i.putExtra(ArticleFragment.ARTICLE_MOVE, ArticleFragment.ARTICLE_MOVE_DEFAULT);
             startActivity(i);
         }
     }
