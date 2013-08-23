@@ -181,9 +181,6 @@
     <string name="Locale.Show_notification">Ver notificación</string>
     <string name="FeedSubscribeTitle">Suscribirse a fuente</string>
     <string name="FeedUnsubscribeTitle">Desuscribirse a fuente</string>
-    <string name="Dialog.vacuumText">La base de datos a veces necesita vaciarse para liberar espacio. ¿Quiere realizar este proceso ahora? Llevará algunos minutos.</string>
-    <string name="Dialog.vacuumTitle">VACIO</string>
-    <string name="Dialog.vacuumProgress">Limpiando base de datos…</string>
     <string name="Yes">Si</string>
     <string name="No">No</string>
     <string name="NotNow">Ahora no</string>

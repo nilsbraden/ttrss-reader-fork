@@ -38,7 +38,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
@@ -49,7 +48,6 @@ public class DBHelper {
     
     private static DBHelper instance = null;
     private volatile boolean initialized = false;
-    private volatile boolean vacuumDone = false;
     
     /*
      * We use two locks here to avoid too much locking for reading and be able to completely lock everything up when we
@@ -486,7 +484,6 @@ public class DBHelper {
     public Cursor query(String sql, String[] selectionArgs) {
         if (!isDBAvailable())
             return null;
-        
         Cursor cursor = db.rawQuery(sql, selectionArgs);
         return cursor;
     }
@@ -501,6 +498,9 @@ public class DBHelper {
             insertCategory.bindLong(1, id);
             insertCategory.bindString(2, title);
             insertCategory.bindLong(3, unread);
+            
+            if (!isDBAvailable())
+                return;
             insertCategory.execute();
         }
     }
@@ -532,6 +532,9 @@ public class DBHelper {
             insertFeed.bindString(3, title);
             insertFeed.bindString(4, url);
             insertFeed.bindLong(5, unread);
+            
+            if (!isDBAvailable())
+                return;
             insertFeed.execute();
         }
     }
@@ -583,6 +586,9 @@ public class DBHelper {
             insertArticle.bindLong(11, (a.isPublished ? 1 : 0));
             insertArticle.bindLong(12, a.id); // ID again for the where-clause
             insertArticle.bindString(13, Utils.separateItems(a.labels, "---"));
+            
+            if (!isDBAvailable())
+                return;
             retId = insertArticle.executeInsert();
         }
         
@@ -639,7 +645,7 @@ public class DBHelper {
      *            Object-Array with the fields of an article-object.
      */
     public void bulkInsertArticles(List<Object[]> input) {
-        if (!isDBAvailable() || input == null || input.isEmpty())
+        if (input == null || input.isEmpty())
             return;
         
         StringBuilder stmt = new StringBuilder();
@@ -688,14 +694,15 @@ public class DBHelper {
             
         }
         
+        if (!isDBAvailable())
+            return;
         db.execSQL(stmt.toString());
     }
     
     public void insertLabel(int articleId, int labelId) {
-        if (!isDBAvailable())
-            return;
-        
         if (labelId < -10) {
+            if (!isDBAvailable())
+                return;
             synchronized (insertLabel) {
                 insertLabel.bindLong(1, articleId);
                 insertLabel.bindLong(2, labelId);
@@ -705,11 +712,10 @@ public class DBHelper {
     }
     
     public void removeLabel(int articleId, int labelId) {
-        if (!isDBAvailable())
-            return;
-        
         if (labelId < -10) {
             String[] args = new String[] { articleId + "", labelId + "" };
+            if (!isDBAvailable())
+                return;
             db.delete(TABLE_ARTICLES2LABELS, "articleId=? AND labelId=?", args);
         }
     }
@@ -741,68 +747,65 @@ public class DBHelper {
      */
     public Collection<Integer> markRead(int id, boolean isCategory) {
         Collection<Integer> markedIds = null;
+        String where = "";
+        
+        String feedIds;
+        switch (id) {
+            case Data.VCAT_ALL:
+                where = " 1 "; // Select everything...
+                break;
+            case Data.VCAT_FRESH:
+                long time = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
+                where = " updateDate > " + time;
+                break;
+            case Data.VCAT_PUB:
+                where = " isPublished > 0 ";
+                break;
+            case Data.VCAT_STAR:
+                where = " isStarred > 0 ";
+                break;
+            default:
+                if (isCategory) {
+                    feedIds = "select id from " + TABLE_FEEDS + " where categoryId=" + id;
+                    where = " feedId in (" + feedIds + ") ";
+                } else {
+                    feedIds = String.valueOf(id);
+                    where = " feedId in (" + feedIds + ") ";
+                }
+                break;
+        }
+        
+        where = where + " and isUnread>0 ";
+        Cursor c = null;
+        
         if (!isDBAvailable())
             return markedIds;
         
         db.beginTransaction();
         try {
-            String where = "";
+            // select id from articles where categoryId in (...)
+            c = db.query(TABLE_ARTICLES, new String[] { "id" }, where, null, null, null, null);
             
-            String feedIds;
-            switch (id) {
-                case Data.VCAT_ALL:
-                    where = " 1 "; // Select everything...
-                    break;
-                case Data.VCAT_FRESH:
-                    long time = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
-                    where = " updateDate > " + time;
-                    break;
-                case Data.VCAT_PUB:
-                    where = " isPublished > 0 ";
-                    break;
-                case Data.VCAT_STAR:
-                    where = " isStarred > 0 ";
-                    break;
-                default:
-                    if (isCategory) {
-                        feedIds = "select id from " + TABLE_FEEDS + " where categoryId=" + id;
-                        where = " feedId in (" + feedIds + ") ";
-                    } else {
-                        feedIds = String.valueOf(id);
-                        where = " feedId in (" + feedIds + ") ";
-                    }
-                    break;
-            }
+            int count = c.getCount();
             
-            where = where + " and isUnread>0 ";
-            
-            Cursor c = null;
-            try {
-                // select id from articles where categoryId in (...)
-                c = db.query(TABLE_ARTICLES, new String[] { "id" }, where, null, null, null, null);
+            if (count > 0) {
+                markedIds = new Vector<Integer>(count);
                 
-                int count = c.getCount();
-                
-                if (count > 0) {
-                    markedIds = new Vector<Integer>(count);
-                    
-                    while (c.moveToNext()) {
-                        markedIds.add(c.getInt(0));
-                    }
-                    
-                    ContentValues cv = new ContentValues();
-                    cv.put("isUnread", 0);
-                    db.update(TABLE_ARTICLES, cv, where, null);
-                    
-                    calculateCounters();
+                while (c.moveToNext()) {
+                    markedIds.add(c.getInt(0));
                 }
-            } finally {
-                if (c != null && !c.isClosed())
-                    c.close();
+                
+                ContentValues cv = new ContentValues();
+                cv.put("isUnread", 0);
+                db.update(TABLE_ARTICLES, cv, where, null);
+                
+                calculateCounters();
             }
             
             db.setTransactionSuccessful();
         } finally {
+            if (c != null && !c.isClosed())
+                c.close();
             db.endTransaction();
         }
         
@@ -810,14 +813,13 @@ public class DBHelper {
     }
     
     public void markLabelRead(int labelId) {
-        if (!isDBAvailable())
-            return;
-        
         ContentValues cv = new ContentValues();
         cv.put("isUnread", 0);
         String idList = "SELECT id FROM " + TABLE_ARTICLES + " AS a, " + TABLE_ARTICLES2LABELS
                 + " as l WHERE a.id=l.articleId AND l.labelId=" + labelId;
         
+        if (!isDBAvailable())
+            return;
         db.update(TABLE_ARTICLES, cv, "isUnread>0 AND id IN(" + idList + ")", null);
     }
     
@@ -834,7 +836,6 @@ public class DBHelper {
     public void markArticles(Set<Integer> idList, String mark, int state) {
         if (!isDBAvailable() || idList.isEmpty())
             return;
-        
         db.beginTransaction();
         try {
             for (String ids : StringSupport.convertListToString(idList, 100)) {
@@ -862,7 +863,6 @@ public class DBHelper {
     public void markArticle(int id, String mark, int state) {
         if (!isDBAvailable())
             return;
-        
         db.beginTransaction();
         try {
             markArticles("" + id, mark, state);
@@ -886,17 +886,13 @@ public class DBHelper {
      *            value for the mark
      */
     public void markArticles(String idList, String mark, int state) {
+        String sql = String.format("UPDATE %s SET %s=%s WHERE id IN (%s)", TABLE_ARTICLES, mark, state, idList);
         if (!isDBAvailable())
             return;
-        
-        String sql = String.format("UPDATE %s SET %s=%s WHERE id IN (%s)", TABLE_ARTICLES, mark, state, idList);
         db.execSQL(sql);
     }
     
     public void markUnsynchronizedStates(Collection<Integer> ids, String mark, int state) {
-        if (!isDBAvailable())
-            return;
-        
         // Disabled until further testing and proper SQL has been built. Tries to do the UPDATE and INSERT without
         // looping over the ids but instead with a list of ids:
         // Set<String> idList = StringSupport.convertListToString(ids);
@@ -906,6 +902,8 @@ public class DBHelper {
         // <- WRONG!
         // }
         
+        if (!isDBAvailable())
+            return;
         db.beginTransaction();
         try {
             for (Integer id : ids) {
@@ -926,7 +924,6 @@ public class DBHelper {
     public void markUnsynchronizedNotes(Map<Integer, String> ids, String markPublish) {
         if (!isDBAvailable())
             return;
-        
         db.beginTransaction();
         try {
             for (Integer id : ids.keySet()) {
@@ -951,13 +948,12 @@ public class DBHelper {
      * @return {@code true} if counters was successfully updated, {@code false} otherwise
      */
     public void calculateCounters() {
-        if (!isDBAvailable())
-            return;
-        
         int total = 0;
         Cursor c = null;
         ContentValues cv = null;
         
+        if (!isDBAvailable())
+            return;
         db.beginTransaction();
         try {
             @SuppressWarnings("unused")
@@ -1031,30 +1027,27 @@ public class DBHelper {
     }
     
     public void updateAllArticlesCachedImages(boolean isCachedImages) {
-        if (!isDBAvailable())
-            return;
-        
         ContentValues cv = new ContentValues();
         cv.put("cachedImages", isCachedImages);
+        if (!isDBAvailable())
+            return;
         db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
     }
     
     public void updateArticleCachedImages(int id, boolean isCachedImages) {
-        if (!isDBAvailable())
-            return;
-        
         ContentValues cv = new ContentValues();
         cv.put("cachedImages", isCachedImages ? 1 : 0);
+        if (!isDBAvailable())
+            return;
         db.update(TABLE_ARTICLES, cv, "cachedImages=0 AND id=" + id, null); // Only apply if not yet applied and ID
     }
     
     public void deleteCategories(boolean withVirtualCategories) {
-        if (!isDBAvailable())
-            return;
-        
         String wherePart = "";
         if (!withVirtualCategories)
             wherePart = "id > 0";
+        if (!isDBAvailable())
+            return;
         db.delete(TABLE_CATEGORIES, wherePart, null);
     }
     
@@ -1064,7 +1057,6 @@ public class DBHelper {
     public void deleteFeeds() {
         if (!isDBAvailable())
             return;
-        
         db.delete(TABLE_FEEDS, null, null);
     }
     
@@ -1073,12 +1065,12 @@ public class DBHelper {
      * so the configured limit is not an exact upper limit to the number of articles in the database.
      */
     public void purgeArticlesNumber() {
-        if (!isDBAvailable())
-            return;
-        
         String idList = "SELECT id FROM " + TABLE_ARTICLES
                 + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
                 + Utils.ARTICLE_LIMIT;
+        
+        if (!isDBAvailable())
+            return;
         
         db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
         purgeLabels();
@@ -1091,13 +1083,12 @@ public class DBHelper {
      *            amount of articles to be purged
      */
     public void purgeLastArticles(int amountToPurge) {
-        if (!isDBAvailable())
-            return;
-        
         String idList = "SELECT id FROM " + TABLE_ARTICLES
                 + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
                 + (Utils.ARTICLE_LIMIT - amountToPurge);
         
+        if (!isDBAvailable())
+            return;
         db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
         purgeLabels();
     }
@@ -1109,10 +1100,9 @@ public class DBHelper {
      *            IDs of removed feeds
      */
     public void purgeFeedsArticles(Collection<Integer> feedIds) {
+        db.delete(TABLE_ARTICLES, "feedId IN (" + feedIds + ")", null);
         if (!isDBAvailable())
             return;
-        
-        db.delete(TABLE_ARTICLES, "feedId IN (" + feedIds + ")", null);
         purgeLabels();
     }
     
@@ -1120,18 +1110,16 @@ public class DBHelper {
      * delete articles, which belongs to non-existent feeds
      */
     public void purgeOrphanedArticles() {
+        db.delete(TABLE_ARTICLES, "feedId NOT IN (SELECT id FROM " + TABLE_FEEDS + ")", null);
         if (!isDBAvailable())
             return;
-        
-        db.delete(TABLE_ARTICLES, "feedId NOT IN (SELECT id FROM " + TABLE_FEEDS + ")", null);
         purgeLabels();
     }
     
     public void purgeVirtualCategories(int minId) {
+        String[] args = new String[] { minId + "" };
         if (!isDBAvailable())
             return;
-        
-        String[] args = new String[] { minId + "" };
         db.delete(TABLE_ARTICLES, " ( isPublished>0 OR isStarred>0 ) AND id >= ? ", args);
         purgeLabels();
     }
@@ -1148,22 +1136,12 @@ public class DBHelper {
             + TABLE_FEEDS + " AS f"
             + " ON a2l.labelId = f.id WHERE f.id IS null";
         // @formatter:on
-        db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
-        db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
-    }
-    
-    public synchronized void vacuum() {
-        if (vacuumDone)
+        
+        if (!isDBAvailable())
             return;
         
-        try {
-            long time = System.currentTimeMillis();
-            db.execSQL("VACUUM");
-            vacuumDone = true;
-            Log.i(Utils.TAG, "SQLite VACUUM took " + (System.currentTimeMillis() - time) + " ms.");
-        } catch (SQLException e) {
-            Log.e(Utils.TAG, "SQLite VACUUM failed: " + e.getMessage() + " " + e.getCause());
-        }
+        db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
+        db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
     }
     
     // *******| SELECT |*******************************************************************
@@ -1175,11 +1153,10 @@ public class DBHelper {
      */
     public int getMinUnreadId() {
         int ret = 0;
-        if (!isDBAvailable())
-            return ret;
-        
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return ret;
             
             c = db.query(TABLE_ARTICLES, new String[] { "min(id)" }, "isUnread>0", null, null, null, null, null);
             if (c.moveToFirst())
@@ -1202,11 +1179,10 @@ public class DBHelper {
      */
     public int countArticles() {
         int ret = -1;
-        if (!isDBAvailable())
-            return ret;
-        
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return ret;
             
             c = db.query(TABLE_ARTICLES, new String[] { "count(*)" }, null, null, null, null, null, null);
             if (c.moveToFirst())
@@ -1223,11 +1199,10 @@ public class DBHelper {
     // Takes about 2 to 6 ms on Motorola Milestone
     public Article getArticle(int id) {
         Article ret = null;
-        if (!isDBAvailable())
-            return ret;
-        
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return ret;
             
             c = db.query(TABLE_ARTICLES, null, "id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
@@ -1244,9 +1219,6 @@ public class DBHelper {
     }
     
     public Set<Label> getLabelsForArticle(int articleId) {
-        if (!isDBAvailable())
-            return new HashSet<Label>();
-        
         Cursor c = null;
         try {
             // @formatter:off
@@ -1257,6 +1229,10 @@ public class DBHelper {
                             + " SELECT f.id, f.title, 1 checked FROM " + TABLE_FEEDS + " f, " + TABLE_ARTICLES2LABELS + " a2l "
                             + "     WHERE f.id <= -11 AND f.id = a2l.labelId AND a2l.articleId = " + articleId;
             // @formatter:on
+            
+            if (!isDBAvailable())
+                return new HashSet<Label>();
+            
             c = db.rawQuery(sql, null);
             Set<Label> ret = new HashSet<Label>(c.getCount());
             while (c.moveToNext()) {
@@ -1276,11 +1252,10 @@ public class DBHelper {
     
     public Feed getFeed(int id) {
         Feed ret = new Feed();
-        if (!isDBAvailable())
-            return ret;
-        
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return ret;
             
             c = db.query(TABLE_FEEDS, null, "id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
@@ -1296,11 +1271,10 @@ public class DBHelper {
     
     public Category getCategory(int id) {
         Category ret = new Category();
-        if (!isDBAvailable())
-            return ret;
-        
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return ret;
             
             c = db.query(TABLE_CATEGORIES, null, "id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
@@ -1315,11 +1289,10 @@ public class DBHelper {
     }
     
     public Set<Article> getUnreadArticles(int feedId) {
-        if (!isDBAvailable())
-            return new LinkedHashSet<Article>();
-        
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return new LinkedHashSet<Article>();
             
             c = db.query(TABLE_ARTICLES, null, "feedId=? AND isUnread>0", new String[] { feedId + "" }, null, null,
                     null, null);
@@ -1346,10 +1319,6 @@ public class DBHelper {
      * @return
      */
     public Set<Feed> getFeeds(int categoryId) {
-        
-        if (!isDBAvailable())
-            return new LinkedHashSet<Feed>();
-        
         Cursor c = null;
         try {
             String where = null; // categoryId = 0
@@ -1372,6 +1341,9 @@ public class DBHelper {
                     break;
             }
             
+            if (!isDBAvailable())
+                return new LinkedHashSet<Feed>();
+            
             c = db.query(TABLE_FEEDS, null, where, null, null, null, "UPPER(title) ASC");
             Set<Feed> ret = new LinkedHashSet<Feed>(c.getCount());
             while (c.moveToNext()) {
@@ -1386,11 +1358,10 @@ public class DBHelper {
     }
     
     public Set<Category> getVirtualCategories() {
-        if (!isDBAvailable())
-            return new LinkedHashSet<Category>();
-        
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return new LinkedHashSet<Category>();
             
             c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
             
@@ -1407,11 +1378,10 @@ public class DBHelper {
     }
     
     public Set<Category> getAllCategories() {
-        if (!isDBAvailable())
-            return new LinkedHashSet<Category>();
-        
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return new LinkedHashSet<Category>();
             
             c = db.query(TABLE_CATEGORIES, null, "id>=0", null, null, null, "title ASC");
             Set<Category> ret = new LinkedHashSet<Category>(c.getCount());
@@ -1428,20 +1398,17 @@ public class DBHelper {
     
     public int getUnreadCountOld(int id, boolean isCat) {
         int ret = 0;
-        if (!isDBAvailable())
-            return ret;
-        
         if (isCat && id >= 0) { // Only do this for real categories for now
-        
             for (Feed f : getFeeds(id)) {
                 // Recurse into all feeds of this category and add the unread-count
                 ret += getUnreadCount(f.id, false);
             }
-            
         } else {
             // Read count for given feed
             Cursor c = null;
             try {
+                if (!isDBAvailable())
+                    return ret;
                 
                 c = db.query(isCat ? TABLE_CATEGORIES : TABLE_FEEDS, new String[] { "unread" }, "id=" + id, null, null,
                         null, null, null);
@@ -1459,8 +1426,6 @@ public class DBHelper {
     
     public int getUnreadCount(int id, boolean isCat) {
         int ret = 0;
-        if (!isDBAvailable())
-            return ret;
         
         StringBuilder selection = new StringBuilder("isUnread>0");
         String[] selectionArgs = new String[] { String.valueOf(id) };
@@ -1509,6 +1474,9 @@ public class DBHelper {
         // Read count for given feed
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return ret;
+            
             c = db.query(TABLE_ARTICLES, new String[] { "count(*)" }, selection.toString(), selectionArgs, null, null,
                     null, null);
             
@@ -1525,13 +1493,14 @@ public class DBHelper {
     
     @SuppressLint("UseSparseArrays")
     public Map<Integer, String> getMarked(String mark, int status) {
-        if (!isDBAvailable())
-            return new HashMap<Integer, String>();
-        
         Cursor c = null;
         try {
+            if (!isDBAvailable())
+                return new HashMap<Integer, String>();
+            
             c = db.query(TABLE_MARK, new String[] { "id", MARK_NOTE }, mark + "=" + status, null, null, null, null,
                     null);
+            
             Map<Integer, String> ret = new HashMap<Integer, String>(c.getCount());
             while (c.moveToNext()) {
                 ret.put(c.getInt(0), c.getString(1));
