@@ -29,6 +29,12 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
     public void uncaughtException(Thread t, Throwable e) {
         if (e instanceof IllegalStateException)
             return;
+        if (e instanceof SecurityException) {
+            // Cannot be reproduced, seems to be related to Cyanogenmod with Android 4.0.4 on some devices:
+            // http://stackoverflow.com/questions/11025182/webview-java-lang-securityexception-no-permission-to-modify-given-thread
+            if (e.getMessage().contains("No permission to modify given thread"))
+                return;
+        }
         
         try {
             StackTraceElement[] element = e.getStackTrace();
