@@ -366,7 +366,7 @@ public class Utils {
             // Check last appVersionCheckDate
             long last = Controller.getInstance().appVersionCheckTime();
             long time = System.currentTimeMillis();
-            if ((time - last) > (Utils.HOUR * 6)) {
+            if ((time - last) > (Utils.HOUR * 4)) {
             
                 // Retrieve remote version
                 int remote = 0;
