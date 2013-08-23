@@ -202,8 +202,6 @@
     <string name="SystemPreferenceCategoryTitle">System</string>
     <string name="LogSensitiveDataTitle">Log sensitive data?</string>
     <string name="LogSensitiveDataSummary">If enabled the log-output of this application may contain sensitive information such as passwords or session-ids from your configuration. Only enable if necessary, should be for debugging purposes only.</string>
-    <string name="VacuumDBOnNextStartupTitle">VACUUM DB on next startup</string>
-    <string name="VacuumDBOnNextStartupSummary">Removes unnecessary data from DB-File to decrease file-size. This is done automatically every 30 days and can take up to a minute.</string>
     <string name="DeleteDBOnNextStartupTitle">Delete DB on next startup</string>
     <string name="DeleteDBOnNextStartupSummary">If set to true the internal Database will be deleted only on the next start of the application.</string>
     <string name="DeleteDBOnStartupTitle">Delete DB on startup</string>
@@ -257,11 +255,8 @@
     <string name="Locale.Show_notification">Show notification</string>
     <string name="FeedSubscribeTitle">Subscribe to Feed</string>
     <string name="FeedUnsubscribeTitle">Unsubscribe Feed</string>
-    <string name="Dialog.vacuumText">The DB should sometimes be vacuumed to free space. Do you want to start this process now? It may take up to several minutes.</string>
-    <string name="Dialog.vacuumTitle">VACUUM</string>
     <string name="Dialog.unsubscribeText">Are you sure you want to unsubscribe from this feed?</string>
     <string name="Dialog.unsubscribeTitle">Unsubscribe Feed</string>
-    <string name="Dialog.vacuumProgress">Cleaning the database…</string>
     <string name="Dialog.imageCaptionTitle">Image caption</string>
     <string name="Yes">Yes</string>
     <string name="No">No</string>
