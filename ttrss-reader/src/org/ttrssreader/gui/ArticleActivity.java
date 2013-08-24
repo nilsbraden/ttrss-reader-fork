@@ -58,14 +58,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     public static final int ARTICLE_MOVE_NONE = 0;
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
     
-    // Extras
-    private int articleId = -1;
-    private int feedId = -1;
-    private int categoryId = -1000;
-    private boolean selectForCategory = false;
-    private int lastMove = ARTICLE_MOVE_DEFAULT;
-    
-    private Article article = null;
     private ActionBar actionBar = null;
     private GestureDetector gestureDetector;
     
@@ -74,6 +66,12 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         super.onCreate(instance);
         setContentView(R.layout.articleitem);
         gestureDetector = new GestureDetector(this, new ArticleGestureDetector(getSupportActionBar()));
+        
+        int articleId = -1;
+        int feedId = -1;
+        int categoryId = -1000;
+        boolean selectForCategory = false;
+        int lastMove = ARTICLE_MOVE_DEFAULT;
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -142,21 +140,20 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         return true;
     }
     
-    private void getArticle() {
-        if (article == null) {
-            Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.article_view);
-            if (fragment instanceof ArticleFragment) {
-                ArticleFragment aFrag = (ArticleFragment) fragment;
-                article = aFrag.getArticle();
-            }
+    private Article getArticle() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.article_view);
+        if (fragment instanceof ArticleFragment) {
+            ArticleFragment aFrag = (ArticleFragment) fragment;
+            return aFrag.getArticle();
         }
+        return null;
     }
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         
-        getArticle();
+        Article article = getArticle();
         if (article != null) {
             MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
             if (article.isUnread) {
@@ -200,10 +197,10 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
-        getArticle();
+        Article article = getArticle();
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead:
-                new Updater(this, new ReadStateUpdater(article, feedId, article.isUnread ? 0 : 1)).exec();
+                new Updater(this, new ReadStateUpdater(article, article.feedId, article.isUnread ? 0 : 1)).exec();
                 return true;
             case R.id.Article_Menu_MarkStar:
                 new Updater(this, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
@@ -215,7 +212,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 new TextInputAlert(this, article).show(this);
                 return true;
             case R.id.Article_Menu_AddArticleLabel:
-                DialogFragment dialog = ArticleLabelDialog.newInstance(articleId);
+                DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
                 dialog.show(getSupportFragmentManager(), "Edit Labels");
                 return true;
             case R.id.Article_Menu_WorkOffline:
