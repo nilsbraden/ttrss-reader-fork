@@ -78,7 +78,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         
         // This is a tablet if this view exists
         if (Controller.getInstance().allowTabletLayout()) {
-            View details = findViewById(R.id.article_view);
+            View details = findViewById(R.id.headline_list);
             isTablet = details != null && details.getVisibility() == View.VISIBLE;
         }
         
