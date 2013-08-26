@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.53 (3) ==
+== Version 1.53 (4) ==
   * Added all drawables for different screen-sizes
   * Modified "Subscribe to feed" and "Share to published" layouts
   * Allow API-Level 18
