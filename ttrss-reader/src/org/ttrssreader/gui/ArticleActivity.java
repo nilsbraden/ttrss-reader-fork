@@ -110,7 +110,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             actionBar.setDisplayShowCustomEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
         }
-        actionBar.hide();
+        if (actionBar.isShowing())
+            actionBar.hide();
     }
     
     @Override
@@ -305,6 +306,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         if (fragment instanceof ArticleFragment) {
             ArticleFragment aFrag = (ArticleFragment) fragment;
             aFrag.openNextArticle(direction);
+            initActionbar();
         }
     }
     
