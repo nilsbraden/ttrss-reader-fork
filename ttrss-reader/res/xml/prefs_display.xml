@@ -83,16 +83,26 @@
       android:summary="@string/AllowHyphenationSummary"
       android:title="@string/AllowHyphenationTitle" />
     <ListPreference
-      android:defaultValue="ru-en"
+      android:defaultValue="en-gb"
       android:entries="@array/HyphenationLanguageEntries"
       android:entryValues="@array/HyphenationLanguageValues"
       android:key="HyphenationLanguagePreference"
       android:summary="@string/HyphenationLanguageSummary"
       android:title="@string/HyphenationLanguageTitle" />
 
-    <CheckBoxPreference android:defaultValue="true"
-	android:key="MarkReadInMenuPreference" android:summary="@string/MarkReadInMenuSummary"
-	android:title="@string/MarkReadInMenuTitle" />
+    <CheckBoxPreference
+      android:defaultValue="true"
+      android:key="MarkReadInMenuPreference"
+      android:summary="@string/MarkReadInMenuSummary"
+      android:title="@string/MarkReadInMenuTitle" />
+
+    <CheckBoxPreference
+      android:defaultValue="false"
+	  android:enabled="false"
+      android:key="AllowTabletLayoutPreference"
+      android:summary="@string/AllowTabletLayoutSummary"
+      android:title="@string/AllowTabletLayoutTitle" />
+
   </PreferenceCategory>
 
 </PreferenceScreen>
