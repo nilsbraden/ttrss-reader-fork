@@ -287,6 +287,7 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         
+        getSherlockActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
         // Reload content on next doRefresh()
         webviewInitialized = false;
     }
@@ -394,7 +395,6 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
                 }
             }
             
-            getSherlockActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
             
             // Everything did load, we dont have to do this again.
             webviewInitialized = true;
