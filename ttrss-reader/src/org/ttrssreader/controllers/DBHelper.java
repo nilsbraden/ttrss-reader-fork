@@ -48,6 +48,7 @@ public class DBHelper {
     
     private static DBHelper instance = null;
     private volatile boolean initialized = false;
+    private String LOCK = "";
     
     /*
      * We use two locks here to avoid too much locking for reading and be able to completely lock everything up when we
@@ -125,122 +126,124 @@ public class DBHelper {
         return instance;
     }
     
-    public synchronized void checkAndInitializeDB(final Context context) {
-        this.context = context;
-        
-        // Check if deleteDB is scheduled or if DeleteOnStartup is set
-        if (Controller.getInstance().isDeleteDBScheduled()) {
-            if (deleteDB()) {
-                Controller.getInstance().setDeleteDBScheduled(false);
-                initializeDBHelper();
-                return; // Don't need to check if DB is corrupted, it is NEW!
-            }
-        }
-        
-        // Initialize DB
-        if (!initialized) {
-            initializeDBHelper();
-        } else if (db == null || !db.isOpen()) {
-            initializeDBHelper();
-        } else {
-            return; // DB was already initialized, no need to check anything.
-        }
-        
-        // Test if DB is accessible, backup and delete if not
-        if (initialized) {
-            Cursor c = null;
-            try {
-                // Try to access the DB
-                c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_CATEGORIES, null);
-                c.getCount();
-                if (c.moveToFirst())
-                    c.getInt(0);
-                
-            } catch (Exception e) {
-                Log.e(Utils.TAG, "Database was corrupted, creating a new one...", e);
-                closeDB();
-                File dbFile = context.getDatabasePath(DATABASE_NAME);
-                if (dbFile.delete())
+    public void checkAndInitializeDB(final Context context) {
+        synchronized (LOCK) {
+            this.context = context;
+            
+            // Check if deleteDB is scheduled or if DeleteOnStartup is set
+            if (Controller.getInstance().isDeleteDBScheduled()) {
+                if (deleteDB()) {
+                    Controller.getInstance().setDeleteDBScheduled(false);
                     initializeDBHelper();
-                ErrorDialog
-                        .getInstance(
-                                context,
-                                "The Database was corrupted and had to be recreated. If this happened more than once to you please let me know under what circumstances this happened.");
-            } finally {
-                if (c != null && !c.isClosed())
-                    c.close();
+                    return; // Don't need to check if DB is corrupted, it is NEW!
+                }
+            }
+            
+            // Initialize DB
+            if (!initialized) {
+                initializeDBHelper();
+            } else if (db == null || !db.isOpen()) {
+                initializeDBHelper();
+            } else {
+                return; // DB was already initialized, no need to check anything.
+            }
+            
+            // Test if DB is accessible, backup and delete if not
+            if (initialized) {
+                Cursor c = null;
+                try {
+                    // Try to access the DB
+                    c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_CATEGORIES, null);
+                    c.getCount();
+                    if (c.moveToFirst())
+                        c.getInt(0);
+                    
+                } catch (Exception e) {
+                    Log.e(Utils.TAG, "Database was corrupted, creating a new one...", e);
+                    closeDB();
+                    File dbFile = context.getDatabasePath(DATABASE_NAME);
+                    if (dbFile.delete())
+                        initializeDBHelper();
+                    ErrorDialog
+                            .getInstance(
+                                    context,
+                                    "The Database was corrupted and had to be recreated. If this happened more than once to you please let me know under what circumstances this happened.");
+                } finally {
+                    if (c != null && !c.isClosed())
+                        c.close();
+                }
             }
         }
     }
     
     @SuppressWarnings("deprecation")
-    private synchronized boolean initializeDBHelper() {
-        
-        if (context == null) {
-            Log.e(Utils.TAG, "Can't handle internal DB without Context-Object.");
-            return false;
+    private boolean initializeDBHelper() {
+        synchronized (LOCK) {
+            if (context == null) {
+                Log.e(Utils.TAG, "Can't handle internal DB without Context-Object.");
+                return false;
+            }
+            
+            if (db != null)
+                closeDB();
+            
+            OpenHelper openHelper = new OpenHelper(context);
+            db = openHelper.getWritableDatabase();
+            db.setLockingEnabled(true);
+            
+            insertCategory = db.compileStatement(INSERT_CATEGORY);
+            insertFeed = db.compileStatement(INSERT_FEED);
+            insertArticle = db.compileStatement(INSERT_ARTICLE);
+            insertLabel = db.compileStatement(INSERT_LABEL);
+            
+            db.acquireReference();
+            initialized = true;
+            return true;
         }
-        
-        if (db != null)
-            closeDB();
-        
-        OpenHelper openHelper = new OpenHelper(context);
-        db = openHelper.getWritableDatabase();
-        db.setLockingEnabled(true);
-        
-        insertCategory = db.compileStatement(INSERT_CATEGORY);
-        insertFeed = db.compileStatement(INSERT_FEED);
-        insertArticle = db.compileStatement(INSERT_ARTICLE);
-        insertLabel = db.compileStatement(INSERT_LABEL);
-        
-        db.acquireReference();
-        initialized = true;
-        return true;
     }
     
     private boolean deleteDB() {
-        if (context == null)
-            return false;
-        
-        Log.i(Utils.TAG, "Deleting Database as requested by preferences.");
-        File f = context.getDatabasePath(DATABASE_NAME);
-        if (f.exists()) {
-            if (db != null) {
-                closeDB();
+        synchronized (LOCK) {
+            if (context == null)
+                return false;
+            
+            Log.i(Utils.TAG, "Deleting Database as requested by preferences.");
+            File f = context.getDatabasePath(DATABASE_NAME);
+            if (f.exists()) {
+                if (db != null) {
+                    closeDB();
+                }
+                return f.delete();
             }
-            return f.delete();
+            
+            return false;
         }
-        
-        return false;
     }
     
     private void closeDB() {
-        db.releaseReference();
-        db.close();
-        db = null;
+        synchronized (LOCK) {
+            db.releaseReference();
+            db.close();
+            db = null;
+        }
     }
     
     private boolean isDBAvailable() {
-        if (db != null && db.isOpen()) {
-            return true;
-        } else if (db != null) {
+        synchronized (LOCK) {
+            if (db != null && db.isOpen())
+                return true;
             
-            synchronized (this) {
-                if (db != null) {
-                    OpenHelper openHelper = new OpenHelper(context);
-                    db = openHelper.getWritableDatabase();
-                    initialized = db.isOpen();
-                    return initialized;
-                }
+            if (db != null) {
+                OpenHelper openHelper = new OpenHelper(context);
+                db = openHelper.getWritableDatabase();
+                initialized = db.isOpen();
+                return initialized;
+            } else {
+                Log.i(Utils.TAG, "Controller not initialized, trying to do that now...");
+                initializeDBHelper();
+                return true;
             }
-            
-        } else {
-            Log.i(Utils.TAG, "Controller not initialized, trying to do that now...");
-            initializeDBHelper();
-            return true;
         }
-        
-        return false;
     }
     
     private static class OpenHelper extends SQLiteOpenHelper {
