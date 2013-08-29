@@ -152,7 +152,8 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
             categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
             selectForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
             lastMove = instance.getInt(ARTICLE_MOVE);
-            webView.restoreState(instance);
+            if (webView != null)
+                webView.restoreState(instance);
         }
         
         articleJSInterface = new ArticleJSInterface(getSherlockActivity());
@@ -181,7 +182,8 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
         instance.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
         instance.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectForCategory);
         instance.putInt(ARTICLE_MOVE, lastMove);
-        webView.saveState(instance);
+        if (webView != null)
+            webView.saveState(instance);
     }
     
     private void fillParentInformation() {
@@ -327,6 +329,9 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
     
     @SuppressLint("SetJavaScriptEnabled")
     private void doRefresh() {
+        if (webView == null)
+            return;
+        
         try {
             ProgressBarManager.getInstance().addProgress(getSherlockActivity());
             
@@ -394,7 +399,6 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
                     openLink();
                 }
             }
-            
             
             // Everything did load, we dont have to do this again.
             webviewInitialized = true;
