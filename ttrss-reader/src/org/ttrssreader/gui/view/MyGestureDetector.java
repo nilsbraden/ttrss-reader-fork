@@ -22,10 +22,12 @@ import com.actionbarsherlock.app.ActionBar;
 public class MyGestureDetector implements OnGestureListener {
     
     private ActionBar actionBar;
+    private boolean hideActionbar;
     private long lastShow = -1;
     
-    public MyGestureDetector(ActionBar actionBar) {
+    public MyGestureDetector(ActionBar actionBar, boolean hideActionbar) {
         this.actionBar = actionBar;
+        this.hideActionbar = hideActionbar;
     }
     
     @Override
@@ -44,6 +46,9 @@ public class MyGestureDetector implements OnGestureListener {
     
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        if (!hideActionbar)
+            return false;
+        
         if (System.currentTimeMillis() - lastShow < 700)
             return false;
         

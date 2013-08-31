@@ -13,50 +13,56 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details. You should have received a
     copy of the GNU General Public License along with this program; If
-    not, see <http://www.gnu.org/licenses/>.
+    not, see <http://www.gnu.org/licenses/>.
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:title="@string/UsagePreferenceCategoryTitle" >
+    android:title="@string/UsagePreferenceCategoryTitle" >
 
-  <PreferenceCategory android:title="@string/UsagePreferenceCategoryTitle" >
-    <CheckBoxPreference
-      android:defaultValue="false"
-      android:key="UsageOpenUrlEmptyArticlePreference"
-      android:summary="@string/UsageOpenUrlEmptyArticleSummary"
-      android:title="@string/UsageOpenUrlEmptyArticleTitle" />
-    <CheckBoxPreference
-      android:defaultValue="true"
-      android:key="UsageUseVolumeKeysPreference"
-      android:summary="@string/UsageUseVolumeKeysSummary"
-      android:title="@string/UsageUseVolumeKeysTitle" />
-    <ListPreference
-      android:defaultValue="0"
-      android:entries="@array/ShowButtonsModeEntries"
-      android:entryValues="@array/ShowButtonsModeValues"
-      android:key="ShowButtonsModePreference"
-      android:summary="@string/ShowButtonsModeSummary"
-      android:title="@string/ShowButtonsModeTitle" />
-    <CheckBoxPreference
-      android:defaultValue="true"
-      android:key="DisplayShowVirtualPreference"
-      android:summary="@string/DisplayVirtualPreferenceSummary"
-      android:title="@string/DisplayVirtualPreferenceTitle" />
-    <CheckBoxPreference
-      android:defaultValue="true"
-      android:key="DisplayLoadImagesPreference"
-      android:summary="@string/DisplayLoadImagesPreferenceSummary"
-      android:title="@string/DisplayLoadImagesPreferenceTitle" />
-    <CheckBoxPreference
-      android:defaultValue="false"
-      android:key="InvertBrowseArticlesPreference"
-      android:summary="@string/InvertBrowseArticlesPreferenceSummary"
-      android:title="@string/InvertBrowseArticlesPreferenceTitle" />
-    <CheckBoxPreference
-      android:defaultValue="false"
-      android:key="GoBackAfterMarkAllReadPreference"
-      android:summary="@string/GoBackAfterMarkAllReadPreferenceSummary"
-      android:title="@string/GoBackAfterMarkAllReadPreferenceTitle" />
+    <PreferenceCategory android:title="@string/UsagePreferenceCategoryTitle" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="UsageOpenUrlEmptyArticlePreference"
+            android:summary="@string/UsageOpenUrlEmptyArticleSummary"
+            android:title="@string/UsageOpenUrlEmptyArticleTitle" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="UsageUseVolumeKeysPreference"
+            android:summary="@string/UsageUseVolumeKeysSummary"
+            android:title="@string/UsageUseVolumeKeysTitle" />
 
-  </PreferenceCategory>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/ShowButtonsModeEntries"
+            android:entryValues="@array/ShowButtonsModeValues"
+            android:key="ShowButtonsModePreference"
+            android:summary="@string/ShowButtonsModeSummary"
+            android:title="@string/ShowButtonsModeTitle" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="DisplayShowVirtualPreference"
+            android:summary="@string/DisplayVirtualPreferenceSummary"
+            android:title="@string/DisplayVirtualPreferenceTitle" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="DisplayLoadImagesPreference"
+            android:summary="@string/DisplayLoadImagesPreferenceSummary"
+            android:title="@string/DisplayLoadImagesPreferenceTitle" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="InvertBrowseArticlesPreference"
+            android:summary="@string/InvertBrowseArticlesPreferenceSummary"
+            android:title="@string/InvertBrowseArticlesPreferenceTitle" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="GoBackAfterMarkAllReadPreference"
+            android:summary="@string/GoBackAfterMarkAllReadPreferenceSummary"
+            android:title="@string/GoBackAfterMarkAllReadPreferenceTitle" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="HideActionbarPreference"
+            android:summary="@string/HideActionbarSummary"
+            android:title="@string/HideActionbarTitle" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

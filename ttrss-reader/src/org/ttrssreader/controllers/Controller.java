@@ -93,6 +93,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean loadImages = null;
     private Boolean invertBrowsing = null;
     private Boolean goBackAfterMakeAllRead = null;
+    private Boolean hideActionbar = null;
     private Boolean allowTabletLayout = null;
     private Boolean workOffline = null;
     
@@ -483,6 +484,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setGoBackAfterMakeAllRead(boolean goBackAfterMakeAllRead) {
         put(Constants.GO_BACK_AFTER_MARK_ALL_READ, goBackAfterMakeAllRead);
         this.goBackAfterMakeAllRead = goBackAfterMakeAllRead;
+    }
+    
+    public boolean hideActionbar() {
+        if (hideActionbar == null)
+            hideActionbar = prefs.getBoolean(Constants.HIDE_ACTIONBAR, Constants.HIDE_ACTIONBAR_DEFAULT);
+        return hideActionbar;
+    }
+    
+    public void setHideActionbar(boolean hideActionbar) {
+        put(Constants.HIDE_ACTIONBAR, hideActionbar);
+        this.hideActionbar = hideActionbar;
     }
     
     public boolean allowTabletLayout() {
