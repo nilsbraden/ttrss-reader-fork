@@ -12,6 +12,7 @@
   * French translation (thanks to Jean-François BILGER)
   * Fixed bug in ImageCache
   * Fixed NPE and a bug in SubscribeActivity
+  * Added preference to disable hiding of the actionbar
 
 == Version 1.52 (2) ==
   * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
