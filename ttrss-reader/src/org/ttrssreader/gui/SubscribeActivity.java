@@ -214,7 +214,7 @@ public class SubscribeActivity extends MenuActivity {
                     categoriesAdapter.addAll(catList);
                 } else {
                     for (Category cat : catList) {
-                        categoriesAdapter.addAll(cat);
+                        categoriesAdapter.add(cat);
                     }
                 }
             }
