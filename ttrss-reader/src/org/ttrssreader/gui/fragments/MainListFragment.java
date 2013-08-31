@@ -15,6 +15,7 @@
 
 package org.ttrssreader.gui.fragments;
 
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
@@ -66,7 +67,8 @@ public class MainListFragment extends ListFragment implements IUpdateEndListener
         
         ActionBar actionBar = ((SherlockFragmentActivity) getActivity()).getSupportActionBar();
         
-        gestureDetector = new GestureDetector(getActivity(), new MyGestureDetector(actionBar), null);
+        gestureDetector = new GestureDetector(getActivity(), new MyGestureDetector(actionBar, Controller.getInstance()
+                .hideActionbar()), null);
         gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 return gestureDetector.onTouchEvent(event);

@@ -65,7 +65,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         setContentView(R.layout.articleitem);
-        gestureDetector = new GestureDetector(this, new ArticleGestureDetector(getSupportActionBar()));
+        gestureDetector = new GestureDetector(this, new ArticleGestureDetector(getSupportActionBar(), Controller
+                .getInstance().hideActionbar()));
         
         int articleId = -1;
         int feedId = -1;
@@ -110,7 +111,7 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             actionBar.setDisplayShowCustomEnabled(true);
             actionBar.setDisplayShowTitleEnabled(false);
         }
-        if (actionBar.isShowing())
+        if (actionBar.isShowing() && Controller.getInstance().hideActionbar())
             actionBar.hide();
     }
     
@@ -269,8 +270,8 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     class ArticleGestureDetector extends MyGestureDetector {
-        public ArticleGestureDetector(ActionBar actionBar) {
-            super(actionBar);
+        public ArticleGestureDetector(ActionBar actionBar, boolean hideActionbar) {
+            super(actionBar, hideActionbar);
         }
         
         @Override
