@@ -257,24 +257,24 @@ public class Utils {
         if (info == null)
             return false;
         
-        if (info.isConnected())
-            return true;
-        
-        synchronized (Utils.class) {
-            int wait = 0;
-            while (info.isConnectedOrConnecting() && !info.isConnected()) {
-                try {
-                    wait += 100;
-                    Utils.class.wait(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                
-                if (wait > SECOND) { // Wait a maximum of one second for connection
-                    break;
-                }
-            }
-        }
+        // if (info.isConnected())
+        // return true;
+        //
+        // synchronized (Utils.class) {
+        // int wait = 0;
+        // while (info.isConnectedOrConnecting() && !info.isConnected()) {
+        // try {
+        // wait += 100;
+        // Utils.class.wait(100);
+        // } catch (InterruptedException e) {
+        // e.printStackTrace();
+        // }
+        //
+        // if (wait > SECOND) { // Wait a maximum of one second for connection
+        // break;
+        // }
+        // }
+        // }
         
         return info.isConnected();
     }
