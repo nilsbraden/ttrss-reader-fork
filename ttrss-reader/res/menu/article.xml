@@ -27,7 +27,7 @@
     <item
         android:id="@+id/Article_Menu_ShareLink"
         android:icon="@drawable/ic_menu_share"
-        android:showAsAction="always|withText"
+    android:showAsAction="ifRoom|withText"
         android:title="@string/ArticleActivity.ShareLink"
         tools:ignore="AlwaysShowAction"/>
     <item

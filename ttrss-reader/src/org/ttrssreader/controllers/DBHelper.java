@@ -25,12 +25,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
+import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.model.pojos.RemoteFile;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
@@ -38,6 +39,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
@@ -61,7 +63,7 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 52;
+    public static final int DATABASE_VERSION = 53;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -69,6 +71,8 @@ public class DBHelper {
     public static final String TABLE_ARTICLES2LABELS = "articles2labels";
     public static final String TABLE_LABELS = "labels";
     public static final String TABLE_MARK = "marked";
+    public static final String TABLE_REMOTEFILES = "remotefiles";
+    public static final String TABLE_REMOTEFILE2ARTICLE = "remotefile2article";
     
     public static final String MARK_READ = "isUnread";
     public static final String MARK_STAR = "isStarred";
@@ -92,7 +96,7 @@ public class DBHelper {
         "INSERT OR REPLACE INTO "
         + TABLE_ARTICLES
         + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages, articleLabels)" 
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE id=?), 0), ?)";
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE id=?), NULL), ?)";
     // This should insert new values or replace existing values but should always keep an already inserted value for "cachedImages".
     // When inserting it is set to the default value which is 0 (not "NULL").
     
@@ -100,6 +104,18 @@ public class DBHelper {
         "REPLACE INTO "
         + TABLE_ARTICLES2LABELS
         + " (articleId, labelId)"
+        + " VALUES (?, ?)";
+
+    private static final String INSERT_REMOTEFILE =
+        "INSERT OR FAIL INTO "
+        + TABLE_REMOTEFILES
+        + " (url, ext)"
+        + " VALUES (?, ?)";
+
+    private static final String INSERT_REMOTEFILE2ARTICLE =
+        "INSERT OR IGNORE INTO "
+        + TABLE_REMOTEFILE2ARTICLE
+        + " (remotefileId, articleId)"
         + " VALUES (?, ?)";
     // @formatter:on
     
@@ -110,6 +126,8 @@ public class DBHelper {
     private SQLiteStatement insertFeed;
     private SQLiteStatement insertArticle;
     private SQLiteStatement insertLabel;
+    private SQLiteStatement insertRemoteFile;
+    private SQLiteStatement insertRemoteFile2Article;
     
     // Singleton
     private DBHelper() {
@@ -195,6 +213,8 @@ public class DBHelper {
             insertFeed = db.compileStatement(INSERT_FEED);
             insertArticle = db.compileStatement(INSERT_ARTICLE);
             insertLabel = db.compileStatement(INSERT_LABEL);
+            insertRemoteFile = db.compileStatement(INSERT_REMOTEFILE);
+            insertRemoteFile2Article = db.compileStatement(INSERT_REMOTEFILE2ARTICLE);
             
             db.acquireReference();
             initialized = true;
@@ -253,6 +273,21 @@ public class DBHelper {
         }
         
         /**
+         * set wished DB modes on DB
+         *
+         * @param db
+         *            DB to be used
+         */
+        @Override
+        public void onOpen(SQLiteDatabase db) {
+            super.onOpen(db);
+            if (!db.isReadOnly()) {
+                // Enable foreign key constraints
+                db.execSQL("PRAGMA foreign_keys=ON;");
+            }
+        }
+
+        /**
          * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
          */
         @Override
@@ -307,9 +342,19 @@ public class DBHelper {
                     + " " + MARK_NOTE + " TEXT,"
                     + " PRIMARY KEY(id, type))");
             // @formatter:on
+
+            createRemoteFilesSupportDBObjects(db);
         }
         
         /**
+         * upgrade the DB
+         *
+         * @param db
+         *            The database.
+         * @param oldVersion
+         *            The old database version.
+         * @param newVersion
+         *            The new database version.
          * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
          */
         @Override
@@ -423,7 +468,7 @@ public class DBHelper {
             
             if (oldVersion < 50) {
                 Log.i(Utils.TAG, String.format("Upgrading database from %s to 50.", oldVersion));
-                ContentValues cv = new ContentValues();
+                ContentValues cv = new ContentValues(1);
                 cv.put("cachedImages", 0);
                 db.update(TABLE_ARTICLES, cv, "cachedImages IS null", null);
                 didUpgrade = true;
@@ -464,6 +509,20 @@ public class DBHelper {
                 db.execSQL(sql);
                 didUpgrade = true;
             }
+
+            if (oldVersion < 53) {
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 53.", oldVersion));
+                didUpgrade = createRemoteFilesSupportDBObjects(db);
+                if (didUpgrade) {
+                    ContentValues cv = new ContentValues(1);
+                    cv.putNull("cachedImages");
+                    db.update(TABLE_ARTICLES, cv, null, null);
+                    ImageCache ic = Controller.getInstance().getImageCache();
+                    if (ic != null) {
+                        ic.clear();
+                    }
+                }
+            }
             
             if (didUpgrade == false) {
                 Log.i(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
@@ -474,6 +533,142 @@ public class DBHelper {
                 onCreate(db);
             }
             
+        }
+
+        /**
+         * create DB objects (tables, triggers, views) which
+         * are necessary for file cache support
+         *
+         * @param db
+         *            current database
+         */
+        public boolean createRemoteFilesSupportDBObjects(SQLiteDatabase db) {
+            boolean success = false;
+            try {
+                // @formatter:off
+
+            // remote files (images, attachments, etc) belonging to articles,
+            // which are locally stored (cached)
+            db.execSQL("CREATE TABLE "
+                    + TABLE_REMOTEFILES
+                    + " (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    // remote file URL
+                    + " url TEXT UNIQUE NOT NULL,"
+                    // file size
+                    + " length INTEGER DEFAULT 0,"
+                    // extension - some kind of additional info
+                    // (i.e. file extension)
+                    + " ext TEXT NOT NULL,"
+                    // unix timestamp of last change
+                    // (set automatically by triggers)
+                    + " updateDate INTEGER,"
+                    // boolean flag determining if the file is locally stored
+                    + " cached INTEGER DEFAULT 0)");
+
+            // index for quiicker search by by URL
+            db.execSQL("CREATE UNIQUE INDEX idx_remotefiles_by_url"
+                    + " ON " + TABLE_REMOTEFILES
+                    + " (url)");
+
+            // sets last change unix timestamp after row creation
+            db.execSQL("CREATE TRIGGER insert_remotefiles AFTER INSERT"
+                    + " ON " + TABLE_REMOTEFILES
+                    + "   BEGIN"
+                    + "     UPDATE " + TABLE_REMOTEFILES
+                    + "       SET updateDate = strftime('%s', 'now')"
+                    + "     WHERE id = new.id;"
+                    + "   END");
+
+            // sets last change unix timestamp after row update
+            db.execSQL("CREATE TRIGGER update_remotefiles_lastchanged AFTER UPDATE"
+                    + " ON " + TABLE_REMOTEFILES
+                    + "   BEGIN"
+                    + "     UPDATE " + TABLE_REMOTEFILES
+                    + "       SET updateDate = strftime('%s', 'now')"
+                    + "     WHERE id = new.id;"
+                    + "   END");
+
+            // m to n relations between articles and remote files
+            db.execSQL("CREATE TABLE "
+                    + TABLE_REMOTEFILE2ARTICLE
+                    // ID of remote file
+                    + "(remotefileId INTEGER"
+                    + "   REFERENCES " + TABLE_REMOTEFILES + "(id)"
+                    + "     ON DELETE CASCADE,"
+                    // ID of article
+                    + " articleId INTEGER"
+                    + "   REFERENCES " + TABLE_ARTICLES + "(id)"
+                    + "     ON UPDATE CASCADE"
+                    + "     ON DELETE NO ACTION,"
+                    // if both IDs are known, then the row should be found faster
+                    + " PRIMARY KEY(remotefileId, articleId))");
+
+            // update count of cached images for article on change of "cached"
+            // field of remotefiles
+            db.execSQL("CREATE TRIGGER update_remotefiles_articlefiles AFTER UPDATE"
+                    + " OF cached"
+                    + " ON " + TABLE_REMOTEFILES
+                    + "   BEGIN"
+                    + "     UPDATE " + TABLE_ARTICLES + ""
+                    + "       SET"
+                    + "         cachedImages = ("
+                    + "           SELECT"
+                    + "             COUNT(r.id)"
+                    + "           FROM " + TABLE_REMOTEFILES + " r,"
+                    +               TABLE_REMOTEFILE2ARTICLE + " m"
+                    + "           WHERE"
+                    + "             m.remotefileId=r.id"
+                    + "             AND m.articleId=" + TABLE_ARTICLES + ".id"
+                    + "             AND r.cached=1)"
+                    + "       WHERE id IN ("
+                    + "         SELECT"
+                    + "           a.id"
+                    + "         FROM " + TABLE_REMOTEFILE2ARTICLE + " m,"
+                    +             TABLE_ARTICLES + " a"
+                    + "         WHERE"
+                    + "           m.remotefileId=new.id AND m.articleId=a.id);"
+                    + "   END");
+
+            // represents importance of cached files
+            // the sequence is defined by
+            // 1. the article to which the remote file belongs to is not read
+            // 2. update date of the article to which the remote file belongs to
+            // 3. the file length
+            db.execSQL("CREATE VIEW remotefile_sequence AS"
+                    + " SELECT r.*, MAX(a.isUnread) AS isUnread,"
+                    + "   MAX(a.updateDate) AS articleUpdateDate,"
+                    + "   MAX(a.isUnread)||MAX(a.updateDate)||(100000000000-r.length)"
+                    + "     AS ord"
+                    + " FROM " + TABLE_REMOTEFILES + " r,"
+                    +     TABLE_REMOTEFILE2ARTICLE + " m,"
+                    +     TABLE_ARTICLES + " a"
+                    + " WHERE m.remotefileId=r.id AND m.articleId=a.id"
+                    + " GROUP BY r.id");
+
+            // Represents cached remote files sorted by their importance.
+            // runningSum field in each row represents the summary length of
+            // all files in the importance sequence until the next row.
+            // This view is used to determine which cached files should be
+            // deleted as next to free some amount of space in cache.
+//            db.execSQL("CREATE VIEW remotefile_runningsum AS"
+//                    + " SELECT"
+//                    + "   f1.*, sum(f2.length) AS runningSum"
+//                    + " FROM"
+//                    + "   remotefile_sequence f1"
+//                    + "     INNER JOIN"
+//                    + "       remotefile_sequence f2"
+//                    + "       ON"
+//                    + "         f1.cached=1 AND f1.ord>=f2.ord"
+//                    + " GROUP by f1.id"
+//                    + " ORDER by runningSum");
+                // @formatter:on
+
+                success = true;
+            } catch (SQLException e) {
+                Log.e(Utils.TAG, "Creation of remote file support DB objects failed.\n" + e);
+            }
+
+            return success;
         }
     }
     
@@ -600,9 +795,7 @@ public class DBHelper {
     }
     
     public void insertArticle(Article a) {
-        if (!isDBAvailable())
-            return;
-        
+        if (isDBAvailable())
         insertArticleIntern(a);
     }
     
@@ -734,6 +927,52 @@ public class DBHelper {
                 removeLabel(articleId, label);
         }
     }
+
+    /**
+     * insert given remote file into DB
+     *
+     * @param url
+     *            remote file URL
+     * @return remote file id, which was inserted or already exist in DB
+     */
+    private long insertRemoteFile(String url) {
+        long ret = 0;
+
+        try {
+            synchronized (insertRemoteFile) {
+                insertRemoteFile.bindString(1, url);
+                // extension (reserved for future)
+                insertRemoteFile.bindString(2, "");
+
+                if (isDBAvailable())
+                    ret = insertRemoteFile.executeInsert();
+            }
+        } catch (SQLException e) {
+            // if this remote file already in DB, get its ID
+            ret = getRemoteFile(url).id;
+        }
+
+        return ret;
+    }
+
+    /**
+     * insert given relation (remotefileId <-> articleId) into DB
+     *
+     * @param rfId
+     *            remote file ID
+     * @param aId
+     *            article ID
+     */
+    private void insertRemoteFile2Article(long rfId, long aId) {
+        synchronized (insertRemoteFile2Article) {
+            insertRemoteFile2Article.bindLong(1, rfId);
+            // extension (reserved for future)
+            insertRemoteFile2Article.bindLong(2, aId);
+
+            if (isDBAvailable())
+                insertRemoteFile2Article.executeInsert();
+        }
+    }
     
     // *******| UPDATE |*******************************************************************
     
@@ -749,60 +988,52 @@ public class DBHelper {
      * @return collection of article IDs, which was marked as read or {@code null} if nothing was changed
      */
     public Collection<Integer> markRead(int id, boolean isCategory) {
-        Collection<Integer> markedIds = null;
-        String where = "";
+        Set<Integer> markedIds = null;
+        if (isDBAvailable()) {
+            StringBuilder where = new StringBuilder();
         
-        String feedIds;
+            StringBuilder feedIds = new StringBuilder();
         switch (id) {
             case Data.VCAT_ALL:
-                where = " 1 "; // Select everything...
+                    where.append(" 1 "); // Select everything...
                 break;
             case Data.VCAT_FRESH:
                 long time = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
-                where = " updateDate > " + time;
+                    where.append(" updateDate > ").append(time);
                 break;
             case Data.VCAT_PUB:
-                where = " isPublished > 0 ";
+                    where.append(" isPublished > 0 ");
                 break;
             case Data.VCAT_STAR:
-                where = " isStarred > 0 ";
+                    where.append(" isStarred > 0 ");
                 break;
             default:
                 if (isCategory) {
-                    feedIds = "select id from " + TABLE_FEEDS + " where categoryId=" + id;
-                    where = " feedId in (" + feedIds + ") ";
+                        feedIds.append("SELECT id FROM ").append(TABLE_FEEDS).append(" WHERE categoryId=").append(id);
                 } else {
-                    feedIds = String.valueOf(id);
-                    where = " feedId in (" + feedIds + ") ";
+                        feedIds.append(id);
                 }
+                    where.append(" feedId IN (").append(feedIds).append(") ");
                 break;
         }
         
-        where = where + " and isUnread>0 ";
+            where.append(" and isUnread>0 ");
         Cursor c = null;
-        
-        if (!isDBAvailable())
-            return markedIds;
         
         db.beginTransaction();
         try {
             // select id from articles where categoryId in (...)
-            c = db.query(TABLE_ARTICLES, new String[] { "id" }, where, null, null, null, null);
+                c = db.query(TABLE_ARTICLES, new String[] { "id" }, where.toString(), null, null, null, null);
             
             int count = c.getCount();
             
             if (count > 0) {
-                markedIds = new Vector<Integer>(count);
+                    markedIds = new HashSet<Integer>(count);
                 
                 while (c.moveToNext()) {
                     markedIds.add(c.getInt(0));
                 }
                 
-                ContentValues cv = new ContentValues();
-                cv.put("isUnread", 0);
-                db.update(TABLE_ARTICLES, cv, where, null);
-                
-                calculateCounters();
             }
             
             db.setTransactionSuccessful();
@@ -811,12 +1042,17 @@ public class DBHelper {
                 c.close();
             db.endTransaction();
         }
+        }
+
+        if (markedIds != null && !markedIds.isEmpty()) {
+            markArticles(markedIds, "isUnread", 0);
+        }
         
         return markedIds;
     }
     
     public void markLabelRead(int labelId) {
-        ContentValues cv = new ContentValues();
+        ContentValues cv = new ContentValues(1);
         cv.put("isUnread", 0);
         String idList = "SELECT id FROM " + TABLE_ARTICLES + " AS a, " + TABLE_ARTICLES2LABELS
                 + " as l WHERE a.id=l.articleId AND l.labelId=" + labelId;
@@ -837,19 +1073,19 @@ public class DBHelper {
      *            value for the mark
      */
     public void markArticles(Set<Integer> idList, String mark, int state) {
-        if (!isDBAvailable() || idList.isEmpty())
-            return;
+        if (isDBAvailable() && idList != null && !idList.isEmpty()) {
         db.beginTransaction();
         try {
-            for (String ids : StringSupport.convertListToString(idList, 100)) {
+                for (String ids : StringSupport.convertListToString(idList, 400)) {
                 markArticles(ids, mark, state);
-            }
-            
+		        }
+		        
+		        db.setTransactionSuccessful();
+		    } finally {
+		        db.endTransaction();
+		    }
+
             calculateCounters();
-            
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
         }
     }
     
@@ -887,12 +1123,19 @@ public class DBHelper {
      *            mark to be set
      * @param state
      *            value for the mark
+     * @return the number of rows affected
      */
-    public void markArticles(String idList, String mark, int state) {
-        String sql = String.format("UPDATE %s SET %s=%s WHERE id IN (%s)", TABLE_ARTICLES, mark, state, idList);
-        if (!isDBAvailable())
-            return;
-        db.execSQL(sql);
+    public int markArticles(String idList, String mark, int state) {
+        int rowCount = 0;
+
+        if (isDBAvailable()) {
+            ContentValues cv = new ContentValues(1);
+            cv.put(mark, state);
+            rowCount = db.update(TABLE_ARTICLES, cv, "id IN (" + idList + ") AND ? != ?",
+                    new String[] { mark, String.valueOf(state) });
+        }
+
+        return rowCount;
     }
     
     public void markUnsynchronizedStates(Collection<Integer> ids, String mark, int state) {
@@ -934,7 +1177,7 @@ public class DBHelper {
                 if (note == null || note.equals(""))
                     continue;
                 
-                ContentValues cv = new ContentValues();
+                ContentValues cv = new ContentValues(1);
                 cv.put(MARK_NOTE, note);
                 db.update(TABLE_MARK, cv, "id=" + id, null);
             }
@@ -962,7 +1205,7 @@ public class DBHelper {
             @SuppressWarnings("unused")
             int updateCount = 0;
             
-            cv = new ContentValues();
+            cv = new ContentValues(1);
             cv.put("unread", 0);
             updateCount = db.update(TABLE_FEEDS, cv, null, null);
             updateCount = db.update(TABLE_CATEGORIES, cv, null, null);
@@ -979,7 +1222,6 @@ public class DBHelper {
                     
                     total += unreadCount;
                     
-                    cv = new ContentValues();
                     cv.put("unread", unreadCount);
                     updateCount = db.update(TABLE_FEEDS, cv, "id=" + feedId, null);
                 }
@@ -998,7 +1240,6 @@ public class DBHelper {
                     int categoryId = c.getInt(0);
                     int unreadCount = c.getInt(1);
                     
-                    cv = new ContentValues();
                     cv.put("unread", unreadCount);
                     updateCount = db.update(TABLE_CATEGORIES, cv, "id=" + categoryId, null);
                 }
@@ -1006,8 +1247,6 @@ public class DBHelper {
                 if (c != null && !c.isClosed())
                     c.close();
             }
-            
-            cv = new ContentValues();
             
             cv.put("unread", total);
             db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_ALL, null);
@@ -1029,20 +1268,33 @@ public class DBHelper {
         Log.i(Utils.TAG, "Fixed counters, total unread: " + total);
     }
     
-    public void updateAllArticlesCachedImages(boolean isCachedImages) {
-        ContentValues cv = new ContentValues();
-        cv.put("cachedImages", isCachedImages);
-        if (!isDBAvailable())
-            return;
-        db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
-    }
+    // public void updateAllArticlesCachedImages(boolean isCachedImages) {
+    // ContentValues cv = new ContentValues(1);
+    // cv.put("cachedImages", isCachedImages);
+    // if (!isDBAvailable())
+    // return;
+    // db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
+    // }
     
-    public void updateArticleCachedImages(int id, boolean isCachedImages) {
-        ContentValues cv = new ContentValues();
-        cv.put("cachedImages", isCachedImages ? 1 : 0);
-        if (!isDBAvailable())
-            return;
-        db.update(TABLE_ARTICLES, cv, "cachedImages=0 AND id=" + id, null); // Only apply if not yet applied and ID
+    /**
+     * update amount of remote file references for article.
+     * normally should only be used with {@code null} ("unknown") and {@code 0} (no references)
+     *
+     * @param id
+     *            ID of article, which should be updated
+     * @param filesCount
+     *            new value for remote file references (may be {@code null})
+     */
+    public void updateArticleCachedImages(int id, Integer filesCount) {
+        if (isDBAvailable()) {
+            ContentValues cv = new ContentValues(1);
+            if (filesCount == null) {
+                cv.putNull("cachedImages");
+            } else {
+                cv.put("cachedImages", filesCount);
+            }
+            db.update(TABLE_ARTICLES, cv, "id=?", new String[] { String.valueOf(id) });
+        }
     }
     
     public void deleteCategories(boolean withVirtualCategories) {
@@ -1310,6 +1562,39 @@ public class DBHelper {
                 c.close();
         }
     }
+
+    /**
+     * get the map of article IDs to its update date from DB
+     *
+     * @param selection
+     *            A filter declaring which articles should be considered, formatted as an SQL WHERE clause (excluding the WHERE
+     *            itself). Passing null will return all rows.
+     * @param selectionArgs
+     *            You may include ?s in selection, which will be replaced by the values from selectionArgs, in order
+     *            that they appear in the selection. The values will be bound as Strings.
+     * @return map of unread article IDs to its update date (may be {@code null})
+     */
+    public Map<Integer, Long> getArticleIdUpdatedMap(String selection, String[] selectionArgs) {
+        Map<Integer, Long> unreadUpdated = null;
+        if (isDBAvailable()) {
+            Cursor c = null;
+            try {
+                c = db.query(TABLE_ARTICLES, new String[] { "id", "updateDate" }, selection, selectionArgs, null, null,
+                        null);
+
+                unreadUpdated = new HashMap<Integer, Long>(c.getCount());
+
+                while (c.moveToNext()) {
+                    unreadUpdated.put(c.getInt(0), c.getLong(1));
+                }
+            } finally {
+                if (c != null && !c.isClosed())
+                    c.close();
+            }
+        }
+
+        return unreadUpdated;
+    }
     
     /**
      * 0 - Uncategorized
@@ -1531,20 +1816,20 @@ public class DBHelper {
         
         db.beginTransaction();
         try {
+            ContentValues cv = new ContentValues(1);
             for (String idList : StringSupport.convertListToString(ids.keySet(), 1000)) {
-                ContentValues cv = new ContentValues();
                 cv.putNull(mark);
                 db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
                 db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
             }
             
             // Insert notes afterwards and only if given note is not null
+            cv = new ContentValues(1);
             for (Integer id : ids.keySet()) {
                 String note = ids.get(id);
                 if (note == null || note.equals(""))
                     continue;
                 
-                ContentValues cv = new ContentValues();
                 cv.put(MARK_NOTE, note);
                 db.update(TABLE_MARK, cv, "id=" + id, null);
             }
@@ -1574,8 +1859,13 @@ public class DBHelper {
                 c.getInt(11),                       // Label-ID
                 parseArticleLabels(c.getString(12)) // Labels
         );
-        ret.cachedImages = (c.getInt(11) != 0);
         // @formatter:on
+        try {
+            ret.cachedImages = c.getInt(11);
+        } catch (Exception e) {
+            // skip
+        }
+
         return ret;
     }
     
@@ -1601,6 +1891,20 @@ public class DBHelper {
         return ret;
     }
     
+    private static RemoteFile handleRemoteFileCursor(Cursor c) {
+        // @formatter:off
+        RemoteFile ret = new RemoteFile(
+                c.getInt(0),                        // id
+                c.getString(1),                     // url
+                c.getInt (2),                       // length
+                c.getString (3),                    // ext
+                new Date(c.getLong(4)),             // updateDate
+                (c.getInt (5) != 0)                  // cached
+        );
+        // @formatter:on
+        return ret;
+    }
+
     private static Set<String> parseAttachments(String att) {
         Set<String> ret = new LinkedHashSet<String>();
         if (att == null)
@@ -1649,7 +1953,7 @@ public class DBHelper {
         Cursor c = null;
         try {
             c = db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" },
-                    "cachedImages=0 AND isUnread>0", null, null, null, null, "1000");
+                    "cachedImages IS NULL AND isUnread>0", null, null, null, null, "1000");
             
             ArrayList<Article> ret = new ArrayList<Article>(c.getCount());
             while (c.moveToNext()) {
@@ -1665,6 +1969,200 @@ public class DBHelper {
             if (c != null && !c.isClosed())
                 c.close();
         }
+    }
+
+    /**
+     * insert given remote files into DB and link them with given article
+     *
+     * @param articleId
+     *            "parent" article
+     * @param fileUrls
+     *            array of remote file URLs
+     */
+    public void insertArticleFiles(int articleId, String[] fileUrls) {
+        if (isDBAvailable()) {
+            db.beginTransaction();
+            try {
+                for (String url : fileUrls) {
+                    long remotefileId = insertRemoteFile(url);
+                    if (remotefileId != 0)
+                        insertRemoteFile2Article(remotefileId, articleId);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
+    }
+
+    /**
+     * get the DB object representing remote file by its URL
+     *
+     * @param url
+     *            remote file URL
+     *
+     * @return remote file object from DB
+     */
+    public RemoteFile getRemoteFile(String url) {
+        RemoteFile rf = null;
+        if (isDBAvailable()) {
+            Cursor c = null;
+            try {
+                c = db.query(TABLE_REMOTEFILES, null, "url=?", new String[] { url }, null, null, null, null);
+                if (c.moveToFirst())
+                    rf = handleRemoteFileCursor(c);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null && !c.isClosed())
+                    c.close();
+            }
+        }
+        return rf;
+    }
+
+    /**
+     * get remote files for given article
+     *
+     * @param articleId
+     *            article, which remote files should be found
+     *
+     * @return collection of remote file objects from DB or {@code null}
+     */
+    public Collection<RemoteFile> getRemoteFiles(int articleId) {
+        ArrayList<RemoteFile> rfs = null;
+        if (isDBAvailable()) {
+            Cursor c = null;
+            try {
+                c = db.rawQuery(" SELECT r.*"
+                        // @formatter:off
+                              + " FROM "
+                              +     TABLE_REMOTEFILES + " r,"
+                              +     TABLE_REMOTEFILE2ARTICLE + " m, "
+                              +     TABLE_ARTICLES + " a"
+                              + " WHERE m.remotefileId=r.id"
+                              + "   AND m.articleId=a.id"
+                              + "   AND a.id=?",
+                        // @formatter:on
+                        new String[] { String.valueOf(articleId) });
+
+                rfs = new ArrayList<RemoteFile>(c.getCount());
+
+                while (c.moveToNext()) {
+                    rfs.add(handleRemoteFileCursor(c));
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null && !c.isClosed())
+                    c.close();
+            }
+        }
+        return rfs;
+    }
+
+    /**
+     * mark given remote file as cached/uncached and optionally specify it's file size
+     *
+     * @param url
+     *            remote file URL
+     * @param cached
+     *            the cached flag
+     * @param size
+     *            file size may be {@code null}, if so, then it will not be updated in DB
+     */
+    public void markRemoteFileCached(String url, boolean cached, Long size) {
+        if (isDBAvailable()) {
+            db.beginTransaction();
+            try {
+                ContentValues cv = new ContentValues(2);
+                cv.put("cached", cached);
+                if (size != null) {
+                    cv.put("length", size);
+                }
+                db.update(TABLE_REMOTEFILES, cv, "url=?", new String[] { url });
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
+    }
+
+    /**
+     * mark remote files with given IDs as non cached (cached=0)
+     *
+     * @param rfIds
+     *            IDs of remote files to be marked as non-cached
+     */
+    public void markRemoteFilesNonCached(Collection<Integer> rfIds) {
+        if (isDBAvailable()) {
+            db.beginTransaction();
+            try {
+                ContentValues cv = new ContentValues(1);
+                cv.put("cached", false);
+                for (String ids : StringSupport.convertListToString(rfIds, 1000)) {
+                    db.update(TABLE_REMOTEFILES, cv, "id in (" + ids + ")", null);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+        }
+    }
+
+    /**
+     * get summary length of remote files, which are cached
+     *
+     * @return summary length of remote files
+     */
+    public long getCachedFilesSize() {
+        long ret = 0;
+        if (isDBAvailable()) {
+            Cursor c = null;
+            try {
+                c = db.query(TABLE_REMOTEFILES, new String[] { "SUM(length)" }, "cached=1", null, null, null, null);
+                if (c.moveToFirst())
+                    ret = c.getLong(0);
+            } finally {
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * get remote files which should be deleted to free given amount of space
+     *
+     * @param spaceToBeFreed
+     *            amount of space (summary file size) to be freed
+     *
+     * @return collection of remote files, which can be deleted
+     *         to free given amount of space
+     */
+    public Collection<RemoteFile> getUncacheFiles(long spaceToBeFreed) {
+        ArrayList<RemoteFile> rfs = null;
+        if (isDBAvailable()) {
+            Cursor c = null;
+            try {
+                c = db.query("remotefile_sequence", new String[] { "*" }, "cached = 1", null, null, null, "ord");
+
+                rfs = new ArrayList<RemoteFile>();
+                long spaceToFree = spaceToBeFreed;
+
+                while (spaceToFree > 0 && c.moveToNext()) {
+                    RemoteFile rf = handleRemoteFileCursor(c);
+                    spaceToFree -= rf.length;
+                    rfs.add(rf);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null && !c.isClosed())
+                    c.close();
+            }
+        }
+        return rfs;
     }
     
 }

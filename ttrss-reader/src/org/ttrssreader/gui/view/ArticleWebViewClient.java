@@ -51,6 +51,21 @@ public class ArticleWebViewClient extends WebViewClient {
         this.activity = a;
     }
     
+    /**
+     * clear internal WebView cache after page was viewed (this should save storage place).
+     * The use can manually cache images, they should not be stored twice.
+     *
+     * @param view
+     *            web view, which was just viewed
+     * @param url
+     *            viewed URL
+     */
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        super.onPageFinished(view, url);
+        view.clearCache(true);
+    }
+
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, final String url) {
         

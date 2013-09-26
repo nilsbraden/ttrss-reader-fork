@@ -235,6 +235,10 @@
     <string name="Utils.DownloadErrorTicker">Error…</string>
     <string name="SaveAttachmentTitle">Save attachments…</string>
     <string name="CacheFolderTitle">Cache-Folder…</string>
+    <string name="CacheFolderMaxSizeTitle">Cache-Folder maximal size</string>
+    <string name="CacheFolderMaxSizeSummary">Maximal size of all cached files in MB</string>
+    <string name="CacheImageMaxSizeTitle">Cacheable image maximal size</string>
+    <string name="CacheImageMaxSizeSummary">Maximal file size of images which should be cached in KB</string>
     <string name="Utils.FileSaveTitle">Save attachment</string>
     <string name="Utils.FileSaveMessage">No file browser found. Where would you like to save this attachment?</string>
     <string name="Utils.OkayAction">OK</string>

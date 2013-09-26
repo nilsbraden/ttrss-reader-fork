@@ -32,7 +32,7 @@ public class Article implements Comparable<Article> {
     public Set<String> attachments;
     public boolean isStarred;
     public boolean isPublished;
-    public boolean cachedImages;
+    public Integer cachedImages;
     public int labelId;
     public Set<Label> labels;
     
@@ -55,8 +55,20 @@ public class Article implements Comparable<Article> {
      * public String comments_link;
      * public boolean always_display_attachments;
      */
-    
+
     public Article() {
+        id = -1;
+        title = null;
+        isUnread = false;
+        updated = null;
+        feedId = 0;
+        content = null;
+        url = null;
+        commentUrl = null;
+        attachments = null;
+        labels = null;
+        isStarred = false;
+        isPublished = false;
     }
     
     public Article(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
@@ -79,6 +91,7 @@ public class Article implements Comparable<Article> {
         this.isPublished = isPublished;
         this.labelId = labelId;
         this.labels = labels;
+        this.cachedImages = null;
     }
     
     @Override
@@ -100,6 +113,11 @@ public class Article implements Comparable<Article> {
     @Override
     public int hashCode() {
         return id;
+    }
+    
+    public enum ArticleField {
+        id, title, unread, updated, feed_id, content, link, comments, attachments, marked, published, labels,
+        is_updated, tags, feed_title, comments_count, comments_link, always_display_attachments, author, score
     }
     
 }

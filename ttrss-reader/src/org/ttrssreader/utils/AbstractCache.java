@@ -129,7 +129,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     protected abstract void writeValueToDisk(BufferedOutputStream ostream, ValT value) throws IOException;
     
     private void cacheToDisk(KeyT key, ValT value) {
-        File file = new File(diskCacheDir + "/" + getFileNameForKey(key));
+        File file = getFileForKey(key);
         try {
             file.createNewFile();
             file.deleteOnExit();
@@ -147,7 +147,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
         }
     }
     
-    private File getFileForKey(KeyT key) {
+    protected File getFileForKey(KeyT key) {
         return new File(diskCacheDir + "/" + getFileNameForKey(key));
     }
     

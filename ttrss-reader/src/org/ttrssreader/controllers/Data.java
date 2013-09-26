@@ -16,6 +16,7 @@
 package org.ttrssreader.controllers;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -26,7 +27,10 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.net.IArticleOmitter;
+import org.ttrssreader.net.IdUpdatedArticleOmitter;
 import org.ttrssreader.net.JSONConnector;
+import org.ttrssreader.net.StopJsonParsingException;
 import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -123,14 +127,45 @@ public class Data {
         
         Set<Article> articles = new HashSet<Article>();
         int sinceId = Controller.getInstance().getSinceId();
-        Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true);
-        Controller.getInstance().getConnector().getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId);
+
+        IdUpdatedArticleOmitter unreadUpdatedFilter = new IdUpdatedArticleOmitter("isUnread>0", null);
+        Controller
+                .getInstance()
+                .getConnector()
+                .getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true, 0, null, null,
+                        unreadUpdatedFilter.getIdUpdatedMap().isEmpty() ? null : unreadUpdatedFilter);
+
+        final Article newestCachedArticle = DBHelper.getInstance().getArticle(sinceId);
+        IArticleOmitter updatedFilter = (newestCachedArticle == null) ? null : new IArticleOmitter() {
+            public Date lastUpdated = newestCachedArticle.updated;
+
+            @Override
+            public boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException {
+                boolean skip = false;
+                
+                switch (field) {
+                    case unread:
+                      if (a.isUnread)
+                        skip = true;
+                      break;
+
+                    case updated:
+                        if (a.updated != null && lastUpdated.after(a.updated))
+                            throw new StopJsonParsingException("Stop processing on article ID=" + a.id + " updated on "
+                                    + lastUpdated);
+                }
+
+                return skip;
+            }
+        };
+        Controller.getInstance().getConnector()
+                .getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId, null, null, updatedFilter);
         
         Log.d(Utils.TAG, "Got " + articles.size() + " articles to be cached");
         handleInsertArticles(articles, VCAT_ALL, true, true);
         
         // Only mark as updated if the calls were successful
-        if (!articles.isEmpty()) {
+        if (!articles.isEmpty() || !unreadUpdatedFilter.getOmittedArticles().isEmpty()) {
             time = System.currentTimeMillis();
             notifyListeners();
             
@@ -140,20 +175,18 @@ public class Data {
                 feedsChanged.put(c.id, time);
             }
             
-            updateUnreadCount(articles);
-        }
-    }
-    
-    private void updateUnreadCount(Set<Article> articles) {
         Set<Integer> articleUnreadIds = new HashSet<Integer>();
         for (Article a : articles) {
             if (a.isUnread) {
                 articleUnreadIds.add(Integer.valueOf(a.id));
             }
         }
+
+            articleUnreadIds.addAll(unreadUpdatedFilter.getOmittedArticles());
         Log.d(Utils.TAG, "Amount of unread articles: " + articleUnreadIds.size());
         DBHelper.getInstance().markRead(VCAT_ALL, false);
         DBHelper.getInstance().markArticles(articleUnreadIds, "isUnread", 1);
+    }
     }
     
     /**

@@ -101,18 +101,21 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
     }
     
     /**
-     * Initialize ActionBar, just hide it if it already exists.
+     * Initialize ActionBar.
      */
     private void initActionbar() {
         if (actionBar == null) {
             actionBar = getSupportActionBar();
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO);
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE);
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayShowCustomEnabled(true);
-            actionBar.setDisplayShowTitleEnabled(false);
+//            actionBar.setDisplayShowCustomEnabled(true);
+//            actionBar.setDisplayShowTitleEnabled(true);
         }
-        if (actionBar.isShowing() && Controller.getInstance().hideActionbar())
-            actionBar.hide();
+
+        // action bar should be visible after initialization
+        if (!actionBar.isShowing() && Controller.getInstance().hideActionbar()) {
+            actionBar.show();
+        }
     }
     
     @Override
