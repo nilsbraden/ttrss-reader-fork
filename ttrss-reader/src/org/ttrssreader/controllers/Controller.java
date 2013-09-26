@@ -56,6 +56,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private final static char TEMPLATE_DELIMITER_END = '$';
     
     private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
+    private static final String MARKER_CACHE_DIR = "CACHE_DIR_MARKER";
+    private static final String MARKER_CACHED_IMAGES = "CACHED_IMAGES_MARKER";
     private static final String MARKER_JS = "JS_MARKER";
     private static final String MARKER_THEME = "THEME_MARKER";
     private static final String MARKER_LANG = "LANG_MARKER";
@@ -116,6 +118,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     private String saveAttachment = null;
     private String cacheFolder = null;
+    private Integer cacheFolderMaxSize = null;
+    private Integer cacheImageMaxSize = null;
     private Boolean deleteDbScheduled = null;
     private Boolean cacheImagesOnStartup = null;
     private Boolean cacheImagesOnlyWifi = null;
@@ -223,7 +227,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
                     ST javascriptST = new ST(
                             context.getResources().getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE),
                             TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
-                    javascriptST.add(MARKER_LANG, hyphenationLanguage());
+                    lang = hyphenationLanguage();
+                    javascriptST.add(MARKER_LANG, lang);
                     javascript = javascriptST.render();
                 }
                 
@@ -233,6 +238,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 
                 htmlTmpl.add(MARKER_ALIGN, replaceAlign);
                 htmlTmpl.add(MARKER_THEME, theme);
+                htmlTmpl.add(MARKER_CACHE_DIR, cacheFolder());
+                htmlTmpl.add(MARKER_CACHED_IMAGES, context.getResources().getString(R.string.CACHED_IMAGES_TEMPLATE));
                 htmlTmpl.add(MARKER_JS, javascript);
                 htmlTmpl.add(MARKER_LANG, lang);
                 htmlTmpl.add(MARKER_TOP_NAV, context.getResources().getString(R.string.TOP_NAVIGATION_TEMPLATE));
@@ -713,6 +720,28 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setCacheFolder(String cacheFolder) {
         put(Constants.CACHE_FOLDER, cacheFolder);
         this.cacheFolder = cacheFolder;
+    }
+
+    public Integer cacheFolderMaxSize() {
+        if (cacheFolderMaxSize == null)
+            cacheFolderMaxSize = prefs.getInt(Constants.CACHE_FOLDER_MAX_SIZE, Constants.CACHE_FOLDER_MAX_SIZE_DEFAULT);
+        return cacheFolderMaxSize;
+    }
+
+    public void setCacheFolderMaxSize(Integer cacheFolderMaxSize) {
+        put(Constants.CACHE_FOLDER_MAX_SIZE, cacheFolderMaxSize);
+        this.cacheFolderMaxSize = cacheFolderMaxSize;
+    }
+
+    public Integer cacheImageMaxSize() {
+        if (cacheImageMaxSize == null)
+            cacheImageMaxSize = prefs.getInt(Constants.CACHE_IMAGE_MAX_SIZE, Constants.CACHE_IMAGE_MAX_SIZE_DEFAULT);
+        return cacheImageMaxSize;
+    }
+
+    public void setCacheImageMaxSize(Integer cacheImageMaxSize) {
+        put(Constants.CACHE_IMAGE_MAX_SIZE, cacheImageMaxSize);
+        this.cacheImageMaxSize = cacheImageMaxSize;
     }
     
     public boolean isDeleteDBScheduled() {

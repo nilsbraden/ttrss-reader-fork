@@ -71,11 +71,6 @@ public class Utils {
     public static final long MB = KB * KB;
     
     /**
-     * Maximum size of the ImageCache in MB
-     */
-    public static final int IMAGE_CACHE_SIZE = 80;
-    
-    /**
      * The maximum number of articles to store.
      */
     public static final int ARTICLE_LIMIT = 8000;

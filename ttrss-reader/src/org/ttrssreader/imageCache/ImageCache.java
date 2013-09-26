@@ -104,15 +104,24 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     }
     
     public boolean containsKey(String key) {
-        if (cache.containsKey(getFileNameForKey(key)))
-            return true;
-        
-        return (isDiskCacheEnabled && getCacheFile((String) key).exists());
+        return cache.containsKey(getFileNameForKey(key)) || (isDiskCacheEnabled && getCacheFile((String) key).exists());
+    }
+    
+    /**
+     * create uniq string from file url, which can be used as file name
+     * 
+     * @param imageUrl
+     *            URL of given image
+     * 
+     * @return calculated hash
+     */
+    public static String getHashForKey(String imageUrl) {
+        return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,%?&=]+", "+");
     }
     
     @Override
     public String getFileNameForKey(String imageUrl) {
-        return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,%?&=]+", "+");
+        return getHashForKey(imageUrl);
     }
     
     public File getCacheFile(String key) {
@@ -120,7 +129,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
         if (!f.exists())
             f.mkdirs();
         
-        return new File(diskCacheDir + "/" + getFileNameForKey(key));
+        return getFileForKey(key);
     }
     
     @Override

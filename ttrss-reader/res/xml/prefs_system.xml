@@ -42,6 +42,22 @@
             android:persistent="false"
             android:summary="- PATH - set by activity -"
             android:title="@string/CacheFolderTitle" />
+        <org.ttrssreader.preferences.EditIntegerPreference
+            android:name="@string/CacheFolderMaxSizeTitle"
+            android:defaultValue="80"
+            android:inputType="number"
+            android:key="CacheFolderMaxSizePreference"
+            android:maxLength="4"
+            android:summary="@string/CacheFolderMaxSizeSummary"
+            android:title="@string/CacheFolderMaxSizeTitle" />
+        <org.ttrssreader.preferences.EditIntegerPreference
+            android:name="@string/CacheImageMaxSizeTitle"
+            android:defaultValue="6000"
+            android:inputType="number"
+            android:key="CacheImageMaxSizePreference"
+            android:maxLength="4"
+            android:summary="@string/CacheImageMaxSizeSummary"
+            android:title="@string/CacheImageMaxSizeTitle" />
 
         <CheckBoxPreference
             android:defaultValue="false"

@@ -154,6 +154,8 @@
     <string name="Utils.DownloadErrorTicker">Ein Fehler ist aufgetreten…</string>
     <string name="SaveAttachmentTitle">Speicherort für Anhang…</string>
     <string name="CacheFolderTitle">Cache-Ordner…</string>
+    <string name="CacheFolderMaxSizeTitle">Cache-Ordner maximale Größe</string>
+    <string name="CacheFolderMaxSizeSummary">Die maximale Größe aller gespeicherten Dateien in MB</string>
     <string name="Utils.FileSaveTitle">Anhang speichern</string>
     <string name="Utils.FileSaveMessage">Kein Dateibrowser gefunden. Wo möchten Sie die Anhänge speichern?</string>
     <string name="Utils.OkayAction">OK</string>

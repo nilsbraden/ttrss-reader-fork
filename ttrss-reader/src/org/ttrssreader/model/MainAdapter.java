@@ -62,9 +62,7 @@ public abstract class MainAdapter extends BaseAdapter {
     }
     
     public final void closeCursor(Cursor c) {
-        if (c == null || c.isClosed())
-            return;
-        
+        if (c != null && !c.isClosed())
         c.close();
     }
     
@@ -146,18 +144,14 @@ public abstract class MainAdapter extends BaseAdapter {
      *            forces the creation of a new query
      */
     public void makeQuery(boolean force, boolean overrideUnreadCheck) {
-        if (!force) {
-            if (cursor != null && !cursor.isClosed())
-                return;
-        }
+        if (!force && (cursor != null && !cursor.isClosed()))
+            return;
         
         synchronized (poorMansMutex) {
             
             // Check again to reduce the number of unnecessary new cursors
-            if (!force) {
-                if (cursor != null && !cursor.isClosed() && cursor.getCount() > 0)
-                    return;
-            }
+            if (!force && (cursor != null && !cursor.isClosed() && cursor.getCount() > 0))
+                return;
             
             Cursor tempCursor = null;
             try {

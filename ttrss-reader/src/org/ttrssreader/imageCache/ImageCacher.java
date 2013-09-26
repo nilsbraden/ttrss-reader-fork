@@ -17,12 +17,10 @@ package org.ttrssreader.imageCache;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -33,8 +31,8 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.RemoteFile;
 import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.FileDateComparator;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -169,7 +167,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 break;
             
             // Initialize other preferences
-            this.cacheSizeMax = Utils.IMAGE_CACHE_SIZE * Utils.MB;
+            this.cacheSizeMax = Controller.getInstance().cacheFolderMaxSize() * Utils.MB;
             this.imageCache = Controller.getInstance().getImageCache();
             if (imageCache == null)
                 break;
@@ -255,7 +253,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 handler.post(task);
                 map.put(articleId, task);
             } else {
-                DBHelper.getInstance().updateArticleCachedImages(articleId, true);
+                DBHelper.getInstance().updateArticleCachedImages(articleId, 0);
             }
             
             if (downloaded > cacheSizeMax) {
@@ -279,29 +277,34 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     }
     
     public class DownloadImageTask implements Runnable {
-        private static final long maxFileSize = Utils.MB * 6; // Max size for one image is 6 MB
+        // Max size for one image
+        private final long maxFileSize = Controller.getInstance().cacheImageMaxSize() * Utils.KB;
         private ImageCache imageCache;
         private int articleId;
-        private String[] params;
+        private String[] fileUrls;
         public boolean allOK = true;
         
         public DownloadImageTask(ImageCache cache, int articleId, String... params) {
             this.imageCache = cache;
             this.articleId = articleId;
-            this.params = params;
+            this.fileUrls = params;
         }
         
         @Override
         public void run() {
             long downloaded = 0;
             // Log.d(Utils.TAG, "Start download " + params.length + " images for article ID " + articleId);
-            for (String url : params) {
+            DBHelper.getInstance().insertArticleFiles(articleId, fileUrls);
+            for (String url : fileUrls) {
                 long size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
                 
-                if (size == -1)
+                if (size <= 0) {
                     allOK = false; // Error
-                else
+                    DBHelper.getInstance().markRemoteFileCached(url, false, -size);
+                } else {
                     downloaded += size;
+                    DBHelper.getInstance().markRemoteFileCached(url, true, size);
+                }
             }
             
             // Log.d(Utils.TAG, "Downloaded " + downloaded + " bytes for article ID " + articleId);
@@ -309,11 +312,12 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             synchronized (map) {
                 if (downloaded > 0)
                     downloaded += downloaded;
+                
                 map.remove(articleId);
                 publishProgress(++progressImageDownload);
                 
-                if (allOK || downloaded > 0)
-                    DBHelper.getInstance().updateArticleCachedImages(articleId, true);
+                // if (allOK || downloaded > 0)
+                // DBHelper.getInstance().updateArticleCachedImages(articleId, true);
                 
                 // Log.d(Utils.TAG, "Download for article: " + articleId + " done. Success: " + allOK + " Downloaded: "
                 // + downloaded);
@@ -323,34 +327,58 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         }
     }
     
+    /**
+     * cache cleanup
+     */
     private void purgeCache() {
         long time = System.currentTimeMillis();
-        File cacheFolder = new File(imageCache.getDiskCacheDirectory());
+        // File cacheFolder = new File(imageCache.getDiskCacheDirectory());
         
-        folderSize = 0;
-        if (cacheFolder.isDirectory()) {
-            for (File f : cacheFolder.listFiles()) {
-                folderSize += f.length();
-            }
-        }
+        folderSize = DBHelper.getInstance().getCachedFilesSize();
+        // if (cacheFolder.isDirectory()) {
+        // for (File f : cacheFolder.listFiles()) {
+        // folderSize += f.length();
+        // }
+        // }
         
         if (folderSize > cacheSizeMax) {
-            // Sort list of files by last access date
-            List<File> list = Arrays.asList(cacheFolder.listFiles());
-            if (list == null)
-                return;
-            Collections.sort(list, FileDateComparator.LASTMODIFIED_COMPARATOR);
+            Collection<RemoteFile> rfs = DBHelper.getInstance().getUncacheFiles(folderSize - cacheSizeMax);
+            Log.d(Utils.TAG, "Found " + rfs.size() + " cached files for deletion");
             
-            int i = 0;
-            while (folderSize > cacheSizeMax) {
-                if (i >= list.size()) // Should only happen if cacheSize has been set to 0
-                    break;
+            ArrayList<Integer> rfIds = new ArrayList<Integer>(rfs.size());
+            for (RemoteFile rf : rfs) {
+                File f = imageCache.getCacheFile(rf.url);
                 
-                File f = list.get(i);
-                i++;
-                folderSize -= f.length();
-                f.delete();
+                if (f.exists()) {
+                    boolean result = f.delete();
+                    if (result) {
+                        Log.d(Utils.TAG, "File " + f.getAbsolutePath() + " was deleted from cache");
+                    } else {
+                        Log.w(Utils.TAG, "File " + f.getAbsolutePath() + " was not deleted!!!");
+                    }
+                }
+                
+                rfIds.add(rf.id);
             }
+            
+            DBHelper.getInstance().markRemoteFilesNonCached(rfIds);
+            
+            // Sort list of files by last access date
+            // List<File> list = Arrays.asList(cacheFolder.listFiles());
+            // if (list == null)
+            // return;
+            // Collections.sort(list, FileDateComparator.LASTMODIFIED_COMPARATOR);
+            //
+            // int i = 0;
+            // while (folderSize > cacheSizeMax) {
+            // if (i >= list.size()) // Should only happen if cacheSize has been set to 0
+            // break;
+            //
+            // File f = list.get(i);
+            // i++;
+            // folderSize -= f.length();
+            // f.delete();
+            // }
         }
         Log.i(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
     }
@@ -367,7 +395,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         ImageCache cache = Controller.getInstance().getImageCache(false);
         if (cache != null && cache.containsKey(url)) {
             
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append(cache.getDiskCacheDirectory());
             sb.append(File.separator);
             sb.append(cache.getFileNameForKey(url));

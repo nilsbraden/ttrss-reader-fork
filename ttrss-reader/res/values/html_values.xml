@@ -21,8 +21,8 @@
 <![CDATA[
 <!DOCTYPE html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <style type="text/css">
+  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
+  <style type=\"text/css\">
   body {
     padding: 1.5%;
   }
@@ -65,7 +65,7 @@
     white-space: -moz-pre-wrap !important;
     white-space: -pre-wrap !important;
     white-space: -o-pre-wrap !important;
-    white-space: normal !important; /* used to be "pre-wrap" but I dont know why and it breaks "align:justify" */
+    white-space: normal !important; /* used to be \"pre-wrap\" but I dont know why and it breaks \"align:justify\" */
     word-wrap: break-word !important;
   }
   body {
@@ -115,39 +115,73 @@
     color: #04B404;
   }
   </style>
+  <script type=\"text/javascript\">
+    var cacheDir = \"file://$CACHE_DIR_MARKER$\";
+
+    function replaceCachedImages() {
+      var cachedImages = {
+        $CACHED_IMAGES_MARKER$
+      };
+      var hasCachedImages = false;
+      for (var u in cachedImages) {
+        hasCachedImages = true;
+        break;
+      }
+      if (hasCachedImages) {
+        var docImages = document.getElementsByTagName(\"img\");
+        var element;
+        var imgSrc;
+        var cachedFileName;
+        for (var i = 0; i < docImages.length; i++) {
+          element = docImages[i];
+          imgSrc = element.getAttribute(\"src\");
+          cachedFileName = cachedImages[imgSrc];
+          if (cachedFileName) {
+            element.setAttribute(\"src\", cacheDir + cachedFileName);
+          }
+        }
+      }
+    }
+    document.addEventListener(\"DOMContentLoaded\", replaceCachedImages, false);
+  </script>
   $JS_MARKER$
 </head>
-<body id="$THEME_MARKER$" class="hyphenate" lang="$LANG_MARKER$">
+<body id=\"$THEME_MARKER$\" class=\"hyphenate\" lang=\"$LANG_MARKER$\">
     $TOP_NAVIGATION_MARKER$
-    <div id="zierleiste"></div>
+    <div id=\"zierleiste\"></div>
     $CONTENT_MARKER$
     $BOTTOM_NAVIGATION_MARKER$
   </body>
 </html>]]>
+  </string>
+
+  <!-- IMAGE_HASHES -->
+  <string name="CACHED_IMAGES_TEMPLATE" formatted="false">
+<![CDATA[$CACHED_IMAGES$]]>
     </string>
 
     <!-- HYPHENATION -->
     <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">
 <![CDATA[
-<script src="file:///android_asset/Hyphenator.js" type="text/javascript"></script>
-<script type="text/javascript">Hyphenator.run();</script>
-<script type="text/javascript" src="file:///android_asset/patterns/$LANG_MARKER$.js"></script>]]>
+<script src=\"file:///android_asset/Hyphenator.js\" type=\"text/javascript\"></script>
+<script type=\"text/javascript\">Hyphenator.run();</script>
+<script type=\"text/javascript\" src=\"file:///android_asset/patterns/$LANG_MARKER$.js\"></script>]]>
     </string>
 
     <!-- HEADER -->
     <string name="TOP_NAVIGATION_TEMPLATE" formatted="false">
 <![CDATA[
-<div id="header">
-  <a href="$article.url$" rel="alternate">$article.title$</a>
-  <div id="header_small_text">
-    <div id="subscription">
+<div id=\"header\">
+  <a href=\"$article.url$\" rel=\"alternate\">$article.title$</a>
+  <div id=\"header_small_text\">
+    <div id=\"subscription\">
       $feed.title$
     </div>
-    <div id="datetime">
+    <div id=\"datetime\">
       $UPDATED$
     </div>
   </div>
-  <div id="labels">
+  <div id=\"labels\">
     $LABELS$
   </div>
 </div>]]>
@@ -156,10 +190,10 @@
     <!-- CONTENT -->
     <string name="CONTENT_TEMPLATE" formatted="false">
 <![CDATA[
-<div id="content">
+<div id=\"content\">
   $CONTENT$
 </div>
-<div id="attachments">
+<div id=\"attachments\">
   $ATTACHMENTS$
 </div>]]>
     </string>
@@ -167,7 +201,7 @@
     <!-- BOTTOM NAVIGATION -->
     <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
 <![CDATA[
-<style type="text/css">
+<style type=\"text/css\">
   .bottom_navigation {
     text-align: justify;
   }
@@ -183,10 +217,18 @@
     float: right;
   }
 </style>
-<div class="bottom_navigation">
-  <button id="btnPrev" class="first prev" onclick="articleController.prev();">&leftarrow;</button>
-  <button id="btnNext" class="last next" onclick="articleController.next();">&rightarrow;</button>
+<div class=\"bottom_navigation\">
+  <button id=\"btnPrev\" class=\"first prev\" onclick=\"articleController.prev();\">&leftarrow;</button>
+  <button id=\"btnNext\" class=\"last next\" onclick=\"articleController.next();\">&rightarrow;</button>
 </div>]]>
+  </string>
+
+  <!-- ATTACHMENTS -->
+  <string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false">
+<![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]>
+  </string>
+  <string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false">
+<![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]>
     </string>
 
     <!-- EVERYTHING ELSE -->

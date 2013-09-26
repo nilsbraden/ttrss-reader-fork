@@ -353,8 +353,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     protected void refreshAndUpdate() {
         if (Utils.checkConfig()) {
-            doRefresh();
             doUpdate(false);
+            doRefresh();
         }
     }
     
