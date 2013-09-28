@@ -714,6 +714,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public String cacheFolder() {
         if (cacheFolder == null)
             cacheFolder = prefs.getString(Constants.CACHE_FOLDER, Constants.CACHE_FOLDER_DEFAULT);
+        if (!cacheFolder.endsWith("/"))
+            setCacheFolder(cacheFolder + "/");
         return cacheFolder;
     }
     
@@ -721,24 +723,24 @@ public class Controller implements OnSharedPreferenceChangeListener {
         put(Constants.CACHE_FOLDER, cacheFolder);
         this.cacheFolder = cacheFolder;
     }
-
+    
     public Integer cacheFolderMaxSize() {
         if (cacheFolderMaxSize == null)
             cacheFolderMaxSize = prefs.getInt(Constants.CACHE_FOLDER_MAX_SIZE, Constants.CACHE_FOLDER_MAX_SIZE_DEFAULT);
         return cacheFolderMaxSize;
     }
-
+    
     public void setCacheFolderMaxSize(Integer cacheFolderMaxSize) {
         put(Constants.CACHE_FOLDER_MAX_SIZE, cacheFolderMaxSize);
         this.cacheFolderMaxSize = cacheFolderMaxSize;
     }
-
+    
     public Integer cacheImageMaxSize() {
         if (cacheImageMaxSize == null)
             cacheImageMaxSize = prefs.getInt(Constants.CACHE_IMAGE_MAX_SIZE, Constants.CACHE_IMAGE_MAX_SIZE_DEFAULT);
         return cacheImageMaxSize;
     }
-
+    
     public void setCacheImageMaxSize(Integer cacheImageMaxSize) {
         put(Constants.CACHE_IMAGE_MAX_SIZE, cacheImageMaxSize);
         this.cacheImageMaxSize = cacheImageMaxSize;
