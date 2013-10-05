@@ -16,17 +16,9 @@
 
 package org.ttrssreader.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.http.HttpEntity;
@@ -54,7 +46,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
@@ -459,25 +450,6 @@ public class Utils {
         }
         
         return ret;
-    }
-    
-    public static KeyStore loadKeystore(String keystorePassword) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
-        KeyStore trusted = KeyStore.getInstance(KeyStore.getDefaultType());
-        
-        File file = new File(Environment.getExternalStorageDirectory() + File.separator + FileUtils.SDCARD_PATH_FILES
-                + "store.bks");
-        
-        if (!file.exists())
-            return null;
-        
-        InputStream in = new FileInputStream(file);
-        
-        try {
-            trusted.load(in, keystorePassword.toCharArray());
-        } finally {
-            in.close();
-        }
-        return trusted;
     }
     
     private static final String REGEX_URL = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";

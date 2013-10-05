@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import javax.net.ssl.SSLSocketFactory;
 import org.stringtemplate.v4.ST;
 import org.ttrssreader.R;
 import org.ttrssreader.imageCache.ImageCache;
@@ -34,6 +35,7 @@ import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.net.JavaJSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.SSLUtils;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -144,6 +146,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public static int displayHeight;
     public static int displayWidth;
     
+    // SocketFactory for SSL-Connections, doesn't need to be accessed but indicates it is initialized if != null.
+    private SSLSocketFactory sslSocketFactory = null;
+    
     // Singleton
     private Controller() {
     }
@@ -188,16 +193,25 @@ public class Controller implements OnSharedPreferenceChangeListener {
         initializeConnector();
         
         // Attempt to initialize some stuff in a background-thread to reduce loading time
-        // Start a login-request separately because this takes some time
-        new Thread(new Runnable() {
-            public void run() {
+        // Start a login-request separately because this takes some time. Also initialize SSL-Stuff since the login
+        // needs this.
+        new AsyncTask<Void, Void, Void>() {
+            protected Void doInBackground(Void... params) {
+                try {
+                    SSLUtils.trustAllCertOrHost(Controller.getInstance().trustAllSsl(), Controller.getInstance()
+                            .trustAllHosts());
+                    
+                    if (sslSocketFactory == null && Controller.getInstance().useKeystore()) {
+                        sslSocketFactory = SSLUtils.initializePrivateKeystore(Controller.getInstance()
+                                .getKeystorePassword());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                
                 if (!workOffline())
                     ttrssConnector.sessionAlive();
-            }
-        }).start();
-        
-        new Thread(new Runnable() {
-            public void run() {
+                
                 // Only need once we are displaying the feed-list or an article...
                 refreshDisplayMetrics(display);
                 
@@ -254,8 +268,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 // This will be accessed when displaying an article or starting the imageCache. When caching it is done
                 // anyway so we can just do it in background and the ImageCache starts once it is done.
                 getImageCache();
+                return null;
             }
-        }).start();
+        }.execute();
         
     }
     

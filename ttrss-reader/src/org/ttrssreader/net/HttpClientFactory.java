@@ -25,6 +25,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpParams;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.SSLUtils;
 import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
@@ -90,7 +91,7 @@ public class HttpClientFactory {
      */
     private static SSLSocketFactory newSslSocketFactory(String keystorePassword) {
         try {
-            KeyStore keystore = Utils.loadKeystore(keystorePassword);
+            KeyStore keystore = SSLUtils.loadKeystore(keystorePassword);
             
             return new SSLSocketFactory(keystore);
         } catch (Exception e) {
