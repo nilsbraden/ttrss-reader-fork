@@ -279,15 +279,15 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
 
         // Get article from DB
         article = DBHelper.getInstance().getArticle(articleId); // TODO
-        feed = DBHelper.getInstance().getFeed(article.feedId);
         if (article == null) {
             getSherlockActivity().finish();
             return;
         }
+        feed = DBHelper.getInstance().getFeed(article.feedId);
 
         // Mark as read if necessary, do it here because in doRefresh() it will be done several times even if you set
         // it to "unread" in the meantime.
-        if (article != null && article.isUnread) {
+        if (article.isUnread) {
             article.isUnread = false;
             markedRead = true;
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
