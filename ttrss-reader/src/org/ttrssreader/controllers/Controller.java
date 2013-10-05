@@ -190,8 +190,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
             newInstallation = true;
         }
         
-        initializeConnector();
-        
         // Attempt to initialize some stuff in a background-thread to reduce loading time
         // Start a login-request separately because this takes some time. Also initialize SSL-Stuff since the login
         // needs this.
@@ -209,8 +207,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                     e.printStackTrace();
                 }
                 
-                if (!workOffline())
-                    ttrssConnector.sessionAlive();
+                initializeConnector();
                 
                 // Only need once we are displaying the feed-list or an article...
                 refreshDisplayMetrics(display);
