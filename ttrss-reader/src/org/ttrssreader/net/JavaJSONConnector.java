@@ -22,21 +22,9 @@ import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.SocketException;
-import java.security.KeyStore;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Map;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.Utils;
@@ -46,17 +34,10 @@ import android.util.Log;
 
 public class JavaJSONConnector extends JSONConnector {
     
-    SSLSocketFactory sslSocketFactory = null;
-    
     public JavaJSONConnector(Context context) {
         super(context);
         disableConnectionReuseIfNecessary();
         enableHttpResponseCache(context);
-        try {
-            setupKeystore();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     
     protected InputStream doRequest(Map<String, String> params) {
@@ -120,66 +101,6 @@ public class JavaJSONConnector extends JSONConnector {
         }
         
         return null;
-    }
-    
-    protected void setupKeystore() throws Exception {
-        // Initialize the unsecure SSL stuff
-        trustAll(Controller.getInstance().trustAllSsl(), Controller.getInstance().trustAllHosts());
-        
-        if (sslSocketFactory == null && Controller.getInstance().useKeystore()) {
-            KeyStore keystore = Utils.loadKeystore(Controller.getInstance().getKeystorePassword());
-            if (keystore == null)
-                return;
-            
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            tmf.init(keystore);
-            
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(keystore, Controller.getInstance().getKeystorePassword().toCharArray());
-            
-            SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
-            
-            sslSocketFactory = sc.getSocketFactory();
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslSocketFactory);
-        }
-    }
-    
-    protected static void trustAll(boolean trustAnyCert, boolean trustAnyHost) {
-        try {
-            if (trustAnyCert) {
-                X509TrustManager easyTrustManager = new X509TrustManager() {
-                    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-                    
-                    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-                    
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-                    
-                };
-                
-                // Create a trust manager that does not validate certificate chains
-                TrustManager[] trustAllCerts = new TrustManager[] { easyTrustManager };
-                
-                // Install the all-trusting trust manager
-                SSLContext sc = SSLContext.getInstance("TLS");
-                sc.init(null, trustAllCerts, new java.security.SecureRandom());
-                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            }
-            if (trustAnyHost) {
-                HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                    @Override
-                    public boolean verify(String hostname, SSLSession session) {
-                        return true;
-                    }
-                });
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     
     @Override

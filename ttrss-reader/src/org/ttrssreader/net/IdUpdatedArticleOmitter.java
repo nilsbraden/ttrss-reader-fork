@@ -78,6 +78,8 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
                         omittedArticles.add(a.id);
                     }
                 }
+            default:
+                break;
         }
 
         return skip;

@@ -54,7 +54,7 @@ public class ArticleWebViewClient extends WebViewClient {
     /**
      * clear internal WebView cache after page was viewed (this should save storage place).
      * The use can manually cache images, they should not be stored twice.
-     *
+     * 
      * @param view
      *            web view, which was just viewed
      * @param url
@@ -65,7 +65,7 @@ public class ArticleWebViewClient extends WebViewClient {
         super.onPageFinished(view, url);
         view.clearCache(true);
     }
-
+    
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, final String url) {
         
@@ -264,5 +264,10 @@ public class ArticleWebViewClient extends WebViewClient {
             return null;
         }
     }
+    
+    // @Override
+    // public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+    // handler.proceed(); // Ignore SSL certificate errors // TODO
+    // }
     
 }
