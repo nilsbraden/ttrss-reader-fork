@@ -108,13 +108,13 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             actionBar = getSupportActionBar();
             actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE);
             actionBar.setDisplayHomeAsUpEnabled(true);
-//            actionBar.setDisplayShowCustomEnabled(true);
-//            actionBar.setDisplayShowTitleEnabled(true);
+            // actionBar.setDisplayShowCustomEnabled(true);
+            // actionBar.setDisplayShowTitleEnabled(true);
         }
-
-        // action bar should be visible after initialization
-        if (!actionBar.isShowing() && Controller.getInstance().hideActionbar()) {
-            actionBar.show();
+        
+        // action bar should be invisible when hideActionbar() is activated?
+        if (actionBar.isShowing() && Controller.getInstance().hideActionbar()) {
+            actionBar.hide();
         }
     }
     
