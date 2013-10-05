@@ -258,6 +258,7 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
 
         registerForContextMenu(webView);
         // Attach the WebView to its placeholder
+        webContainer.removeAllViews();
         webContainer.addView(webView);
 
         // mainContainer.populate(webView);
