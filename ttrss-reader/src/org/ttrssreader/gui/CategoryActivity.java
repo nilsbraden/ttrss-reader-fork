@@ -246,14 +246,14 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                 case CATEGORY:
                     switch (decideCategorySelection(selectedId)) {
                         case SELECTED_VIRTUAL_CATEGORY:
-                            displayHeadlinesForTablet(selectedId, 0, false);
+                            displayHeadlines(this, selectedId, 0, false);
                             break;
                         case SELECTED_LABEL:
-                            displayHeadlinesForTablet(selectedId, -2, false);
+                            displayHeadlines(this, selectedId, -2, false);
                             break;
                         case SELECTED_CATEGORY:
                             if (Controller.getInstance().invertBrowsing()) {
-                                displayHeadlinesForTablet(FeedHeadlineActivity.FEED_NO_ID, selectedId, true);
+                                displayHeadlines(this, FeedHeadlineActivity.FEED_NO_ID, selectedId, true);
                             } else {
                                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                                 ft.replace(R.id.frame_right, FeedListFragment.newInstance(selectedId));
@@ -266,7 +266,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                     break;
                 case FEED:
                     FeedListFragment feeds = (FeedListFragment) source;
-                    displayHeadlinesForTablet(selectedId, feeds.getCategoryId(), false);
+                    displayHeadlines(this, selectedId, feeds.getCategoryId(), false);
                     break;
                 default:
                     Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
@@ -281,34 +281,33 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             case SELECTED_VIRTUAL_CATEGORY:
                 i = new Intent(context, FeedHeadlineActivity.class);
                 i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
+                startActivity(i);
                 break;
             case SELECTED_LABEL:
                 i = new Intent(context, FeedHeadlineActivity.class);
                 i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
                 i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, -2);
+                startActivity(i);
                 break;
             case SELECTED_CATEGORY:
                 if (Controller.getInstance().invertBrowsing()) {
-                    i = new Intent(context, FeedHeadlineActivity.class);
-                    i.putExtra(FeedHeadlineListFragment.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
-                    i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, selectedId);
-                    i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, true);
+                    displayHeadlines(this, FeedHeadlineActivity.FEED_NO_ID, selectedId, true);
                 } else {
                     i = new Intent(context, FeedActivity.class);
                     i.putExtra(FeedListFragment.FEED_CAT_ID, selectedId);
+                    startActivity(i);
                 }
                 break;
         }
-        startActivity(i);
     }
     
-    private void displayHeadlinesForTablet(int feedId, int categoryId, boolean selectArticles) {
+    public static void displayHeadlines(Context context, int feedId, int categoryId, boolean selectArticles) {
         Intent i = new Intent(context, FeedHeadlineActivity.class);
         i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineListFragment.FEED_ID, feedId);
         i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticles);
         i.putExtra(FeedHeadlineListFragment.ARTICLE_ID, -1000);
-        startActivity(i);
+        context.startActivity(i);
     }
     
     private static int decideCategorySelection(int selectedId) {
