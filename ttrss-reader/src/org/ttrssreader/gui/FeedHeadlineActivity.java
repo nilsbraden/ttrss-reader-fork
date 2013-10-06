@@ -34,11 +34,13 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.WindowManager;
+import android.widget.Toast;
 import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineActivity extends MenuActivity {
@@ -80,9 +82,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
         
         if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
-            int targetLayout = R.id.list;
-            if (isTablet) // TODO: && !isTabletVertical ??
-                targetLayout = R.id.frame_left;
+            int targetLayout = isTablet ? R.id.frame_left : R.id.list;
             
             Fragment fragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     articleId);
@@ -302,6 +302,29 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     @Override
     public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) {
+        Log.d(Utils.TAG, "itemSelected in FeedHeadlineActivity");
+        
+        if (isTablet) {
+            
+            switch (source.getType()) {
+                case FEEDHEADLINE:
+                    //
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.frame_right, ArticleFragment.newInstance(selectedId, feedId, categoryId,
+                            selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT));
+                    ft.addToBackStack(null);
+                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                    ft.commit();
+                    
+                    break;
+                default:
+                    Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+            return;
+        }
+        
+        // Non-Tablet behaviour:
         Intent i = new Intent(context, ArticleActivity.class);
         i.putExtra(ArticleFragment.ARTICLE_ID, selectedId);
         i.putExtra(ArticleFragment.ARTICLE_FEED_ID, feedId);

@@ -25,7 +25,6 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.dialogs.ChangelogDialog;
 import org.ttrssreader.gui.dialogs.CrashreportDialog;
 import org.ttrssreader.gui.dialogs.WelcomeDialog;
-import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.CategoryListFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
@@ -85,7 +84,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         if (fm.findFragmentByTag(FRAGMENT) == null) {
             int targetLayout = R.id.list;
             if (isTabletVertical)
-                targetLayout = R.id.frame_top;
+                targetLayout = R.id.frame_left;
             else if (isTablet)
                 targetLayout = R.id.frame_left;
             Fragment fragment = CategoryListFragment.newInstance();
@@ -232,121 +231,85 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         Log.d(Utils.TAG, "itemSelected in CategoryActivity");
         
         if (isTablet) {
-            // Set the list item as checked
-            // getListView().setItemChecked(selectedIndex, true);
-            
-            // Is the current selected ondex the same as the clicked? If so, there is no need to update
-            // if (selectedIndex == oldIndex)
-            // return;
-            
-            int newTargetLayout;
-            Fragment newFragment = null;
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             
             switch (source.getType()) {
                 case CATEGORY:
-                    // Show Feeds or headlines in middle or bottom frame
-                    newTargetLayout = isTabletVertical ? R.id.frame_bottom : R.id.frame_middle;
-                    newFragment = decideFragment(selectedId);
-                    ft.replace(newTargetLayout, newFragment);
-                    ft.addToBackStack(null);
                     
-                    // Display empty fragment in right frame:
-                    if (!isTabletVertical)
-                        ft.replace(R.id.frame_right,
-                                FeedHeadlineListFragment.newInstance(Integer.MIN_VALUE, Integer.MIN_VALUE, false));
+                    switch (decideCategorySelection(selectedId)) {
+                        case SELECTED_VIRTUAL_CATEGORY:
+                            displayHeadlinesForTablet(selectedId, 0, false);
+                            break;
+                        case SELECTED_LABEL:
+                            displayHeadlinesForTablet(selectedId, -2, false);
+                            break;
+                        case SELECTED_CATEGORY:
+                            if (Controller.getInstance().invertBrowsing()) {
+                                displayHeadlinesForTablet(FeedHeadlineActivity.FEED_NO_ID, selectedId, true);
+                            } else {
+                                
+                                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                                ft.replace(R.id.frame_right, FeedListFragment.newInstance(selectedId));
+                                if (!isTabletVertical) {
+                                    // Display empty fragment in right frame (only when feeds are displayed)
+                                    ft.replace(R.id.frame_right, FeedHeadlineListFragment.newInstance(
+                                            Integer.MIN_VALUE, Integer.MIN_VALUE, false));
+                                }
+                                ft.addToBackStack(null);
+                                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                                ft.commit();
+                                
+                            }
+                            break;
+                    }
                     
                     break;
                 case FEED:
-                    // Show Headlines in right or bottom frame, show feeds in top-frame when displaying vertical layout
+                    // Start new Activity displaying the content of the selected feed:
                     FeedListFragment feeds = (FeedListFragment) source;
-                    
-                    newTargetLayout = isTabletVertical ? R.id.frame_bottom : R.id.frame_right;
-                    newFragment = FeedHeadlineListFragment.newInstance(selectedId, feeds.getCategoryId(), false);
-                    ft.replace(newTargetLayout, newFragment);
-                    ft.addToBackStack(null);
-                    
-                    if (isTabletVertical)
-                        ft.replace(R.id.frame_top, FeedListFragment.newInstance(feeds));
-                    
-                    break;
-                case FEEDHEADLINE:
-                    // Show content in middle+rigth frame when displaying horizontal layout
-                    // Show content in bottom frame and headlines in top frame when displaying vertical layout
-                    FeedHeadlineListFragment headlines = (FeedHeadlineListFragment) source;
-                    
-                    if (isTabletVertical) {
-                        newTargetLayout = isTabletVertical ? R.id.frame_bottom : R.id.frame_right;
-                        newFragment = ArticleFragment.newInstance(selectedId, headlines.getFeedId(),
-                                headlines.getCategoryId(), headlines.getSelectArticlesForCategory(),
-                                ArticleFragment.ARTICLE_MOVE_DEFAULT);
-                        ft.replace(newTargetLayout, newFragment);
-                        ft.replace(R.id.frame_top, FeedHeadlineListFragment.newInstance(headlines));
-                    } else {
-                        // When using 3-column-layout we display headlines+article in a separate layout with only two
-                        // columns, managed by FeedHeadlineActivity:
-                        Intent i = new Intent(context, FeedHeadlineActivity.class);
-                        i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, headlines.getCategoryId());
-                        i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
-                        i.putExtra(FeedHeadlineListFragment.ARTICLE_ID, selectedId);
-                        startActivity(i);
-                    }
+                    displayHeadlinesForTablet(selectedId, feeds.getCategoryId(), false);
                     
                     break;
                 default:
                     Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
                     break;
             }
-            
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-            
-        } else {
-            
-            // Non-Tablet behaviour:
-            Intent i = null;
-            switch (decideCategorySelection(selectedId)) {
-                case SELECTED_VIRTUAL_CATEGORY:
-                    i = new Intent(context, FeedHeadlineActivity.class);
-                    i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
-                    break;
-                case SELECTED_LABEL:
-                    i = new Intent(context, FeedHeadlineActivity.class);
-                    i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
-                    i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, -2);
-                    break;
-                case SELECTED_CATEGORY:
-                    if (Controller.getInstance().invertBrowsing()) {
-                        i = new Intent(context, FeedHeadlineActivity.class);
-                        i.putExtra(FeedHeadlineListFragment.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
-                        i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, selectedId);
-                        i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, true);
-                    } else {
-                        i = new Intent(context, FeedActivity.class);
-                        i.putExtra(FeedListFragment.FEED_CAT_ID, selectedId);
-                    }
-                    break;
-            }
-            startActivity(i);
-            
+            return;
         }
-    }
-    
-    private Fragment decideFragment(int selectedId) {
+        
+        // Non-Tablet behaviour:
+        Intent i = null;
         switch (decideCategorySelection(selectedId)) {
             case SELECTED_VIRTUAL_CATEGORY:
-                return FeedHeadlineListFragment.newInstance(selectedId, 0, false);
+                i = new Intent(context, FeedHeadlineActivity.class);
+                i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
+                break;
             case SELECTED_LABEL:
-                return FeedHeadlineListFragment.newInstance(selectedId, -2, false);
+                i = new Intent(context, FeedHeadlineActivity.class);
+                i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
+                i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, -2);
+                break;
             case SELECTED_CATEGORY:
                 if (Controller.getInstance().invertBrowsing()) {
-                    return FeedHeadlineListFragment.newInstance(FeedHeadlineActivity.FEED_NO_ID, selectedId, true);
+                    i = new Intent(context, FeedHeadlineActivity.class);
+                    i.putExtra(FeedHeadlineListFragment.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
+                    i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, selectedId);
+                    i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, true);
                 } else {
-                    return FeedListFragment.newInstance(selectedId);
+                    i = new Intent(context, FeedActivity.class);
+                    i.putExtra(FeedListFragment.FEED_CAT_ID, selectedId);
                 }
-            default:
-                return null;
+                break;
         }
+        startActivity(i);
+    }
+    
+    private void displayHeadlinesForTablet(int feedId, int categoryId, boolean selectArticles) {
+        Intent i = new Intent(context, FeedHeadlineActivity.class);
+        i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineListFragment.FEED_ID, feedId);
+        i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticles);
+        i.putExtra(FeedHeadlineListFragment.ARTICLE_ID, -1000);
+        startActivity(i);
     }
     
     private static int decideCategorySelection(int selectedId) {
