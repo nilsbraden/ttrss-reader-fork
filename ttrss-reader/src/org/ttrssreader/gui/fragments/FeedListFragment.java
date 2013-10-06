@@ -47,17 +47,12 @@ public class FeedListFragment extends MainListFragment {
         return detail;
     }
     
-    public static FeedListFragment newInstance(FeedListFragment old) {
-        return newInstance(old.getCategoryId());
-    }
-    
     @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
         
         if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
-            selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);
         }
         
         adapter = new FeedAdapter(getActivity().getApplicationContext(), categoryId);

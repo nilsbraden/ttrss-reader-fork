@@ -27,17 +27,17 @@
         <item
             android:id="@+id/Menu_MarkAllRead"
             android:icon="@drawable/ic_menu_mark"
-            android:showAsAction="always|withText"
+            android:showAsAction="ifRoom|withText"
             android:title="@string/Commons.MarkAllRead"/>
         <item
             android:id="@+id/Menu_MarkFeedsRead"
             android:icon="@drawable/ic_menu_mark"
-            android:showAsAction="always|withText"
+            android:showAsAction="ifRoom|withText"
             android:title="@string/Commons.MarkFeedsRead"/>
         <item
             android:id="@+id/Menu_MarkFeedRead"
             android:icon="@drawable/ic_menu_mark"
-            android:showAsAction="always|withText"
+            android:showAsAction="ifRoom|withText"
             android:title="@string/Commons.MarkFeedRead"/>
     </group>
 

@@ -78,14 +78,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         return detail;
     }
     
-    public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles) {
-        return newInstance(id, categoryId, selectArticles, -1000);
-    }
-    
-    public static FeedHeadlineListFragment newInstance(FeedHeadlineListFragment old) {
-        return newInstance(old.getFeedId(), old.getCategoryId(), old.getSelectArticlesForCategory(), old.getArticleId());
-    }
-    
     @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);

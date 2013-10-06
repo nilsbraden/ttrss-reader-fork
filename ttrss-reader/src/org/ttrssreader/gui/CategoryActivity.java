@@ -62,10 +62,8 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     private static final String FRAGMENT = "CATEGORY_FRAGMENT";
     
     private boolean cacherStarted = false;
-    
     private CategoryUpdater categoryUpdater = null;
     
-    private static final String SELECTED_CATEGORY_ID = "SELECTED_CATEGORY_ID";
     private int selectedCategoryId = Integer.MIN_VALUE;
     
     @Override
@@ -84,7 +82,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         
         FragmentManager fm = getSupportFragmentManager();
-        
         if (fm.findFragmentByTag(FRAGMENT) == null) {
             Fragment fragment = CategoryListFragment.newInstance();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -163,7 +160,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean ret = super.onPrepareOptionsMenu(menu);
-        if (isTablet && selectedCategoryId == Integer.MIN_VALUE)
+        if (!isTablet || selectedCategoryId == Integer.MIN_VALUE)
             menu.removeItem(R.id.Menu_MarkFeedsRead);
         menu.removeItem(R.id.Menu_MarkFeedRead);
         return ret;

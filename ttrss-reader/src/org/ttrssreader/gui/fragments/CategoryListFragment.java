@@ -46,21 +46,12 @@ public class CategoryListFragment extends MainListFragment {
         return detail;
     }
     
-    public static CategoryListFragment newInstance(CategoryListFragment old) {
-        return newInstance();
-    }
-    
     @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
         
         adapter = new CategoryAdapter(getActivity().getApplicationContext());
         setListAdapter(adapter);
-        
-        // Read the selected list item after orientation changes and similar
-        if (instance != null) {
-            selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);
-        }
     }
     
     @Override

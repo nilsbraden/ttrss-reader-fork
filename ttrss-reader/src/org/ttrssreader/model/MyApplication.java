@@ -21,10 +21,8 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.Utils;
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 import android.view.WindowManager;
 
 public class MyApplication extends Application {
@@ -42,32 +40,12 @@ public class MyApplication extends Application {
     }
     
     protected void initSingletons() {
-        long time = System.currentTimeMillis();
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        Log.d(Utils.TAG, "TIME: " + (System.currentTimeMillis() - time) + "ms");
-        
-        time = System.currentTimeMillis();
-        Log.d(Utils.TAG, "TIME 1: " + (System.currentTimeMillis() - time) + "ms");
-        
-        time = System.currentTimeMillis();
         ProgressBarManager.getInstance();
-        Log.d(Utils.TAG, "TIME 2: " + (System.currentTimeMillis() - time) + "ms");
-        
-        time = System.currentTimeMillis();
         Controller.getInstance().checkAndInitializeController(this, wm.getDefaultDisplay());
-        Log.d(Utils.TAG, "TIME 3: " + (System.currentTimeMillis() - time) + "ms");
-        
-        time = System.currentTimeMillis();
         DBHelper.getInstance().checkAndInitializeDB(this);
-        Log.d(Utils.TAG, "TIME 4: " + (System.currentTimeMillis() - time) + "ms");
-        
-        time = System.currentTimeMillis();
         Data.getInstance().checkAndInitializeData(this);
-        Log.d(Utils.TAG, "TIME 5: " + (System.currentTimeMillis() - time) + "ms");
-        
-        time = System.currentTimeMillis();
         UpdateController.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
-        Log.d(Utils.TAG, "TIME 6: " + (System.currentTimeMillis() - time) + "ms");
     }
     
 }
