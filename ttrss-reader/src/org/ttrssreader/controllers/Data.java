@@ -127,34 +127,35 @@ public class Data {
         
         Set<Article> articles = new HashSet<Article>();
         int sinceId = Controller.getInstance().getSinceId();
-
+        
         IdUpdatedArticleOmitter unreadUpdatedFilter = new IdUpdatedArticleOmitter("isUnread>0", null);
         Controller
                 .getInstance()
                 .getConnector()
                 .getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true, 0, null, null,
                         unreadUpdatedFilter.getIdUpdatedMap().isEmpty() ? null : unreadUpdatedFilter);
-
+        
         final Article newestCachedArticle = DBHelper.getInstance().getArticle(sinceId);
         IArticleOmitter updatedFilter = (newestCachedArticle == null) ? null : new IArticleOmitter() {
             public Date lastUpdated = newestCachedArticle.updated;
-
+            
             @Override
             public boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException {
                 boolean skip = false;
                 
                 switch (field) {
                     case unread:
-                      if (a.isUnread)
-                        skip = true;
-                      break;
-
+                        if (a.isUnread)
+                            skip = true;
+                        break;
                     case updated:
                         if (a.updated != null && lastUpdated.after(a.updated))
                             throw new StopJsonParsingException("Stop processing on article ID=" + a.id + " updated on "
                                     + lastUpdated);
+                    default:
+                        break;
                 }
-
+                
                 return skip;
             }
         };
@@ -175,18 +176,18 @@ public class Data {
                 feedsChanged.put(c.id, time);
             }
             
-        Set<Integer> articleUnreadIds = new HashSet<Integer>();
-        for (Article a : articles) {
-            if (a.isUnread) {
-                articleUnreadIds.add(Integer.valueOf(a.id));
+            Set<Integer> articleUnreadIds = new HashSet<Integer>();
+            for (Article a : articles) {
+                if (a.isUnread) {
+                    articleUnreadIds.add(Integer.valueOf(a.id));
+                }
             }
-        }
-
+            
             articleUnreadIds.addAll(unreadUpdatedFilter.getOmittedArticles());
-        Log.d(Utils.TAG, "Amount of unread articles: " + articleUnreadIds.size());
-        DBHelper.getInstance().markRead(VCAT_ALL, false);
-        DBHelper.getInstance().markArticles(articleUnreadIds, "isUnread", 1);
-    }
+            Log.d(Utils.TAG, "Amount of unread articles: " + articleUnreadIds.size());
+            DBHelper.getInstance().markRead(VCAT_ALL, false);
+            DBHelper.getInstance().markArticles(articleUnreadIds, "isUnread", 1);
+        }
     }
     
     /**
