@@ -23,20 +23,18 @@ import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
-import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineActivity extends MenuActivity {
@@ -50,7 +48,6 @@ public class FeedHeadlineActivity extends MenuActivity {
     private boolean selectArticlesForCategory = false;
     
     private FeedHeadlineUpdater headlineUpdater = null;
-    private int[] parentIDs = new int[2];
     private String title = "";
     private int unreadCount = 0;
     
@@ -74,13 +71,11 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
         
         if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
-            int targetLayout = isTablet ? R.id.frame_left : R.id.list;
-            
             Fragment fragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     articleId);
             
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(targetLayout, fragment, FRAGMENT);
+            transaction.add(R.id.frame_left, fragment, FRAGMENT);
             
             // Display article in right frame:
             if (isTablet && articleId != -1000) {
@@ -90,34 +85,6 @@ public class FeedHeadlineActivity extends MenuActivity {
             
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
-        }
-        
-        initialize();
-    }
-    
-    private void initialize() {
-        Controller.getInstance().lastOpenedFeeds.add(feedId);
-        Controller.getInstance().lastOpenedArticles.clear();
-        fillParentInformation();
-    }
-    
-    private void fillParentInformation() {
-        FeedAdapter parentAdapter = null;
-        try {
-            parentAdapter = new FeedAdapter(getApplicationContext(), categoryId);
-            int index = parentAdapter.getIds().indexOf(feedId);
-            if (index >= 0) {
-                parentIDs[0] = parentAdapter.getId(index - 1); // Previous
-                parentIDs[1] = parentAdapter.getId(index + 1); // Next
-                
-                if (parentIDs[0] == 0)
-                    parentIDs[0] = -1;
-                if (parentIDs[1] == 0)
-                    parentIDs[1] = -1;
-            }
-        } finally {
-            if (parentAdapter != null)
-                parentAdapter.close();
         }
     }
     
@@ -132,7 +99,8 @@ public class FeedHeadlineActivity extends MenuActivity {
         super.doRefresh();
         setTitle(title);
         setUnread(unreadCount);
-        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.list));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.frame_left));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.frame_right));
     }
     
     @Override
@@ -153,13 +121,21 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
     
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean ret = super.onPrepareOptionsMenu(menu);
+        menu.removeItem(R.id.Menu_MarkAllRead);
+        menu.removeItem(R.id.Menu_MarkFeedsRead);
+        return ret;
+    }
+    
+    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
                 doUpdate(true);
                 return true;
-            case R.id.Menu_MarkAllRead:
+            case R.id.Menu_MarkFeedRead:
                 if (selectArticlesForCategory) {
                     new Updater(this, new ReadStateUpdater(categoryId)).exec();
                 } else {
@@ -178,44 +154,24 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
     }
     
-    public void openNextFeed(int direction) {
-        if (feedId < 0)
-            return;
-        
-        int id = direction < 0 ? parentIDs[0] : parentIDs[1];
-        if (id <= 0) {
-            ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
-            return;
-        }
-        
-        this.feedId = id;
-        
-        FeedHeadlineListFragment feedHeadlineView = FeedHeadlineListFragment.newInstance(feedId, categoryId,
-                selectArticlesForCategory, -1000);
-        
-        // Replace the old fragment with the new one
-        int target = isTablet ? R.id.frame_left : R.id.list;
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(target, feedHeadlineView);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
-        
-        initialize();
-        doRefresh();
-    }
-    
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_N) {
-                openNextFeed(-1);
+                fragmentOpenNextFeed(-1);
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_B) {
-                openNextFeed(1);
+                fragmentOpenNextFeed(1);
                 return true;
             }
         }
         return super.onKeyDown(keyCode, event);
+    }
+    
+    private void fragmentOpenNextFeed(int direction) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame_left);
+        if (fragment instanceof FeedHeadlineListFragment)
+            ((FeedHeadlineListFragment) fragment).openNextFeed(direction);
     }
     
     @Override

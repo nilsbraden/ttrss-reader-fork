@@ -34,6 +34,7 @@ import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -137,48 +138,11 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         return true;
     }
     
-    private Article getArticle() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.article_view);
-        if (fragment instanceof ArticleFragment) {
-            ArticleFragment aFrag = (ArticleFragment) fragment;
-            return aFrag.getArticle();
-        }
-        return null;
-    }
-    
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(final Menu menu) {
         super.onPrepareOptionsMenu(menu);
         
-        Article article = getArticle();
-        if (article != null) {
-            MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
-            if (article.isUnread) {
-                read.setTitle(getString(R.string.Commons_MarkRead));
-                read.setIcon(R.drawable.ic_menu_clear_playlist);
-            } else {
-                read.setTitle(getString(R.string.Commons_MarkUnread));
-                read.setIcon(R.drawable.ic_menu_mark);
-            }
-            
-            MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
-            if (article.isPublished) {
-                publish.setTitle(getString(R.string.Commons_MarkUnpublish));
-                publish.setIcon(R.drawable.menu_published);
-            } else {
-                publish.setTitle(getString(R.string.Commons_MarkPublish));
-                publish.setIcon(R.drawable.menu_publish);
-            }
-            
-            MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
-            if (article.isStarred) {
-                star.setTitle(getString(R.string.Commons_MarkUnstar));
-                star.setIcon(R.drawable.menu_starred);
-            } else {
-                star.setTitle(getString(R.string.Commons_MarkStar));
-                star.setIcon(R.drawable.ic_menu_star);
-            }
-        }
+        prepareArticleMenu(this, menu, getArticle());
         
         MenuItem offline = menu.findItem(R.id.Article_Menu_WorkOffline);
         if (Controller.getInstance().workOffline()) {
@@ -190,6 +154,37 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
         }
         
         return true;
+    }
+    
+    public static void prepareArticleMenu(final Context context, final Menu menu, final Article article) {
+        if (article != null) {
+            MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
+            if (article.isUnread) {
+                read.setTitle(context.getString(R.string.Commons_MarkRead));
+                read.setIcon(R.drawable.ic_menu_clear_playlist);
+            } else {
+                read.setTitle(context.getString(R.string.Commons_MarkUnread));
+                read.setIcon(R.drawable.ic_menu_mark);
+            }
+            
+            MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
+            if (article.isPublished) {
+                publish.setTitle(context.getString(R.string.Commons_MarkUnpublish));
+                publish.setIcon(R.drawable.menu_published);
+            } else {
+                publish.setTitle(context.getString(R.string.Commons_MarkPublish));
+                publish.setIcon(R.drawable.menu_publish);
+            }
+            
+            MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
+            if (article.isStarred) {
+                star.setTitle(context.getString(R.string.Commons_MarkUnstar));
+                star.setIcon(R.drawable.menu_starred);
+            } else {
+                star.setTitle(context.getString(R.string.Commons_MarkStar));
+                star.setIcon(R.drawable.ic_menu_star);
+            }
+        }
     }
     
     @Override
@@ -218,9 +213,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
                 if (!Controller.getInstance().workOffline())
                     new Updater(this, new StateSynchronisationUpdater()).execute((Void[]) null);
                 return true;
-            case R.id.Article_Menu_OpenLink:
-                openLink();
-                return true;
             case R.id.Article_Menu_ShareLink:
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
@@ -231,6 +223,15 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             default:
                 return false;
         }
+    }
+    
+    private Article getArticle() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.article_view);
+        if (fragment instanceof ArticleFragment) {
+            ArticleFragment aFrag = (ArticleFragment) fragment;
+            return aFrag.getArticle();
+        }
+        return null;
     }
     
     @Override
@@ -262,14 +263,6 @@ public class ArticleActivity extends SherlockFragmentActivity implements IUpdate
             ArticleFragment aFrag = (ArticleFragment) fragment;
             aFrag.openNextArticle(direction);
             initActionbar();
-        }
-    }
-    
-    private void openLink() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.article_view);
-        if (fragment instanceof ArticleFragment) {
-            ArticleFragment aFrag = (ArticleFragment) fragment;
-            aFrag.openLink();
         }
     }
     

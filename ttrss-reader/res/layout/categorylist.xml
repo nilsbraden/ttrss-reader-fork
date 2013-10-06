@@ -22,7 +22,7 @@
     android:orientation="horizontal" >
 
     <FrameLayout
-        android:id="@+id/list"
+        android:id="@+id/frame_left"
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:layout_weight="1" />

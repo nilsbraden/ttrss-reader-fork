@@ -58,7 +58,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected SherlockFragmentActivity activity;
     
     protected boolean isTablet = false;
-    protected boolean isTabletVertical;
     
     public static final int MARK_GROUP = 42;
     public static final int MARK_READ = MARK_GROUP + 1;
@@ -82,15 +81,9 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void initTabletLayout() {
-        View horizontal = findViewById(R.id.frame_left);
+        View horizontal = findViewById(R.id.frame_right);
         if (horizontal != null && horizontal.getVisibility() == View.VISIBLE) {
             isTablet = true;
-            isTabletVertical = false;
-        }
-        View vertical = findViewById(R.id.frame_left);
-        if (vertical != null && vertical.getVisibility() == View.VISIBLE) {
-            isTablet = true;
-            isTabletVertical = true;
         }
     }
     

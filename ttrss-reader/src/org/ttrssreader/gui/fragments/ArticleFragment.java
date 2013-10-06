@@ -132,7 +132,7 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
     
     private ArticleJSInterface articleJSInterface;
     
-    private GestureDetector gestureDetector;
+    private GestureDetector gestureDetector = null;
     private View.OnTouchListener gestureListener;
     
     public static ArticleFragment newInstance(int id, int feedId, int categoryId, boolean selectArticles, int lastMove) {
@@ -166,16 +166,6 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
             if (webView != null)
                 webView.restoreState(instance);
         }
-        
-        // Detect touch gestures like swipe and scroll down:
-        gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(getSherlockActivity()
-                .getSupportActionBar(), Controller.getInstance().hideActionbar()));
-        gestureListener = new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
-            }
-        };
-        getView().setOnTouchListener(gestureListener);
         
         articleJSInterface = new ArticleJSInterface(getSherlockActivity());
         initData();
@@ -283,6 +273,18 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
         getSherlockActivity().findViewById(R.id.article_button_view).setVisibility(
                 Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
                         : View.GONE);
+        
+        if (gestureDetector == null) {
+            // Detect touch gestures like swipe and scroll down:
+            gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(getSherlockActivity()
+                    .getSupportActionBar(), Controller.getInstance().hideActionbar()));
+            gestureListener = new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    return gestureDetector.onTouchEvent(event);
+                }
+            };
+        }
+        webView.setOnTouchListener(gestureListener);
     }
     
     private void initData() {
@@ -762,11 +764,7 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
         public ArticleGestureDetector(ActionBar actionBar, boolean hideActionbar) {
             super(actionBar, hideActionbar);
         }
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return super.onScroll(e1, e2, distanceX, distanceY);
-        }
+        
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             // Refresh metrics-data in Controller
