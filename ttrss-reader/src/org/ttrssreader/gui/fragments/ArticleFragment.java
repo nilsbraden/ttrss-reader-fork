@@ -31,6 +31,7 @@ import org.ttrssreader.gui.ErrorActivity;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
+import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.model.FeedHeadlineAdapter;
@@ -58,9 +59,12 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
@@ -74,6 +78,7 @@ import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
 
 @SuppressWarnings("deprecation")
@@ -127,6 +132,9 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
     
     private ArticleJSInterface articleJSInterface;
     
+    private GestureDetector gestureDetector;
+    private View.OnTouchListener gestureListener;
+    
     public static ArticleFragment newInstance(int id, int feedId, int categoryId, boolean selectArticles, int lastMove) {
         // Create a new fragment instance
         ArticleFragment detail = new ArticleFragment();
@@ -158,6 +166,16 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
             if (webView != null)
                 webView.restoreState(instance);
         }
+        
+        // Detect touch gestures like swipe and scroll down:
+        gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(getSherlockActivity()
+                .getSupportActionBar(), Controller.getInstance().hideActionbar()));
+        gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        };
+        getView().setOnTouchListener(gestureListener);
         
         articleJSInterface = new ArticleJSInterface(getSherlockActivity());
         initData();
@@ -739,5 +757,42 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
             }
         }
     }
+    
+    class ArticleGestureDetector extends MyGestureDetector {
+        public ArticleGestureDetector(ActionBar actionBar, boolean hideActionbar) {
+            super(actionBar, hideActionbar);
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            return super.onScroll(e1, e2, distanceX, distanceY);
+        }
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            // Refresh metrics-data in Controller
+            Controller.refreshDisplayMetrics(((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE))
+                    .getDefaultDisplay());
+            
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
+                    return false;
+                if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
+                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                    
+                    // right to left swipe
+                    openNextArticle(1);
+                    
+                } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
+                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                    
+                    // left to right swipe
+                    openNextArticle(-1);
+                    
+                }
+            } catch (Exception e) {
+            }
+            return false;
+        }
+    };
     
 }

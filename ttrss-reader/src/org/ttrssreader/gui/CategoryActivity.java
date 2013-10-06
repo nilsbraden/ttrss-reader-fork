@@ -254,7 +254,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                                     ft.replace(R.id.frame_right, FeedHeadlineListFragment.newInstance(
                                             Integer.MIN_VALUE, Integer.MIN_VALUE, false));
                                 }
-                                ft.addToBackStack(null);
                                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                                 ft.commit();
                                 

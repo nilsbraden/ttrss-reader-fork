@@ -18,23 +18,32 @@ package org.ttrssreader.gui.fragments;
 import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
+import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
+import android.view.GestureDetector;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public class FeedHeadlineListFragment extends MainListFragment implements TextInputAlertCallback {
     
@@ -82,7 +91,16 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             articleId = instance.getInt(ARTICLE_ID);
         }
         
-        // Set selection to ARTICLE_ID
+        // Detect touch gestures like swipe and scroll down:
+        ActionBar actionBar = ((SherlockFragmentActivity) getActivity()).getSupportActionBar();
+        gestureDetector = new GestureDetector(getActivity(), new HeadlineGestureDetector(actionBar, Controller
+                .getInstance().hideActionbar()));
+        gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        };
+        getView().setOnTouchListener(gestureListener);
         
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
         setListAdapter(adapter);
@@ -211,5 +229,38 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     public boolean getSelectArticlesForCategory() {
         return selectArticlesForCategory;
     }
+    
+    class HeadlineGestureDetector extends MyGestureDetector {
+        public HeadlineGestureDetector(ActionBar actionBar, boolean hideActionbar) {
+            super(actionBar, hideActionbar);
+        }
+        
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            // Refresh metrics-data in Controller
+            Controller.refreshDisplayMetrics(((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE))
+                    .getDefaultDisplay());
+            
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
+                    return false;
+                if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
+                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                    
+                    // right to left swipe
+                    ((FeedHeadlineActivity) getActivity()).openNextFeed(1);
+                    
+                } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
+                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                    
+                    // left to right swipe
+                    ((FeedHeadlineActivity) getActivity()).openNextFeed(-1);
+                    
+                }
+            } catch (Exception e) {
+            }
+            return false;
+        }
+    };
     
 }

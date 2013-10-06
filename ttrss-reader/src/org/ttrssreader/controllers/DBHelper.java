@@ -1375,7 +1375,7 @@ public class DBHelper {
         String[] args = new String[] { minId + "" };
         if (!isDBAvailable())
             return;
-        db.delete(TABLE_ARTICLES, " ( isPublished>0 OR isStarred>0 ) AND id >= ? ", args);
+        db.delete(TABLE_ARTICLES, " ( isPublished>0 OR isStarred>0 ) AND id >= ? ", args); // FIXME: Foreign Key constraint failed!
         purgeLabels();
     }
     

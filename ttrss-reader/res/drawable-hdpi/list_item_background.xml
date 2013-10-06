@@ -15,22 +15,26 @@
     copy of the GNU General Public License along with this program; If
     not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:baselineAligned="false"
-    android:orientation="horizontal" >
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <FrameLayout
-        android:id="@+id/frame_left"
-        android:layout_width="0px"
-        android:layout_height="match_parent"
-        android:layout_weight="4" />
+    <!-- Selected style -->
+    <item android:state_checked="true"><shape>
 
-    <FrameLayout
-        android:id="@+id/frame_right"
-        android:layout_width="0px"
-        android:layout_height="match_parent"
-        android:layout_weight="7" />
+            <!-- <stroke android:width="2dp" android:color="#002C2C2C" /> -->
 
-</LinearLayout>
+            <solid android:color="#246DFF" />
+
+            <padding android:bottom="2dp" android:left="2dp" android:right="2dp" android:top="2dp" />
+        </shape></item>
+
+    <!-- Normal style -->
+    <item><shape>
+
+            <!-- <stroke android:width="2dp" android:color="#ff525252" /> -->
+
+            <solid android:color="@color/darkBackground" />
+
+            <padding android:bottom="2dp" android:left="2dp" android:right="2dp" android:top="2dp" />
+        </shape></item>
+
+</selector>
