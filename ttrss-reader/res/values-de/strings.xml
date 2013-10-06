@@ -109,8 +109,6 @@
     <string name="GoBackAfterMarkAllReadPreferenceSummary">Wechselt eine Ebene nach oben, wenn alle Elemente als gelesen markiert wurden.</string>
     <string name="HideActionbarTitle">ActionBar ausblenden</string>
     <string name="HideActionbarSummary">Blendet die ActionBar aus, wenn diese nicht benötigt wird. Sie wird immer angezigt, wenn nach oben gescrollt wird.</string>
-    <string name="AllowTabletLayoutTitle">Aktiviere Tablet-Ansicht</string>
-    <string name="AllowTabletLayoutSummary">Die Tablet-Ansicht wird aktiviert, wenn das Display mehr als 7\" hat.</string>
     <string name="ShowButtonsModeTitle">Navigationstasten Auswahl</string>
     <string name="ShowButtonsModeSummary">Wie sollen die Navigationstasten in der Artikelansicht angezeigt werden?</string>
     <string name="ShowButtonsMode_none">Nicht anzeigen</string>

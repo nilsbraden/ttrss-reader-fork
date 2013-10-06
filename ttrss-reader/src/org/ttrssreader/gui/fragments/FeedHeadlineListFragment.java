@@ -42,22 +42,33 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "ARTICLE_FEED_ID";
+    public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_TITLE = "FEED_TITLE";
     public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
     public static final String FEED_INDEX = "INDEX";
     
     private int categoryId = -1000;
     private int feedId = -1000;
+    private int articleId = -1000;
     private boolean selectArticlesForCategory = false;
     
-    public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles) {
+    public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles, int articleId) {
         FeedHeadlineListFragment detail = new FeedHeadlineListFragment();
         detail.categoryId = categoryId;
         detail.feedId = id;
         detail.selectArticlesForCategory = selectArticles;
+        detail.articleId = articleId;
         detail.setHasOptionsMenu(true);
         detail.setRetainInstance(true);
         return detail;
+    }
+    
+    public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles) {
+        return newInstance(id, categoryId, selectArticles, -1000);
+    }
+    
+    public static FeedHeadlineListFragment newInstance(FeedHeadlineListFragment old) {
+        return newInstance(old.getFeedId(), old.getCategoryId(), old.getSelectArticlesForCategory(), old.getArticleId());
     }
     
     @Override
@@ -68,7 +79,10 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             categoryId = instance.getInt(FEED_CAT_ID);
             feedId = instance.getInt(FEED_ID);
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
+            articleId = instance.getInt(ARTICLE_ID);
         }
+        
+        // Set selection to ARTICLE_ID
         
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
         setListAdapter(adapter);
@@ -79,6 +93,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         outState.putInt(FEED_CAT_ID, categoryId);
         outState.putInt(FEED_ID, feedId);
         outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        outState.putInt(ARTICLE_ID, articleId);
         super.onSaveInstanceState(outState);
     }
     
@@ -172,6 +187,27 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     
     public void onPublishNoteResult(Article a, String note) {
         new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
+    }
+    
+    @Override
+    public TYPE getType() {
+        return THIS_TYPE;
+    }
+    
+    public int getCategoryId() {
+        return categoryId;
+    }
+    
+    public int getFeedId() {
+        return feedId;
+    }
+    
+    public int getArticleId() {
+        return articleId;
+    }
+    
+    public boolean getSelectArticlesForCategory() {
+        return selectArticlesForCategory;
     }
     
 }

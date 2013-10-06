@@ -73,7 +73,6 @@ public class Constants {
     public static final String WORK_OFFLINE = "UsageWorkOfflinePreference";
     public static final String GO_BACK_AFTER_MARK_ALL_READ = "GoBackAfterMarkAllReadPreference";
     public static final String HIDE_ACTIONBAR = "HideActionbarPreference";
-    public static final String ALLOW_TABLET_LAYOUT = "AllowTabletLayoutPreference";
     // Usage Default Values
     public static final boolean OPEN_URL_EMPTY_ARTICLE_DEFAULT = false;
     public static final boolean USE_VOLUME_KEYS_DEFAULT = false;
@@ -82,7 +81,6 @@ public class Constants {
     public static final boolean WORK_OFFLINE_DEFAULT = false;
     public static final boolean GO_BACK_AFTER_MARK_ALL_READ_DEFAULT = false;
     public static final boolean HIDE_ACTIONBAR_DEFAULT = true;
-    public static final boolean ALLOW_TABLET_LAYOUT_DEFAULT = false;
     
     // Display
     public static final String HEADLINE_SIZE = "HeadlineSizePreference";
@@ -136,7 +134,7 @@ public class Constants {
     public static final String SAVE_ATTACHMENT_DEFAULT;
     public static final String CACHE_FOLDER_DEFAULT;
     public static final Integer CACHE_FOLDER_MAX_SIZE_DEFAULT = 80;
-    public static final Integer CACHE_IMAGE_MAX_SIZE_DEFAULT = 6 * (int)Utils.KB; // 6 MB
+    public static final Integer CACHE_IMAGE_MAX_SIZE_DEFAULT = 6 * (int) Utils.KB; // 6 MB
     public static final boolean DELETE_DB_SCHEDULED_DEFAULT = false;
     public static final boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
     public static final boolean CACHE_IMAGES_ONLY_WIFI_DEFAULT = false;

@@ -55,8 +55,10 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected final Context context = this;
     
     protected Updater updater;
-    protected boolean isTablet = false;
     protected SherlockFragmentActivity activity;
+    
+    protected boolean isTablet = false;
+    protected boolean isTabletVertical;
     
     public static final int MARK_GROUP = 42;
     public static final int MARK_READ = MARK_GROUP + 1;
@@ -75,16 +77,21 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         requestWindowFeature(Window.FEATURE_PROGRESS);
         
         Controller.getInstance().setHeadless(false);
-        
-        // This is a tablet if this view exists
-        if (Controller.getInstance().allowTabletLayout()) {
-            View details = findViewById(R.id.headline_list);
-            isTablet = details != null && details.getVisibility() == View.VISIBLE;
-        }
-        
         initActionbar();
-        
         getOverflowMenu();
+    }
+    
+    protected void initTabletLayout() {
+        View horizontal = findViewById(R.id.frame_left);
+        if (horizontal != null && horizontal.getVisibility() == View.VISIBLE) {
+            isTablet = true;
+            isTabletVertical = false;
+        }
+        View vertical = findViewById(R.id.frame_top);
+        if (vertical != null && vertical.getVisibility() == View.VISIBLE) {
+            isTablet = true;
+            isTabletVertical = true;
+        }
     }
     
     private TextView header_title;
@@ -146,6 +153,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     @Override
     protected void onResume() {
         super.onResume();
+        initTabletLayout();
         UpdateController.getInstance().registerActivity(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
     }
@@ -352,6 +360,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void refreshAndUpdate() {
+        initTabletLayout();
         if (Utils.checkConfig()) {
             doUpdate(false);
             doRefresh();

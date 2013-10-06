@@ -22,19 +22,13 @@
     android:orientation="horizontal" >
 
     <FrameLayout
-        android:id="@+id/category_list"
+        android:id="@+id/frame_left"
         android:layout_width="0px"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_weight="0.50" />
 
     <FrameLayout
-        android:id="@+id/feed_list"
-        android:layout_width="0px"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
-
-    <FrameLayout
-        android:id="@+id/headline_list"
+        android:id="@+id/frame_right"
         android:layout_width="0px"
         android:layout_height="match_parent"
         android:layout_weight="1" />

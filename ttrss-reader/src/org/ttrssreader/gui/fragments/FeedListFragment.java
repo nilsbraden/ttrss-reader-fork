@@ -47,6 +47,10 @@ public class FeedListFragment extends MainListFragment {
         return detail;
     }
     
+    public static FeedListFragment newInstance(FeedListFragment old) {
+        return newInstance(old.getCategoryId());
+    }
+    
     @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
@@ -84,6 +88,15 @@ public class FeedListFragment extends MainListFragment {
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public TYPE getType() {
+        return THIS_TYPE;
+    }
+    
+    public int getCategoryId() {
+        return categoryId;
     }
     
 }

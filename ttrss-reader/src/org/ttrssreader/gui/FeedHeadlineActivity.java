@@ -22,6 +22,7 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
+import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -33,7 +34,6 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
@@ -48,6 +48,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     private int categoryId = -1000;
     private int feedId = -1000;
+    private int articleId = -1000;
     private boolean selectArticlesForCategory = false;
     
     private GestureDetector gestureDetector;
@@ -61,6 +62,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         setContentView(R.layout.feedheadlinelist);
+        super.initTabletLayout();
         
         gestureDetector = new GestureDetector(this, new MyGestureDetector());
         
@@ -68,17 +70,32 @@ public class FeedHeadlineActivity extends MenuActivity {
         if (extras != null) {
             categoryId = extras.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
             feedId = extras.getInt(FeedHeadlineListFragment.FEED_ID);
+            articleId = extras.getInt(FeedHeadlineListFragment.ARTICLE_ID);
             selectArticlesForCategory = extras.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
         } else if (instance != null) {
             categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
             feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
+            articleId = instance.getInt(FeedHeadlineListFragment.ARTICLE_ID);
             selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
         }
         
         if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
-            Fragment fragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
+            int targetLayout = R.id.list;
+            if (isTablet) // TODO: && !isTabletVertical ??
+                targetLayout = R.id.frame_left;
+            
+            Fragment fragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
+                    articleId);
+            
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.headline_list, fragment, FRAGMENT);
+            transaction.add(targetLayout, fragment, FRAGMENT);
+            
+            // Display article in right frame:
+            if (isTablet && articleId != -1000) {
+                transaction.add(R.id.frame_right, ArticleFragment.newInstance(articleId, feedId, categoryId,
+                        selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT));
+            }
+            
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }
@@ -123,7 +140,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         super.doRefresh();
         setTitle(title);
         setUnread(unreadCount);
-        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.list));
     }
     
     @Override
@@ -182,11 +199,11 @@ public class FeedHeadlineActivity extends MenuActivity {
         this.feedId = id;
         
         FeedHeadlineListFragment feedHeadlineView = FeedHeadlineListFragment.newInstance(feedId, categoryId,
-                selectArticlesForCategory);
+                selectArticlesForCategory, -1000);
         
         // Replace the old fragment with the new one
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.headline_list, feedHeadlineView);
+        ft.replace(R.id.list, feedHeadlineView);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
         
@@ -284,41 +301,14 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
     
     @Override
-    public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
-        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.article_view);
-        if (isTablet && secondPane != null && secondPane.isInLayout()) {
-            // Set the list item as checked
-            // getListView().setItemChecked(selectedIndex, true);
-            
-            // Get the fragment instance
-            ArticleFragment articleView = (ArticleFragment) getSupportFragmentManager().findFragmentById(
-                    R.id.article_view);
-            
-            // Is the current selected ondex the same as the clicked? If so, there is no need to update
-            if (articleView != null && selectedIndex == oldIndex)
-                return;
-            
-            articleView = ArticleFragment.newInstance(selectedId, feedId, categoryId, selectArticlesForCategory,
-                    ArticleFragment.ARTICLE_MOVE_DEFAULT);
-            
-            // Replace the old fragment with the new one
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.article_view, articleView);
-            // Use a fade animation. This makes it clear that this is not a new "layer"
-            // above the current, but a replacement
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-            
-        } else {
-            // This is not a tablet - start a new activity
-            Intent i = new Intent(context, ArticleActivity.class);
-            i.putExtra(ArticleFragment.ARTICLE_ID, selectedId);
-            i.putExtra(ArticleFragment.ARTICLE_FEED_ID, feedId);
-            i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-            i.putExtra(ArticleFragment.ARTICLE_MOVE, ArticleFragment.ARTICLE_MOVE_DEFAULT);
-            startActivity(i);
-        }
+    public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) {
+        Intent i = new Intent(context, ArticleActivity.class);
+        i.putExtra(ArticleFragment.ARTICLE_ID, selectedId);
+        i.putExtra(ArticleFragment.ARTICLE_FEED_ID, feedId);
+        i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
+        i.putExtra(ArticleFragment.ARTICLE_MOVE, ArticleFragment.ARTICLE_MOVE_DEFAULT);
+        startActivity(i);
     }
     
 }

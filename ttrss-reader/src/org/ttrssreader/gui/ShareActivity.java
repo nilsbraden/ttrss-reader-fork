@@ -18,6 +18,7 @@ package org.ttrssreader.gui;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
+import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -140,7 +141,7 @@ public class ShareActivity extends MenuActivity {
     }
     
     // @formatter:off // Not needed here:
-    @Override public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) { }
+    @Override public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) { }
     @Override protected void doUpdate(boolean forceUpdate) { }
     //@formatter:on
     

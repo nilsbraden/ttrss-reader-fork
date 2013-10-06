@@ -98,7 +98,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean invertBrowsing = null;
     private Boolean goBackAfterMakeAllRead = null;
     private Boolean hideActionbar = null;
-    private Boolean allowTabletLayout = null;
     private Boolean workOffline = null;
     
     private Integer textZoom = null;
@@ -514,17 +513,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setHideActionbar(boolean hideActionbar) {
         put(Constants.HIDE_ACTIONBAR, hideActionbar);
         this.hideActionbar = hideActionbar;
-    }
-    
-    public boolean allowTabletLayout() {
-        if (allowTabletLayout == null)
-            allowTabletLayout = prefs.getBoolean(Constants.ALLOW_TABLET_LAYOUT, Constants.ALLOW_TABLET_LAYOUT_DEFAULT);
-        return allowTabletLayout;
-    }
-    
-    public void setAllowTabletLayout(boolean allowTabletLayout) {
-        put(Constants.ALLOW_TABLET_LAYOUT, allowTabletLayout);
-        this.allowTabletLayout = allowTabletLayout;
     }
     
     // ******* DISPLAY-Options ****************************
