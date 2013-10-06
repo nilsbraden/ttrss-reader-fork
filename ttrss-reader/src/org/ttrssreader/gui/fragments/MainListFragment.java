@@ -22,11 +22,9 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
-import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,8 +45,8 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
     private ListView listView;
     private int scrollPosition;
     
-    private GestureDetector gestureDetector;
-    private View.OnTouchListener gestureListener;
+    protected GestureDetector gestureDetector;
+    protected View.OnTouchListener gestureListener;
     
     @Override
     public void onActivityCreated(Bundle instance) {
@@ -102,12 +100,11 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
     public void onListItemClick(ListView l, View v, int position, long id) {
         selectedIndexOld = selectedIndex;
         selectedIndex = position; // Set selected item
-        getListView().setSelection(selectedIndex);
+        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        getListView().setItemChecked(selectedIndex, true);
         
         Activity activity = getActivity();
         if (activity instanceof IItemSelectedListener) {
-            Log.d(Utils.TAG, "THIS_TYPE: " + getType() + ", selectedIndex: " + selectedIndex + ", oldIndex: "
-                    + selectedIndexOld + ", selectedId: " + adapter.getId(selectedIndex) + "");
             ((IItemSelectedListener) activity).itemSelected(this, selectedIndex, selectedIndexOld,
                     adapter.getId(selectedIndex));
         }

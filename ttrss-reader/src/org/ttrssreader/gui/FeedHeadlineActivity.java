@@ -35,11 +35,7 @@ import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.WindowManager;
 import android.widget.Toast;
 import com.actionbarsherlock.view.MenuItem;
 
@@ -53,8 +49,6 @@ public class FeedHeadlineActivity extends MenuActivity {
     private int articleId = -1000;
     private boolean selectArticlesForCategory = false;
     
-    private GestureDetector gestureDetector;
-    
     private FeedHeadlineUpdater headlineUpdater = null;
     private int[] parentIDs = new int[2];
     private String title = "";
@@ -65,8 +59,6 @@ public class FeedHeadlineActivity extends MenuActivity {
         super.onCreate(instance);
         setContentView(R.layout.feedheadlinelist);
         super.initTabletLayout();
-        
-        gestureDetector = new GestureDetector(this, new MyGestureDetector());
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -186,7 +178,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
     }
     
-    private void openNextFeed(int direction) {
+    public void openNextFeed(int direction) {
         if (feedId < 0)
             return;
         
@@ -202,50 +194,15 @@ public class FeedHeadlineActivity extends MenuActivity {
                 selectArticlesForCategory, -1000);
         
         // Replace the old fragment with the new one
+        int target = isTablet ? R.id.frame_left : R.id.list;
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.list, feedHeadlineView);
+        ft.replace(target, feedHeadlineView);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
         
         initialize();
         doRefresh();
     }
-    
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent e) {
-        if (!gestureDetector.onTouchEvent(e))
-            return super.dispatchTouchEvent(e);
-        return true;
-    }
-    
-    class MyGestureDetector extends SimpleOnGestureListener {
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            // Refresh metrics-data in Controller
-            Controller.refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE))
-                    .getDefaultDisplay());
-            
-            try {
-                if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
-                    return false;
-                if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
-                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                    
-                    // right to left swipe
-                    openNextFeed(1);
-                    
-                } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
-                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                    
-                    // left to right swipe
-                    openNextFeed(-1);
-                    
-                }
-            } catch (Exception e) {
-            }
-            return false;
-        }
-    };
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -312,7 +269,6 @@ public class FeedHeadlineActivity extends MenuActivity {
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                     ft.replace(R.id.frame_right, ArticleFragment.newInstance(selectedId, feedId, categoryId,
                             selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT));
-                    ft.addToBackStack(null);
                     ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                     ft.commit();
                     
