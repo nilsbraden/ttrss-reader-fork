@@ -146,7 +146,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     @Override
     protected void onResume() {
         super.onResume();
-        initTabletLayout();
         UpdateController.getInstance().registerActivity(this);
         DBHelper.getInstance().checkAndInitializeDB(this);
     }

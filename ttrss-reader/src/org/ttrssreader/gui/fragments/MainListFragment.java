@@ -37,8 +37,8 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
     protected static final String SELECTED_INDEX = "selectedIndex";
     protected static final int SELECTED_INDEX_DEFAULT = -1;
     
-    protected int selectedIndex = SELECTED_INDEX_DEFAULT;
-    protected int selectedIndexOld = SELECTED_INDEX_DEFAULT;
+    private int selectedIndex = SELECTED_INDEX_DEFAULT;
+    private int selectedIndexOld = SELECTED_INDEX_DEFAULT;
     
     protected MainAdapter adapter = null;
     
@@ -65,6 +65,13 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
             }
         };
         listView.setOnTouchListener(gestureListener);
+        
+        // Read the selected list item after orientation changes and similar
+        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        if (instance != null) {
+            selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);;
+            listView.setItemChecked(selectedIndex, true);
+        }
     }
     
     @Override
@@ -76,7 +83,7 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
     @Override
     public void onStop() {
         super.onStop();
-        getListView().setVisibility(View.GONE);
+        listView.setVisibility(View.GONE);
     }
     
     @Override
@@ -86,7 +93,7 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
             adapter.refreshQuery();
             setTitleAfterUpdate();
         }
-        getListView().setVisibility(View.VISIBLE);
+        listView.setVisibility(View.VISIBLE);
         listView.setSelectionFromTop(scrollPosition, 0);
     }
     
@@ -100,8 +107,7 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
     public void onListItemClick(ListView l, View v, int position, long id) {
         selectedIndexOld = selectedIndex;
         selectedIndex = position; // Set selected item
-        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        getListView().setItemChecked(selectedIndex, true);
+        listView.setItemChecked(selectedIndex, true);
         
         Activity activity = getActivity();
         if (activity instanceof IItemSelectedListener) {
