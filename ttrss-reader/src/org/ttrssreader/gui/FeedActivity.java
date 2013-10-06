@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class FeedActivity extends MenuActivity {
@@ -61,7 +62,7 @@ public class FeedActivity extends MenuActivity {
         if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
             Fragment fragment = FeedListFragment.newInstance(categoryId);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.list, fragment, FRAGMENT);
+            transaction.add(R.id.frame_left, fragment, FRAGMENT);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }
@@ -79,7 +80,7 @@ public class FeedActivity extends MenuActivity {
         setTitle(title);
         setUnread(unreadCount);
         
-        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.list));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.frame_left));
     }
     
     @Override
@@ -100,13 +101,21 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean ret = super.onPrepareOptionsMenu(menu);
+        menu.removeItem(R.id.Menu_MarkAllRead);
+        menu.removeItem(R.id.Menu_MarkFeedsRead);
+        return ret;
+    }
+    
+    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
                 doUpdate(true);
                 return true;
-            case R.id.Menu_MarkAllRead:
+            case R.id.Menu_MarkFeedRead:
                 new Updater(this, new ReadStateUpdater(categoryId)).exec();
                 
                 if (Controller.getInstance().goBackAfterMakeAllRead())

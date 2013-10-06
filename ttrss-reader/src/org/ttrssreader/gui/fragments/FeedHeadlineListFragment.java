@@ -19,21 +19,25 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
+import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.MyGestureDetector;
+import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.support.v4.app.FragmentTransaction;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -60,6 +64,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     private int feedId = -1000;
     private int articleId = -1000;
     private boolean selectArticlesForCategory = false;
+    
+    private int[] parentIDs = new int[2];
     
     public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles, int articleId) {
         FeedHeadlineListFragment detail = new FeedHeadlineListFragment();
@@ -104,6 +110,14 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
         setListAdapter(adapter);
+        
+        fillParentInformation();
+        initialize();
+    }
+    
+    private void initialize() {
+        Controller.getInstance().lastOpenedFeeds.add(feedId);
+        Controller.getInstance().lastOpenedArticles.clear();
     }
     
     @Override
@@ -248,13 +262,13 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
                     
                     // right to left swipe
-                    ((FeedHeadlineActivity) getActivity()).openNextFeed(1);
+                    openNextFeed(1);
                     
                 } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
                     
                     // left to right swipe
-                    ((FeedHeadlineActivity) getActivity()).openNextFeed(-1);
+                    openNextFeed(-1);
                     
                 }
             } catch (Exception e) {
@@ -262,5 +276,51 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             return false;
         }
     };
+    
+    private void fillParentInformation() {
+        FeedAdapter parentAdapter = null;
+        try {
+            parentAdapter = new FeedAdapter(getActivity().getApplicationContext(), categoryId);
+            int index = parentAdapter.getIds().indexOf(feedId);
+            if (index >= 0) {
+                parentIDs[0] = parentAdapter.getId(index - 1); // Previous
+                parentIDs[1] = parentAdapter.getId(index + 1); // Next
+                
+                if (parentIDs[0] == 0)
+                    parentIDs[0] = -1;
+                if (parentIDs[1] == 0)
+                    parentIDs[1] = -1;
+            }
+        } finally {
+            if (parentAdapter != null)
+                parentAdapter.close();
+        }
+    }
+    
+    public void openNextFeed(int direction) {
+        if (feedId < 0)
+            return;
+        
+        int id = direction < 0 ? parentIDs[0] : parentIDs[1];
+        if (id <= 0) {
+            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            return;
+        }
+        
+        this.feedId = id;
+        
+        FeedHeadlineListFragment feedHeadlineView = FeedHeadlineListFragment.newInstance(feedId, categoryId,
+                selectArticlesForCategory, -1000);
+        
+        // Replace the old fragment with the new one
+        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.frame_left, feedHeadlineView);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
+        
+        initialize();
+        if (getActivity() instanceof IDataChangedListener)
+            ((IDataChangedListener) getActivity()).dataChanged(); // doRefresh()
+    }
     
 }

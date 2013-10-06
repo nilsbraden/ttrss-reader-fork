@@ -27,19 +27,19 @@
     <item
         android:id="@+id/Article_Menu_ShareLink"
         android:icon="@drawable/ic_menu_share"
-    android:showAsAction="ifRoom|withText"
+     android:showAsAction="ifRoom|withText"
         android:title="@string/ArticleActivity.ShareLink"
         tools:ignore="AlwaysShowAction"/>
     <item
         android:id="@+id/Article_Menu_MarkStar"
         android:icon="@drawable/ic_menu_star"
-        android:showAsAction="always|withText"
+        android:showAsAction="always"
         android:title="@string/Commons.MarkStar"
         tools:ignore="AlwaysShowAction"/>
     <item
         android:id="@+id/Article_Menu_MarkPublish"
         android:icon="@drawable/menu_publish"
-        android:showAsAction="always|withText"
+        android:showAsAction="always"
         android:title="@string/Commons.MarkPublish"
         tools:ignore="AlwaysShowAction"/>
     <item
@@ -52,11 +52,6 @@
         android:icon="@drawable/perm_group_app_info"
         android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.AddArticleLabel"/>
-    <item
-        android:id="@+id/Article_Menu_OpenLink"
-        android:icon="@drawable/ic_menu_home"
-        android:showAsAction="ifRoom|withText"
-        android:title="@string/ArticleActivity.OpenLink"/>
     <item
         android:id="@+id/Article_Menu_WorkOffline"
         android:icon="@drawable/ic_menu_stop"

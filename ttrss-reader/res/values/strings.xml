@@ -59,6 +59,8 @@
     <string name="Commons.SelectArticles">Show all articles</string>
     <string name="Commons.SelectFeeds">Show all feeds</string>
     <string name="Commons.MarkAllRead">All read</string>
+    <string name="Commons.MarkFeedsRead">Feeds read</string>
+    <string name="Commons.MarkFeedRead">Feed read</string>
     <string name="Commons.MarkRead">Mark as read</string>
     <string name="Commons.MarkUnread">Mark as unread</string>
     <string name="Commons.MarkStar">Star</string>

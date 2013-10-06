@@ -46,6 +46,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.Toast;
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class CategoryActivity extends MenuActivity implements IItemSelectedListener {
@@ -63,6 +64,9 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     private boolean cacherStarted = false;
     
     private CategoryUpdater categoryUpdater = null;
+    
+    private static final String SELECTED_CATEGORY_ID = "SELECTED_CATEGORY_ID";
+    private int selectedCategoryId = Integer.MIN_VALUE;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -82,14 +86,9 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         FragmentManager fm = getSupportFragmentManager();
         
         if (fm.findFragmentByTag(FRAGMENT) == null) {
-            int targetLayout = R.id.list;
-            if (isTabletVertical)
-                targetLayout = R.id.frame_left;
-            else if (isTablet)
-                targetLayout = R.id.frame_left;
             Fragment fragment = CategoryListFragment.newInstance();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(targetLayout, fragment, FRAGMENT);
+            transaction.add(R.id.frame_left, fragment, FRAGMENT);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }
@@ -140,7 +139,8 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     @Override
     protected void doRefresh() {
         super.doRefresh();
-        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.list));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.frame_left));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.frame_right));
     }
     
     @Override
@@ -161,6 +161,15 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     }
     
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean ret = super.onPrepareOptionsMenu(menu);
+        if (isTablet && selectedCategoryId == Integer.MIN_VALUE)
+            menu.removeItem(R.id.Menu_MarkFeedsRead);
+        menu.removeItem(R.id.Menu_MarkFeedRead);
+        return ret;
+    }
+    
+    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
@@ -169,6 +178,10 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                 return true;
             case R.id.Menu_MarkAllRead:
                 new Updater(this, new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES)).exec();
+                return true;
+            case R.id.Menu_MarkFeedsRead:
+                if (selectedCategoryId > Integer.MIN_VALUE)
+                    new Updater(this, new ReadStateUpdater(selectedCategoryId)).exec();
                 return true;
             default:
                 return false;
@@ -234,7 +247,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             
             switch (source.getType()) {
                 case CATEGORY:
-                    
                     switch (decideCategorySelection(selectedId)) {
                         case SELECTED_VIRTUAL_CATEGORY:
                             displayHeadlinesForTablet(selectedId, 0, false);
@@ -246,27 +258,18 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                             if (Controller.getInstance().invertBrowsing()) {
                                 displayHeadlinesForTablet(FeedHeadlineActivity.FEED_NO_ID, selectedId, true);
                             } else {
-                                
                                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                                 ft.replace(R.id.frame_right, FeedListFragment.newInstance(selectedId));
-                                if (!isTabletVertical) {
-                                    // Display empty fragment in right frame (only when feeds are displayed)
-                                    ft.replace(R.id.frame_right, FeedHeadlineListFragment.newInstance(
-                                            Integer.MIN_VALUE, Integer.MIN_VALUE, false));
-                                }
                                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
                                 ft.commit();
-                                
+                                selectedCategoryId = selectedId;
                             }
                             break;
                     }
-                    
                     break;
                 case FEED:
-                    // Start new Activity displaying the content of the selected feed:
                     FeedListFragment feeds = (FeedListFragment) source;
                     displayHeadlinesForTablet(selectedId, feeds.getCategoryId(), false);
-                    
                     break;
                 default:
                     Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
