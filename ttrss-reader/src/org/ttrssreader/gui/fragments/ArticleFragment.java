@@ -619,8 +619,6 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
                 fragment.show(getFragmentManager(), ImageCaptionDialog.DIALOG_CAPTION);
                 return true;
             case CONTEXT_MENU_SHARE_ARTICLE:
-                // Fall-through
-            default:
                 // default behavior is to share the article URL
                 shareIntent = getUrlShareIntent(article.url);
                 startActivity(Intent.createChooser(shareIntent, "Share URL"));

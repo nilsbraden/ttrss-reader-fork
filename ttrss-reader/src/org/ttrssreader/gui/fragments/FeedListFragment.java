@@ -79,13 +79,14 @@ public class FeedListFragment extends MainListFragment {
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        if (item.getItemId() == MenuActivity.MARK_READ) {
-            new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
-            return true;
-        } else if (item.getItemId() == MenuActivity.UNSUBSCRIBE) {
-            FeedUnsubscribeDialog.getInstance(this, adapter.getId(cmi.position)).show(getFragmentManager(),
-                    FeedUnsubscribeDialog.DIALOG_UNSUBSCRIBE);
-            return true;
+        switch (item.getItemId()) {
+            case MenuActivity.MARK_READ:
+                new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
+                return true;
+            case MenuActivity.UNSUBSCRIBE:
+                FeedUnsubscribeDialog.getInstance(this, adapter.getId(cmi.position)).show(getFragmentManager(),
+                        FeedUnsubscribeDialog.DIALOG_UNSUBSCRIBE);
+                return true;
         }
         return false;
     }

@@ -102,6 +102,7 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
     public void onListItemClick(ListView l, View v, int position, long id) {
         selectedIndexOld = selectedIndex;
         selectedIndex = position; // Set selected item
+        getListView().setSelection(selectedIndex);
         
         Activity activity = getActivity();
         if (activity instanceof IItemSelectedListener) {

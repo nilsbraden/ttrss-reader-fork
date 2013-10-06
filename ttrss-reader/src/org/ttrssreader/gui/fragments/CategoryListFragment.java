@@ -83,7 +83,7 @@ public class CategoryListFragment extends MainListFragment {
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        if (adapter == null)
+        if (adapter == null || cmi == null)
             return false;
         
         int id = adapter.getId(cmi.position);

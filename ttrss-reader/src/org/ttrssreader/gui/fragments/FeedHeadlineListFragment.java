@@ -134,8 +134,10 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        Article a = (Article) adapter.getItem(cmi.position);
+        if (cmi == null)
+            return false;
         
+        Article a = (Article) adapter.getItem(cmi.position);
         if (a == null)
             return false;
         

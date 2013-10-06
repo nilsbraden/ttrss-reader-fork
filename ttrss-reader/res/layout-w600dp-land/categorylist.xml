@@ -25,18 +25,12 @@
         android:id="@+id/frame_left"
         android:layout_width="0px"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
-
-    <FrameLayout
-        android:id="@+id/frame_middle"
-        android:layout_width="0px"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_weight="2" />
 
     <FrameLayout
         android:id="@+id/frame_right"
         android:layout_width="0px"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_weight="3" />
 
 </LinearLayout>
