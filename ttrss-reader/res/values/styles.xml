@@ -6,16 +6,13 @@
         <item name="android:textColor">?android:attr/textColorPrimaryInverseDisableOnly</item>
     </style>
 
-    <style name="Theme.MyAppTheme" parent="Theme.Sherlock">
+    <style name="Theme.MyAppTheme" parent="@style/Theme.Sherlock">
         <item name="android:actionBarStyle">@style/Theme.MyAppTheme.ActionBar</item>
-        <item name="actionBarStyle">@style/Theme.MyAppTheme.ActionBar</item>
     </style>
 
-    <style name="Theme.MyAppTheme.ActionBar" parent="Widget.Sherlock.ActionBar">
-        <item name="android:background">#222222</item>
-        <item name="background">#222222</item>
+    <style name="Theme.MyAppTheme.ActionBar" parent="@style/Widget.Sherlock.ActionBar.Solid">
+        <item name="android:background">@drawable/ab_solid</item>
         <item name="android:height">64dip</item>
-        <item name="height">64dip</item>
     </style>
 
 </resources>
