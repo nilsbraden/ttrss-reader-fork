@@ -22,6 +22,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
+import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -31,7 +32,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import com.actionbarsherlock.view.MenuItem;
 
 public class FeedActivity extends MenuActivity {
@@ -47,6 +47,7 @@ public class FeedActivity extends MenuActivity {
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         setContentView(R.layout.feedlist);
+        super.initTabletLayout();
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -60,7 +61,7 @@ public class FeedActivity extends MenuActivity {
         if (getSupportFragmentManager().findFragmentByTag(FRAGMENT) == null) {
             Fragment fragment = FeedListFragment.newInstance(categoryId);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.feed_list, fragment, FRAGMENT);
+            transaction.add(R.id.list, fragment, FRAGMENT);
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }
@@ -78,8 +79,7 @@ public class FeedActivity extends MenuActivity {
         setTitle(title);
         setUnread(unreadCount);
         
-        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.feed_list));
-        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.headline_list));
+        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.list));
     }
     
     @Override
@@ -149,33 +149,11 @@ public class FeedActivity extends MenuActivity {
     }
     
     @Override
-    public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) {
-        ListFragment secondPane = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.article_view);
-        if (isTablet && secondPane != null && secondPane.isInLayout()) {
-            // Set the list item as checked
-            // getListView().setItemChecked(selectedIndex, true);
-            
-            // Get the fragment instance
-            ListFragment details = (ListFragment) getSupportFragmentManager().findFragmentById(R.id.article_view);
-            
-            // Is the current selected ondex the same as the clicked? If so, there is no need to update
-            if (details != null && selectedIndex == oldIndex)
-                return;
-            
-            details = FeedHeadlineListFragment.newInstance(selectedId, categoryId, false);
-            
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.article_view, details);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-            
-        } else {
-            // This is not a tablet - start a new activity
-            Intent i = new Intent(context, FeedHeadlineActivity.class);
-            i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
-            i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
-            startActivity(i);
-        }
+    public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) {
+        Intent i = new Intent(context, FeedHeadlineActivity.class);
+        i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
+        i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
+        startActivity(i);
     }
     
 }

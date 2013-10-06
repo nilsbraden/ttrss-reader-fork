@@ -501,7 +501,7 @@ public class Utils {
     }
 
     public static void doRefreshFragment(Fragment fragment) {
-        if (fragment instanceof IUpdateEndListener) {
+        if (fragment != null && fragment instanceof IUpdateEndListener) {
             IUpdateEndListener listener = (IUpdateEndListener) fragment;
             listener.onUpdateEnd();
         }

@@ -24,10 +24,8 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.utils.Utils;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
@@ -46,6 +44,10 @@ public class CategoryListFragment extends MainListFragment {
         detail.setHasOptionsMenu(true);
         detail.setRetainInstance(true);
         return detail;
+    }
+    
+    public static CategoryListFragment newInstance(CategoryListFragment old) {
+        return newInstance();
     }
     
     @Override
@@ -80,7 +82,6 @@ public class CategoryListFragment extends MainListFragment {
     
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
-        Log.d(Utils.TAG, "CategoryActivity: onContextItemSelected called");
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (adapter == null)
             return false;
@@ -112,6 +113,11 @@ public class CategoryListFragment extends MainListFragment {
                 return true;
         }
         return false;
+    }
+    
+    @Override
+    public TYPE getType() {
+        return THIS_TYPE;
     }
     
 }

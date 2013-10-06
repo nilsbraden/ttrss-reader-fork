@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.net.JSONConnector.SubscriptionResponse;
 import org.ttrssreader.utils.AsyncTask;
@@ -224,7 +225,7 @@ public class SubscribeActivity extends MenuActivity {
     }
     
     // @formatter:off // Not needed here:
-    @Override public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId) { }
+    @Override public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) { }
     @Override protected void doUpdate(boolean forceUpdate) { }
     // @formatter:on
     

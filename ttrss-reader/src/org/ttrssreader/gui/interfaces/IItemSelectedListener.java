@@ -16,12 +16,14 @@
 
 package org.ttrssreader.gui.interfaces;
 
+import org.ttrssreader.gui.fragments.MainListFragment;
+
 public interface IItemSelectedListener {
     
     enum TYPE {
         CATEGORY, FEED, FEEDHEADLINE, NONE
     }
     
-    public void itemSelected(TYPE type, int selectedIndex, int oldIndex, int selectedId);
+    public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId);
     
 }

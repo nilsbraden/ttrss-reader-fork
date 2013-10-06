@@ -120,8 +120,6 @@
     <string name="GoBackAfterMarkAllReadPreferenceSummary">If checked, then go one level up after mark all current items as read.</string>
     <string name="HideActionbarTitle">Hide ActionBar</string>
     <string name="HideActionbarSummary">Hides the top bar when it is not necessary to show it. It is always shown when you scroll upwards.</string>
-    <string name="AllowTabletLayoutTitle">Enable Tablet-Layout</string>
-    <string name="AllowTabletLayoutSummary">If checked, the tablet layout will be used if your screen is above 7\".</string>
     <string name="ShowButtonsModeTitle">Select Navigation Buttons Mode</string>
     <string name="ShowButtonsModeSummary">How navigation buttons in article view should be shown.</string>
     <string name="ShowButtonsMode_none">Do not show buttons</string>
