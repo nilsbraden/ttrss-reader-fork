@@ -17,6 +17,7 @@ package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.CategoryActivity;
 import org.ttrssreader.gui.FeedActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
@@ -89,11 +90,7 @@ public class CategoryListFragment extends MainListFragment {
             case SELECT_ARTICLES:
                 if (id < 0)
                     return false;
-                intent = new Intent(getActivity(), FeedHeadlineActivity.class);
-                intent.putExtra(FeedHeadlineListFragment.FEED_ID, FeedHeadlineActivity.FEED_NO_ID);
-                intent.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, id);
-                intent.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, true);
-                startActivity(intent);
+                CategoryActivity.displayHeadlines(getActivity(), FeedHeadlineActivity.FEED_NO_ID, id, true);
                 return true;
             case SELECT_FEEDS:
                 if (id < 0)
