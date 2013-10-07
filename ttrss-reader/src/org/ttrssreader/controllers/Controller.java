@@ -40,6 +40,8 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
@@ -68,6 +70,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static final String MARKER_BOTTOM_NAV = "BOTTOM_NAVIGATION_MARKER";
     
     private Context context;
+    private WifiManager wifiManager;
+    
     private JSONConnector ttrssConnector;
     private ImageCache imageCache = null;
     
@@ -79,7 +83,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private SharedPreferences prefs = null;
     private static boolean preferencesChanged = false;
     
-    private String url = null;
+    private String hostname = null;
     private String username = null;
     private String password = null;
     private String httpUsername = null;
@@ -144,7 +148,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public static int relSwipteThresholdVelocity;
     public static int displayHeight;
     public static int displayWidth;
-
+    
     public static boolean isTablet = false;
     
     // SocketFactory for SSL-Connections, doesn't need to be accessed but indicates it is initialized if != null.
@@ -175,6 +179,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void checkAndInitializeController(final Context context, final Display display) {
         synchronized (initialized) {
             this.context = context;
+            this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             
             if (!initialized || instance == null || instance.prefs == null) {
                 initializeController(display);
@@ -304,42 +309,53 @@ public class Controller implements OnSharedPreferenceChangeListener {
     // ******* CONNECTION-Options ****************************
     
     public URI uri() throws URISyntaxException {
-        if (url == null)
-            url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
-        
-        if (!url.endsWith(JSON_END_URL)) {
-            if (!url.endsWith("/")) {
-                url += "/";
-            }
-            url += JSON_END_URL;
-        }
-        
-        return new URI(url);
+        return new URI(hostname());
     }
     
     public URL url() throws MalformedURLException {
-        if (url == null)
-            url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
+        return new URL(hostname());
+    }
+    
+    public String hostname() {
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.URL, getCurrentSSID(wifiManager));
         
-        if (!url.endsWith(JSON_END_URL)) {
-            if (!url.endsWith("/")) {
-                url += "/";
+        if (prefs.contains(key))
+            hostname = prefs.getString(key, Constants.URL_DEFAULT);
+        else
+            hostname = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
+        
+        if (!hostname.endsWith(JSON_END_URL)) {
+            if (!hostname.endsWith("/")) {
+                hostname += "/";
             }
-            url += JSON_END_URL;
+            hostname += JSON_END_URL;
         }
         
-        return new URL(url);
+        return hostname;
     }
     
     public String username() {
-        if (username == null)
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.USERNAME, getCurrentSSID(wifiManager));
+        
+        if (prefs.contains(key))
+            username = prefs.getString(key, Constants.EMPTY);
+        else
             username = prefs.getString(Constants.USERNAME, Constants.EMPTY);
+        
         return username;
     }
     
     public String password() {
-        if (password == null)
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.PASSWORD, getCurrentSSID(wifiManager));
+        
+        if (prefs.contains(key))
+            password = prefs.getString(key, Constants.EMPTY);
+        else
             password = prefs.getString(Constants.PASSWORD, Constants.EMPTY);
+        
         return password;
     }
     
@@ -433,8 +449,14 @@ public class Controller implements OnSharedPreferenceChangeListener {
     // ******* USAGE-Options ****************************
     
     public boolean lazyServer() {
-        if (useOfALazyServer == null)
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.USE_OF_A_LAZY_SERVER, getCurrentSSID(wifiManager));
+        
+        if (prefs.contains(key))
+            useOfALazyServer = prefs.getBoolean(key, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
+        else
             useOfALazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
+        
         return useOfALazyServer;
     }
     
@@ -989,6 +1011,19 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public void setPreferencesChanged(boolean preferencesChanged) {
         Controller.preferencesChanged = preferencesChanged;
+    }
+    
+    private static String getCurrentSSID(WifiManager wifiManager) {
+        WifiInfo info = wifiManager.getConnectionInfo();
+        final String ssid = info.getSSID();
+        return ssid == null ? "" : ssid.replace("\"", "");
+    }
+    
+    private static String getStringWithSSID(String param, String wifiSSID) {
+        if (wifiSSID == null)
+            return param;
+        else
+            return wifiSSID + param;
     }
     
 }

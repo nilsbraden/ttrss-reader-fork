@@ -78,6 +78,7 @@
     <string name="CategoryActivity.NoServer">No Server specified.</string>
     <string name="CategoryActivity.Donate">Want to Donate?</string>
     <string name="ConnectionPreferenceCategoryTitle">Connection</string>
+    <string name="ConnectionPreferenceCategory">Connectivity</string>
     <string name="ConnectionUrlPreferenceTitle">Connection URL</string>
     <string name="ConnectionUrlPreferenceSummary">The URL to your Tiny Tiny RSS instance.</string>
     <string name="ConnectionUsernamePreferenceTitle">Username</string>
@@ -208,6 +209,13 @@
     <string name="DeleteDBOnNextStartupSummary">If set to true the internal Database will be deleted only on the next start of the application.</string>
     <string name="DeleteDBOnStartupTitle">Delete DB on startup</string>
     <string name="DeleteDBOnStartupSummary">If set to true the internal Database will be deleted on EVERY start of the application.</string>
+    <string name="ConnectionWifiPrefScreenTitle">Wifi (per network) connectivity settings</string>
+    <string name="ConnectionWifiPrefScreenSummary">Special configuration for the connected network</string>
+    <string name="ConnectionWifiPrefCatTitle">Available networks</string>
+    <string name="ConnectionWifiPrefCatDescription">Choose a Network and define special connection-settings to be used when connected.</string>
+    <string name="ConnectionWifiConnected">Connected</string>
+    <string name="ConnectionWifiNotInRange">Not in range</string>
+    <string name="ConnectionWifiDeletePref">Remove settings for this network?</string>
     <string name="ErrorActivity.Title">Error</string>
     <string name="ErrorActivity.UserMessage">I was unable to connect to your Tiny Tiny RSS instance, please check your connection and/or connection settings.</string>
     <string name="ErrorActivity.ErrorTitle">Error details:</string>

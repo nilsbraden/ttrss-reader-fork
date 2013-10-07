@@ -13,6 +13,9 @@
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- Define special preferences for a Wifi-Network -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
     <!-- Download -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -52,6 +55,8 @@
         </activity>
         <activity android:name=".gui.FeedHeadlineActivity" />
         <activity android:name=".gui.PreferencesActivity" />
+        <activity android:name=".preferences.WifiConnectionSettings" />
+        <activity android:name=".preferences.ConnectionSettings" />
         <activity android:name=".gui.MediaPlayerActivity" />
         <activity android:name=".gui.ErrorActivity" />
         <activity

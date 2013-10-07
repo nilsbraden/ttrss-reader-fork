@@ -18,6 +18,7 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <!-- CONNECTION -->
+    <header android:title="@string/ConnectionPreferenceCategory" />
     <header
         android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
         android:icon="@drawable/ic_menu_account_list"
@@ -41,6 +42,14 @@
         <extra
             android:name="cat"
             android:value="prefs_ssl" />
+    </header>
+    <header
+        android:icon="@drawable/stat_notify_wifi_in_range"
+        android:summary="@string/ConnectionWifiPrefScreenSummary"
+        android:title="@string/ConnectionWifiPrefScreenTitle" >
+        <intent
+            android:targetClass="org.ttrssreader.preferences.WifiConnectionSettings"
+            android:targetPackage="org.ttrssreader" />
     </header>
 
     <!-- MISC -->
