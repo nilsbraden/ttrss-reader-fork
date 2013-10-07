@@ -28,7 +28,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.preferences.Constants;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -46,7 +45,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 
 public class Utils {
@@ -490,13 +488,6 @@ public class Utils {
     
     public static boolean clipboardHasText(Context context) {
         return (getTextFromClipboard(context) != null);
-    }
-    
-    public static void doRefreshFragment(Fragment fragment) {
-        if (fragment != null && fragment instanceof IUpdateEndListener) {
-            IUpdateEndListener listener = (IUpdateEndListener) fragment;
-            listener.onUpdateEnd();
-        }
     }
     
 }

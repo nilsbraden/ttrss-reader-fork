@@ -16,10 +16,8 @@
 package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
 import android.app.Activity;
@@ -32,7 +30,7 @@ import android.widget.ListView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
-public abstract class MainListFragment extends ListFragment implements IUpdateEndListener {
+public abstract class MainListFragment extends ListFragment {
     
     protected static final String SELECTED_INDEX = "selectedIndex";
     protected static final int SELECTED_INDEX_DEFAULT = -1;
@@ -89,10 +87,8 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
     @Override
     public void onResume() {
         super.onResume();
-        if (adapter != null) {
+        if (adapter != null)
             adapter.refreshQuery();
-            setTitleAfterUpdate();
-        }
         listView.setVisibility(View.VISIBLE);
         listView.setSelectionFromTop(scrollPosition, 0);
     }
@@ -116,20 +112,20 @@ public abstract class MainListFragment extends ListFragment implements IUpdateEn
         }
     }
     
-    @Override
-    public void onUpdateEnd() {
+    public void doRefresh() {
         adapter.refreshQuery();
-        setTitleAfterUpdate();
     }
     
-    private void setTitleAfterUpdate() {
-        MenuActivity activity = (MenuActivity) getActivity();
-        if (adapter != null && activity != null) {
-            if (adapter.title != null)
-                activity.setTitle(adapter.title);
-            if (adapter.unreadCount >= 0)
-                activity.setUnread(adapter.unreadCount);
-        }
+    public String getTitle() {
+        if (adapter != null && adapter.title != null)
+            return adapter.title;
+        return "";
+    }
+    
+    public int getUnread() {
+        if (adapter != null && adapter.unreadCount > 0)
+            return adapter.unreadCount;
+        return 0;
     }
     
     public abstract TYPE getType();

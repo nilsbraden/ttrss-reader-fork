@@ -16,9 +16,9 @@
 package org.ttrssreader.gui.dialogs;
 
 import org.ttrssreader.R;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -29,10 +29,10 @@ public class FeedUnsubscribeDialog extends DialogFragment {
     
     public static final String DIALOG_UNSUBSCRIBE = "unsubscribe";
     
-    private IUpdateEndListener parent;
+    private Activity parent;
     private int feedId;
     
-    public static FeedUnsubscribeDialog getInstance(IUpdateEndListener parent, int feedId) {
+    public static FeedUnsubscribeDialog getInstance(Activity parent, int feedId) {
         FeedUnsubscribeDialog fragment = new FeedUnsubscribeDialog();
         fragment.parent = parent;
         fragment.feedId = feedId;

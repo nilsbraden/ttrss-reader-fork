@@ -80,8 +80,8 @@ public class CategoryListFragment extends MainListFragment {
         switch (item.getItemId()) {
             case MenuActivity.MARK_READ:
                 if (id < -10)
-                    new Updater(this, new ReadStateUpdater(id, 42)).exec();
-                new Updater(this, new ReadStateUpdater(id)).exec();
+                    new Updater(getActivity(), new ReadStateUpdater(id, 42)).exec();
+                new Updater(getActivity(), new ReadStateUpdater(id)).exec();
                 return true;
             case SELECT_ARTICLES:
                 if (id < 0)

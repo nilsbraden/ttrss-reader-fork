@@ -29,7 +29,6 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.ErrorActivity;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
@@ -64,11 +63,11 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
@@ -82,7 +81,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
 
 @SuppressWarnings("deprecation")
-public class ArticleFragment extends SherlockFragment implements IUpdateEndListener {
+public class ArticleFragment extends SherlockFragment {
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
     
@@ -108,7 +107,7 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
     // Extras
     private int articleId = -1;
     private int feedId = -1;
-    private int categoryId = -1000;
+    private int categoryId = Integer.MIN_VALUE;
     private boolean selectForCategory = false;
     private int lastMove = ARTICLE_MOVE_DEFAULT;
     
@@ -745,19 +744,11 @@ public class ArticleFragment extends SherlockFragment implements IUpdateEndListe
         }
     }
     
-    /**
-     * populate unread articles count to action bar title
-     */
-    @Override
-    public void onUpdateEnd() {
+    public String getTitle() {
         parentAdapter.refreshQuery();
-        Activity activity = getActivity();
-        if (parentAdapter != null && activity != null) {
-            if (parentAdapter != null) {
-                StringBuilder sb = new StringBuilder("( ").append(parentAdapter.unreadCount).append(" )");
-                activity.getActionBar().setTitle(sb.toString());
-            }
-        }
+        if (parentAdapter != null)
+            return "( " + parentAdapter.unreadCount + " )";
+        return "";
     }
     
     class ArticleGestureDetector extends MyGestureDetector {

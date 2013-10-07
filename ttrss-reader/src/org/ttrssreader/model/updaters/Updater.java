@@ -21,15 +21,17 @@ import java.lang.reflect.Method;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.WeakReferenceHandler;
+import android.app.Activity;
 import android.os.Message;
 
 public class Updater extends AsyncTask<Void, Void, Void> {
     
     private IUpdatable updatable;
     
-    public Updater(IUpdateEndListener parent, IUpdatable updatable) {
+    public Updater(Activity parent, IUpdatable updatable) {
         this.updatable = updatable;
-        this.handler = new MsgHandler(parent);
+        if (parent instanceof IUpdateEndListener)
+            this.handler = new MsgHandler((IUpdateEndListener) parent);
     }
     
     // Use handler with weak reference on parent object
@@ -49,7 +51,8 @@ public class Updater extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         updatable.update(this);
-        handler.sendEmptyMessage(0);
+        if (handler != null)
+            handler.sendEmptyMessage(0);
         return null;
     }
     

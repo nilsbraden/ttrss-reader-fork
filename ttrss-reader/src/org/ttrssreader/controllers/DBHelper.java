@@ -274,7 +274,7 @@ public class DBHelper {
         
         /**
          * set wished DB modes on DB
-         *
+         * 
          * @param db
          *            DB to be used
          */
@@ -286,7 +286,7 @@ public class DBHelper {
                 db.execSQL("PRAGMA foreign_keys=ON;");
             }
         }
-
+        
         /**
          * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
          */
@@ -342,13 +342,13 @@ public class DBHelper {
                     + " " + MARK_NOTE + " TEXT,"
                     + " PRIMARY KEY(id, type))");
             // @formatter:on
-
+            
             createRemoteFilesSupportDBObjects(db);
         }
         
         /**
          * upgrade the DB
-         *
+         * 
          * @param db
          *            The database.
          * @param oldVersion
@@ -509,7 +509,7 @@ public class DBHelper {
                 db.execSQL(sql);
                 didUpgrade = true;
             }
-
+            
             if (oldVersion < 53) {
                 Log.i(Utils.TAG, String.format("Upgrading database from %s to 53.", oldVersion));
                 didUpgrade = createRemoteFilesSupportDBObjects(db);
@@ -534,11 +534,11 @@ public class DBHelper {
             }
             
         }
-
+        
         /**
          * create DB objects (tables, triggers, views) which
          * are necessary for file cache support
-         *
+         * 
          * @param db
          *            current database
          */
@@ -662,12 +662,12 @@ public class DBHelper {
 //                    + " GROUP by f1.id"
 //                    + " ORDER by runningSum");
                 // @formatter:on
-
+                
                 success = true;
             } catch (SQLException e) {
                 Log.e(Utils.TAG, "Creation of remote file support DB objects failed.\n" + e);
             }
-
+            
             return success;
         }
     }
@@ -796,7 +796,7 @@ public class DBHelper {
     
     public void insertArticle(Article a) {
         if (isDBAvailable())
-        insertArticleIntern(a);
+            insertArticleIntern(a);
     }
     
     public void insertArticles(Collection<Article> articles) {
@@ -927,23 +927,23 @@ public class DBHelper {
                 removeLabel(articleId, label);
         }
     }
-
+    
     /**
      * insert given remote file into DB
-     *
+     * 
      * @param url
      *            remote file URL
      * @return remote file id, which was inserted or already exist in DB
      */
     private long insertRemoteFile(String url) {
         long ret = 0;
-
+        
         try {
             synchronized (insertRemoteFile) {
                 insertRemoteFile.bindString(1, url);
                 // extension (reserved for future)
                 insertRemoteFile.bindString(2, "");
-
+                
                 if (isDBAvailable())
                     ret = insertRemoteFile.executeInsert();
             }
@@ -951,13 +951,13 @@ public class DBHelper {
             // if this remote file already in DB, get its ID
             ret = getRemoteFile(url).id;
         }
-
+        
         return ret;
     }
-
+    
     /**
      * insert given relation (remotefileId <-> articleId) into DB
-     *
+     * 
      * @param rfId
      *            remote file ID
      * @param aId
@@ -968,7 +968,7 @@ public class DBHelper {
             insertRemoteFile2Article.bindLong(1, rfId);
             // extension (reserved for future)
             insertRemoteFile2Article.bindLong(2, aId);
-
+            
             if (isDBAvailable())
                 insertRemoteFile2Article.executeInsert();
         }
@@ -991,59 +991,59 @@ public class DBHelper {
         Set<Integer> markedIds = null;
         if (isDBAvailable()) {
             StringBuilder where = new StringBuilder();
-        
+            
             StringBuilder feedIds = new StringBuilder();
-        switch (id) {
-            case Data.VCAT_ALL:
+            switch (id) {
+                case Data.VCAT_ALL:
                     where.append(" 1 "); // Select everything...
-                break;
-            case Data.VCAT_FRESH:
-                long time = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
+                    break;
+                case Data.VCAT_FRESH:
+                    long time = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
                     where.append(" updateDate > ").append(time);
-                break;
-            case Data.VCAT_PUB:
+                    break;
+                case Data.VCAT_PUB:
                     where.append(" isPublished > 0 ");
-                break;
-            case Data.VCAT_STAR:
+                    break;
+                case Data.VCAT_STAR:
                     where.append(" isStarred > 0 ");
-                break;
-            default:
-                if (isCategory) {
+                    break;
+                default:
+                    if (isCategory) {
                         feedIds.append("SELECT id FROM ").append(TABLE_FEEDS).append(" WHERE categoryId=").append(id);
-                } else {
+                    } else {
                         feedIds.append(id);
-                }
+                    }
                     where.append(" feedId IN (").append(feedIds).append(") ");
-                break;
-        }
-        
-            where.append(" and isUnread>0 ");
-        Cursor c = null;
-        
-        db.beginTransaction();
-        try {
-            // select id from articles where categoryId in (...)
-                c = db.query(TABLE_ARTICLES, new String[] { "id" }, where.toString(), null, null, null, null);
-            
-            int count = c.getCount();
-            
-            if (count > 0) {
-                    markedIds = new HashSet<Integer>(count);
-                
-                while (c.moveToNext()) {
-                    markedIds.add(c.getInt(0));
-                }
-                
+                    break;
             }
             
-            db.setTransactionSuccessful();
-        } finally {
-            if (c != null && !c.isClosed())
-                c.close();
-            db.endTransaction();
+            where.append(" and isUnread>0 ");
+            Cursor c = null;
+            
+            db.beginTransaction();
+            try {
+                // select id from articles where categoryId in (...)
+                c = db.query(TABLE_ARTICLES, new String[] { "id" }, where.toString(), null, null, null, null);
+                
+                int count = c.getCount();
+                
+                if (count > 0) {
+                    markedIds = new HashSet<Integer>(count);
+                    
+                    while (c.moveToNext()) {
+                        markedIds.add(c.getInt(0));
+                    }
+                    
+                }
+                
+                db.setTransactionSuccessful();
+            } finally {
+                if (c != null && !c.isClosed())
+                    c.close();
+                db.endTransaction();
+            }
         }
-        }
-
+        
         if (markedIds != null && !markedIds.isEmpty()) {
             markArticles(markedIds, "isUnread", 0);
         }
@@ -1074,17 +1074,17 @@ public class DBHelper {
      */
     public void markArticles(Set<Integer> idList, String mark, int state) {
         if (isDBAvailable() && idList != null && !idList.isEmpty()) {
-        db.beginTransaction();
-        try {
+            db.beginTransaction();
+            try {
                 for (String ids : StringSupport.convertListToString(idList, 400)) {
-                markArticles(ids, mark, state);
-		        }
-		        
-		        db.setTransactionSuccessful();
-		    } finally {
-		        db.endTransaction();
-		    }
-
+                    markArticles(ids, mark, state);
+                }
+                
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+            }
+            
             calculateCounters();
         }
     }
@@ -1127,14 +1127,14 @@ public class DBHelper {
      */
     public int markArticles(String idList, String mark, int state) {
         int rowCount = 0;
-
+        
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues(1);
             cv.put(mark, state);
             rowCount = db.update(TABLE_ARTICLES, cv, "id IN (" + idList + ") AND ? != ?",
                     new String[] { mark, String.valueOf(state) });
         }
-
+        
         return rowCount;
     }
     
@@ -1279,7 +1279,7 @@ public class DBHelper {
     /**
      * update amount of remote file references for article.
      * normally should only be used with {@code null} ("unknown") and {@code 0} (no references)
-     *
+     * 
      * @param id
      *            ID of article, which should be updated
      * @param filesCount
@@ -1375,7 +1375,12 @@ public class DBHelper {
         String[] args = new String[] { minId + "" };
         if (!isDBAvailable())
             return;
-        db.delete(TABLE_ARTICLES, " ( isPublished>0 OR isStarred>0 ) AND id >= ? ", args); // FIXME: Foreign Key constraint failed!
+        try {
+            db.delete(TABLE_ARTICLES, " ( isPublished>0 OR isStarred>0 ) AND id >= ? ", args); // FIXME: Foreign Key
+                                                                                               // constraint failed!
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         purgeLabels();
     }
     
@@ -1562,12 +1567,13 @@ public class DBHelper {
                 c.close();
         }
     }
-
+    
     /**
      * get the map of article IDs to its update date from DB
-     *
+     * 
      * @param selection
-     *            A filter declaring which articles should be considered, formatted as an SQL WHERE clause (excluding the WHERE
+     *            A filter declaring which articles should be considered, formatted as an SQL WHERE clause (excluding
+     *            the WHERE
      *            itself). Passing null will return all rows.
      * @param selectionArgs
      *            You may include ?s in selection, which will be replaced by the values from selectionArgs, in order
@@ -1581,9 +1587,9 @@ public class DBHelper {
             try {
                 c = db.query(TABLE_ARTICLES, new String[] { "id", "updateDate" }, selection, selectionArgs, null, null,
                         null);
-
+                
                 unreadUpdated = new HashMap<Integer, Long>(c.getCount());
-
+                
                 while (c.moveToNext()) {
                     unreadUpdated.put(c.getInt(0), c.getLong(1));
                 }
@@ -1592,7 +1598,7 @@ public class DBHelper {
                     c.close();
             }
         }
-
+        
         return unreadUpdated;
     }
     
@@ -1865,7 +1871,7 @@ public class DBHelper {
         } catch (Exception e) {
             // skip
         }
-
+        
         return ret;
     }
     
@@ -1904,7 +1910,7 @@ public class DBHelper {
         // @formatter:on
         return ret;
     }
-
+    
     private static Set<String> parseAttachments(String att) {
         Set<String> ret = new LinkedHashSet<String>();
         if (att == null)
@@ -1970,10 +1976,10 @@ public class DBHelper {
                 c.close();
         }
     }
-
+    
     /**
      * insert given remote files into DB and link them with given article
-     *
+     * 
      * @param articleId
      *            "parent" article
      * @param fileUrls
@@ -1994,13 +2000,13 @@ public class DBHelper {
             }
         }
     }
-
+    
     /**
      * get the DB object representing remote file by its URL
-     *
+     * 
      * @param url
      *            remote file URL
-     *
+     * 
      * @return remote file object from DB
      */
     public RemoteFile getRemoteFile(String url) {
@@ -2011,7 +2017,7 @@ public class DBHelper {
                 c = db.query(TABLE_REMOTEFILES, null, "url=?", new String[] { url }, null, null, null, null);
                 if (c.moveToFirst())
                     rf = handleRemoteFileCursor(c);
-
+                
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -2021,13 +2027,13 @@ public class DBHelper {
         }
         return rf;
     }
-
+    
     /**
      * get remote files for given article
-     *
+     * 
      * @param articleId
      *            article, which remote files should be found
-     *
+     * 
      * @return collection of remote file objects from DB or {@code null}
      */
     public Collection<RemoteFile> getRemoteFiles(int articleId) {
@@ -2046,13 +2052,13 @@ public class DBHelper {
                               + "   AND a.id=?",
                         // @formatter:on
                         new String[] { String.valueOf(articleId) });
-
+                
                 rfs = new ArrayList<RemoteFile>(c.getCount());
-
+                
                 while (c.moveToNext()) {
                     rfs.add(handleRemoteFileCursor(c));
                 }
-
+                
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -2062,10 +2068,10 @@ public class DBHelper {
         }
         return rfs;
     }
-
+    
     /**
      * mark given remote file as cached/uncached and optionally specify it's file size
-     *
+     * 
      * @param url
      *            remote file URL
      * @param cached
@@ -2089,10 +2095,10 @@ public class DBHelper {
             }
         }
     }
-
+    
     /**
      * mark remote files with given IDs as non cached (cached=0)
-     *
+     * 
      * @param rfIds
      *            IDs of remote files to be marked as non-cached
      */
@@ -2111,10 +2117,10 @@ public class DBHelper {
             }
         }
     }
-
+    
     /**
      * get summary length of remote files, which are cached
-     *
+     * 
      * @return summary length of remote files
      */
     public long getCachedFilesSize() {
@@ -2130,13 +2136,13 @@ public class DBHelper {
         }
         return ret;
     }
-
+    
     /**
      * get remote files which should be deleted to free given amount of space
-     *
+     * 
      * @param spaceToBeFreed
      *            amount of space (summary file size) to be freed
-     *
+     * 
      * @return collection of remote files, which can be deleted
      *         to free given amount of space
      */
@@ -2146,10 +2152,10 @@ public class DBHelper {
             Cursor c = null;
             try {
                 c = db.query("remotefile_sequence", new String[] { "*" }, "cached = 1", null, null, null, "ord");
-
+                
                 rfs = new ArrayList<RemoteFile>();
                 long spaceToFree = spaceToBeFreed;
-
+                
                 while (spaceToFree > 0 && c.moveToNext()) {
                     RemoteFile rf = handleRemoteFileCursor(c);
                     spaceToFree -= rf.length;
