@@ -18,14 +18,12 @@ package org.ttrssreader.gui.fragments;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.CategoryActivity;
-import org.ttrssreader.gui.FeedActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -79,8 +77,6 @@ public class CategoryListFragment extends MainListFragment {
             return false;
         
         int id = adapter.getId(cmi.position);
-        Intent intent;
-        
         switch (item.getItemId()) {
             case MenuActivity.MARK_READ:
                 if (id < -10)
@@ -90,14 +86,14 @@ public class CategoryListFragment extends MainListFragment {
             case SELECT_ARTICLES:
                 if (id < 0)
                     return false;
-                CategoryActivity.displayHeadlines(getActivity(), FeedHeadlineActivity.FEED_NO_ID, id, true);
+                if (getActivity() instanceof CategoryActivity)
+                    ((CategoryActivity) getActivity()).displayHeadlines(FeedHeadlineActivity.FEED_NO_ID, id, true);
                 return true;
             case SELECT_FEEDS:
                 if (id < 0)
                     return false;
-                intent = new Intent(getActivity(), FeedActivity.class);
-                intent.putExtra(FeedListFragment.FEED_CAT_ID, id);
-                startActivity(intent);
+                if (getActivity() instanceof CategoryActivity)
+                    ((CategoryActivity) getActivity()).displayFeed(id);
                 return true;
         }
         return false;

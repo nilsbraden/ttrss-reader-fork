@@ -177,8 +177,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                 new Updater(this, new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES)).exec();
                 return true;
             case R.id.Menu_MarkFeedsRead:
-                if (selectedCategoryId > Integer.MIN_VALUE)
+                if (selectedCategoryId > Integer.MIN_VALUE) {
                     new Updater(this, new ReadStateUpdater(selectedCategoryId)).exec();
+                    if (Controller.getInstance().goBackAfterMakeAllRead())
+                        onBackPressed();
+                }
                 return true;
             default:
                 return false;
@@ -238,76 +241,53 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     
     @Override
     public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) {
-        Log.d(Utils.TAG, "itemSelected in CategoryActivity");
-        
-        if (Controller.isTablet) {
-            
-            switch (source.getType()) {
-                case CATEGORY:
-                    switch (decideCategorySelection(selectedId)) {
-                        case SELECTED_VIRTUAL_CATEGORY:
-                            displayHeadlines(this, selectedId, 0, false);
-                            break;
-                        case SELECTED_LABEL:
-                            displayHeadlines(this, selectedId, -2, false);
-                            break;
-                        case SELECTED_CATEGORY:
-                            if (Controller.getInstance().invertBrowsing()) {
-                                displayHeadlines(this, FeedHeadlineActivity.FEED_NO_ID, selectedId, true);
-                            } else {
-                                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                                ft.replace(R.id.frame_right, FeedListFragment.newInstance(selectedId));
-                                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                                ft.commit();
-                                selectedCategoryId = selectedId;
-                            }
-                            break;
-                    }
-                    break;
-                case FEED:
-                    FeedListFragment feeds = (FeedListFragment) source;
-                    displayHeadlines(this, selectedId, feeds.getCategoryId(), false);
-                    break;
-                default:
-                    Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
-                    break;
-            }
-            return;
-        }
-        
-        // Non-Tablet behaviour:
-        Intent i = null;
-        switch (decideCategorySelection(selectedId)) {
-            case SELECTED_VIRTUAL_CATEGORY:
-                i = new Intent(context, FeedHeadlineActivity.class);
-                i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
-                startActivity(i);
-                break;
-            case SELECTED_LABEL:
-                i = new Intent(context, FeedHeadlineActivity.class);
-                i.putExtra(FeedHeadlineListFragment.FEED_ID, selectedId);
-                i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, -2);
-                startActivity(i);
-                break;
-            case SELECTED_CATEGORY:
-                if (Controller.getInstance().invertBrowsing()) {
-                    displayHeadlines(this, FeedHeadlineActivity.FEED_NO_ID, selectedId, true);
-                } else {
-                    i = new Intent(context, FeedActivity.class);
-                    i.putExtra(FeedListFragment.FEED_CAT_ID, selectedId);
-                    startActivity(i);
+        switch (source.getType()) {
+            case CATEGORY:
+                switch (decideCategorySelection(selectedId)) {
+                    case SELECTED_VIRTUAL_CATEGORY:
+                        displayHeadlines(selectedId, 0, false);
+                        break;
+                    case SELECTED_LABEL:
+                        displayHeadlines(selectedId, -2, false);
+                        break;
+                    case SELECTED_CATEGORY:
+                        if (Controller.getInstance().invertBrowsing()) {
+                            displayHeadlines(FeedHeadlineActivity.FEED_NO_ID, selectedId, true);
+                        } else {
+                            displayFeed(selectedId);
+                        }
+                        break;
                 }
                 break;
+            case FEED:
+                FeedListFragment feeds = (FeedListFragment) source;
+                displayHeadlines(selectedId, feeds.getCategoryId(), false);
+                break;
+            default:
+                Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
+                break;
         }
+        return;
     }
     
-    public static void displayHeadlines(Context context, int feedId, int categoryId, boolean selectArticles) {
-        Intent i = new Intent(context, FeedHeadlineActivity.class);
+    public void displayHeadlines(int feedId, int categoryId, boolean selectArticles) {
+        Intent i = new Intent(this, FeedHeadlineActivity.class);
         i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineListFragment.FEED_ID, feedId);
         i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticles);
         i.putExtra(FeedHeadlineListFragment.ARTICLE_ID, -1000);
-        context.startActivity(i);
+        startActivity(i);
+    }
+    
+    public void displayFeed(int categoryId) {
+        int targetLayout = Controller.isTablet ? R.id.frame_right : R.id.frame_left;
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(targetLayout, FeedListFragment.newInstance(categoryId));
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        if (!Controller.isTablet)
+            ft.addToBackStack(null);
+        ft.commit();
+        selectedCategoryId = categoryId;
     }
     
     private static int decideCategorySelection(int selectedId) {
