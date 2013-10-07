@@ -113,10 +113,11 @@ public class Utils {
         
         if (thisVersion.equals(lastVersionRun)) {
             // No new version installed, perhaps a new version exists
-            // Only run task once for every session
+            // Only run task once for every session and only if we are online
+            if (!checkConnected((ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE)))
+                return true;
             if (AsyncTask.Status.PENDING.equals(updateVersionTask.getStatus()))
                 updateVersionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            
             return true;
         } else {
             return false;
@@ -342,47 +343,38 @@ public class Utils {
     private static AsyncTask<Void, Void, Void> updateVersionTask = new AsyncTask<Void, Void, Void>() {
         @Override
         protected Void doInBackground(Void... params) {
-            
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-            
             // Check last appVersionCheckDate
             long last = Controller.getInstance().appVersionCheckTime();
-            long time = System.currentTimeMillis();
-            if ((time - last) > (Utils.HOUR * 4)) {
+            if ((System.currentTimeMillis() - last) < (Utils.HOUR * 4))
+                return null;
             
-                // Retrieve remote version
-                int remote = 0;
+            // Retrieve remote version
+            int remote = 0;
+            
+            try {
+                DefaultHttpClient httpClient = new DefaultHttpClient();
+                HttpPost httpPost = new HttpPost("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
                 
-                try {
-                    DefaultHttpClient httpClient = new DefaultHttpClient();
-                    HttpPost httpPost = new HttpPost("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
-                    
-                    HttpResponse httpResponse = httpClient.execute(httpPost);
-                    HttpEntity httpEntity = httpResponse.getEntity();
-                    
-                    if (httpEntity.getContentLength() < 0 || httpEntity.getContentLength() > 100)
-                        throw new Exception("Content too long or empty.");
-                    
-                    String content = EntityUtils.toString(httpEntity);
-                    
-                    // Only ever read the integer if it matches the regex and is not too long
-                    if (content.matches("[0-9]*[\\r\\n]*")) {
-                        content = content.replaceAll("[^0-9]*", "");
-                        remote = Integer.parseInt(content);
-                    }
-                    
-                } catch (Exception e) {
-                    Log.e(TAG, "Error while downloading version-information: " + e.getMessage());
+                HttpResponse httpResponse = httpClient.execute(httpPost);
+                HttpEntity httpEntity = httpResponse.getEntity();
+                
+                if (httpEntity.getContentLength() < 0 || httpEntity.getContentLength() > 100)
+                    throw new Exception("Content too long or empty.");
+                
+                String content = EntityUtils.toString(httpEntity);
+                
+                // Only ever read the integer if it matches the regex and is not too long
+                if (content.matches("[0-9]*[\\r\\n]*")) {
+                    content = content.replaceAll("[^0-9]*", "");
+                    remote = Integer.parseInt(content);
                 }
                 
-                // Store version
-                if (remote > 0)
-                    Controller.getInstance().setAppLatestVersion(remote);
+            } catch (Exception e) {
             }
+            
+            // Store version
+            if (remote > 0)
+                Controller.getInstance().setAppLatestVersion(remote);
             
             return null;
         }
@@ -499,7 +491,7 @@ public class Utils {
     public static boolean clipboardHasText(Context context) {
         return (getTextFromClipboard(context) != null);
     }
-
+    
     public static void doRefreshFragment(Fragment fragment) {
         if (fragment != null && fragment instanceof IUpdateEndListener) {
             IUpdateEndListener listener = (IUpdateEndListener) fragment;
