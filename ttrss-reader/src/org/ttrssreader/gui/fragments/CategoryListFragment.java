@@ -47,10 +47,9 @@ public class CategoryListFragment extends MainListFragment {
     
     @Override
     public void onActivityCreated(Bundle instance) {
-        super.onActivityCreated(instance);
-        
         adapter = new CategoryAdapter(getActivity().getApplicationContext());
         setListAdapter(adapter);
+        super.onActivityCreated(instance);
     }
     
     @Override

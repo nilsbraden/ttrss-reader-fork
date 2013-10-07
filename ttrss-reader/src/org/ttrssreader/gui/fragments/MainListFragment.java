@@ -15,12 +15,14 @@
 
 package org.ttrssreader.gui.fragments;
 
+import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
 import android.app.Activity;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.GestureDetector;
@@ -34,8 +36,11 @@ public abstract class MainListFragment extends ListFragment {
     
     protected static final String SELECTED_INDEX = "selectedIndex";
     protected static final int SELECTED_INDEX_DEFAULT = -1;
+    protected static final String SELECTED_ID = "selectedId";
+    protected static final int SELECTED_ID_DEFAULT = Integer.MIN_VALUE;
     
     private int selectedIndex = SELECTED_INDEX_DEFAULT;
+    private int selectedId = SELECTED_ID_DEFAULT;
     private int selectedIndexOld = SELECTED_INDEX_DEFAULT;
     
     protected MainAdapter adapter = null;
@@ -51,6 +56,7 @@ public abstract class MainListFragment extends ListFragment {
         super.onActivityCreated(instance);
         
         listView = getListView();
+        listView.setSelector(R.drawable.list_item_background);
         registerForContextMenu(listView);
         
         ActionBar actionBar = ((SherlockFragmentActivity) getActivity()).getSupportActionBar();
@@ -67,14 +73,25 @@ public abstract class MainListFragment extends ListFragment {
         // Read the selected list item after orientation changes and similar
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         if (instance != null) {
-            selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);;
-            listView.setItemChecked(selectedIndex, true);
+            selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);
+            selectedId = adapter.getId(selectedIndex);
+            
+            setChecked(selectedId);
         }
+        
+        adapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                setChecked(selectedId);
+                super.onChanged();
+            }
+        });
     }
     
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(SELECTED_INDEX, selectedIndex);
+        outState.putInt(SELECTED_ID, selectedId);
         super.onSaveInstanceState(outState);
     }
     
@@ -103,12 +120,24 @@ public abstract class MainListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         selectedIndexOld = selectedIndex;
         selectedIndex = position; // Set selected item
-        listView.setItemChecked(selectedIndex, true);
+        selectedId = adapter.getId(selectedIndex);
+        
+        setChecked(selectedId);
         
         Activity activity = getActivity();
         if (activity instanceof IItemSelectedListener) {
-            ((IItemSelectedListener) activity).itemSelected(this, selectedIndex, selectedIndexOld,
-                    adapter.getId(selectedIndex));
+            ((IItemSelectedListener) activity).itemSelected(this, selectedIndex, selectedIndexOld, selectedId);
+        }
+    }
+    
+    private void setChecked(int id) {
+        int pos = -1;
+        for (int item : adapter.getIds()) {
+            pos++;
+            if (item == id) {
+                listView.setItemChecked(pos, true);
+                break;
+            }
         }
     }
     

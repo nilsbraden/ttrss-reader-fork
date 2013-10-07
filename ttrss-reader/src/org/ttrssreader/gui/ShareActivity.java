@@ -134,8 +134,14 @@ public class ShareActivity extends MenuActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (super.onCreateOptionsMenu(menu)) {
-            menu.removeGroup(R.id.group_normal_primary);
-            menu.removeGroup(R.id.group_normal_secondary);
+            menu.removeItem(R.id.Menu_Refresh);
+            menu.removeItem(R.id.Menu_MarkAllRead);
+            menu.removeItem(R.id.Menu_MarkFeedsRead);
+            menu.removeItem(R.id.Menu_MarkFeedRead);
+            menu.removeItem(R.id.Menu_FeedSubscribe);
+            menu.removeItem(R.id.Menu_FeedUnsubscribe);
+            menu.removeItem(R.id.Menu_DisplayOnlyUnread);
+            menu.removeItem(R.id.Menu_InvertSort);
         }
         return true;
     }

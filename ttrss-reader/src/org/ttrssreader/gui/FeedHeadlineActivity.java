@@ -39,7 +39,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
@@ -179,23 +178,22 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (selectedArticleId != Integer.MIN_VALUE) {
-            MenuInflater inflater = getSupportMenuInflater();
-            inflater.inflate(R.menu.article, menu);
+            getSupportMenuInflater().inflate(R.menu.article, menu);
+            if (Controller.isTablet)
+                super.onCreateOptionsMenu(menu);
         } else {
             super.onCreateOptionsMenu(menu);
         }
+        menu.removeItem(R.id.Menu_MarkAllRead);
+        menu.removeItem(R.id.Menu_MarkFeedsRead);
         return true;
     }
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean ret = super.onPrepareOptionsMenu(menu);
-        
         if (selectedArticleId != Integer.MIN_VALUE)
             prepareArticleMenu(menu, getArticle());
-        
-        menu.removeItem(R.id.Menu_MarkAllRead);
-        menu.removeItem(R.id.Menu_MarkFeedsRead);
         return ret;
     }
     
@@ -204,10 +202,10 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
             if (article.isUnread) {
                 read.setTitle(getString(R.string.Commons_MarkRead));
-                read.setIcon(R.drawable.ic_menu_clear_playlist);
+                read.setIcon(R.drawable.ic_menu_mark);
             } else {
                 read.setTitle(getString(R.string.Commons_MarkUnread));
-                read.setIcon(R.drawable.ic_menu_mark);
+                read.setIcon(R.drawable.ic_menu_clear_playlist);
             }
             
             MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
@@ -232,7 +230,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
-        super.onOptionsItemSelected(item);
+        if (super.onOptionsItemSelected(item))
+            return true;
         
         Article article = getArticle();
         switch (item.getItemId()) {
