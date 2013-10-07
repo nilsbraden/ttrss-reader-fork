@@ -76,10 +76,10 @@ public class FeedListFragment extends MainListFragment {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case MenuActivity.MARK_READ:
-                new Updater(this, new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
+                new Updater(getActivity(), new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
                 return true;
             case MenuActivity.UNSUBSCRIBE:
-                FeedUnsubscribeDialog.getInstance(this, adapter.getId(cmi.position)).show(getFragmentManager(),
+                FeedUnsubscribeDialog.getInstance(getActivity(), adapter.getId(cmi.position)).show(getFragmentManager(),
                         FeedUnsubscribeDialog.DIALOG_UNSUBSCRIBE);
                 return true;
         }

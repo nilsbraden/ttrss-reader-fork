@@ -27,7 +27,7 @@
     <item
         android:id="@+id/Article_Menu_ShareLink"
         android:icon="@drawable/ic_menu_share"
-     android:showAsAction="ifRoom|withText"
+       android:showAsAction="ifRoom"
         android:title="@string/ArticleActivity.ShareLink"
         tools:ignore="AlwaysShowAction"/>
     <item
@@ -53,7 +53,7 @@
         android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.AddArticleLabel"/>
     <item
-        android:id="@+id/Article_Menu_WorkOffline"
+        android:id="@+id/Menu_WorkOffline"
         android:icon="@drawable/ic_menu_stop"
         android:showAsAction="ifRoom|withText"
         android:title="@string/UsageOfflineTitle"/>

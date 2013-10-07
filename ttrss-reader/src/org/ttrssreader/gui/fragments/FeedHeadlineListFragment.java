@@ -60,9 +60,9 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
     public static final String FEED_INDEX = "INDEX";
     
-    private int categoryId = -1000;
-    private int feedId = -1000;
-    private int articleId = -1000;
+    private int categoryId = Integer.MIN_VALUE;
+    private int feedId = Integer.MIN_VALUE;
+    private int articleId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
     
     private int[] parentIDs = new int[2];
@@ -167,19 +167,19 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         
         switch (item.getItemId()) {
             case MenuActivity.MARK_READ:
-                new Updater(this, new ReadStateUpdater(a, feedId, a.isUnread ? 0 : 1)).exec();
+                new Updater(getActivity(), new ReadStateUpdater(a, feedId, a.isUnread ? 0 : 1)).exec();
                 break;
             case MenuActivity.MARK_STAR:
-                new Updater(this, new StarredStateUpdater(a, a.isStarred ? 0 : 1)).exec();
+                new Updater(getActivity(), new StarredStateUpdater(a, a.isStarred ? 0 : 1)).exec();
                 break;
             case MenuActivity.MARK_PUBLISH:
-                new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).exec();
+                new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).exec();
                 break;
             case MenuActivity.MARK_PUBLISH_NOTE:
                 new TextInputAlert(this, a).show(getActivity());
                 break;
             case MenuActivity.MARK_ABOVE_READ:
-                new Updater(this, new ReadStateUpdater(getUnreadArticlesAbove(cmi.position), feedId, 0)).exec();
+                new Updater(getActivity(), new ReadStateUpdater(getUnreadAbove(cmi.position), feedId, 0)).exec();
                 break;
             case MenuActivity.SHARE:
                 Intent i = new Intent(Intent.ACTION_SEND);
@@ -201,7 +201,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
      *            the selected index, will be excluded in returned list
      * @return a list of items above the selected item
      */
-    private List<Article> getUnreadArticlesAbove(int index) {
+    private List<Article> getUnreadAbove(int index) {
         List<Article> ret = new ArrayList<Article>();
         for (int i = 0; i < index; i++) {
             Article a = (Article) adapter.getItem(i);
@@ -212,7 +212,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     }
     
     public void onPublishNoteResult(Article a, String note) {
-        new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
+        new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
     }
     
     @Override
@@ -302,7 +302,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         this.feedId = id;
         
         FeedHeadlineListFragment feedHeadlineView = FeedHeadlineListFragment.newInstance(feedId, categoryId,
-                selectArticlesForCategory, -1000);
+                selectArticlesForCategory, Integer.MIN_VALUE);
         
         // Replace the old fragment with the new one
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();

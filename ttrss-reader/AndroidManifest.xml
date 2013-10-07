@@ -51,9 +51,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".gui.FeedHeadlineActivity" />
-        <activity
-            android:name=".gui.ArticleActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
         <activity android:name=".gui.PreferencesActivity" />
         <activity android:name=".gui.MediaPlayerActivity" />
         <activity android:name=".gui.ErrorActivity" />

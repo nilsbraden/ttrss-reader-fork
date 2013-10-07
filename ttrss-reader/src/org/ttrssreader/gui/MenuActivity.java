@@ -286,6 +286,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     @Override
     public void onUpdateEnd() {
         updater = null;
+        invalidateOptionsMenu();
+        doRefresh();
     }
     
     /* ############# BEGIN: Cache */

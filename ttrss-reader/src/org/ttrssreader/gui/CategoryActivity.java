@@ -41,7 +41,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -64,7 +63,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     private boolean cacherStarted = false;
     private CategoryUpdater categoryUpdater = null;
     
+    private static final String SELECTED = "SELECTED";
     private int selectedCategoryId = Integer.MIN_VALUE;
+    
+    private CategoryListFragment categoryFragment;
+    private FeedListFragment feedFragment;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -78,14 +81,28 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         setContentView(R.layout.categorylist);
         super.initTabletLayout();
         
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            selectedCategoryId = extras.getInt(SELECTED, Integer.MIN_VALUE);
+        } else if (instance != null) {
+            selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
+        }
+        
         // Register our own ExceptionHander
         Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         
         FragmentManager fm = getSupportFragmentManager();
-        if (fm.findFragmentByTag(FRAGMENT) == null) {
-            Fragment fragment = CategoryListFragment.newInstance();
+        categoryFragment = (CategoryListFragment) fm.findFragmentByTag(FRAGMENT);
+        if (categoryFragment == null) {
+            categoryFragment = CategoryListFragment.newInstance();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.frame_left, fragment, FRAGMENT);
+            transaction.add(R.id.frame_left, categoryFragment, FRAGMENT);
+            
+            if (Controller.isTablet && selectedCategoryId != Integer.MIN_VALUE) {
+                feedFragment = FeedListFragment.newInstance(selectedCategoryId);
+                transaction.add(R.id.frame_right, feedFragment);
+            }
+            
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }
@@ -128,6 +145,18 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     }
     
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(SELECTED, selectedCategoryId);
+        super.onSaveInstanceState(outState);
+    }
+    
+    @Override
+    protected void onRestoreInstanceState(Bundle instance) {
+        selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
+        super.onRestoreInstanceState(instance);
+    }
+    
+    @Override
     protected void onResume() {
         super.onResume();
         refreshAndUpdate();
@@ -136,8 +165,22 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     @Override
     protected void doRefresh() {
         super.doRefresh();
-        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.frame_left));
-        Utils.doRefreshFragment(getSupportFragmentManager().findFragmentById(R.id.frame_right));
+        categoryFragment.doRefresh();
+        if (feedFragment != null)
+            feedFragment.doRefresh();
+        refreshTitleAndUnread();
+    }
+    
+    public void refreshTitleAndUnread() {
+        if (!Controller.isTablet && feedFragment != null) {
+            String title = categoryFragment.getTitle();
+            title = title + " " + feedFragment.getTitle();
+            setTitle(title);
+            setUnread(0);
+        } else {
+            setTitle(categoryFragment.getTitle());
+            setUnread(categoryFragment.getUnread());
+        }
     }
     
     @Override
@@ -267,7 +310,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                 Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
                 break;
         }
-        return;
     }
     
     public void displayHeadlines(int feedId, int categoryId, boolean selectArticles) {
@@ -275,19 +317,24 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
         i.putExtra(FeedHeadlineListFragment.FEED_ID, feedId);
         i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticles);
-        i.putExtra(FeedHeadlineListFragment.ARTICLE_ID, -1000);
+        i.putExtra(FeedHeadlineListFragment.ARTICLE_ID, Integer.MIN_VALUE);
         startActivity(i);
     }
     
     public void displayFeed(int categoryId) {
-        int targetLayout = Controller.isTablet ? R.id.frame_right : R.id.frame_left;
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(targetLayout, FeedListFragment.newInstance(categoryId));
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        if (!Controller.isTablet)
-            ft.addToBackStack(null);
-        ft.commit();
         selectedCategoryId = categoryId;
+        
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        int targetLayout = R.id.frame_right;
+        if (!Controller.isTablet) {
+            targetLayout = R.id.frame_left;
+            ft.addToBackStack(null);
+        }
+        
+        feedFragment = FeedListFragment.newInstance(categoryId);
+        ft.replace(targetLayout, feedFragment);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
     }
     
     private static int decideCategorySelection(int selectedId) {
@@ -299,4 +346,12 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             return SELECTED_CATEGORY;
         }
     }
+    
+    @Override
+    public void onBackPressed() {
+        selectedCategoryId = Integer.MIN_VALUE;
+        feedFragment = null;
+        super.onBackPressed();
+    }
+    
 }

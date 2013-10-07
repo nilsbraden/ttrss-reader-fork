@@ -79,7 +79,7 @@ public abstract class MainAdapter extends BaseAdapter {
     }
     
     public final int getId(int position) {
-        int ret = 0;
+        int ret = Integer.MIN_VALUE;
         synchronized (poorMansMutex) {
             if (cursor.getCount() >= position)
                 if (cursor.moveToPosition(position))
