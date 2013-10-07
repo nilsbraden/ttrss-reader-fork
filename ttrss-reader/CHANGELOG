@@ -1,6 +1,12 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.6 ==
+  * Added two-pane tablet-layout
+  * Added preference to set some preference based on which wifi-network is currently used 
+  * Many changes to ImageCache and DB-access
+  * Updated german translation (thanks to Martin Mueller)
+
 == Version 1.53 (7) ==
   * Added all drawables for different screen-sizes
   * Modified "Subscribe to feed" and "Share to published" layouts

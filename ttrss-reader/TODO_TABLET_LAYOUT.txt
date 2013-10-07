@@ -1,8 +1,0 @@
-
-- Allow user to choose if the tablet layout should be used
-
-- Need solution for article-buttons, currently only the headline-buttons are displayed
-
-- Swiping on article doesn't work
-
-- 

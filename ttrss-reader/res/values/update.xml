@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.6
+			\n * Added two-pane tablet-layout
+			\n * Added preference to set some preference based on which wifi-network is currently used 
+			\n * Many changes to ImageCache and DB-access
+			\n * Updated german translation (thanks to Martin Mueller)</item>
         <item>Version 1.53
 			\n * Added all drawables for different screen-sizes
 			\n * Modified "Subscribe to feed" and "Share to published" layouts
