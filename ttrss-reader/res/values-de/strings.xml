@@ -108,7 +108,7 @@
     <string name="GoBackAfterMarkAllReadPreferenceTitle">Gehe zurück wenn alle Artikel als gelesen markiert werden</string>
     <string name="GoBackAfterMarkAllReadPreferenceSummary">Wechselt eine Ebene nach oben, wenn alle Elemente als gelesen markiert wurden.</string>
     <string name="HideActionbarTitle">ActionBar ausblenden</string>
-    <string name="HideActionbarSummary">Blendet die ActionBar aus, wenn diese nicht benötigt wird. Sie wird immer angezigt, wenn nach oben gescrollt wird.</string>
+    <string name="HideActionbarSummary">Blendet die ActionBar auf kleinen Geräten aus, wenn diese nicht benötigt wird. Sie wird immer angezigt, wenn nach oben gescrollt wird.</string>
     <string name="ShowButtonsModeTitle">Navigationstasten Auswahl</string>
     <string name="ShowButtonsModeSummary">Wie sollen die Navigationstasten in der Artikelansicht angezeigt werden?</string>
     <string name="ShowButtonsMode_none">Nicht anzeigen</string>
