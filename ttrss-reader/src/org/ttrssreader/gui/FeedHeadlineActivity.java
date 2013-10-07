@@ -78,7 +78,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             transaction.add(R.id.frame_left, fragment, FRAGMENT);
             
             // Display article in right frame:
-            if (isTablet && articleId != -1000) {
+            if (Controller.isTablet && articleId != -1000) {
                 transaction.add(R.id.frame_right, ArticleFragment.newInstance(articleId, feedId, categoryId,
                         selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT));
             }
@@ -217,7 +217,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) {
         Log.d(Utils.TAG, "itemSelected in FeedHeadlineActivity");
         
-        if (isTablet) {
+        if (Controller.isTablet) {
             
             switch (source.getType()) {
                 case FEEDHEADLINE:

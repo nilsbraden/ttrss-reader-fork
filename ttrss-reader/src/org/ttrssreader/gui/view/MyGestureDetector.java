@@ -15,6 +15,7 @@
 
 package org.ttrssreader.gui.view;
 
+import org.ttrssreader.controllers.Controller;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import com.actionbarsherlock.app.ActionBar;
@@ -47,6 +48,9 @@ public class MyGestureDetector implements OnGestureListener {
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         if (!hideActionbar)
+            return false;
+        
+        if (Controller.isTablet)
             return false;
         
         if (System.currentTimeMillis() - lastShow < 700)

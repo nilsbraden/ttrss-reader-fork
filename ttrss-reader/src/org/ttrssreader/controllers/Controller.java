@@ -144,6 +144,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public static int relSwipteThresholdVelocity;
     public static int displayHeight;
     public static int displayWidth;
+
+    public static boolean isTablet = false;
     
     // SocketFactory for SSL-Connections, doesn't need to be accessed but indicates it is initialized if != null.
     private SSLSocketFactory sslSocketFactory = null;

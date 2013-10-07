@@ -3,6 +3,6 @@
 
 - Need solution for article-buttons, currently only the headline-buttons are displayed
 
-- Swiping on article doesn't work, scrolling up to hide/show actionbar only works on first try
+- Swiping on article doesn't work
 
 - 

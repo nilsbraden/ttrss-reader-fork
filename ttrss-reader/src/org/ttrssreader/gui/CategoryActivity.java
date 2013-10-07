@@ -160,7 +160,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean ret = super.onPrepareOptionsMenu(menu);
-        if (!isTablet || selectedCategoryId == Integer.MIN_VALUE)
+        if (!Controller.isTablet || selectedCategoryId == Integer.MIN_VALUE)
             menu.removeItem(R.id.Menu_MarkFeedsRead);
         menu.removeItem(R.id.Menu_MarkFeedRead);
         return ret;
@@ -240,7 +240,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) {
         Log.d(Utils.TAG, "itemSelected in CategoryActivity");
         
-        if (isTablet) {
+        if (Controller.isTablet) {
             
             switch (source.getType()) {
                 case CATEGORY:

@@ -57,8 +57,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected Updater updater;
     protected SherlockFragmentActivity activity;
     
-    protected boolean isTablet = false;
-    
     public static final int MARK_GROUP = 42;
     public static final int MARK_READ = MARK_GROUP + 1;
     public static final int MARK_STAR = MARK_GROUP + 2;
@@ -83,7 +81,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected void initTabletLayout() {
         View horizontal = findViewById(R.id.frame_right);
         if (horizontal != null && horizontal.getVisibility() == View.VISIBLE) {
-            isTablet = true;
+            Controller.isTablet = true;
         }
     }
     
