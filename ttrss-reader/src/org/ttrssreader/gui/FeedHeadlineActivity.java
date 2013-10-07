@@ -27,7 +27,6 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -237,13 +236,11 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
         
         // Non-Tablet behaviour:
-        Intent i = new Intent(context, ArticleActivity.class);
-        i.putExtra(ArticleFragment.ARTICLE_ID, selectedId);
-        i.putExtra(ArticleFragment.ARTICLE_FEED_ID, feedId);
-        i.putExtra(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
-        i.putExtra(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        i.putExtra(ArticleFragment.ARTICLE_MOVE, ArticleFragment.ARTICLE_MOVE_DEFAULT);
-        startActivity(i);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.frame_left, ArticleFragment.newInstance(selectedId, feedId, categoryId,
+                selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT));
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.commit();
     }
     
 }
