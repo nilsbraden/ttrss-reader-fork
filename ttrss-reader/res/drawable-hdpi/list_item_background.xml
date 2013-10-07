@@ -17,24 +17,9 @@
 -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Selected style -->
-    <item android:state_checked="true"><shape>
-
-            <!-- <stroke android:width="2dp" android:color="#002C2C2C" /> -->
-
-            <solid android:color="#246DFF" />
-
-            <padding android:bottom="2dp" android:left="2dp" android:right="2dp" android:top="2dp" />
-        </shape></item>
-
-    <!-- Normal style -->
-    <item><shape>
-
-            <!-- <stroke android:width="2dp" android:color="#ff525252" /> -->
-
-            <solid android:color="@color/darkBackground" />
-
-            <padding android:bottom="2dp" android:left="2dp" android:right="2dp" android:top="2dp" />
-        </shape></item>
+    <item android:drawable="@android:color/holo_blue_dark" android:state_pressed="true"/>
+    <item android:drawable="@android:color/holo_blue_dark" android:state_selected="true"/>
+    <item android:drawable="@android:color/holo_blue_dark" android:state_checked="true"/>
+    <item android:drawable="@android:color/transparent"/>
 
 </selector>

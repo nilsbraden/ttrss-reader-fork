@@ -63,7 +63,7 @@ public abstract class MainAdapter extends BaseAdapter {
     
     public final void closeCursor(Cursor c) {
         if (c != null && !c.isClosed())
-        c.close();
+            c.close();
     }
     
     @Override
@@ -245,6 +245,7 @@ public abstract class MainAdapter extends BaseAdapter {
      * @return a valid SQL-Query string for this adapter.
      */
     protected abstract Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery);
+    
     protected abstract void fetchOtherData();
     
     // Use handler with weak reference on parent object

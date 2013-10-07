@@ -16,6 +16,7 @@
     not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:baselineAligned="false"
@@ -26,6 +27,13 @@
         android:layout_width="match_parent"
         android:layout_height="0px"
         android:layout_weight="1" />
+
+    <View
+        android:id="@+id/message_list_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/white"
+        tools:ignore="PxUsage" />
 
     <FrameLayout
         android:id="@+id/frame_right"

@@ -211,7 +211,9 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
-        super.onOptionsItemSelected(item);
+        if (super.onOptionsItemSelected(item))
+            return true;
+        
         switch (item.getItemId()) {
             case R.id.Menu_Refresh:
                 doUpdate(true);

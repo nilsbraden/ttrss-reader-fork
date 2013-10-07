@@ -80,14 +80,16 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     
     @Override
     public void onActivityCreated(Bundle instance) {
-        super.onActivityCreated(instance);
-        
         if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
             feedId = instance.getInt(FEED_ID);
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
             articleId = instance.getInt(ARTICLE_ID);
         }
+        
+        adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
+        setListAdapter(adapter);
+        super.onActivityCreated(instance);
         
         // Detect touch gestures like swipe and scroll down:
         ActionBar actionBar = ((SherlockFragmentActivity) getActivity()).getSupportActionBar();
@@ -99,9 +101,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             }
         };
         getView().setOnTouchListener(gestureListener);
-        
-        adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
-        setListAdapter(adapter);
         
         fillParentInformation();
         initialize();

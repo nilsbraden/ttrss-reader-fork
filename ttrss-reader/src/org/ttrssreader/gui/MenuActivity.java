@@ -235,7 +235,9 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
-        super.onOptionsItemSelected(item);
+        if (super.onOptionsItemSelected(item))
+            return true;
+        
         switch (item.getItemId()) {
             case android.R.id.home:
                 // Go to the CategoryActivity and clean the return-stack
