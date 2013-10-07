@@ -193,6 +193,13 @@
     <string name="DeleteDBOnNextStartupTitle">Datenbank beim nächsten Start löschen?</string>
     <string name="DeleteDBOnNextStartupSummary">Löscht die Datenbank beim nächsten Start der Anwendung.</string>
     <string name="DeleteDBOnStartupTitle">Datenbank bei jedem Start löschen?</string>
+    <string name="ConnectionWifiPrefScreenTitle">WLAN-Einstellungen pro Netzwerk</string>
+    <string name="ConnectionWifiPrefScreenSummary">Spezielle Konfiguration für bestimmte WLAN-Netzwerke</string>
+    <string name="ConnectionWifiPrefCatTitle">Verfügbare Netzwerke</string>
+    <string name="ConnectionWifiPrefCatDescription">Hier können für jedes WLAN-Netz besondere Einstellungen zur Verbindung vorgenommen werden.</string>
+    <string name="ConnectionWifiConnected">Verbunden</string>
+    <string name="ConnectionWifiNotInRange">Nicht verfügbar</string>
+    <string name="ConnectionWifiDeletePref">Einstellungen für dieses Netz entfernen?</string>
     <string name="DeleteDBOnStartupSummary">Löscht die Datenbank bei JEDEM Start der Anwendung.</string>
     <string name="ErrorActivity.Title">Fehler</string>
     <string name="ErrorActivity.UserMessage">Konnte nicht zu Ihrer Tiny Tiny RSS-Installation verbinden, bitte prüfen Sie Ihre Verbindung und/oder Ihre Verbindungs-Optionen.</string>

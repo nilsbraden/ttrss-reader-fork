@@ -126,8 +126,6 @@
     <string name="SystemPreferenceCategoryTitle">Sistema</string>
     <string name="LogSensitiveDataTitle">¿Registrar datos sensibles?</string>
     <string name="LogSensitiveDataSummary">Si se activa, el registro del programa podría contener información como contraseñas o sesiones. Activar solo con fines de depuración.</string>
-    <string name="VacuumDBOnNextStartupTitle">VACIAR base de datos en el siguiente arranque</string>
-    <string name="VacuumDBOnNextStartupSummary">Borra información innecesaria para reducir la base de datos. Esto se realiza automáticamente cada 30 días y puede tardar hasta un minuto.</string>
     <string name="DeleteDBOnNextStartupTitle">Borrar base de datos en el siguiente arranque</string>
     <string name="DeleteDBOnNextStartupSummary">Si se activa, la base de datos será borrada en el siguiente arranque.</string>
     <string name="DeleteDBOnStartupTitle">Borrar base de datos en el arranque</string>
