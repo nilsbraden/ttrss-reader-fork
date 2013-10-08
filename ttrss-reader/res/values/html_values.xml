@@ -25,24 +25,23 @@
   <style type=\"text/css\">
   body {
     padding: 1.5%;
-  }
-  body#darkTheme {
     font-size: 16px;
     font-weight: normal;
+    word-wrap: break-word !important;
+  }
+  body#darkTheme {
     background-color: #000;
     color: #EEE;
   }
   body#lightTheme {
-    font-size: 16px;
-    font-weight: normal;
     background-color: #E1E1E1;
     color: #333;
   }
-  body#lightTheme #header {
-    background-color: #B8B3B3; padding: 2px
-  }
   body#darkTheme #header {
-    background-color: #454545; padding: 2px
+    background-color: #454545;
+  }
+  body#lightTheme #header {
+    background-color: #B8B3B3;
   }
   body#darkTheme a:link, a:active, a:hover {
     color: #E1E1E1 !important;
@@ -71,12 +70,10 @@
   pre, code, blockquote {
     white-space: pre-wrap !important;
   }
-  body {
-    word-wrap: break-word !important;
-  }
   #header {
-    font-size: 18px;
+    padding: 2px;
     margin-bottom: 5px;
+    font-size: 18px;
     font-weight: bold;
     background-color: #424242;
   }
