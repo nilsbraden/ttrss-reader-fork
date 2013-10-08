@@ -21,7 +21,7 @@
         android:id="@+id/Article_Menu_MarkRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="10"
-        android:showAsAction="always|withText"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.MarkRead"/>
     <item
         android:id="@+id/Article_Menu_ShareLink"

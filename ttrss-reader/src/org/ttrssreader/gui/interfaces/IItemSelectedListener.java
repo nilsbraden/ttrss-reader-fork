@@ -24,6 +24,6 @@ public interface IItemSelectedListener {
         CATEGORY, FEED, FEEDHEADLINE, NONE
     }
     
-    public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId);
+    public void itemSelected(MainListFragment source, int selectedIndex, int selectedId);
     
 }

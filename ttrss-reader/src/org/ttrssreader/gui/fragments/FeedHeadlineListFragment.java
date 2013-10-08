@@ -37,7 +37,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.v4.app.FragmentTransaction;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -79,6 +78,13 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     }
     
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Controller.getInstance().lastOpenedFeeds.add(feedId);
+        Controller.getInstance().lastOpenedArticles.clear();
+        super.onCreate(savedInstanceState);
+    }
+    
+    @Override
     public void onActivityCreated(Bundle instance) {
         if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
@@ -103,12 +109,20 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         getView().setOnTouchListener(gestureListener);
         
         fillParentInformation();
-        initialize();
     }
     
-    private void initialize() {
+    private void initData() {
+
+        adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
+        setListAdapter(adapter);
+
         Controller.getInstance().lastOpenedFeeds.add(feedId);
-        Controller.getInstance().lastOpenedArticles.clear();
+        if (!Controller.isTablet)
+            Controller.getInstance().lastOpenedArticles.clear();
+        
+        getView().setOnTouchListener(gestureListener);
+        
+        getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
     }
     
     @Override
@@ -298,18 +312,20 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             return;
         }
         
+        
+//        FeedHeadlineListFragment feedHeadlineView = FeedHeadlineListFragment.newInstance(feedId, categoryId,
+//                selectArticlesForCategory, Integer.MIN_VALUE);
+//        
+//        // Replace the old fragment with the new one
+//        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+//        ft.replace(R.id.frame_left, feedHeadlineView);
+//        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+//        ft.commit();
+        
         this.feedId = id;
+        fillParentInformation();
+        initData();
         
-        FeedHeadlineListFragment feedHeadlineView = FeedHeadlineListFragment.newInstance(feedId, categoryId,
-                selectArticlesForCategory, Integer.MIN_VALUE);
-        
-        // Replace the old fragment with the new one
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.frame_left, feedHeadlineView);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
-        
-        initialize();
         if (getActivity() instanceof IDataChangedListener)
             ((IDataChangedListener) getActivity()).dataChanged(); // doRefresh()
     }

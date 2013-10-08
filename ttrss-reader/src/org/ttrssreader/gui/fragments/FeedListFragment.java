@@ -16,6 +16,7 @@
 package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
@@ -45,6 +46,12 @@ public class FeedListFragment extends MainListFragment {
         detail.setHasOptionsMenu(true);
         detail.setRetainInstance(true);
         return detail;
+    }
+    
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Controller.getInstance().lastOpenedFeeds.clear();
+        super.onCreate(savedInstanceState);
     }
     
     @Override

@@ -46,17 +46,18 @@ public class CategoryListFragment extends MainListFragment {
     }
     
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        if (!Controller.isTablet)
+            Controller.getInstance().lastOpenedFeeds.clear();
+        Controller.getInstance().lastOpenedArticles.clear();
+        super.onCreate(savedInstanceState);
+    }
+    
+    @Override
     public void onActivityCreated(Bundle instance) {
         adapter = new CategoryAdapter(getActivity().getApplicationContext());
         setListAdapter(adapter);
         super.onActivityCreated(instance);
-    }
-    
-    @Override
-    public void onResume() {
-        super.onResume();
-        Controller.getInstance().lastOpenedFeeds.clear();
-        Controller.getInstance().lastOpenedArticles.clear();
     }
     
     @Override

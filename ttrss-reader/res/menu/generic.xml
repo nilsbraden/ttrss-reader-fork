@@ -39,7 +39,7 @@
         android:id="@+id/Menu_MarkFeedRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
-        android:showAsAction="ifRoom|withText"
+        android:showAsAction="always|withText"
         android:title="@string/Commons.MarkFeedRead"/>
     <item
         android:id="@+id/Menu_FeedSubscribe"

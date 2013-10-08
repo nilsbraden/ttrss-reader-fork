@@ -147,7 +147,7 @@ public class ShareActivity extends MenuActivity {
     }
     
     // @formatter:off // Not needed here:
-    @Override public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) { }
+    @Override public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) { }
     @Override protected void doUpdate(boolean forceUpdate) { }
     //@formatter:on
     

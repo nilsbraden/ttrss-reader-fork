@@ -39,9 +39,7 @@ public abstract class MainListFragment extends ListFragment {
     protected static final String SELECTED_ID = "selectedId";
     protected static final int SELECTED_ID_DEFAULT = Integer.MIN_VALUE;
     
-    private int selectedIndex = SELECTED_INDEX_DEFAULT;
     private int selectedId = SELECTED_ID_DEFAULT;
-    private int selectedIndexOld = SELECTED_INDEX_DEFAULT;
     
     protected MainAdapter adapter = null;
     
@@ -73,7 +71,7 @@ public abstract class MainListFragment extends ListFragment {
         // Read the selected list item after orientation changes and similar
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         if (instance != null) {
-            selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);
+            int selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);
             selectedId = adapter.getId(selectedIndex);
             
             setChecked(selectedId);
@@ -90,7 +88,6 @@ public abstract class MainListFragment extends ListFragment {
     
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(SELECTED_INDEX, selectedIndex);
         outState.putInt(SELECTED_ID, selectedId);
         super.onSaveInstanceState(outState);
     }
@@ -118,15 +115,14 @@ public abstract class MainListFragment extends ListFragment {
     
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        selectedIndexOld = selectedIndex;
-        selectedIndex = position; // Set selected item
+        int selectedIndex = position; // Set selected item
         selectedId = adapter.getId(selectedIndex);
         
         setChecked(selectedId);
         
         Activity activity = getActivity();
         if (activity instanceof IItemSelectedListener) {
-            ((IItemSelectedListener) activity).itemSelected(this, selectedIndex, selectedIndexOld, selectedId);
+            ((IItemSelectedListener) activity).itemSelected(this, selectedIndex, selectedId);
         }
     }
     
@@ -136,9 +132,11 @@ public abstract class MainListFragment extends ListFragment {
             pos++;
             if (item == id) {
                 listView.setItemChecked(pos, true);
-                break;
+                return;
             }
         }
+        // Nothing found, uncheck everything:
+        listView.setItemChecked(listView.getCheckedItemPosition(), false);
     }
     
     public void doRefresh() {

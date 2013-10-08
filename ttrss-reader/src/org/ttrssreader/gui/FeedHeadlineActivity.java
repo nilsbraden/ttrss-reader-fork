@@ -47,8 +47,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     private static final String FRAGMENT = "HEADLINE_FRAGMENT";
     
     private int categoryId = Integer.MIN_VALUE;
-    private int feedId = Integer.MIN_VALUE;
-    private int articleId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
     
     private FeedHeadlineUpdater headlineUpdater = null;
@@ -66,6 +64,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         super.onCreate(instance);
         setContentView(R.layout.feedheadlinelist);
         super.initTabletLayout();
+        
+        int feedId = Integer.MIN_VALUE;
+        int articleId = Integer.MIN_VALUE;
         
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -114,8 +115,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
-        outState.putInt(FeedHeadlineListFragment.FEED_ID, feedId);
-        outState.putInt(FeedHeadlineListFragment.ARTICLE_ID, articleId);
         outState.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
         outState.putInt(SELECTED, selectedArticleId);
         outState.putInt(ARTICLE_FRAME, articleFrame);
@@ -125,8 +124,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     protected void onRestoreInstanceState(Bundle instance) {
         categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
-        feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
-        articleId = instance.getInt(FeedHeadlineListFragment.ARTICLE_ID);
         selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
         selectedArticleId = instance.getInt(SELECTED, Integer.MIN_VALUE);
         articleFrame = instance.getInt(ARTICLE_FRAME, -1);
@@ -242,7 +239,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                 if (selectArticlesForCategory) {
                     new Updater(this, new ReadStateUpdater(categoryId)).exec();
                 } else {
-                    new Updater(this, new ReadStateUpdater(feedId, 42)).exec();
+                    new Updater(this, new ReadStateUpdater(headlineFragment.getFeedId(), 42)).exec();
                 }
                 
                 if (Controller.getInstance().goBackAfterMakeAllRead())
@@ -250,7 +247,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                 
                 return true;
             case R.id.Menu_FeedUnsubscribe:
-                FeedUnsubscribeDialog.getInstance(this, feedId).show(getSupportFragmentManager(),
+                FeedUnsubscribeDialog.getInstance(this, headlineFragment.getFeedId()).show(getSupportFragmentManager(),
                         FeedUnsubscribeDialog.DIALOG_UNSUBSCRIBE);
             case R.id.Article_Menu_MarkRead:
                 new Updater(this, new ReadStateUpdater(article, article.feedId, article.isUnread ? 0 : 1)).exec();
@@ -346,7 +343,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             if (selectArticlesForCategory) {
                 Data.getInstance().updateArticles(categoryId, displayUnread, true, false, forceUpdate);
             } else {
-                Data.getInstance().updateArticles(feedId, displayUnread, false, false, forceUpdate);
+                Data.getInstance().updateArticles(headlineFragment.getFeedId(), displayUnread, false, false,
+                        forceUpdate);
             }
             publishProgress(taskCount); // Move progress forward to 100%
             return null;
@@ -354,7 +352,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    public void itemSelected(MainListFragment source, int selectedIndex, int oldIndex, int selectedId) {
+    public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) {
         switch (source.getType()) {
             case FEEDHEADLINE:
                 //
@@ -376,8 +374,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             ft.addToBackStack(null);
         }
         
-        ft.replace(articleFrame, ArticleFragment.newInstance(articleId, feedId, categoryId, selectArticlesForCategory,
-                ArticleFragment.ARTICLE_MOVE_DEFAULT));
+        ft.replace(articleFrame, ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
+                selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT));
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
     }
