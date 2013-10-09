@@ -55,6 +55,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
     private static final String PREFS_SSL = "prefs_ssl";
     private static final String PREFS_SYSTEM = "prefs_system";
     private static final String PREFS_USAGE = "prefs_usage";
+    private static final String PREFS_WIFI = "prefs_wifi";
     
     public static final int ACTIVITY_SHOW_PREFERENCES = 43;
     public static final int ACTIVITY_CHOOSE_ATTACHMENT_FOLDER = 1;
@@ -83,6 +84,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
             addPreferencesFromResource(R.xml.prefs_main_top);
             addPreferencesFromResource(R.xml.prefs_http);
             addPreferencesFromResource(R.xml.prefs_ssl);
+            addPreferencesFromResource(R.xml.prefs_wifi);
             addPreferencesFromResource(R.xml.prefs_usage);
             addPreferencesFromResource(R.xml.prefs_display);
             addPreferencesFromResource(R.xml.prefs_system);
@@ -95,7 +97,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
     @Override
     public void onBuildHeaders(List<Header> headers) {
         _headers = headers;
-        if (onIsHidingHeaders()) { // || !onIsMultiPane()) {
+        if (onIsHidingHeaders()) {
             needResource = true;
         } else {
             loadHeadersFromResource(R.xml.prefs_headers, headers);
@@ -287,6 +289,8 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
             }
             if (PREFS_USAGE.equals(cat))
                 addPreferencesFromResource(R.xml.prefs_usage);
+            if (PREFS_WIFI.equals(cat))
+                addPreferencesFromResource(R.xml.prefs_wifi);
         }
     }
     
