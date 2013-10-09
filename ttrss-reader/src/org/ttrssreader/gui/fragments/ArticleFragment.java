@@ -459,6 +459,10 @@ public class ArticleFragment extends SherlockFragment {
         return article;
     }
     
+    public int getArticleId() {
+        return articleId;
+    }
+    
     private boolean doVibrate(int newIndex) {
         if (lastMove == 0)
             return false;

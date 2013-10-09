@@ -170,5 +170,9 @@ public abstract class MainListFragment extends ListFragment {
             return null;
         }
     }
+
+    public void setSelectedId(int selectedId) {
+        this.selectedId = selectedId;
+    }
     
 }
