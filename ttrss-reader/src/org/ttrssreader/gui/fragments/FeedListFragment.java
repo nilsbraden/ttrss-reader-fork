@@ -32,6 +32,7 @@ import com.actionbarsherlock.view.Menu;
 public class FeedListFragment extends MainListFragment {
     
     protected static final TYPE THIS_TYPE = TYPE.FEED;
+    public static final String FRAGMENT = "FEED_FRAGMENT";
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";

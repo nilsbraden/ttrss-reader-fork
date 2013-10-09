@@ -44,7 +44,6 @@ import com.actionbarsherlock.view.MenuItem;
 public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
     
     public static final int FEED_NO_ID = 37846914;
-    private static final String FRAGMENT = "HEADLINE_FRAGMENT";
     
     private int categoryId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
@@ -85,13 +84,14 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             articleFrame = instance.getInt(ARTICLE_FRAME, -1);
         }
         
-        headlineFragment = (FeedHeadlineListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT);
+        headlineFragment = (FeedHeadlineListFragment) getSupportFragmentManager().findFragmentByTag(
+                FeedHeadlineListFragment.FRAGMENT);
         if (headlineFragment == null) {
             headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     articleId);
             
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.frame_left, headlineFragment, FRAGMENT);
+            transaction.add(R.id.frame_left, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
             
             // Display article in right frame:
             if (Controller.isTablet) {
@@ -103,13 +103,33 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                     selectedArticleId = id;
                     articleFragment = ArticleFragment.newInstance(id, feedId, categoryId, selectArticlesForCategory,
                             ArticleFragment.ARTICLE_MOVE_DEFAULT);
-                    transaction.add(R.id.frame_right, articleFragment);
+                    transaction.add(R.id.frame_right, articleFragment, ArticleFragment.FRAGMENT);
                 }
             }
             
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             transaction.commit();
         }
+    }
+    
+    @Override
+    protected void onStart() {
+        // Handle orientation changes here, especially the case when the user switches from 2-pane-landscape to protrait
+        // mode and hasn't enough space to display two panels:
+        boolean wasTab = Controller.isTablet;
+        super.initTabletLayout();
+        
+        if (wasTab && !Controller.isTablet) {
+            // We have just one pane: R.id.frame_left
+            if (articleFragment != null) {
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.add(R.id.frame_left, articleFragment, ArticleFragment.FRAGMENT);
+                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                transaction.commit();
+            }
+        }
+        
+        super.onStart();
     }
     
     @Override
@@ -375,7 +395,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         }
         
         ft.replace(articleFrame, ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
-                selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT));
+                selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT), ArticleFragment.FRAGMENT);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
     }

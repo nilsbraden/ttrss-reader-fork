@@ -33,6 +33,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 public class CategoryListFragment extends MainListFragment {
     
     protected static final TYPE THIS_TYPE = TYPE.CATEGORY;
+    public static final String FRAGMENT = "CATEGORY_FRAGMENT";
     
     private static final int SELECT_ARTICLES = MenuActivity.MARK_GROUP + 54;
     private static final int SELECT_FEEDS = MenuActivity.MARK_GROUP + 55;

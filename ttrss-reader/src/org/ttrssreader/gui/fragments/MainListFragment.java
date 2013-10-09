@@ -24,6 +24,8 @@ import org.ttrssreader.model.MainAdapter;
 import android.app.Activity;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -157,5 +159,16 @@ public abstract class MainListFragment extends ListFragment {
     }
     
     public abstract TYPE getType();
+    
+    public static Fragment recreateFragment(FragmentManager fm, Fragment f) {
+        try {
+            Fragment.SavedState savedState = fm.saveFragmentInstanceState(f);
+            Fragment newInstance = f.getClass().newInstance();
+            newInstance.setInitialSavedState(savedState);
+            return newInstance;
+        } catch (Exception e) {
+            return null;
+        }
+    }
     
 }

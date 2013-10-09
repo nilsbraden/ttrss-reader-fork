@@ -83,7 +83,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private SharedPreferences prefs = null;
     private static boolean preferencesChanged = false;
     
-    private String hostname = null;
+    private String url = null;
     private String username = null;
     private String password = null;
     private String httpUsername = null;
@@ -321,18 +321,18 @@ public class Controller implements OnSharedPreferenceChangeListener {
         String key = getStringWithSSID(Constants.URL, getCurrentSSID(wifiManager));
         
         if (prefs.contains(key))
-            hostname = prefs.getString(key, Constants.URL_DEFAULT);
+            url = prefs.getString(key, Constants.URL_DEFAULT);
         else
-            hostname = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
+            url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
         
-        if (!hostname.endsWith(JSON_END_URL)) {
-            if (!hostname.endsWith("/")) {
-                hostname += "/";
+        if (!url.endsWith(JSON_END_URL)) {
+            if (!url.endsWith("/")) {
+                url += "/";
             }
-            hostname += JSON_END_URL;
+            url += JSON_END_URL;
         }
         
-        return hostname;
+        return url;
     }
     
     public String username() {
@@ -985,6 +985,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             if (!Modifier.isStatic(field.getModifiers()) || !Modifier.isPublic(field.getModifiers()))
                 continue;
             
+            String fieldName = "";
             try {
                 Object f = field.get(this);
                 if (!(f instanceof String))
@@ -994,12 +995,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
                     continue;
                 
                 // reset variable, it will be re-read on next access
-                String fieldName = Constants.constant2Var(field.getName());
+                fieldName = Constants.constant2Var(field.getName());
                 Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
                 setPreferencesChanged(true);
                 
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(Utils.TAG, "Field not found: " + fieldName);
             }
             
         }
