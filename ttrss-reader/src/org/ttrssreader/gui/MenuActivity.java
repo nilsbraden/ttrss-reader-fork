@@ -79,11 +79,22 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void initTabletLayout() {
-        View horizontal = findViewById(R.id.frame_right);
-        if (horizontal != null && horizontal.getVisibility() == View.VISIBLE) {
-            Controller.isTablet = true;
+        if (Controller.getInstance().allowTabletLayout()) {
+            View horizontal = findViewById(R.id.frame_right);
+            if (horizontal != null && horizontal.getVisibility() == View.VISIBLE) {
+                Controller.isTablet = true;
+            } else {
+                Controller.isTablet = false;
+            }
         } else {
+            // Tablet-layout is deactivated, hide second view and divider:
             Controller.isTablet = false;
+            View horizontal = findViewById(R.id.frame_right);
+            if (horizontal != null && horizontal.getVisibility() == View.VISIBLE)
+                horizontal.setVisibility(View.GONE);
+            View divider = findViewById(R.id.message_list_divider);
+            if (divider != null && divider.getVisibility() == View.VISIBLE)
+                divider.setVisibility(View.GONE);
         }
     }
     

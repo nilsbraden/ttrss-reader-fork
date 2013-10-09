@@ -13,7 +13,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details. You should have received a
     copy of the GNU General Public License along with this program; If
-    not, see <http://www.gnu.org/licenses/>.
+    not, see <http://www.gnu.org/licenses/>.
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/DisplayPreferenceCategoryTitle" >
@@ -96,5 +96,12 @@
             android:summary="@string/MarkReadInMenuSummary"
             android:title="@string/MarkReadInMenuTitle" />
     </PreferenceCategory>
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:enabled="true"
+        android:key="AllowTabletLayoutPreference"
+        android:summary="@string/AllowTabletLayoutSummary"
+        android:title="@string/AllowTabletLayoutTitle" />
 
 </PreferenceScreen>
