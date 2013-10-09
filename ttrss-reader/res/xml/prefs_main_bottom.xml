@@ -19,15 +19,14 @@
     android:title="@string/About.about" >
 
     <PreferenceCategory android:title="@string/About.about" >
-        <!--PreferenceScreen
+        <PreferenceScreen
             android:summary="@string/About.about_hint"
             android:title="@string/About.about" >
             <intent
                 android:action="android.intent.action.MAIN"
-                android:targetClass=".AboutActivity"
-                android:targetPackage="org.ttrssreader.gui" />
-        </PreferenceScreen-->
-
+                android:targetClass="org.ttrssreader.gui.AboutActivity"
+                android:targetPackage="org.ttrssreader" />
+        </PreferenceScreen>
         <PreferenceScreen
             android:summary="@string/About.project_hint"
             android:title="@string/About.project" >
@@ -35,7 +34,6 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://code.google.com/p/ttrss-reader-fork/" />
         </PreferenceScreen>
-
         <PreferenceScreen
             android:summary="@string/About.feedback_hint"
             android:title="@string/About.feedback" >
@@ -44,13 +42,15 @@
                 android:data="https://code.google.com/p/ttrss-reader-fork/issues/list" />
         </PreferenceScreen>
 
-        <!--PreferenceScreen
+        <!--
+        PreferenceScreen
             android:summary="@string/About.twitter_hint"
             android:title="@string/About.twitter" >
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="@string/About.twitter_acc" />
-        </PreferenceScreen-->
+        </PreferenceScreen
+        -->
     </PreferenceCategory>
 
 </PreferenceScreen>
