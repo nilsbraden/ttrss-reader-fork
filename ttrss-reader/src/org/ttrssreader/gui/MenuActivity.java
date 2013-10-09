@@ -82,6 +82,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         View horizontal = findViewById(R.id.frame_right);
         if (horizontal != null && horizontal.getVisibility() == View.VISIBLE) {
             Controller.isTablet = true;
+        } else {
+            Controller.isTablet = false;
         }
     }
     

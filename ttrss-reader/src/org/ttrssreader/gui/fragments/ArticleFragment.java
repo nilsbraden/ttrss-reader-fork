@@ -82,6 +82,9 @@ import com.actionbarsherlock.app.SherlockFragment;
 
 @SuppressWarnings("deprecation")
 public class ArticleFragment extends SherlockFragment {
+    
+    public static final String FRAGMENT = "ARTICLE_FRAGMENT";
+    
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
     

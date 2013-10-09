@@ -51,6 +51,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 public class FeedHeadlineListFragment extends MainListFragment implements TextInputAlertCallback {
     
     protected static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
+    public static final String FRAGMENT = "FEEDHEADLINE_FRAGMENT";
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "ARTICLE_FEED_ID";
