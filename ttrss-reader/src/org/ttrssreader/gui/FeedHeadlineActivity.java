@@ -113,26 +113,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    protected void onStart() {
-        // Handle orientation changes here, especially the case when the user switches from 2-pane-landscape to protrait
-        // mode and hasn't enough space to display two panels:
-        boolean wasTab = Controller.isTablet;
-        super.initTabletLayout();
-        
-        if (wasTab && !Controller.isTablet) {
-            // We have just one pane: R.id.frame_left
-            if (articleFragment != null) {
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.add(R.id.frame_left, articleFragment, ArticleFragment.FRAGMENT);
-                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                transaction.commit();
-            }
-        }
-        
-        super.onStart();
-    }
-    
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
         outState.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);

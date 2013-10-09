@@ -276,7 +276,7 @@ public class ArticleFragment extends SherlockFragment {
                 Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
                         : View.GONE);
         
-        if (gestureDetector == null) {
+        if (gestureDetector == null || gestureListener == null) {
             // Detect touch gestures like swipe and scroll down:
             gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(getSherlockActivity()
                     .getSupportActionBar(), Controller.getInstance().hideActionbar()));
