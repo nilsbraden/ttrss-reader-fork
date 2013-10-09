@@ -56,13 +56,21 @@
         <activity android:name=".gui.FeedHeadlineActivity" />
         <activity android:name=".gui.PreferencesActivity" />
         <activity android:name=".preferences.WifiConnectionSettings" />
-        <activity android:name=".preferences.ConnectionSettings" />
+        <activity android:name=".preferences.ConnectionSettings" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
         <activity android:name=".gui.MediaPlayerActivity" />
         <activity android:name=".gui.ErrorActivity" />
         <activity
             android:name=".gui.AboutActivity"
             android:label="@string/AboutActivity.Title"
-            android:theme="@android:style/Theme.Dialog" />
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".gui.ShareActivity"
             android:excludeFromRecents="true"
