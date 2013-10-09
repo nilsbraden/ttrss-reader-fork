@@ -18,6 +18,9 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.61
+            \n * Bugfixes
+            \n -> Please don\'t use the play store to ask for features, we got a bugtracker on the project page for this kind of thing.</item>
         <item>Version 1.6
 			\n * Added two-pane tablet-layout
 			\n * Added preference to set some preference based on which wifi-network is currently used 

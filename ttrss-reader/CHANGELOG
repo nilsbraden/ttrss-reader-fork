@@ -1,6 +1,9 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.61 ==
+  * Bugfixes
+
 == Version 1.6 ==
   * Added two-pane tablet-layout
   * Added preference to set some preference based on which wifi-network is currently used 
