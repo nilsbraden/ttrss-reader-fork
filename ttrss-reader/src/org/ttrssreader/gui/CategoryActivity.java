@@ -153,36 +153,36 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         // Handle orientation changes here, especially the case when the user switches from 2-pane-landscape to protrait
         // mode and hasn't enough space to display two panels:
         
-//      if (!Controller.isTablet && feedFragment != null) {
-//          // No Tablet mode but Feeds have been loaded
-//          // We have just one pane: R.id.frame_left
-//          FragmentManager fm = getSupportFragmentManager();
-//          
-//          removeOldFragment(fm, feedFragment);
-//          feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
-//          
-//          FragmentTransaction ft = fm.beginTransaction();
-//          ft.replace(R.id.frame_left, feedFragment, FeedListFragment.FRAGMENT);
-//          ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-//          ft.commit();
-//          categoryFragmentInvisible = true;
-//      }
-//      
-//      if (Controller.isTablet && categoryFragmentInvisible) {
-//          // Tablet mode again but we removed our CategoryFragment lately
-//          FragmentManager fm = getSupportFragmentManager();
-//          removeOldFragment(fm, feedFragment);
-//          
-//          categoryFragment = (CategoryListFragment) MainListFragment.recreateFragment(fm, categoryFragment);
-//          feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
-//          
-//          FragmentTransaction ft = fm.beginTransaction();
-//          ft.replace(R.id.frame_left, categoryFragment, CategoryListFragment.FRAGMENT);
-//          ft.replace(R.id.frame_right, feedFragment, FeedListFragment.FRAGMENT);
-//          ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-//          ft.commit();
-//          categoryFragmentInvisible = false;
-//      }
+        // if (!Controller.isTablet && feedFragment != null) {
+        // // No Tablet mode but Feeds have been loaded
+        // // We have just one pane: R.id.frame_left
+        // FragmentManager fm = getSupportFragmentManager();
+        //
+        // removeOldFragment(fm, feedFragment);
+        // feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
+        //
+        // FragmentTransaction ft = fm.beginTransaction();
+        // ft.replace(R.id.frame_left, feedFragment, FeedListFragment.FRAGMENT);
+        // ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        // ft.commit();
+        // categoryFragmentInvisible = true;
+        // }
+        //
+        // if (Controller.isTablet && categoryFragmentInvisible) {
+        // // Tablet mode again but we removed our CategoryFragment lately
+        // FragmentManager fm = getSupportFragmentManager();
+        // removeOldFragment(fm, feedFragment);
+        //
+        // categoryFragment = (CategoryListFragment) MainListFragment.recreateFragment(fm, categoryFragment);
+        // feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
+        //
+        // FragmentTransaction ft = fm.beginTransaction();
+        // ft.replace(R.id.frame_left, categoryFragment, CategoryListFragment.FRAGMENT);
+        // ft.replace(R.id.frame_right, feedFragment, FeedListFragment.FRAGMENT);
+        // ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        // ft.commit();
+        // categoryFragmentInvisible = false;
+        // }
         
         super.onStart();
     }

@@ -73,6 +73,7 @@ public class Constants {
     public static final String WORK_OFFLINE = "UsageWorkOfflinePreference";
     public static final String GO_BACK_AFTER_MARK_ALL_READ = "GoBackAfterMarkAllReadPreference";
     public static final String HIDE_ACTIONBAR = "HideActionbarPreference";
+    public static final String ALLOW_TABLET_LAYOUT = "AllowTabletLayoutPreference";
     // Usage Default Values
     public static final boolean OPEN_URL_EMPTY_ARTICLE_DEFAULT = false;
     public static final boolean USE_VOLUME_KEYS_DEFAULT = false;
@@ -81,6 +82,7 @@ public class Constants {
     public static final boolean WORK_OFFLINE_DEFAULT = false;
     public static final boolean GO_BACK_AFTER_MARK_ALL_READ_DEFAULT = false;
     public static final boolean HIDE_ACTIONBAR_DEFAULT = true;
+    public static final boolean ALLOW_TABLET_LAYOUT_DEFAULT = true;
     
     // Display
     public static final String HEADLINE_SIZE = "HeadlineSizePreference";
