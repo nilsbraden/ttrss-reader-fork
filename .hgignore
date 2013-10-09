@@ -9,3 +9,11 @@ syntax: regexp
 ^ttrss-reader/ant\.properties$
 syntax: regexp
 ^ttrss-reader/gen$
+syntax: regexp
+^ttrss-reader/private$
+syntax: regexp
+^ttrss-reader/nblibs$
+syntax: regexp
+^ttrss-reader/nbandroid$
+syntax: regexp
+proguard-project\.txt
