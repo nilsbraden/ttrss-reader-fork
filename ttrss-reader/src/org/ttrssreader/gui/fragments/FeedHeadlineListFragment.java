@@ -118,8 +118,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         setListAdapter(adapter);
 
         Controller.getInstance().lastOpenedFeeds.add(feedId);
-        if (!Controller.isTablet)
-            Controller.getInstance().lastOpenedArticles.clear();
+        Controller.getInstance().lastOpenedArticles.clear();
         
         getView().setOnTouchListener(gestureListener);
         
