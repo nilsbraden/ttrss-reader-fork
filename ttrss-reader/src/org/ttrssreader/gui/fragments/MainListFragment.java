@@ -140,7 +140,8 @@ public abstract class MainListFragment extends ListFragment {
     }
     
     public void doRefresh() {
-        adapter.refreshQuery();
+        if (adapter != null)
+            adapter.refreshQuery();
     }
     
     public String getTitle() {
