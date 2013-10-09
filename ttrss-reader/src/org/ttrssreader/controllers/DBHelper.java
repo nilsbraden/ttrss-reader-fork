@@ -80,27 +80,27 @@ public class DBHelper {
     public static final String MARK_NOTE = "note";
     
     // @formatter:off
-    private static final String INSERT_CATEGORY = 
+    private static final String INSERT_CATEGORY =
         "REPLACE INTO "
         + TABLE_CATEGORIES
         + " (id, title, unread)"
         + " VALUES (?, ?, ?)";
-    
-    private static final String INSERT_FEED = 
+
+    private static final String INSERT_FEED =
         "REPLACE INTO "
         + TABLE_FEEDS
         + " (id, categoryId, title, url, unread)"
         + " VALUES (?, ?, ?, ?, ?)";
-    
-    private static final String INSERT_ARTICLE = 
+
+    private static final String INSERT_ARTICLE =
         "INSERT OR REPLACE INTO "
         + TABLE_ARTICLES
-        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages, articleLabels)" 
+        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages, articleLabels)"
         + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE id=?), NULL), ?)";
     // This should insert new values or replace existing values but should always keep an already inserted value for "cachedImages".
     // When inserting it is set to the default value which is 0 (not "NULL").
-    
-    private static final String INSERT_LABEL = 
+
+    private static final String INSERT_LABEL =
         "REPLACE INTO "
         + TABLE_ARTICLES2LABELS
         + " (articleId, labelId)"
@@ -295,28 +295,28 @@ public class DBHelper {
             // @formatter:off
             db.execSQL(
                     "CREATE TABLE "
-                    + TABLE_CATEGORIES 
-                    + " (id INTEGER PRIMARY KEY," 
-                    + " title TEXT," 
+                    + TABLE_CATEGORIES
+                    + " (id INTEGER PRIMARY KEY,"
+                    + " title TEXT,"
                     + " unread INTEGER)");
-            
+
             db.execSQL(
                     "CREATE TABLE "
                     + TABLE_FEEDS
-                    + " (id INTEGER PRIMARY KEY," 
-                    + " categoryId INTEGER," 
-                    + " title TEXT," 
-                    + " url TEXT," 
+                    + " (id INTEGER PRIMARY KEY,"
+                    + " categoryId INTEGER,"
+                    + " title TEXT,"
+                    + " url TEXT,"
                     + " unread INTEGER)");
-            
+
             db.execSQL(
                     "CREATE TABLE "
                     + TABLE_ARTICLES
-                    + " (id INTEGER PRIMARY KEY," 
-                    + " feedId INTEGER," 
-                    + " title TEXT," 
-                    + " isUnread INTEGER," 
-                    + " articleUrl TEXT," 
+                    + " (id INTEGER PRIMARY KEY,"
+                    + " feedId INTEGER,"
+                    + " title TEXT,"
+                    + " isUnread INTEGER,"
+                    + " articleUrl TEXT,"
                     + " articleCommentUrl TEXT,"
                     + " updateDate INTEGER,"
                     + " content TEXT,"
@@ -325,13 +325,13 @@ public class DBHelper {
                     + " isPublished INTEGER,"
                     + " cachedImages INTEGER DEFAULT 0,"
                     + " articleLabels TEXT)");
-            
+
             db.execSQL(
-                    "CREATE TABLE " 
+                    "CREATE TABLE "
                     + TABLE_ARTICLES2LABELS
-                    + " (articleId INTEGER," 
+                    + " (articleId INTEGER,"
                     + " labelId INTEGER, PRIMARY KEY(articleId, labelId))");
-            
+
             db.execSQL("CREATE TABLE "
                     + TABLE_MARK
                     + " (id INTEGER,"
@@ -453,9 +453,9 @@ public class DBHelper {
             
             if (oldVersion < 49) {
                 // @formatter:off
-                String sql = "CREATE TABLE " 
+                String sql = "CREATE TABLE "
                         + TABLE_ARTICLES2LABELS
-                        + " (articleId INTEGER," 
+                        + " (articleId INTEGER,"
                         + " labelId INTEGER, PRIMARY KEY(articleId, labelId))";
                 // @formatter:on
                 
@@ -1316,19 +1316,55 @@ public class DBHelper {
     }
     
     /**
+     * delete articles and all its resources (e.g. remote files, labels etc.)
+     * 
+     * @param whereClause
+     *            the optional WHERE clause to apply when deleting.
+     *            Passing null will delete all rows.
+     * @param whereArgs
+     *            You may include ?s in the where clause, which
+     *            will be replaced by the values from whereArgs. The values
+     *            will be bound as Strings.
+     * 
+     * @return the number of rows affected if a whereClause is passed in, 0
+     *         otherwise. To remove all rows and get a count pass "1" as the
+     *         whereClause.
+     */
+    public int safelyDeleteArticles(String whereClause, String[] whereArgs) {
+        int deletedCount = 0;
+        
+        Collection<RemoteFile> rfs = getRemoteFilesForArticles(whereClause, whereArgs, true);
+        
+        if (!rfs.isEmpty()) {
+            Set<Integer> rfIds = new HashSet<Integer>(rfs.size());
+            
+            for (RemoteFile rf : rfs) {
+                rfIds.add(rf.id);
+                Controller.getInstance().getImageCache().getCacheFile(rf.url).delete();
+            }
+            
+            deleteRemoteFiles(rfIds);
+        }
+        
+        deletedCount = db.delete(TABLE_ARTICLES, whereClause, whereArgs);
+        
+        purgeLabels();
+        
+        return deletedCount;
+    }
+    
+    /**
      * Deletes articles until the configured number of articles is matched. Published and Starred articles are ignored
      * so the configured limit is not an exact upper limit to the number of articles in the database.
      */
     public void purgeArticlesNumber() {
-        String idList = "SELECT id FROM " + TABLE_ARTICLES
-                + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
-                + Utils.ARTICLE_LIMIT;
-        
-        if (!isDBAvailable())
-            return;
-        
-        db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
-        purgeLabels();
+        if (isDBAvailable()) {
+            String idList = "SELECT id FROM " + TABLE_ARTICLES
+                    + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
+                    + Utils.ARTICLE_LIMIT;
+            
+            safelyDeleteArticles("id in(" + idList + ")", null);
+        }
     }
     
     /**
@@ -1338,14 +1374,13 @@ public class DBHelper {
      *            amount of articles to be purged
      */
     public void purgeLastArticles(int amountToPurge) {
-        String idList = "SELECT id FROM " + TABLE_ARTICLES
-                + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
-                + (Utils.ARTICLE_LIMIT - amountToPurge);
-        
-        if (!isDBAvailable())
-            return;
-        db.delete(TABLE_ARTICLES, "id in(" + idList + ")", null);
-        purgeLabels();
+        if (isDBAvailable()) {
+            String idList = "SELECT id FROM " + TABLE_ARTICLES
+                    + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
+                    + (Utils.ARTICLE_LIMIT - amountToPurge);
+            
+            safelyDeleteArticles("id IN (" + idList + ")", null);
+        }
     }
     
     /**
@@ -1355,53 +1390,44 @@ public class DBHelper {
      *            IDs of removed feeds
      */
     public void purgeFeedsArticles(Collection<Integer> feedIds) {
-        db.delete(TABLE_ARTICLES, "feedId IN (" + feedIds + ")", null);
-        if (!isDBAvailable())
-            return;
-        purgeLabels();
+        if (isDBAvailable()) {
+            safelyDeleteArticles("feedId IN (" + feedIds + ")", null);
+        }
     }
     
     /**
      * delete articles, which belongs to non-existent feeds
      */
     public void purgeOrphanedArticles() {
-        db.delete(TABLE_ARTICLES, "feedId NOT IN (SELECT id FROM " + TABLE_FEEDS + ")", null);
-        if (!isDBAvailable())
-            return;
-        purgeLabels();
+        if (isDBAvailable()) {
+            safelyDeleteArticles("feedId NOT IN (SELECT id FROM " + TABLE_FEEDS + ")", null);
+        }
     }
     
     public void purgeVirtualCategories(int minId) {
-        String[] args = new String[] { minId + "" };
-        if (!isDBAvailable())
-            return;
-        try {
-            db.delete(TABLE_ARTICLES, " ( isPublished>0 OR isStarred>0 ) AND id >= ? ", args); // FIXME: Foreign Key
-                                                                                               // constraint failed!
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (isDBAvailable()) {
+            safelyDeleteArticles(" ( isPublished>0 OR isStarred>0 ) AND id >= ? ",
+                    new String[] { String.valueOf(minId) });
         }
-        purgeLabels();
     }
     
     private void purgeLabels() {
-        // @formatter:off
-        String idsArticles = "SELECT a2l.articleId FROM "
-            + TABLE_ARTICLES2LABELS + " AS a2l LEFT OUTER JOIN "
-            + TABLE_ARTICLES + " AS a"
-            + " ON a2l.articleId = a.id WHERE a.id IS null";
+        if (isDBAvailable()) {
+            // @formatter:off
+            String idsArticles = "SELECT a2l.articleId FROM "
+                + TABLE_ARTICLES2LABELS + " AS a2l LEFT OUTER JOIN "
+                + TABLE_ARTICLES + " AS a"
+                + " ON a2l.articleId = a.id WHERE a.id IS null";
 
-        String idsFeeds = "SELECT a2l.labelId FROM "
-            + TABLE_ARTICLES2LABELS + " AS a2l LEFT OUTER JOIN "
-            + TABLE_FEEDS + " AS f"
-            + " ON a2l.labelId = f.id WHERE f.id IS null";
-        // @formatter:on
-        
-        if (!isDBAvailable())
-            return;
-        
-        db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
-        db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
+            String idsFeeds = "SELECT a2l.labelId FROM "
+                + TABLE_ARTICLES2LABELS + " AS a2l LEFT OUTER JOIN "
+                + TABLE_FEEDS + " AS f"
+                + " ON a2l.labelId = f.id WHERE f.id IS null";
+            // @formatter:on
+            
+            db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
+            db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
+        }
     }
     
     // *******| SELECT |*******************************************************************
@@ -2070,6 +2096,91 @@ public class DBHelper {
     }
     
     /**
+     * get remote files for given articles
+     * 
+     * @param whereClause
+     *            the WHERE clause to apply when selecting.
+     * @param whereArgs
+     *            You may include ?s in the where clause, which
+     *            will be replaced by the values from whereArgs. The values
+     *            will be bound as Strings.
+     * 
+     * @param uniqOnly
+     *            if set to {@code true}, then only remote files, which are referenced by given articles only will be
+     *            returned, otherwise all remote files referenced by given articles will be found (even those, which are
+     *            referenced also by some other articles)
+     * 
+     * @return collection of remote file objects from DB or {@code null}
+     */
+    public Collection<RemoteFile> getRemoteFilesForArticles(String whereClause, String[] whereArgs, boolean uniqOnly) {
+        ArrayList<RemoteFile> rfs = null;
+        if (isDBAvailable()) {
+            Cursor c = null;
+            try {
+                // @formatter:off
+                String uniqRestriction = !uniqOnly ? "" :
+                    " AND m.remotefileId NOT IN ("
+                    + " SELECT remotefileId"
+                    + "   FROM "
+                    +       TABLE_REMOTEFILE2ARTICLE
+                    + "		WHERE remotefileId IN ("
+                    + "     SELECT remotefileId"
+                    + "       FROM "
+                    +           TABLE_REMOTEFILE2ARTICLE
+                    + "       WHERE articleId IN ("
+                    + "         SELECT id"
+                    + "           FROM "
+                    +               TABLE_ARTICLES
+                    + "           WHERE "
+                    +               whereClause
+                    + "         )"
+                    + "       GROUP BY remotefileId)"
+                    + "     AND articleId NOT IN ("
+                    + "       SELECT id"
+                    + "         FROM "
+                    +             TABLE_ARTICLES
+                    + "         WHERE "
+                    +             whereClause
+                    + "     )"
+                    + "	 	GROUP by remotefileId)";
+                // @formatter:on
+                
+                c = db.rawQuery(" SELECT r.*"
+                        // @formatter:off
+                              + " FROM "
+                              +     TABLE_REMOTEFILES + " r,"
+                              +     TABLE_REMOTEFILE2ARTICLE + " m, "
+                              +     TABLE_ARTICLES + " a"
+                              + " WHERE m.remotefileId=r.id"
+                              + "   AND m.articleId=a.id"
+                              + "   AND a.id IN ("
+                              + "     SELECT id FROM "
+                              +         TABLE_ARTICLES
+                              + "     WHERE "
+                              +         whereClause
+                              + "   )"
+                              +     uniqRestriction
+                              + " GROUP BY r.id",
+                        // @formatter:on
+                        whereArgs);
+                
+                rfs = new ArrayList<RemoteFile>(c.getCount());
+                
+                while (c.moveToNext()) {
+                    rfs.add(handleRemoteFileCursor(c));
+                }
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (c != null && !c.isClosed())
+                    c.close();
+            }
+        }
+        return rfs;
+    }
+    
+    /**
      * mark given remote file as cached/uncached and optionally specify it's file size
      * 
      * @param url
@@ -2169,6 +2280,26 @@ public class DBHelper {
             }
         }
         return rfs;
+    }
+    
+    /**
+     * delete remote files with given IDs
+     * 
+     * @param idList
+     *            set of remote file IDs, which should be deleted
+     * 
+     * @return the number of deleted rows
+     */
+    public int deleteRemoteFiles(Set<Integer> idList) {
+        int deletedCount = 0;
+        
+        if (isDBAvailable() && idList != null && !idList.isEmpty()) {
+            for (String ids : StringSupport.convertListToString(idList, 400)) {
+                deletedCount += db.delete(TABLE_REMOTEFILES, "id IN (" + ids + ")", null);
+            }
+        }
+        
+        return deletedCount;
     }
     
 }
