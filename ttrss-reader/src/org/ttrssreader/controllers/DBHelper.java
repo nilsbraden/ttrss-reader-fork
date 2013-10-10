@@ -1346,6 +1346,22 @@ public class DBHelper {
             deleteRemoteFiles(rfIds);
         }
         
+        StringBuilder query = new StringBuilder();
+        
+        // @formatter:off
+        query.append (
+            " articleId IN ("                                     ).append(
+            "     SELECT id"                                      ).append(
+            "       FROM "                                        ).append(
+                      TABLE_ARTICLES                              ).append(
+            "       WHERE "                                       ).append(
+                      whereClause                                 ).append(
+            " )"                                                  );
+        // @formatter:on
+        
+        // first, delete article referencies from linking table to preserve foreign key constraint on the next step
+        db.delete(TABLE_REMOTEFILE2ARTICLE, query.toString(), whereArgs);
+        
         deletedCount = db.delete(TABLE_ARTICLES, whereClause, whereArgs);
         
         purgeLabels();
@@ -1354,21 +1370,8 @@ public class DBHelper {
     }
     
     /**
-     * Deletes articles until the configured number of articles is matched. Published and Starred articles are ignored
+     * Delete given amount of last updated articles from DB. Published and Starred articles are ignored
      * so the configured limit is not an exact upper limit to the number of articles in the database.
-     */
-    public void purgeArticlesNumber() {
-        if (isDBAvailable()) {
-            String idList = "SELECT id FROM " + TABLE_ARTICLES
-                    + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
-                    + Utils.ARTICLE_LIMIT;
-            
-            safelyDeleteArticles("id in(" + idList + ")", null);
-        }
-    }
-    
-    /**
-     * delete given amount of last articles from DB
      * 
      * @param amountToPurge
      *            amount of articles to be purged
@@ -1384,18 +1387,6 @@ public class DBHelper {
     }
     
     /**
-     * delete articles, which belongs to given IDs
-     * 
-     * @param feedIds
-     *            IDs of removed feeds
-     */
-    public void purgeFeedsArticles(Collection<Integer> feedIds) {
-        if (isDBAvailable()) {
-            safelyDeleteArticles("feedId IN (" + feedIds + ")", null);
-        }
-    }
-    
-    /**
      * delete articles, which belongs to non-existent feeds
      */
     public void purgeOrphanedArticles() {
@@ -1404,6 +1395,7 @@ public class DBHelper {
         }
     }
     
+    // TODO FIXME is it necessary? I don't think we should remove published or starred articles at all!!!
     public void purgeVirtualCategories(int minId) {
         if (isDBAvailable()) {
             safelyDeleteArticles(" ( isPublished>0 OR isStarred>0 ) AND id >= ? ",
@@ -2117,52 +2109,72 @@ public class DBHelper {
         if (isDBAvailable()) {
             Cursor c = null;
             try {
+                StringBuilder uniqRestriction = new StringBuilder();
+                String[] queryArgs = whereArgs;
+                
+                if (uniqOnly) {
+                    // @formatter:off
+                    uniqRestriction.append (
+                        " AND m.remotefileId NOT IN ("            ).append(
+                        "   SELECT remotefileId"                  ).append(
+                        "     FROM "                              ).append(
+                                TABLE_REMOTEFILE2ARTICLE          ).append(
+                        "         	WHERE remotefileId IN ("      ).append(
+                        "       SELECT remotefileId"              ).append(
+                        "         FROM "                          ).append(
+                                    TABLE_REMOTEFILE2ARTICLE      ).append(
+                        "         WHERE articleId IN ("           ).append(
+                        "           SELECT id"                    ).append(
+                        "             FROM "                      ).append(
+                                        TABLE_ARTICLES            ).append(
+                        "             WHERE "                     ).append(
+                                        whereClause               ).append(
+                        "           )"                            ).append(
+                        "         GROUP BY remotefileId)"         ).append(
+                        "       AND articleId NOT IN ("           ).append(
+                        "         SELECT id"                      ).append(
+                        "           FROM "                        ).append(
+                                      TABLE_ARTICLES              ).append(
+                        "           WHERE "                       ).append(
+                                      whereClause                 ).append(
+                        "       )"                                ).append(
+                        "   GROUP by remotefileId)"               );
+                    // @formatter:on
+                    
+                    // because we are using whereClause twice in uniqRestriction, then we should also extend queryArgs,
+                    // which will be used in query
+                    if (whereArgs != null) {
+                        int initialArgLength = whereArgs.length;
+                        queryArgs = new String[initialArgLength * 3];
+                        
+                        for (int i = 0; i < 3; i++) {
+                            for (int j = 0; j < initialArgLength; j++)
+                                queryArgs[i * initialArgLength + j] = whereArgs[j];
+                        }
+                    }
+                }
+                
+                StringBuilder query = new StringBuilder();
                 // @formatter:off
-                String uniqRestriction = !uniqOnly ? "" :
-                    " AND m.remotefileId NOT IN ("
-                    + " SELECT remotefileId"
-                    + "   FROM "
-                    +       TABLE_REMOTEFILE2ARTICLE
-                    + "		WHERE remotefileId IN ("
-                    + "     SELECT remotefileId"
-                    + "       FROM "
-                    +           TABLE_REMOTEFILE2ARTICLE
-                    + "       WHERE articleId IN ("
-                    + "         SELECT id"
-                    + "           FROM "
-                    +               TABLE_ARTICLES
-                    + "           WHERE "
-                    +               whereClause
-                    + "         )"
-                    + "       GROUP BY remotefileId)"
-                    + "     AND articleId NOT IN ("
-                    + "       SELECT id"
-                    + "         FROM "
-                    +             TABLE_ARTICLES
-                    + "         WHERE "
-                    +             whereClause
-                    + "     )"
-                    + "	 	GROUP by remotefileId)";
+                query.append (
+                    " SELECT r.*"                                 ).append(
+                    "   FROM "                                    ).append(
+                          TABLE_REMOTEFILES + " r,"               ).append(
+                          TABLE_REMOTEFILE2ARTICLE + " m, "       ).append(
+                          TABLE_ARTICLES + " a"                   ).append(
+                    "   WHERE m.remotefileId=r.id"                ).append(
+                    "     AND m.articleId=a.id"                   ).append(
+                    "     AND a.id IN ("                          ).append(
+                    "       SELECT id FROM "                      ).append(
+                              TABLE_ARTICLES                      ).append(
+                    "       WHERE "                               ).append(
+                              whereClause                         ).append(
+                    "     )"                                      ).append(
+                          uniqRestriction                         ).append(
+                    "   GROUP BY r.id"                            );
                 // @formatter:on
                 
-                c = db.rawQuery(" SELECT r.*"
-                        // @formatter:off
-                              + " FROM "
-                              +     TABLE_REMOTEFILES + " r,"
-                              +     TABLE_REMOTEFILE2ARTICLE + " m, "
-                              +     TABLE_ARTICLES + " a"
-                              + " WHERE m.remotefileId=r.id"
-                              + "   AND m.articleId=a.id"
-                              + "   AND a.id IN ("
-                              + "     SELECT id FROM "
-                              +         TABLE_ARTICLES
-                              + "     WHERE "
-                              +         whereClause
-                              + "   )"
-                              +     uniqRestriction
-                              + " GROUP BY r.id",
-                        // @formatter:on
-                        whereArgs);
+                c = db.rawQuery(query.toString(), queryArgs);
                 
                 rfs = new ArrayList<RemoteFile>(c.getCount());
                 
