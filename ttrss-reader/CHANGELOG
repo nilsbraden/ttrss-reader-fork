@@ -1,7 +1,8 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.61 ==
+== Version 1.61 (1) ==
+  * Added preference to disable split-view (swipe does not work yet)
   * Bugfixes
 
 == Version 1.6 ==
