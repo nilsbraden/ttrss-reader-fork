@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp" >
+
+    <TextView
+        android:id="@+id/labelTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/share_title"
+        android:text="@string/Share.title" />
+
+    <EditText
+        android:id="@+id/share_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/share_content"
+        android:layout_marginTop="10dip"
+        android:layout_toRightOf="@+id/labelTitle"
+        android:hint="@string/Share.title"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/labelURL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/share_url"
+        android:text="@string/Share.url" />
+
+    <EditText
+        android:id="@+id/share_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/share_content"
+        android:layout_below="@+id/share_title"
+        android:layout_marginTop="10dip"
+        android:layout_toRightOf="@+id/labelURL"
+        android:hint="@string/Share.url"
+        android:inputType="textUri"
+        android:singleLine="true" />
+
+    <TextView
+        android:id="@+id/labelContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/share_content"
+        android:text="@string/Share.content" />
+
+    <EditText
+        android:id="@+id/share_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/share_url"
+        android:layout_marginTop="10dip"
+        android:layout_toRightOf="@+id/labelContent"
+        android:hint="@string/Share.content"
+        android:inputType="textMultiLine"
+        android:maxLines="3" >
+
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/share_ok_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/share_content"
+        android:layout_below="@+id/share_content"
+        android:layout_margin="20dp"
+        android:text="@string/Share.ok_button" />
+
+</RelativeLayout>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingLeft="3dip"
+    android:paddingRight="3dip"
+    android:paddingTop="2dip" >
+
+    <TextView
+        android:id="@+id/head_feed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:padding="3dip"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/white"
+        android:textIsSelectable="false" />
+
+    <TextView
+        android:id="@+id/head_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/head_feed"
+        android:maxLines="1"
+        android:padding="3dip"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/white"
+        android:textIsSelectable="false"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/head_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/head_date"
+        android:layout_toRightOf="@+id/head_feed"
+        android:maxLines="1"
+        android:padding="3dip"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/white"
+        android:textIsSelectable="false"
+        android:textSize="12sp" />
+
+</RelativeLayout>

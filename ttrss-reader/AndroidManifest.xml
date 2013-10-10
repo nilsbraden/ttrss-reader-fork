@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.ttrssreader"
+    android:installLocation="internalOnly"
+    android:versionCode="1610"
+    android:versionName="1.61" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="18" />
+
+    <!-- Check connectivity -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Define special preferences for a Wifi-Network -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <!-- Download -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Save articles to SDCard -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Vibrate on last article/feed -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Keep CPU running while doing background work. This is only used in the ImageCache and if beeing called via Tasker/Locale. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Although many of these default to true, some users with modified ROMs have trouble seeing apps unless these attributes are explicitly set. -->
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
+    <application
+        android:name=".model.MyApplication"
+        android:allowBackup="true"
+        android:backupAgent=".preferences.MyPrefsBackupAgent"
+        android:description="@string/ApplicationDescription"
+        android:icon="@drawable/icon"
+        android:label="@string/ApplicationName"
+        android:theme="@style/Theme.MyAppTheme" >
+        <activity
+            android:name=".gui.CategoryActivity"
+            android:label="@string/ApplicationName" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".gui.FeedHeadlineActivity" />
+        <activity android:name=".gui.PreferencesActivity" />
+        <activity android:name=".preferences.WifiConnectionSettings" />
+        <activity android:name=".preferences.ConnectionSettings" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".gui.MediaPlayerActivity" />
+        <activity android:name=".gui.ErrorActivity" />
+        <activity
+            android:name=".gui.AboutActivity"
+            android:label="@string/AboutActivity.Title"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".gui.ShareActivity"
+            android:excludeFromRecents="true"
+            android:label="@string/IntentPublish" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".gui.SubscribeActivity"
+            android:label="@string/IntentSubscribe" >
+
+            <!-- android:excludeFromRecents="true" -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <!--
+             Locale will reject plug-in Activities for the following reasons: 
+                 - Missing "android:label=[...]"
+                 - Missing "android:icon=[...]"
+                 - The Activity isn't exported (e.g. android:exported="false")
+                 - The Activity isn't enabled (e.g. android:enabled="false")
+                 - The Activity requires permissions not available to Locale
+        -->
+        <activity
+            android:name=".gui.EditPluginActivity"
+            android:exported="true"
+            android:icon="@drawable/icon"
+            android:label="@string/ApplicationName"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="ExportedActivity" >
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+        <!--
+             Note that Locale will reject plug-in BroadcastReceivers for the following reasons:
+                - The BroadcastReceiver isn't exported (e.g. android:exported="false")
+                - The BroadcastReceiver isn't enabled (e.g. android:enabled="false")
+                - The BroadcastReceiver requires permissions not available to Locale
+                - There are multiple BroadcastReceivers for com.twofortyfouram.locale.intent.action.FIRE_SETTING
+        -->
+        <receiver
+            android:name=".imageCache.PluginReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver" >
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".imageCache.ForegroundService"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.backup.api_key"
+            android:value="AEdPqrEAAAAIcba0w17UjQDmiw77rvOrW7sum0Q9WDKOSZ2m8Q" />
+    </application>
+
+</manifest>
