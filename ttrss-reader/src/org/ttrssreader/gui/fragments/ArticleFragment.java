@@ -555,7 +555,7 @@ public class ArticleFragment extends SherlockFragment {
         menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 10,
                 getResources().getString(R.string.ArticleActivity_ShareArticle));
         menu.add(ContextMenu.NONE, CONTEXT_MENU_OPEN_IN_BROWSER, 20,
-                getResources().getString(R.string.ArticleActivity_OpenArticle));
+                getResources().getString(R.string.Commons_OpenInBrowser));
     }
     
     /**

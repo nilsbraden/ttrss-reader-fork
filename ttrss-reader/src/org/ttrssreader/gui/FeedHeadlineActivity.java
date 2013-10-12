@@ -32,6 +32,7 @@ import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -271,6 +272,10 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                 i.putExtra(Intent.EXTRA_TEXT, article.url);
                 i.putExtra(Intent.EXTRA_SUBJECT, article.title);
                 startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
+                return true;
+            case R.id.Article_Menu_OpenInBrowser:
+                Intent j = new Intent(Intent.ACTION_VIEW, Uri.parse(article.url));
+                startActivity(Intent.createChooser(j, (String) getText(R.string.Commons_OpenInBrowser)));
                 return true;
             default:
                 return false;

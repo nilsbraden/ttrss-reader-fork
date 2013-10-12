@@ -48,6 +48,12 @@
         android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.MarkPublishNote"/>
     <item
+        android:id="@+id/Article_Menu_OpenInBrowser"
+        android:icon="@drawable/ic_menu_share"
+        android:orderInCategory="350"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/Commons.OpenInBrowser"/>
+    <item
         android:id="@+id/Article_Menu_AddArticleLabel"
         android:icon="@drawable/perm_group_app_info"
         android:orderInCategory="400"
