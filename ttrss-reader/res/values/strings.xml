@@ -281,5 +281,6 @@
     <string name="Up">Up</string>
     <string name="Down">Down</string>
     <string name="Empty"></string>
+    <string name="Commons.Search">Search</string>
 
 </resources>

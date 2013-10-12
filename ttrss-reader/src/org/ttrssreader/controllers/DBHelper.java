@@ -118,6 +118,7 @@ public class DBHelper {
         + " (remotefileId, articleId)"
         + " VALUES (?, ?)";
     // @formatter:on
+    private static final String MAX_SEARCH_LIMIT = "100";
     
     private Context context;
     private SQLiteDatabase db;
@@ -735,6 +736,38 @@ public class DBHelper {
                 return;
             insertFeed.execute();
         }
+    }
+    
+    /**
+     * Searches article title and content for given search term.
+     * 
+     * @param searchTerm
+     *            word or sentence to search for
+     * @return {@link Set} of {@link Article}s, empty if no search results were found or DB not available
+     */
+    public Set<Article> search(String searchTerm) {
+        // TODO implement article search on DB
+        final Set<Article> ret = new HashSet<Article>();
+        Cursor c = null;
+        try {
+            // if no database available, return empty set
+            if (!isDBAvailable())
+                return ret;
+            c = db.query(TABLE_ARTICLES, null, "title LIKE ? OR content LIKE ?", new String[] { "%" + searchTerm + "%",
+                    "%" + searchTerm + "%" }, null, null, null, MAX_SEARCH_LIMIT);
+            c.moveToFirst();
+            while (c.moveToNext()) {
+                Article a = handleArticleCursor(c);
+                ret.add(a);
+            }
+            
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Can not search articles", e);
+        } finally {
+            if (c != null && !c.isClosed())
+                c.close();
+        }
+        return ret;
     }
     
     public void insertFeeds(Set<Feed> set) {

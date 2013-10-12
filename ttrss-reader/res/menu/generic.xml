@@ -18,6 +18,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/Menu_Search"
+        android:icon="@drawable/ic_action_search"
+        android:actionLayout="@layout/search"
+        android:orderInCategory="10"
+        android:showAsAction="always|collapseActionView"
+        android:title="@string/Commons.Search"
+         />
+    <item
         android:id="@+id/Menu_Refresh"
         android:icon="@drawable/ic_menu_refresh"
         android:orderInCategory="50"

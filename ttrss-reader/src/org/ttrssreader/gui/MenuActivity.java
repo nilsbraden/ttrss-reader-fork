@@ -16,6 +16,7 @@
 package org.ttrssreader.gui;
 
 import java.lang.reflect.Field;
+import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -27,6 +28,7 @@ import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
+import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
@@ -34,15 +36,20 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem.OnActionExpandListener;
 import com.actionbarsherlock.view.Window;
 
 /**
@@ -184,8 +191,50 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getSupportMenuInflater().inflate(R.menu.generic, menu);
+        
+        final EditText editText = (EditText) menu.findItem(
+                R.id.Menu_Search).getActionView();
+        editText.addTextChangedListener(textWatcher);
+        MenuItem menuItem = menu.findItem(R.id.Menu_Search);
+        menuItem.setOnActionExpandListener(new OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                // TODO Do something when collapsed
+                return true; // Return true to collapse action view
+            }
+
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                editText.clearFocus();
+                return true; // Return true to expand action view
+            }
+        });
+        
         return true;
     }
+    
+    private TextWatcher textWatcher = new TextWatcher() {
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before,
+                int count) {
+
+            final Set<Article> articles = DBHelper.getInstance().search(s.toString());
+            //TODO display articles in a ListView - which element ID?
+            for (Article article : articles) {
+                Log.d(Utils.TAG, "" + article);
+            }
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count,
+                int after) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
+    };
     
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
