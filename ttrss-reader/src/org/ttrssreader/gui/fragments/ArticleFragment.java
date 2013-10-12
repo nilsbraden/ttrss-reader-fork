@@ -91,6 +91,7 @@ public class ArticleFragment extends SherlockFragment {
     private static final int CONTEXT_MENU_SHARE_URL = 1000;
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
     private static final int CONTEXT_MENU_DISPLAY_CAPTION = 1002;
+    private static final int CONTEXT_MENU_OPEN_IN_BROWSER = 1003;
     
     private static final char TEMPLATE_DELIMITER_START = '$';
     private static final char TEMPLATE_DELIMITER_END = '$';
@@ -553,6 +554,8 @@ public class ArticleFragment extends SherlockFragment {
         }
         menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 10,
                 getResources().getString(R.string.ArticleActivity_ShareArticle));
+        menu.add(ContextMenu.NONE, CONTEXT_MENU_OPEN_IN_BROWSER, 20,
+                getResources().getString(R.string.ArticleActivity_OpenArticle));
     }
     
     /**
@@ -642,6 +645,10 @@ public class ArticleFragment extends SherlockFragment {
                 shareIntent = getUrlShareIntent(article.url);
                 startActivity(Intent.createChooser(shareIntent, "Share URL"));
                 break;
+            case CONTEXT_MENU_OPEN_IN_BROWSER:
+                shareIntent = getUrlViewIntent(article.url);
+                startActivity(Intent.createChooser(shareIntent, "View " + article.url));
+                break;
         }
         return super.onContextItemSelected(item);
     }
@@ -651,6 +658,11 @@ public class ArticleFragment extends SherlockFragment {
         i.setType("text/plain");
         i.putExtra(Intent.EXTRA_SUBJECT, "Sharing URL");
         i.putExtra(Intent.EXTRA_TEXT, url);
+        return i;
+    }
+    
+    private Intent getUrlViewIntent(String url) {
+        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         return i;
     }
     
