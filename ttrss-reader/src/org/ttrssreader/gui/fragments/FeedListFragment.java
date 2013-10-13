@@ -50,16 +50,15 @@ public class FeedListFragment extends MainListFragment {
     }
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle instance) {
         Controller.getInstance().lastOpenedFeeds.clear();
-        super.onCreate(savedInstanceState);
+        if (instance != null)
+            categoryId = instance.getInt(FEED_CAT_ID);
+        super.onCreate(instance);
     }
     
     @Override
     public void onActivityCreated(Bundle instance) {
-        if (instance != null)
-            categoryId = instance.getInt(FEED_CAT_ID);
-        
         adapter = new FeedAdapter(getActivity().getApplicationContext(), categoryId);
         setListAdapter(adapter);
         super.onActivityCreated(instance);

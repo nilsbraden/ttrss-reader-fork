@@ -47,11 +47,11 @@ public class CategoryListFragment extends MainListFragment {
     }
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle instance) {
         if (!Controller.isTablet)
             Controller.getInstance().lastOpenedFeeds.clear();
         Controller.getInstance().lastOpenedArticles.clear();
-        super.onCreate(savedInstanceState);
+        super.onCreate(instance);
     }
     
     @Override
