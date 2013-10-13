@@ -21,12 +21,14 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
+import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,7 +39,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 public abstract class MainListFragment extends ListFragment {
     
     protected static final String SELECTED_INDEX = "selectedIndex";
-    protected static final int SELECTED_INDEX_DEFAULT = -1;
+    protected static final int SELECTED_INDEX_DEFAULT = Integer.MIN_VALUE;
     protected static final String SELECTED_ID = "selectedId";
     protected static final int SELECTED_ID_DEFAULT = Integer.MIN_VALUE;
     
@@ -167,10 +169,11 @@ public abstract class MainListFragment extends ListFragment {
             newInstance.setInitialSavedState(savedState);
             return newInstance;
         } catch (Exception e) {
+            Log.e(Utils.TAG, "Error while recreating Fragment-Instance...", e);
             return null;
         }
     }
-
+    
     public void setSelectedId(int selectedId) {
         this.selectedId = selectedId;
     }

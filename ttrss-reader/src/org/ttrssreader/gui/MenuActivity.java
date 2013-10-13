@@ -34,6 +34,9 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -410,6 +413,13 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             }
             setProgress((10000 / (taskCount + 1)) * values[0]);
         }
+    }
+    
+    protected static void removeOldFragment(FragmentManager fm, Fragment fragment) {
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.remove(fragment);
+        ft.commit();
+        fm.executePendingTransactions();
     }
     
 }

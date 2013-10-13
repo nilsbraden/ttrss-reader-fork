@@ -156,9 +156,7 @@ public class ArticleFragment extends SherlockFragment {
     }
     
     @Override
-    public void onActivityCreated(Bundle instance) {
-        super.onActivityCreated(instance);
-        
+    public void onCreate(Bundle instance) {
         if (instance != null) {
             articleId = instance.getInt(ARTICLE_ID);
             feedId = instance.getInt(ARTICLE_FEED_ID);
@@ -168,7 +166,12 @@ public class ArticleFragment extends SherlockFragment {
             if (webView != null)
                 webView.restoreState(instance);
         }
-        
+        super.onCreate(instance);
+    }
+    
+    @Override
+    public void onActivityCreated(Bundle instance) {
+        super.onActivityCreated(instance);
         articleJSInterface = new ArticleJSInterface(getSherlockActivity());
         initData();
         initUI();
@@ -189,7 +192,6 @@ public class ArticleFragment extends SherlockFragment {
     
     @Override
     public void onSaveInstanceState(Bundle instance) {
-        super.onSaveInstanceState(instance);
         instance.putInt(ARTICLE_ID, articleId);
         instance.putInt(ARTICLE_FEED_ID, feedId);
         instance.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
@@ -197,6 +199,7 @@ public class ArticleFragment extends SherlockFragment {
         instance.putInt(ARTICLE_MOVE, lastMove);
         if (webView != null)
             webView.saveState(instance);
+        super.onSaveInstanceState(instance);
     }
     
     private void fillParentInformation() {
@@ -233,8 +236,6 @@ public class ArticleFragment extends SherlockFragment {
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
             webView.setOnKeyListener(keyListener);
-            // webView.setOnTopReachedListener(this, 30);
-            // webView.setOnBottomReachedListener(this, 30);
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                 webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
@@ -271,7 +272,6 @@ public class ArticleFragment extends SherlockFragment {
             ((FrameLayout) webView.getParent()).removeAllViews();
         webContainer.addView(webView);
         
-        // mainContainer.populate(webView);
         getSherlockActivity().findViewById(R.id.article_button_view).setVisibility(
                 Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
                         : View.GONE);
@@ -290,7 +290,8 @@ public class ArticleFragment extends SherlockFragment {
     }
     
     private void initData() {
-        Controller.getInstance().lastOpenedFeeds.add(feedId);
+        if (feedId > 0)
+            Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
         
         if (parentAdapter != null)
@@ -301,7 +302,7 @@ public class ArticleFragment extends SherlockFragment {
         doVibrate(0);
         
         // Get article from DB
-        article = DBHelper.getInstance().getArticle(articleId); // TODO
+        article = DBHelper.getInstance().getArticle(articleId);
         if (article == null) {
             getSherlockActivity().finish();
             return;
@@ -385,7 +386,7 @@ public class ArticleFragment extends SherlockFragment {
                 return;
             
             StringBuilder labels = new StringBuilder();
-            for (Label label : article.labels) { // DBHelper.getInstance().getLabelsForArticle(articleId)) {
+            for (Label label : article.labels) {
                 if (label.checked) {
                     if (labels.length() > 0)
                         labels.append(", ");
