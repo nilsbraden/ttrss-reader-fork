@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.62
+            \n * Fixed some rotation related issues, app should not crash anymore but it might display wrong stuff sometimes
+            \n * Fixed crash when entering preferences on some old devices
+            \n * Fixed crash with foreign key error on article deletion
+            \n * Add information about articles last sync time to \"about\" dialog</item>
         <item>Version 1.61
             \n * Bugfixes
             \n -> Please don\'t use the play store to ask for features, we got a bugtracker on the project page for this kind of thing.</item>
