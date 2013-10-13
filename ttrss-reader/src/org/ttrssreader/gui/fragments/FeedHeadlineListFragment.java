@@ -313,15 +313,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             return;
         }
         
-        // FeedHeadlineListFragment feedHeadlineView = FeedHeadlineListFragment.newInstance(feedId, categoryId,
-        // selectArticlesForCategory, Integer.MIN_VALUE);
-        //
-        // // Replace the old fragment with the new one
-        // FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        // ft.replace(R.id.frame_left, feedHeadlineView);
-        // ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        // ft.commit();
-        
         this.feedId = id;
         fillParentInformation();
         initData();
