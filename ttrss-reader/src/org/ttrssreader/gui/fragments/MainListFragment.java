@@ -103,6 +103,16 @@ public abstract class MainListFragment extends ListFragment {
     }
     
     @Override
+    public void onDestroy() {
+        // Close cursor in adapter
+        if (listView != null && listView.getAdapter() != null && listView.getAdapter() instanceof MainAdapter) {
+            ((MainAdapter) listView.getAdapter()).close();
+        }
+        
+        super.onDestroy();
+    }
+    
+    @Override
     public void onResume() {
         super.onResume();
         if (adapter != null)
