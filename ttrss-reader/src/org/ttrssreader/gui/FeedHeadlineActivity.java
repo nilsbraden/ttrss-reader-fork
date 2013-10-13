@@ -47,6 +47,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     public static final int FEED_NO_ID = 37846914;
     
     private int categoryId = Integer.MIN_VALUE;
+    private int feedId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
     
     private FeedHeadlineUpdater headlineUpdater = null;
@@ -62,8 +63,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         super.onCreate(instance);
         setContentView(R.layout.feedheadlinelist);
         super.initTabletLayout();
-        
-        int feedId = Integer.MIN_VALUE;
         
         Bundle extras = getIntent().getExtras();
         if (instance != null) {
@@ -117,6 +116,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
+        outState.putInt(FeedHeadlineListFragment.FEED_ID, headlineFragment.getFeedId());
         outState.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
         outState.putInt(SELECTED, selectedArticleId);
         super.onSaveInstanceState(outState);
@@ -125,6 +125,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     protected void onRestoreInstanceState(Bundle instance) {
         categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
+        feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
         selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
         selectedArticleId = instance.getInt(SELECTED, Integer.MIN_VALUE);
         super.onRestoreInstanceState(instance);
@@ -322,6 +323,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         } else {
             // Open next Feed
             headlineFragment.openNextFeed(direction);
+            feedId = headlineFragment.getFeedId();
         }
     }
     
