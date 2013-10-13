@@ -18,7 +18,6 @@
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <!-- CONNECTION -->
-    <header android:title="@string/ConnectionPreferenceCategory" />
     <header
         android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
         android:icon="@drawable/ic_menu_account_list"
