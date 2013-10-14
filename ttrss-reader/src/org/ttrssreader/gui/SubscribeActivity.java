@@ -139,7 +139,9 @@ public class SubscribeActivity extends MenuActivity {
                 SubscriptionResponse ret = Data.getInstance().feedSubscribe(urlValue, category);
                 String message = "\n\n(" + ret.message + ")";
                 
-                if (ret.code == 0 || ret.code == 1)
+                if (ret.code == 0)
+                    showErrorDialog(getResources().getString(R.string.SubscribeActivity_invalidUrl));
+                if (ret.code == 1)
                     finish();
                 else if (Controller.getInstance().getConnector().hasLastError())
                     showErrorDialog(Controller.getInstance().getConnector().pullLastError());
