@@ -207,10 +207,6 @@ public class ArticleFragment extends SherlockFragment {
         if (index >= 0) {
             parentIDs[0] = parentAdapter.getId(index - 1); // Previous
             parentIDs[1] = parentAdapter.getId(index + 1); // Next
-            if (parentIDs[0] == 0)
-                parentIDs[0] = -1;
-            if (parentIDs[1] == 0)
-                parentIDs[1] = -1;
         }
     }
     
@@ -294,10 +290,12 @@ public class ArticleFragment extends SherlockFragment {
             Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
         
-        if (parentAdapter != null)
-            parentAdapter.close();
-        parentAdapter = new FeedHeadlineAdapter(getSherlockActivity().getApplicationContext(), feedId, categoryId,
-                selectForCategory);
+        if (parentAdapter == null)
+            parentAdapter = new FeedHeadlineAdapter(getSherlockActivity().getApplicationContext(), feedId, categoryId,
+                    selectForCategory);
+        else
+            parentAdapter.makeQuery(true);
+        
         fillParentInformation();
         doVibrate(0);
         
@@ -691,13 +689,28 @@ public class ArticleFragment extends SherlockFragment {
     public void openNextArticle(int direction) {
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
         
-        if (id < 0) {
+        if (id == Integer.MIN_VALUE) {
             ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
         
         this.articleId = id;
         this.lastMove = direction;
+        initData();
+        doRefresh();
+    }
+    
+    public void openArticle(int articleId, int feedId, int categoryId, boolean selectArticlesForCategory, int lastMove) {
+        if (articleId == Integer.MIN_VALUE) {
+            ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            return;
+        }
+        
+        this.articleId = articleId;
+        this.feedId = feedId;
+        this.categoryId = categoryId;
+        this.selectForCategory = selectArticlesForCategory;
+        this.lastMove = lastMove;
         initData();
         doRefresh();
     }
