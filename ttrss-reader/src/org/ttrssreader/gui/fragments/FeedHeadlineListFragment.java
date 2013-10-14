@@ -79,21 +79,21 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     }
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        Controller.getInstance().lastOpenedFeeds.add(feedId);
-        Controller.getInstance().lastOpenedArticles.clear();
-        super.onCreate(savedInstanceState);
-    }
-    
-    @Override
-    public void onActivityCreated(Bundle instance) {
+    public void onCreate(Bundle instance) {
         if (instance != null) {
             categoryId = instance.getInt(FEED_CAT_ID);
             feedId = instance.getInt(FEED_ID);
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
             articleId = instance.getInt(ARTICLE_ID);
         }
-        
+        if (feedId > 0)
+            Controller.getInstance().lastOpenedFeeds.add(feedId);
+        Controller.getInstance().lastOpenedArticles.clear();
+        super.onCreate(instance);
+    }
+    
+    @Override
+    public void onActivityCreated(Bundle instance) {
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
         setListAdapter(adapter);
         super.onActivityCreated(instance);
@@ -113,11 +113,12 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     }
     
     private void initData() {
-
+        
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
         setListAdapter(adapter);
-
-        Controller.getInstance().lastOpenedFeeds.add(feedId);
+        
+        if (feedId > 0)
+            Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
         
         getView().setOnTouchListener(gestureListener);
@@ -311,16 +312,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
-        
-        
-//        FeedHeadlineListFragment feedHeadlineView = FeedHeadlineListFragment.newInstance(feedId, categoryId,
-//                selectArticlesForCategory, Integer.MIN_VALUE);
-//        
-//        // Replace the old fragment with the new one
-//        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-//        ft.replace(R.id.frame_left, feedHeadlineView);
-//        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-//        ft.commit();
         
         this.feedId = id;
         fillParentInformation();

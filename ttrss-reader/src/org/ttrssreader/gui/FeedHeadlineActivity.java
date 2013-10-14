@@ -35,6 +35,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.widget.Toast;
@@ -46,14 +47,13 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     public static final int FEED_NO_ID = 37846914;
     
     private int categoryId = Integer.MIN_VALUE;
+    private int feedId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
     
     private FeedHeadlineUpdater headlineUpdater = null;
     
     private static final String SELECTED = "SELECTED";
     private int selectedArticleId = Integer.MIN_VALUE;
-    private static final String ARTICLE_FRAME = "ARTICLE_FRAME";
-    private int articleFrame = -1;
     
     private FeedHeadlineListFragment headlineFragment;
     private ArticleFragment articleFragment;
@@ -64,69 +64,70 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         setContentView(R.layout.feedheadlinelist);
         super.initTabletLayout();
         
-        int feedId = Integer.MIN_VALUE;
-        int articleId = Integer.MIN_VALUE;
-        
         Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            categoryId = extras.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
-            feedId = extras.getInt(FeedHeadlineListFragment.FEED_ID);
-            articleId = extras.getInt(FeedHeadlineListFragment.ARTICLE_ID);
-            selectArticlesForCategory = extras.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
-            selectedArticleId = extras.getInt(SELECTED, Integer.MIN_VALUE);
-            articleFrame = extras.getInt(ARTICLE_FRAME, -1);
-        } else if (instance != null) {
+        if (instance != null) {
             categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
             feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
-            articleId = instance.getInt(FeedHeadlineListFragment.ARTICLE_ID);
             selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
             selectedArticleId = instance.getInt(SELECTED, Integer.MIN_VALUE);
-            articleFrame = instance.getInt(ARTICLE_FRAME, -1);
+        } else if (extras != null) {
+            categoryId = extras.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
+            feedId = extras.getInt(FeedHeadlineListFragment.FEED_ID);
+            selectArticlesForCategory = extras.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
+            selectedArticleId = extras.getInt(SELECTED, Integer.MIN_VALUE);
         }
         
-        headlineFragment = (FeedHeadlineListFragment) getSupportFragmentManager().findFragmentByTag(
-                FeedHeadlineListFragment.FRAGMENT);
+        FragmentManager fm = getSupportFragmentManager();
+        headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
+        articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
+        
+        Fragment oldArticleFragment = articleFragment;
+        
+        if (articleFragment != null && !Controller.isTablet) {
+            articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
+            // No Tablet mode but Article has been loaded, we have just one pane: R.id.frame_left
+            
+            removeOldFragment(fm, oldArticleFragment);
+            
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.frame_left, articleFragment, ArticleFragment.FRAGMENT);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
+        }
+        
         if (headlineFragment == null) {
             headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
-                    articleId);
+                    selectedArticleId);
             
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.frame_left, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(R.id.frame_left, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
             
-            // Display article in right frame:
-            if (Controller.isTablet) {
-                int id = articleId;
-                if (id == Integer.MIN_VALUE)
-                    id = selectedArticleId;
-                
-                if (id != Integer.MIN_VALUE) {
-                    selectedArticleId = id;
-                    articleFragment = ArticleFragment.newInstance(id, feedId, categoryId, selectArticlesForCategory,
-                            ArticleFragment.ARTICLE_MOVE_DEFAULT);
-                    transaction.add(R.id.frame_right, articleFragment, ArticleFragment.FRAGMENT);
-                }
+            if (articleFragment != null && Controller.isTablet && selectedArticleId != Integer.MIN_VALUE) {
+                articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
+                removeOldFragment(fm, oldArticleFragment);
+                ft.add(R.id.frame_right, articleFragment, ArticleFragment.FRAGMENT);
             }
             
-            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            transaction.commit();
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
         }
     }
     
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
+        outState.putInt(FeedHeadlineListFragment.FEED_ID, headlineFragment.getFeedId());
         outState.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
         outState.putInt(SELECTED, selectedArticleId);
-        outState.putInt(ARTICLE_FRAME, articleFrame);
         super.onSaveInstanceState(outState);
     }
     
     @Override
     protected void onRestoreInstanceState(Bundle instance) {
         categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
+        feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
         selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
         selectedArticleId = instance.getInt(SELECTED, Integer.MIN_VALUE);
-        articleFrame = instance.getInt(ARTICLE_FRAME, -1);
         super.onRestoreInstanceState(instance);
     }
     
@@ -279,7 +280,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     private Article getArticle() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(articleFrame);
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ArticleFragment.FRAGMENT);
         if (fragment instanceof ArticleFragment)
             return ((ArticleFragment) fragment).getArticle();
         return null;
@@ -313,7 +314,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     private void openNextFragment(int direction) {
         if (selectedArticleId != Integer.MIN_VALUE) {
             // Open next article
-            Fragment fragment = getSupportFragmentManager().findFragmentById(articleFrame);
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag(ArticleFragment.FRAGMENT);
             if (fragment instanceof ArticleFragment) {
                 ((ArticleFragment) fragment).openNextArticle(direction);
                 selectedArticleId = ((ArticleFragment) fragment).getArticleId();
@@ -322,6 +323,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         } else {
             // Open next Feed
             headlineFragment.openNextFeed(direction);
+            feedId = headlineFragment.getFeedId();
         }
     }
     
@@ -372,14 +374,15 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         headlineFragment.setSelectedId(selectedArticleId);
         
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        articleFrame = R.id.frame_right;
+        int targetLayout = R.id.frame_right;
         if (!Controller.isTablet) {
-            articleFrame = R.id.frame_left;
+            targetLayout = R.id.frame_left;
             ft.addToBackStack(null);
         }
         
-        ft.replace(articleFrame, ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
-                selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT), ArticleFragment.FRAGMENT);
+        articleFragment = ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
+                selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT);
+        ft.replace(targetLayout, articleFragment, ArticleFragment.FRAGMENT);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         ft.commit();
     }
@@ -392,8 +395,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     public void onBackPressed() {
         selectedArticleId = Integer.MIN_VALUE;
-        headlineFragment.setSelectedId(selectedArticleId);
-        articleFrame = -1;
+        articleFragment = null;
         super.onBackPressed();
     }
     

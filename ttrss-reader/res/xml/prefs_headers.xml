@@ -13,12 +13,17 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details. You should have received a
     copy of the GNU General Public License along with this program; If
-    not, see <http://www.gnu.org/licenses/>.
+    not, see <http://www.gnu.org/licenses/>.
 -->
 <preference-headers xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <!-- CONNECTION -->
-    <header android:title="@string/ConnectionPreferenceCategory" />
+    <!-- header android:title="@string/ConnectionPreferenceCategory" / -->
+    <!--
+    Never EVER add the above header here, Devices with API-Level 13 and some above will
+    crash since the first entry of this file is automatically openend and this fails if it
+    hasn't got a proper fragment connection.
+    -->
     <header
         android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
         android:icon="@drawable/ic_menu_account_list"
