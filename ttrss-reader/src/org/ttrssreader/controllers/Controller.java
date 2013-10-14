@@ -78,7 +78,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private boolean isHeadless = false;
     private String imageCacheLock = "lock";
     
-    private static Controller instance = null;
     private static Boolean initialized = false;
     private SharedPreferences prefs = null;
     private static boolean preferencesChanged = false;
@@ -156,26 +155,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
     // SocketFactory for SSL-Connections, doesn't need to be accessed but indicates it is initialized if != null.
     private SSLSocketFactory sslSocketFactory = null;
     
-    // Singleton
+    // Singleton (see http://stackoverflow.com/a/11165926)
     private Controller() {
     }
     
-    public static Controller getInstance() {
-        if (instance == null || instance.prefs == null) {
-            synchronized (Controller.class) {
-                if (instance == null || instance.prefs == null) {
-                    instance = new Controller();
-                }
-            }
-        }
-        return instance;
+    private static class InstanceHolder {
+        private static final Controller instance = new Controller();
     }
     
-    public static void checkAndInitializeController(final Context context, boolean force_dummy_parameter) {
-        synchronized (initialized) {
-            Controller.instance = null;
-            Controller.getInstance().checkAndInitializeController(context, null);
-        }
+    public static Controller getInstance() {
+        return InstanceHolder.instance;
     }
     
     public void checkAndInitializeController(final Context context, final Display display) {
@@ -183,7 +172,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             this.context = context;
             this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             
-            if (!initialized || instance == null || instance.prefs == null) {
+            if (!initialized) {
                 initializeController(display);
                 initialized = true;
             }
@@ -215,7 +204,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
                     e.printStackTrace();
                 }
                 
-                initializeConnector();
+                // This will be accessed when displaying an article or starting the imageCache. When caching it is done
+                // anyway so we can just do it in background and the ImageCache starts once it is done.
+                getImageCache();
                 
                 // Only need once we are displaying the feed-list or an article...
                 refreshDisplayMetrics(display);
@@ -269,10 +260,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 synchronized (htmlTemplate) {
                     htmlTemplate = htmlTmpl.render();
                 }
-                
-                // This will be accessed when displaying an article or starting the imageCache. When caching it is done
-                // anyway so we can just do it in background and the ImageCache starts once it is done.
-                getImageCache();
                 return null;
             }
         }.execute();
