@@ -373,18 +373,24 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         selectedArticleId = articleId;
         headlineFragment.setSelectedId(selectedArticleId);
         
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        int targetLayout = R.id.frame_right;
-        if (!Controller.isTablet) {
-            targetLayout = R.id.frame_left;
-            ft.addToBackStack(null);
+        if (articleFragment == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            int targetLayout = R.id.frame_right;
+            if (!Controller.isTablet) {
+                targetLayout = R.id.frame_left;
+                ft.addToBackStack(null);
+            }
+            
+            articleFragment = ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
+                    selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT);
+            ft.replace(targetLayout, articleFragment, ArticleFragment.FRAGMENT);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
+        } else {
+            // Reuse existing ArticleFragment
+            articleFragment.openArticle(articleId, headlineFragment.getFeedId(), categoryId, selectArticlesForCategory,
+                    ArticleFragment.ARTICLE_MOVE_DEFAULT);
         }
-        
-        articleFragment = ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
-                selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT);
-        ft.replace(targetLayout, articleFragment, ArticleFragment.FRAGMENT);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
     }
     
     @Override
