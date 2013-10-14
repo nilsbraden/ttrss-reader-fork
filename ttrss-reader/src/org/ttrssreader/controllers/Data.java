@@ -65,7 +65,6 @@ public class Data {
     private static final String VIEW_ALL = "all_articles";
     private static final String VIEW_UNREAD = "unread";
     
-    private static Data instance = null;
     private Context context;
     
     private long time = 0;
@@ -80,18 +79,16 @@ public class Data {
     
     private ConnectivityManager cm;
     
-    // Singleton
+    // Singleton (see http://stackoverflow.com/a/11165926)
     private Data() {
     }
     
+    private static class InstanceHolder {
+        private static final Data instance = new Data();
+    }
+    
     public static Data getInstance() {
-        if (instance == null) {
-            synchronized (Data.class) {
-                if (instance == null)
-                    instance = new Data();
-            }
-        }
-        return instance;
+        return InstanceHolder.instance;
     }
     
     public synchronized void checkAndInitializeData(final Context context) {

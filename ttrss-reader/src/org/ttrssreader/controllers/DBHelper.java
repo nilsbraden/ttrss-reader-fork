@@ -48,7 +48,6 @@ import android.util.Log;
 
 public class DBHelper {
     
-    private static DBHelper instance = null;
     private volatile boolean initialized = false;
     private String LOCK = "";
     
@@ -129,19 +128,16 @@ public class DBHelper {
     private SQLiteStatement insertRemoteFile;
     private SQLiteStatement insertRemoteFile2Article;
     
-    // Singleton
+    // Singleton (see http://stackoverflow.com/a/11165926)
     private DBHelper() {
     }
     
+    private static class InstanceHolder {
+        private static final DBHelper instance = new DBHelper();
+    }
+    
     public static DBHelper getInstance() {
-        if (instance == null) {
-            synchronized (DBHelper.class) {
-                if (instance == null) {
-                    instance = new DBHelper();
-                }
-            }
-        }
-        return instance;
+        return InstanceHolder.instance;
     }
     
     public void checkAndInitializeDB(final Context context) {
