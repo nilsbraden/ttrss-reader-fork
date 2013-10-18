@@ -778,9 +778,10 @@ public class ArticleFragment extends SherlockFragment {
     }
     
     public String getTitle() {
-        parentAdapter.refreshQuery();
-        if (parentAdapter != null)
+        if (parentAdapter != null) {
+            parentAdapter.refreshQuery();
             return "( " + parentAdapter.unreadCount + " )";
+        }
         return "";
     }
     
