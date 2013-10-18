@@ -123,7 +123,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         
         getView().setOnTouchListener(gestureListener);
         
-        getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
+        getActivity().supportInvalidateOptionsMenu(); // Force redraw of menu items in actionbar
     }
     
     @Override
