@@ -1,11 +1,13 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.62 ==
+== Version 1.62 (1) ==
   * Fixed some rotation related issues, app should not crash anymore but it might display wrong stuff sometimes
   * Fixed crash when entering preferences on some old devices
   * Fixed crash with foreign key error on article deletion
   * Add information about articles last sync time to "about" dialog
+  * Fixed Swipe
+  * Several bugfixes
 
 == Version 1.61 (1) ==
   * Added preference to disable split-view (swipe does not work yet)
