@@ -269,12 +269,14 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                     
                     // right to left swipe
                     openNextFeed(1);
+                    return true;
                     
                 } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
                     
                     // left to right swipe
                     openNextFeed(-1);
+                    return true;
                     
                 }
             } catch (Exception e) {

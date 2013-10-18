@@ -29,6 +29,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.ErrorActivity;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
+import org.ttrssreader.gui.fragments.FeedHeadlineListFragment.HeadlineGestureDetector;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
@@ -79,6 +80,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 @SuppressWarnings("deprecation")
 public class ArticleFragment extends SherlockFragment {
@@ -273,16 +275,26 @@ public class ArticleFragment extends SherlockFragment {
                         : View.GONE);
         
         if (gestureDetector == null || gestureListener == null) {
+            ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+            
             // Detect touch gestures like swipe and scroll down:
-            gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(getSherlockActivity()
-                    .getSupportActionBar(), Controller.getInstance().hideActionbar()));
+            gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller
+                    .getInstance().hideActionbar()));
             gestureListener = new View.OnTouchListener() {
                 public boolean onTouch(View v, MotionEvent event) {
                     return gestureDetector.onTouchEvent(event);
                 }
             };
+            
         }
-        webView.setOnTouchListener(gestureListener);
+        
+        // No idea why this is necessary here: (see http://stackoverflow.com/a/11731344)
+        webView.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureListener.onTouch(v, event);
+                return true;
+            }
+        });
     }
     
     private void initData() {
@@ -791,12 +803,14 @@ public class ArticleFragment extends SherlockFragment {
                     
                     // right to left swipe
                     openNextArticle(1);
+                    return true;
                     
                 } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
                     
                     // left to right swipe
                     openNextArticle(-1);
+                    return true;
                     
                 }
             } catch (Exception e) {
