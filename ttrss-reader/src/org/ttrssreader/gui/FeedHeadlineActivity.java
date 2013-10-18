@@ -251,27 +251,34 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                 FeedUnsubscribeDialog.getInstance(this, headlineFragment.getFeedId()).show(getSupportFragmentManager(),
                         FeedUnsubscribeDialog.DIALOG_UNSUBSCRIBE);
             case R.id.Article_Menu_MarkRead:
-                new Updater(this, new ReadStateUpdater(article, article.feedId, article.isUnread ? 0 : 1)).exec();
+                if (article != null)
+                    new Updater(this, new ReadStateUpdater(article, article.feedId, article.isUnread ? 0 : 1)).exec();
                 return true;
             case R.id.Article_Menu_MarkStar:
-                new Updater(this, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
+                if (article != null)
+                    new Updater(this, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
                 return true;
             case R.id.Article_Menu_MarkPublish:
-                new Updater(this, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
+                if (article != null)
+                    new Updater(this, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
                 return true;
             case R.id.Article_Menu_MarkPublishNote:
                 new TextInputAlert(this, article).show(this);
                 return true;
             case R.id.Article_Menu_AddArticleLabel:
-                DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
-                dialog.show(getSupportFragmentManager(), "Edit Labels");
+                if (article != null) {
+                    DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
+                    dialog.show(getSupportFragmentManager(), "Edit Labels");
+                }
                 return true;
             case R.id.Article_Menu_ShareLink:
-                Intent i = new Intent(Intent.ACTION_SEND);
-                i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_TEXT, article.url);
-                i.putExtra(Intent.EXTRA_SUBJECT, article.title);
-                startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
+                if (article != null) {
+                    Intent i = new Intent(Intent.ACTION_SEND);
+                    i.setType("text/plain");
+                    i.putExtra(Intent.EXTRA_TEXT, article.url);
+                    i.putExtra(Intent.EXTRA_SUBJECT, article.title);
+                    startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
+                }
                 return true;
             default:
                 return false;
