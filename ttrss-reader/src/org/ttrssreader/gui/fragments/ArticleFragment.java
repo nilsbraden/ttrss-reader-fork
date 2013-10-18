@@ -135,7 +135,7 @@ public class ArticleFragment extends SherlockFragment {
     private ArticleJSInterface articleJSInterface;
     
     private GestureDetector gestureDetector = null;
-    private View.OnTouchListener gestureListener;
+    private View.OnTouchListener gestureListener = null;
     
     public static ArticleFragment newInstance(int id, int feedId, int categoryId, boolean selectArticles, int lastMove) {
         // Create a new fragment instance
@@ -225,9 +225,10 @@ public class ArticleFragment extends SherlockFragment {
             webView = new MyWebView(getSherlockActivity());
             webView.setWebViewClient(new ArticleWebViewClient(getSherlockActivity()));
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-            boolean supportZoomControls = Controller.getInstance().supportZoomControls();
-            webView.getSettings().setSupportZoom(supportZoomControls);
-            webView.getSettings().setBuiltInZoomControls(supportZoomControls);
+            webView.getSettings().setSupportZoom(Controller.getInstance().supportZoomControls());
+            // Had to be disabled for Swipe to work again on tablets (see http://stackoverflow.com/a/9562489)
+            // I have no idea why it actually doesn't work but it doesn't...
+            // webView.getSettings().setBuiltInZoomControls(...);
             webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
@@ -278,21 +279,15 @@ public class ArticleFragment extends SherlockFragment {
             // Detect touch gestures like swipe and scroll down:
             gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller
                     .getInstance().hideActionbar()));
+            
             gestureListener = new View.OnTouchListener() {
                 public boolean onTouch(View v, MotionEvent event) {
                     return gestureDetector.onTouchEvent(event);
                 }
             };
-            
         }
         
-        // No idea why this is necessary here: (see http://stackoverflow.com/a/11731344)
-        webView.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                gestureListener.onTouch(v, event);
-                return true;
-            }
-        });
+        webView.setOnTouchListener(gestureListener);
     }
     
     private void initData() {
