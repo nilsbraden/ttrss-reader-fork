@@ -280,7 +280,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                     // Synchronize status of articles with server
                     new Updater(this, new StateSynchronisationUpdater()).exec();
                 }
-                invalidateOptionsMenu();
+                supportInvalidateOptionsMenu();
                 doRefresh();
                 return true;
             case R.id.Menu_ShowPreferences:
@@ -304,7 +304,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     @Override
     public void onUpdateEnd() {
         updater = null;
-        invalidateOptionsMenu();
+        supportInvalidateOptionsMenu();
         doRefresh();
     }
     
