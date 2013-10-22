@@ -137,7 +137,7 @@
     <string name="TextZoomTitle">Text-Zoom in percent</string>
     <string name="TextZoomSummary">Zoom (textual) content of articles by n%.</string>
     <string name="SupportZoomControlsTitle">Support Zoom Controls</string>
-    <string name="SupportZoomControlsSummary">When disabled, no zoom controls will be shown in article view.</string>
+    <string name="SupportZoomControlsSummary">ATTENTION: This disables gesture functionality when displaying articles because of a bug! When disabled, no zoom controls will be shown in article view.</string>
     <string name="AllowHyphenationTitle">Allow Hyphenation</string>
     <string name="AllowHyphenationSummary">Enable word hyphenation in articles.</string>
     <string name="HyphenationLanguageTitle">Hyphenation Language&#8230;</string>
