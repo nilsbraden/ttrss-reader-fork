@@ -123,7 +123,7 @@
     <string name="TextZoomTitle">Text-Zoom in Pozent</string>
     <string name="TextZoomSummary">Vergrössere (Text) Inhalt von Artikeln in n%.</string>
     <string name="SupportZoomControlsTitle">Zeige Zoom Steuerelemente</string>
-    <string name="SupportZoomControlsSummary">Zoom Steuerelemente anzeigen in Artikel Ansicht.</string>
+    <string name="SupportZoomControlsSummary">ACHTUNG: Hierdurch wird Gestensteuerung in der Artikelansicht wegen eines Bugs deaktiviert! Zoom Steuerelemente anzeigen in Artikel Ansicht.</string>
     <string name="AllowHyphenationTitle">Erlaube Silbentrennung</string>
     <string name="AllowHyphenationSummary">Aktiviere Silbentrennung in Artikeln.</string>
     <string name="HyphenationLanguageTitle">Selbentrennung Sprache&#8230;</string>

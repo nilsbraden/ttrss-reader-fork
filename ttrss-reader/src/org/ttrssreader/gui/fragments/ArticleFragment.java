@@ -225,10 +225,11 @@ public class ArticleFragment extends SherlockFragment {
             webView = new MyWebView(getSherlockActivity());
             webView.setWebViewClient(new ArticleWebViewClient(getSherlockActivity()));
             webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-            webView.getSettings().setSupportZoom(Controller.getInstance().supportZoomControls());
-            // Had to be disabled for Swipe to work again on tablets (see http://stackoverflow.com/a/9562489)
-            // I have no idea why it actually doesn't work but it doesn't...
-            // webView.getSettings().setBuiltInZoomControls(...);
+            
+            boolean supportZoom = Controller.getInstance().supportZoomControls();
+            webView.getSettings().setSupportZoom(supportZoom);
+            webView.getSettings().setBuiltInZoomControls(supportZoom);
+            
             webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
@@ -282,7 +283,7 @@ public class ArticleFragment extends SherlockFragment {
             
             gestureListener = new View.OnTouchListener() {
                 public boolean onTouch(View v, MotionEvent event) {
-                    return gestureDetector.onTouchEvent(event);
+                    return (gestureDetector.onTouchEvent(event) || webView.onTouchEvent(event));
                 }
             };
         }

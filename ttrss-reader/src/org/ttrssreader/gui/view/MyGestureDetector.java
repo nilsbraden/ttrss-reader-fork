@@ -16,11 +16,11 @@
 package org.ttrssreader.gui.view;
 
 import org.ttrssreader.controllers.Controller;
-import android.view.GestureDetector.OnGestureListener;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import com.actionbarsherlock.app.ActionBar;
 
-public class MyGestureDetector implements OnGestureListener {
+public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
     
     private ActionBar actionBar;
     private boolean hideActionbar;
@@ -29,20 +29,6 @@ public class MyGestureDetector implements OnGestureListener {
     public MyGestureDetector(ActionBar actionBar, boolean hideActionbar) {
         this.actionBar = actionBar;
         this.hideActionbar = hideActionbar;
-    }
-    
-    @Override
-    public boolean onDown(MotionEvent e) {
-        return false;
-    }
-    
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        return false;
-    }
-    
-    @Override
-    public void onLongPress(MotionEvent e) {
     }
     
     @Override
@@ -67,15 +53,6 @@ public class MyGestureDetector implements OnGestureListener {
             lastShow = System.currentTimeMillis();
         }
         
-        return false;
-    }
-    
-    @Override
-    public void onShowPress(MotionEvent e) {
-    }
-    
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
         return false;
     }
     
