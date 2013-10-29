@@ -416,10 +416,12 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected static void removeOldFragment(FragmentManager fm, Fragment fragment) {
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.remove(fragment);
-        ft.commit();
-        fm.executePendingTransactions();
+        if (fragment != null) {
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.remove(fragment);
+            ft.commit();
+            fm.executePendingTransactions();
+        }
     }
     
 }

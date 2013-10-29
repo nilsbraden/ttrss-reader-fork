@@ -31,7 +31,6 @@ import org.ttrssreader.gui.ErrorActivity;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.gui.view.MyGestureDetector;
-import org.ttrssreader.gui.view.MyWebView;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
@@ -121,7 +120,7 @@ public class ArticleFragment extends SherlockFragment {
     private boolean markedRead = false;
     
     private FrameLayout webContainer = null;
-    private MyWebView webView;
+    private WebView webView;
     private boolean webviewInitialized = false;
     private Button buttonNext;
     private Button buttonPrev;
@@ -172,7 +171,7 @@ public class ArticleFragment extends SherlockFragment {
     @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
-        articleJSInterface = new ArticleJSInterface(getSherlockActivity());
+        articleJSInterface = new ArticleJSInterface(getActivity());
         initData();
         initUI();
         doRefresh();
@@ -211,20 +210,20 @@ public class ArticleFragment extends SherlockFragment {
     }
     
     @SuppressLint("InlinedApi")
-    private void initUI() {
+	private void initUI() {
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
         // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
-        webContainer = (FrameLayout) getSherlockActivity().findViewById(R.id.article_webView_Container);
-        buttonPrev = (Button) getSherlockActivity().findViewById(R.id.article_buttonPrev);
-        buttonNext = (Button) getSherlockActivity().findViewById(R.id.article_buttonNext);
+        webContainer = (FrameLayout) getActivity().findViewById(R.id.article_webView_Container);
+        buttonPrev = (Button) getActivity().findViewById(R.id.article_buttonPrev);
+        buttonNext = (Button) getActivity().findViewById(R.id.article_buttonNext);
         buttonPrev.setOnClickListener(onButtonPressedListener);
         buttonNext.setOnClickListener(onButtonPressedListener);
         
         // Initialize the WebView if necessary
-        if (webView == null) {
-            webView = new MyWebView(getSherlockActivity());
-            webView.setWebViewClient(new ArticleWebViewClient(getSherlockActivity()));
-            webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+        if (webView == null) { // || webView.getSettings() == null) { // TODO Why can getSettings return null?
+            webView = new WebView(getActivity());
+            webView.setWebViewClient(new ArticleWebViewClient(getActivity()));
+            webView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             
             boolean supportZoom = Controller.getInstance().supportZoomControls();
             webView.getSettings().setSupportZoom(supportZoom);
@@ -260,8 +259,8 @@ public class ArticleFragment extends SherlockFragment {
         
         if (Controller.getInstance().darkBackground()) {
             webView.setBackgroundColor(Color.BLACK);
-            if (getSherlockActivity().findViewById(R.id.article_view) instanceof ViewGroup)
-                setDarkBackground((ViewGroup) getSherlockActivity().findViewById(R.id.article_view));
+            if (getActivity().findViewById(R.id.article_view) instanceof ViewGroup)
+                setDarkBackground((ViewGroup) getActivity().findViewById(R.id.article_view));
         }
         
         registerForContextMenu(webView);
@@ -270,7 +269,7 @@ public class ArticleFragment extends SherlockFragment {
             ((FrameLayout) webView.getParent()).removeAllViews();
         webContainer.addView(webView);
         
-        getSherlockActivity().findViewById(R.id.article_button_view).setVisibility(
+        getActivity().findViewById(R.id.article_button_view).setVisibility(
                 Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
                         : View.GONE);
         
@@ -297,7 +296,7 @@ public class ArticleFragment extends SherlockFragment {
         Controller.getInstance().lastOpenedArticles.add(articleId);
         
         if (parentAdapter == null)
-            parentAdapter = new FeedHeadlineAdapter(getSherlockActivity().getApplicationContext(), feedId, categoryId,
+            parentAdapter = new FeedHeadlineAdapter(getActivity().getApplicationContext(), feedId, categoryId,
                     selectForCategory);
         else
             parentAdapter.makeQuery(true);
@@ -308,7 +307,7 @@ public class ArticleFragment extends SherlockFragment {
         // Get article from DB
         article = DBHelper.getInstance().getArticle(articleId);
         if (article == null) {
-            getSherlockActivity().finish();
+            getActivity().finish();
             return;
         }
         feed = DBHelper.getInstance().getFeed(article.feedId);
@@ -321,7 +320,7 @@ public class ArticleFragment extends SherlockFragment {
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         
-        getSherlockActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
+        getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
         
         // Reload content on next doRefresh()
         webviewInitialized = false;
@@ -380,7 +379,7 @@ public class ArticleFragment extends SherlockFragment {
             
             // Check for errors
             if (Controller.getInstance().getConnector().hasLastError()) {
-                Intent i = new Intent(getSherlockActivity(), ErrorActivity.class);
+                Intent i = new Intent(getActivity(), ErrorActivity.class);
                 i.putExtra(ErrorActivity.ERROR_MESSAGE, Controller.getInstance().getConnector().pullLastError());
                 startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
                 return;
@@ -410,10 +409,10 @@ public class ArticleFragment extends SherlockFragment {
             contentTemplate.add(TEMPLATE_FEED_VAR, feed);
             contentTemplate.add(MARKER_CACHED_IMAGES, getCachedImagesJS(article.id));
             contentTemplate.add(MARKER_LABELS, labels.toString());
-            contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getSherlockActivity(), article.updated));
+            contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getActivity(), article.updated));
             contentTemplate.add(MARKER_CONTENT, article.content);
             // Inject the specific code for attachments, <img> for images, http-link for Videos
-            contentTemplate.add(MARKER_ATTACHMENTS, getAttachmentsMarkup(getSherlockActivity(), article.attachments));
+            contentTemplate.add(MARKER_ATTACHMENTS, getAttachmentsMarkup(getActivity(), article.attachments));
             
             webView.getSettings().setLightTouchEnabled(true);
             webView.getSettings().setJavaScriptEnabled(true);
@@ -432,6 +431,7 @@ public class ArticleFragment extends SherlockFragment {
             // Everything did load, we dont have to do this again.
             webviewInitialized = true;
         } catch (Exception e) {
+            e.printStackTrace();
             Log.w(Utils.TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause()
                     + ")");
         } finally {
@@ -476,7 +476,7 @@ public class ArticleFragment extends SherlockFragment {
         
         int index = parentAdapter.getIds().indexOf(articleId) + lastMove;
         if (index < 0 || index >= parentAdapter.getIds().size()) {
-            ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return true;
         }
         return false;
@@ -696,7 +696,7 @@ public class ArticleFragment extends SherlockFragment {
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
         
         if (id == Integer.MIN_VALUE) {
-            ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
         
@@ -708,7 +708,7 @@ public class ArticleFragment extends SherlockFragment {
     
     public void openArticle(int articleId, int feedId, int categoryId, boolean selectArticlesForCategory, int lastMove) {
         if (articleId == Integer.MIN_VALUE) {
-            ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return;
         }
         

@@ -32,6 +32,7 @@ import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -61,8 +62,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        setContentView(R.layout.feedheadlinelist);
-        super.initTabletLayout();
         
         Bundle extras = getIntent().getExtras();
         if (instance != null) {
@@ -77,20 +76,27 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             selectedArticleId = extras.getInt(SELECTED, Integer.MIN_VALUE);
         }
         
+        initUI(false);
+    }
+    
+    private void initUI(boolean orientationChanged) {
+        setContentView(R.layout.feedheadlinelist);
+        super.initTabletLayout();
+        
         FragmentManager fm = getSupportFragmentManager();
         headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
         articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
         
-        Fragment oldArticleFragment = articleFragment;
+        FragmentTransaction ft;
         
         if (articleFragment != null && !Controller.isTablet) {
-            articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
             // No Tablet mode but Article has been loaded, we have just one pane: R.id.frame_left
+
+            removeOldFragment(fm, headlineFragment);
+            removeOldFragment(fm, articleFragment);
             
-            removeOldFragment(fm, oldArticleFragment);
-            
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.frame_left, articleFragment, ArticleFragment.FRAGMENT);
+            ft = fm.beginTransaction();
+            ft.add(R.id.frame_left, articleFragment, ArticleFragment.FRAGMENT);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
         }
@@ -99,17 +105,31 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     selectedArticleId);
             
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft = fm.beginTransaction();
             ft.add(R.id.frame_left, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
             
             if (articleFragment != null && Controller.isTablet && selectedArticleId != Integer.MIN_VALUE) {
-                articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
-                removeOldFragment(fm, oldArticleFragment);
+                removeOldFragment(fm, articleFragment);
                 ft.add(R.id.frame_right, articleFragment, ArticleFragment.FRAGMENT);
             }
             
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
+            
+        } else if (orientationChanged && Controller.isTablet) {
+            
+            removeOldFragment(fm, headlineFragment);
+            removeOldFragment(fm, articleFragment);
+            
+            ft = fm.beginTransaction();
+            ft.add(R.id.frame_left, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
+            
+            if (articleFragment != null && Controller.isTablet && selectedArticleId != Integer.MIN_VALUE)
+                ft.add(R.id.frame_right, articleFragment, ArticleFragment.FRAGMENT);
+            
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            ft.commit();
+            
         }
     }
     
@@ -129,6 +149,12 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
         selectedArticleId = instance.getInt(SELECTED, Integer.MIN_VALUE);
         super.onRestoreInstanceState(instance);
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        initUI(true);
+        super.onConfigurationChanged(newConfig);
     }
     
     @Override

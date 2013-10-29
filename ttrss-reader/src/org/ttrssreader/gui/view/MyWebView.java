@@ -4,6 +4,14 @@ import android.content.Context;
 import android.view.View;
 import android.webkit.WebView;
 
+/**
+ * Not used anymore. Was intended to act as listener on the scroll-position to show/hide the actionbar when top or
+ * bottom was reached.
+ * 
+ * @author Nils Braden
+ * 
+ */
+@Deprecated
 public class MyWebView extends WebView {
     
     public MyWebView(Context context) {
