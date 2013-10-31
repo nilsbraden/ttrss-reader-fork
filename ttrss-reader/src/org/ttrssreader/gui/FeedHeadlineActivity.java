@@ -61,7 +61,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        setContentView(R.layout.feedheadlinelist);
+        setContentView(R.layout.categorylist);
         super.initTabletLayout();
         
         Bundle extras = getIntent().getExtras();

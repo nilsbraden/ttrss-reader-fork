@@ -29,6 +29,9 @@ import java.util.Set;
 import javax.net.ssl.SSLSocketFactory;
 import org.stringtemplate.v4.ST;
 import org.ttrssreader.R;
+import org.ttrssreader.gui.CategoryActivity;
+import org.ttrssreader.gui.FeedHeadlineActivity;
+import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.net.ApacheJSONConnector;
 import org.ttrssreader.net.JSONConnector;
@@ -181,6 +184,14 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     private void initializeController(final Display display) {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        
+        // Initially read absolutely necessary preferences:
+        sizeVerticalCategory = prefs.getInt(SIZE_VERTICAL_CATEGORY, -1);
+        sizeHorizontalCategory = prefs.getInt(SIZE_HORIZONTAL_CATEGORY, -1);
+        sizeVerticalHeadline = prefs.getInt(SIZE_VERTICAL_HEADLINE, -1);
+        sizeHorizontalHeadline = prefs.getInt(SIZE_HORIZONTAL_HEADLINE, -1);
+        Log.d(Utils.TAG, String.format("Frame-Größen aus Prefs gelesen. Cat: %s und %s, Head: %s und %s",
+                sizeVerticalCategory, sizeHorizontalCategory, sizeVerticalHeadline, sizeHorizontalHeadline));
         
         // Check for new installation
         if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
@@ -1038,4 +1049,51 @@ public class Controller implements OnSharedPreferenceChangeListener {
             return wifiSSID + param;
     }
     
+    private static final String SIZE_VERTICAL_CATEGORY = "sizeVerticalCategory";
+    private static final String SIZE_HORIZONTAL_CATEGORY = "sizeHorizontalCategory";
+    private static final String SIZE_VERTICAL_HEADLINE = "sizeVerticalHeadline";
+    private static final String SIZE_HORIZONTAL_HEADLINE = "sizeHorizontalHeadline";
+    private Integer sizeVerticalCategory;
+    private Integer sizeHorizontalCategory;
+    private Integer sizeVerticalHeadline;
+    private Integer sizeHorizontalHeadline;
+    
+    public int getViewSize(MenuActivity activity, boolean isVertical) {
+        if (activity instanceof CategoryActivity) {
+            if (isVertical) {
+                return sizeVerticalCategory;
+            } else {
+                return sizeHorizontalCategory;
+            }
+        } else if (activity instanceof FeedHeadlineActivity) {
+            if (isVertical) {
+                return sizeVerticalHeadline;
+            } else {
+                return sizeHorizontalHeadline;
+            }
+        }
+        return -1;
+    }
+    
+    public void setViewSize(MenuActivity activity, boolean isVertical, int size) {
+        if (size <= 0)
+            return;
+        if (activity instanceof CategoryActivity) {
+            if (isVertical) {
+                sizeVerticalCategory = size;
+                put(SIZE_VERTICAL_CATEGORY, size);
+            } else {
+                sizeHorizontalCategory = size;
+                put(SIZE_HORIZONTAL_CATEGORY, size);
+            }
+        } else if (activity instanceof FeedHeadlineActivity) {
+            if (isVertical) {
+                sizeVerticalHeadline = size;
+                put(SIZE_VERTICAL_HEADLINE, size);
+            } else {
+                sizeHorizontalHeadline = size;
+                put(SIZE_HORIZONTAL_HEADLINE, size);
+            }
+        }
+    }
 }

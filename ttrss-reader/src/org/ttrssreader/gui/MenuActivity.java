@@ -33,14 +33,22 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MotionEventCompat;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -59,6 +67,16 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     protected Updater updater;
     protected SherlockFragmentActivity activity;
+    protected boolean isVertical;
+    protected static int minListSize;
+    protected static int maxListSize;
+    
+    private View divider = null;
+    private View dividerLayout = null;
+    private View primaryFrame = null;
+    private View secondaryFrame = null;
+    private TextView header_title;
+    private TextView header_unread;
     
     public static final int MARK_GROUP = 42;
     public static final int MARK_READ = MARK_GROUP + 1;
@@ -82,27 +100,53 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void initTabletLayout() {
+        primaryFrame = findViewById(R.id.frame_left);
+        secondaryFrame = findViewById(R.id.frame_right);
+        dividerLayout = findViewById(R.id.list_divider_layout);
+        divider = findViewById(R.id.list_divider);
+        
+        // Initialize values for layout changes:
+        Controller
+                .refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
+        isVertical = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT);
+        int size = Controller.displayWidth;
+        if (isVertical) {
+            TypedValue tv = new TypedValue();
+            context.getTheme().resolveAttribute(R.attr.actionBarSize, tv, true);
+            int actionBarHeight = getResources().getDimensionPixelSize(tv.resourceId);
+            size = Controller.displayHeight - actionBarHeight;
+        }
+        
+        minListSize = (int) (size * 0.15);
+        maxListSize = size - (int) (size * 0.15);
+        
         if (Controller.getInstance().allowTabletLayout()) {
-            View horizontal = findViewById(R.id.frame_right);
-            if (horizontal != null && horizontal.getVisibility() == View.VISIBLE) {
+            if (secondaryFrame != null) {
                 Controller.isTablet = true;
+                dividerLayout.setVisibility(View.VISIBLE);
             } else {
                 Controller.isTablet = false;
+                dividerLayout.setVisibility(View.GONE);
             }
         } else {
             // Tablet-layout is deactivated, hide second view and divider:
             Controller.isTablet = false;
-            View horizontal = findViewById(R.id.frame_right);
-            if (horizontal != null && horizontal.getVisibility() == View.VISIBLE)
-                horizontal.setVisibility(View.GONE);
-            View divider = findViewById(R.id.message_list_divider);
-            if (divider != null && divider.getVisibility() == View.VISIBLE)
-                divider.setVisibility(View.GONE);
+            if (secondaryFrame != null)
+                secondaryFrame.setVisibility(View.GONE);
+            if (dividerLayout != null)
+                dividerLayout.setVisibility(View.GONE);
+        }
+        
+        // Resize frames and do it only if stored size is within our bounds:
+        int newSize = Controller.getInstance().getViewSize(this, isVertical);
+        if (newSize > minListSize && newSize < maxListSize) {
+            if (isVertical)
+                primaryFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, newSize));
+            else
+                primaryFrame.setLayoutParams(new LayoutParams(newSize, LayoutParams.MATCH_PARENT));
+            getWindow().getDecorView().getRootView().invalidate();
         }
     }
-    
-    private TextView header_title;
-    private TextView header_unread;
     
     private void initActionbar() {
         // Go to the CategoryActivity and clean the return-stack
@@ -420,6 +464,133 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         ft.remove(fragment);
         ft.commit();
         fm.executePendingTransactions();
+    }
+    
+    // The ‘active pointer’ is the one currently moving our object.
+    private static final int INVALID_POINTER_ID = -1;
+    private int mActivePointerId = INVALID_POINTER_ID;
+    
+    private float mLastTouchX = 0;
+    private float mLastTouchY = 0;
+    private int mDeltaX = 0;
+    private int mDeltaY = 0;
+    
+    private boolean resizing = false;
+    
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (!Controller.isTablet)
+            return false;
+        
+        // Only handle events when the list-divider is selected or we are already resizing:
+        View view = findViewAtPosition(getWindow().getDecorView().getRootView(), (int) ev.getRawX(), (int) ev.getRawY());
+        if (view == null && !resizing)
+            return false;
+        
+        if (view != null)
+            if (view.getId() != R.id.list_divider && view.getId() != R.id.list_divider_layout)
+                return false;
+        
+        final int action = MotionEventCompat.getActionMasked(ev);
+        
+        switch (action) {
+            case MotionEvent.ACTION_DOWN: {
+                divider.setSelected(true);
+                resizing = true;
+                final int pointerIndex = MotionEventCompat.getActionIndex(ev);
+                
+                // Remember where we started (for dragging)
+                mLastTouchX = MotionEventCompat.getX(ev, pointerIndex);
+                mLastTouchY = MotionEventCompat.getY(ev, pointerIndex);
+                mDeltaX = 0;
+                mDeltaY = 0;
+                
+                // Save the ID of this pointer (for dragging)
+                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                break;
+            }
+            
+            case MotionEvent.ACTION_MOVE: {
+                // Find the index of the active pointer and fetch its position
+                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                
+                if (pointerIndex < 0)
+                    break;
+                
+                final float x = MotionEventCompat.getX(ev, pointerIndex);
+                final float y = MotionEventCompat.getY(ev, pointerIndex);
+                
+                // Calculate the distance moved
+                mDeltaX = (int) (x - mLastTouchX);
+                mDeltaY = (int) (y - mLastTouchY);
+                
+                // Store location for next difference
+                mLastTouchX = x;
+                mLastTouchY = y;
+                
+                handleResize();
+                break;
+            }
+            
+            case MotionEvent.ACTION_UP: {
+                mActivePointerId = INVALID_POINTER_ID;
+                
+                handleResize();
+                storeSize();
+                divider.setSelected(false);
+                resizing = false;
+                break;
+            }
+        }
+        return true;
+    }
+    
+    private void handleResize() {
+        if (isVertical) {
+            final int size = calculateSize((int) (primaryFrame.getHeight() + mDeltaY));
+            primaryFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, size));
+        } else {
+            final int size = calculateSize((int) (primaryFrame.getWidth() + mDeltaX));
+            primaryFrame.setLayoutParams(new LayoutParams(size, LayoutParams.MATCH_PARENT));
+        }
+        
+        getWindow().getDecorView().getRootView().invalidate();
+    }
+    
+    private int calculateSize(final int size) {
+        int ret = size;
+        if (ret < minListSize)
+            ret = minListSize;
+        if (ret > maxListSize)
+            ret = maxListSize;
+        return ret;
+    }
+    
+    private void storeSize() {
+        int size = isVertical ? primaryFrame.getHeight() : primaryFrame.getWidth();
+        Controller.getInstance().setViewSize(this, isVertical, size);
+    }
+    
+    private static View findViewAtPosition(View parent, int x, int y) {
+        if (parent instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) parent;
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                View child = viewGroup.getChildAt(i);
+                View viewAtPosition = findViewAtPosition(child, x, y);
+                if (viewAtPosition != null) {
+                    return viewAtPosition;
+                }
+            }
+            return null;
+        } else {
+            Rect rect = new Rect();
+            parent.getGlobalVisibleRect(rect);
+            if (rect.contains(x, y)) {
+                return parent;
+            } else {
+                return null;
+            }
+        }
     }
     
 }
