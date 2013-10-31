@@ -126,7 +126,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                 dividerLayout.setVisibility(View.VISIBLE);
             } else {
                 Controller.isTablet = false;
-                dividerLayout.setVisibility(View.GONE);
             }
         } else {
             // Tablet-layout is deactivated, hide second view and divider:
