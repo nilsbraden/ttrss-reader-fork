@@ -25,14 +25,15 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.dialogs.ChangelogDialog;
 import org.ttrssreader.gui.dialogs.CrashreportDialog;
 import org.ttrssreader.gui.dialogs.WelcomeDialog;
+import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.fragments.CategoryListFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
-import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
@@ -246,15 +247,25 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             return true;
         
         switch (item.getItemId()) {
-            case R.id.Menu_Refresh:
+            case R.id.Menu_Refresh: {
                 doUpdate(true);
                 return true;
-            case R.id.Menu_MarkAllRead:
-                new Updater(this, new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES)).exec();
+            }
+            case R.id.Menu_MarkAllRead: {
+                IUpdatable updater = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
+                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(this, updater, R.string.Dialog_Title,
+                        R.string.Dialog_MarkAllRead);
+                dialog.show(getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
                 return true;
+            }
             case R.id.Menu_MarkFeedsRead:
                 if (selectedCategoryId > Integer.MIN_VALUE) {
-                    new Updater(this, new ReadStateUpdater(selectedCategoryId)).exec();
+                    IUpdatable updater = new ReadStateUpdater(selectedCategoryId);
+                    
+                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(this, updater, R.string.Dialog_Title,
+                            R.string.Dialog_MarkFeedsRead);
+                    dialog.show(getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                    
                     if (Controller.getInstance().goBackAfterMakeAllRead())
                         onBackPressed();
                 }

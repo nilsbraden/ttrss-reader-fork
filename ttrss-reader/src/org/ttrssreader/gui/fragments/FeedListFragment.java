@@ -18,10 +18,11 @@ package org.ttrssreader.gui.fragments;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.MenuActivity;
-import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
+import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -84,8 +85,10 @@ public class FeedListFragment extends MainListFragment {
                 new Updater(getActivity(), new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
                 return true;
             case MenuActivity.UNSUBSCRIBE:
-                FeedUnsubscribeDialog.getInstance(getActivity(), adapter.getId(cmi.position)).show(
-                        getFragmentManager(), FeedUnsubscribeDialog.DIALOG_UNSUBSCRIBE);
+                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(getActivity(),
+                        new UnsubscribeUpdater(adapter.getId(cmi.position)), R.string.Dialog_unsubscribeTitle,
+                        R.string.Dialog_unsubscribeText);
+                dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
                 return true;
         }
         return false;

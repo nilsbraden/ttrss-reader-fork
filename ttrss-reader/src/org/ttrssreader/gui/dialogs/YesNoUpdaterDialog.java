@@ -16,7 +16,7 @@
 package org.ttrssreader.gui.dialogs;
 
 import org.ttrssreader.R;
-import org.ttrssreader.model.updaters.UnsubscribeUpdater;
+import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.Updater;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,17 +25,21 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
-public class FeedUnsubscribeDialog extends DialogFragment {
+public class YesNoUpdaterDialog extends DialogFragment {
     
-    public static final String DIALOG_UNSUBSCRIBE = "unsubscribe";
+    public static final String DIALOG = "yesnodialog";
     
     private Activity parent;
-    private int feedId;
+    private IUpdatable updater;
+    private int titleRes;
+    private int msgRes;
     
-    public static FeedUnsubscribeDialog getInstance(Activity parent, int feedId) {
-        FeedUnsubscribeDialog fragment = new FeedUnsubscribeDialog();
+    public static YesNoUpdaterDialog getInstance(Activity parent, IUpdatable updater, int titleRes, int msgRes) {
+        YesNoUpdaterDialog fragment = new YesNoUpdaterDialog();
         fragment.parent = parent;
-        fragment.feedId = feedId;
+        fragment.updater = updater;
+        fragment.titleRes = titleRes;
+        fragment.msgRes = msgRes;
         return fragment;
     }
     
@@ -44,12 +48,12 @@ public class FeedUnsubscribeDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setIcon(android.R.drawable.ic_dialog_info);
         
-        builder.setTitle(getResources().getString(R.string.Dialog_unsubscribeTitle));
-        builder.setMessage(getResources().getString(R.string.Dialog_unsubscribeText));
+        builder.setTitle(getResources().getString(titleRes));
+        builder.setMessage(getResources().getString(msgRes));
         builder.setPositiveButton(getResources().getString(R.string.Yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface d, final int which) {
-                new Updater(parent, new UnsubscribeUpdater(feedId)).exec();
+                new Updater(parent, updater).exec();
                 d.dismiss();
             }
         });
