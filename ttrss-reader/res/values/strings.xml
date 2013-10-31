@@ -276,6 +276,9 @@
     <string name="Dialog.unsubscribeText">Are you sure you want to unsubscribe from this feed?</string>
     <string name="Dialog.unsubscribeTitle">Unsubscribe Feed</string>
     <string name="Dialog.imageCaptionTitle">Image caption</string>
+    <string name="Dialog.Title">Warning</string>
+    <string name="Dialog.MarkAllRead">Mark everything as read?</string>
+    <string name="Dialog.MarkFeedsRead">Mark this category as read?</string>
     <string name="Yes">Yes</string>
     <string name="No">No</string>
     <string name="Ok">OK</string>

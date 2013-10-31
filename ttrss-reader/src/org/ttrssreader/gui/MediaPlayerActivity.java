@@ -28,7 +28,7 @@ public class MediaPlayerActivity extends Activity {
     public static final String URL = "media_url";
     
     private String url;
-    private MediaPlayer mediaPlayer;
+    private MediaPlayer mp;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -55,10 +55,24 @@ public class MediaPlayerActivity extends Activity {
     }
     
     @Override
+    protected void onResume() {
+        if (mp != null)
+            mp.start();
+        super.onResume();
+    }
+    
+    @Override
+    protected void onPause() {
+        if (mp != null)
+            mp.pause();
+        super.onPause();
+    }
+    
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null)
-            mediaPlayer.release();
+        if (mp != null)
+            mp.release();
     }
     
 }

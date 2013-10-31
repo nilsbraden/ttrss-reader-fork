@@ -20,7 +20,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
-import org.ttrssreader.gui.dialogs.FeedUnsubscribeDialog;
+import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
@@ -29,6 +29,7 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
+import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import android.content.Intent;
@@ -233,10 +234,11 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         
         Article article = getArticle();
         switch (item.getItemId()) {
-            case R.id.Menu_Refresh:
+            case R.id.Menu_Refresh: {
                 doUpdate(true);
                 return true;
-            case R.id.Menu_MarkFeedRead:
+            }
+            case R.id.Menu_MarkFeedRead: {
                 if (selectArticlesForCategory) {
                     new Updater(this, new ReadStateUpdater(categoryId)).exec();
                 } else {
@@ -247,31 +249,40 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                     onBackPressed();
                 
                 return true;
-            case R.id.Menu_FeedUnsubscribe:
-                FeedUnsubscribeDialog.getInstance(this, headlineFragment.getFeedId()).show(getSupportFragmentManager(),
-                        FeedUnsubscribeDialog.DIALOG_UNSUBSCRIBE);
-            case R.id.Article_Menu_MarkRead:
+            }
+            case R.id.Menu_FeedUnsubscribe: {
+                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(this, new UnsubscribeUpdater(feedId),
+                        R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
+                dialog.show(getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                return true;
+            }
+            case R.id.Article_Menu_MarkRead: {
                 if (article != null)
                     new Updater(this, new ReadStateUpdater(article, article.feedId, article.isUnread ? 0 : 1)).exec();
                 return true;
-            case R.id.Article_Menu_MarkStar:
+            }
+            case R.id.Article_Menu_MarkStar: {
                 if (article != null)
                     new Updater(this, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
                 return true;
-            case R.id.Article_Menu_MarkPublish:
+            }
+            case R.id.Article_Menu_MarkPublish: {
                 if (article != null)
                     new Updater(this, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
                 return true;
-            case R.id.Article_Menu_MarkPublishNote:
+            }
+            case R.id.Article_Menu_MarkPublishNote: {
                 new TextInputAlert(this, article).show(this);
                 return true;
-            case R.id.Article_Menu_AddArticleLabel:
+            }
+            case R.id.Article_Menu_AddArticleLabel: {
                 if (article != null) {
                     DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
                     dialog.show(getSupportFragmentManager(), "Edit Labels");
                 }
                 return true;
-            case R.id.Article_Menu_ShareLink:
+            }
+            case R.id.Article_Menu_ShareLink: {
                 if (article != null) {
                     Intent i = new Intent(Intent.ACTION_SEND);
                     i.setType("text/plain");
@@ -280,6 +291,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                     startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
                 }
                 return true;
+            }
             default:
                 return false;
         }
