@@ -3,6 +3,7 @@
 = Changes =
 == Version 1.63 ==
   * Enabled zoom controls again. If they are enabled in preferences the gestures in article-view (swipe and scroll up/down to show/hide ActionBar) won't work anymore!
+  * Make frames of tablet-layout resizable 
 
 == Version 1.62 (1) ==
   * Fixed some rotation related issues, app should not crash anymore but it might display wrong stuff sometimes
