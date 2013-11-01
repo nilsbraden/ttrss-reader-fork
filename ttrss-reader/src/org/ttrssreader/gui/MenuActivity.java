@@ -72,7 +72,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected static int maxListSize;
     
     private View divider = null;
-    private View dividerLayout = null;
     private View primaryFrame = null;
     private View secondaryFrame = null;
     private TextView header_title;
@@ -102,7 +101,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected void initTabletLayout() {
         primaryFrame = findViewById(R.id.frame_left);
         secondaryFrame = findViewById(R.id.frame_right);
-        dividerLayout = findViewById(R.id.list_divider_layout);
         divider = findViewById(R.id.list_divider);
         
         // Initialize values for layout changes:
@@ -123,7 +121,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         if (Controller.getInstance().allowTabletLayout()) {
             if (secondaryFrame != null) {
                 Controller.isTablet = true;
-                dividerLayout.setVisibility(View.VISIBLE);
+                divider.setVisibility(View.VISIBLE);
             } else {
                 Controller.isTablet = false;
             }
@@ -132,8 +130,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             Controller.isTablet = false;
             if (secondaryFrame != null)
                 secondaryFrame.setVisibility(View.GONE);
-            if (dividerLayout != null)
-                dividerLayout.setVisibility(View.GONE);
+            if (divider != null)
+                divider.setVisibility(View.GONE);
         }
         
         // Resize frames and do it only if stored size is within our bounds:
@@ -487,7 +485,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             return false;
         
         if (view != null)
-            if (view.getId() != R.id.list_divider && view.getId() != R.id.list_divider_layout)
+            if (view.getId() != R.id.list_divider)
                 return false;
         
         final int action = MotionEventCompat.getActionMasked(ev);
