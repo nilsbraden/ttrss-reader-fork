@@ -32,12 +32,14 @@ import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.Utils;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
@@ -85,6 +87,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         Fragment oldArticleFragment = articleFragment;
         
         if (articleFragment != null && !Controller.isTablet) {
+            Log.w(Utils.TAG, "First IF");
+            Toast.makeText(this, "First IF", Toast.LENGTH_LONG).show();
             articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
             // No Tablet mode but Article has been loaded, we have just one pane: R.id.frame_left
             
@@ -97,6 +101,8 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         }
         
         if (headlineFragment == null) {
+            Log.w(Utils.TAG, "Second IF");
+            Toast.makeText(this, "Second IF", Toast.LENGTH_LONG).show();
             headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     selectedArticleId);
             

@@ -28,20 +28,13 @@
         android:layout_height="match_parent"
         android:layout_weight="1" />
 
-    <LinearLayout
-        android:id="@+id/list_divider_layout"
-        android:layout_width="25dp"
+    <ImageView
+        android:id="@+id/list_divider"
+        android:layout_width="16dp"
         android:layout_height="match_parent"
-        android:padding="10dp" >
-
-        <View
-            android:id="@+id/list_divider"
-            android:layout_width="5dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@drawable/list_divider"
-            tools:ignore="PxUsage" />
-    </LinearLayout>
+        android:layout_gravity="center"
+        android:background="@drawable/list_divider_vertical"
+        tools:ignore="PxUsage" />
 
     <FrameLayout
         android:id="@+id/frame_right"
