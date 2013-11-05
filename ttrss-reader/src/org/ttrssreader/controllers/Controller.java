@@ -72,6 +72,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static final String MARKER_CONTENT = "CONTENT_MARKER";
     private static final String MARKER_BOTTOM_NAV = "BOTTOM_NAVIGATION_MARKER";
     
+    public static final int THEME_DARK = 1;
+    public static final int THEME_LIGHT = 2;
+    public static final int THEME_BLACK = 3;
+    public static final int THEME_WHITE = 4;
+    
     private Context context;
     private WifiManager wifiManager;
     
@@ -122,7 +127,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String dateString = null;
     private String timeString = null;
     private String dateTimeString = null;
-    private Boolean darkBackground = null;
+    private Integer theme = null;
     
     private String saveAttachment = null;
     private String cacheFolder = null;
@@ -154,6 +159,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public static int displayWidth;
     
     public static boolean isTablet = false;
+    private boolean scheduledRestart = false;
     
     // SocketFactory for SSL-Connections, doesn't need to be accessed but indicates it is initialized if != null.
     private SSLSocketFactory sslSocketFactory = null;
@@ -190,7 +196,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
         sizeHorizontalCategory = prefs.getInt(SIZE_HORIZONTAL_CATEGORY, -1);
         sizeVerticalHeadline = prefs.getInt(SIZE_VERTICAL_HEADLINE, -1);
         sizeHorizontalHeadline = prefs.getInt(SIZE_HORIZONTAL_HEADLINE, -1);
-        Log.d(Utils.TAG, String.format("Frame-Größen aus Prefs gelesen. Cat: %s und %s, Head: %s und %s",
+        
+        Log.d(Utils.TAG, String.format("Frame-Sizes from prefs: Category: %s and %s, Headline: %s and %s",
                 sizeVerticalCategory, sizeHorizontalCategory, sizeVerticalHeadline, sizeHorizontalHeadline));
         
         // Check for new installation
@@ -198,9 +205,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
             newInstallation = true;
         }
         
-        // Attempt to initialize some stuff in a background-thread to reduce loading time
-        // Start a login-request separately because this takes some time. Also initialize SSL-Stuff since the login
-        // needs this.
+        // Attempt to initialize some stuff in a background-thread to reduce loading time. Start a login-request
+        // separately because this takes some time. Also initialize SSL-Stuff since the login needs this.
         new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... params) {
                 try {
@@ -222,59 +228,55 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 // Only need once we are displaying the feed-list or an article...
                 refreshDisplayMetrics(display);
                 
-                // Article-Prefetch-Stuff from Raw-Ressources and System
-                ST htmlTmpl = new ST(context.getResources().getString(R.string.HTML_TEMPLATE),
-                        TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
+                // Loads all article and webview related resources
+                reloadTheme();
                 
-                // Replace alignment-marker with the requested layout, align:left or justified
-                String replaceAlign;
-                if (alignFlushLeft()) {
-                    replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
-                } else {
-                    replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
-                }
-                
-                // Set light or dark theme for CSS
-                String theme;
-                if (darkBackground()) {
-                    theme = context.getResources().getString(R.string.THEME_DARK);
-                } else {
-                    theme = context.getResources().getString(R.string.THEME_LIGHT);
-                }
-                
-                String javascript = "";
-                String lang = "";
-                if (allowHyphenation()) {
-                    ST javascriptST = new ST(
-                            context.getResources().getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE),
-                            TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
-                    lang = hyphenationLanguage();
-                    javascriptST.add(MARKER_LANG, lang);
-                    javascript = javascriptST.render();
-                }
-                
-                String buttons = "";
-                if (showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML)
-                    buttons = context.getResources().getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
-                
-                htmlTmpl.add(MARKER_ALIGN, replaceAlign);
-                htmlTmpl.add(MARKER_THEME, theme);
-                htmlTmpl.add(MARKER_CACHE_DIR, cacheFolder());
-                htmlTmpl.add(MARKER_CACHED_IMAGES, context.getResources().getString(R.string.CACHED_IMAGES_TEMPLATE));
-                htmlTmpl.add(MARKER_JS, javascript);
-                htmlTmpl.add(MARKER_LANG, lang);
-                htmlTmpl.add(MARKER_TOP_NAV, context.getResources().getString(R.string.TOP_NAVIGATION_TEMPLATE));
-                htmlTmpl.add(MARKER_CONTENT, context.getResources().getString(R.string.CONTENT_TEMPLATE));
-                htmlTmpl.add(MARKER_BOTTOM_NAV, buttons);
-                
-                // This is only needed once an article is displayed
-                synchronized (htmlTemplate) {
-                    htmlTemplate = htmlTmpl.render();
-                }
                 return null;
             }
         }.execute();
+    }
+    
+    private void reloadTheme() {
+        // Article-Prefetch-Stuff from Raw-Ressources and System
+        ST htmlTmpl = new ST(context.getResources().getString(R.string.HTML_TEMPLATE), TEMPLATE_DELIMITER_START,
+                TEMPLATE_DELIMITER_END);
         
+        // Replace alignment-marker with the requested layout, align:left or justified
+        String replaceAlign;
+        if (alignFlushLeft()) {
+            replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
+        } else {
+            replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
+        }
+        
+        String javascript = "";
+        String lang = "";
+        if (allowHyphenation()) {
+            ST javascriptST = new ST(context.getResources().getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE),
+                    TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
+            lang = hyphenationLanguage();
+            javascriptST.add(MARKER_LANG, lang);
+            javascript = javascriptST.render();
+        }
+        
+        String buttons = "";
+        if (showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML)
+            buttons = context.getResources().getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
+        
+        htmlTmpl.add(MARKER_ALIGN, replaceAlign);
+        htmlTmpl.add(MARKER_THEME, context.getResources().getString(getThemeHTML()));
+        htmlTmpl.add(MARKER_CACHE_DIR, cacheFolder());
+        htmlTmpl.add(MARKER_CACHED_IMAGES, context.getResources().getString(R.string.CACHED_IMAGES_TEMPLATE));
+        htmlTmpl.add(MARKER_JS, javascript);
+        htmlTmpl.add(MARKER_LANG, lang);
+        htmlTmpl.add(MARKER_TOP_NAV, context.getResources().getString(R.string.TOP_NAVIGATION_TEMPLATE));
+        htmlTmpl.add(MARKER_CONTENT, context.getResources().getString(R.string.CONTENT_TEMPLATE));
+        htmlTmpl.add(MARKER_BOTTOM_NAV, buttons);
+        
+        // This is only needed once an article is displayed
+        synchronized (htmlTemplate) {
+            htmlTemplate = htmlTmpl.render();
+        }
     }
     
     private synchronized void initializeConnector() {
@@ -722,15 +724,79 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.dateTimeString = dateTimeString;
     }
     
-    public boolean darkBackground() {
-        if (darkBackground == null)
-            darkBackground = prefs.getBoolean(Constants.DARK_BACKGROUND, Constants.DARK_BACKGROUND_DEFAULT);
-        return darkBackground;
+    public int getTheme() {
+        switch (getThemeInternal()) {
+            case THEME_LIGHT:
+                return R.style.Theme_Light;
+            case THEME_BLACK:
+                return R.style.Theme_Black;
+            case THEME_WHITE:
+                return R.style.Theme_White;
+            case THEME_DARK:
+            default:
+                return R.style.Theme_Dark;
+        }
     }
     
-    public void setDarkBackground(boolean darkBackground) {
-        put(Constants.DARK_BACKGROUND, darkBackground);
-        this.darkBackground = darkBackground;
+    public int getThemeInternal() {
+        if (theme == null)
+            theme = Integer.parseInt(prefs.getString(Constants.THEME, Constants.THEME_DEFAULT));
+        return theme;
+    }
+    
+    public void setTheme(int theme) {
+        put(Constants.THEME, theme + "");
+        this.theme = theme;
+    }
+    
+    public int getThemeBackground() {
+        switch (getThemeInternal()) {
+            case THEME_LIGHT:
+                return R.color.background_light;
+            case THEME_BLACK:
+                return R.color.background_black;
+            case THEME_WHITE:
+                return R.color.background_white;
+            case THEME_DARK:
+            default:
+                return R.color.background_dark;
+        }
+    }
+    
+    public int getThemeFont() {
+        switch (getThemeInternal()) {
+            case THEME_LIGHT:
+                return R.color.font_color_light;
+            case THEME_BLACK:
+                return R.color.font_color_black;
+            case THEME_WHITE:
+                return R.color.font_color_white;
+            case THEME_DARK:
+            default:
+                return R.color.font_color_dark;
+        }
+    }
+    
+    public int getThemeHTML() {
+        switch (getThemeInternal()) {
+            case THEME_LIGHT:
+                return R.string.HTML_THEME_LIGHT;
+            case THEME_BLACK:
+                return R.string.HTML_THEME_BLACK;
+            case THEME_WHITE:
+                return R.string.HTML_THEME_WHITE;
+            case THEME_DARK:
+            default:
+                return R.string.HTML_THEME_DARK;
+        }
+    }
+    
+    public boolean isScheduledRestart() {
+        return scheduledRestart;
+    }
+    
+    public void setScheduledRestart(boolean scheduledRestart) {
+        this.scheduledRestart = scheduledRestart;
     }
     
     // SYSTEM
@@ -997,6 +1063,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         
+        // Indicate Restart of App is necessary if Theme-Pref is changed and value differs from old value:
+        if (key.equals(Constants.THEME)) {
+            int newTheme = Integer.parseInt(prefs.getString(key, Constants.THEME_DEFAULT));
+            if (newTheme != getThemeInternal()) {
+                setTheme(newTheme);
+                reloadTheme();
+                scheduledRestart = true;
+            }
+        }
+        
         for (Field field : Constants.class.getDeclaredFields()) {
             
             // No default-values
@@ -1096,4 +1172,5 @@ public class Controller implements OnSharedPreferenceChangeListener {
             }
         }
     }
+    
 }

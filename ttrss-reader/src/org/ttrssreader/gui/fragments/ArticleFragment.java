@@ -50,7 +50,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -258,11 +257,12 @@ public class ArticleFragment extends SherlockFragment {
             }
         }
         
-        if (Controller.getInstance().darkBackground()) {
-            webView.setBackgroundColor(Color.BLACK);
-            if (getSherlockActivity().findViewById(R.id.article_view) instanceof ViewGroup)
-                setDarkBackground((ViewGroup) getSherlockActivity().findViewById(R.id.article_view));
-        }
+        // TODO: Is this still necessary?
+        int backgroundColor = Controller.getInstance().getThemeBackground();
+        int fontColor = Controller.getInstance().getThemeFont();
+        webView.setBackgroundColor(backgroundColor);
+        if (getSherlockActivity().findViewById(R.id.article_view) instanceof ViewGroup)
+            setBackground((ViewGroup) getSherlockActivity().findViewById(R.id.article_view), backgroundColor, fontColor);
         
         registerForContextMenu(webView);
         // Attach the WebView to its placeholder
@@ -489,8 +489,8 @@ public class ArticleFragment extends SherlockFragment {
      * @param v
      *            the ViewGroup to walk through
      */
-    private void setDarkBackground(ViewGroup v) {
-        v.setBackgroundColor(getResources().getColor(R.color.darkBackground));
+    private void setBackground(ViewGroup v, int background, int font) {
+        v.setBackgroundColor(getResources().getColor(background));
         
         for (int i = 0; i < v.getChildCount(); i++) { // View at index 0 seems to be this view itself.
             View vChild = v.getChildAt(i);
@@ -499,10 +499,10 @@ public class ArticleFragment extends SherlockFragment {
                 continue;
             
             if (vChild instanceof TextView)
-                ((TextView) vChild).setTextColor(Color.WHITE);
+                ((TextView) vChild).setTextColor(font);
             
             if (vChild instanceof ViewGroup)
-                setDarkBackground(((ViewGroup) vChild));
+                setBackground(((ViewGroup) vChild), background, font);
         }
     }
     

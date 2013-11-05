@@ -25,7 +25,7 @@
         <attr name="textRotation" format="integer" />
         <attr name="backgroundColor" format="color" />
     </declare-styleable>
-    <declare-styleable name="ThemeDark">
+    <declare-styleable name="ListEntryStyle">
         <attr name="listEntry" format="reference" />
     </declare-styleable>
 

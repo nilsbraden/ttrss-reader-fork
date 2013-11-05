@@ -16,7 +16,6 @@
     not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@attr/listEntry"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal" >
@@ -36,6 +35,7 @@
 
         <TextView
             android:id="@+id/fh_title"
+            style="@attr/listEntry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textIsSelectable="false" />
@@ -47,6 +47,7 @@
 
             <TextView
                 android:id="@+id/fh_updateDate"
+                style="@attr/listEntry"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="left"
@@ -55,6 +56,7 @@
 
             <TextView
                 android:id="@+id/fh_dataSource"
+                style="@attr/listEntry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"

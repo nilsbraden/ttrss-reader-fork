@@ -76,7 +76,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         // .detectDiskWrites().detectNetwork().penaltyLog().penaltyLog().build());
         // StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
         // .detectLeakedClosableObjects().penaltyLog().build());
-        
         super.onCreate(instance);
         setContentView(R.layout.categorylist);
         super.initTabletLayout();

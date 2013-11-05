@@ -8,7 +8,7 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="19" />
 
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -42,8 +42,7 @@
         android:backupAgent=".preferences.MyPrefsBackupAgent"
         android:description="@string/ApplicationDescription"
         android:icon="@drawable/icon"
-        android:label="@string/ApplicationName"
-        android:theme="@style/Theme.MyAppTheme" >
+        android:label="@string/ApplicationName" >
         <activity
             android:name=".gui.CategoryActivity"
             android:label="@string/ApplicationName" >

@@ -17,7 +17,6 @@
         android:maxLines="3"
         android:padding="3dip"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/white"
         android:textIsSelectable="false" />
 
     <TextView
@@ -28,7 +27,6 @@
         android:maxLines="1"
         android:padding="3dip"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/white"
         android:textIsSelectable="false"
         android:textSize="12sp" />
 
@@ -41,7 +39,6 @@
         android:maxLines="1"
         android:padding="3dip"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/white"
         android:textIsSelectable="false"
         android:textSize="12sp" />
 

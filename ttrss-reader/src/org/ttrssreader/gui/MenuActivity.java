@@ -88,6 +88,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     @Override
     protected void onCreate(Bundle instance) {
+        setTheme(Controller.getInstance().getTheme());
         super.onCreate(instance);
         activity = this;
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -201,8 +202,16 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     @Override
     protected void onResume() {
         super.onResume();
-        UpdateController.getInstance().registerActivity(this);
-        DBHelper.getInstance().checkAndInitializeDB(this);
+        if (Controller.getInstance().isScheduledRestart()) {
+            Controller.getInstance().setScheduledRestart(false);
+            Intent intent = getBaseContext().getPackageManager()
+                    .getLaunchIntentForPackage(getBaseContext().getPackageName());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        } else {
+            UpdateController.getInstance().registerActivity(this);
+            DBHelper.getInstance().checkAndInitializeDB(this);
+        }
     }
     
     @Override
@@ -529,7 +538,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                 break;
             }
             
-            case MotionEvent.ACTION_UP: {
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL: {
                 mActivePointerId = INVALID_POINTER_ID;
                 
                 handleResize();

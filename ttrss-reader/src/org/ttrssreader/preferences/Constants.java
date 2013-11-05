@@ -101,7 +101,7 @@ public class Constants {
     public static final String DATE_STRING = "DisplayDateFormatPreference";
     public static final String TIME_STRING = "DisplayTimeFormatPreference";
     public static final String DATETIME_STRING = "DisplayDateTimeFormatPreference";
-    public static final String DARK_BACKGROUND = "DisplayDarkBackgroundPreference";
+    public static final String THEME = "DisplayThemePreference";
     // Display Default Values
     public static final int HEADLINE_SIZE_DEFAULT = 16;
     public static final int TEXT_ZOOM_DEFAULT = 100;
@@ -122,7 +122,7 @@ public class Constants {
     public static final String DATE_STRING_DEFAULT = "dd.MM.yyyy";
     public static final String TIME_STRING_DEFAULT = "kk:mm";
     public static final String DATETIME_STRING_DEFAULT = "dd.MM.yyyy kk:mm";
-    public static final boolean DARK_BACKGROUND_DEFAULT = false;
+    public static final String THEME_DEFAULT = "1";
     
     // System
     public static final String SAVE_ATTACHMENT = "SaveAttachmentPreference";

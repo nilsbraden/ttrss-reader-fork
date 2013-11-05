@@ -16,8 +16,8 @@
 -->
 <resources>
 
-  <!-- MAIN TEMPLATE -->
-  <string name="HTML_TEMPLATE" formatted="false">
+    <!-- MAIN TEMPLATE -->
+    <string name="HTML_TEMPLATE" formatted="false">
 <![CDATA[
 <!DOCTYPE html>
 <head>
@@ -29,19 +29,15 @@
     font-weight: normal;
     word-wrap: break-word !important;
   }
+  
+  /************ BEGIN THEMES --> ************/
+  /*** THEME: DARK ***/
   body#darkTheme {
-    background-color: #000;
-    color: #EEE;
-  }
-  body#lightTheme {
-    background-color: #E1E1E1;
-    color: #333;
+    background-color: #222;
+    color: #DDD;
   }
   body#darkTheme #header {
     background-color: #454545;
-  }
-  body#lightTheme #header {
-    background-color: #B8B3B3;
   }
   body#darkTheme a:link, a:active, a:hover {
     color: #E1E1E1 !important;
@@ -49,12 +45,53 @@
   body#darkTheme a:visited {
     color: #FFF !important;
   }
+  
+  /*** THEME: LIGHT ***/
+  body#lightTheme {
+    background-color: #E1E1E1;
+    color: #333;
+  }
+  body#lightTheme #header {
+    background-color: #B8B3B3;
+  }
   body#lightTheme a:link, a:active, a:hover {
     color: #555 !important;
   }
   body#lightTheme a:visited {
     color: #000 !important;
   }
+  
+  /*** THEME: BLACK ***/
+  body#blackTheme {
+    background-color: #000;
+    color: #FFF;
+  }
+  body#blackTheme #header {
+    background-color: #454545;
+  }
+  body#blackTheme a:link, a:active, a:hover {
+    color: #E1E1E1 !important;
+  }
+  body#blackTheme a:visited {
+    color: #FFF !important;
+  }
+  
+  /*** THEME: WHITE ***/
+  body#whiteTheme {
+    background-color: #FFF;
+    color: #000;
+  }
+  body#whiteTheme #header {
+    background-color: #DBDBDB;
+  }
+  body#whiteTheme a:link, a:active, a:hover {
+    color: #555 !important;
+  }
+  body#whiteTheme a:visited {
+    color: #000 !important;
+  }
+  /************ END THEMES --> ************/
+  
   body, blockquote, img, iframe, video, div, table, tbody, tr, td, pre, code, blockquote, p, em, b {
     width: auto !important;
     height: auto !important;
@@ -153,23 +190,21 @@
     $BOTTOM_NAVIGATION_MARKER$
   </body>
 </html>]]>
-  </string>
+    </string>
 
-  <!-- IMAGE_HASHES -->
-  <string name="CACHED_IMAGES_TEMPLATE" formatted="false">
-<![CDATA[$CACHED_IMAGES$]]>
-  </string>
+    <!-- IMAGE_HASHES -->
+    <string name="CACHED_IMAGES_TEMPLATE" formatted="false"><![CDATA[$CACHED_IMAGES$]]></string>
 
-  <!-- HYPHENATION -->
-  <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">
+    <!-- HYPHENATION -->
+    <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">
 <![CDATA[
 <script src=\"file:///android_asset/Hyphenator.js\" type=\"text/javascript\"></script>
 <script type=\"text/javascript\">Hyphenator.run();</script>
 <script type=\"text/javascript\" src=\"file:///android_asset/patterns/$LANG_MARKER$.js\"></script>]]>
-  </string>
+    </string>
 
-  <!-- HEADER -->
-  <string name="TOP_NAVIGATION_TEMPLATE" formatted="false">
+    <!-- HEADER -->
+    <string name="TOP_NAVIGATION_TEMPLATE" formatted="false">
 <![CDATA[
 <div id=\"header\">
   <a href=\"$article.url$\" rel=\"alternate\">$article.title$</a>
@@ -185,10 +220,10 @@
     $LABELS$
   </div>
 </div>]]>
-  </string>
+    </string>
 
-  <!-- CONTENT -->
-  <string name="CONTENT_TEMPLATE" formatted="false">
+    <!-- CONTENT -->
+    <string name="CONTENT_TEMPLATE" formatted="false">
 <![CDATA[
 <div id=\"content\">
   $CONTENT$
@@ -196,10 +231,10 @@
 <div id=\"attachments\">
   $ATTACHMENTS$
 </div>]]>
-  </string>
+    </string>
 
-  <!-- BOTTOM NAVIGATION -->
-  <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
+    <!-- BOTTOM NAVIGATION -->
+    <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
 <![CDATA[
 <style type=\"text/css\">
   .bottom_navigation {
@@ -221,20 +256,18 @@
   <button id=\"btnPrev\" class=\"first prev\" onclick=\"articleController.prev();\">&leftarrow;</button>
   <button id=\"btnNext\" class=\"last next\" onclick=\"articleController.next();\">&rightarrow;</button>
 </div>]]>
-  </string>
+    </string>
 
-  <!-- ATTACHMENTS -->
-  <string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false">
-<![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]>
-  </string>
-  <string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false">
-<![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]>
-  </string>
+    <!-- ATTACHMENTS -->
+    <string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]></string>
+    <string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]></string>
 
-  <!-- EVERYTHING ELSE -->
-  <string name="ALIGN_JUSTIFY">justify</string>
-  <string name="ALIGN_LEFT">left</string>
-  <string name="THEME_LIGHT">lightTheme</string>
-  <string name="THEME_DARK">darkTheme</string>
+    <!-- EVERYTHING ELSE -->
+    <string name="ALIGN_JUSTIFY">justify</string>
+    <string name="ALIGN_LEFT">left</string>
+    <string name="HTML_THEME_DARK">darkTheme</string>
+    <string name="HTML_THEME_LIGHT">lightTheme</string>
+    <string name="HTML_THEME_BLACK">blackTheme</string>
+    <string name="HTML_THEME_WHITE">whiteTheme</string>
 
 </resources>

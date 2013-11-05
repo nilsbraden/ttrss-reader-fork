@@ -29,7 +29,6 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="@color/white"
         android:textIsSelectable="false"
         android:textScaleX=".9"
         android:textSize="19sp"
@@ -39,7 +38,6 @@
         android:id="@+id/head_unread"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
         android:textIsSelectable="false"
         android:textSize="16sp"
         android:visible="false" />
