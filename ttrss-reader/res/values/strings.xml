@@ -206,6 +206,8 @@
     <string name="DisplayDateTimeFormatDefault">dd.MM.yyyy kk:mm</string>
     <string name="DisplayDarkBackgroundTitle">Use dark background?</string>
     <string name="DisplayDarkBackgroundSummary">Enable this to display the articles with a dark background for easier reading at night.</string>
+    <string name="DisplayThemeTitle">Select App-Theme</string>
+    <string name="DisplayThemeSummary">Black/White are completely black font, white background (or inversed) so allow reading on EBook-Readers.</string>
     <string name="SystemPreferenceCategoryTitle">System</string>
     <string name="LogSensitiveDataTitle">Log sensitive data?</string>
     <string name="LogSensitiveDataSummary">If enabled the log-output of this application may contain sensitive information such as passwords or session-ids from your configuration. Only enable if necessary, should be for debugging purposes only.</string>
@@ -287,5 +289,9 @@
     <string name="Up">Up</string>
     <string name="Down">Down</string>
     <string name="Empty"></string>
+    <string name="DarkTheme">Dark Theme</string>
+    <string name="LightTheme">Light Theme</string>
+    <string name="BlackTheme">Black Theme</string>
+    <string name="WhiteTheme">White Theme</string>
 
 </resources>

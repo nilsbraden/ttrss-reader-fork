@@ -74,6 +74,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
     @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState); // IMPORTANT!
         
         context = getApplicationContext();

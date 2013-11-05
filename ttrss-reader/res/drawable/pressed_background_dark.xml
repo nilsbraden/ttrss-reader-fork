@@ -17,15 +17,10 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
 
-    <style name="Theme.MyAppTheme" parent="@style/Theme.Sherlock">
-        <item name="android:actionBarStyle">@style/Theme.MyAppTheme.ActionBar</item>
-    </style>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle" >
 
-    <style name="Theme.MyAppTheme.ActionBar" parent="@style/Widget.Sherlock.ActionBar.Solid">
-        <item name="android:background">@drawable/ab_solid</item>
-        <item name="android:height">64dip</item>
-    </style>
+    <solid android:color="@color/pressed_dark" />
 
-</resources>
+</shape>

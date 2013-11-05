@@ -16,54 +16,48 @@
     copy of the GNU General Public License along with this program; If
     not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/article_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@+color/lightBackground"
     android:orientation="vertical" >
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/article_button_view"
+        android:orientation="vertical" >
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/article_button_view"
-            android:orientation="vertical" >
-
-            <FrameLayout
-                android:id="@+id/article_webView_Container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/article_button_view"
-            android:layout_width="45dip"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:background="@android:drawable/bottom_bar"
-            android:orientation="vertical"
-            android:visibility="gone" >
-
-            <Button
-                android:id="@+id/article_buttonNext"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1.0"
-                android:padding="4dip"
-                android:text="@string/Up" />
-
-            <Button
-                android:id="@+id/article_buttonPrev"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1.0"
-                android:padding="4dip"
-                android:text="@string/Down" />
-        </LinearLayout>
+        <FrameLayout
+            android:id="@+id/article_webView_Container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </RelativeLayout>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/article_button_view"
+        android:layout_width="45dip"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:background="@android:drawable/bottom_bar"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <Button
+            android:id="@+id/article_buttonNext"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:padding="4dip"
+            android:text="@string/Up" />
+
+        <Button
+            android:id="@+id/article_buttonPrev"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.0"
+            android:padding="4dip"
+            android:text="@string/Down" />
+    </LinearLayout>
+
+</RelativeLayout>

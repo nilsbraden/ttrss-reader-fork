@@ -9,31 +9,12 @@
         <item name="android:textColor">?android:attr/textColorPrimaryInverseDisableOnly</item>
     </style>
 
-    <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    -->
-    <style name="Theme.MyAppTheme" parent="@style/Theme.Sherlock">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
-    </style>
+    <style name="Theme.Dark" parent="@style/Theme.Sherlock"></style>
 
-    <!-- Application theme. -->
-    <style name="Theme.Light" parent="Theme.MyAppTheme">
+    <style name="Theme.White" parent="@style/Theme.Sherlock.Light"></style>
 
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-        <item name="android:actionBarStyle">@style/Theme.MyAppTheme.ActionBar</item>
-        <item name="actionBarStyle">@style/Theme.MyAppTheme.ActionBar</item>
-    </style>
+    <style name="Theme.Light" parent="@style/Theme.Sherlock.Light"></style>
 
-    <style name="Theme.MyAppTheme.ActionBar" parent="@style/Widget.Sherlock.ActionBar.Solid">
-        <item name="android:background">@drawable/ab_solid</item>
-        <item name="background">@drawable/ab_solid</item>
-        <item name="android:height">64dip</item>
-        <item name="height">64dip</item>
-    </style>
+    <style name="Theme.Black" parent="@style/Theme.Sherlock"></style>
 
 </resources>
