@@ -179,12 +179,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     }
     
     @Override
-    protected void onResume() {
-        super.onResume();
-        refreshAndUpdate();
-    }
-    
-    @Override
     protected void doRefresh() {
         super.doRefresh();
         if (categoryFragment != null)
@@ -392,6 +386,13 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     
     @Override
     public void onBackPressed() {
+        if (!Controller.isTablet) {
+            FragmentManager fm = getSupportFragmentManager();
+            feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
+            if (feedFragment != null)
+                fm.beginTransaction().remove(feedFragment).commit();
+        }
+        
         selectedCategoryId = Integer.MIN_VALUE;
         feedFragment = null;
         super.onBackPressed();

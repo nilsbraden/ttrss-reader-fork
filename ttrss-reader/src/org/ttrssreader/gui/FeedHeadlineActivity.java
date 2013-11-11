@@ -133,19 +133,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    protected void onResume() {
-        super.onResume();
-        refreshAndUpdate();
-    }
-    
-    @Override
     protected void doRefresh() {
         super.doRefresh();
         headlineFragment.doRefresh();
-        refreshTitleAndUnread();
-    }
-    
-    public void refreshTitleAndUnread() {
         if (!Controller.isTablet && articleFragment != null) {
             String title = headlineFragment.getTitle();
             title = title + " " + articleFragment.getTitle();
@@ -426,6 +416,13 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     @Override
     public void onBackPressed() {
+        if (!Controller.isTablet) {
+            FragmentManager fm = getSupportFragmentManager();
+            articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
+            if (articleFragment != null)
+                fm.beginTransaction().remove(articleFragment).commit();
+        }
+        
         selectedArticleId = Integer.MIN_VALUE;
         articleFragment = null;
         super.onBackPressed();
