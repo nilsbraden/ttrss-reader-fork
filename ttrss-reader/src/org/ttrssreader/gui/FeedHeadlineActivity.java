@@ -338,18 +338,25 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     private void openNextFragment(int direction) {
         if (selectedArticleId != Integer.MIN_VALUE) {
-            // Open next article
-            Fragment fragment = getSupportFragmentManager().findFragmentByTag(ArticleFragment.FRAGMENT);
-            if (fragment instanceof ArticleFragment) {
-                ((ArticleFragment) fragment).openNextArticle(direction);
-                selectedArticleId = ((ArticleFragment) fragment).getArticleId();
-                headlineFragment.setSelectedId(selectedArticleId);
-            }
+            openNextArticle(direction);
         } else {
-            // Open next Feed
-            headlineFragment.openNextFeed(direction);
-            feedId = headlineFragment.getFeedId();
+            openNextFeed(direction);
         }
+    }
+    
+    public void openNextArticle(int direction) {
+        // Open next article
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ArticleFragment.FRAGMENT);
+        if (fragment instanceof ArticleFragment) {
+            selectedArticleId = ((ArticleFragment) fragment).openNextArticle(direction);
+            headlineFragment.setSelectedId(selectedArticleId);
+        }
+    }
+    
+    public void openNextFeed(int direction) {
+        // Open next Feed
+        headlineFragment.openNextFeed(direction);
+        feedId = headlineFragment.getFeedId();
     }
     
     /**

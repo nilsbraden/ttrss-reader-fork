@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
@@ -268,14 +269,16 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
                     
                     // right to left swipe
-                    openNextFeed(1);
+                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                    activity.openNextFeed(1);
                     return true;
                     
                 } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
                     
                     // left to right swipe
-                    openNextFeed(-1);
+                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                    activity.openNextFeed(-1);
                     return true;
                     
                 }
@@ -305,14 +308,14 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         }
     }
     
-    public void openNextFeed(int direction) {
+    public int openNextFeed(int direction) {
         if (feedId < 0)
-            return;
+            return feedId;
         
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
         if (id <= 0) {
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
-            return;
+            return feedId;
         }
         
         this.feedId = id;
@@ -321,6 +324,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         
         if (getActivity() instanceof IDataChangedListener)
             ((IDataChangedListener) getActivity()).dataChanged(); // doRefresh()
+        return feedId;
     }
     
 }
