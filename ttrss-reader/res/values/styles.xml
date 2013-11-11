@@ -9,12 +9,4 @@
         <item name="android:textColor">?android:attr/textColorPrimaryInverseDisableOnly</item>
     </style>
 
-    <style name="Theme.Dark" parent="@style/Theme.Sherlock"></style>
-
-    <style name="Theme.White" parent="@style/Theme.Sherlock.Light"></style>
-
-    <style name="Theme.Light" parent="@style/Theme.Sherlock.Light"></style>
-
-    <style name="Theme.Black" parent="@style/Theme.Sherlock"></style>
-
 </resources>

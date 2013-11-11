@@ -18,9 +18,9 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Light.Sub" parent="Theme.Light">
+    <style name="Theme.Light" parent="Theme.Sherlock.Light">
         <item name="actionBarItemBackground">@drawable/selectable_background_light</item>
         <item name="popupMenuStyle">@style/PopupMenu.Light</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Light</item>
@@ -32,9 +32,15 @@
         <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_light</item>
-        <item name="textColor">@color/font_color_light</item>
         <item name="android:background">@color/background_light</item>
-        <item name="background">@color/background_light</item>
+        <item name="android:windowBackground">@color/background_light</item>
+        <item name="android:colorBackground">@color/background_light</item>
+        <!-- Lists -->
+        <item name="listEntry">@style/listEntry.Light</item>
+    </style>
+
+    <style name="listEntry.Light" parent="@android:style/TextAppearance">
+        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
     </style>
 
     <style name="ActionBar.Solid.Light" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
@@ -45,7 +51,6 @@
     </style>
 
     <style name="ActionBar.Transparent.Light" parent="@style/Widget.Sherlock.Light.ActionBar">
-        <item name="android:height">55dip</item>
         <item name="height">55dip</item>
         <item name="background">@drawable/ab_transparent_light</item>
         <item name="progressBarStyle">@style/ProgressBar.Light</item>

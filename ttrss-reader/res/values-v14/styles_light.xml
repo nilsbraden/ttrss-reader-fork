@@ -20,7 +20,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Light.Sub" parent="Theme.Light">
+    <style name="Theme.Light" parent="Theme.Sherlock.Light">
+        <item name="android:selectableItemBackground">@drawable/selectable_background_light</item>
         <item name="android:actionBarItemBackground">@drawable/selectable_background_light</item>
         <item name="android:popupMenuStyle">@style/PopupMenu.Light</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Light</item>
@@ -30,6 +31,17 @@
         <item name="android:actionModeBackground">@drawable/cab_background_top_light</item>
         <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_light</item>
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
+        <!-- Text and Background -->
+        <item name="android:textColor">@color/font_color_light</item>
+        <item name="android:background">@color/background_light</item>
+        <item name="android:windowBackground">@color/background_light</item>
+        <item name="android:colorBackground">@color/background_light</item>
+        <!-- Lists -->
+        <item name="listEntry">@style/listEntry.Light</item>
+    </style>
+
+    <style name="listEntry.Light" parent="@android:style/TextAppearance">
+        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
     </style>
 
     <style name="ActionBar.Solid.Light" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
