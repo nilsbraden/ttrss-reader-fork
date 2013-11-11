@@ -28,6 +28,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.ErrorActivity;
+import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.gui.view.MyGestureDetector;
@@ -669,10 +670,13 @@ public class ArticleFragment extends SherlockFragment {
     private OnClickListener onButtonPressedListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (v.equals(buttonNext))
-                openNextArticle(-1);
-            else if (v.equals(buttonPrev))
-                openNextArticle(1);
+            if (v.equals(buttonNext)) {
+                FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                activity.openNextArticle(-1);
+            } else if (v.equals(buttonPrev)) {
+                FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                activity.openNextArticle(1);
+            }
         }
     };
     
@@ -681,10 +685,12 @@ public class ArticleFragment extends SherlockFragment {
         public boolean onKey(View v, int keyCode, KeyEvent event) {
             if (Controller.getInstance().useVolumeKeys()) {
                 if (keyCode == KeyEvent.KEYCODE_N) {
-                    openNextArticle(-1);
+                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                    activity.openNextArticle(-1);
                     return true;
                 } else if (keyCode == KeyEvent.KEYCODE_B) {
-                    openNextArticle(1);
+                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                    activity.openNextArticle(1);
                     return true;
                 }
             }
@@ -692,18 +698,19 @@ public class ArticleFragment extends SherlockFragment {
         }
     };
     
-    public void openNextArticle(int direction) {
+    public int openNextArticle(int direction) {
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
         
         if (id == Integer.MIN_VALUE) {
             ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
-            return;
+            return feedId;
         }
         
         this.articleId = id;
         this.lastMove = direction;
         initData();
         doRefresh();
+        return articleId;
     }
     
     public void openArticle(int articleId, int feedId, int categoryId, boolean selectArticlesForCategory, int lastMove) {
@@ -751,7 +758,8 @@ public class ArticleFragment extends SherlockFragment {
             activity.runOnUiThread(new Runnable() {
                 public void run() {
                     Log.d(Utils.TAG, "JS: PREV");
-                    openNextArticle(-1);
+                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                    activity.openNextArticle(-1);
                 }
             });
         }
@@ -765,7 +773,8 @@ public class ArticleFragment extends SherlockFragment {
             activity.runOnUiThread(new Runnable() {
                 public void run() {
                     Log.d(Utils.TAG, "JS: NEXT");
-                    openNextArticle(1);
+                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                    activity.openNextArticle(1);
                 }
             });
         }
@@ -797,14 +806,16 @@ public class ArticleFragment extends SherlockFragment {
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
                     
                     // right to left swipe
-                    openNextArticle(1);
+                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                    activity.openNextArticle(1);
                     return true;
                     
                 } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
                     
                     // left to right swipe
-                    openNextArticle(-1);
+                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                    activity.openNextArticle(-1);
                     return true;
                     
                 }

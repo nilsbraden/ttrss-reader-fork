@@ -146,6 +146,7 @@ public abstract class MainListFragment extends ListFragment {
             pos++;
             if (item == id) {
                 listView.setItemChecked(pos, true);
+                listView.smoothScrollToPosition(pos);
                 return;
             }
         }
@@ -186,6 +187,7 @@ public abstract class MainListFragment extends ListFragment {
     
     public void setSelectedId(int selectedId) {
         this.selectedId = selectedId;
+        setChecked(selectedId);
     }
     
 }
