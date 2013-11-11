@@ -100,7 +100,7 @@ public class Constants {
     public static final String DATE_TIME_SYSTEM = "DisplayDateTimeFormatSystemPreference";
     public static final String DATE_STRING = "DisplayDateFormatPreference";
     public static final String TIME_STRING = "DisplayTimeFormatPreference";
-    public static final String DATETIME_STRING = "DisplayDateTimeFormatPreference";
+    public static final String DATE_TIME_STRING = "DisplayDateTimeFormatPreference";
     public static final String THEME = "DisplayThemePreference";
     // Display Default Values
     public static final int HEADLINE_SIZE_DEFAULT = 16;
@@ -121,7 +121,7 @@ public class Constants {
     public static final boolean DATE_TIME_SYSTEM_DEFAULT = true;
     public static final String DATE_STRING_DEFAULT = "dd.MM.yyyy";
     public static final String TIME_STRING_DEFAULT = "kk:mm";
-    public static final String DATETIME_STRING_DEFAULT = "dd.MM.yyyy kk:mm";
+    public static final String DATE_TIME_STRING_DEFAULT = "dd.MM.yyyy kk:mm";
     public static final String THEME_DEFAULT = "1";
     
     // System
