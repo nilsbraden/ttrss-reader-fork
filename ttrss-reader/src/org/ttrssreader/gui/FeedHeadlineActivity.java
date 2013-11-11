@@ -251,7 +251,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                     new Updater(this, new ReadStateUpdater(headlineFragment.getFeedId(), 42)).exec();
                 }
                 
-                if (Controller.getInstance().goBackAfterMakeAllRead())
+                if (Controller.getInstance().goBackAfterMarkAllRead())
                     onBackPressed();
                 
                 return true;

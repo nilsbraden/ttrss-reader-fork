@@ -265,7 +265,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                             R.string.Dialog_MarkFeedsRead);
                     dialog.show(getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
                     
-                    if (Controller.getInstance().goBackAfterMakeAllRead())
+                    if (Controller.getInstance().goBackAfterMarkAllRead())
                         onBackPressed();
                 }
                 return true;

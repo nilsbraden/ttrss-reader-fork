@@ -107,7 +107,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean useVolumeKeys = null;
     private Boolean loadImages = null;
     private Boolean invertBrowsing = null;
-    private Boolean goBackAfterMakeAllRead = null;
+    private Boolean goBackAfterMarkAllRead = null;
     private Boolean hideActionbar = null;
     private Boolean workOffline = null;
     private Boolean allowTabletLayout = null;
@@ -518,16 +518,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.workOffline = workOffline;
     }
     
-    public boolean goBackAfterMakeAllRead() {
-        if (goBackAfterMakeAllRead == null)
-            goBackAfterMakeAllRead = prefs.getBoolean(Constants.GO_BACK_AFTER_MARK_ALL_READ,
+    public boolean goBackAfterMarkAllRead() {
+        if (goBackAfterMarkAllRead == null)
+            goBackAfterMarkAllRead = prefs.getBoolean(Constants.GO_BACK_AFTER_MARK_ALL_READ,
                     Constants.GO_BACK_AFTER_MARK_ALL_READ_DEFAULT);
-        return goBackAfterMakeAllRead;
+        return goBackAfterMarkAllRead;
     }
     
-    public void setGoBackAfterMakeAllRead(boolean goBackAfterMakeAllRead) {
-        put(Constants.GO_BACK_AFTER_MARK_ALL_READ, goBackAfterMakeAllRead);
-        this.goBackAfterMakeAllRead = goBackAfterMakeAllRead;
+    public void setGoBackAfterMarkAllRead(boolean goBackAfterMarkAllRead) {
+        put(Constants.GO_BACK_AFTER_MARK_ALL_READ, goBackAfterMarkAllRead);
+        this.goBackAfterMarkAllRead = goBackAfterMarkAllRead;
     }
     
     public boolean hideActionbar() {
@@ -715,12 +715,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public String dateTimeString() {
         if (dateTimeString == null)
-            dateTimeString = prefs.getString(Constants.DATETIME_STRING, Constants.DATETIME_STRING_DEFAULT);
+            dateTimeString = prefs.getString(Constants.DATE_TIME_STRING, Constants.DATE_TIME_STRING_DEFAULT);
         return dateTimeString;
     }
     
     public void setDateTimeString(String dateTimeString) {
-        put(Constants.DATETIME_STRING, dateTimeString);
+        put(Constants.DATE_TIME_STRING, dateTimeString);
         this.dateTimeString = dateTimeString;
     }
     
