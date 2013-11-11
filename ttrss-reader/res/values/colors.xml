@@ -20,8 +20,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <color name="pressed_light">#CCFF9924</color>
-    <color name="background_light">#E1E1E1</color>
-    <color name="font_color_light">#333333</color>
+    <color name="transparent">#00000000</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
 
 </resources>

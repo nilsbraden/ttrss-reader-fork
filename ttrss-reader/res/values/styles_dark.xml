@@ -20,21 +20,27 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Dark.Sub" parent="Theme.Dark">
+    <style name="Theme.Dark" parent="Theme.Sherlock">
         <item name="actionBarItemBackground">@drawable/selectable_background_dark</item>
         <item name="popupMenuStyle">@style/PopupMenu.Dark</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Dark</item>
         <item name="actionBarTabStyle">@style/ActionBarTabStyle.Dark</item>
         <item name="actionDropDownStyle">@style/DropDownNav.Dark</item>
-        <item name="actionBarStyle">@style/ActionBar.Transparent.Dark</item>
+        <item name="actionBarStyle">@style/ActionBar.Solid.Dark</item>
         <item name="actionModeBackground">@drawable/cab_background_top_dark</item>
         <item name="actionModeSplitBackground">@drawable/cab_background_bottom_dark</item>
         <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Dark</item>
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_dark</item>
-        <item name="textColor">@color/font_color_dark</item>
         <item name="android:background">@color/background_dark</item>
-        <item name="background">@color/background_dark</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+        <item name="android:colorBackground">@color/background_dark</item>
+        <!-- Lists -->
+        <item name="listEntry">@style/listEntry.Dark</item>
+    </style>
+
+    <style name="listEntry.Dark" parent="@android:style/TextAppearance">
+        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
     </style>
 
     <style name="ActionBar.Solid.Dark" parent="@style/Widget.Sherlock.ActionBar.Solid">
@@ -45,7 +51,6 @@
     </style>
 
     <style name="ActionBar.Transparent.Dark" parent="@style/Widget.Sherlock.ActionBar">
-        <item name="android:height">55dip</item>
         <item name="height">55dip</item>
         <item name="background">@drawable/ab_transparent_dark</item>
         <item name="progressBarStyle">@style/ProgressBar.Dark</item>
