@@ -87,8 +87,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         Fragment oldArticleFragment = articleFragment;
         
         if (articleFragment != null && !Controller.isTablet) {
-            Log.w(Utils.TAG, "First IF");
-            Toast.makeText(this, "First IF", Toast.LENGTH_LONG).show();
             articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
             // No Tablet mode but Article has been loaded, we have just one pane: R.id.frame_left
             
@@ -101,8 +99,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         }
         
         if (headlineFragment == null) {
-            Log.w(Utils.TAG, "Second IF");
-            Toast.makeText(this, "Second IF", Toast.LENGTH_LONG).show();
             headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     selectedArticleId);
             
