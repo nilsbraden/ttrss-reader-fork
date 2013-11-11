@@ -204,8 +204,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         super.onResume();
         if (Controller.getInstance().isScheduledRestart()) {
             Controller.getInstance().setScheduledRestart(false);
-            Intent intent = getBaseContext().getPackageManager()
-                    .getLaunchIntentForPackage(getBaseContext().getPackageName());
+            Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(
+                    getBaseContext().getPackageName());
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         } else {
@@ -497,9 +497,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             if (view.getId() != R.id.list_divider)
                 return false;
         
-        final int action = MotionEventCompat.getActionMasked(ev);
-        
-        switch (action) {
+        switch (MotionEventCompat.getActionMasked(ev)) {
             case MotionEvent.ACTION_DOWN: {
                 divider.setSelected(true);
                 resizing = true;
@@ -538,16 +536,15 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                 break;
             }
             
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL: {
+            case MotionEvent.ACTION_UP: 
+            case MotionEvent.ACTION_CANCEL:
                 mActivePointerId = INVALID_POINTER_ID;
-                
                 handleResize();
                 storeSize();
                 divider.setSelected(false);
                 resizing = false;
                 break;
-            }
+                
         }
         return true;
     }
