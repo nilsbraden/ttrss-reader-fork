@@ -216,6 +216,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             UpdateController.getInstance().registerActivity(this);
             DBHelper.getInstance().checkAndInitializeDB(this);
         }
+        refreshAndUpdate();
     }
     
     @Override
