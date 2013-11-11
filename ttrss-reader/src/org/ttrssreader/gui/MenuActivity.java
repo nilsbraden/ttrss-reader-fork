@@ -133,16 +133,20 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                 secondaryFrame.setVisibility(View.GONE);
             if (divider != null)
                 divider.setVisibility(View.GONE);
+            if (primaryFrame != null)
+                primaryFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         }
         
-        // Resize frames and do it only if stored size is within our bounds:
-        int newSize = Controller.getInstance().getViewSize(this, isVertical);
-        if (newSize > minListSize && newSize < maxListSize) {
-            if (isVertical)
-                primaryFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, newSize));
-            else
-                primaryFrame.setLayoutParams(new LayoutParams(newSize, LayoutParams.MATCH_PARENT));
-            getWindow().getDecorView().getRootView().invalidate();
+        if (Controller.isTablet) {
+            // Resize frames and do it only if stored size is within our bounds:
+            int newSize = Controller.getInstance().getViewSize(this, isVertical);
+            if (newSize > minListSize && newSize < maxListSize) {
+                if (isVertical)
+                    primaryFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, newSize));
+                else
+                    primaryFrame.setLayoutParams(new LayoutParams(newSize, LayoutParams.MATCH_PARENT));
+                getWindow().getDecorView().getRootView().invalidate();
+            }
         }
     }
     
@@ -536,7 +540,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                 break;
             }
             
-            case MotionEvent.ACTION_UP: 
+            case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 mActivePointerId = INVALID_POINTER_ID;
                 handleResize();
@@ -544,7 +548,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                 divider.setSelected(false);
                 resizing = false;
                 break;
-                
+        
         }
         return true;
     }
