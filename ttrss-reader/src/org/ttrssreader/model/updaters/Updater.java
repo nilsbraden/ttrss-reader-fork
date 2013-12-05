@@ -27,22 +27,27 @@ import android.os.Message;
 public class Updater extends AsyncTask<Void, Void, Void> {
     
     private IUpdatable updatable;
-    
+
     public Updater(Activity parent, IUpdatable updatable) {
+        this(parent, updatable, false);
+    }
+    
+    public Updater(Activity parent, IUpdatable updatable, boolean goBackAfterUpdate) {
         this.updatable = updatable;
         if (parent instanceof IUpdateEndListener)
-            this.handler = new MsgHandler((IUpdateEndListener) parent);
+            this.handler = new MsgHandler((IUpdateEndListener) parent, goBackAfterUpdate);
     }
     
     // Use handler with weak reference on parent object
     private static class MsgHandler extends WeakReferenceHandler<IUpdateEndListener> {
-        public MsgHandler(IUpdateEndListener parent) {
+        boolean goBackAfterUpdate;
+        public MsgHandler(IUpdateEndListener parent, boolean goBackAfterUpdate) {
             super(parent);
         }
         
         @Override
         public void handleMessage(IUpdateEndListener parent, Message msg) {
-            parent.onUpdateEnd();
+            parent.onUpdateEnd(goBackAfterUpdate);
         }
     }
     

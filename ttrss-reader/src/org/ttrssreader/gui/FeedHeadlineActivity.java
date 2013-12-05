@@ -229,14 +229,12 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                 return true;
             }
             case R.id.Menu_MarkFeedRead: {
+                boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
                 if (selectArticlesForCategory) {
-                    new Updater(this, new ReadStateUpdater(categoryId)).exec();
+                    new Updater(this, new ReadStateUpdater(categoryId), backAfterUpdate).exec();
                 } else {
-                    new Updater(this, new ReadStateUpdater(headlineFragment.getFeedId(), 42)).exec();
+                    new Updater(this, new ReadStateUpdater(headlineFragment.getFeedId(), 42), backAfterUpdate).exec();
                 }
-                
-                if (Controller.getInstance().goBackAfterMarkAllRead())
-                    onBackPressed();
                 
                 return true;
             }

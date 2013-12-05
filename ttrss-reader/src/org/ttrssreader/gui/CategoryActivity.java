@@ -245,22 +245,21 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                 return true;
             }
             case R.id.Menu_MarkAllRead: {
+                boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
                 IUpdatable updater = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
                 YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(this, updater, R.string.Dialog_Title,
-                        R.string.Dialog_MarkAllRead);
+                        R.string.Dialog_MarkAllRead, backAfterUpdate);
                 dialog.show(getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
                 return true;
             }
             case R.id.Menu_MarkFeedsRead:
                 if (selectedCategoryId > Integer.MIN_VALUE) {
-                    IUpdatable updater = new ReadStateUpdater(selectedCategoryId);
+                    boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
+                    IUpdatable updateable = new ReadStateUpdater(selectedCategoryId);
                     
-                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(this, updater, R.string.Dialog_Title,
-                            R.string.Dialog_MarkFeedsRead);
+                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(this, updateable, R.string.Dialog_Title,
+                            R.string.Dialog_MarkFeedsRead, backAfterUpdate);
                     dialog.show(getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
-                    
-                    if (Controller.getInstance().goBackAfterMarkAllRead())
-                        onBackPressed();
                 }
                 return true;
             default:

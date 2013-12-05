@@ -357,10 +357,12 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     @Override
-    public void onUpdateEnd() {
+    public void onUpdateEnd(boolean goBackAfterUpdate) {
         updater = null;
         supportInvalidateOptionsMenu();
         doRefresh();
+        if (goBackAfterUpdate)
+            onBackPressed();
     }
     
     /* ############# BEGIN: Cache */
