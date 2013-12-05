@@ -33,13 +33,19 @@ public class YesNoUpdaterDialog extends DialogFragment {
     private IUpdatable updater;
     private int titleRes;
     private int msgRes;
+    private boolean backAfterUpdate;
     
     public static YesNoUpdaterDialog getInstance(Activity parent, IUpdatable updater, int titleRes, int msgRes) {
+        return getInstance(parent, updater, titleRes, msgRes, false);
+    }
+    
+    public static YesNoUpdaterDialog getInstance(Activity parent, IUpdatable updater, int titleRes, int msgRes, boolean backAfterUpdate) {
         YesNoUpdaterDialog fragment = new YesNoUpdaterDialog();
         fragment.parent = parent;
         fragment.updater = updater;
         fragment.titleRes = titleRes;
         fragment.msgRes = msgRes;
+        fragment.backAfterUpdate = backAfterUpdate;
         return fragment;
     }
     
@@ -53,7 +59,7 @@ public class YesNoUpdaterDialog extends DialogFragment {
         builder.setPositiveButton(getResources().getString(R.string.Yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface d, final int which) {
-                new Updater(parent, updater).exec();
+                new Updater(parent, updater, backAfterUpdate).exec();
                 d.dismiss();
             }
         });
