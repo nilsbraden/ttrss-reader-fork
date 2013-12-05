@@ -1113,9 +1113,13 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     private static String getCurrentSSID(WifiManager wifiManager) {
-        WifiInfo info = wifiManager.getConnectionInfo();
-        final String ssid = info.getSSID();
-        return ssid == null ? "" : ssid.replace("\"", "");
+        if (wifiManager != null && wifiManager.isWifiEnabled()) {
+            WifiInfo info = wifiManager.getConnectionInfo();
+            final String ssid = info.getSSID();
+            return ssid == null ? "" : ssid.replace("\"", "");
+        } else {
+            return null;
+        }
     }
     
     private static String getStringWithSSID(String param, String wifiSSID) {
