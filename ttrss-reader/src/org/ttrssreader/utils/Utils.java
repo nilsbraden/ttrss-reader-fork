@@ -219,7 +219,7 @@ public class Utils {
      * @return
      */
     public static boolean checkConnected(ConnectivityManager cm) {
-        return checkConnected(cm, false);
+        return checkConnected(cm, Controller.getInstance().onlyUseWifi());
     }
     
     /**
@@ -228,7 +228,7 @@ public class Utils {
      * @param cm
      * @return
      */
-    public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi) {
+    private static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi) {
         if (cm == null)
             return false;
         
@@ -241,25 +241,6 @@ public class Utils {
         
         if (info == null)
             return false;
-        
-        // if (info.isConnected())
-        // return true;
-        //
-        // synchronized (Utils.class) {
-        // int wait = 0;
-        // while (info.isConnectedOrConnecting() && !info.isConnected()) {
-        // try {
-        // wait += 100;
-        // Utils.class.wait(100);
-        // } catch (InterruptedException e) {
-        // e.printStackTrace();
-        // }
-        //
-        // if (wait > SECOND) { // Wait a maximum of one second for connection
-        // break;
-        // }
-        // }
-        // }
         
         return info.isConnected();
     }

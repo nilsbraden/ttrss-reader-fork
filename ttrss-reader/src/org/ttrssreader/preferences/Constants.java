@@ -132,6 +132,7 @@ public class Constants {
     public static final String DELETE_DB_SCHEDULED = "DeleteDBScheduledPreference";
     public static final String CACHE_IMAGES_ON_STARTUP = "CacheImagesOnStartupPreference";
     public static final String CACHE_IMAGES_ONLY_WIFI = "CacheImagesOnlyWifiPreference";
+    public static final String ONLY_USE_WIFI = "OnlyUseWifiPreference";
     // System Default Values
     public static final String SAVE_ATTACHMENT_DEFAULT;
     public static final String CACHE_FOLDER_DEFAULT;
@@ -140,6 +141,7 @@ public class Constants {
     public static final boolean DELETE_DB_SCHEDULED_DEFAULT = false;
     public static final boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
     public static final boolean CACHE_IMAGES_ONLY_WIFI_DEFAULT = false;
+    public static final boolean ONLY_USE_WIFI_DEFAULT = false;
     
     // Internal
     public static final String API_LEVEL_UPDATED = "apiLevelUpdated";

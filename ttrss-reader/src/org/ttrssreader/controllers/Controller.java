@@ -136,6 +136,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean deleteDbScheduled = null;
     private Boolean cacheImagesOnStartup = null;
     private Boolean cacheImagesOnlyWifi = null;
+    private Boolean onlyUseWifi = null;
     
     private Long appVersionCheckTime = null;
     private Integer appLatestVersion = null;
@@ -880,6 +881,18 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setCacheImagesOnlyWifi(boolean cacheImagesOnlyWifi) {
         put(Constants.CACHE_IMAGES_ONLY_WIFI, cacheImagesOnlyWifi);
         this.cacheImagesOnlyWifi = cacheImagesOnlyWifi;
+    }
+
+    public boolean onlyUseWifi() {
+        if (onlyUseWifi == null)
+            onlyUseWifi = prefs.getBoolean(Constants.ONLY_USE_WIFI,
+                    Constants.ONLY_USE_WIFI_DEFAULT);
+        return onlyUseWifi;
+    }
+    
+    public void setOnlyUseWifi(boolean onlyUseWifi) {
+        put(Constants.ONLY_USE_WIFI, onlyUseWifi);
+        this.onlyUseWifi = onlyUseWifi;
     }
     
     // ******* INTERNAL Data ****************************

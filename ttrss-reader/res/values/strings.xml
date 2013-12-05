@@ -213,6 +213,8 @@
     <string name="LogSensitiveDataSummary">If enabled the log-output of this application may contain sensitive information such as passwords or session-ids from your configuration. Only enable if necessary, should be for debugging purposes only.</string>
     <string name="DeleteDBOnNextStartupTitle">Delete DB on next startup</string>
     <string name="DeleteDBOnNextStartupSummary">If set to true the internal Database will be deleted only on the next start of the application.</string>
+    <string name="OnlyUseWifiTitle">Only connect on WIFI</string>
+    <string name="OnlyUseWifiSummary">When enabled the app will only connect to the server when the device is in a WIFI network.</string>
     <string name="DeleteDBOnStartupTitle">Delete DB on startup</string>
     <string name="DeleteDBOnStartupSummary">If set to true the internal Database will be deleted on EVERY start of the application.</string>
     <string name="ConnectionWifiPrefScreenTitle">Wifi (per network) connectivity settings</string>
