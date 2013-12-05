@@ -1355,12 +1355,21 @@ public class DBHelper {
             " )"                                                  );
         // @formatter:on
         
-        // first, delete article referencies from linking table to preserve foreign key constraint on the next step
-        db.delete(TABLE_REMOTEFILE2ARTICLE, query.toString(), whereArgs);
-        
-        deletedCount = db.delete(TABLE_ARTICLES, whereClause, whereArgs); // TODO Foreign-key constraint failed from purgeOrphanedArticles()
-        
-        purgeLabels();
+        db.beginTransaction();
+        try {
+            // first, delete article referencies from linking table to preserve foreign key constraint on the next step
+            db.delete(TABLE_REMOTEFILE2ARTICLE, query.toString(), whereArgs);
+            
+            deletedCount = db.delete(TABLE_ARTICLES, whereClause, whereArgs); // TODO Foreign-key constraint failed from
+                                                                              // purgeOrphanedArticles() and
+                                                                              // safelyDeleteArticles()
+            
+            purgeLabels();
+            
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
         
         return deletedCount;
     }
