@@ -175,7 +175,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
             
             case Data.VCAT_FRESH:
                 query.append(" AND a.updateDate>");
-                query.append(Controller.getInstance().getFreshArticleMaxAge());
+                query.append(System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge());
                 query.append(" AND a.isUnread>0");
                 break;
             
