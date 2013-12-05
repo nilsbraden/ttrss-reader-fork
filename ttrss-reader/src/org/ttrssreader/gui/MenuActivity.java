@@ -140,7 +140,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         if (Controller.isTablet) {
             // Resize frames and do it only if stored size is within our bounds:
             int newSize = Controller.getInstance().getViewSize(this, isVertical);
-            if (newSize > minListSize && newSize < maxListSize) {
+            if (newSize >= minListSize && newSize <= maxListSize) {
                 if (isVertical)
                     primaryFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, newSize));
                 else
