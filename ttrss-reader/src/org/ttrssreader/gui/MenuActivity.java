@@ -503,9 +503,9 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         if (view == null && !resizing)
             return false;
         
-        if (view != null)
-            if (view.getId() != R.id.list_divider)
-                return false;
+//        if (view != null)
+//            if (view.getId() != R.id.list_divider)
+//                return false;
         
         switch (MotionEventCompat.getActionMasked(ev)) {
             case MotionEvent.ACTION_DOWN: {
@@ -548,6 +548,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+            default:
                 mActivePointerId = INVALID_POINTER_ID;
                 handleResize();
                 storeSize();
