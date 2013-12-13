@@ -86,11 +86,8 @@ public class FeedAdapter extends MainAdapter {
         
         TextView title = (TextView) layout.findViewById(R.id.feed_title);
         title.setText(formatEntryTitle(f.title, f.unread));
-        if (f.unread > 0) {
-            title.setTypeface(Typeface.DEFAULT_BOLD, 1);
-        } else {
-            title.setTypeface(Typeface.DEFAULT, 0);
-        }
+        if (f.unread > 0)
+            title.setTypeface(Typeface.DEFAULT_BOLD);
         
         return layout;
     }

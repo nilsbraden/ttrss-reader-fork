@@ -21,7 +21,7 @@
     android:background="@color/transparent"
     android:enabled="false"
     android:orientation="vertical"
-    android:paddingEnd="8dip"
+    android:paddingEnd="4dp"
     android:paddingStart="4dp" >
 
     <TextView

@@ -33,21 +33,13 @@
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_light</item>
-        <item name="android:background">@color/background_light</item>
         <item name="android:windowBackground">@color/background_light</item>
-        <item name="android:colorBackground">@color/background_light</item>
-        <!-- Lists -->
-        <item name="listEntry">@style/listEntry.Light</item>
-    </style>
-
-    <style name="listEntry.Light" parent="@android:style/TextAppearance">
-        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
     </style>
 
     <style name="ActionBar.Solid.Light" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
-        <item name="android:background">@drawable/ab_background_textured_light</item>
+        <item name="android:background">@drawable/ab_solid_light</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_light</item>
-        <item name="android:backgroundSplit">@drawable/ab_background_textured_light</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_light</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Light</item>
     </style>
 

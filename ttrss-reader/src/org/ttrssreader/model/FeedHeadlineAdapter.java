@@ -115,11 +115,8 @@ public class FeedHeadlineAdapter extends MainAdapter {
         
         TextView title = (TextView) layout.findViewById(R.id.fh_title);
         title.setText(a.title);
-        if (a.isUnread) {
-            title.setTypeface(Typeface.DEFAULT_BOLD, 1);
-        } else {
-            title.setTypeface(Typeface.DEFAULT, 0);
-        }
+        if (a.isUnread)
+            title.setTypeface(Typeface.DEFAULT_BOLD);
         
         TextView updateDate = (TextView) layout.findViewById(R.id.fh_updateDate);
         String date = DateUtils.getDateTime(context, a.updated);
