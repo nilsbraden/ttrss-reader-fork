@@ -291,7 +291,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     private void fillParentInformation() {
         FeedAdapter parentAdapter = null;
         try {
-            parentAdapter = new FeedAdapter(getActivity().getApplicationContext(), categoryId);
+            parentAdapter = new FeedAdapter(getActivity(), categoryId);
             int index = parentAdapter.getIds().indexOf(feedId);
             if (index >= 0) {
                 parentIDs[0] = parentAdapter.getId(index - 1); // Previous

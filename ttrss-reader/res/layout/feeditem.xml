@@ -30,7 +30,7 @@
 
     <TextView
         android:id="@+id/feed_title"
-        style="@attr/ListItem"
+        style="?attr/ListItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
