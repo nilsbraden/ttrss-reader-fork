@@ -21,6 +21,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="Theme.White" parent="Theme.Sherlock.Light">
+        <item name="android:selectableItemBackground">@drawable/selectable_background_light</item>
         <item name="android:actionBarItemBackground">@drawable/selectable_background_light</item>
         <item name="android:popupMenuStyle">@style/PopupMenu.White</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.White</item>
@@ -32,21 +33,13 @@
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.White</item>
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_white</item>
-        <item name="android:background">@color/background_white</item>
         <item name="android:windowBackground">@color/background_white</item>
-        <item name="android:colorBackground">@color/background_white</item>
-        <!-- Lists -->
-        <item name="listEntry">@style/listEntry.White</item>
-    </style>
-
-    <style name="listEntry.White" parent="@android:style/TextAppearance">
-        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
     </style>
 
     <style name="ActionBar.Solid.White" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
-        <item name="android:background">@drawable/ab_background_textured_light</item>
+        <item name="android:background">@drawable/ab_solid_light</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_light</item>
-        <item name="android:backgroundSplit">@drawable/ab_background_textured_light</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_light</item>
         <item name="android:progressBarStyle">@style/ProgressBar.White</item>
     </style>
 

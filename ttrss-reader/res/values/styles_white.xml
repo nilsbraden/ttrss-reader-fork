@@ -32,27 +32,15 @@
         <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.White</item>
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_white</item>
-        <item name="android:background">@color/background_white</item>
         <item name="android:windowBackground">@color/background_white</item>
-        <item name="android:colorBackground">@color/background_white</item>
-        <!-- Lists -->
-        <item name="listEntry">@style/listEntry.White</item>
-    </style>
-
-    <style name="listEntry.White" parent="@android:style/TextAppearance">
-        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
+        <!-- ListItems -->
+        <item name="ListItem">@style/ListItem.White</item>
     </style>
 
     <style name="ActionBar.Solid.White" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
         <item name="background">@drawable/ab_solid_light</item>
         <item name="backgroundStacked">@drawable/ab_stacked_solid_light</item>
         <item name="backgroundSplit">@drawable/ab_bottom_solid_light</item>
-        <item name="progressBarStyle">@style/ProgressBar.White</item>
-    </style>
-
-    <style name="ActionBar.Transparent.White" parent="@style/Widget.Sherlock.Light.ActionBar">
-        <item name="height">55dip</item>
-        <item name="background">@drawable/ab_transparent_light</item>
         <item name="progressBarStyle">@style/ProgressBar.White</item>
     </style>
 
@@ -86,6 +74,10 @@
     <style name="Theme.White.Widget" parent="@style/Theme.Sherlock">
         <item name="popupMenuStyle">@style/PopupMenu.White</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.White</item>
+    </style>
+
+    <style name="ListItem.White" parent="@android:style/TextAppearance.Small">
+        <item name="android:textColor">@color/font_color_white</item>
     </style>
 
 </resources>

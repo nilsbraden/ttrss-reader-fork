@@ -21,37 +21,25 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="Theme.Black" parent="Theme.Sherlock">
+        <item name="android:selectableItemBackground">@drawable/selectable_background_dark</item>
         <item name="android:actionBarItemBackground">@drawable/selectable_background_dark</item>
         <item name="android:popupMenuStyle">@style/PopupMenu.Black</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Black</item>
         <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Black</item>
         <item name="android:actionDropDownStyle">@style/DropDownNav.Black</item>
-        <item name="android:actionBarStyle">@style/ActionBar.Transparent.Black</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Solid.Black</item>
         <item name="android:actionModeBackground">@drawable/cab_background_top_dark</item>
         <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_dark</item>
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Black</item>
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_black</item>
-        <item name="android:background">@color/background_black</item>
         <item name="android:windowBackground">@color/background_black</item>
-        <item name="android:colorBackground">@color/background_black</item>
-        <!-- Lists -->
-        <item name="listEntry">@style/listEntry.Black</item>
-    </style>
-
-    <style name="listEntry.Black" parent="@android:style/TextAppearance">
-        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
     </style>
 
     <style name="ActionBar.Solid.Black" parent="@style/Widget.Sherlock.ActionBar.Solid">
-        <item name="android:background">@drawable/ab_background_textured_dark</item>
+        <item name="android:background">@drawable/ab_solid_dark</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_dark</item>
-        <item name="android:backgroundSplit">@drawable/ab_background_textured_dark</item>
-        <item name="android:progressBarStyle">@style/ProgressBar.Black</item>
-    </style>
-
-    <style name="ActionBar.Transparent.Black" parent="@style/Widget.Sherlock.ActionBar">
-        <item name="android:background">@drawable/ab_transparent_dark</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_dark</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Black</item>
     </style>
 

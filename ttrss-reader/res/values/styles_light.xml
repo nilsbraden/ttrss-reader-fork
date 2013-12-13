@@ -32,27 +32,15 @@
         <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_light</item>
-        <item name="android:background">@color/background_light</item>
         <item name="android:windowBackground">@color/background_light</item>
-        <item name="android:colorBackground">@color/background_light</item>
-        <!-- Lists -->
-        <item name="listEntry">@style/listEntry.Light</item>
-    </style>
-
-    <style name="listEntry.Light" parent="@android:style/TextAppearance">
-        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
+        <!-- ListItems -->
+        <item name="ListItem">@style/ListItem.Light</item>
     </style>
 
     <style name="ActionBar.Solid.Light" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
         <item name="background">@drawable/ab_solid_light</item>
         <item name="backgroundStacked">@drawable/ab_stacked_solid_light</item>
         <item name="backgroundSplit">@drawable/ab_bottom_solid_light</item>
-        <item name="progressBarStyle">@style/ProgressBar.Light</item>
-    </style>
-
-    <style name="ActionBar.Transparent.Light" parent="@style/Widget.Sherlock.Light.ActionBar">
-        <item name="height">55dip</item>
-        <item name="background">@drawable/ab_transparent_light</item>
         <item name="progressBarStyle">@style/ProgressBar.Light</item>
     </style>
 
@@ -86,6 +74,10 @@
     <style name="Theme.Light.Widget" parent="@style/Theme.Sherlock">
         <item name="popupMenuStyle">@style/PopupMenu.Light</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Light</item>
+    </style>
+
+    <style name="ListItem.Light" parent="@android:style/TextAppearance.Small">
+        <item name="android:textColor">@color/font_color_light</item>
     </style>
 
 </resources>
