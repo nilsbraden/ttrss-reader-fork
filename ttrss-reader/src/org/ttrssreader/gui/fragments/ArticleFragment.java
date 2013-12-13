@@ -298,8 +298,7 @@ public class ArticleFragment extends SherlockFragment {
         Controller.getInstance().lastOpenedArticles.add(articleId);
         
         if (parentAdapter == null)
-            parentAdapter = new FeedHeadlineAdapter(getSherlockActivity().getApplicationContext(), feedId, categoryId,
-                    selectForCategory);
+            parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectForCategory);
         else
             parentAdapter.makeQuery(true);
         

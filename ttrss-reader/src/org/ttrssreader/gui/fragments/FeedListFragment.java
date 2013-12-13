@@ -60,7 +60,7 @@ public class FeedListFragment extends MainListFragment {
     
     @Override
     public void onActivityCreated(Bundle instance) {
-        adapter = new FeedAdapter(getActivity().getApplicationContext(), categoryId);
+        adapter = new FeedAdapter(getActivity(), categoryId);
         setListAdapter(adapter);
         super.onActivityCreated(instance);
     }
@@ -85,9 +85,9 @@ public class FeedListFragment extends MainListFragment {
                 new Updater(getActivity(), new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
                 return true;
             case MenuActivity.UNSUBSCRIBE:
-                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(getActivity(),
-                        new UnsubscribeUpdater(adapter.getId(cmi.position)), R.string.Dialog_unsubscribeTitle,
-                        R.string.Dialog_unsubscribeText);
+                YesNoUpdaterDialog dialog = YesNoUpdaterDialog
+                        .getInstance(getActivity(), new UnsubscribeUpdater(adapter.getId(cmi.position)),
+                                R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
                 dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
                 return true;
         }
