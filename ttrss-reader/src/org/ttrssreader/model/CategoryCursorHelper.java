@@ -49,17 +49,17 @@ public class CategoryCursorHelper extends MainCursorHelper {
         // Virtual Feeds
         if (Controller.getInstance().showVirtual()) {
             query = new StringBuilder();
-            query.append("SELECT id,title,unread FROM ");
+            query.append("SELECT _id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
-            query.append(" WHERE id>=-4 AND id<0 ORDER BY id");
+            query.append(" WHERE _id>=-4 AND _id<0 ORDER BY _id");
             insertValues(query.toString());
         }
         
         // Labels
         query = new StringBuilder();
-        query.append("SELECT id,title,unread FROM ");
+        query.append("SELECT _id,title,unread FROM ");
         query.append(DBHelper.TABLE_FEEDS);
-        query.append(" WHERE id<-10");
+        query.append(" WHERE _id<-10");
         query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ORDER BY UPPER(title) ASC");
         query.append(" LIMIT 500 ");
@@ -67,23 +67,23 @@ public class CategoryCursorHelper extends MainCursorHelper {
         
         // "Uncategorized Feeds"
         query = new StringBuilder();
-        query.append("SELECT id,title,unread FROM ");
+        query.append("SELECT _id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id=0");
+        query.append(" WHERE _id=0");
         insertValues(query.toString());
         
         // Categories
         query = new StringBuilder();
-        query.append("SELECT id,title,unread FROM ");
+        query.append("SELECT _id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE id>0");
+        query.append(" WHERE _id>0");
         query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         query.append(" LIMIT 500 ");
         insertValues(query.toString());
         
-        String[] columns = { "id", "title", "unread" };
+        String[] columns = { "_id", "title", "unread" };
         return db.query(TABLE_NAME, columns, null, null, null, null, null, "600");
     }
     
@@ -96,7 +96,7 @@ public class CategoryCursorHelper extends MainCursorHelper {
      */
     private static final String TABLE_NAME = "categories_memory_db";
     private static final String INSERT = "REPLACE INTO " + TABLE_NAME
-            + "(id, title, unread, sortId) VALUES (?, ?, ?, null)";
+            + "(_id, title, unread, sortId) VALUES (?, ?, ?, null)";
     private SQLiteDatabase db;
     private SQLiteStatement insert;
     
@@ -111,7 +111,7 @@ public class CategoryCursorHelper extends MainCursorHelper {
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + TABLE_NAME
-                    + " (id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
+                    + " (_id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
         }
         
         @Override

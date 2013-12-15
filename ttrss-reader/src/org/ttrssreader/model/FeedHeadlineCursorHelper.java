@@ -53,11 +53,11 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
             displayUnread = false;
         
         StringBuilder query = new StringBuilder();
-        query.append("SELECT a.id,a.feedId,a.title,a.isUnread AS unread,a.updateDate,a.isStarred,a.isPublished FROM ");
+        query.append("SELECT a._id,a.feedId,a.title,a.isUnread AS unread,a.updateDate,a.isStarred,a.isPublished FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
         query.append(" a, ");
         query.append(DBHelper.TABLE_FEEDS);
-        query.append(" b WHERE a.feedId=b.id");
+        query.append(" b WHERE a.feedId=b._id");
         
         switch (feedId) {
             case Data.VCAT_STAR:
@@ -86,11 +86,11 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
         }
         
         if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
-            query.append(" UNION SELECT c.id,c.feedId,c.title,c.isUnread AS unread,c.updateDate,c.isStarred,c.isPublished FROM ");
+            query.append(" UNION SELECT c._id,c.feedId,c.title,c.isUnread AS unread,c.updateDate,c.isStarred,c.isPublished FROM ");
             query.append(DBHelper.TABLE_ARTICLES);
             query.append(" c, ");
             query.append(DBHelper.TABLE_FEEDS);
-            query.append(" d WHERE c.feedId=d.id AND c.id IN (");
+            query.append(" d WHERE c.feedId=d._id AND c._id IN (");
             query.append(lastOpenedArticlesList);
             query.append(" )");
         }
@@ -111,25 +111,25 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
             displayUnread = false;
         
         StringBuilder query = new StringBuilder();
-        query.append("SELECT a.id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
+        query.append("SELECT a._id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
         query.append(" a, ");
         query.append(DBHelper.TABLE_ARTICLES2LABELS);
         query.append(" a2l, ");
         query.append(DBHelper.TABLE_FEEDS);
-        query.append(" l WHERE a.id=a2l.articleId AND a2l.labelId=l.id");
+        query.append(" l WHERE a._id=a2l.articleId AND a2l.labelId=l._id");
         query.append(" AND a2l.labelId=" + feedId);
         query.append(displayUnread ? " AND isUnread>0" : "");
         
         if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
-            query.append(" UNION SELECT b.id,feedId,b.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
+            query.append(" UNION SELECT b._id,feedId,b.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
             query.append(DBHelper.TABLE_ARTICLES);
             query.append(" b, ");
             query.append(DBHelper.TABLE_ARTICLES2LABELS);
             query.append(" b2m, ");
             query.append(DBHelper.TABLE_FEEDS);
-            query.append(" m WHERE b2m.labelId=m.id AND b2m.articleId=b.id");
-            query.append(" AND b.id IN (");
+            query.append(" m WHERE b2m.labelId=m._id AND b2m.articleId=b._id");
+            query.append(" AND b._id IN (");
             query.append(lastOpenedArticlesList);
             query.append(" )");
         }

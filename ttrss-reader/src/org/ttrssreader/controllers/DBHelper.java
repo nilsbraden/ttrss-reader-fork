@@ -62,7 +62,7 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 53;
+    public static final int DATABASE_VERSION = 54;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -79,23 +79,73 @@ public class DBHelper {
     public static final String MARK_NOTE = "note";
     
     // @formatter:off
+    private static final String CREATE_TABLE_CATEGORIES =
+        "CREATE TABLE "
+        + TABLE_CATEGORIES
+        + " (_id INTEGER PRIMARY KEY,"
+        + " title TEXT,"
+        + " unread INTEGER)";
+
+    private static final String CREATE_TABLE_FEEDS =
+        "CREATE TABLE "
+        + TABLE_FEEDS
+        + " (_id INTEGER PRIMARY KEY,"
+        + " categoryId INTEGER,"
+        + " title TEXT,"
+        + " url TEXT,"
+        + " unread INTEGER)";
+
+    private static final String CREATE_TABLE_ARTICLES =
+        "CREATE TABLE "
+        + TABLE_ARTICLES
+        + " (_id INTEGER PRIMARY KEY,"
+        + " feedId INTEGER,"
+        + " title TEXT,"
+        + " isUnread INTEGER,"
+        + " articleUrl TEXT,"
+        + " articleCommentUrl TEXT,"
+        + " updateDate INTEGER,"
+        + " content TEXT,"
+        + " attachments TEXT,"
+        + " isStarred INTEGER,"
+        + " isPublished INTEGER,"
+        + " cachedImages INTEGER DEFAULT 0,"
+        + " articleLabels TEXT)";
+    
+    private static final String CREATE_TABLE_ARTICLES2LABELS =
+        "CREATE TABLE "
+        + TABLE_ARTICLES2LABELS
+        + " (articleId INTEGER,"
+        + " labelId INTEGER, PRIMARY KEY(articleId, labelId))";
+
+    private static final String CREATE_TABLE_MARK =
+        "CREATE TABLE "
+        + TABLE_MARK
+        + " (id INTEGER,"
+        + " type INTEGER,"
+        + " " + MARK_READ + " INTEGER,"
+        + " " + MARK_STAR + " INTEGER,"
+        + " " + MARK_PUBLISH + " INTEGER,"
+        + " " + MARK_NOTE + " TEXT,"
+        + " PRIMARY KEY(id, type))";
+    
     private static final String INSERT_CATEGORY =
         "REPLACE INTO "
         + TABLE_CATEGORIES
-        + " (id, title, unread)"
+        + " (_id, title, unread)"
         + " VALUES (?, ?, ?)";
 
     private static final String INSERT_FEED =
         "REPLACE INTO "
         + TABLE_FEEDS
-        + " (id, categoryId, title, url, unread)"
+        + " (_id, categoryId, title, url, unread)"
         + " VALUES (?, ?, ?, ?, ?)";
 
     private static final String INSERT_ARTICLE =
         "INSERT OR REPLACE INTO "
         + TABLE_ARTICLES
-        + " (id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages, articleLabels)"
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE id=?), NULL), ?)";
+        + " (_id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages, articleLabels)"
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE _id=?), NULL), ?)";
     // This should insert new values or replace existing values but should always keep an already inserted value for "cachedImages".
     // When inserting it is set to the default value which is 0 (not "NULL").
 
@@ -127,6 +177,8 @@ public class DBHelper {
     private SQLiteStatement insertLabel;
     private SQLiteStatement insertRemoteFile;
     private SQLiteStatement insertRemoteFile2Article;
+    
+    private static boolean specialUpgradeSuccessful = false;
     
     // Singleton (see http://stackoverflow.com/a/11165926)
     private DBHelper() {
@@ -204,6 +256,12 @@ public class DBHelper {
             OpenHelper openHelper = new OpenHelper(context);
             db = openHelper.getWritableDatabase();
             db.setLockingEnabled(true);
+            
+            if (specialUpgradeSuccessful ) {
+                db.close();
+                openHelper = new OpenHelper(context);
+                db = openHelper.getWritableDatabase();
+            }
             
             insertCategory = db.compileStatement(INSERT_CATEGORY);
             insertFeed = db.compileStatement(INSERT_FEED);
@@ -288,57 +346,11 @@ public class DBHelper {
          */
         @Override
         public void onCreate(SQLiteDatabase db) {
-            // @formatter:off
-            db.execSQL(
-                    "CREATE TABLE "
-                    + TABLE_CATEGORIES
-                    + " (id INTEGER PRIMARY KEY,"
-                    + " title TEXT,"
-                    + " unread INTEGER)");
-
-            db.execSQL(
-                    "CREATE TABLE "
-                    + TABLE_FEEDS
-                    + " (id INTEGER PRIMARY KEY,"
-                    + " categoryId INTEGER,"
-                    + " title TEXT,"
-                    + " url TEXT,"
-                    + " unread INTEGER)");
-
-            db.execSQL(
-                    "CREATE TABLE "
-                    + TABLE_ARTICLES
-                    + " (id INTEGER PRIMARY KEY,"
-                    + " feedId INTEGER,"
-                    + " title TEXT,"
-                    + " isUnread INTEGER,"
-                    + " articleUrl TEXT,"
-                    + " articleCommentUrl TEXT,"
-                    + " updateDate INTEGER,"
-                    + " content TEXT,"
-                    + " attachments TEXT,"
-                    + " isStarred INTEGER,"
-                    + " isPublished INTEGER,"
-                    + " cachedImages INTEGER DEFAULT 0,"
-                    + " articleLabels TEXT)");
-
-            db.execSQL(
-                    "CREATE TABLE "
-                    + TABLE_ARTICLES2LABELS
-                    + " (articleId INTEGER,"
-                    + " labelId INTEGER, PRIMARY KEY(articleId, labelId))");
-
-            db.execSQL("CREATE TABLE "
-                    + TABLE_MARK
-                    + " (id INTEGER,"
-                    + " type INTEGER,"
-                    + " " + MARK_READ + " INTEGER,"
-                    + " " + MARK_STAR + " INTEGER,"
-                    + " " + MARK_PUBLISH + " INTEGER,"
-                    + " " + MARK_NOTE + " TEXT,"
-                    + " PRIMARY KEY(id, type))");
-            // @formatter:on
-            
+            db.execSQL(CREATE_TABLE_CATEGORIES);
+            db.execSQL(CREATE_TABLE_FEEDS);
+            db.execSQL(CREATE_TABLE_ARTICLES);
+            db.execSQL(CREATE_TABLE_ARTICLES2LABELS);
+            db.execSQL(CREATE_TABLE_MARK);
             createRemoteFilesSupportDBObjects(db);
         }
         
@@ -520,12 +532,52 @@ public class DBHelper {
                 }
             }
             
+            if (oldVersion < 54) {
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 54.", oldVersion));
+                
+                // Rename columns "id" to "_id" by modifying the table structure:
+                db.beginTransaction();
+                try {
+                    String sql = "UPDATE SQLITE_MASTER SET SQL = '%s' WHERE NAME = '%s';";
+                    
+                    db.execSQL("PRAGMA foreign_keys=OFF;");
+                    String tmp = "tmp_" + TABLE_REMOTEFILES;
+                    String tmp2art = "tmp_" + TABLE_REMOTEFILE2ARTICLE;
+                    
+                    db.execSQL("ALTER TABLE " + TABLE_REMOTEFILE2ARTICLE + " RENAME TO " + tmp2art);
+                    db.execSQL("ALTER TABLE " + TABLE_REMOTEFILES + " RENAME TO " + tmp);
+                    
+                    db.execSQL("PRAGMA writable_schema=1;");
+                    db.execSQL(String.format(sql, CREATE_TABLE_CATEGORIES, TABLE_CATEGORIES));
+                    db.execSQL(String.format(sql, CREATE_TABLE_FEEDS, TABLE_FEEDS));
+                    db.execSQL(String.format(sql, CREATE_TABLE_ARTICLES, TABLE_ARTICLES));
+                    db.execSQL("PRAGMA writable_schema=0;");
+                    
+                    didUpgrade = createRemoteFilesSupportDBObjects(db);
+                    
+                    if (didUpgrade) {
+                        db.execSQL("INSERT INTO " + TABLE_REMOTEFILES + " SELECT * FROM " + tmp);
+                        db.execSQL("INSERT INTO " + TABLE_REMOTEFILE2ARTICLE + " SELECT * FROM " + tmp2art);
+                        db.execSQL("DROP TABLE " + tmp2art);
+                        db.execSQL("DROP TABLE " + tmp);
+                    }
+                    
+                    if (didUpgrade)
+                        db.setTransactionSuccessful();
+                } finally {
+                    db.execSQL("PRAGMA foreign_keys=ON;");
+                    db.endTransaction();
+                    specialUpgradeSuccessful = true;
+                }
+            }
+            
             if (didUpgrade == false) {
                 Log.i(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARK);
+                db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
                 onCreate(db);
             }
             
@@ -538,125 +590,125 @@ public class DBHelper {
          * @param db
          *            current database
          */
-        public boolean createRemoteFilesSupportDBObjects(SQLiteDatabase db) {
+        private boolean createRemoteFilesSupportDBObjects(SQLiteDatabase db) {
             boolean success = false;
             try {
                 // @formatter:off
 
-            // remote files (images, attachments, etc) belonging to articles,
-            // which are locally stored (cached)
-            db.execSQL("CREATE TABLE "
-                    + TABLE_REMOTEFILES
-                    + " (id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    // remote file URL
-                    + " url TEXT UNIQUE NOT NULL,"
-                    // file size
-                    + " length INTEGER DEFAULT 0,"
-                    // extension - some kind of additional info
-                    // (i.e. file extension)
-                    + " ext TEXT NOT NULL,"
-                    // unix timestamp of last change
-                    // (set automatically by triggers)
-                    + " updateDate INTEGER,"
-                    // boolean flag determining if the file is locally stored
-                    + " cached INTEGER DEFAULT 0)");
-
-            // index for quiicker search by by URL
-            db.execSQL("CREATE UNIQUE INDEX idx_remotefiles_by_url"
-                    + " ON " + TABLE_REMOTEFILES
-                    + " (url)");
-
-            // sets last change unix timestamp after row creation
-            db.execSQL("CREATE TRIGGER insert_remotefiles AFTER INSERT"
-                    + " ON " + TABLE_REMOTEFILES
-                    + "   BEGIN"
-                    + "     UPDATE " + TABLE_REMOTEFILES
-                    + "       SET updateDate = strftime('%s', 'now')"
-                    + "     WHERE id = new.id;"
-                    + "   END");
-
-            // sets last change unix timestamp after row update
-            db.execSQL("CREATE TRIGGER update_remotefiles_lastchanged AFTER UPDATE"
-                    + " ON " + TABLE_REMOTEFILES
-                    + "   BEGIN"
-                    + "     UPDATE " + TABLE_REMOTEFILES
-                    + "       SET updateDate = strftime('%s', 'now')"
-                    + "     WHERE id = new.id;"
-                    + "   END");
-
-            // m to n relations between articles and remote files
-            db.execSQL("CREATE TABLE "
-                    + TABLE_REMOTEFILE2ARTICLE
-                    // ID of remote file
-                    + "(remotefileId INTEGER"
-                    + "   REFERENCES " + TABLE_REMOTEFILES + "(id)"
-                    + "     ON DELETE CASCADE,"
-                    // ID of article
-                    + " articleId INTEGER"
-                    + "   REFERENCES " + TABLE_ARTICLES + "(id)"
-                    + "     ON UPDATE CASCADE"
-                    + "     ON DELETE NO ACTION,"
-                    // if both IDs are known, then the row should be found faster
-                    + " PRIMARY KEY(remotefileId, articleId))");
-
-            // update count of cached images for article on change of "cached"
-            // field of remotefiles
-            db.execSQL("CREATE TRIGGER update_remotefiles_articlefiles AFTER UPDATE"
-                    + " OF cached"
-                    + " ON " + TABLE_REMOTEFILES
-                    + "   BEGIN"
-                    + "     UPDATE " + TABLE_ARTICLES + ""
-                    + "       SET"
-                    + "         cachedImages = ("
-                    + "           SELECT"
-                    + "             COUNT(r.id)"
-                    + "           FROM " + TABLE_REMOTEFILES + " r,"
-                    +               TABLE_REMOTEFILE2ARTICLE + " m"
-                    + "           WHERE"
-                    + "             m.remotefileId=r.id"
-                    + "             AND m.articleId=" + TABLE_ARTICLES + ".id"
-                    + "             AND r.cached=1)"
-                    + "       WHERE id IN ("
-                    + "         SELECT"
-                    + "           a.id"
-                    + "         FROM " + TABLE_REMOTEFILE2ARTICLE + " m,"
-                    +             TABLE_ARTICLES + " a"
-                    + "         WHERE"
-                    + "           m.remotefileId=new.id AND m.articleId=a.id);"
-                    + "   END");
-
-            // represents importance of cached files
-            // the sequence is defined by
-            // 1. the article to which the remote file belongs to is not read
-            // 2. update date of the article to which the remote file belongs to
-            // 3. the file length
-            db.execSQL("CREATE VIEW remotefile_sequence AS"
-                    + " SELECT r.*, MAX(a.isUnread) AS isUnread,"
-                    + "   MAX(a.updateDate) AS articleUpdateDate,"
-                    + "   MAX(a.isUnread)||MAX(a.updateDate)||(100000000000-r.length)"
-                    + "     AS ord"
-                    + " FROM " + TABLE_REMOTEFILES + " r,"
-                    +     TABLE_REMOTEFILE2ARTICLE + " m,"
-                    +     TABLE_ARTICLES + " a"
-                    + " WHERE m.remotefileId=r.id AND m.articleId=a.id"
-                    + " GROUP BY r.id");
-
-            // Represents cached remote files sorted by their importance.
-            // runningSum field in each row represents the summary length of
-            // all files in the importance sequence until the next row.
-            // This view is used to determine which cached files should be
-            // deleted as next to free some amount of space in cache.
-//            db.execSQL("CREATE VIEW remotefile_runningsum AS"
-//                    + " SELECT"
-//                    + "   f1.*, sum(f2.length) AS runningSum"
-//                    + " FROM"
-//                    + "   remotefile_sequence f1"
-//                    + "     INNER JOIN"
-//                    + "       remotefile_sequence f2"
-//                    + "       ON"
-//                    + "         f1.cached=1 AND f1.ord>=f2.ord"
-//                    + " GROUP by f1.id"
-//                    + " ORDER by runningSum");
+                // remote files (images, attachments, etc) belonging to articles,
+                // which are locally stored (cached)
+                db.execSQL("CREATE TABLE "
+                        + TABLE_REMOTEFILES
+                        + " (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        // remote file URL
+                        + " url TEXT UNIQUE NOT NULL,"
+                        // file size
+                        + " length INTEGER DEFAULT 0,"
+                        // extension - some kind of additional info
+                        // (i.e. file extension)
+                        + " ext TEXT NOT NULL,"
+                        // unix timestamp of last change
+                        // (set automatically by triggers)
+                        + " updateDate INTEGER,"
+                        // boolean flag determining if the file is locally stored
+                        + " cached INTEGER DEFAULT 0)");
+    
+                // index for quiicker search by by URL
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_remotefiles_by_url"
+                        + " ON " + TABLE_REMOTEFILES
+                        + " (url)");
+    
+                // sets last change unix timestamp after row creation
+                db.execSQL("CREATE TRIGGER IF NOT EXISTS insert_remotefiles AFTER INSERT"
+                        + " ON " + TABLE_REMOTEFILES
+                        + "   BEGIN"
+                        + "     UPDATE " + TABLE_REMOTEFILES
+                        + "       SET updateDate = strftime('%s', 'now')"
+                        + "     WHERE id = new.id;"
+                        + "   END");
+    
+                // sets last change unix timestamp after row update
+                db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_lastchanged AFTER UPDATE"
+                        + " ON " + TABLE_REMOTEFILES
+                        + "   BEGIN"
+                        + "     UPDATE " + TABLE_REMOTEFILES
+                        + "       SET updateDate = strftime('%s', 'now')"
+                        + "     WHERE id = new.id;"
+                        + "   END");
+    
+                // m to n relations between articles and remote files
+                db.execSQL("CREATE TABLE "
+                        + TABLE_REMOTEFILE2ARTICLE
+                        // ID of remote file
+                        + "(remotefileId INTEGER"
+                        + "   REFERENCES " + TABLE_REMOTEFILES + "(id)"
+                        + "     ON DELETE CASCADE,"
+                        // ID of article
+                        + " articleId INTEGER"
+                        + "   REFERENCES " + TABLE_ARTICLES + "(_id)"
+                        + "     ON UPDATE CASCADE"
+                        + "     ON DELETE NO ACTION,"
+                        // if both IDs are known, then the row should be found faster
+                        + " PRIMARY KEY(remotefileId, articleId))");
+    
+                // update count of cached images for article on change of "cached"
+                // field of remotefiles
+                db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_articlefiles AFTER UPDATE"
+                        + " OF cached"
+                        + " ON " + TABLE_REMOTEFILES
+                        + "   BEGIN"
+                        + "     UPDATE " + TABLE_ARTICLES + ""
+                        + "       SET"
+                        + "         cachedImages = ("
+                        + "           SELECT"
+                        + "             COUNT(r.id)"
+                        + "           FROM " + TABLE_REMOTEFILES + " r,"
+                        +               TABLE_REMOTEFILE2ARTICLE + " m"
+                        + "           WHERE"
+                        + "             m.remotefileId=r.id"
+                        + "             AND m.articleId=" + TABLE_ARTICLES + "._id"
+                        + "             AND r.cached=1)"
+                        + "       WHERE _id IN ("
+                        + "         SELECT"
+                        + "           a.id"
+                        + "         FROM " + TABLE_REMOTEFILE2ARTICLE + " m,"
+                        +             TABLE_ARTICLES + " a"
+                        + "         WHERE"
+                        + "           m.remotefileId=new.id AND m.articleId=a._id);"
+                        + "   END");
+    
+                // represents importance of cached files
+                // the sequence is defined by
+                // 1. the article to which the remote file belongs to is not read
+                // 2. update date of the article to which the remote file belongs to
+                // 3. the file length
+                db.execSQL("CREATE VIEW IF NOT EXISTS remotefile_sequence AS"
+                        + " SELECT r.*, MAX(a.isUnread) AS isUnread,"
+                        + "   MAX(a.updateDate) AS articleUpdateDate,"
+                        + "   MAX(a.isUnread)||MAX(a.updateDate)||(100000000000-r.length)"
+                        + "     AS ord"
+                        + " FROM " + TABLE_REMOTEFILES + " r,"
+                        +     TABLE_REMOTEFILE2ARTICLE + " m,"
+                        +     TABLE_ARTICLES + " a"
+                        + " WHERE m.remotefileId=r.id AND m.articleId=a._id"
+                        + " GROUP BY r.id");
+    
+                // Represents cached remote files sorted by their importance.
+                // runningSum field in each row represents the summary length of
+                // all files in the importance sequence until the next row.
+                // This view is used to determine which cached files should be
+                // deleted as next to free some amount of space in cache.
+//                db.execSQL("CREATE VIEW remotefile_runningsum AS"
+//                        + " SELECT"
+//                        + "   f1.*, sum(f2.length) AS runningSum"
+//                        + " FROM"
+//                        + "   remotefile_sequence f1"
+//                        + "     INNER JOIN"
+//                        + "       remotefile_sequence f2"
+//                        + "       ON"
+//                        + "         f1.cached=1 AND f1.ord>=f2.ord"
+//                        + " GROUP by f1.id"
+//                        + " ORDER by runningSum");
                 // @formatter:on
                 
                 success = true;
@@ -846,7 +898,7 @@ public class DBHelper {
         Object[] entry = input.get(0);
         stmt.append(" SELECT ");
         
-        stmt.append(entry[0] + " AS id, ");
+        stmt.append(entry[0] + " AS _id, ");
         stmt.append(entry[1] + " AS feedId, ");
         stmt.append(DatabaseUtils.sqlEscapeString(entry[2] + "") + " AS title, ");
         stmt.append(entry[3] + " AS isUnread, ");
@@ -857,7 +909,7 @@ public class DBHelper {
         stmt.append("'" + entry[8] + "' AS attachments, ");
         stmt.append(entry[9] + " AS isStarred, ");
         stmt.append(entry[10] + " AS isPublished, ");
-        stmt.append("coalesce((SELECT cachedImages FROM articles WHERE id=" + entry[0] + "), 0) AS cachedImages UNION");
+        stmt.append("coalesce((SELECT cachedImages FROM articles WHERE _id=" + entry[0] + "), 0) AS cachedImages UNION");
         
         for (int i = 1; i < input.size(); i++) {
             entry = input.get(i);
@@ -879,7 +931,7 @@ public class DBHelper {
                 if (j < (entry.length - 1))
                     stmt.append(", ");
                 if (j == (entry.length - 1))
-                    stmt.append(", coalesce((SELECT cachedImages FROM articles WHERE id=" + entry[0] + "), 0)");
+                    stmt.append(", coalesce((SELECT cachedImages FROM articles WHERE _id=" + entry[0] + "), 0)");
             }
             if (i < input.size() - 1)
                 stmt.append(" UNION ");
@@ -1025,7 +1077,7 @@ public class DBHelper {
             db.beginTransaction();
             try {
                 // select id from articles where categoryId in (...)
-                c = db.query(TABLE_ARTICLES, new String[] { "id" }, where.toString(), null, null, null, null);
+                c = db.query(TABLE_ARTICLES, new String[] { "_id" }, where.toString(), null, null, null, null);
                 
                 int count = c.getCount();
                 
@@ -1056,12 +1108,12 @@ public class DBHelper {
     public void markLabelRead(int labelId) {
         ContentValues cv = new ContentValues(1);
         cv.put("isUnread", 0);
-        String idList = "SELECT id FROM " + TABLE_ARTICLES + " AS a, " + TABLE_ARTICLES2LABELS
-                + " as l WHERE a.id=l.articleId AND l.labelId=" + labelId;
+        String idList = "SELECT _id id FROM " + TABLE_ARTICLES + " AS a, " + TABLE_ARTICLES2LABELS
+                + " as l WHERE a._id=l.articleId AND l.labelId=" + labelId;
         
         if (!isDBAvailable())
             return;
-        db.update(TABLE_ARTICLES, cv, "isUnread>0 AND id IN(" + idList + ")", null);
+        db.update(TABLE_ARTICLES, cv, "isUnread>0 AND _id IN(" + idList + ")", null);
     }
     
     /**
@@ -1133,7 +1185,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues(1);
             cv.put(mark, state);
-            rowCount = db.update(TABLE_ARTICLES, cv, "id IN (" + idList + ") AND ? != ?",
+            rowCount = db.update(TABLE_ARTICLES, cv, "_id IN (" + idList + ") AND ? != ?",
                     new String[] { mark, String.valueOf(state) });
         }
         
@@ -1225,7 +1277,7 @@ public class DBHelper {
                     total += unreadCount;
                     
                     cv.put("unread", unreadCount);
-                    updateCount = db.update(TABLE_FEEDS, cv, "id=" + feedId, null);
+                    updateCount = db.update(TABLE_FEEDS, cv, "_id=" + feedId, null);
                 }
             } finally {
                 if (c != null && !c.isClosed())
@@ -1243,7 +1295,7 @@ public class DBHelper {
                     int unreadCount = c.getInt(1);
                     
                     cv.put("unread", unreadCount);
-                    updateCount = db.update(TABLE_CATEGORIES, cv, "id=" + categoryId, null);
+                    updateCount = db.update(TABLE_CATEGORIES, cv, "_id=" + categoryId, null);
                 }
             } finally {
                 if (c != null && !c.isClosed())
@@ -1251,16 +1303,16 @@ public class DBHelper {
             }
             
             cv.put("unread", total);
-            db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_ALL, null);
+            db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_ALL, null);
             
             cv.put("unread", getUnreadCount(Data.VCAT_FRESH, true));
-            db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_FRESH, null);
+            db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_FRESH, null);
             
             cv.put("unread", getUnreadCount(Data.VCAT_PUB, true));
-            db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_PUB, null);
+            db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_PUB, null);
             
             cv.put("unread", getUnreadCount(Data.VCAT_STAR, true));
-            db.update(TABLE_CATEGORIES, cv, "id=" + Data.VCAT_STAR, null);
+            db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_STAR, null);
             
             db.setTransactionSuccessful();
         } finally {
@@ -1295,14 +1347,14 @@ public class DBHelper {
             } else {
                 cv.put("cachedImages", filesCount);
             }
-            db.update(TABLE_ARTICLES, cv, "id=?", new String[] { String.valueOf(id) });
+            db.update(TABLE_ARTICLES, cv, "_id=?", new String[] { String.valueOf(id) });
         }
     }
     
     public void deleteCategories(boolean withVirtualCategories) {
         String wherePart = "";
         if (!withVirtualCategories)
-            wherePart = "id > 0";
+            wherePart = "_id > 0";
         if (!isDBAvailable())
             return;
         db.delete(TABLE_CATEGORIES, wherePart, null);
@@ -1353,7 +1405,7 @@ public class DBHelper {
         // @formatter:off
         query.append (
             " articleId IN ("                                     ).append(
-            "     SELECT id"                                      ).append(
+            "     SELECT _id"                                     ).append(
             "       FROM "                                        ).append(
                       TABLE_ARTICLES                              ).append(
             "       WHERE "                                       ).append(
@@ -1389,11 +1441,11 @@ public class DBHelper {
      */
     public void purgeLastArticles(int amountToPurge) {
         if (isDBAvailable()) {
-            String idList = "SELECT id FROM " + TABLE_ARTICLES
+            String idList = "SELECT _id FROM " + TABLE_ARTICLES
                     + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
                     + (Utils.ARTICLE_LIMIT - amountToPurge);
             
-            safelyDeleteArticles("id IN (" + idList + ")", null);
+            safelyDeleteArticles("_id IN (" + idList + ")", null);
         }
     }
     
@@ -1402,14 +1454,14 @@ public class DBHelper {
      */
     public void purgeOrphanedArticles() {
         if (isDBAvailable()) {
-            safelyDeleteArticles("feedId NOT IN (SELECT id FROM " + TABLE_FEEDS + ")", null);
+            safelyDeleteArticles("feedId NOT IN (SELECT _id FROM " + TABLE_FEEDS + ")", null);
         }
     }
     
     // TODO FIXME is it necessary? I don't think we should remove published or starred articles at all!!!
     public void purgeVirtualCategories(int minId) {
         if (isDBAvailable()) {
-            safelyDeleteArticles(" ( isPublished>0 OR isStarred>0 ) AND id >= ? ",
+            safelyDeleteArticles(" ( isPublished>0 OR isStarred>0 ) AND _id >= ? ",
                     new String[] { String.valueOf(minId) });
         }
     }
@@ -1420,12 +1472,12 @@ public class DBHelper {
             String idsArticles = "SELECT a2l.articleId FROM "
                 + TABLE_ARTICLES2LABELS + " AS a2l LEFT OUTER JOIN "
                 + TABLE_ARTICLES + " AS a"
-                + " ON a2l.articleId = a.id WHERE a.id IS null";
+                + " ON a2l.articleId = a._id WHERE a._id IS null";
 
             String idsFeeds = "SELECT a2l.labelId FROM "
                 + TABLE_ARTICLES2LABELS + " AS a2l LEFT OUTER JOIN "
                 + TABLE_FEEDS + " AS f"
-                + " ON a2l.labelId = f.id WHERE f.id IS null";
+                + " ON a2l.labelId = f._id WHERE f._id IS null";
             // @formatter:on
             
             db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
@@ -1447,7 +1499,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
-            c = db.query(TABLE_ARTICLES, new String[] { "min(id)" }, "isUnread>0", null, null, null, null, null);
+            c = db.query(TABLE_ARTICLES, new String[] { "min(_id)" }, "isUnread>0", null, null, null, null, null);
             if (c.moveToFirst())
                 ret = c.getInt(0);
             else
@@ -1493,7 +1545,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
-            c = db.query(TABLE_ARTICLES, null, "id=?", new String[] { id + "" }, null, null, null, null);
+            c = db.query(TABLE_ARTICLES, null, "_id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
                 ret = handleArticleCursor(c);
             
@@ -1511,12 +1563,12 @@ public class DBHelper {
         Cursor c = null;
         try {
             // @formatter:off
-            String sql =      "SELECT f.id, f.title, 0 checked FROM " + TABLE_FEEDS + " f "
-                      		+ "     WHERE f.id <= -11 AND"
-                    		+ "     NOT EXISTS (SELECT * FROM " + TABLE_ARTICLES2LABELS + " a2l where f.id = a2l.labelId AND a2l.articleId = " + articleId + ")"
+            String sql =      "SELECT f._id, f.title, 0 checked FROM " + TABLE_FEEDS + " f "
+                      		+ "     WHERE f._id <= -11 AND"
+                    		+ "     NOT EXISTS (SELECT * FROM " + TABLE_ARTICLES2LABELS + " a2l where f._id = a2l.labelId AND a2l.articleId = " + articleId + ")"
                             + " UNION"
-                            + " SELECT f.id, f.title, 1 checked FROM " + TABLE_FEEDS + " f, " + TABLE_ARTICLES2LABELS + " a2l "
-                            + "     WHERE f.id <= -11 AND f.id = a2l.labelId AND a2l.articleId = " + articleId;
+                            + " SELECT f._id, f.title, 1 checked FROM " + TABLE_FEEDS + " f, " + TABLE_ARTICLES2LABELS + " a2l "
+                            + "     WHERE f._id <= -11 AND f._id = a2l.labelId AND a2l.articleId = " + articleId;
             // @formatter:on
             
             if (!isDBAvailable())
@@ -1546,7 +1598,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
-            c = db.query(TABLE_FEEDS, null, "id=?", new String[] { id + "" }, null, null, null, null);
+            c = db.query(TABLE_FEEDS, null, "_id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
                 ret = handleFeedCursor(c);
             
@@ -1565,7 +1617,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
-            c = db.query(TABLE_CATEGORIES, null, "id=?", new String[] { id + "" }, null, null, null, null);
+            c = db.query(TABLE_CATEGORIES, null, "_id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
                 ret = handleCategoryCursor(c);
             
@@ -1614,8 +1666,8 @@ public class DBHelper {
         if (isDBAvailable()) {
             Cursor c = null;
             try {
-                c = db.query(TABLE_ARTICLES, new String[] { "id", "updateDate" }, selection, selectionArgs, null, null,
-                        null);
+                c = db.query(TABLE_ARTICLES, new String[] { "_id", "updateDate" }, selection, selectionArgs, null,
+                        null, null);
                 
                 unreadUpdated = new HashMap<Integer, Long>(c.getCount());
                 
@@ -1651,10 +1703,10 @@ public class DBHelper {
             
             switch (categoryId) {
                 case -1:
-                    where = "id IN (0, -2, -3)";
+                    where = "_id IN (0, -2, -3)";
                     break;
                 case -2:
-                    where = "id < -10";
+                    where = "_id < -10";
                     break;
                 case -3:
                     where = "categoryId >= 0";
@@ -1686,7 +1738,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new LinkedHashSet<Category>();
             
-            c = db.query(TABLE_CATEGORIES, null, "id<1", null, null, null, "id ASC");
+            c = db.query(TABLE_CATEGORIES, null, "_id<1", null, null, null, "_id ASC");
             
             Set<Category> ret = new LinkedHashSet<Category>(c.getCount());
             while (c.moveToNext()) {
@@ -1706,7 +1758,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new LinkedHashSet<Category>();
             
-            c = db.query(TABLE_CATEGORIES, null, "id>=0", null, null, null, "title ASC");
+            c = db.query(TABLE_CATEGORIES, null, "_id>=0", null, null, null, "title ASC");
             Set<Category> ret = new LinkedHashSet<Category>(c.getCount());
             while (c.moveToNext()) {
                 ret.add(handleCategoryCursor(c));
@@ -1733,8 +1785,8 @@ public class DBHelper {
                 if (!isDBAvailable())
                     return ret;
                 
-                c = db.query(isCat ? TABLE_CATEGORIES : TABLE_FEEDS, new String[] { "unread" }, "id=" + id, null, null,
-                        null, null, null);
+                c = db.query(isCat ? TABLE_CATEGORIES : TABLE_FEEDS, new String[] { "unread" }, "_id=" + id, null,
+                        null, null, null, null);
                 if (c.moveToFirst())
                     ret = c.getInt(0);
                 
@@ -1755,7 +1807,7 @@ public class DBHelper {
         
         if (isCat && id >= 0) {
             // real categories
-            selection.append(" and feedId in (select id from feeds where categoryId=?)");
+            selection.append(" and feedId in (select _id from feeds where categoryId=?)");
         } else {
             if (id < 0) {
                 // virtual categories
@@ -1821,7 +1873,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new HashMap<Integer, String>();
             
-            c = db.query(TABLE_MARK, new String[] { "id", MARK_NOTE }, mark + "=" + status, null, null, null, null,
+            c = db.query(TABLE_MARK, new String[] { "_id", MARK_NOTE }, mark + "=" + status, null, null, null, null,
                     null);
             
             Map<Integer, String> ret = new HashMap<Integer, String>(c.getCount());
@@ -1854,7 +1906,7 @@ public class DBHelper {
             ContentValues cv = new ContentValues(1);
             for (String idList : StringSupport.convertListToString(ids.keySet(), 1000)) {
                 cv.putNull(mark);
-                db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
+                db.update(TABLE_MARK, cv, "_id IN(" + idList + ")", null);
                 db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
             }
             
@@ -1866,7 +1918,7 @@ public class DBHelper {
                     continue;
                 
                 cv.put(MARK_NOTE, note);
-                db.update(TABLE_MARK, cv, "id=" + id, null);
+                db.update(TABLE_MARK, cv, "_id=" + id, null);
             }
             
             db.setTransactionSuccessful();
@@ -1880,7 +1932,7 @@ public class DBHelper {
     private static Article handleArticleCursor(Cursor c) {
         // @formatter:off
         Article ret = new Article(
-                c.getInt(0),                        // id
+                c.getInt(0),                        // _id
                 c.getInt(1),                        // feedId
                 c.getString(2),                     // title
                 (c.getInt(3) != 0),                 // isUnread
@@ -1907,7 +1959,7 @@ public class DBHelper {
     private static Feed handleFeedCursor(Cursor c) {
         // @formatter:off
         Feed ret = new Feed(
-                c.getInt(0),            // id
+                c.getInt(0),            // _id
                 c.getInt(1),            // categoryId
                 c.getString(2),         // title
                 c.getString(3),         // url
@@ -1919,7 +1971,7 @@ public class DBHelper {
     private static Category handleCategoryCursor(Cursor c) {
         // @formatter:off
         Category ret = new Category(
-                c.getInt(0),            // id
+                c.getInt(0),            // _id
                 c.getString(1),         // title
                 c.getInt(2));           // unread
         // @formatter:on
@@ -1987,7 +2039,7 @@ public class DBHelper {
         
         Cursor c = null;
         try {
-            c = db.query(TABLE_ARTICLES, new String[] { "id", "content", "attachments" },
+            c = db.query(TABLE_ARTICLES, new String[] { "_id", "content", "attachments" },
                     "cachedImages IS NULL AND isUnread>0", null, null, null, null, "1000");
             
             ArrayList<Article> ret = new ArrayList<Article>(c.getCount());
@@ -2077,8 +2129,8 @@ public class DBHelper {
                               +     TABLE_REMOTEFILE2ARTICLE + " m, "
                               +     TABLE_ARTICLES + " a"
                               + " WHERE m.remotefileId=r.id"
-                              + "   AND m.articleId=a.id"
-                              + "   AND a.id=?",
+                              + "   AND m.articleId=a._id"
+                              + "   AND a._id=?",
                         // @formatter:on
                         new String[] { String.valueOf(articleId) });
                 
@@ -2135,7 +2187,7 @@ public class DBHelper {
                         "         FROM "                          ).append(
                                     TABLE_REMOTEFILE2ARTICLE      ).append(
                         "         WHERE articleId IN ("           ).append(
-                        "           SELECT id"                    ).append(
+                        "           SELECT _id"                   ).append(
                         "             FROM "                      ).append(
                                         TABLE_ARTICLES            ).append(
                         "             WHERE "                     ).append(
@@ -2143,7 +2195,7 @@ public class DBHelper {
                         "           )"                            ).append(
                         "         GROUP BY remotefileId)"         ).append(
                         "       AND articleId NOT IN ("           ).append(
-                        "         SELECT id"                      ).append(
+                        "         SELECT _id"                     ).append(
                         "           FROM "                        ).append(
                                       TABLE_ARTICLES              ).append(
                         "           WHERE "                       ).append(
@@ -2174,8 +2226,8 @@ public class DBHelper {
                           TABLE_REMOTEFILE2ARTICLE + " m, "       ).append(
                           TABLE_ARTICLES + " a"                   ).append(
                     "   WHERE m.remotefileId=r.id"                ).append(
-                    "     AND m.articleId=a.id"                   ).append(
-                    "     AND a.id IN ("                          ).append(
+                    "     AND m.articleId=a._id"                  ).append(
+                    "     AND a._id IN ("                         ).append(
                     "       SELECT id FROM "                      ).append(
                               TABLE_ARTICLES                      ).append(
                     "       WHERE "                               ).append(
