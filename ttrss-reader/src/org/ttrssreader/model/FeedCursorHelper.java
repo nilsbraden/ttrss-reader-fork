@@ -42,18 +42,18 @@ public class FeedCursorHelper extends MainCursorHelper {
             displayUnread = false;
         
         if (lastOpenedFeedsList.length() > 0 && !buildSafeQuery) {
-            query.append("SELECT id,title,unread FROM (");
+            query.append("SELECT _id,title,unread FROM (");
         }
         
-        query.append("SELECT id,title,unread FROM ");
+        query.append("SELECT _id,title,unread FROM ");
         query.append(DBHelper.TABLE_FEEDS);
         query.append(" WHERE categoryId=");
         query.append(categoryId);
         query.append(displayUnread ? " AND unread>0" : "");
         
         if (lastOpenedFeedsList.length() > 0 && !buildSafeQuery) {
-            query.append(" UNION SELECT id,title,unread");
-            query.append(" FROM feeds WHERE id IN (");
+            query.append(" UNION SELECT _id,title,unread");
+            query.append(" FROM feeds WHERE _id IN (");
             query.append(lastOpenedFeedsList);
             query.append(" ))");
         }
