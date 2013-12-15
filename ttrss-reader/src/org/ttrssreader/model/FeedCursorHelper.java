@@ -20,6 +20,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class FeedCursorHelper extends MainCursorHelper {
     
@@ -29,7 +30,7 @@ public class FeedCursorHelper extends MainCursorHelper {
     }
     
     @Override
-    public Cursor createCursor(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+    public Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery) {
         
         StringBuilder query = new StringBuilder();
         
@@ -61,7 +62,8 @@ public class FeedCursorHelper extends MainCursorHelper {
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         query.append(buildSafeQuery ? " LIMIT 200" : " LIMIT 600");
-        
-        return DBHelper.getInstance().query(query.toString(), null);
+
+        return db.rawQuery(query.toString(), null);
     }
+    
 }

@@ -16,12 +16,16 @@
 package org.ttrssreader.model;
 
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 public abstract class MainCursorHelper {
     
     protected Context context;
+    private SQLiteDatabase db;
     
     protected int categoryId = Integer.MIN_VALUE;
     protected int feedId = Integer.MIN_VALUE;
@@ -41,16 +45,30 @@ public abstract class MainCursorHelper {
     public Cursor makeQuery() {
         Cursor cursor = null;
         
+        SQLiteOpenHelper openHelper = new SQLiteOpenHelper(context, DBHelper.DATABASE_NAME, null,
+                DBHelper.DATABASE_VERSION) {
+            @Override
+            public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+                throw new RuntimeException("Upgrade not implemented here!");
+            }
+            
+            @Override
+            public void onCreate(SQLiteDatabase db) {
+                throw new RuntimeException("Create not implemented here!");
+            }
+        };
+        db = openHelper.getReadableDatabase();
+        
         try {
             if (categoryId == 0 && (feedId == -1 || feedId == -2)) {
                 
                 // Starred/Published
-                cursor = createCursor(true, false);
+                cursor = createCursor(db, true, false);
                 
             } else {
                 
                 // normal query
-                cursor = createCursor(false, false);
+                cursor = createCursor(db, false, false);
                 
                 // (categoryId == -2 || feedId >= 0): Normal feeds
                 // (categoryId == 0 || feedId == Integer.MIN_VALUE): Uncategorized Feeds
@@ -58,7 +76,7 @@ public abstract class MainCursorHelper {
                     if (Controller.getInstance().onlyUnread() && !checkUnread(cursor)) {
                         
                         // Override unread if query was empty
-                        cursor = createCursor(true, false);
+                        cursor = createCursor(db, true, false);
                         
                     }
                 }
@@ -67,7 +85,7 @@ public abstract class MainCursorHelper {
         } catch (Exception e) {
             
             // Fail-safe-query
-            cursor = createCursor(false, true);
+            cursor = createCursor(db, false, true);
             
         }
         
@@ -97,5 +115,25 @@ public abstract class MainCursorHelper {
         return false;
     }
     
-    abstract Cursor createCursor(boolean overrideDisplayUnread, boolean buildSafeQuery);
+    abstract Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery);
+    
+    class OpenHelper extends SQLiteOpenHelper {
+        String tableName;
+        
+        OpenHelper(Context context, String tableName) {
+            super(context, null, null, 1);
+            this.tableName = tableName;
+        }
+        
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + tableName
+                    + " (_id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
+        }
+        
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
+    }
+    
 }

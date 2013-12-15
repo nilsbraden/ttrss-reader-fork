@@ -159,9 +159,6 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     }
     
     public void doRefresh() {
-        // if (adapter != null)
-        // adapter.refreshQuery();
-        Log.d(Utils.TAG, "doRefresh...");
         adapter.notifyDataSetChanged();
     }
     

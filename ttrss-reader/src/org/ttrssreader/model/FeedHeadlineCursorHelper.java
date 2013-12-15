@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class FeedHeadlineCursorHelper extends MainCursorHelper {
     
@@ -32,7 +33,7 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
     }
     
     @Override
-    public Cursor createCursor(boolean overrideDisplayUnread, boolean buildSafeQuery) {
+    public Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery) {
         
         String query;
         if (feedId > -10)
@@ -40,7 +41,7 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
         else
             query = buildLabelQuery(overrideDisplayUnread, buildSafeQuery);
         
-        return DBHelper.getInstance().query(query, null);
+        return db.rawQuery(query, null);
     }
     
     private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
