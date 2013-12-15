@@ -17,6 +17,7 @@ package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.view.MyGestureDetector;
@@ -30,6 +31,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -58,6 +60,9 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     
     protected GestureDetector gestureDetector;
     protected View.OnTouchListener gestureListener;
+    
+    protected String title;
+    protected int unreadCount;
     
     @Override
     public void onActivityCreated(Bundle instance) {
@@ -156,17 +161,19 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     public void doRefresh() {
         // if (adapter != null)
         // adapter.refreshQuery();
+        Log.d(Utils.TAG, "doRefresh...");
+        adapter.notifyDataSetChanged();
     }
     
     public String getTitle() {
-        if (adapter != null && adapter.title != null)
-            return adapter.title;
+        if (title != null)
+            return title;
         return "";
     }
     
     public int getUnread() {
-        if (adapter != null && adapter.unreadCount > 0)
-            return adapter.unreadCount;
+        if (unreadCount > 0)
+            return unreadCount;
         return 0;
     }
     
@@ -188,5 +195,14 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
         this.selectedId = selectedId;
         setChecked(selectedId);
     }
+    
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        fetchOtherData();
+        if (getActivity() instanceof MenuActivity)
+            ((MenuActivity) getActivity()).dataChanged();
+    }
+    
+    protected abstract void fetchOtherData();
     
 }

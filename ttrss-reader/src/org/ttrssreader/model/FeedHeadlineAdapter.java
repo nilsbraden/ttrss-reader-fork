@@ -23,6 +23,7 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -38,7 +39,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
     private boolean selectArticlesForCategory;
     
     public FeedHeadlineAdapter(Context context, int feedId, boolean selectArticlesForCategory) {
-        super(context);
+        super(context, new String[] { "title", "updateDate" }, new int[] { R.id.title, R.id.updateDate });
         this.feedId = feedId;
         this.selectArticlesForCategory = selectArticlesForCategory;
     }
@@ -46,15 +47,19 @@ public class FeedHeadlineAdapter extends MainAdapter {
     @Override
     public Object getItem(int position) {
         Article ret = new Article();
-        if (getCursor().getCount() >= position) {
-            if (getCursor().moveToPosition(position)) {
-                ret.id = getCursor().getInt(0);
-                ret.feedId = getCursor().getInt(1);
-                ret.title = getCursor().getString(2);
-                ret.isUnread = getCursor().getInt(3) != 0;
-                ret.updated = new Date(getCursor().getLong(4));
-                ret.isStarred = getCursor().getInt(5) != 0;
-                ret.isPublished = getCursor().getInt(6) != 0;
+        Cursor cur = getCursor();
+        if (cur == null)
+            return ret;
+        
+        if (cur.getCount() >= position) {
+            if (cur.moveToPosition(position)) {
+                ret.id = cur.getInt(0);
+                ret.feedId = cur.getInt(1);
+                ret.title = cur.getString(2);
+                ret.isUnread = cur.getInt(3) != 0;
+                ret.updated = new Date(cur.getLong(4));
+                ret.isStarred = cur.getInt(5) != 0;
+                ret.isPublished = cur.getInt(6) != 0;
             }
         }
         return ret;
@@ -132,22 +137,4 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return layout;
     }
     
-    // @Override
-    // protected void fetchOtherData() {
-    // if (selectArticlesForCategory) {
-    // Category category = DBHelper.getInstance().getCategory(categoryId);
-    // if (category != null)
-    // title = category.title;
-    // } else if (feedId >= -4 && feedId < 0) { // Virtual Category
-    // Category category = DBHelper.getInstance().getCategory(feedId);
-    // if (category != null)
-    // title = category.title;
-    // } else {
-    // Feed feed = DBHelper.getInstance().getFeed(feedId);
-    // if (feed != null)
-    // title = feed.title;
-    // }
-    // unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
-    // selectArticlesForCategory);
-    // }
 }

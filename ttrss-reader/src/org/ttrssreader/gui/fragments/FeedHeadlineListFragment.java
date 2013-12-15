@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
@@ -30,6 +31,8 @@ import org.ttrssreader.model.CustomCursorLoader;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -342,6 +345,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        super.onLoadFinished(loader, data);
         switch (loader.getId()) {
             case TYPE_HEADLINE_ID:
                 adapter.changeCursor(data);
@@ -362,6 +366,25 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 parentAdapter.changeCursor(null);
                 break;
         }
+    }
+    
+    @Override
+    protected void fetchOtherData() {
+        if (selectArticlesForCategory) {
+            Category category = DBHelper.getInstance().getCategory(categoryId);
+            if (category != null)
+                title = category.title;
+        } else if (feedId >= -4 && feedId < 0) { // Virtual Category
+            Category category = DBHelper.getInstance().getCategory(feedId);
+            if (category != null)
+                title = category.title;
+        } else {
+            Feed feed = DBHelper.getInstance().getFeed(feedId);
+            if (feed != null)
+                title = feed.title;
+        }
+        unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
+                selectArticlesForCategory);
     }
     
 }

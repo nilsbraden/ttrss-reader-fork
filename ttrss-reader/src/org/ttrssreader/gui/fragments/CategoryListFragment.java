@@ -17,6 +17,8 @@ package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.CategoryActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
@@ -118,6 +120,7 @@ public class CategoryListFragment extends MainListFragment {
     
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        super.onLoadFinished(loader, data);
         if (loader.getId() == TYPE_CAT_ID)
             adapter.changeCursor(data);
     }
@@ -126,6 +129,12 @@ public class CategoryListFragment extends MainListFragment {
     public void onLoaderReset(Loader<Cursor> loader) {
         if (loader.getId() == TYPE_CAT_ID)
             adapter.changeCursor(null);
+    }
+    
+    @Override
+    protected void fetchOtherData() {
+        title = getResources().getString(R.string.ApplicationName);
+        unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
     }
     
 }

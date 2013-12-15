@@ -781,12 +781,6 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         }
     }
     
-    public String getTitle() {
-        if (parentAdapter != null)
-            return "( " + parentAdapter.unreadCount + " )";
-        return "";
-    }
-    
     class ArticleGestureDetector extends MyGestureDetector {
         public ArticleGestureDetector(ActionBar actionBar, boolean hideActionbar) {
             super(actionBar, hideActionbar);

@@ -19,6 +19,7 @@ package org.ttrssreader.model;
 import org.ttrssreader.R;
 import org.ttrssreader.model.pojos.Feed;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,17 +31,21 @@ import android.widget.TextView;
 public class FeedAdapter extends MainAdapter {
     
     public FeedAdapter(Context context) {
-        super(context);
+        super(context, from, to);
     }
     
     @Override
     public Object getItem(int position) {
         Feed ret = new Feed();
-        if (getCursor().getCount() >= position) {
-            if (getCursor().moveToPosition(position)) {
-                ret.id = getCursor().getInt(0);
-                ret.title = getCursor().getString(1);
-                ret.unread = getCursor().getInt(2);
+        Cursor cur = getCursor();
+        if (cur == null)
+            return ret;
+        
+        if (cur.getCount() >= position) {
+            if (cur.moveToPosition(position)) {
+                ret.id = cur.getInt(0);
+                ret.title = cur.getString(1);
+                ret.unread = cur.getInt(2);
             }
         }
         return ret;
@@ -78,19 +83,11 @@ public class FeedAdapter extends MainAdapter {
         icon.setImageResource(getImage(f.unread > 0));
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(formatEntryTitle(f.title, f.unread));
+        title.setText(formatItemTitle(f.title, f.unread));
         if (f.unread > 0)
             title.setTypeface(Typeface.DEFAULT_BOLD);
         
         return layout;
     }
-    
-    // @Override
-    // protected void fetchOtherData() {
-    // Category category = DBHelper.getInstance().getCategory(categoryId);
-    // if (category != null)
-    // title = category.title;
-    // unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
-    // }
     
 }
