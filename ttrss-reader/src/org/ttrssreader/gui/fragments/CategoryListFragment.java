@@ -28,6 +28,7 @@ import org.ttrssreader.model.contentprovider.ListCP;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.database.Cursor;
+import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
@@ -44,6 +45,8 @@ public class CategoryListFragment extends MainListFragment {
     
     private static final int SELECT_ARTICLES = MenuActivity.MARK_GROUP + 54;
     private static final int SELECT_FEEDS = MenuActivity.MARK_GROUP + 55;
+    
+    private Uri categoryUri;
     
     public static CategoryListFragment newInstance() {
         // Create a new fragment instance
@@ -117,7 +120,8 @@ public class CategoryListFragment extends MainListFragment {
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == TYPE_CAT_ID) {
             Builder builder = ListCP.CONTENT_URI_CAT.buildUpon();
-            return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
+            categoryUri = builder.build();
+            return new CursorLoader(getActivity(), categoryUri, null, null, null, null);
         }
         return null;
     }
@@ -139,6 +143,13 @@ public class CategoryListFragment extends MainListFragment {
     protected void fetchOtherData() {
         title = getResources().getString(R.string.ApplicationName);
         unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
+    }
+    
+    @Override
+    public void doRefresh() {
+        // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
+        // getActivity().getContentResolver().notifyChange(categoryUri, null);
+        super.doRefresh();
     }
     
 }

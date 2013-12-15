@@ -19,7 +19,6 @@ import org.ttrssreader.controllers.Controller;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 public abstract class MainCursorHelper {
     
@@ -96,24 +95,5 @@ public abstract class MainCursorHelper {
     }
     
     abstract Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery);
-    
-    class OpenHelper extends SQLiteOpenHelper {
-        String tableName;
-        
-        OpenHelper(Context context, String tableName) {
-            super(context, null, null, 1);
-            this.tableName = tableName;
-        }
-        
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + tableName
-                    + " (_id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
-        }
-        
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        }
-    }
     
 }

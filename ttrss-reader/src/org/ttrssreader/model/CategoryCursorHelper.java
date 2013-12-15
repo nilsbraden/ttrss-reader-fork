@@ -20,6 +20,7 @@ import org.ttrssreader.controllers.DBHelper;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 
 public class CategoryCursorHelper extends MainCursorHelper {
@@ -34,8 +35,6 @@ public class CategoryCursorHelper extends MainCursorHelper {
     private static final String TABLE_NAME = "categories_memory_db";
     private static final String INSERT = "REPLACE INTO " + TABLE_NAME
             + " (_id, title, unread, sortId) VALUES (?, ?, ?, null)";
-    private SQLiteDatabase memoryDb;
-    private SQLiteStatement insert;
     
     public CategoryCursorHelper(Context context) {
         super(context);
@@ -49,12 +48,9 @@ public class CategoryCursorHelper extends MainCursorHelper {
         if (overrideDisplayUnread)
             displayUnread = false;
         
-        if (memoryDb != null)
-            memoryDb.close();
-        
         OpenHelper openHelper = new OpenHelper(context, TABLE_NAME);
-        memoryDb = openHelper.getWritableDatabase();
-        insert = memoryDb.compileStatement(INSERT);
+        SQLiteDatabase memoryDb = openHelper.getWritableDatabase();
+        SQLiteStatement insert = memoryDb.compileStatement(INSERT);
         
         StringBuilder query;
         // Virtual Feeds
@@ -63,7 +59,7 @@ public class CategoryCursorHelper extends MainCursorHelper {
             query.append("SELECT _id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
             query.append(" WHERE _id>=-4 AND _id<0 ORDER BY _id");
-            insertValues(db, query.toString());
+            insertValues(db, insert, query.toString());
         }
         
         // Labels
@@ -74,14 +70,14 @@ public class CategoryCursorHelper extends MainCursorHelper {
         query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ORDER BY UPPER(title) ASC");
         query.append(" LIMIT 500 ");
-        insertValues(db, query.toString());
+        insertValues(db, insert, query.toString());
         
         // "Uncategorized Feeds"
         query = new StringBuilder();
         query.append("SELECT _id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
         query.append(" WHERE _id=0");
-        insertValues(db, query.toString());
+        insertValues(db, insert, query.toString());
         
         // Categories
         query = new StringBuilder();
@@ -92,13 +88,13 @@ public class CategoryCursorHelper extends MainCursorHelper {
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         query.append(" LIMIT 500 ");
-        insertValues(db, query.toString());
+        insertValues(db, insert, query.toString());
         
         String[] columns = { "_id", "title", "unread" };
         return memoryDb.query(TABLE_NAME, columns, null, null, null, null, null, "600");
     }
     
-    private void insertValues(SQLiteDatabase db, String query) {
+    private void insertValues(SQLiteDatabase db, SQLiteStatement insert, String query) {
         Cursor c = null;
         try {
             c = db.rawQuery(query, null);
@@ -120,4 +116,24 @@ public class CategoryCursorHelper extends MainCursorHelper {
                 c.close();
         }
     }
+    
+    protected class OpenHelper extends SQLiteOpenHelper {
+        String tableName;
+        
+        OpenHelper(Context context, String tableName) {
+            super(context, null, null, 1);
+            this.tableName = tableName;
+        }
+        
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + tableName
+                    + " (_id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
+        }
+        
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
+    }
+    
 }

@@ -28,6 +28,7 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.database.Cursor;
+import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
@@ -47,6 +48,8 @@ public class FeedListFragment extends MainListFragment {
     
     // Extras
     private int categoryId;
+    
+    private Uri feedUri;
     
     public static FeedListFragment newInstance(int id) {
         // Create a new fragment instance
@@ -116,7 +119,8 @@ public class FeedListFragment extends MainListFragment {
         if (id == TYPE_FEED_ID) {
             Builder builder = ListCP.CONTENT_URI_FEED.buildUpon();
             builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
-            return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
+            feedUri = builder.build();
+            return new CursorLoader(getActivity(), feedUri, null, null, null, null);
         }
         return null;
     }
@@ -141,6 +145,13 @@ public class FeedListFragment extends MainListFragment {
         if (category != null)
             title = category.title;
         unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
+    }
+    
+    @Override
+    public void doRefresh() {
+        // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
+        // getActivity().getContentResolver().notifyChange(feedUri, null);
+        super.doRefresh();
     }
     
 }
