@@ -499,7 +499,7 @@ public abstract class JSONConnector {
             reader.beginArray();
             while (reader.hasNext()) {
                 Article a = new Article();
-
+                
                 boolean skipObject = false;
                 
                 reader.beginObject();
@@ -508,20 +508,20 @@ public abstract class JSONConnector {
                         // field name
                         reader.skipValue();
                         // field value
-                            reader.skipValue();
-                            continue;
-                        }
-                        
+                        reader.skipValue();
+                        continue;
+                    }
+                    
                     String name = reader.nextName();
-
+                    
                     try {
                         Article.ArticleField field = Article.ArticleField.valueOf(name);
-
+                        
                         if (skipNames != null && skipNames.contains(field)) {
                             reader.skipValue();
                             continue;
                         }
-
+                        
                         switch (field) {
                             case id:
                                 a.id = reader.nextInt();
@@ -536,9 +536,9 @@ public abstract class JSONConnector {
                                 a.updated = new Date(reader.nextLong() * 1000);
                                 break;
                             case feed_id:
-                            if (reader.peek() == JsonToken.NULL)
-                                reader.nextNull();
-                            else
+                                if (reader.peek() == JsonToken.NULL)
+                                    reader.nextNull();
+                                else
                                     a.feedId = reader.nextInt();
                                 break;
                             case content:
@@ -572,10 +572,10 @@ public abstract class JSONConnector {
                             case always_display_attachments:
                             case author:
                             case score:
-                            reader.skipValue();
+                                reader.skipValue();
                                 continue;
                         }
-
+                        
                         if (filter != null)
                             skipObject = filter.omitArticle(field, a);
                     } catch (IllegalArgumentException e) {
@@ -590,12 +590,12 @@ public abstract class JSONConnector {
                 if (!skipObject && a.id != -1 && a.title != null) {
                     articles.add(a);
                 }
-
-                    count++;
-                }
+                
+                count++;
+            }
             reader.endArray();
         } catch (StopJsonParsingException e) {
-            Log.i (Utils.TAG, "Parsing of aricle array was broken after " + count + "articles");
+            Log.i(Utils.TAG, "Parsing of aricle array was broken after " + count + "articles");
         } catch (OutOfMemoryError e) {
             Controller.getInstance().lowMemory(true); // Low memory detected
         } catch (Exception e) {
@@ -623,7 +623,7 @@ public abstract class JSONConnector {
                 Label label = new Label();
                 reader.beginArray();
                 try {
-                    label.setId(Integer.parseInt(reader.nextString()));
+                    label.id = Integer.parseInt(reader.nextString());
                     label.caption = reader.nextString();
                     label.foregroundColor = reader.nextString();
                     label.backgroundColor = reader.nextString();
@@ -824,7 +824,7 @@ public abstract class JSONConnector {
         if (Controller.getInstance().lazyServer()) {
             Map<String, String> taskParams = new HashMap<String, String>();
             taskParams.put(PARAM_OP, VALUE_UPDATE_FEED);
-            taskParams.put(PARAM_FEED_ID, String.valueOf (feedId));
+            taskParams.put(PARAM_FEED_ID, String.valueOf(feedId));
             return doRequestNoAnswer(taskParams);
         }
         return true;
@@ -859,7 +859,8 @@ public abstract class JSONConnector {
      * @see #getHeadlines(Integer, int, String, boolean, int, int)
      */
     public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
-        getHeadlines(articles, id, limit, viewMode, isCategory, sinceId, null, null, new IdUpdatedArticleOmitter (null, null));
+        getHeadlines(articles, id, limit, viewMode, isCategory, sinceId, null, null, new IdUpdatedArticleOmitter(null,
+                null));
     }
     
     /**
@@ -894,7 +895,7 @@ public abstract class JSONConnector {
         if (!sessionAlive())
             return;
         
-        int limitParam = Math.min ((apiLevel < 6) ? PARAM_LIMIT_API_5 : PARAM_LIMIT_MAX_VALUE, limit);
+        int limitParam = Math.min((apiLevel < 6) ? PARAM_LIMIT_API_5 : PARAM_LIMIT_MAX_VALUE, limit);
         
         makeLazyServerWork(id);
         
@@ -906,7 +907,7 @@ public abstract class JSONConnector {
             params.put(PARAM_LIMIT, limitParam + "");
             params.put(PARAM_SKIP, offset + "");
             params.put(PARAM_VIEWMODE, viewMode);
-            //params.put(PARAM_ORDERBY, "feed_dates");
+            // params.put(PARAM_ORDERBY, "feed_dates");
             
             if (skipProperties == null || !skipProperties.contains(Article.ArticleField.content))
                 params.put(PARAM_SHOW_CONTENT, "1");
@@ -1176,7 +1177,7 @@ public abstract class JSONConnector {
                     while (reader.hasNext()) {
                         String name = reader.nextName();
                         if (ID.equals(name)) {
-                            label.setId(reader.nextInt());
+                            label.id = reader.nextInt();
                         } else if (CAPTION.equals(name)) {
                             label.caption = reader.nextString();
                         } else if (CHECKED.equals(name)) {

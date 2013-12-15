@@ -68,7 +68,7 @@ public class ArticleLabelDialog extends DialogFragment {
         labels = Data.getInstance().getLabels(articleId);
         for (Label label : labels) {
             CheckBox checkbox = new CheckBox(getActivity());
-            checkbox.setId(label.getId());
+            checkbox.setId(label.id);
             checkbox.setText(label.caption);
             checkbox.setChecked(label.checked);
             checkbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -77,7 +77,7 @@ public class ArticleLabelDialog extends DialogFragment {
                     if (buttonView instanceof CheckBox) {
                         CheckBox cb = (CheckBox) buttonView;
                         for (Label label : labels) {
-                            if (label.getId() == cb.getId()) {
+                            if (label.id == cb.getId()) {
                                 label.checked = isChecked;
                                 label.checkedChanged = !label.checkedChanged;
                                 break;
