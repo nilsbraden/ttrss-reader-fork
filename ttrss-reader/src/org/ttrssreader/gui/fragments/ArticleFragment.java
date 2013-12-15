@@ -34,6 +34,7 @@ import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
 import org.ttrssreader.imageCache.ImageCache;
+import org.ttrssreader.model.CustomCursorLoader;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
@@ -51,10 +52,13 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -81,7 +85,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
 
 @SuppressWarnings("deprecation")
-public class ArticleFragment extends SherlockFragment {
+public class ArticleFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     
     public static final String FRAGMENT = "ARTICLE_FRAGMENT";
     
@@ -297,10 +301,10 @@ public class ArticleFragment extends SherlockFragment {
             Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
         
-        if (parentAdapter == null)
-            parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectForCategory);
-        else
-            parentAdapter.makeQuery(true);
+        if (parentAdapter == null) {
+            parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectForCategory);
+            getLoaderManager().initLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
+        }
         
         fillParentInformation();
         doVibrate(0);
@@ -351,8 +355,6 @@ public class ArticleFragment extends SherlockFragment {
             if (article != null && article.isUnread)
                 new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
-        if (parentAdapter != null)
-            parentAdapter.close();
         super.onDestroy();
         if (webContainer != null)
             webContainer.removeAllViews();
@@ -780,10 +782,8 @@ public class ArticleFragment extends SherlockFragment {
     }
     
     public String getTitle() {
-        if (parentAdapter != null) {
-            parentAdapter.refreshQuery();
+        if (parentAdapter != null)
             return "( " + parentAdapter.unreadCount + " )";
-        }
         return "";
     }
     
@@ -823,5 +823,25 @@ public class ArticleFragment extends SherlockFragment {
             return false;
         }
     };
+    
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (id == MainListFragment.TYPE_HEADLINE_ID)
+            return new CustomCursorLoader(getActivity(), FeedHeadlineListFragment.THIS_TYPE, categoryId, feedId,
+                    selectForCategory);
+        return null;
+    }
+    
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (loader.getId() == MainListFragment.TYPE_HEADLINE_ID)
+            fillParentInformation();
+    }
+    
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if (loader.getId() == MainListFragment.TYPE_HEADLINE_ID)
+            parentAdapter.changeCursor(null);
+    }
     
 }

@@ -18,16 +18,11 @@ package org.ttrssreader.model;
 
 import java.util.Date;
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
-import org.ttrssreader.utils.Utils;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.view.LayoutInflater;
@@ -39,24 +34,27 @@ import android.widget.TextView;
 
 public class FeedHeadlineAdapter extends MainAdapter {
     
-    public FeedHeadlineAdapter(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
-        super(context, feedId, categoryId, selectArticlesForCategory);
+    private int feedId;
+    private boolean selectArticlesForCategory;
+    
+    public FeedHeadlineAdapter(Context context, int feedId, boolean selectArticlesForCategory) {
+        super(context);
+        this.feedId = feedId;
+        this.selectArticlesForCategory = selectArticlesForCategory;
     }
     
     @Override
     public Object getItem(int position) {
         Article ret = new Article();
-        synchronized (poorMansMutex) {
-            if (cursor.getCount() >= position) {
-                if (cursor.moveToPosition(position)) {
-                    ret.id = cursor.getInt(0);
-                    ret.feedId = cursor.getInt(1);
-                    ret.title = cursor.getString(2);
-                    ret.isUnread = cursor.getInt(3) != 0;
-                    ret.updated = new Date(cursor.getLong(4));
-                    ret.isStarred = cursor.getInt(5) != 0;
-                    ret.isPublished = cursor.getInt(6) != 0;
-                }
+        if (getCursor().getCount() >= position) {
+            if (getCursor().moveToPosition(position)) {
+                ret.id = getCursor().getInt(0);
+                ret.feedId = getCursor().getInt(1);
+                ret.title = getCursor().getString(2);
+                ret.isUnread = getCursor().getInt(3) != 0;
+                ret.updated = new Date(getCursor().getLong(4));
+                ret.isStarred = getCursor().getInt(5) != 0;
+                ret.isPublished = getCursor().getInt(6) != 0;
             }
         }
         return ret;
@@ -110,19 +108,19 @@ public class FeedHeadlineAdapter extends MainAdapter {
         if (layout == null)
             return new View(context);
         
-        ImageView icon = (ImageView) layout.findViewById(R.id.fh_icon);
+        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
         getImage(icon, a);
         
-        TextView title = (TextView) layout.findViewById(R.id.fh_title);
+        TextView title = (TextView) layout.findViewById(R.id.title);
         title.setText(a.title);
         if (a.isUnread)
             title.setTypeface(Typeface.DEFAULT_BOLD);
         
-        TextView updateDate = (TextView) layout.findViewById(R.id.fh_updateDate);
+        TextView updateDate = (TextView) layout.findViewById(R.id.updateDate);
         String date = DateUtils.getDateTime(context, a.updated);
         updateDate.setText(date.length() > 0 ? "(" + date + ")" : "");
         
-        TextView dataSource = (TextView) layout.findViewById(R.id.fh_dataSource);
+        TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
         // Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category
         if ((feedId < 0 && feedId >= -4) || (selectArticlesForCategory)) {
             Feed f = DBHelper.getInstance().getFeed(a.feedId);
@@ -134,131 +132,22 @@ public class FeedHeadlineAdapter extends MainAdapter {
         return layout;
     }
     
-    protected Cursor executeQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
-        
-        String query;
-        if (feedId > -10)
-            query = buildFeedQuery(overrideDisplayUnread, buildSafeQuery);
-        else
-            query = buildLabelQuery(overrideDisplayUnread, buildSafeQuery);
-        
-        return DBHelper.getInstance().query(query, null);
-    }
-    
-    private String buildFeedQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
-        String lastOpenedArticlesList = Utils.separateItems(Controller.getInstance().lastOpenedArticles, ",");
-        
-        boolean displayUnread = Controller.getInstance().onlyUnread();
-        boolean invertSortArticles = Controller.getInstance().invertSortArticlelist();
-        
-        if (overrideDisplayUnread)
-            displayUnread = false;
-        
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT a.id,a.feedId,a.title,a.isUnread AS unread,a.updateDate,a.isStarred,a.isPublished FROM ");
-        query.append(DBHelper.TABLE_ARTICLES);
-        query.append(" a, ");
-        query.append(DBHelper.TABLE_FEEDS);
-        query.append(" b WHERE a.feedId=b.id");
-        
-        switch (feedId) {
-            case Data.VCAT_STAR:
-                query.append(" AND a.isStarred=1");
-                break;
-            
-            case Data.VCAT_PUB:
-                query.append(" AND a.isPublished=1");
-                break;
-            
-            case Data.VCAT_FRESH:
-                query.append(" AND a.updateDate>");
-                query.append(System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge());
-                query.append(" AND a.isUnread>0");
-                break;
-            
-            case Data.VCAT_ALL:
-                query.append(displayUnread ? " AND a.isUnread>0" : "");
-                break;
-            
-            default:
-                // User selected to display all articles of a category directly
-                query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId)
-                        : (" AND a.feedId=" + feedId));
-                query.append(displayUnread ? " AND a.isUnread>0" : "");
-        }
-        
-        if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
-            query.append(" UNION SELECT c.id,c.feedId,c.title,c.isUnread AS unread,c.updateDate,c.isStarred,c.isPublished FROM ");
-            query.append(DBHelper.TABLE_ARTICLES);
-            query.append(" c, ");
-            query.append(DBHelper.TABLE_FEEDS);
-            query.append(" d WHERE c.feedId=d.id AND c.id IN (");
-            query.append(lastOpenedArticlesList);
-            query.append(" )");
-        }
-        
-        query.append(" ORDER BY a.updateDate ");
-        query.append(invertSortArticles ? "ASC" : "DESC");
-        query.append(" LIMIT 600 ");
-        return query.toString();
-    }
-    
-    private String buildLabelQuery(boolean overrideDisplayUnread, boolean buildSafeQuery) {
-        String lastOpenedArticlesList = Utils.separateItems(Controller.getInstance().lastOpenedArticles, ",");
-        
-        boolean displayUnread = Controller.getInstance().onlyUnread();
-        boolean invertSortArticles = Controller.getInstance().invertSortArticlelist();
-        
-        if (overrideDisplayUnread)
-            displayUnread = false;
-        
-        StringBuilder query = new StringBuilder();
-        query.append("SELECT a.id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
-        query.append(DBHelper.TABLE_ARTICLES);
-        query.append(" a, ");
-        query.append(DBHelper.TABLE_ARTICLES2LABELS);
-        query.append(" a2l, ");
-        query.append(DBHelper.TABLE_FEEDS);
-        query.append(" l WHERE a.id=a2l.articleId AND a2l.labelId=l.id");
-        query.append(" AND a2l.labelId=" + feedId);
-        query.append(displayUnread ? " AND isUnread>0" : "");
-        
-        if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
-            query.append(" UNION SELECT b.id,feedId,b.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
-            query.append(DBHelper.TABLE_ARTICLES);
-            query.append(" b, ");
-            query.append(DBHelper.TABLE_ARTICLES2LABELS);
-            query.append(" b2m, ");
-            query.append(DBHelper.TABLE_FEEDS);
-            query.append(" m WHERE b2m.labelId=m.id AND b2m.articleId=b.id");
-            query.append(" AND b.id IN (");
-            query.append(lastOpenedArticlesList);
-            query.append(" )");
-        }
-        
-        query.append(" ORDER BY updateDate ");
-        query.append(invertSortArticles ? "ASC" : "DESC");
-        query.append(" LIMIT 600 ");
-        return query.toString();
-    }
-    
-    @Override
-    protected void fetchOtherData() {
-        if (selectArticlesForCategory) {
-            Category category = DBHelper.getInstance().getCategory(categoryId);
-            if (category != null)
-                title = category.title;
-        } else if (feedId >= -4 && feedId < 0) { // Virtual Category
-            Category category = DBHelper.getInstance().getCategory(feedId);
-            if (category != null)
-                title = category.title;
-        } else {
-            Feed feed = DBHelper.getInstance().getFeed(feedId);
-            if (feed != null)
-                title = feed.title;
-        }
-        unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
-                selectArticlesForCategory);
-    }
-    
+    // @Override
+    // protected void fetchOtherData() {
+    // if (selectArticlesForCategory) {
+    // Category category = DBHelper.getInstance().getCategory(categoryId);
+    // if (category != null)
+    // title = category.title;
+    // } else if (feedId >= -4 && feedId < 0) { // Virtual Category
+    // Category category = DBHelper.getInstance().getCategory(feedId);
+    // if (category != null)
+    // title = category.title;
+    // } else {
+    // Feed feed = DBHelper.getInstance().getFeed(feedId);
+    // if (feed != null)
+    // title = feed.title;
+    // }
+    // unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
+    // selectArticlesForCategory);
+    // }
 }

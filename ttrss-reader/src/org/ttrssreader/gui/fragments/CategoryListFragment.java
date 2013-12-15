@@ -22,9 +22,12 @@ import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryAdapter;
+import org.ttrssreader.model.CustomCursorLoader;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.View;
@@ -58,6 +61,7 @@ public class CategoryListFragment extends MainListFragment {
     public void onActivityCreated(Bundle instance) {
         adapter = new CategoryAdapter(getActivity());
         setListAdapter(adapter);
+        getLoaderManager().initLoader(TYPE_CAT_ID, null, this);
         super.onActivityCreated(instance);
     }
     
@@ -74,7 +78,7 @@ public class CategoryListFragment extends MainListFragment {
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        if (adapter == null || cmi == null)
+        if (cmi == null)
             return false;
         
         int id = adapter.getId(cmi.position);
@@ -103,6 +107,25 @@ public class CategoryListFragment extends MainListFragment {
     @Override
     public TYPE getType() {
         return THIS_TYPE;
+    }
+    
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (id == TYPE_CAT_ID)
+            return new CustomCursorLoader(getActivity(), THIS_TYPE, -1, -1, false);
+        return null;
+    }
+    
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (loader.getId() == TYPE_CAT_ID)
+            adapter.changeCursor(data);
+    }
+    
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if (loader.getId() == TYPE_CAT_ID)
+            adapter.changeCursor(null);
     }
     
 }

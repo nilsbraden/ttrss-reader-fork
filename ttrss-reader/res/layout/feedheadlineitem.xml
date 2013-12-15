@@ -22,7 +22,7 @@
     android:orientation="horizontal" >
 
     <ImageView
-        android:id="@+id/fh_icon"
+        android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginRight="10dp"
@@ -35,7 +35,7 @@
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/fh_title"
+            android:id="@+id/title"
             style="?attr/ListItem"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
             android:orientation="horizontal" >
 
             <TextView
-                android:id="@+id/fh_updateDate"
+                android:id="@+id/updateDate"
                 style="?attr/ListItem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/fh_dataSource"
+                android:id="@+id/dataSource"
                 style="?attr/ListItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

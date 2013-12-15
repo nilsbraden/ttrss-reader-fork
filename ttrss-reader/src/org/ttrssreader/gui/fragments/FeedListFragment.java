@@ -20,11 +20,14 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
+import org.ttrssreader.model.CustomCursorLoader;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -60,8 +63,9 @@ public class FeedListFragment extends MainListFragment {
     
     @Override
     public void onActivityCreated(Bundle instance) {
-        adapter = new FeedAdapter(getActivity(), categoryId);
+        adapter = new FeedAdapter(getActivity());
         setListAdapter(adapter);
+        getLoaderManager().initLoader(TYPE_FEED_ID, null, this);
         super.onActivityCreated(instance);
     }
     
@@ -101,6 +105,25 @@ public class FeedListFragment extends MainListFragment {
     
     public int getCategoryId() {
         return categoryId;
+    }
+    
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (id == TYPE_FEED_ID)
+            return new CustomCursorLoader(getActivity(), THIS_TYPE, categoryId, -1, false);
+        return null;
+    }
+    
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (loader.getId() == TYPE_FEED_ID)
+            adapter.changeCursor(data);
+    }
+    
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if (loader.getId() == TYPE_FEED_ID)
+            adapter.changeCursor(null);
     }
     
 }

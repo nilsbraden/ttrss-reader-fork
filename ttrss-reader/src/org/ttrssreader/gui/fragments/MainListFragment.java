@@ -23,11 +23,13 @@ import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
+import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -36,7 +38,11 @@ import android.widget.ListView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
-public abstract class MainListFragment extends ListFragment {
+public abstract class MainListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    
+    protected static final int TYPE_CAT_ID = 1;
+    protected static final int TYPE_FEED_ID = 2;
+    protected static final int TYPE_HEADLINE_ID = 3;
     
     protected static final String SELECTED_INDEX = "selectedIndex";
     protected static final int SELECTED_INDEX_DEFAULT = Integer.MIN_VALUE;
@@ -104,19 +110,12 @@ public abstract class MainListFragment extends ListFragment {
     
     @Override
     public void onDestroy() {
-        // Close cursor in adapter
-        if (listView != null && listView.getAdapter() != null && listView.getAdapter() instanceof MainAdapter) {
-            ((MainAdapter) listView.getAdapter()).close();
-        }
-        
         super.onDestroy();
     }
     
     @Override
     public void onResume() {
         super.onResume();
-        if (adapter != null)
-            adapter.refreshQuery();
         listView.setVisibility(View.VISIBLE);
         listView.setSelectionFromTop(scrollPosition, 0);
     }
@@ -155,8 +154,8 @@ public abstract class MainListFragment extends ListFragment {
     }
     
     public void doRefresh() {
-        if (adapter != null)
-            adapter.refreshQuery();
+        // if (adapter != null)
+        // adapter.refreshQuery();
     }
     
     public String getTitle() {
