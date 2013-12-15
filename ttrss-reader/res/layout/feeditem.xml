@@ -22,14 +22,14 @@
     android:orientation="horizontal" >
 
     <ImageView
-        android:id="@+id/feed_icon"
+        android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="10dp"
         android:contentDescription="@string/Empty" />
 
     <TextView
-        android:id="@+id/feed_title"
+        android:id="@+id/title"
         style="?attr/ListItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

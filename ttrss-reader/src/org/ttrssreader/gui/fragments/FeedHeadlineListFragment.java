@@ -26,6 +26,7 @@ import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.MyGestureDetector;
+import org.ttrssreader.model.CustomCursorLoader;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.pojos.Article;
@@ -36,8 +37,10 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -66,6 +69,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     private int articleId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
     
+    private FeedAdapter parentAdapter;
     private int[] parentIDs = new int[2];
     
     public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles, int articleId) {
@@ -95,8 +99,9 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     
     @Override
     public void onActivityCreated(Bundle instance) {
-        adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
+        adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
         setListAdapter(adapter);
+        getLoaderManager().initLoader(TYPE_HEADLINE_ID, null, this);
         super.onActivityCreated(instance);
         
         // Detect touch gestures like swipe and scroll down:
@@ -110,13 +115,15 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         };
         getView().setOnTouchListener(gestureListener);
         
-        fillParentInformation();
+        parentAdapter = new FeedAdapter(getActivity());
+        getLoaderManager().initLoader(TYPE_FEED_ID, null, this);
     }
     
     private void initData() {
         
-        adapter = new FeedHeadlineAdapter(getActivity(), feedId, categoryId, selectArticlesForCategory);
+        adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
         setListAdapter(adapter);
+        getLoaderManager().initLoader(TYPE_HEADLINE_ID, null, this);
         
         if (feedId > 0)
             Controller.getInstance().lastOpenedFeeds.add(feedId);
@@ -289,22 +296,15 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     };
     
     private void fillParentInformation() {
-        FeedAdapter parentAdapter = null;
-        try {
-            parentAdapter = new FeedAdapter(getActivity(), categoryId);
-            int index = parentAdapter.getIds().indexOf(feedId);
-            if (index >= 0) {
-                parentIDs[0] = parentAdapter.getId(index - 1); // Previous
-                parentIDs[1] = parentAdapter.getId(index + 1); // Next
-                
-                if (parentIDs[0] == 0)
-                    parentIDs[0] = -1;
-                if (parentIDs[1] == 0)
-                    parentIDs[1] = -1;
-            }
-        } finally {
-            if (parentAdapter != null)
-                parentAdapter.close();
+        int index = parentAdapter.getIds().indexOf(feedId);
+        if (index >= 0) {
+            parentIDs[0] = parentAdapter.getId(index - 1); // Previous
+            parentIDs[1] = parentAdapter.getId(index + 1); // Next
+            
+            if (parentIDs[0] == 0)
+                parentIDs[0] = -1;
+            if (parentIDs[1] == 0)
+                parentIDs[1] = -1;
         }
     }
     
@@ -318,13 +318,50 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             return feedId;
         }
         
-        this.feedId = id;
-        fillParentInformation();
+        feedId = id;
+        parentAdapter = new FeedAdapter(getActivity());
+        getLoaderManager().initLoader(TYPE_FEED_ID, null, this);
+        
         initData();
         
         if (getActivity() instanceof IDataChangedListener)
             ((IDataChangedListener) getActivity()).dataChanged(); // doRefresh()
         return feedId;
+    }
+    
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case TYPE_HEADLINE_ID:
+                return new CustomCursorLoader(getActivity(), THIS_TYPE, categoryId, feedId, selectArticlesForCategory);
+            case TYPE_FEED_ID:
+                return new CustomCursorLoader(getActivity(), FeedListFragment.THIS_TYPE, categoryId, -1, false);
+        }
+        return null;
+    }
+    
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        switch (loader.getId()) {
+            case TYPE_HEADLINE_ID:
+                adapter.changeCursor(data);
+                break;
+            case TYPE_FEED_ID:
+                fillParentInformation();
+                break;
+        }
+    }
+    
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        switch (loader.getId()) {
+            case TYPE_HEADLINE_ID:
+                adapter.changeCursor(null);
+                break;
+            case TYPE_FEED_ID:
+                parentAdapter.changeCursor(null);
+                break;
+        }
     }
     
 }
