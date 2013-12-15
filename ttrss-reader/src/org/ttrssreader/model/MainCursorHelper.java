@@ -16,7 +16,6 @@
 package org.ttrssreader.model;
 
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,7 +24,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 public abstract class MainCursorHelper {
     
     protected Context context;
-    private SQLiteDatabase db;
     
     protected int categoryId = Integer.MIN_VALUE;
     protected int feedId = Integer.MIN_VALUE;
@@ -42,23 +40,8 @@ public abstract class MainCursorHelper {
      * @param force
      *            forces the creation of a new query
      */
-    public Cursor makeQuery() {
+    public Cursor makeQuery(SQLiteDatabase db) {
         Cursor cursor = null;
-        
-        SQLiteOpenHelper openHelper = new SQLiteOpenHelper(context, DBHelper.DATABASE_NAME, null,
-                DBHelper.DATABASE_VERSION) {
-            @Override
-            public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                throw new RuntimeException("Upgrade not implemented here!");
-            }
-            
-            @Override
-            public void onCreate(SQLiteDatabase db) {
-                throw new RuntimeException("Create not implemented here!");
-            }
-        };
-        db = openHelper.getReadableDatabase();
-        
         try {
             if (categoryId == 0 && (feedId == -1 || feedId == -2)) {
                 
@@ -83,12 +66,9 @@ public abstract class MainCursorHelper {
             }
             
         } catch (Exception e) {
-            
             // Fail-safe-query
             cursor = createCursor(db, false, true);
-            
         }
-        
         return cursor;
     }
     

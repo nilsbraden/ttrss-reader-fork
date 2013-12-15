@@ -24,11 +24,13 @@ import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryAdapter;
-import org.ttrssreader.model.CustomCursorLoader;
+import org.ttrssreader.model.contentprovider.ListCP;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.database.Cursor;
+import android.net.Uri.Builder;
 import android.os.Bundle;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -113,8 +115,10 @@ public class CategoryListFragment extends MainListFragment {
     
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == TYPE_CAT_ID)
-            return new CustomCursorLoader(getActivity(), THIS_TYPE, -1, -1, false);
+        if (id == TYPE_CAT_ID) {
+            Builder builder = ListCP.CONTENT_URI_CAT.buildUpon();
+            return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
+        }
         return null;
     }
     

@@ -39,7 +39,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
     private boolean selectArticlesForCategory;
     
     public FeedHeadlineAdapter(Context context, int feedId, boolean selectArticlesForCategory) {
-        super(context, new String[] { "title", "updateDate" }, new int[] { R.id.title, R.id.updateDate });
+        super(context);
         this.feedId = feedId;
         this.selectArticlesForCategory = selectArticlesForCategory;
     }
