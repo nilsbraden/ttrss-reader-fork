@@ -136,12 +136,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     protected void doRefresh() {
         super.doRefresh();
         headlineFragment.doRefresh();
-        if (!Controller.isTablet && articleFragment != null) {
-            String title = headlineFragment.getTitle();
-            title = title + " " + articleFragment.getTitle();
-            setTitle(title);
-            setUnread(0);
-        } else {
+        
+        // Title and unread information:
+        if (headlineFragment != null) {
             setTitle(headlineFragment.getTitle());
             setUnread(headlineFragment.getUnread());
         }

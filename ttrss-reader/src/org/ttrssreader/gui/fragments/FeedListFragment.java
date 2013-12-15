@@ -17,11 +17,13 @@ package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CustomCursorLoader;
 import org.ttrssreader.model.FeedAdapter;
+import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -116,14 +118,24 @@ public class FeedListFragment extends MainListFragment {
     
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == TYPE_FEED_ID)
+        super.onLoadFinished(loader, data);
+        if (loader.getId() == TYPE_FEED_ID) {
             adapter.changeCursor(data);
+        }
     }
     
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         if (loader.getId() == TYPE_FEED_ID)
             adapter.changeCursor(null);
+    }
+    
+    @Override
+    protected void fetchOtherData() {
+        Category category = DBHelper.getInstance().getCategory(categoryId);
+        if (category != null)
+            title = category.title;
+        unreadCount = DBHelper.getInstance().getUnreadCount(categoryId, true);
     }
     
 }

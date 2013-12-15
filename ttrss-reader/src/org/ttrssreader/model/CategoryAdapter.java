@@ -22,6 +22,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Category;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,35 +34,43 @@ import android.widget.TextView;
 public class CategoryAdapter extends MainAdapter {
     
     public CategoryAdapter(Context context) {
-        super(context);
+        super(context, from, to);
     }
     
     @Override
     public Object getItem(int position) {
         Category ret = new Category();
-        if (getCursor().getCount() >= position) {
-            if (getCursor().moveToPosition(position)) {
-                ret.id = getCursor().getInt(0);
-                ret.title = getCursor().getString(1);
-                ret.unread = getCursor().getInt(2);
+        Cursor cur = getCursor();
+        if (cur == null)
+            return ret;
+        
+        if (cur.getCount() >= position) {
+            if (cur.moveToPosition(position)) {
+                ret.id = cur.getInt(0);
+                ret.title = cur.getString(1);
+                ret.unread = cur.getInt(2);
             }
         }
         return ret;
     }
     
     public List<Category> getCategories() {
-        List<Category> result = new ArrayList<Category>();
-        if (getCursor().moveToFirst()) {
-            while (!getCursor().isAfterLast()) {
+        List<Category> ret = new ArrayList<Category>();
+        Cursor cur = getCursor();
+        if (cur == null)
+            return ret;
+        
+        if (cur.moveToFirst()) {
+            while (!cur.isAfterLast()) {
                 Category c = new Category();
-                c.id = getCursor().getInt(0);
-                c.title = getCursor().getString(1);
-                c.unread = getCursor().getInt(2);
-                result.add(c);
-                getCursor().move(1);
+                c.id = cur.getInt(0);
+                c.title = cur.getString(1);
+                c.unread = cur.getInt(2);
+                ret.add(c);
+                cur.move(1);
             }
         }
-        return result;
+        return ret;
     }
     
     private int getImage(int id, boolean unread) {
@@ -112,17 +121,11 @@ public class CategoryAdapter extends MainAdapter {
         icon.setImageResource(getImage(c.id, c.unread > 0));
         
         TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(formatEntryTitle(c.title, c.unread));
+        title.setText(formatItemTitle(c.title, c.unread));
         if (c.unread > 0)
             title.setTypeface(Typeface.DEFAULT_BOLD);
         
         return layout;
     }
-    
-    // @Override
-    // protected void fetchOtherData() {
-    // title = context.getResources().getString(R.string.ApplicationName);
-    // unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
-    // }
     
 }

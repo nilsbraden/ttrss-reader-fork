@@ -185,23 +185,14 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             categoryFragment.doRefresh();
         if (feedFragment != null)
             feedFragment.doRefresh();
-        refreshTitleAndUnread();
-    }
-    
-    public void refreshTitleAndUnread() {
-        if (!Controller.isTablet && feedFragment != null) {
-            String title = "";
-            if (categoryFragment != null)
-                title = categoryFragment.getTitle();
-            title = title + " " + feedFragment.getTitle();
-            setTitle(title);
-            setUnread(0);
+        
+        // Title and unread information:
+        if (feedFragment != null) {
+            setTitle(feedFragment.getTitle());
+            setUnread(feedFragment.getUnread());
         } else if (categoryFragment != null) {
             setTitle(categoryFragment.getTitle());
             setUnread(categoryFragment.getUnread());
-        } else if (feedFragment != null) {
-            setTitle(feedFragment.getTitle());
-            setUnread(feedFragment.getUnread());
         }
     }
     

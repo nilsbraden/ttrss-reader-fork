@@ -257,7 +257,7 @@ public class DBHelper {
             db = openHelper.getWritableDatabase();
             db.setLockingEnabled(true);
             
-            if (specialUpgradeSuccessful ) {
+            if (specialUpgradeSuccessful) {
                 db.close();
                 openHelper = new OpenHelper(context);
                 db = openHelper.getWritableDatabase();

@@ -19,32 +19,23 @@ import java.util.ArrayList;
 import java.util.List;
 import org.ttrssreader.R;
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
 public abstract class MainAdapter extends SimpleCursorAdapter {
     
-    private static final String[] from = { "title", "updateDate" };
-    private static final int[] to = { R.id.title, R.id.updateDate };
+    protected static final String[] from = { "title" };
+    protected static final int[] to = { R.id.title };
     private static final int layout = R.layout.categorylist;
     
     protected Context context;
     
-    public String title = null; // TODO
-    public int unreadCount = -1; // TODO
-    
-    public MainAdapter(Context context) {
+    public MainAdapter(Context context, String[] from, int[] to) {
         super(context, layout, null, from, to, 0);
         this.context = context;
     }
-    
-    // @Override
-    // public final int getCount() {
-    // synchronized (poorMansMutex) {
-    // return getCursor().getCount();
-    // }
-    // }
     
     @Override
     public final long getItemId(int position) {
@@ -53,32 +44,32 @@ public abstract class MainAdapter extends SimpleCursorAdapter {
     
     public final int getId(int position) {
         int ret = Integer.MIN_VALUE;
-        // if (getCursor().getCount() >= position)
-        // if (getCursor().moveToPosition(position))
-        // ret = getCursor().getInt(0);
+        Cursor cur = getCursor();
+        if (cur == null)
+            return ret;
+        
+        if (cur.getCount() >= position)
+            if (cur.moveToPosition(position))
+                ret = cur.getInt(0);
         return ret;
     }
     
     public final List<Integer> getIds() {
-        List<Integer> result = new ArrayList<Integer>();
-        // if (getCursor().moveToFirst()) {
-        // while (!getCursor().isAfterLast()) {
-        // result.add(getCursor().getInt(0));
-        // getCursor().move(1);
-        // }
-        // }
-        return result;
-    }
-    
-    public final String getTitle(int position) {
-        String ret = "";
-        // if (getCursor().getCount() >= position)
-        // if (getCursor().moveToPosition(position))
-        // ret = getCursor().getString(1);
+        List<Integer> ret = new ArrayList<Integer>();
+        Cursor cur = getCursor();
+        if (cur == null)
+            return ret;
+        
+        if (cur.moveToFirst()) {
+            while (!cur.isAfterLast()) {
+                ret.add(cur.getInt(0));
+                cur.move(1);
+            }
+        }
         return ret;
     }
     
-    public static final CharSequence formatEntryTitle(String title, int unread) {
+    protected static final CharSequence formatItemTitle(String title, int unread) {
         if (unread > 0) {
             return title + " (" + unread + ")";
         } else {
