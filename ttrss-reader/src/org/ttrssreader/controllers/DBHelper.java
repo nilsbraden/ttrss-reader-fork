@@ -1661,7 +1661,8 @@ public class DBHelper {
      *            that they appear in the selection. The values will be bound as Strings.
      * @return map of unread article IDs to its update date (may be {@code null})
      */
-    public Map<Integer, Long> getArticleIdUpdatedMap(String selection, String[] selectionArgs) {
+    @SuppressLint("UseSparseArrays")
+	public Map<Integer, Long> getArticleIdUpdatedMap(String selection, String[] selectionArgs) {
         Map<Integer, Long> unreadUpdated = null;
         if (isDBAvailable()) {
             Cursor c = null;
@@ -1873,7 +1874,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new HashMap<Integer, String>();
             
-            c = db.query(TABLE_MARK, new String[] { "_id", MARK_NOTE }, mark + "=" + status, null, null, null, null,
+            c = db.query(TABLE_MARK, new String[] { "id", MARK_NOTE }, mark + "=" + status, null, null, null, null,
                     null);
             
             Map<Integer, String> ret = new HashMap<Integer, String>(c.getCount());
@@ -1906,7 +1907,7 @@ public class DBHelper {
             ContentValues cv = new ContentValues(1);
             for (String idList : StringSupport.convertListToString(ids.keySet(), 1000)) {
                 cv.putNull(mark);
-                db.update(TABLE_MARK, cv, "_id IN(" + idList + ")", null);
+                db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
                 db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
             }
             
@@ -1918,7 +1919,7 @@ public class DBHelper {
                     continue;
                 
                 cv.put(MARK_NOTE, note);
-                db.update(TABLE_MARK, cv, "_id=" + id, null);
+                db.update(TABLE_MARK, cv, "id=" + id, null);
             }
             
             db.setTransactionSuccessful();
@@ -2239,7 +2240,7 @@ public class DBHelper {
                 
                 c = db.rawQuery(query.toString(), queryArgs);
                 
-                rfs = new ArrayList<RemoteFile>(c.getCount());
+                rfs = new ArrayList<RemoteFile>(c.getCount()); // TODO This statement seems to be quite slow!
                 
                 while (c.moveToNext()) {
                     rfs.add(handleRemoteFileCursor(c));
