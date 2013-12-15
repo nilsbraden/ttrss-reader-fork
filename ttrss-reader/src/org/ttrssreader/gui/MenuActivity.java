@@ -335,7 +335,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                     // Synchronize status of articles with server
                     new Updater(this, new StateSynchronisationUpdater()).exec();
                 }
-                supportInvalidateOptionsMenu();
                 doRefresh();
                 return true;
             case R.id.Menu_ShowPreferences:
@@ -359,7 +358,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     @Override
     public void onUpdateEnd(boolean goBackAfterUpdate) {
         updater = null;
-        supportInvalidateOptionsMenu();
         doRefresh();
         if (goBackAfterUpdate)
             onBackPressed();
@@ -443,6 +441,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void doRefresh() {
+        supportInvalidateOptionsMenu();
         ProgressBarManager.getInstance().setIndeterminateVisibility(this);
         if (Controller.getInstance().getConnector().hasLastError())
             openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
@@ -482,7 +481,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         fm.executePendingTransactions();
     }
     
-    // The ‘active pointer’ is the one currently moving our object.
+    // The "active pointer" is the one currently moving our object.
     private static final int INVALID_POINTER_ID = -1;
     private int mActivePointerId = INVALID_POINTER_ID;
     
@@ -502,10 +501,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         View view = findViewAtPosition(getWindow().getDecorView().getRootView(), (int) ev.getRawX(), (int) ev.getRawY());
         if (view == null && !resizing)
             return false;
-        
-//        if (view != null)
-//            if (view.getId() != R.id.list_divider)
-//                return false;
         
         switch (MotionEventCompat.getActionMasked(ev)) {
             case MotionEvent.ACTION_DOWN: {

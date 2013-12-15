@@ -159,7 +159,8 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     }
     
     public void doRefresh() {
-        adapter.notifyDataSetChanged();
+        // Log.d(Utils.TAG, "MainFragment.doRefresh()");
+        // adapter.notifyDataSetChanged();
     }
     
     public String getTitle() {
@@ -196,8 +197,10 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         fetchOtherData();
-        if (getActivity() instanceof MenuActivity)
+        if (getActivity() instanceof MenuActivity) {
             ((MenuActivity) getActivity()).dataChanged();
+            adapter.notifyDataSetChanged();
+        }
     }
     
     protected abstract void fetchOtherData();

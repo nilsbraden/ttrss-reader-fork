@@ -41,6 +41,7 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -76,6 +77,9 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     
     private FeedAdapter parentAdapter;
     private int[] parentIDs = new int[2];
+    
+    private Uri headlineUri;
+    private Uri feedUri;
     
     public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles, int articleId) {
         FeedHeadlineListFragment detail = new FeedHeadlineListFragment();
@@ -341,14 +345,15 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 Builder builder = ListCP.CONTENT_URI_HEAD.buildUpon();
                 builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
                 builder.appendQueryParameter(ListCP.PARAM_FEED_ID, feedId + "");
-                builder.appendQueryParameter(ListCP.PARAM_SELECT_FOR_CAT,
-                        (selectArticlesForCategory ? "1" : "0"));
-                return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
+                builder.appendQueryParameter(ListCP.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1" : "0"));
+                headlineUri = builder.build();
+                return new CursorLoader(getActivity(), headlineUri, null, null, null, null);
             }
             case TYPE_FEED_ID: {
                 Builder builder = ListCP.CONTENT_URI_FEED.buildUpon();
                 builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
-                return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
+                feedUri = builder.build();
+                return new CursorLoader(getActivity(), feedUri, null, null, null, null);
             }
         }
         return null;
@@ -396,6 +401,14 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         }
         unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
                 selectArticlesForCategory);
+    }
+    
+    @Override
+    public void doRefresh() {
+        // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
+        // getActivity().getContentResolver().notifyChange(headlineUri, null);
+        // getActivity().getContentResolver().notifyChange(feedUri, null);
+        super.doRefresh();
     }
     
 }
