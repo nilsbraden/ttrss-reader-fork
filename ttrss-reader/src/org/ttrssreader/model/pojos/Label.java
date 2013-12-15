@@ -17,28 +17,12 @@ package org.ttrssreader.model.pojos;
 
 public class Label implements Comparable<Label> {
     
-    private Integer id;
+    public Integer id;
     public String caption;
     public boolean checked;
     public boolean checkedChanged = false;
     public String foregroundColor;
     public String backgroundColor;
-    
-    public void setId(int id) {
-        this.id = id;
-    }
-    
-    public void setInternalId(int id) {
-        this.id = -11 - id;
-    }
-    
-    public int getInternalId() {
-        return (-11 - this.id);
-    }
-    
-    public int getId() {
-        return this.id;
-    }
     
     @Override
     public int compareTo(Label l) {

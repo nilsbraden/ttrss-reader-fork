@@ -787,7 +787,7 @@ public class DBHelper {
         }
         
         if (retId != -1)
-            insertLabel(a.id, a.labelId);
+            insertLabels(a.id, a.labels);
     }
     
     public void insertArticle(Article a) {
@@ -891,28 +891,34 @@ public class DBHelper {
         db.execSQL(stmt.toString());
     }
     
-    public void insertLabel(int articleId, int labelId) {
-        if (labelId < -10) {
+    private void insertLabels(int articleId, Set<Label> labels) {
+        for (Label label : labels) {
+            insertLabel(articleId, label);
+        }
+    }
+    
+    private void insertLabel(int articleId, Label label) {
+        if (label.id < -10) {
             if (!isDBAvailable())
                 return;
             synchronized (insertLabel) {
                 insertLabel.bindLong(1, articleId);
-                insertLabel.bindLong(2, labelId);
+                insertLabel.bindLong(2, label.id);
                 insertLabel.executeInsert();
             }
         }
     }
     
-    public void removeLabel(int articleId, int labelId) {
-        if (labelId < -10) {
-            String[] args = new String[] { articleId + "", labelId + "" };
+    public void removeLabel(int articleId, Label label) {
+        if (label.id < -10) {
+            String[] args = new String[] { articleId + "", label.id + "" };
             if (!isDBAvailable())
                 return;
             db.delete(TABLE_ARTICLES2LABELS, "articleId=? AND labelId=?", args);
         }
     }
     
-    public void insertLabels(Set<Integer> articleIds, int label, boolean assign) {
+    public void insertLabels(Set<Integer> articleIds, Label label, boolean assign) {
         if (!isDBAvailable())
             return;
         
@@ -1520,7 +1526,7 @@ public class DBHelper {
             Set<Label> ret = new HashSet<Label>(c.getCount());
             while (c.moveToNext()) {
                 Label label = new Label();
-                label.setInternalId(c.getInt(0));
+                label.id = c.getInt(0);
                 label.caption = c.getString(1);
                 label.checked = c.getInt(2) == 1;
                 ret.add(label);
@@ -1885,7 +1891,7 @@ public class DBHelper {
                 parseAttachments(c.getString(8)),   // attachments
                 (c.getInt(9) != 0),                 // isStarred
                 (c.getInt(10) != 0),                // isPublished
-                c.getInt(11),                       // Label-ID
+                c.getInt(11),                       // cachedImages,
                 parseArticleLabels(c.getString(12)) // Labels
         );
         // @formatter:on
@@ -1961,7 +1967,7 @@ public class DBHelper {
             if (l.length > 0) {
                 i++;
                 Label label = new Label();
-                label.setId(i);
+                label.id = i;
                 label.checked = true;
                 label.caption = l[0];
                 if (l.length > 1 && l[1].startsWith("#"))

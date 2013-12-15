@@ -223,8 +223,8 @@ public class Data {
         
         if (feedId == VCAT_PUB || feedId == VCAT_STAR) {
             displayOnlyUnread = false; // Display all articles for Starred/Published
-            sinceId = 0; // Also reset sinceId since we explicitly want older articles too
         }
+        sinceId = 0; // Also reset sinceId since we explicitly want older articles too
         
         // Calculate an appropriate upper limit for the number of articles
         int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
@@ -285,6 +285,9 @@ public class Data {
             default: // Normal categories
                 limit = DBHelper.getInstance().getUnreadCount(feedId, isCat);
         }
+        if (feedId < -10 && limit <= 0) // Unread-count in DB is wrong for Labels since we only count articles with
+                                        // feedid = ?
+            limit = 50;
         return limit;
     }
     
@@ -549,13 +552,13 @@ public class Data {
     
     public boolean setLabel(Set<Integer> articleIds, Label label) {
         
-        DBHelper.getInstance().insertLabels(articleIds, label.getInternalId(), label.checked);
+        DBHelper.getInstance().insertLabels(articleIds, label, label.checked);
         notifyListeners();
         
         boolean erg = false;
         if (Utils.isConnected(cm)) {
             Log.d(Utils.TAG, "Calling connector with Label: " + label + ") and ids.size() " + articleIds.size());
-            erg = Controller.getInstance().getConnector().setArticleLabel(articleIds, label.getId(), label.checked);
+            erg = Controller.getInstance().getConnector().setArticleLabel(articleIds, label.id, label.checked);
         }
         return erg;
     }
