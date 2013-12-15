@@ -1,8 +1,11 @@
 package org.ttrssreader.model;
 
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v4.content.CursorLoader;
 
 public class CustomCursorLoader extends CursorLoader {
@@ -27,6 +30,20 @@ public class CustomCursorLoader extends CursorLoader {
     public Cursor loadInBackground() {
         MainCursorHelper cursorHelper = null;
         
+        SQLiteOpenHelper openHelper = new SQLiteOpenHelper(getContext(), DBHelper.DATABASE_NAME, null,
+                DBHelper.DATABASE_VERSION) {
+            @Override
+            public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+                throw new RuntimeException("Upgrade not implemented here!");
+            }
+            
+            @Override
+            public void onCreate(SQLiteDatabase db) {
+                throw new RuntimeException("Create not implemented here!");
+            }
+        };
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        
         switch (type) {
             case CATEGORY:
                 cursorHelper = new CategoryCursorHelper(getContext());
@@ -41,7 +58,7 @@ public class CustomCursorLoader extends CursorLoader {
                 return null;
         }
         
-        Cursor cursor = cursorHelper.makeQuery();
+        Cursor cursor = cursorHelper.makeQuery(db);
         if (cursor != null) {
             // Ensure the cursor window is filled
             cursor.getCount();
@@ -50,4 +67,5 @@ public class CustomCursorLoader extends CursorLoader {
         
         return cursor;
     }
+    
 };

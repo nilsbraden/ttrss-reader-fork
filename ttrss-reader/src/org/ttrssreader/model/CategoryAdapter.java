@@ -34,7 +34,7 @@ import android.widget.TextView;
 public class CategoryAdapter extends MainAdapter {
     
     public CategoryAdapter(Context context) {
-        super(context, from, to);
+        super(context);
     }
     
     @Override

@@ -21,14 +21,16 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
-import org.ttrssreader.model.CustomCursorLoader;
 import org.ttrssreader.model.FeedAdapter;
+import org.ttrssreader.model.contentprovider.ListCP;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.database.Cursor;
+import android.net.Uri.Builder;
 import android.os.Bundle;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.View;
@@ -111,8 +113,11 @@ public class FeedListFragment extends MainListFragment {
     
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == TYPE_FEED_ID)
-            return new CustomCursorLoader(getActivity(), THIS_TYPE, categoryId, -1, false);
+        if (id == TYPE_FEED_ID) {
+            Builder builder = ListCP.CONTENT_URI_FEED.buildUpon();
+            builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
+            return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
+        }
         return null;
     }
     

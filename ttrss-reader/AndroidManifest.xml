@@ -43,6 +43,12 @@
         android:description="@string/ApplicationDescription"
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName" >
+        <provider
+            android:name=".model.contentprovider.ListCP"
+            android:authorities="org.ttrssreader"
+            android:exported="false" >
+        </provider>
+
         <activity
             android:name=".gui.CategoryActivity"
             android:label="@string/ApplicationName" >

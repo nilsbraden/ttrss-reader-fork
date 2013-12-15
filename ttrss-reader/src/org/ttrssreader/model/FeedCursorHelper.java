@@ -62,7 +62,7 @@ public class FeedCursorHelper extends MainCursorHelper {
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         query.append(buildSafeQuery ? " LIMIT 200" : " LIMIT 600");
-
+        
         return db.rawQuery(query.toString(), null);
     }
     

@@ -27,9 +27,9 @@ import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.MyGestureDetector;
-import org.ttrssreader.model.CustomCursorLoader;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
+import org.ttrssreader.model.contentprovider.ListCP;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
@@ -41,8 +41,10 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -335,10 +337,19 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
-            case TYPE_HEADLINE_ID:
-                return new CustomCursorLoader(getActivity(), THIS_TYPE, categoryId, feedId, selectArticlesForCategory);
-            case TYPE_FEED_ID:
-                return new CustomCursorLoader(getActivity(), FeedListFragment.THIS_TYPE, categoryId, -1, false);
+            case TYPE_HEADLINE_ID: {
+                Builder builder = ListCP.CONTENT_URI_HEAD.buildUpon();
+                builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
+                builder.appendQueryParameter(ListCP.PARAM_FEED_ID, feedId + "");
+                builder.appendQueryParameter(ListCP.PARAM_SELECT_FOR_CAT,
+                        (selectArticlesForCategory ? "1" : "0"));
+                return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
+            }
+            case TYPE_FEED_ID: {
+                Builder builder = ListCP.CONTENT_URI_FEED.buildUpon();
+                builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
+                return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
+            }
         }
         return null;
     }

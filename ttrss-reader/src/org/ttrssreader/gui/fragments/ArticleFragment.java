@@ -34,8 +34,8 @@ import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
 import org.ttrssreader.imageCache.ImageCache;
-import org.ttrssreader.model.CustomCursorLoader;
 import org.ttrssreader.model.FeedHeadlineAdapter;
+import org.ttrssreader.model.contentprovider.ListCP;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
@@ -54,10 +54,12 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
+import android.net.Uri.Builder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -115,7 +117,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     private int articleId = -1;
     private int feedId = -1;
     private int categoryId = Integer.MIN_VALUE;
-    private boolean selectForCategory = false;
+    private boolean selectArticlesForCategory = false;
     private int lastMove = ARTICLE_MOVE_DEFAULT;
     
     private Article article = null;
@@ -147,7 +149,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         detail.articleId = id;
         detail.feedId = feedId;
         detail.categoryId = categoryId;
-        detail.selectForCategory = selectArticles;
+        detail.selectArticlesForCategory = selectArticles;
         detail.lastMove = lastMove;
         detail.setHasOptionsMenu(true);
         detail.setRetainInstance(true);
@@ -165,7 +167,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             articleId = instance.getInt(ARTICLE_ID);
             feedId = instance.getInt(ARTICLE_FEED_ID);
             categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
-            selectForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
+            selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
             lastMove = instance.getInt(ARTICLE_MOVE);
             if (webView != null)
                 webView.restoreState(instance);
@@ -199,7 +201,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         instance.putInt(ARTICLE_ID, articleId);
         instance.putInt(ARTICLE_FEED_ID, feedId);
         instance.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
-        instance.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectForCategory);
+        instance.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
         instance.putInt(ARTICLE_MOVE, lastMove);
         if (webView != null)
             webView.saveState(instance);
@@ -302,11 +304,10 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         Controller.getInstance().lastOpenedArticles.add(articleId);
         
         if (parentAdapter == null) {
-            parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectForCategory);
+            parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
             getLoaderManager().initLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
         }
         
-        fillParentInformation();
         doVibrate(0);
         
         // Get article from DB
@@ -723,7 +724,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         this.articleId = articleId;
         this.feedId = feedId;
         this.categoryId = categoryId;
-        this.selectForCategory = selectArticlesForCategory;
+        this.selectArticlesForCategory = selectArticlesForCategory;
         this.lastMove = lastMove;
         initData();
         doRefresh();
@@ -820,9 +821,13 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == MainListFragment.TYPE_HEADLINE_ID)
-            return new CustomCursorLoader(getActivity(), FeedHeadlineListFragment.THIS_TYPE, categoryId, feedId,
-                    selectForCategory);
+        if (id == MainListFragment.TYPE_HEADLINE_ID) {
+            Builder builder = ListCP.CONTENT_URI_HEAD.buildUpon();
+            builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
+            builder.appendQueryParameter(ListCP.PARAM_FEED_ID, feedId + "");
+            builder.appendQueryParameter(ListCP.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1" : "0"));
+            return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
+        }
         return null;
     }
     

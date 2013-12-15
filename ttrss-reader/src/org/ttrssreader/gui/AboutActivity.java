@@ -16,9 +16,10 @@
 
 package org.ttrssreader.gui;
 
+import java.util.Date;
 import org.ttrssreader.R;
-import org.ttrssreader.utils.Utils;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -27,7 +28,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-import java.util.Date;
 
 public class AboutActivity extends Activity {
     
