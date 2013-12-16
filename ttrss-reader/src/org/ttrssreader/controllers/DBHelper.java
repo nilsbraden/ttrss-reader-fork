@@ -62,7 +62,7 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 54;
+    public static final int DATABASE_VERSION = 56;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -258,6 +258,7 @@ public class DBHelper {
             db.setLockingEnabled(true);
             
             if (specialUpgradeSuccessful) {
+                // Re-open DB for final usage:
                 db.close();
                 openHelper = new OpenHelper(context);
                 db = openHelper.getWritableDatabase();
@@ -532,38 +533,27 @@ public class DBHelper {
                 }
             }
             
-            if (oldVersion < 54) {
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 54.", oldVersion));
+            if (oldVersion < 55) {
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 55.", oldVersion));
                 
                 // Rename columns "id" to "_id" by modifying the table structure:
                 db.beginTransaction();
                 try {
-                    String sql = "UPDATE SQLITE_MASTER SET SQL = '%s' WHERE NAME = '%s';";
                     
-                    db.execSQL("PRAGMA foreign_keys=OFF;");
-                    String tmp = "tmp_" + TABLE_REMOTEFILES;
-                    String tmp2art = "tmp_" + TABLE_REMOTEFILE2ARTICLE;
-                    
-                    db.execSQL("ALTER TABLE " + TABLE_REMOTEFILE2ARTICLE + " RENAME TO " + tmp2art);
-                    db.execSQL("ALTER TABLE " + TABLE_REMOTEFILES + " RENAME TO " + tmp);
+                    db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
+                    db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILE2ARTICLE);
                     
                     db.execSQL("PRAGMA writable_schema=1;");
+                    String sql = "UPDATE SQLITE_MASTER SET SQL = '%s' WHERE NAME = '%s';";
                     db.execSQL(String.format(sql, CREATE_TABLE_CATEGORIES, TABLE_CATEGORIES));
                     db.execSQL(String.format(sql, CREATE_TABLE_FEEDS, TABLE_FEEDS));
                     db.execSQL(String.format(sql, CREATE_TABLE_ARTICLES, TABLE_ARTICLES));
                     db.execSQL("PRAGMA writable_schema=0;");
                     
-                    didUpgrade = createRemoteFilesSupportDBObjects(db);
-                    
-                    if (didUpgrade) {
-                        db.execSQL("INSERT INTO " + TABLE_REMOTEFILES + " SELECT * FROM " + tmp);
-                        db.execSQL("INSERT INTO " + TABLE_REMOTEFILE2ARTICLE + " SELECT * FROM " + tmp2art);
-                        db.execSQL("DROP TABLE " + tmp2art);
-                        db.execSQL("DROP TABLE " + tmp);
-                    }
-                    
-                    if (didUpgrade)
+                    if (createRemoteFilesSupportDBObjects(db)) {
                         db.setTransactionSuccessful();
+                        didUpgrade = true;
+                    }
                 } finally {
                     db.execSQL("PRAGMA foreign_keys=ON;");
                     db.endTransaction();
@@ -614,11 +604,13 @@ public class DBHelper {
                         + " cached INTEGER DEFAULT 0)");
     
                 // index for quiicker search by by URL
+                db.execSQL("DROP INDEX IF EXISTS idx_remotefiles_by_url");
                 db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_remotefiles_by_url"
                         + " ON " + TABLE_REMOTEFILES
                         + " (url)");
     
                 // sets last change unix timestamp after row creation
+                db.execSQL("DROP TRIGGER IF EXISTS insert_remotefiles");
                 db.execSQL("CREATE TRIGGER IF NOT EXISTS insert_remotefiles AFTER INSERT"
                         + " ON " + TABLE_REMOTEFILES
                         + "   BEGIN"
@@ -628,6 +620,7 @@ public class DBHelper {
                         + "   END");
     
                 // sets last change unix timestamp after row update
+                db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_lastchanged");
                 db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_lastchanged AFTER UPDATE"
                         + " ON " + TABLE_REMOTEFILES
                         + "   BEGIN"
@@ -653,6 +646,7 @@ public class DBHelper {
     
                 // update count of cached images for article on change of "cached"
                 // field of remotefiles
+                db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_articlefiles");
                 db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_articlefiles AFTER UPDATE"
                         + " OF cached"
                         + " ON " + TABLE_REMOTEFILES
@@ -1063,7 +1057,7 @@ public class DBHelper {
                     break;
                 default:
                     if (isCategory) {
-                        feedIds.append("SELECT id FROM ").append(TABLE_FEEDS).append(" WHERE categoryId=").append(id);
+                        feedIds.append("SELECT _id FROM ").append(TABLE_FEEDS).append(" WHERE categoryId=").append(id);
                     } else {
                         feedIds.append(id);
                     }
@@ -1662,7 +1656,7 @@ public class DBHelper {
      * @return map of unread article IDs to its update date (may be {@code null})
      */
     @SuppressLint("UseSparseArrays")
-	public Map<Integer, Long> getArticleIdUpdatedMap(String selection, String[] selectionArgs) {
+    public Map<Integer, Long> getArticleIdUpdatedMap(String selection, String[] selectionArgs) {
         Map<Integer, Long> unreadUpdated = null;
         if (isDBAvailable()) {
             Cursor c = null;
@@ -2240,7 +2234,7 @@ public class DBHelper {
                 
                 c = db.rawQuery(query.toString(), queryArgs);
                 
-                rfs = new ArrayList<RemoteFile>(c.getCount()); // TODO This statement seems to be quite slow!
+                rfs = new ArrayList<RemoteFile>(c.getCount());
                 
                 while (c.moveToNext()) {
                     rfs.add(handleRemoteFileCursor(c));

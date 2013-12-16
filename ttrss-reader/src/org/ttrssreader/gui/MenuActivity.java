@@ -436,8 +436,13 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     @Override
-    public void dataChanged() {
+    public final void dataChanged() {
         doRefresh();
+    }
+    
+    @Override
+    public void dataLoadingFinished() {
+        // Empty!
     }
     
     protected void doRefresh() {

@@ -32,12 +32,16 @@ public class CategoryCursorHelper extends MainCursorHelper {
      * ("sortId INTEGER PRIMARY KEY") and afterwards select everything from this memory-table sorted by sortId.
      * Works fine!
      */
-    private static final String TABLE_NAME = "categories_memory_db";
-    private static final String INSERT = "REPLACE INTO " + TABLE_NAME
+    private static final String INSERT = "REPLACE INTO " + MemoryDBOpenHelper.TABLE_NAME
             + " (_id, title, unread, sortId) VALUES (?, ?, ?, null)";
     
-    public CategoryCursorHelper(Context context) {
+    SQLiteDatabase memoryDb;
+    SQLiteStatement insert;
+    
+    public CategoryCursorHelper(Context context, SQLiteDatabase memoryDb) {
         super(context);
+        this.memoryDb = memoryDb;
+        insert = memoryDb.compileStatement(INSERT);
     }
     
     @Override
@@ -48,10 +52,6 @@ public class CategoryCursorHelper extends MainCursorHelper {
         if (overrideDisplayUnread)
             displayUnread = false;
         
-        OpenHelper openHelper = new OpenHelper(context, TABLE_NAME);
-        SQLiteDatabase memoryDb = openHelper.getWritableDatabase();
-        SQLiteStatement insert = memoryDb.compileStatement(INSERT);
-        
         StringBuilder query;
         // Virtual Feeds
         if (Controller.getInstance().showVirtual()) {
@@ -59,7 +59,7 @@ public class CategoryCursorHelper extends MainCursorHelper {
             query.append("SELECT _id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
             query.append(" WHERE _id>=-4 AND _id<0 ORDER BY _id");
-            insertValues(db, insert, query.toString());
+            insertValues(db, query.toString());
         }
         
         // Labels
@@ -70,14 +70,14 @@ public class CategoryCursorHelper extends MainCursorHelper {
         query.append(displayUnread ? " AND unread>0" : "");
         query.append(" ORDER BY UPPER(title) ASC");
         query.append(" LIMIT 500 ");
-        insertValues(db, insert, query.toString());
+        insertValues(db, query.toString());
         
         // "Uncategorized Feeds"
         query = new StringBuilder();
         query.append("SELECT _id,title,unread FROM ");
         query.append(DBHelper.TABLE_CATEGORIES);
         query.append(" WHERE _id=0");
-        insertValues(db, insert, query.toString());
+        insertValues(db, query.toString());
         
         // Categories
         query = new StringBuilder();
@@ -88,13 +88,13 @@ public class CategoryCursorHelper extends MainCursorHelper {
         query.append(" ORDER BY UPPER(title) ");
         query.append(invertSortFeedCats ? "DESC" : "ASC");
         query.append(" LIMIT 500 ");
-        insertValues(db, insert, query.toString());
+        insertValues(db, query.toString());
         
         String[] columns = { "_id", "title", "unread" };
-        return memoryDb.query(TABLE_NAME, columns, null, null, null, null, null, "600");
+        return memoryDb.query(MemoryDBOpenHelper.TABLE_NAME, columns, null, null, null, null, null, "600");
     }
     
-    private void insertValues(SQLiteDatabase db, SQLiteStatement insert, String query) {
+    private void insertValues(SQLiteDatabase db, String query) {
         Cursor c = null;
         try {
             c = db.rawQuery(query, null);
@@ -117,17 +117,16 @@ public class CategoryCursorHelper extends MainCursorHelper {
         }
     }
     
-    protected class OpenHelper extends SQLiteOpenHelper {
-        String tableName;
+    static class MemoryDBOpenHelper extends SQLiteOpenHelper {
+        public static final String TABLE_NAME = "categories_memory_db";
         
-        OpenHelper(Context context, String tableName) {
+        MemoryDBOpenHelper(Context context) {
             super(context, null, null, 1);
-            this.tableName = tableName;
         }
         
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + tableName
+            db.execSQL("CREATE TABLE " + TABLE_NAME
                     + " (_id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
         }
         

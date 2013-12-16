@@ -177,6 +177,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
         super.onRestoreInstanceState(instance);
     }
+
+    @Override
+    public void dataLoadingFinished() {
+        setTitleAndUnread();
+    }
     
     @Override
     protected void doRefresh() {
@@ -186,6 +191,10 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         if (feedFragment != null)
             feedFragment.doRefresh();
         
+        setTitleAndUnread();
+    }
+    
+    private void setTitleAndUnread() {
         // Title and unread information:
         if (feedFragment != null) {
             setTitle(feedFragment.getTitle());

@@ -54,7 +54,7 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
             displayUnread = false;
         
         StringBuilder query = new StringBuilder();
-        query.append("SELECT a._id,a.feedId,a.title,a.isUnread AS unread,a.updateDate,a.isStarred,a.isPublished FROM ");
+        query.append("SELECT a._id AS _id, a.feedId AS feedId, a.title AS title, a.isUnread AS unread, a.updateDate AS updateDate, a.isStarred AS isStarred, a.isPublished AS isPublished FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
         query.append(" a, ");
         query.append(DBHelper.TABLE_FEEDS);
@@ -87,7 +87,7 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
         }
         
         if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
-            query.append(" UNION SELECT c._id,c.feedId,c.title,c.isUnread AS unread,c.updateDate,c.isStarred,c.isPublished FROM ");
+            query.append(" UNION SELECT c._id AS _id, c.feedId AS feedId, c.title AS title, c.isUnread AS unread, c.updateDate AS updateDate, c.isStarred AS isStarred, c.isPublished AS isPublished FROM ");
             query.append(DBHelper.TABLE_ARTICLES);
             query.append(" c, ");
             query.append(DBHelper.TABLE_FEEDS);
@@ -112,7 +112,7 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
             displayUnread = false;
         
         StringBuilder query = new StringBuilder();
-        query.append("SELECT a._id,feedId,a.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
+        query.append("SELECT a._id AS _id, a.feedId AS feedId, a.title AS title, a.isUnread AS unread, a.updateDate AS updateDate, a.isStarred AS isStarred, a.isPublished AS isPublished FROM ");
         query.append(DBHelper.TABLE_ARTICLES);
         query.append(" a, ");
         query.append(DBHelper.TABLE_ARTICLES2LABELS);
@@ -123,7 +123,7 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
         query.append(displayUnread ? " AND isUnread>0" : "");
         
         if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
-            query.append(" UNION SELECT b._id,feedId,b.title,isUnread AS unread,updateDate,isStarred,isPublished FROM ");
+            query.append(" UNION SELECT b._id AS _id, b.feedId AS feedId, b.title AS title, b.isUnread AS unread, b.updateDate AS updateDate, b.isStarred AS isStarred, b.isPublished AS isPublished FROM ");
             query.append(DBHelper.TABLE_ARTICLES);
             query.append(" b, ");
             query.append(DBHelper.TABLE_ARTICLES2LABELS);

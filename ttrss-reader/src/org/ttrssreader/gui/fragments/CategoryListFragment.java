@@ -24,7 +24,7 @@ import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryAdapter;
-import org.ttrssreader.model.contentprovider.ListCP;
+import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.database.Cursor;
@@ -119,7 +119,7 @@ public class CategoryListFragment extends MainListFragment {
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == TYPE_CAT_ID) {
-            Builder builder = ListCP.CONTENT_URI_CAT.buildUpon();
+            Builder builder = ListContentProvider.CONTENT_URI_CAT.buildUpon();
             categoryUri = builder.build();
             return new CursorLoader(getActivity(), categoryUri, null, null, null, null);
         }
@@ -128,9 +128,9 @@ public class CategoryListFragment extends MainListFragment {
     
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        super.onLoadFinished(loader, data);
         if (loader.getId() == TYPE_CAT_ID)
             adapter.changeCursor(data);
+        super.onLoadFinished(loader, data);
     }
     
     @Override
@@ -148,7 +148,7 @@ public class CategoryListFragment extends MainListFragment {
     @Override
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
-        // getActivity().getContentResolver().notifyChange(categoryUri, null);
+        getActivity().getContentResolver().notifyChange(categoryUri, null);
         super.doRefresh();
     }
     

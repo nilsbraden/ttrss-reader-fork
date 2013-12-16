@@ -17,7 +17,7 @@ package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.MenuActivity;
+import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.view.MyGestureDetector;
@@ -159,8 +159,6 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     }
     
     public void doRefresh() {
-        // Log.d(Utils.TAG, "MainFragment.doRefresh()");
-        // adapter.notifyDataSetChanged();
     }
     
     public String getTitle() {
@@ -197,8 +195,8 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         fetchOtherData();
-        if (getActivity() instanceof MenuActivity) {
-            ((MenuActivity) getActivity()).dataChanged();
+        if (getActivity() instanceof IDataChangedListener) {
+            ((IDataChangedListener) getActivity()).dataLoadingFinished();
             adapter.notifyDataSetChanged();
         }
     }
