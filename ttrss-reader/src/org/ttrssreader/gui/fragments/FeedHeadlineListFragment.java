@@ -37,6 +37,7 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -401,8 +402,11 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     @Override
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
-        getActivity().getContentResolver().notifyChange(headlineUri, null);
-        getActivity().getContentResolver().notifyChange(feedUri, null);
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.getContentResolver().notifyChange(headlineUri, null);
+            activity.getContentResolver().notifyChange(feedUri, null);
+        }
         super.doRefresh();
     }
     

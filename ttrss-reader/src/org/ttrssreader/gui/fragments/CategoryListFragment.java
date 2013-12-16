@@ -27,6 +27,7 @@ import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
@@ -148,7 +149,9 @@ public class CategoryListFragment extends MainListFragment {
     @Override
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
-        getActivity().getContentResolver().notifyChange(categoryUri, null);
+        Activity activity = getActivity();
+        if (activity != null)
+            activity.getContentResolver().notifyChange(categoryUri, null);
         super.doRefresh();
     }
     
