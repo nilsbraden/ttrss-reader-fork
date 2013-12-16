@@ -2,6 +2,7 @@ package org.ttrssreader.model;
 
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
+import org.ttrssreader.model.CategoryCursorHelper.MemoryDBOpenHelper;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -45,9 +46,12 @@ public class CustomCursorLoader extends CursorLoader {
         SQLiteDatabase db = openHelper.getReadableDatabase();
         
         switch (type) {
-            case CATEGORY:
-                cursorHelper = new CategoryCursorHelper(getContext());
+            case CATEGORY: {
+                MemoryDBOpenHelper memoryDbOpenHelper = new MemoryDBOpenHelper(getContext());
+                SQLiteDatabase memoryDb = memoryDbOpenHelper.getWritableDatabase();
+                cursorHelper = new CategoryCursorHelper(getContext(), memoryDb);
                 break;
+            }
             case FEED:
                 cursorHelper = new FeedCursorHelper(getContext(), categoryId);
                 break;

@@ -198,9 +198,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         sizeVerticalHeadline = prefs.getInt(SIZE_VERTICAL_HEADLINE, -1);
         sizeHorizontalHeadline = prefs.getInt(SIZE_HORIZONTAL_HEADLINE, -1);
         
-        Log.d(Utils.TAG, String.format("Frame-Sizes from prefs: Category: %s and %s, Headline: %s and %s",
-                sizeVerticalCategory, sizeHorizontalCategory, sizeVerticalHeadline, sizeHorizontalHeadline));
-        
         // Check for new installation
         if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
             newInstallation = true;

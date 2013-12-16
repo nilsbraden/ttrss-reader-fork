@@ -35,7 +35,7 @@ import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.model.FeedHeadlineAdapter;
-import org.ttrssreader.model.contentprovider.ListCP;
+import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
@@ -179,6 +179,12 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
         articleJSInterface = new ArticleJSInterface(getSherlockActivity());
+        
+        if (parentAdapter == null) {
+            parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
+            getLoaderManager().initLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
+        }
+        
         initData();
         initUI();
         doRefresh();
@@ -302,13 +308,6 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         if (feedId > 0)
             Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
-        
-        if (parentAdapter == null) {
-            parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-            getLoaderManager().initLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
-        }
-        
-        doVibrate(0);
         
         // Get article from DB
         article = DBHelper.getInstance().getArticle(articleId);
@@ -471,19 +470,19 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         return articleId;
     }
     
-    private boolean doVibrate(int newIndex) {
-        if (lastMove == 0)
-            return false;
-        if (parentAdapter.getIds().indexOf(articleId) == -1)
-            return false;
-        
-        int index = parentAdapter.getIds().indexOf(articleId) + lastMove;
-        if (index < 0 || index >= parentAdapter.getIds().size()) {
-            ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
-            return true;
-        }
-        return false;
-    }
+    // private boolean doVibrate(int newIndex) {
+    // if (lastMove == 0)
+    // return false;
+    // if (parentAdapter.getIds().indexOf(articleId) == -1)
+    // return false;
+    //
+    // int index = parentAdapter.getIds().indexOf(articleId) + lastMove;
+    // if (index < 0 || index >= parentAdapter.getIds().size()) {
+    // ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+    // return true;
+    // }
+    // return false;
+    // }
     
     /**
      * Recursively walks all viewGroups and their Views inside the given ViewGroup and sets the background to black and,
@@ -702,16 +701,20 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     
     public int openNextArticle(int direction) {
         int id = direction < 0 ? parentIDs[0] : parentIDs[1];
-        
         if (id == Integer.MIN_VALUE) {
             ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return feedId;
         }
         
-        this.articleId = id;
-        this.lastMove = direction;
+        articleId = id;
+        lastMove = direction;
+        
+        parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
+        getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
+        
         initData();
         doRefresh();
+        
         return articleId;
     }
     
@@ -822,10 +825,11 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == MainListFragment.TYPE_HEADLINE_ID) {
-            Builder builder = ListCP.CONTENT_URI_HEAD.buildUpon();
-            builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
-            builder.appendQueryParameter(ListCP.PARAM_FEED_ID, feedId + "");
-            builder.appendQueryParameter(ListCP.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1" : "0"));
+            Builder builder = ListContentProvider.CONTENT_URI_HEAD.buildUpon();
+            builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
+            builder.appendQueryParameter(ListContentProvider.PARAM_FEED_ID, feedId + "");
+            builder.appendQueryParameter(ListContentProvider.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1"
+                    : "0"));
             return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
         }
         return null;
@@ -833,8 +837,10 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == MainListFragment.TYPE_HEADLINE_ID)
+        if (loader.getId() == MainListFragment.TYPE_HEADLINE_ID) {
+            parentAdapter.changeCursor(data);
             fillParentInformation();
+        }
     }
     
     @Override

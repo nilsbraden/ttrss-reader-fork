@@ -23,13 +23,12 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
-import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
-import org.ttrssreader.model.contentprovider.ListCP;
+import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
@@ -100,9 +99,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
             articleId = instance.getInt(ARTICLE_ID);
         }
-        if (feedId > 0)
-            Controller.getInstance().lastOpenedFeeds.add(feedId);
-        Controller.getInstance().lastOpenedArticles.clear();
         super.onCreate(instance);
     }
     
@@ -111,6 +107,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
         setListAdapter(adapter);
         getLoaderManager().initLoader(TYPE_HEADLINE_ID, null, this);
+        
         super.onActivityCreated(instance);
         
         // Detect touch gestures like swipe and scroll down:
@@ -124,21 +121,16 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         };
         getView().setOnTouchListener(gestureListener);
         
+        initData();
+        
         parentAdapter = new FeedAdapter(getActivity());
         getLoaderManager().initLoader(TYPE_FEED_ID, null, this);
     }
     
     private void initData() {
-        
-        adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-        setListAdapter(adapter);
-        getLoaderManager().initLoader(TYPE_HEADLINE_ID, null, this);
-        
         if (feedId > 0)
             Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
-        
-        getView().setOnTouchListener(gestureListener);
         
         getActivity().supportInvalidateOptionsMenu(); // Force redraw of menu items in actionbar
     }
@@ -328,13 +320,14 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         }
         
         feedId = id;
+        adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
+        setListAdapter(adapter);
+        getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
+        
         parentAdapter = new FeedAdapter(getActivity());
-        getLoaderManager().initLoader(TYPE_FEED_ID, null, this);
+        getLoaderManager().restartLoader(TYPE_FEED_ID, null, this);
         
         initData();
-        
-        if (getActivity() instanceof IDataChangedListener)
-            ((IDataChangedListener) getActivity()).dataChanged(); // doRefresh()
         return feedId;
     }
     
@@ -342,16 +335,17 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
             case TYPE_HEADLINE_ID: {
-                Builder builder = ListCP.CONTENT_URI_HEAD.buildUpon();
-                builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
-                builder.appendQueryParameter(ListCP.PARAM_FEED_ID, feedId + "");
-                builder.appendQueryParameter(ListCP.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1" : "0"));
+                Builder builder = ListContentProvider.CONTENT_URI_HEAD.buildUpon();
+                builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
+                builder.appendQueryParameter(ListContentProvider.PARAM_FEED_ID, feedId + "");
+                builder.appendQueryParameter(ListContentProvider.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1"
+                        : "0"));
                 headlineUri = builder.build();
                 return new CursorLoader(getActivity(), headlineUri, null, null, null, null);
             }
             case TYPE_FEED_ID: {
-                Builder builder = ListCP.CONTENT_URI_FEED.buildUpon();
-                builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
+                Builder builder = ListContentProvider.CONTENT_URI_FEED.buildUpon();
+                builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
                 feedUri = builder.build();
                 return new CursorLoader(getActivity(), feedUri, null, null, null, null);
             }
@@ -361,15 +355,16 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        super.onLoadFinished(loader, data);
         switch (loader.getId()) {
             case TYPE_HEADLINE_ID:
                 adapter.changeCursor(data);
                 break;
             case TYPE_FEED_ID:
+                parentAdapter.changeCursor(data);
                 fillParentInformation();
                 break;
         }
+        super.onLoadFinished(loader, data);
     }
     
     @Override
@@ -406,8 +401,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     @Override
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
-        // getActivity().getContentResolver().notifyChange(headlineUri, null);
-        // getActivity().getContentResolver().notifyChange(feedUri, null);
+        getActivity().getContentResolver().notifyChange(headlineUri, null);
+        getActivity().getContentResolver().notifyChange(feedUri, null);
         super.doRefresh();
     }
     

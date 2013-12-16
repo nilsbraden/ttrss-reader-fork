@@ -22,7 +22,7 @@ import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.FeedAdapter;
-import org.ttrssreader.model.contentprovider.ListCP;
+import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
@@ -117,8 +117,8 @@ public class FeedListFragment extends MainListFragment {
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == TYPE_FEED_ID) {
-            Builder builder = ListCP.CONTENT_URI_FEED.buildUpon();
-            builder.appendQueryParameter(ListCP.PARAM_CAT_ID, categoryId + "");
+            Builder builder = ListContentProvider.CONTENT_URI_FEED.buildUpon();
+            builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
             feedUri = builder.build();
             return new CursorLoader(getActivity(), feedUri, null, null, null, null);
         }
@@ -127,10 +127,9 @@ public class FeedListFragment extends MainListFragment {
     
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        super.onLoadFinished(loader, data);
-        if (loader.getId() == TYPE_FEED_ID) {
+        if (loader.getId() == TYPE_FEED_ID)
             adapter.changeCursor(data);
-        }
+        super.onLoadFinished(loader, data);
     }
     
     @Override
@@ -150,7 +149,7 @@ public class FeedListFragment extends MainListFragment {
     @Override
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
-        // getActivity().getContentResolver().notifyChange(feedUri, null);
+        getActivity().getContentResolver().notifyChange(feedUri, null);
         super.doRefresh();
     }
     

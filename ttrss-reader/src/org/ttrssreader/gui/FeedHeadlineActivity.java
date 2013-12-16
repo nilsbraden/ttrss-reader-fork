@@ -133,10 +133,19 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
+    public void dataLoadingFinished() {
+        setTitleAndUnread();
+    }
+    
+    @Override
     protected void doRefresh() {
         super.doRefresh();
         headlineFragment.doRefresh();
         
+        setTitleAndUnread();
+    }
+    
+    private void setTitleAndUnread() {
         // Title and unread information:
         if (headlineFragment != null) {
             setTitle(headlineFragment.getTitle());
@@ -371,7 +380,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) {
         switch (source.getType()) {
             case FEEDHEADLINE:
-                //
                 displayArticle(selectedId);
                 break;
             default:

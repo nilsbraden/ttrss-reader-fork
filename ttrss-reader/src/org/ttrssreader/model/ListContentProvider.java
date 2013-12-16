@@ -1,10 +1,7 @@
-package org.ttrssreader.model.contentprovider;
+package org.ttrssreader.model;
 
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.CategoryCursorHelper;
-import org.ttrssreader.model.FeedCursorHelper;
-import org.ttrssreader.model.FeedHeadlineCursorHelper;
-import org.ttrssreader.model.MainCursorHelper;
+import org.ttrssreader.model.CategoryCursorHelper.MemoryDBOpenHelper;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -15,7 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 
-public class ListCP extends ContentProvider {
+public class ListContentProvider extends ContentProvider {
     
     private OpenHelper dbOpenHelper;
     
@@ -81,9 +78,12 @@ public class ListCP extends ContentProvider {
         MainCursorHelper cursorHelper = null;
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
-            case CATS:
-                cursorHelper = new CategoryCursorHelper(getContext());
+            case CATS: {
+                MemoryDBOpenHelper memoryDbOpenHelper = new MemoryDBOpenHelper(getContext());
+                SQLiteDatabase memoryDb = memoryDbOpenHelper.getWritableDatabase();
+                cursorHelper = new CategoryCursorHelper(getContext(), memoryDb);
                 break;
+            }
             case FEEDS:
                 cursorHelper = new FeedCursorHelper(getContext(), categoryId);
                 break;
@@ -94,7 +94,7 @@ public class ListCP extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         
-        SQLiteDatabase db = dbOpenHelper.getWritableDatabase();
+        SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
         // Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         Cursor cursor = cursorHelper.makeQuery(db);
         // make sure that potential listeners are getting notified

@@ -44,7 +44,7 @@
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName" >
         <provider
-            android:name=".model.contentprovider.ListCP"
+            android:name=".model.ListContentProvider"
             android:authorities="org.ttrssreader"
             android:exported="false" >
         </provider>
