@@ -150,7 +150,7 @@ public class CategoryListFragment extends MainListFragment {
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
         Activity activity = getActivity();
-        if (activity != null)
+        if (activity != null && categoryUri != null)
             activity.getContentResolver().notifyChange(categoryUri, null);
         super.doRefresh();
     }
