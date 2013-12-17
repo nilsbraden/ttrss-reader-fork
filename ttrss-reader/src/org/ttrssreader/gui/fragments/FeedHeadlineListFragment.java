@@ -100,6 +100,10 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
             articleId = instance.getInt(ARTICLE_ID);
         }
+        
+        if (feedId > 0)
+            Controller.getInstance().lastOpenedFeeds.add(feedId);
+        Controller.getInstance().lastOpenedArticles.clear();
         super.onCreate(instance);
     }
     
@@ -122,18 +126,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         };
         getView().setOnTouchListener(gestureListener);
         
-        initData();
-        
         parentAdapter = new FeedAdapter(getActivity());
         getLoaderManager().initLoader(TYPE_FEED_ID, null, this);
-    }
-    
-    private void initData() {
-        if (feedId > 0)
-            Controller.getInstance().lastOpenedFeeds.add(feedId);
-        Controller.getInstance().lastOpenedArticles.clear();
-        
-        getActivity().supportInvalidateOptionsMenu(); // Force redraw of menu items in actionbar
     }
     
     @Override
@@ -325,10 +319,11 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         setListAdapter(adapter);
         getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
         
-        parentAdapter = new FeedAdapter(getActivity());
-        getLoaderManager().restartLoader(TYPE_FEED_ID, null, this);
+        if (feedId > 0)
+            Controller.getInstance().lastOpenedFeeds.add(feedId);
+        Controller.getInstance().lastOpenedArticles.clear();
         
-        initData();
+        getActivity().supportInvalidateOptionsMenu(); // Force redraw of menu items in actionbar
         return feedId;
     }
     
@@ -403,10 +398,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
         Activity activity = getActivity();
-        if (activity != null) {
+        if (activity != null && headlineUri != null)
             activity.getContentResolver().notifyChange(headlineUri, null);
-            activity.getContentResolver().notifyChange(feedUri, null);
-        }
         super.doRefresh();
     }
     

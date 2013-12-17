@@ -151,7 +151,7 @@ public class FeedListFragment extends MainListFragment {
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
         Activity activity = getActivity();
-        if (activity != null)
+        if (activity != null && feedUri != null)
             activity.getContentResolver().notifyChange(feedUri, null);
         super.doRefresh();
     }

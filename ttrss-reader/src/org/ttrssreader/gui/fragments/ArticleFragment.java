@@ -15,6 +15,7 @@
 
 package org.ttrssreader.gui.fragments;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -134,7 +135,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     // private GestureDetector gestureDetector;
     
     private FeedHeadlineAdapter parentAdapter = null;
-    private int[] parentIDs = new int[2];
+    private int[] parentIdsBeforeAndAfter = new int[2];
     private String mSelectedExtra;
     private String mSelectedAltText;
     
@@ -214,11 +215,25 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         super.onSaveInstanceState(instance);
     }
     
+    Integer[] parentIds = null;
+    
     private void fillParentInformation() {
-        int index = parentAdapter.getIds().indexOf(articleId);
+        if (parentIds == null) {
+            parentIds = new Integer[parentAdapter.getCount()];
+            parentAdapter.getIds().toArray(parentIds);
+        }
+        
+        int index = Arrays.binarySearch(parentIds, articleId);
         if (index >= 0) {
-            parentIDs[0] = parentAdapter.getId(index - 1); // Previous
-            parentIDs[1] = parentAdapter.getId(index + 1); // Next
+            if (index > 0 && parentIds.length >= (index - 1))
+                parentIdsBeforeAndAfter[0] = parentIds[index - 1]; // Previous
+            else
+                parentIdsBeforeAndAfter[0] = Integer.MIN_VALUE;
+            
+            if (parentIds.length > (index + 1))
+                parentIdsBeforeAndAfter[1] = parentIds[index + 1]; // Next
+            else
+                parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
         }
     }
     
@@ -700,7 +715,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     };
     
     public int openNextArticle(int direction) {
-        int id = direction < 0 ? parentIDs[0] : parentIDs[1];
+        int id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
         if (id == Integer.MIN_VALUE) {
             ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return feedId;
@@ -709,8 +724,9 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         articleId = id;
         lastMove = direction;
         
-        parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-        getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
+        // parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
+        // getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
+        fillParentInformation();
         
         initData();
         doRefresh();
