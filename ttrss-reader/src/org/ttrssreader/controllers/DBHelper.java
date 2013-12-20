@@ -16,6 +16,7 @@
 package org.ttrssreader.controllers;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -25,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.io.FileUtils;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.model.pojos.Article;
@@ -45,6 +47,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.text.Html;
 import android.util.Log;
+import android.widget.Toast;
 
 public class DBHelper {
     
@@ -62,7 +65,7 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 56;
+    public static final int DATABASE_VERSION = 58;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -262,6 +265,29 @@ public class DBHelper {
                 db.close();
                 openHelper = new OpenHelper(context);
                 db = openHelper.getWritableDatabase();
+                
+                Toast.makeText(context, "ImageCache is beeing cleaned...", Toast.LENGTH_LONG).show();
+                new org.ttrssreader.utils.AsyncTask<Void, Void, Void>() {
+                    protected Void doInBackground(Void... params) {
+                        // Clear ImageCache since no files are in REMOTE_FILES anymore and we dont want to leave them
+                        // there forever:
+                        ImageCache imageCache = Controller.getInstance().getImageCache();
+                        imageCache.fillMemoryCacheFromDisk();
+                        File cacheFolder = new File(imageCache.getDiskCacheDirectory());
+                        if (cacheFolder.isDirectory()) {
+                            try {
+                                FileUtils.deleteDirectory(cacheFolder);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        return null;
+                    };
+                    
+                    protected void onPostExecute(Void result) {
+                        Toast.makeText(context, "ImageCache has been cleaned up...", Toast.LENGTH_LONG).show();
+                    };
+                }.execute();
             }
             
             insertCategory = db.compileStatement(INSERT_CATEGORY);
@@ -533,13 +559,12 @@ public class DBHelper {
                 }
             }
             
-            if (oldVersion < 55) {
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 55.", oldVersion));
+            if (oldVersion < 58) {
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 58.", oldVersion));
                 
                 // Rename columns "id" to "_id" by modifying the table structure:
                 db.beginTransaction();
                 try {
-                    
                     db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
                     db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILE2ARTICLE);
                     
@@ -664,7 +689,7 @@ public class DBHelper {
                         + "             AND r.cached=1)"
                         + "       WHERE _id IN ("
                         + "         SELECT"
-                        + "           a.id"
+                        + "           a._id"
                         + "         FROM " + TABLE_REMOTEFILE2ARTICLE + " m,"
                         +             TABLE_ARTICLES + " a"
                         + "         WHERE"

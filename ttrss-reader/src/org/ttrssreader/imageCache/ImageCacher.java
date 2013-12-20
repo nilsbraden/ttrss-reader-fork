@@ -262,9 +262,13 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             }
         }
         
+        long timeWait = System.currentTimeMillis();
         while (!map.isEmpty()) {
             synchronized (map) {
                 try {
+                    // Only wait for 15 Minutes
+                    if (System.currentTimeMillis() - timeWait > Utils.MINUTE * 15)
+                        break;
                     map.wait(Utils.SECOND);
                     map.notifyAll();
                 } catch (InterruptedException e) {
@@ -292,37 +296,30 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         
         @Override
         public void run() {
-            long downloaded = 0;
-            // Log.d(Utils.TAG, "Start download " + params.length + " images for article ID " + articleId);
-            DBHelper.getInstance().insertArticleFiles(articleId, fileUrls);
-            for (String url : fileUrls) {
-                long size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
-                
-                if (size <= 0) {
-                    allOK = false; // Error
-                    DBHelper.getInstance().markRemoteFileCached(url, false, -size);
-                } else {
-                    downloaded += size;
-                    DBHelper.getInstance().markRemoteFileCached(url, true, size);
+            long size = 0;
+            try {
+                DBHelper.getInstance().insertArticleFiles(articleId, fileUrls);
+                for (String url : fileUrls) {
+                    size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
+                    
+                    if (size <= 0) {
+                        allOK = false; // Error
+                        DBHelper.getInstance().markRemoteFileCached(url, false, -size);
+                    } else {
+                        DBHelper.getInstance().markRemoteFileCached(url, true, size);
+                    }
                 }
-            }
-            
-            // Log.d(Utils.TAG, "Downloaded " + downloaded + " bytes for article ID " + articleId);
-            
-            synchronized (map) {
-                if (downloaded > 0)
-                    downloaded += downloaded;
-                
-                map.remove(articleId);
-                publishProgress(++progressImageDownload);
-                
-                // if (allOK || downloaded > 0)
-                // DBHelper.getInstance().updateArticleCachedImages(articleId, true);
-                
-                // Log.d(Utils.TAG, "Download for article: " + articleId + " done. Success: " + allOK + " Downloaded: "
-                // + downloaded);
-                
-                map.notifyAll();
+            } catch (Throwable t) {
+                t.printStackTrace();
+            } finally {
+                synchronized (map) {
+                    if (downloaded > 0)
+                        downloaded += size;
+                    
+                    map.remove(articleId);
+                    publishProgress(++progressImageDownload);
+                    map.notifyAll();
+                }
             }
         }
     }
@@ -332,14 +329,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
      */
     private void purgeCache() {
         long time = System.currentTimeMillis();
-        // File cacheFolder = new File(imageCache.getDiskCacheDirectory());
-        
         folderSize = DBHelper.getInstance().getCachedFilesSize();
-        // if (cacheFolder.isDirectory()) {
-        // for (File f : cacheFolder.listFiles()) {
-        // folderSize += f.length();
-        // }
-        // }
         
         if (folderSize > cacheSizeMax) {
             Collection<RemoteFile> rfs = DBHelper.getInstance().getUncacheFiles(folderSize - cacheSizeMax);
@@ -350,10 +340,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 File f = imageCache.getCacheFile(rf.url);
                 
                 if (f.exists()) {
-                    boolean result = f.delete();
-                    if (result) {
-                        Log.d(Utils.TAG, "File " + f.getAbsolutePath() + " was deleted from cache");
-                    } else {
+                    if (!f.delete()) {
                         Log.w(Utils.TAG, "File " + f.getAbsolutePath() + " was not deleted!!!");
                     }
                 }
@@ -362,23 +349,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             }
             
             DBHelper.getInstance().markRemoteFilesNonCached(rfIds);
-            
-            // Sort list of files by last access date
-            // List<File> list = Arrays.asList(cacheFolder.listFiles());
-            // if (list == null)
-            // return;
-            // Collections.sort(list, FileDateComparator.LASTMODIFIED_COMPARATOR);
-            //
-            // int i = 0;
-            // while (folderSize > cacheSizeMax) {
-            // if (i >= list.size()) // Should only happen if cacheSize has been set to 0
-            // break;
-            //
-            // File f = list.get(i);
-            // i++;
-            // folderSize -= f.length();
-            // f.delete();
-            // }
         }
         Log.i(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
     }
