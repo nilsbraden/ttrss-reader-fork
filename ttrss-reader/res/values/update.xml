@@ -18,6 +18,19 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.7
+            \n * Completely rewrote DB-Adapters for lists, cursors are now managed by the system which should reduce the number of FCs
+            \n * Added support for themes, initially there are two dark (dark and completely black) and two light (light and white) themes available
+            \n * More lightweight operation when moving between articles/feeds
+            \n * Make panels in two-pane layout resizable (divider can be moved)
+            \n * Fixed some bugs in handling of labels but there are still server-side bugs
+            \n * Fixed bug #197: App hangs when \"mark all as read\" is hit
+            \n * Fixed bug #161: \"Fresh articles\" display all unread articles
+            \n * Fixed bug #143: New preference for \"Online only when on WiFi\"
+            \n * Fixed bug #204: some preferences don\'t update immediately
+            \n * Scroll headlines when using two-pane layout and opening next article
+            \n * Add warning dialog before marking several or all feeds as read 
+            \n * Security-Bugfix for fragment vulnerability</item>
         <item>Version 1.62
             \n * Fixed some rotation related issues, app should not crash anymore but it might display wrong stuff sometimes
             \n * Fixed crash when entering preferences on some old devices

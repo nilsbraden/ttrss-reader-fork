@@ -1,6 +1,20 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.7 ==
+  * Completely rewrote DB-Adapters for lists, cursors are now managed by the system which should reduce the number of FCs
+  * Added support for themes, initially there are two dark (dark and completely black) and two light (light and white) themes available
+  * More lightweight operation when moving between articles/feeds
+  * Make panels in two-pane layout resizable (divider can be moved)
+  * Fixed some bugs in handling of labels but there are still server-side bugs
+  * Fixed bug #197: App hangs when "mark all as read" is hit
+  * Fixed bug #161: "Fresh articles" display all unread articles
+  * Fixed bug #143: New preference for "Online only when on WiFi"
+  * Fixed bug #204: some preferences don't update immediately
+  * Scroll headlines when using two-pane layout and opening next article
+  * Add warning dialog before marking several or all feeds as read 
+  * Security-Bugfix for fragment vulnerability
+
 == Version 1.63 ==
   * Enabled zoom controls again. If they are enabled in preferences the gestures in article-view (swipe and scroll up/down to show/hide ActionBar) won't work anymore!
   * Make frames of tablet-layout resizable 
