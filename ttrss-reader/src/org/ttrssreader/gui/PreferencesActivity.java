@@ -295,4 +295,11 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
         }
     }
     
+    @Override
+    protected boolean isValidFragment(String fragmentName) {
+        if (PreferencesActivity.class.getName().equals(fragmentName))
+            return true;
+        return false;
+    }
+    
 }

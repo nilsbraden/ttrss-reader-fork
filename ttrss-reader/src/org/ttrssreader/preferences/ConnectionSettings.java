@@ -3,22 +3,20 @@ package org.ttrssreader.preferences;
 import java.util.Map;
 import org.ttrssreader.R;
 import org.ttrssreader.utils.Utils;
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import com.actionbarsherlock.app.SherlockPreferenceActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
-@SuppressLint("ValidFragment")
 @SuppressWarnings("deprecation")
-public class ConnectionSettings extends PreferenceActivity {
+public class ConnectionSettings extends SherlockPreferenceActivity {
     
     private static final String KEY_CONNECTION_CATEGORY = "connectionCategory";
     public static final String KEY_SSID = "SSID";
@@ -86,21 +84,6 @@ public class ConnectionSettings extends PreferenceActivity {
         
         category.setTitle(category.getTitle() + " ( Network: " + keyPrefix + " )");
         
-        // IMPORTANT: Not necessary, leaving it here for further reference...
-        // MyDialogPreference dialog = new MyDialogPreference(this, null);
-        // dialog.setOrder(200);
-        // dialog.setPersistent(true); // Will be negated later!
-        // dialog.setKey("dialogPrefKey");
-        // dialog.setIcon(android.R.drawable.ic_dialog_alert);
-        // dialog.setTitle("Store preferences?");
-        // dialog.setSummary("YOU NEED TO CLICK HERE TO SAVE THE CHANGES!");
-        // dialog.setDialogIcon(android.R.drawable.ic_dialog_alert);
-        // dialog.setDialogTitle("Store preferences?");
-        // dialog.setDialogMessage("Do you want to store the changed settings?");
-        // dialog.setPositiveButtonText(getResources().getText(R.string.Yes));
-        // dialog.setNegativeButtonText(getResources().getText(R.string.No));
-        // category.addPreference(dialog);
-        
         Log.d(Utils.TAG, "Adding WifiPreferences...");
         for (int i = 0; i < category.getPreferenceCount(); i++) {
             Preference pref = category.getPreference(i);
@@ -125,23 +108,11 @@ public class ConnectionSettings extends PreferenceActivity {
         onContentChanged();
     }
     
-    // IMPORTANT: Not necessary, leaving it here for further reference...
-    // class MyDialogPreference extends DialogPreference {
-    // public MyDialogPreference(Context oContext, AttributeSet attrs) {
-    // super(oContext, attrs);
-    // }
-    //
-    // @Override
-    // protected void onDialogClosed(boolean positiveResult) {
-    // super.onDialogClosed(positiveResult);
-    //
-    // for (int i = 0; i < masterCategory.getPreferenceCount(); i++) {
-    // Preference pref = masterCategory.getPreference(i);
-    // // Only store real prefs, not the dialog from above
-    // pref.setPersistent(!pref.isPersistent());
-    // }
-    // onBackPressed(); // Return to the next screen above...
-    // }
-    // }
+    @Override
+    protected boolean isValidFragment(String fragmentName) {
+        if (ConnectionSettings.class.getName().equals(fragmentName))
+            return true;
+        return false;
+    }
     
 }
