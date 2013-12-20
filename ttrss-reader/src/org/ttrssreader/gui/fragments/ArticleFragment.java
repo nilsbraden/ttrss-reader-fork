@@ -15,8 +15,9 @@
 
 package org.ttrssreader.gui.fragments;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.htmlcleaner.HtmlCleaner;
@@ -132,10 +133,11 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     private boolean webviewInitialized = false;
     private Button buttonNext;
     private Button buttonPrev;
-    // private GestureDetector gestureDetector;
     
     private FeedHeadlineAdapter parentAdapter = null;
+    private List<Integer> parentIds = null;
     private int[] parentIdsBeforeAndAfter = new int[2];
+    
     private String mSelectedExtra;
     private String mSelectedAltText;
     
@@ -215,25 +217,33 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         super.onSaveInstanceState(instance);
     }
     
-    Integer[] parentIds = null;
-    
     private void fillParentInformation() {
         if (parentIds == null) {
-            parentIds = new Integer[parentAdapter.getCount()];
-            parentAdapter.getIds().toArray(parentIds);
+            parentIds = new ArrayList<Integer>(parentAdapter.getCount() + 2);
+            
+            parentIds.add(Integer.MIN_VALUE);
+            parentIds.addAll(parentAdapter.getIds());
+            parentIds.add(Integer.MIN_VALUE);
+            
+            parentAdapter.notifyDataSetInvalidated(); // Not needed anymore
         }
         
-        int index = Arrays.binarySearch(parentIds, articleId);
-        if (index >= 0) {
-            if (index > 0 && parentIds.length >= (index - 1))
-                parentIdsBeforeAndAfter[0] = parentIds[index - 1]; // Previous
-            else
-                parentIdsBeforeAndAfter[0] = Integer.MIN_VALUE;
-            
-            if (parentIds.length > (index + 1))
-                parentIdsBeforeAndAfter[1] = parentIds[index + 1]; // Next
-            else
-                parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
+        // Added dummy-elements at top and bottom of list for easier access, index == 0 cannot happen.
+        int index = -1;
+        int i = 0;
+        for (Integer id : parentIds) {
+            if (id.intValue() == articleId) {
+                index = i;
+                break;
+            }
+            i++;
+        }
+        if (index > 0) {
+            parentIdsBeforeAndAfter[0] = parentIds.get(index - 1); // Previous
+            parentIdsBeforeAndAfter[1] = parentIds.get(index + 1); // Next
+        } else {
+            parentIdsBeforeAndAfter[0] = Integer.MIN_VALUE;
+            parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
         }
     }
     
@@ -723,10 +733,13 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         
         articleId = id;
         lastMove = direction;
-        
-        // parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-        // getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
         fillParentInformation();
+        
+        // Find next id in this direction and see if there is another next article or not
+        id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
+        if (id == Integer.MIN_VALUE) {
+            ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+        }
         
         initData();
         doRefresh();

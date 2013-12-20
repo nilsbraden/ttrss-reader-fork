@@ -76,7 +76,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     private boolean selectArticlesForCategory = false;
     
     private FeedAdapter parentAdapter;
-    private int[] parentIDs = new int[2];
+    private List<Integer> parentIds = null;
+    private int[] parentIdsBeforeAndAfter = new int[2];
     
     private Uri headlineUri;
     private Uri feedUri;
@@ -292,15 +293,32 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     };
     
     private void fillParentInformation() {
-        int index = parentAdapter.getIds().indexOf(feedId);
-        if (index >= 0) {
-            parentIDs[0] = parentAdapter.getId(index - 1); // Previous
-            parentIDs[1] = parentAdapter.getId(index + 1); // Next
+        if (parentIds == null) {
+            parentIds = new ArrayList<Integer>(parentAdapter.getCount() + 2);
             
-            if (parentIDs[0] == 0)
-                parentIDs[0] = -1;
-            if (parentIDs[1] == 0)
-                parentIDs[1] = -1;
+            parentIds.add(Integer.MIN_VALUE);
+            parentIds.addAll(parentAdapter.getIds());
+            parentIds.add(Integer.MIN_VALUE);
+            
+            parentAdapter.notifyDataSetInvalidated(); // Not needed anymore
+        }
+        
+        // Added dummy-elements at top and bottom of list for easier access, index == 0 cannot happen.
+        int index = -1;
+        int i = 0;
+        for (Integer id : parentIds) {
+            if (id.intValue() == feedId) {
+                index = i;
+                break;
+            }
+            i++;
+        }
+        if (index > 0) {
+            parentIdsBeforeAndAfter[0] = parentIds.get(index - 1); // Previous
+            parentIdsBeforeAndAfter[1] = parentIds.get(index + 1); // Next
+        } else {
+            parentIdsBeforeAndAfter[0] = Integer.MIN_VALUE;
+            parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
         }
     }
     
@@ -308,8 +326,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         if (feedId < 0)
             return feedId;
         
-        int id = direction < 0 ? parentIDs[0] : parentIDs[1];
-        if (id <= 0) {
+        int id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
+        if (id == Integer.MIN_VALUE) {
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
             return feedId;
         }
@@ -318,6 +336,14 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
         setListAdapter(adapter);
         getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
+        
+        fillParentInformation();
+        
+        // Find next id in this direction and see if there is another next article or not
+        id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
+        if (id == Integer.MIN_VALUE) {
+            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+        }
         
         if (feedId > 0)
             Controller.getInstance().lastOpenedFeeds.add(feedId);
