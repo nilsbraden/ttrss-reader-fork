@@ -108,11 +108,4 @@ public class ConnectionSettings extends SherlockPreferenceActivity {
         onContentChanged();
     }
     
-    @Override
-    protected boolean isValidFragment(String fragmentName) {
-        if (ConnectionSettings.class.getName().equals(fragmentName))
-            return true;
-        return false;
-    }
-    
 }

@@ -52,11 +52,4 @@ public class WifiConnectionSettings extends SherlockPreferenceActivity {
         }
     }
     
-    @Override
-    protected boolean isValidFragment(String fragmentName) {
-        if (WifiConnectionSettings.class.getName().equals(fragmentName))
-            return true;
-        return false;
-    }
-    
 }
