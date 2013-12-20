@@ -2,9 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="org.ttrssreader"
+    android:debuggable="true"
     android:installLocation="internalOnly"
-    android:versionCode="1630"
-    android:versionName="1.63" >
+    android:versionCode="1700"
+    android:versionName="1.7" >
 
     <uses-sdk
         android:minSdkVersion="8"
