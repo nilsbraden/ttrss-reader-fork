@@ -595,7 +595,7 @@ public abstract class JSONConnector {
             }
             reader.endArray();
         } catch (StopJsonParsingException e) {
-            Log.i(Utils.TAG, "Parsing of aricle array was broken after " + count + "articles");
+            Log.i(Utils.TAG, "Parsing of aricle array was broken after " + count + " articles");
         } catch (OutOfMemoryError e) {
             Controller.getInstance().lowMemory(true); // Low memory detected
         } catch (Exception e) {
