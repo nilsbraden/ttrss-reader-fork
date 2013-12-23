@@ -16,9 +16,9 @@
     not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="?attr/ListItem"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/activatedBackgroundIndicator"
     android:orientation="horizontal" >
 
     <ImageView
@@ -30,7 +30,7 @@
 
     <TextView
         android:id="@+id/title"
-        style="?attr/ListItem"
+        style="?attr/ListItemText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
