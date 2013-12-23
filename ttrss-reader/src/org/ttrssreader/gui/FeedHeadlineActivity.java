@@ -334,9 +334,10 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     public void openNextArticle(int direction) {
         // Open next article
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ArticleFragment.FRAGMENT);
-        if (fragment instanceof ArticleFragment) {
-            selectedArticleId = ((ArticleFragment) fragment).openNextArticle(direction);
+        FragmentManager fm = getSupportFragmentManager();
+        articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
+        if (articleFragment instanceof ArticleFragment) {
+            selectedArticleId = ((ArticleFragment) articleFragment).openNextArticle(direction);
             headlineFragment.setSelectedId(selectedArticleId);
         }
     }
@@ -345,6 +346,11 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         // Open next Feed
         headlineFragment.openNextFeed(direction);
         feedId = headlineFragment.getFeedId();
+        
+        FragmentManager fm = getSupportFragmentManager();
+        articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
+        if (articleFragment instanceof ArticleFragment)
+            articleFragment.resetParentInformation();
     }
     
     /**
