@@ -183,10 +183,8 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         super.onActivityCreated(instance);
         articleJSInterface = new ArticleJSInterface(getSherlockActivity());
         
-        if (parentAdapter == null) {
-            parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-            getLoaderManager().initLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
-        }
+        parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
+        getLoaderManager().initLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
         
         initData();
         initUI();
@@ -215,6 +213,12 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         if (webView != null)
             webView.saveState(instance);
         super.onSaveInstanceState(instance);
+    }
+    
+    public void resetParentInformation() {
+        parentIds.clear();
+        parentIdsBeforeAndAfter[0] = Integer.MIN_VALUE;
+        parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
     }
     
     private void fillParentInformation() {
@@ -737,9 +741,8 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         
         // Find next id in this direction and see if there is another next article or not
         id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
-        if (id == Integer.MIN_VALUE) {
+        if (id == Integer.MIN_VALUE)
             ((Vibrator) getSherlockActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
-        }
         
         initData();
         doRefresh();
@@ -758,6 +761,10 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         this.categoryId = categoryId;
         this.selectArticlesForCategory = selectArticlesForCategory;
         this.lastMove = lastMove;
+
+        parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
+        getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
+        
         initData();
         doRefresh();
     }
