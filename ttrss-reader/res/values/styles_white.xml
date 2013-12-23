@@ -34,7 +34,7 @@
         <item name="android:textColor">@color/font_color_white</item>
         <item name="android:windowBackground">@color/background_white</item>
         <!-- ListItems -->
-        <item name="ListItem">@style/ListItem.White</item>
+        <item name="ListItemText">@style/ListItemText.White</item>
     </style>
 
     <style name="ActionBar.Solid.White" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
@@ -76,7 +76,7 @@
         <item name="dropDownListViewStyle">@style/DropDownListView.White</item>
     </style>
 
-    <style name="ListItem.White" parent="@android:style/TextAppearance.Small">
+    <style name="ListItemText.White" parent="@android:style/TextAppearance.Small">
         <item name="android:textColor">@color/font_color_white</item>
     </style>
 

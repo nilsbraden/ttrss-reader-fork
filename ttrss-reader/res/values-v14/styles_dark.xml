@@ -34,6 +34,8 @@
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_dark</item>
         <item name="android:windowBackground">@color/background_dark</item>
+        <!-- ListItems -->
+        <item name="ListItem">@style/ListItem.Light</item>
     </style>
 
     <style name="ActionBar.Solid.Dark" parent="@style/Widget.Sherlock.ActionBar.Solid">
@@ -47,6 +49,10 @@
     <style name="Theme.Dark.Widget" parent="@style/Theme.Sherlock">
         <item name="android:popupMenuStyle">@style/PopupMenu.Dark</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Dark</item>
+    </style>
+
+    <style name="ListItem.Light" parent="@android:style/TextAppearance.Small">
+        <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
     </style>
 
 </resources>

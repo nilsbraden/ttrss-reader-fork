@@ -34,7 +34,7 @@
         <item name="android:textColor">@color/font_color_light</item>
         <item name="android:windowBackground">@color/background_light</item>
         <!-- ListItems -->
-        <item name="ListItem">@style/ListItem.Light</item>
+        <item name="ListItemText">@style/ListItemText.Light</item>
     </style>
 
     <style name="ActionBar.Solid.Light" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
@@ -76,7 +76,7 @@
         <item name="dropDownListViewStyle">@style/DropDownListView.Light</item>
     </style>
 
-    <style name="ListItem.Light" parent="@android:style/TextAppearance.Small">
+    <style name="ListItemText.Light" parent="@android:style/TextAppearance.Small">
         <item name="android:textColor">@color/font_color_light</item>
     </style>
 
