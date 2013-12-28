@@ -1,0 +1,4 @@
+You will need ActionBarSherlock [1] and the Locale API [2] to compile this code.
+
+[1] http://github.com/JakeWharton/ActionBarSherlock/
+[2] http://www.twofortyfouram.com/developer.html

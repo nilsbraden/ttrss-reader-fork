@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/Menu_Refresh"
+        android:icon="@drawable/ic_menu_refresh"
+        android:orderInCategory="50"
+        android:showAsAction="always"
+        android:title="@string/Main.RefreshMenu"/>
+    <item
+        android:id="@+id/Menu_MarkAllRead"
+        android:icon="@drawable/ic_menu_mark"
+        android:orderInCategory="60"
+        android:showAsAction="always|withText"
+        android:title="@string/Commons.MarkAllRead"/>
+    <item
+        android:id="@+id/Menu_MarkFeedsRead"
+        android:icon="@drawable/ic_menu_mark"
+        android:orderInCategory="60"
+        android:showAsAction="always|withText"
+        android:title="@string/Commons.MarkFeedsRead"/>
+    <item
+        android:id="@+id/Menu_MarkFeedRead"
+        android:icon="@drawable/ic_menu_mark"
+        android:orderInCategory="60"
+        android:showAsAction="always|withText"
+        android:title="@string/Commons.MarkFeedRead"/>
+    <item
+        android:id="@+id/Menu_FeedSubscribe"
+        android:icon="@drawable/ic_menu_compose"
+        android:orderInCategory="450"
+        android:showAsAction="ifRoom"
+        android:title="@string/FeedSubscribeTitle"/>
+    <item
+        android:id="@+id/Menu_FeedUnsubscribe"
+        android:icon="@drawable/ic_menu_clear_playlist"
+        android:orderInCategory="460"
+        android:showAsAction="ifRoom"
+        android:title="@string/FeedUnsubscribeTitle"/>
+    <item
+        android:id="@+id/Menu_DisplayOnlyUnread"
+        android:icon="@drawable/ic_menu_view"
+        android:orderInCategory="500"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/Commons.DisplayOnlyUnread"/>
+    <item
+        android:id="@+id/Menu_InvertSort"
+        android:icon="@drawable/ic_menu_rotate"
+        android:orderInCategory="600"
+        android:showAsAction="never|withText"
+        android:title="@string/Commons.InvertSort"/>
+    <item
+        android:id="@+id/Menu_WorkOffline"
+        android:icon="@drawable/ic_menu_stop"
+        android:orderInCategory="70"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/UsageOfflineTitle"/>
+    <item
+        android:id="@+id/Category_Menu_ImageCache"
+        android:icon="@drawable/ic_menu_save"
+        android:orderInCategory="800"
+        android:showAsAction="never|withText"
+        android:title="@string/Main.ImageCache"/>
+    <item
+        android:id="@+id/Menu_ShowPreferences"
+        android:icon="@drawable/ic_menu_preferences"
+        android:orderInCategory="900"
+        android:showAsAction="never|withText"
+        android:title="@string/Main.ShowPreferencesMenu"/>
+    <item
+        android:id="@+id/Menu_About"
+        android:icon="@drawable/ic_menu_help"
+        android:orderInCategory="1000"
+        android:showAsAction="never|withText"
+        android:title="@string/About.about"/>
+
+</menu>
