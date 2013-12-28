@@ -44,6 +44,7 @@ public class ShareActivity extends MenuActivity {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sharetopublished);
         setTitle(R.string.IntentPublish);

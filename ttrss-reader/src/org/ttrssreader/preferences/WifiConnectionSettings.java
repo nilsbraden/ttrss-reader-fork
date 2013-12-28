@@ -2,6 +2,7 @@ package org.ttrssreader.preferences;
 
 import java.util.List;
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
@@ -21,7 +22,8 @@ public class WifiConnectionSettings extends SherlockPreferenceActivity {
     @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        setTheme(Controller.getInstance().getTheme());
+        super.onCreate(savedInstanceState); // IMPORTANT!
         
         addPreferencesFromResource(R.xml.prefs_wifibased);
         final PreferenceScreen preferenceScreen = getPreferenceScreen();

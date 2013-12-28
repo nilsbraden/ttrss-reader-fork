@@ -14,6 +14,7 @@
 package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class ErrorActivity extends Activity {
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.error);

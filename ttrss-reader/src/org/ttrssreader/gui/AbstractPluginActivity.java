@@ -12,6 +12,7 @@
 
 package org.ttrssreader.gui;
 
+import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.Utils;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -41,6 +42,7 @@ public abstract class AbstractPluginActivity extends Activity {
     
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
+        setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
