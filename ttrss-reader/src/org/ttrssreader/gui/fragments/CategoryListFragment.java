@@ -142,7 +142,8 @@ public class CategoryListFragment extends MainListFragment {
     
     @Override
     protected void fetchOtherData() {
-        title = getResources().getString(R.string.ApplicationName);
+        title = "TTRSS-Reader"; // Hardcoded since this does not change and we would need to be attached to an activity
+                                // here to be able to read from the ressources.
         unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
     }
     

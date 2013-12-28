@@ -66,6 +66,14 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     protected int unreadCount;
     
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        // Async update of title und unread data:
+        updateTitleAndUnread();
+    }
+    
+    @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
         
@@ -196,24 +204,33 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     }
     
     /**
-     * Updates in here are started asynchronously since the DB is accessed. When the childs are done with the updates we
-     * call {@link IDataChangedListener#dataLoadingFinished()} in the UI-thread again.
+     * Updates in here are started asynchronously since the DB is accessed. When the children are done with the updates
+     * we call {@link IDataChangedListener#dataLoadingFinished()} in the UI-thread again.
      */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        new AsyncTask<Void, Void, Void>() {
-            protected Void doInBackground(Void... params) {
-                fetchOtherData();
-                return null;
-            }
-            
-            protected void onPostExecute(Void result) {
-                if (getActivity() instanceof IDataChangedListener) {
-                    ((IDataChangedListener) getActivity()).dataLoadingFinished();
-                    adapter.notifyDataSetChanged();
+        updateTitleAndUnread();
+        adapter.notifyDataSetChanged();
+    }
+    
+    private volatile Boolean updateTitleAndUnreadRunning = false;
+    
+    private void updateTitleAndUnread() {
+        if (!updateTitleAndUnreadRunning) {
+            updateTitleAndUnreadRunning = true;
+            new AsyncTask<Void, Void, Void>() {
+                protected Void doInBackground(Void... params) {
+                    fetchOtherData();
+                    return null;
                 }
-            };
-        }.execute();
+                
+                protected void onPostExecute(Void result) {
+                    if (getActivity() instanceof IDataChangedListener)
+                        ((IDataChangedListener) getActivity()).dataLoadingFinished();
+                    updateTitleAndUnreadRunning = false;
+                };
+            }.execute();
+        }
     }
     
     protected abstract void fetchOtherData();

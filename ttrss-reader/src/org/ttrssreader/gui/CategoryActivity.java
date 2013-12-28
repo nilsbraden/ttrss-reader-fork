@@ -287,7 +287,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                 labels.add(f);
             }
             
-            taskCount = DEFAULT_TASK_COUNT + labels.size() + 1; // 1 for the caching of all articles
+            taskCount = DEFAULT_TASK_COUNT + labels.size(); // 1 for the caching of all articles
             int progress = 0;
             publishProgress(progress);
             
@@ -322,12 +322,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             System.out.println("Time 2: " + (System.currentTimeMillis() - time) + "ms");
             return null;
         }
-        
-        // @Override
-        // protected void onPostExecute(Void result) {
-        // doRefresh();
-        // super.onPostExecute(result);
-        // }
     }
     
     @Override

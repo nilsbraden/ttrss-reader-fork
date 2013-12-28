@@ -24,12 +24,16 @@
         android:id="@+id/cb_images"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/Locale.Load_images" />
+        android:padding="10dp"
+        android:text="@string/Locale.Load_images"
+        android:textSize="16sp" />
 
     <CheckBox
         android:id="@+id/cb_notification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/Locale.Show_notification" />
+        android:padding="10dp"
+        android:text="@string/Locale.Show_notification"
+        android:textSize="16sp" />
 
 </LinearLayout>

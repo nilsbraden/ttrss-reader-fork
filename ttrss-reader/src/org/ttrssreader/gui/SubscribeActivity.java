@@ -56,6 +56,7 @@ public class SubscribeActivity extends MenuActivity {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.feedsubscribe);
         setTitle(R.string.IntentSubscribe);
@@ -76,7 +77,7 @@ public class SubscribeActivity extends MenuActivity {
         categorieSpinner = (Spinner) findViewById(R.id.subscribe_categories);
         categorieSpinner.setAdapter(categoriesAdapter);
         
-        CategoryUpdater categoryUpdater = new CategoryUpdater();
+        SubscribeCategoryUpdater categoryUpdater = new SubscribeCategoryUpdater();
         categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         
         okButton = (Button) findViewById(R.id.subscribe_ok_button);
@@ -206,7 +207,7 @@ public class SubscribeActivity extends MenuActivity {
     }
     
     // Fill the adapter for the spinner in the background to avoid direct DB-access
-    class CategoryUpdater extends AsyncTask<Void, Integer, Void> {
+    class SubscribeCategoryUpdater extends AsyncTask<Void, Integer, Void> {
         ArrayList<Category> catList = null;
         
         @Override
