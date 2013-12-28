@@ -44,6 +44,11 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
                     && e.getMessage().toLowerCase(Locale.ENGLISH).contains("database is locked"))
                 return;
         }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            // Don't want to keep working so much for old api levels, most errors are also sent via market and that
+            // should be enough.
+            return;
+        }
         
         try {
             
