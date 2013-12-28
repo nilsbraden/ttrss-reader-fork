@@ -21,6 +21,7 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.TopExceptionHandler;
 import android.app.Application;
 import android.content.Context;
 import android.view.WindowManager;
@@ -36,6 +37,10 @@ public class MyApplication extends Application {
                 return null;
             }
         }.execute();
+        
+        // Register our own ExceptionHander
+        Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
+        
         initSingletons();
     }
     

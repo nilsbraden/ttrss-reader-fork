@@ -3,7 +3,6 @@ package org.ttrssreader.utils;
 import java.io.FileOutputStream;
 import java.util.Locale;
 import org.ttrssreader.controllers.Controller;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.database.sqlite.SQLiteException;
@@ -20,11 +19,11 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
     
     public static final String FILE = "stack.trace";
     private Thread.UncaughtExceptionHandler handler;
-    private Activity app = null;
+    private Context context = null;
     
-    public TopExceptionHandler(Activity app) {
+    public TopExceptionHandler(Context context) {
         this.handler = Thread.getDefaultUncaughtExceptionHandler();
-        this.app = app;
+        this.context = context;
     }
     
     public void uncaughtException(Thread t, Throwable e) {
@@ -50,7 +49,7 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
             
             PackageInfo pi = null;
             try {
-                pi = app.getPackageManager().getPackageInfo(app.getPackageName(), 0);
+                pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             } catch (Exception ex) {
             }
             
@@ -95,7 +94,7 @@ public class TopExceptionHandler implements Thread.UncaughtExceptionHandler {
             }
             
             try {
-                FileOutputStream trace = app.openFileOutput(FILE, Context.MODE_PRIVATE);
+                FileOutputStream trace = context.openFileOutput(FILE, Context.MODE_PRIVATE);
                 trace.write(sb.toString().getBytes());
                 trace.close();
             } catch (Exception ioe) {

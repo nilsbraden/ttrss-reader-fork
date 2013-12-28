@@ -1,5 +1,3 @@
-package org.ttrssreader.utils;
-
 /*
  * Copyright (C) 2008 The Android Open Source Project
  * 
@@ -16,7 +14,8 @@ package org.ttrssreader.utils;
  * limitations under the License.
  */
 
-// import java.util.ArrayDeque;
+package org.ttrssreader.utils;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -36,12 +35,14 @@ import android.os.Process;
 
 /**
  * @see http://stackoverflow.com/questions/7211684/asynctask-executeonexecutor-before-api-level-11/9509184#9509184
+ *      (Source: https://raw.github.com/android/platform_frameworks_base/master/core/java/android/os/AsyncTask.java)
  */
 public abstract class AsyncTask<Params, Progress, Result> {
     private static final String LOG_TAG = "AsyncTask";
     
-    private static final int CORE_POOL_SIZE = 5;
-    private static final int MAXIMUM_POOL_SIZE = 128;
+    private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+    private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
+    private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
     private static final int KEEP_ALIVE = 1;
     
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
@@ -52,7 +53,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
         }
     };
     
-    private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>(10);
+    private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>(128);
     
     /**
      * An {@link Executor} that can be used to execute tasks in parallel.
@@ -78,9 +79,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
     
     private volatile Status mStatus = Status.PENDING;
     
+    private final AtomicBoolean mCancelled = new AtomicBoolean();
     private final AtomicBoolean mTaskInvoked = new AtomicBoolean();
     
-    // TODO: ArrayDeque doesnt work in lower API Levels!
     // private static class SerialExecutor implements Executor {
     // final ArrayDeque<Runnable> mTasks = new ArrayDeque<Runnable>();
     // Runnable mActive;
@@ -145,6 +146,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
                 mTaskInvoked.set(true);
                 
                 Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+                // noinspection unchecked
                 return postResult(doInBackground(mParams));
             }
         };
@@ -153,17 +155,13 @@ public abstract class AsyncTask<Params, Progress, Result> {
             @Override
             protected void done() {
                 try {
-                    final Result result = get();
-                    
-                    postResultIfNotInvoked(result);
+                    postResultIfNotInvoked(get());
                 } catch (InterruptedException e) {
                     android.util.Log.w(LOG_TAG, e);
                 } catch (ExecutionException e) {
                     throw new RuntimeException("An error occured while executing doInBackground()", e.getCause());
                 } catch (CancellationException e) {
                     postResultIfNotInvoked(null);
-                } catch (Throwable t) {
-                    throw new RuntimeException("An error occured while executing " + "doInBackground()", t);
                 }
             }
         };
@@ -302,7 +300,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * @see #cancel(boolean)
      */
     public final boolean isCancelled() {
-        return mFuture.isCancelled();
+        return mCancelled.get();
     }
     
     /**
@@ -333,6 +331,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * @see #onCancelled(Object)
      */
     public final boolean cancel(boolean mayInterruptIfRunning) {
+        mCancelled.set(true);
         return mFuture.cancel(mayInterruptIfRunning);
     }
     
@@ -387,9 +386,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * Note: this function schedules the task on a queue for a single background thread or pool of threads depending on
      * the platform version. When first introduced, AsyncTasks were executed serially on a single background thread.
      * Starting with {@link android.os.Build.VERSION_CODES#DONUT}, this was changed to a pool of threads allowing
-     * multiple tasks to operate in parallel. After {@link android.os.Build.VERSION_CODES#HONEYCOMB}, it is planned to
-     * change this back to a single thread to avoid common application errors caused by parallel execution. If you truly
-     * want parallel execution, you can use the {@link #executeOnExecutor} version of this method with
+     * multiple tasks to operate in parallel. Starting {@link android.os.Build.VERSION_CODES#HONEYCOMB}, tasks are back
+     * to being executed on a single thread to avoid common application errors caused by parallel execution. If you
+     * truly want parallel execution, you can use the {@link #executeOnExecutor} version of this method with
      * {@link #THREAD_POOL_EXECUTOR}; however, see commentary there for warnings on its use.
      * 
      * <p>
@@ -403,6 +402,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * @throws IllegalStateException
      *             If {@link #getStatus()} returns either {@link AsyncTask.Status#RUNNING} or
      *             {@link AsyncTask.Status#FINISHED}.
+     * 
+     * @see #executeOnExecutor(java.util.concurrent.Executor, Object[])
+     * @see #execute(Runnable)
      */
     public final AsyncTask<Params, Progress, Result> execute(Params... params) {
         return executeOnExecutor(sDefaultExecutor, params);
@@ -439,8 +441,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * @throws IllegalStateException
      *             If {@link #getStatus()} returns either {@link AsyncTask.Status#RUNNING} or
      *             {@link AsyncTask.Status#FINISHED}.
+     * 
+     * @see #execute(Object[])
      */
-    @SuppressWarnings("incomplete-switch")
     public final AsyncTask<Params, Progress, Result> executeOnExecutor(Executor exec, Params... params) {
         if (mStatus != Status.PENDING) {
             switch (mStatus) {
@@ -449,6 +452,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
                 case FINISHED:
                     throw new IllegalStateException("Cannot execute task:" + " the task has already been executed "
                             + "(a task can be executed only once)");
+                default: {
+                    // Empty
+                }
             }
         }
         
@@ -464,7 +470,11 @@ public abstract class AsyncTask<Params, Progress, Result> {
     
     /**
      * Convenience version of {@link #execute(Object...)} for use with
-     * a simple Runnable object.
+     * a simple Runnable object. See {@link #execute(Object[])} for more
+     * information on the order of execution.
+     * 
+     * @see #execute(Object[])
+     * @see #executeOnExecutor(java.util.concurrent.Executor, Object[])
      */
     public static void execute(Runnable runnable) {
         sDefaultExecutor.execute(runnable);
@@ -500,10 +510,9 @@ public abstract class AsyncTask<Params, Progress, Result> {
     }
     
     private static class InternalHandler extends Handler {
-        @SuppressWarnings({ "unchecked" })
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         @Override
         public void handleMessage(Message msg) {
-            @SuppressWarnings("rawtypes")
             AsyncTaskResult result = (AsyncTaskResult) msg.obj;
             switch (msg.what) {
                 case MESSAGE_POST_RESULT:
@@ -521,7 +530,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
         Params[] mParams;
     }
     
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes" })
     private static class AsyncTaskResult<Data> {
         final AsyncTask mTask;
         final Data[] mData;
