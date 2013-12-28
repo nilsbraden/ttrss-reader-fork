@@ -146,12 +146,14 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     
     private void setChecked(int id) {
         int pos = -1;
-        for (int item : adapter.getIds()) {
-            pos++;
-            if (item == id) {
-                listView.setItemChecked(pos, true);
-                listView.smoothScrollToPosition(pos);
-                return;
+        if (adapter != null) {
+            for (int item : adapter.getIds()) {
+                pos++;
+                if (item == id) {
+                    listView.setItemChecked(pos, true);
+                    listView.smoothScrollToPosition(pos);
+                    return;
+                }
             }
         }
         // Nothing found, uncheck everything:
