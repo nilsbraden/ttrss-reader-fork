@@ -2353,15 +2353,13 @@ public class DBHelper {
      *         to free given amount of space
      */
     public Collection<RemoteFile> getUncacheFiles(long spaceToBeFreed) {
-        ArrayList<RemoteFile> rfs = null;
+        ArrayList<RemoteFile> rfs = new ArrayList<RemoteFile>();
         if (isDBAvailable()) {
             Cursor c = null;
             try {
                 c = db.query("remotefile_sequence", new String[] { "*" }, "cached = 1", null, null, null, "ord");
                 
-                rfs = new ArrayList<RemoteFile>();
                 long spaceToFree = spaceToBeFreed;
-                
                 while (spaceToFree > 0 && c.moveToNext()) {
                     RemoteFile rf = handleRemoteFileCursor(c);
                     spaceToFree -= rf.length;
