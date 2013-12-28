@@ -177,7 +177,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
         super.onRestoreInstanceState(instance);
     }
-
+    
     @Override
     public void dataLoadingFinished() {
         setTitleAndUnread();
@@ -271,7 +271,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
      * This does a full update including all labels, feeds, categories and all articles.
      */
     public class CategoryUpdater extends ActivityUpdater {
-        private static final int DEFAULT_TASK_COUNT = 5;
+        private static final int DEFAULT_TASK_COUNT = 4;
         
         public CategoryUpdater(boolean forceUpdate) {
             super(forceUpdate);
@@ -279,25 +279,23 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         
         @Override
         protected Void doInBackground(Void... params) {
+            long time = System.currentTimeMillis();
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
             
             Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
             taskCount = DEFAULT_TASK_COUNT + labels.size() + 1; // 1 for the caching of all articles
             
             int progress = 0;
-            publishProgress(++progress); // Move progress forward
-            
-            // Data.getInstance().updateCounters(false, forceUpdate);
+            publishProgress(++progress);
             
             // Cache articles for all categories
-            publishProgress(++progress);
             Data.getInstance().cacheArticles(false, forceUpdate);
             
             // Refresh articles for all labels
             for (Feed f : labels) {
+                publishProgress(++progress);
                 if (f.unread == 0 && onlyUnreadArticles)
                     continue;
-                publishProgress(++progress);
                 Data.getInstance().updateArticles(f.id, false, false, false, forceUpdate);
             }
             
@@ -314,6 +312,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             
             // Silently try to synchronize any ids left in TABLE_MARK
             Data.getInstance().synchronizeStatus();
+            System.out.println("Time: " + (System.currentTimeMillis() - time) + "ms");
             return null;
         }
     }
