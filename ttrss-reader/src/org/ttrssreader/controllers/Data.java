@@ -367,10 +367,6 @@ public class Data {
                 DBHelper.getInstance().deleteFeeds();
                 DBHelper.getInstance().insertFeeds(feeds);
                 
-                // articles, which belongs to feeds, which does not exist
-                // on the server should be also deleted
-                DBHelper.getInstance().purgeOrphanedArticles();
-                
                 // Store requested category-id and ids of all received feeds
                 feedsChanged.put(categoryId, System.currentTimeMillis());
                 notifyListeners();

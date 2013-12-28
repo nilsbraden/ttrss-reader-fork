@@ -22,6 +22,7 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.database.Cursor;
@@ -194,13 +195,25 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
         setChecked(selectedId);
     }
     
+    /**
+     * Updates in here are started asynchronously since the DB is accessed. When the childs are done with the updates we
+     * call {@link IDataChangedListener#dataLoadingFinished()} in the UI-thread again.
+     */
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        fetchOtherData();
-        if (getActivity() instanceof IDataChangedListener) {
-            ((IDataChangedListener) getActivity()).dataLoadingFinished();
-            adapter.notifyDataSetChanged();
-        }
+        new AsyncTask<Void, Void, Void>() {
+            protected Void doInBackground(Void... params) {
+                fetchOtherData();
+                return null;
+            }
+            
+            protected void onPostExecute(Void result) {
+                if (getActivity() instanceof IDataChangedListener) {
+                    ((IDataChangedListener) getActivity()).dataLoadingFinished();
+                    adapter.notifyDataSetChanged();
+                }
+            };
+        }.execute();
     }
     
     protected abstract void fetchOtherData();

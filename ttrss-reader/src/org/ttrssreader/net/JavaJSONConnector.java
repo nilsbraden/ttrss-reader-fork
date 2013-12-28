@@ -15,7 +15,6 @@
 
 package org.ttrssreader.net;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.Authenticator;
@@ -37,7 +36,6 @@ public class JavaJSONConnector extends JSONConnector {
     public JavaJSONConnector(Context context) {
         super(context);
         disableConnectionReuseIfNecessary();
-        enableHttpResponseCache(context);
     }
     
     protected InputStream doRequest(Map<String, String> params) {
@@ -121,22 +119,6 @@ public class JavaJSONConnector extends JSONConnector {
         // Work around pre-Froyo bugs in HTTP connection reuse.
         if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
             System.setProperty("http.keepAlive", "false");
-        }
-    }
-    
-    /**
-     * Enables HTTP response caching on devices that support it, see
-     * http://android-developers.blogspot.de/2011/09/androids-http-clients.html
-     * 
-     * @param context
-     */
-    private void enableHttpResponseCache(Context context) {
-        try {
-            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
-            File httpCacheDir = new File(context.getCacheDir(), "http");
-            Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class)
-                    .invoke(null, httpCacheDir, httpCacheSize);
-        } catch (Exception httpResponseCacheNotAvailable) {
         }
     }
     
