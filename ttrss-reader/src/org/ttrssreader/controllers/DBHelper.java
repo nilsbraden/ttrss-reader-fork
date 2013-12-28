@@ -2259,7 +2259,7 @@ public class DBHelper {
                 
                 c = db.rawQuery(query.toString(), queryArgs);
                 
-                rfs = new ArrayList<RemoteFile>(c.getCount());
+                rfs = new ArrayList<RemoteFile>();
                 
                 while (c.moveToNext()) {
                     rfs.add(handleRemoteFileCursor(c));
