@@ -6,7 +6,6 @@ import org.ttrssreader.controllers.Controller;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 
