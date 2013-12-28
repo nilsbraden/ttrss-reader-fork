@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -35,7 +36,6 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.TopExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
@@ -76,6 +76,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         // .detectDiskWrites().detectNetwork().penaltyLog().penaltyLog().build());
         // StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
         // .detectLeakedClosableObjects().penaltyLog().build());
+        
         super.onCreate(instance);
         setContentView(R.layout.categorylist);
         super.initTabletLayout();
@@ -86,9 +87,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         } else if (instance != null) {
             selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
         }
-        
-        // Register our own ExceptionHander
-        Thread.setDefaultUncaughtExceptionHandler(new TopExceptionHandler(this));
         
         FragmentManager fm = getSupportFragmentManager();
         categoryFragment = (CategoryListFragment) fm.findFragmentByTag(CategoryListFragment.FRAGMENT);
@@ -282,39 +280,54 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             long time = System.currentTimeMillis();
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
             
-            Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
-            taskCount = DEFAULT_TASK_COUNT + labels.size() + 1; // 1 for the caching of all articles
+            Set<Feed> labels = new LinkedHashSet<Feed>();
+            for (Feed f : DBHelper.getInstance().getFeeds(-2)) {
+                if (f.unread == 0 && onlyUnreadArticles)
+                    continue;
+                labels.add(f);
+            }
             
+            taskCount = DEFAULT_TASK_COUNT + labels.size() + 1; // 1 for the caching of all articles
             int progress = 0;
-            publishProgress(++progress);
+            publishProgress(progress);
             
             // Cache articles for all categories
             Data.getInstance().cacheArticles(false, forceUpdate);
+            publishProgress(++progress);
             
             // Refresh articles for all labels
             for (Feed f : labels) {
-                publishProgress(++progress);
-                if (f.unread == 0 && onlyUnreadArticles)
-                    continue;
                 Data.getInstance().updateArticles(f.id, false, false, false, forceUpdate);
+                publishProgress(++progress);
             }
-            
-            publishProgress(++progress); // Move progress to 100%
             
             // This stuff will be done in background without UI-notification, but the progress-calls will be done anyway
             // to ensure the UI is refreshed properly.
             Data.getInstance().updateVirtualCategories();
             publishProgress(++progress);
+            
             Data.getInstance().updateCategories(false);
             publishProgress(++progress);
+            
             Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
             publishProgress(taskCount); // Move progress forward to 100%
+            System.out.println("Time 1: " + (System.currentTimeMillis() - time) + "ms");
             
-            // Silently try to synchronize any ids left in TABLE_MARK
+            // Silently try to synchronize any ids left in TABLE_MARK:
             Data.getInstance().synchronizeStatus();
-            System.out.println("Time: " + (System.currentTimeMillis() - time) + "ms");
+            
+            // Silently remove articles which belongs to feeds which do not exist on the server anymore:
+            DBHelper.getInstance().purgeOrphanedArticles();
+            
+            System.out.println("Time 2: " + (System.currentTimeMillis() - time) + "ms");
             return null;
         }
+        
+        // @Override
+        // protected void onPostExecute(Void result) {
+        // doRefresh();
+        // super.onPostExecute(result);
+        // }
     }
     
     @Override

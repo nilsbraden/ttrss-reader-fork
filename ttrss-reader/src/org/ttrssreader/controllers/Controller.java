@@ -16,6 +16,7 @@
 
 package org.ttrssreader.controllers;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -229,6 +230,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 // Loads all article and webview related resources
                 reloadTheme();
                 
+                enableHttpResponseCache(context);
+                
                 return null;
             }
         }.execute();
@@ -274,6 +277,22 @@ public class Controller implements OnSharedPreferenceChangeListener {
         // This is only needed once an article is displayed
         synchronized (htmlTemplate) {
             htmlTemplate = htmlTmpl.render();
+        }
+    }
+    
+    /**
+     * Enables HTTP response caching on devices that support it, see
+     * http://android-developers.blogspot.de/2011/09/androids-http-clients.html
+     * 
+     * @param context
+     */
+    private void enableHttpResponseCache(Context context) {
+        try {
+            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            File httpCacheDir = new File(context.getCacheDir(), "http");
+            Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class)
+                    .invoke(null, httpCacheDir, httpCacheSize);
+        } catch (Exception httpResponseCacheNotAvailable) {
         }
     }
     
@@ -879,11 +898,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
         put(Constants.CACHE_IMAGES_ONLY_WIFI, cacheImagesOnlyWifi);
         this.cacheImagesOnlyWifi = cacheImagesOnlyWifi;
     }
-
+    
     public boolean onlyUseWifi() {
         if (onlyUseWifi == null)
-            onlyUseWifi = prefs.getBoolean(Constants.ONLY_USE_WIFI,
-                    Constants.ONLY_USE_WIFI_DEFAULT);
+            onlyUseWifi = prefs.getBoolean(Constants.ONLY_USE_WIFI, Constants.ONLY_USE_WIFI_DEFAULT);
         return onlyUseWifi;
     }
     
