@@ -976,6 +976,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public void lowMemory(boolean lowMemory) {
+        if (lowMemory && !this.lowMemory)
+            Log.w(Utils.TAG, "lowMemory-Situation detected, trying to reduce memory footprint...");
         this.lowMemory = lowMemory;
     }
     
