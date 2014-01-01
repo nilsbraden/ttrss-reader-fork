@@ -62,7 +62,7 @@ public class Utils {
     /**
      * The maximum number of articles to store.
      */
-    public static final int ARTICLE_LIMIT = 8000;
+    public static final int ARTICLE_LIMIT = 5000;
     
     /**
      * Min supported versions of the Tiny Tiny RSS Server
