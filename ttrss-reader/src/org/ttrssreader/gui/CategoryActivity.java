@@ -277,7 +277,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         
         @Override
         protected Void doInBackground(Void... params) {
-            long time = System.currentTimeMillis();
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
             
             Set<Feed> labels = new LinkedHashSet<Feed>();
@@ -311,7 +310,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             
             Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
             publishProgress(taskCount); // Move progress forward to 100%
-            System.out.println("Time 1: " + (System.currentTimeMillis() - time) + "ms");
             
             // Silently try to synchronize any ids left in TABLE_MARK:
             Data.getInstance().synchronizeStatus();
@@ -319,7 +317,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             // Silently remove articles which belongs to feeds which do not exist on the server anymore:
             DBHelper.getInstance().purgeOrphanedArticles(); // TODO
             
-            System.out.println("Time 2: " + (System.currentTimeMillis() - time) + "ms");
             return null;
         }
     }
