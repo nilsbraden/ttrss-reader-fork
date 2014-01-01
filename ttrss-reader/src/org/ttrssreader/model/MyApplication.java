@@ -53,4 +53,10 @@ public class MyApplication extends Application {
         UpdateController.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
     }
     
+    @Override
+    public void onLowMemory() {
+        Controller.getInstance().lowMemory(true);
+        super.onLowMemory();
+    }
+    
 }
