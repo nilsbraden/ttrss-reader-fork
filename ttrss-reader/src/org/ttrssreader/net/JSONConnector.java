@@ -370,7 +370,6 @@ public abstract class JSONConnector {
         
         try {
             String result = readResult(params, false);
-            Log.d(Utils.TAG, "Result: " + result);
             
             // Reset error, this is only for an api-bug which returns an empty result for updateFeed
             if (result == null)
