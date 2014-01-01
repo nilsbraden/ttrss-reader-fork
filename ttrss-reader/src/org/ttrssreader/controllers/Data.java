@@ -314,9 +314,9 @@ public class Data {
             DBHelper.getInstance().purgeLastArticles(articles.size());
             
             // We set isCategory=false for starred/published articles...
-            if ((feedId == Data.VCAT_STAR || feedId == Data.VCAT_PUB) && !isCategory)
-                // TODO FIXME is it necessary? Articles will be completely DELETED it is probably wrong!!!
-                DBHelper.getInstance().purgeVirtualCategories(minId);
+            // if ((feedId == Data.VCAT_STAR || feedId == Data.VCAT_PUB) && !isCategory)
+            // TODO FIXME is it necessary? Articles will be completely DELETED it is probably wrong!!!
+            // DBHelper.getInstance().purgeVirtualCategories(minId);
             
             DBHelper.getInstance().insertArticles(articles);
             

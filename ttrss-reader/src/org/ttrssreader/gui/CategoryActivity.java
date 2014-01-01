@@ -317,7 +317,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             Data.getInstance().synchronizeStatus();
             
             // Silently remove articles which belongs to feeds which do not exist on the server anymore:
-            DBHelper.getInstance().purgeOrphanedArticles();
+            DBHelper.getInstance().purgeOrphanedArticles(); // TODO
             
             System.out.println("Time 2: " + (System.currentTimeMillis() - time) + "ms");
             return null;

@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.71 ==
+  * Moved lots of stuff to the background so the UI should be more responsive
+  * Fixed several bugs introduced with the christmas-update
+  
 == Version 1.7 ==
   * Completely rewrote DB-Adapters for lists, cursors are now managed by the system which should reduce the number of FCs
   * Added support for themes, initially there are two dark (dark and completely black) and two light (light and white) themes available
