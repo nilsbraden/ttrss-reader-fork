@@ -1459,6 +1459,7 @@ public class DBHelper {
      *            amount of articles to be purged
      */
     public void purgeLastArticles(int amountToPurge) {
+        long time = System.currentTimeMillis();
         if (isDBAvailable()) {
             String idList = "SELECT _id FROM " + TABLE_ARTICLES
                     + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
@@ -1466,24 +1467,27 @@ public class DBHelper {
             
             safelyDeleteArticles("_id IN (" + idList + ")", null);
         }
+        Log.d(Utils.TAG, "purgeLastArticles took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     /**
      * delete articles, which belongs to non-existent feeds
      */
     public void purgeOrphanedArticles() {
+        long time = System.currentTimeMillis();
         if (isDBAvailable()) {
             safelyDeleteArticles("feedId NOT IN (SELECT _id FROM " + TABLE_FEEDS + ")", null);
         }
+        Log.d(Utils.TAG, "purgeOrphanedArticles took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     // TODO FIXME is it necessary? I don't think we should remove published or starred articles at all!!!
-    public void purgeVirtualCategories(int minId) {
-        if (isDBAvailable()) {
-            safelyDeleteArticles(" ( isPublished>0 OR isStarred>0 ) AND _id >= ? ",
-                    new String[] { String.valueOf(minId) });
-        }
-    }
+    // public void purgeVirtualCategories(int minId) {
+    // if (isDBAvailable()) {
+    // safelyDeleteArticles(" ( isPublished>0 OR isStarred>0 ) AND _id >= ? ",
+    // new String[] { String.valueOf(minId) });
+    // }
+    // }
     
     private void purgeLabels() {
         if (isDBAvailable()) {
@@ -2257,6 +2261,7 @@ public class DBHelper {
                     "   GROUP BY r.id"                            );
                 // @formatter:on
                 
+                long time = System.currentTimeMillis();
                 c = db.rawQuery(query.toString(), queryArgs);
                 
                 rfs = new ArrayList<RemoteFile>();
@@ -2264,6 +2269,8 @@ public class DBHelper {
                 while (c.moveToNext()) {
                     rfs.add(handleRemoteFileCursor(c));
                 }
+                Log.d(Utils.TAG, "Query in getRemoteFilesForArticles took " + (System.currentTimeMillis() - time)
+                        + "ms...");
                 
             } catch (Exception e) {
                 e.printStackTrace();
