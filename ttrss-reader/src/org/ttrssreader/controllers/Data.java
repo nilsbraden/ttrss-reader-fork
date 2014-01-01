@@ -621,6 +621,14 @@ public class Data {
         Log.d(Utils.TAG, "Status is synced");
     }
     
+    public void purgeOrphanedArticles() {
+        if (Controller.getInstance().getLastCleanup() > System.currentTimeMillis() - Utils.CLEANUP_TIME)
+            return;
+        
+        DBHelper.getInstance().purgeOrphanedArticles();
+        Controller.getInstance().setLastCleanup(System.currentTimeMillis());
+    }
+    
     private void notifyListeners() {
         if (!Controller.getInstance().isHeadless())
             UpdateController.getInstance().notifyListeners();

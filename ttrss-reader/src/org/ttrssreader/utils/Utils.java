@@ -86,6 +86,11 @@ public class Utils {
     public static final long HALF_UPDATE_TIME = UPDATE_TIME / 2;
     
     /**
+     * The time after which the DB and other data will be cleaned up again,
+     */
+    public static final long CLEANUP_TIME = DAY;
+    
+    /**
      * The Pattern to match image-urls inside HTML img-tags.
      */
     public static final Pattern findImageUrlsPattern = Pattern.compile("<img[^>]+?src=[\"']([^\\\"']*)",
