@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/SystemPreferenceCategoryTitle" >
+
+    <PreferenceCategory android:title="@string/SystemPreferenceCategoryTitle" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:disableDependentsState="false"
+            android:key="CacheImagesOnStartupPreference"
+            android:summary="@string/CacheImagesOnStartupSummary"
+            android:title="@string/CacheImagesOnStartupTitle" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:dependency="CacheImagesOnStartupPreference"
+            android:key="CacheImagesOnlyWifiPreference"
+            android:summary="@string/CacheImagesOnlyWifiSummary"
+            android:title="@string/CacheImagesOnlyWifiTitle" />
+
+        <Preference
+            android:key="SaveAttachmentPreference"
+            android:persistent="false"
+            android:summary="- PATH - set by activity -"
+            android:title="@string/SaveAttachmentTitle" />
+        <Preference
+            android:key="CacheFolderPreference"
+            android:persistent="false"
+            android:summary="- PATH - set by activity -"
+            android:title="@string/CacheFolderTitle" />
+
+        <org.ttrssreader.preferences.EditIntegerPreference
+            android:name="@string/CacheFolderMaxSizeTitle"
+            android:defaultValue="80"
+            android:inputType="number"
+            android:key="CacheFolderMaxSizePreference"
+            android:maxLength="4"
+            android:summary="@string/CacheFolderMaxSizeSummary"
+            android:title="@string/CacheFolderMaxSizeTitle" />
+        <org.ttrssreader.preferences.EditIntegerPreference
+            android:name="@string/CacheImageMaxSizeTitle"
+            android:defaultValue="6000"
+            android:inputType="number"
+            android:key="CacheImageMaxSizePreference"
+            android:maxLength="4"
+            android:summary="@string/CacheImageMaxSizeSummary"
+            android:title="@string/CacheImageMaxSizeTitle" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="DeleteDBScheduledPreference"
+            android:summary="@string/DeleteDBOnNextStartupSummary"
+            android:title="@string/DeleteDBOnNextStartupTitle" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="OnlyUseWifiPreference"
+            android:summary="@string/OnlyUseWifiSummary"
+            android:title="@string/OnlyUseWifiTitle" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
