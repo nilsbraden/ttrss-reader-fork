@@ -1461,11 +1461,11 @@ public class DBHelper {
     public void purgeLastArticles(int amountToPurge) {
         long time = System.currentTimeMillis();
         if (isDBAvailable()) {
-            String idList = "SELECT _id FROM " + TABLE_ARTICLES
+            String query = "_id IN ( SELECT _id FROM " + TABLE_ARTICLES
                     + " WHERE isPublished=0 AND isStarred=0 ORDER BY updateDate DESC LIMIT -1 OFFSET "
-                    + (Utils.ARTICLE_LIMIT - amountToPurge);
+                    + (Utils.ARTICLE_LIMIT - amountToPurge + ")");
             
-            safelyDeleteArticles("_id IN (" + idList + ")", null);
+            safelyDeleteArticles(query, null);
         }
         Log.d(Utils.TAG, "purgeLastArticles took " + (System.currentTimeMillis() - time) + "ms");
     }
@@ -2252,7 +2252,7 @@ public class DBHelper {
                     "   WHERE m.remotefileId=r.id"                ).append(
                     "     AND m.articleId=a._id"                  ).append(
                     "     AND a._id IN ("                         ).append(
-                    "       SELECT id FROM "                      ).append(
+                    "       SELECT _id FROM "                     ).append(
                               TABLE_ARTICLES                      ).append(
                     "       WHERE "                               ).append(
                               whereClause                         ).append(
@@ -2270,7 +2270,7 @@ public class DBHelper {
                     rfs.add(handleRemoteFileCursor(c));
                 }
                 Log.d(Utils.TAG, "Query in getRemoteFilesForArticles took " + (System.currentTimeMillis() - time)
-                        + "ms...");
+                        + "ms... (remotefiles: " + rfs.size() + ")");
                 
             } catch (Exception e) {
                 e.printStackTrace();
