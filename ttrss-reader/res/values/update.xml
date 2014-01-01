@@ -18,6 +18,10 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.71
+            \n * Moved lots of stuff to the background so the UI should be more responsive
+            \n * Fixed several bugs introduced with the christmas-update
+            \n * Fixed a bug that slowed down article fetching quite much</item>
         <item>Version 1.7
             \n * Completely rewrote DB-Adapters for lists, cursors are now managed by the system which should reduce the number of FCs
             \n * Added support for themes, initially there are two dark (dark and completely black) and two light (light and white) themes available
