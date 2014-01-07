@@ -3,6 +3,7 @@
 = Changes =
 == Version 1.72 ==
   * Implemented better error reporting mechanism
+  * Bugfixes
 
 == Version 1.71 ==
   * Moved lots of stuff to the background so the UI should be more responsive
