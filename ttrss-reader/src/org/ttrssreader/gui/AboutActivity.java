@@ -19,6 +19,7 @@ package org.ttrssreader.gui;
 import java.util.Date;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Intent;
@@ -30,11 +31,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class AboutActivity extends Activity {
+    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
+        mDamageReport.initialize();
         
         Window w = getWindow();
         w.requestFeature(Window.FEATURE_LEFT_ICON);
@@ -75,6 +78,13 @@ public class AboutActivity extends Activity {
                 donateButtonPressed();
             }
         });
+    }
+    
+    @Override
+    protected void onDestroy() {
+        mDamageReport.restoreOriginalHandler();
+        mDamageReport = null;
+        super.onDestroy();
     }
     
     private void closeButtonPressed() {

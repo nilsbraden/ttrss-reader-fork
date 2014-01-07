@@ -1,6 +1,9 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.72 ==
+  * Implemented better error reporting mechanism
+
 == Version 1.71 ==
   * Moved lots of stuff to the background so the UI should be more responsive
   * Fixed several bugs introduced with the christmas-update

@@ -133,6 +133,8 @@ public class Constants {
     public static final String CACHE_IMAGES_ON_STARTUP = "CacheImagesOnStartupPreference";
     public static final String CACHE_IMAGES_ONLY_WIFI = "CacheImagesOnlyWifiPreference";
     public static final String ONLY_USE_WIFI = "OnlyUseWifiPreference";
+    public static final String NO_CRASHREPORTS = "NoCrashreportsPreference";
+    public static final String NO_CRASHREPORTS_UNTIL_UPDATE = "NoCrashreportsUntilUpdatePreference";
     // System Default Values
     public static final String SAVE_ATTACHMENT_DEFAULT;
     public static final String CACHE_FOLDER_DEFAULT;
@@ -142,6 +144,8 @@ public class Constants {
     public static final boolean CACHE_IMAGES_ON_STARTUP_DEFAULT = false;
     public static final boolean CACHE_IMAGES_ONLY_WIFI_DEFAULT = false;
     public static final boolean ONLY_USE_WIFI_DEFAULT = false;
+    public static final boolean NO_CRASHREPORTS_DEFAULT = false;
+    public static final boolean NO_CRASHREPORTS_UNTIL_UPDATE_DEFAULT = false;
     
     // Internal
     public static final String API_LEVEL_UPDATED = "apiLevelUpdated";

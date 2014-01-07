@@ -138,6 +138,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean cacheImagesOnStartup = null;
     private Boolean cacheImagesOnlyWifi = null;
     private Boolean onlyUseWifi = null;
+    private Boolean noCrashreports = null;
+    private Boolean noCrashreportsUntilUpdate = null;
     
     private Long appVersionCheckTime = null;
     private Integer appLatestVersion = null;
@@ -909,6 +911,26 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setOnlyUseWifi(boolean onlyUseWifi) {
         put(Constants.ONLY_USE_WIFI, onlyUseWifi);
         this.onlyUseWifi = onlyUseWifi;
+    }
+    
+    // Returns true if noCrashreports OR noCrashreportsUntilUpdate is true.
+    public boolean isNoCrashreports() {
+        if (noCrashreports == null)
+            noCrashreports = prefs.getBoolean(Constants.NO_CRASHREPORTS, Constants.NO_CRASHREPORTS_DEFAULT);
+        if (noCrashreportsUntilUpdate == null)
+            noCrashreportsUntilUpdate = prefs.getBoolean(Constants.NO_CRASHREPORTS_UNTIL_UPDATE,
+                    Constants.NO_CRASHREPORTS_UNTIL_UPDATE_DEFAULT);
+        return noCrashreports || noCrashreportsUntilUpdate;
+    }
+    
+    public void setNoCrashreports(boolean noCrashreports) {
+        put(Constants.NO_CRASHREPORTS, noCrashreports);
+        this.noCrashreports = noCrashreports;
+    }
+    
+    public void setNoCrashreportsUntilUpdate(boolean noCrashreportsUntilUpdate) {
+        put(Constants.NO_CRASHREPORTS_UNTIL_UPDATE, noCrashreportsUntilUpdate);
+        this.noCrashreportsUntilUpdate = noCrashreportsUntilUpdate;
     }
     
     // ******* INTERNAL Data ****************************

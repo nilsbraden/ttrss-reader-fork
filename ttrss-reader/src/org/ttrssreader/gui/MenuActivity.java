@@ -30,6 +30,7 @@ import org.ttrssreader.imageCache.ForegroundService;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.Intent;
@@ -62,6 +63,7 @@ import com.actionbarsherlock.view.Window;
  */
 public abstract class MenuActivity extends SherlockFragmentActivity implements IUpdateEndListener, ICacheEndListener,
         IItemSelectedListener, IDataChangedListener {
+    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     protected final Context context = this;
     
@@ -90,6 +92,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected void onCreate(Bundle instance) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(instance);
+        mDamageReport.initialize();
+        
         activity = this;
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
@@ -227,6 +231,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     @Override
     protected void onDestroy() {
+        mDamageReport.restoreOriginalHandler();
+        mDamageReport = null;
         super.onDestroy();
         if (updater != null) {
             updater.cancel(true);
@@ -429,7 +435,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     protected void refreshAndUpdate() {
         initTabletLayout();
-        if (Utils.checkConfig()) {
+        if (Utils.checkIsConfigInvalid()) {
             doUpdate(false);
             doRefresh();
         }
