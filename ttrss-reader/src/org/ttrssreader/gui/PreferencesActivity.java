@@ -202,7 +202,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
             init = null;
         }
         
-        if (Utils.checkIsConfigInvalid()) {
+        if (!Utils.checkIsConfigInvalid()) {
             init = new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
