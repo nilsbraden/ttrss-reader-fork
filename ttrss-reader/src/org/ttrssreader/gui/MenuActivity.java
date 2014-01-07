@@ -435,7 +435,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     protected void refreshAndUpdate() {
         initTabletLayout();
-        if (Utils.checkIsConfigInvalid()) {
+        if (!Utils.checkIsConfigInvalid()) {
             doUpdate(false);
             doRefresh();
         }
