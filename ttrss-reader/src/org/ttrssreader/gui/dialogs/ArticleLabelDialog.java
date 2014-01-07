@@ -15,12 +15,15 @@
 
 package org.ttrssreader.gui.dialogs;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.LabelTitleComparator;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -41,7 +44,7 @@ public class ArticleLabelDialog extends DialogFragment {
     public static final String PARAM_ARTICLE_ID = "article_id";
     
     private int articleId;
-    private Set<Label> labels;
+    private List<Label> labels;
     
     private View view;
     private LinearLayout labelsView;
@@ -65,7 +68,13 @@ public class ArticleLabelDialog extends DialogFragment {
             articleId = savedInstanceState.getInt(PARAM_ARTICLE_ID);
         }
         
-        labels = Data.getInstance().getLabels(articleId);
+        // Put labels into list and sort by caption:
+        labels = new ArrayList<Label>();
+        for (Label label : Data.getInstance().getLabels(articleId)) {
+            labels.add(label);
+        }
+        Collections.sort(labels, LabelTitleComparator.LABELTITLE_COMPARATOR);
+        
         for (Label label : labels) {
             CheckBox checkbox = new CheckBox(getActivity());
             checkbox.setId(label.id);
