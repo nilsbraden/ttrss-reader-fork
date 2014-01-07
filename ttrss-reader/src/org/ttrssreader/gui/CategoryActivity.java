@@ -24,7 +24,6 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.dialogs.ChangelogDialog;
-import org.ttrssreader.gui.dialogs.CrashreportDialog;
 import org.ttrssreader.gui.dialogs.WelcomeDialog;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.fragments.CategoryListFragment;
@@ -54,7 +53,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     
     private static final String DIALOG_WELCOME = "welcome";
     private static final String DIALOG_UPDATE = "update";
-    private static final String DIALOG_CRASH = "crash";
     
     private static final int SELECTED_VIRTUAL_CATEGORY = 1;
     private static final int SELECTED_CATEGORY = 2;
@@ -127,13 +125,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             ft.commit();
         }
         
-        if (!Utils.checkFirstRun(this)) {
+        if (Utils.checkIsFirstRun(this)) {
             WelcomeDialog.getInstance().show(fm, DIALOG_WELCOME);
-        } else if (!Utils.checkNewVersion(this)) {
+        } else if (Utils.checkIsNewVersion(this)) {
             ChangelogDialog.getInstance().show(fm, DIALOG_UPDATE);
-        } else if (!Utils.checkCrashReport(this)) {
-            CrashreportDialog.getInstance().show(fm, DIALOG_CRASH);
-        } else if (!Utils.checkConfig()) {
+        } else if (Utils.checkIsConfigInvalid()) {
             // Check if we have a server specified
             openConnectionErrorDialog((String) getText(R.string.CategoryActivity_NoServer));
         }

@@ -13,7 +13,9 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details. You should have received a
     copy of the GNU General Public License along with this program; If
-    not, see <http://www.gnu.org/licenses/>.
+    not, see <http://www.gnu.org/licenses/>.
+
+
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/SystemPreferenceCategoryTitle" >
@@ -70,6 +72,16 @@
             android:key="OnlyUseWifiPreference"
             android:summary="@string/OnlyUseWifiSummary"
             android:title="@string/OnlyUseWifiTitle" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="NoCrashreportsPreference"
+            android:summary="@string/NoCrashreportsSummary"
+            android:title="@string/NoCrashreportsTitle" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="NoCrashreportsUntilUpdatePreference"
+            android:summary="@string/NoCrashreportsUntilUpdateSummary"
+            android:title="@string/NoCrashreportsUntilUpdateTitle" />
     </PreferenceCategory>
 
 </PreferenceScreen>

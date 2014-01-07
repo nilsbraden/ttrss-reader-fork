@@ -16,6 +16,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.imageCache.PluginReceiver;
 import org.ttrssreader.imageCache.bundle.BundleScrubber;
 import org.ttrssreader.imageCache.bundle.PluginBundleManager;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,10 +37,12 @@ import android.widget.CheckBox;
  * @see com.twofortyfouram.locale.Intent#EXTRA_BUNDLE
  */
 public final class EditPluginActivity extends AbstractPluginActivity {
+    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDamageReport.initialize();
         
         BundleScrubber.scrub(getIntent());
         
@@ -92,6 +95,13 @@ public final class EditPluginActivity extends AbstractPluginActivity {
         String imageText = (images ? "Caching images" : "Not caching images");
         String notificationText = (notification ? "Showing notification" : "Not showing notification");
         return imageText + ", " + notificationText;
+    }
+    
+    @Override
+    protected void onDestroy() {
+        mDamageReport.restoreOriginalHandler();
+        mDamageReport = null;
+        super.onDestroy();
     }
     
 }

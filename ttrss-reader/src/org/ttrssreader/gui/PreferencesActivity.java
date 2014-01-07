@@ -26,6 +26,7 @@ import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.preferences.FileBrowserHelper;
 import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.backup.BackupManager;
 import android.content.ComponentName;
@@ -47,6 +48,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 public class PreferencesActivity extends SherlockPreferenceActivity {
+    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PREFS_DISPLAY = "prefs_display";
     private static final String PREFS_HEADERS = "prefs_headers";
@@ -76,6 +78,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState); // IMPORTANT!
+        mDamageReport.initialize();
         
         context = getApplicationContext();
         activity = this;
@@ -199,7 +202,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
             init = null;
         }
         
-        if (Utils.checkConfig()) {
+        if (Utils.checkIsConfigInvalid()) {
             init = new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
@@ -213,6 +216,13 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
             new BackupManager(this).dataChanged();
             Controller.getInstance().setPreferencesChanged(false);
         }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        mDamageReport.restoreOriginalHandler();
+        mDamageReport = null;
+        super.onDestroy();
     }
     
     @Override

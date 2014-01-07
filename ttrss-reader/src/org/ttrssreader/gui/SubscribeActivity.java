@@ -25,6 +25,7 @@ import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.net.JSONConnector.SubscriptionResponse;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -42,6 +43,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 
 public class SubscribeActivity extends MenuActivity {
+    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PARAM_FEEDURL = "feed_url";
     
@@ -58,6 +60,8 @@ public class SubscribeActivity extends MenuActivity {
     public void onCreate(Bundle savedInstanceState) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
+        mDamageReport.initialize();
+
         setContentView(R.layout.feedsubscribe);
         setTitle(R.string.IntentSubscribe);
         ProgressBarManager.getInstance().addProgress(activity);
@@ -118,6 +122,13 @@ public class SubscribeActivity extends MenuActivity {
         super.onSaveInstanceState(out);
         EditText url = (EditText) findViewById(R.id.subscribe_url);
         out.putString(PARAM_FEEDURL, url.getText().toString());
+    }
+    
+    @Override
+    protected void onDestroy() {
+        mDamageReport.restoreOriginalHandler();
+        mDamageReport = null;
+        super.onDestroy();
     }
     
     public class MyPublisherTask extends AsyncTask<Void, Integer, Void> {

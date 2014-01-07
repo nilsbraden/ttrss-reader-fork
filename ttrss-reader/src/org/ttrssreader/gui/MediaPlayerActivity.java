@@ -17,6 +17,7 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -25,6 +26,7 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 public class MediaPlayerActivity extends Activity {
+    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     public static final String URL = "media_url";
     
@@ -35,6 +37,7 @@ public class MediaPlayerActivity extends Activity {
     protected void onCreate(Bundle instance) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(instance);
+        mDamageReport.initialize();
         
         setContentView(R.layout.media);
         
@@ -72,6 +75,8 @@ public class MediaPlayerActivity extends Activity {
     
     @Override
     protected void onDestroy() {
+        mDamageReport.restoreOriginalHandler();
+        mDamageReport = null;
         super.onDestroy();
         if (mp != null)
             mp.release();

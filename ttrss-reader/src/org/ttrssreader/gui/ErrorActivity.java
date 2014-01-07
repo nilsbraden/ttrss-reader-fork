@@ -15,6 +15,7 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class ErrorActivity extends Activity {
+    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     public static final int ACTIVITY_SHOW_ERROR = 42;
     public static final int ACTIVITY_EXIT = 40;
@@ -34,6 +36,7 @@ public class ErrorActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
+        mDamageReport.initialize();
         
         setContentView(R.layout.error);
         
@@ -68,6 +71,13 @@ public class ErrorActivity extends Activity {
                 closeButtonPressed();
             }
         });
+    }
+    
+    @Override
+    protected void onDestroy() {
+        mDamageReport.restoreOriginalHandler();
+        mDamageReport = null;
+        super.onDestroy();
     }
     
     private void exitButtonPressed() {

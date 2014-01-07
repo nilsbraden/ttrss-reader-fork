@@ -16,7 +16,6 @@
 
 package org.ttrssreader.utils;
 
-import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
@@ -37,7 +36,6 @@ import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -102,14 +100,16 @@ public class Utils {
     /*
      * Check if this is the first run of the app, if yes, returns false.
      */
-    public static boolean checkFirstRun(Context a) {
-        return !(Controller.getInstance().newInstallation());
+    public static boolean checkIsFirstRun(Context a) {
+        return Controller.getInstance().newInstallation();
     }
     
     /*
-     * Check if a new version of the app was installed, returns false if this is the case.
+     * Check if a new version of the app was installed, returns true if this is the case. This also triggers the reset
+     * of the preference noCrashreportsUntilUpdate since with a new update the crash reporting should now be enabled
+     * again.
      */
-    public static boolean checkNewVersion(Context c) {
+    public static boolean checkIsNewVersion(Context c) {
         String thisVersion = getAppVersionName(c);
         String lastVersionRun = Controller.getInstance().getLastVersionRun();
         Controller.getInstance().setLastVersionRun(thisVersion);
@@ -118,49 +118,31 @@ public class Utils {
             // No new version installed, perhaps a new version exists
             // Only run task once for every session and only if we are online
             if (!checkConnected((ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE)))
-                return true;
+                return false;
             if (AsyncTask.Status.PENDING.equals(updateVersionTask.getStatus()))
                 updateVersionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            return true;
+            return false;
         } else {
-            return false;
-        }
-    }
-    
-    /*
-     * Check if crashreport-file exists, returns false if it exists.
-     */
-    public static boolean checkCrashReport(Context c) {
-        // Ignore crashreport if this version isn't the newest from market
-        int latest = Controller.getInstance().appLatestVersion();
-        int current = getAppVersionCode(c);
-        if (latest > current)
-            return true; // Ignore!
-            
-        if ((c.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0)
-            return true; // Debug-Mode, ignore
-            
-        try {
-            c.openFileInput(TopExceptionHandler.FILE);
-            return false;
-        } catch (FileNotFoundException e) {
+            // New update was installed, reset noCrashreportsUntilUpdate and return true to display the changelog...
+            Controller.getInstance().setNoCrashreportsUntilUpdate(false);
             return true;
         }
     }
     
     /*
-     * Checks the config for a user-defined server, returns true if a server has been defined
+     * Checks the config for a user-defined server, returns true if the config is invalid and the user has not yet
+     * entered a valid server adress.
      */
-    public static boolean checkConfig() {
+    public static boolean checkIsConfigInvalid() {
         try {
             URI uri = Controller.getInstance().uri();
             if (uri == null || uri.toASCIIString().equals(Constants.URL_DEFAULT + Controller.JSON_END_URL)) {
-                return false;
+                return true;
             }
         } catch (URISyntaxException e) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
     
     /**

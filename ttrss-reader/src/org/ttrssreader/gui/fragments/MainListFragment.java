@@ -165,10 +165,8 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
                 }
             }
         }
-        if (listView != null) {
-            // Nothing found, uncheck everything:
-            listView.setItemChecked(listView.getCheckedItemPosition(), false);
-        }
+        // Nothing found, uncheck everything:
+        listView.setItemChecked(listView.getCheckedItemPosition(), false);
     }
     
     public void doRefresh() {

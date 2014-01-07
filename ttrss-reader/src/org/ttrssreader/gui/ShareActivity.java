@@ -20,6 +20,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Build;
@@ -30,6 +31,7 @@ import android.widget.EditText;
 import com.actionbarsherlock.view.Menu;
 
 public class ShareActivity extends MenuActivity {
+    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PARAM_TITLE = "title";
     private static final String PARAM_URL = "url";
@@ -46,6 +48,8 @@ public class ShareActivity extends MenuActivity {
     public void onCreate(Bundle savedInstanceState) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
+        mDamageReport.initialize();
+        
         setContentView(R.layout.sharetopublished);
         setTitle(R.string.IntentPublish);
         
@@ -93,6 +97,13 @@ public class ShareActivity extends MenuActivity {
         out.putString(PARAM_TITLE, title.getText().toString());
         out.putString(PARAM_URL, url.getText().toString());
         out.putString(PARAM_CONTENT, content.getText().toString());
+    }
+    
+    @Override
+    protected void onDestroy() {
+        mDamageReport.restoreOriginalHandler();
+        mDamageReport = null;
+        super.onDestroy();
     }
     
     public class MyPublisherTask extends AsyncTask<Void, Integer, Void> {
