@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 
 public abstract class MainAdapter extends SimpleCursorAdapter {
     
-    private static final int layout = R.layout.categorylist;
+    private static final int layout = R.layout.main;
     
     protected Context context;
     

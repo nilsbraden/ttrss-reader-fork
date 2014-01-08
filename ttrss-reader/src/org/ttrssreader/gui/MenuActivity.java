@@ -74,8 +74,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected static int maxListSize;
     
     private View divider = null;
-    private View primaryFrame = null;
-    private View secondaryFrame = null;
+    private View frameMain = null;
     private TextView header_title;
     private TextView header_unread;
     
@@ -104,8 +103,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void initTabletLayout() {
-        primaryFrame = findViewById(R.id.frame_main);
-        secondaryFrame = findViewById(R.id.frame_sub);
+        frameMain = findViewById(R.id.frame_main);
         divider = findViewById(R.id.list_divider);
         
         // Initialize values for layout changes:
@@ -120,25 +118,13 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             size = Controller.displayHeight - actionBarHeight;
         }
         
-        minListSize = (int) (size * 0.15);
-        maxListSize = size - (int) (size * 0.15);
+        minListSize = (int) (size * 0.1);
+        maxListSize = size - (int) (size * 0.1);
         
         if (Controller.getInstance().allowTabletLayout()) {
-            if (secondaryFrame != null) {
-                Controller.isTablet = true;
-                divider.setVisibility(View.VISIBLE);
-            } else {
-                Controller.isTablet = false;
-            }
+            Controller.isTablet = divider != null;
         } else {
-            // Tablet-layout is deactivated, hide second view and divider:
             Controller.isTablet = false;
-            if (secondaryFrame != null)
-                secondaryFrame.setVisibility(View.GONE);
-            if (divider != null)
-                divider.setVisibility(View.GONE);
-            if (primaryFrame != null)
-                primaryFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         }
         
         if (Controller.isTablet) {
@@ -146,11 +132,12 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             int newSize = Controller.getInstance().getViewSize(this, isVertical);
             if (newSize >= minListSize && newSize <= maxListSize) {
                 if (isVertical)
-                    primaryFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, newSize));
+                    frameMain.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, newSize));
                 else
-                    primaryFrame.setLayoutParams(new LayoutParams(newSize, LayoutParams.MATCH_PARENT));
+                    frameMain.setLayoutParams(new LayoutParams(newSize, LayoutParams.MATCH_PARENT));
                 getWindow().getDecorView().getRootView().invalidate();
             }
+            divider.setVisibility(View.VISIBLE);
         }
     }
     
@@ -568,11 +555,11 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     private void handleResize() {
         if (isVertical) {
-            final int size = calculateSize((int) (primaryFrame.getHeight() + mDeltaY));
-            primaryFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, size));
+            final int size = calculateSize((int) (frameMain.getHeight() + mDeltaY));
+            frameMain.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, size));
         } else {
-            final int size = calculateSize((int) (primaryFrame.getWidth() + mDeltaX));
-            primaryFrame.setLayoutParams(new LayoutParams(size, LayoutParams.MATCH_PARENT));
+            final int size = calculateSize((int) (frameMain.getWidth() + mDeltaX));
+            frameMain.setLayoutParams(new LayoutParams(size, LayoutParams.MATCH_PARENT));
         }
         
         getWindow().getDecorView().getRootView().invalidate();
@@ -588,7 +575,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     private void storeSize() {
-        int size = isVertical ? primaryFrame.getHeight() : primaryFrame.getWidth();
+        int size = isVertical ? frameMain.getHeight() : frameMain.getWidth();
         Controller.getInstance().setViewSize(this, isVertical, size);
     }
     

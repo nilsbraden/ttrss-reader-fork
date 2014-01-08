@@ -103,7 +103,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;
         if (convertView == null) {
-            layout = (LinearLayout) inflater.inflate(R.layout.feedheadlineitem, null);
+            layout = (LinearLayout) inflater.inflate(R.layout.item_feedheadline, null);
         } else {
             if (convertView instanceof LinearLayout) {
                 layout = (LinearLayout) convertView;

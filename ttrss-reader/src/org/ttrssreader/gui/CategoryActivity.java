@@ -41,7 +41,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -76,7 +75,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         // .detectLeakedClosableObjects().penaltyLog().build());
         
         super.onCreate(instance);
-        setContentView(R.layout.categorylist);
+        setContentView(R.layout.main);
         super.initTabletLayout();
         
         Bundle extras = getIntent().getExtras();
@@ -90,24 +89,23 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         categoryFragment = (CategoryListFragment) fm.findFragmentByTag(CategoryListFragment.FRAGMENT);
         feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
         
-        Fragment oldFeedFragment = feedFragment;
-        
+        // Fragment oldFeedFragment = feedFragment;
         // Handle orientation changes here, especially the case when the user switches from 2-pane-landscape to protrait
         // mode and hasn't enough space to display two panels. Also see
         // http://www.androiddesignpatterns.com/2013/08/fragment-transaction-commit-state-loss.html for explanations of
         // when onRestoreInstanceState is called and why FragmentTransaction.commit() can crash if called within
         // onStart().
-        if (feedFragment != null && !Controller.isTablet) {
-            feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
-            // No Tablet mode but Feeds have been loaded, we have just one pane: R.id.frame_main
-            
-            removeOldFragment(fm, oldFeedFragment); // See http://stackoverflow.com/a/13395157
-            
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.frame_main, feedFragment, FeedListFragment.FRAGMENT);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-        }
+        // if (feedFragment != null && !Controller.isTablet) {
+        // feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
+        // // No Tablet mode but Feeds have been loaded, we have just one pane: R.id.frame_main
+        //
+        // removeOldFragment(fm, oldFeedFragment); // See http://stackoverflow.com/a/13395157
+        //
+        // FragmentTransaction ft = fm.beginTransaction();
+        // ft.replace(R.id.frame_main, feedFragment, FeedListFragment.FRAGMENT);
+        // ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        // ft.commit();
+        // }
         
         if (categoryFragment == null) {
             categoryFragment = CategoryListFragment.newInstance();
@@ -115,11 +113,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
             
-            if (feedFragment != null && Controller.isTablet && selectedCategoryId != Integer.MIN_VALUE) {
-                feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
-                removeOldFragment(fm, oldFeedFragment);
-                ft.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
-            }
+            // if (feedFragment != null && Controller.isTablet && selectedCategoryId != Integer.MIN_VALUE) {
+            // feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
+            // removeOldFragment(fm, oldFeedFragment);
+            // ft.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
+            // }
             
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
@@ -357,19 +355,37 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     }
     
     public void displayFeed(int categoryId) {
+        hideFeedFragment();
+        
         selectedCategoryId = categoryId;
+        feedFragment = FeedListFragment.newInstance(categoryId);
+        
+        // Clear back stack
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        int targetLayout = R.id.frame_sub;
-        if (!Controller.isTablet) {
-            targetLayout = R.id.frame_main;
-            ft.addToBackStack(null);
-        }
+        ft.replace(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
         
-        feedFragment = FeedListFragment.newInstance(categoryId);
-        ft.replace(targetLayout, feedFragment, FeedListFragment.FRAGMENT);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        // Animation
+        if (Controller.isTablet)
+            ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out, android.R.anim.fade_in,
+                    R.anim.slide_out_left);
+        else
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        
+        ft.addToBackStack(null);
         ft.commit();
+    }
+    
+    public void hideFeedFragment() {
+        if (feedFragment == null)
+            return;
+        
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.remove(feedFragment);
+        ft.commit();
+        
+        feedFragment = null;
     }
     
     private static int decideCategorySelection(int selectedId) {
@@ -384,15 +400,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     
     @Override
     public void onBackPressed() {
-        if (!Controller.isTablet) {
-            FragmentManager fm = getSupportFragmentManager();
-            feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
-            if (feedFragment != null)
-                fm.beginTransaction().remove(feedFragment).commit();
-        }
-        
         selectedCategoryId = Integer.MIN_VALUE;
-        feedFragment = null;
         super.onBackPressed();
     }
     
