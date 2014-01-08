@@ -396,6 +396,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
             else
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             
+            if (!Controller.isTablet)
+                ft.addToBackStack(null);
+            
             ft.commit();
         } else {
             // Reuse existing ArticleFragment
