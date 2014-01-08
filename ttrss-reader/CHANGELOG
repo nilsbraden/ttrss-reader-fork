@@ -3,6 +3,7 @@
 = Changes =
 == Version 1.72 ==
   * Implemented better error reporting mechanism
+  * Modified tablet layout, reduced complexity of code
   * Bugfixes
 
 == Version 1.71 ==
