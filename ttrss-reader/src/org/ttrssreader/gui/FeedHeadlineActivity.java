@@ -62,7 +62,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
-        setContentView(R.layout.categorylist);
+        setContentView(R.layout.main);
         super.initTabletLayout();
         
         Bundle extras = getIntent().getExtras();
@@ -82,33 +82,12 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
         articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
         
-        Fragment oldArticleFragment = articleFragment;
-        
-        if (articleFragment != null && !Controller.isTablet) {
-            articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
-            // No Tablet mode but Article has been loaded, we have just one pane: R.id.frame_main
-            
-            removeOldFragment(fm, oldArticleFragment);
-            
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.frame_main, articleFragment, ArticleFragment.FRAGMENT);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
-        }
-        
         if (headlineFragment == null) {
             headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     selectedArticleId);
             
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
-            
-            if (articleFragment != null && Controller.isTablet && selectedArticleId != Integer.MIN_VALUE) {
-                articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
-                removeOldFragment(fm, oldArticleFragment);
-                ft.add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
-            }
-            
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
         }
@@ -395,27 +374,45 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     private void displayArticle(int articleId) {
+        hideArticleFragment();
+        
         selectedArticleId = articleId;
         headlineFragment.setSelectedId(selectedArticleId);
         
+        // Clear back stack
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        
         if (articleFragment == null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            int targetLayout = R.id.frame_sub;
-            if (!Controller.isTablet) {
-                targetLayout = R.id.frame_main;
-                ft.addToBackStack(null);
-            }
-            
             articleFragment = ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
                     selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT);
-            ft.replace(targetLayout, articleFragment, ArticleFragment.FRAGMENT);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
+            
+            // Animation
+            if (Controller.isTablet)
+                ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out, android.R.anim.fade_in,
+                        R.anim.slide_out_left);
+            else
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+            
             ft.commit();
         } else {
             // Reuse existing ArticleFragment
             articleFragment.openArticle(articleId, headlineFragment.getFeedId(), categoryId, selectArticlesForCategory,
                     ArticleFragment.ARTICLE_MOVE_DEFAULT);
         }
+    }
+    
+    public void hideArticleFragment() {
+        if (articleFragment == null)
+            return;
+        
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.remove(articleFragment);
+        ft.commit();
+        
+        articleFragment = null;
     }
     
     @Override
@@ -425,15 +422,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     
     @Override
     public void onBackPressed() {
-        if (!Controller.isTablet) {
-            FragmentManager fm = getSupportFragmentManager();
-            articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
-            if (articleFragment != null)
-                fm.beginTransaction().remove(articleFragment).commit();
-        }
-        
         selectedArticleId = Integer.MIN_VALUE;
-        articleFragment = null;
         super.onBackPressed();
     }
     

@@ -21,7 +21,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <color name="pressed_dark">#CCEE8813</color>
-    <color name="background_dark">#222222</color>
-    <color name="font_color_dark">#EEEEEE</color>
+    <color name="background_dark">#FF222222</color>
+    <color name="font_color_dark">#FFEEEEEE</color>
 
 </resources>

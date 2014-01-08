@@ -69,7 +69,7 @@ public class FeedAdapter extends MainAdapter {
         final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = null;
         if (convertView == null) {
-            layout = (LinearLayout) inflater.inflate(R.layout.feeditem, null);
+            layout = (LinearLayout) inflater.inflate(R.layout.item_feed, null);
         } else {
             if (convertView instanceof LinearLayout) {
                 layout = (LinearLayout) convertView;

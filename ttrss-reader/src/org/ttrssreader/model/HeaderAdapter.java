@@ -94,7 +94,7 @@ public class HeaderAdapter extends ArrayAdapter<Header> {
                 
                 case HEADER_TYPE_NORMAL:
                     
-                    view = mInflater.inflate(R.layout.preferenceheaderitem, parent, false);
+                    view = mInflater.inflate(R.layout.item_preferenceheader, parent, false);
                     holder.icon = (ImageView) view.findViewById(R.id.ph_icon);
                     holder.title = (TextView) view.findViewById(R.id.ph_title);
                     holder.summary = (TextView) view.findViewById(R.id.ph_summary);
