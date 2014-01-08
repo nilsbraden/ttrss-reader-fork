@@ -99,12 +99,12 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         // onStart().
         if (feedFragment != null && !Controller.isTablet) {
             feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
-            // No Tablet mode but Feeds have been loaded, we have just one pane: R.id.frame_left
+            // No Tablet mode but Feeds have been loaded, we have just one pane: R.id.frame_main
             
             removeOldFragment(fm, oldFeedFragment); // See http://stackoverflow.com/a/13395157
             
             FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.frame_left, feedFragment, FeedListFragment.FRAGMENT);
+            ft.replace(R.id.frame_main, feedFragment, FeedListFragment.FRAGMENT);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
         }
@@ -113,12 +113,12 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             categoryFragment = CategoryListFragment.newInstance();
             
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(R.id.frame_left, categoryFragment, CategoryListFragment.FRAGMENT);
+            ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
             
             if (feedFragment != null && Controller.isTablet && selectedCategoryId != Integer.MIN_VALUE) {
                 feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
                 removeOldFragment(fm, oldFeedFragment);
-                ft.add(R.id.frame_right, feedFragment, FeedListFragment.FRAGMENT);
+                ft.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
             }
             
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -360,9 +360,9 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         selectedCategoryId = categoryId;
         
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        int targetLayout = R.id.frame_right;
+        int targetLayout = R.id.frame_sub;
         if (!Controller.isTablet) {
-            targetLayout = R.id.frame_left;
+            targetLayout = R.id.frame_main;
             ft.addToBackStack(null);
         }
         

@@ -86,12 +86,12 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         
         if (articleFragment != null && !Controller.isTablet) {
             articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
-            // No Tablet mode but Article has been loaded, we have just one pane: R.id.frame_left
+            // No Tablet mode but Article has been loaded, we have just one pane: R.id.frame_main
             
             removeOldFragment(fm, oldArticleFragment);
             
             FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.frame_left, articleFragment, ArticleFragment.FRAGMENT);
+            ft.replace(R.id.frame_main, articleFragment, ArticleFragment.FRAGMENT);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
         }
@@ -101,12 +101,12 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
                     selectedArticleId);
             
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.add(R.id.frame_left, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
+            ft.add(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
             
             if (articleFragment != null && Controller.isTablet && selectedArticleId != Integer.MIN_VALUE) {
                 articleFragment = (ArticleFragment) MainListFragment.recreateFragment(fm, articleFragment);
                 removeOldFragment(fm, oldArticleFragment);
-                ft.add(R.id.frame_right, articleFragment, ArticleFragment.FRAGMENT);
+                ft.add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
             }
             
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -400,9 +400,9 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         
         if (articleFragment == null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            int targetLayout = R.id.frame_right;
+            int targetLayout = R.id.frame_sub;
             if (!Controller.isTablet) {
-                targetLayout = R.id.frame_left;
+                targetLayout = R.id.frame_main;
                 ft.addToBackStack(null);
             }
             
