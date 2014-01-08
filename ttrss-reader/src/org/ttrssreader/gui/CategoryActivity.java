@@ -89,36 +89,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         categoryFragment = (CategoryListFragment) fm.findFragmentByTag(CategoryListFragment.FRAGMENT);
         feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
         
-        // Fragment oldFeedFragment = feedFragment;
-        // Handle orientation changes here, especially the case when the user switches from 2-pane-landscape to protrait
-        // mode and hasn't enough space to display two panels. Also see
-        // http://www.androiddesignpatterns.com/2013/08/fragment-transaction-commit-state-loss.html for explanations of
-        // when onRestoreInstanceState is called and why FragmentTransaction.commit() can crash if called within
-        // onStart().
-        // if (feedFragment != null && !Controller.isTablet) {
-        // feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
-        // // No Tablet mode but Feeds have been loaded, we have just one pane: R.id.frame_main
-        //
-        // removeOldFragment(fm, oldFeedFragment); // See http://stackoverflow.com/a/13395157
-        //
-        // FragmentTransaction ft = fm.beginTransaction();
-        // ft.replace(R.id.frame_main, feedFragment, FeedListFragment.FRAGMENT);
-        // ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        // ft.commit();
-        // }
-        
         if (categoryFragment == null) {
             categoryFragment = CategoryListFragment.newInstance();
             
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
-            
-            // if (feedFragment != null && Controller.isTablet && selectedCategoryId != Integer.MIN_VALUE) {
-            // feedFragment = (FeedListFragment) MainListFragment.recreateFragment(fm, feedFragment);
-            // removeOldFragment(fm, oldFeedFragment);
-            // ft.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
-            // }
-            
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
         }
@@ -373,7 +348,8 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         else
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         
-        ft.addToBackStack(null);
+        if (!Controller.isTablet)
+            ft.addToBackStack(null);
         ft.commit();
     }
     
