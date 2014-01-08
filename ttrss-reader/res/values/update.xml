@@ -18,6 +18,10 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.72
+            \n * Implemented better error reporting mechanism
+            \n * Modified tablet layout, reduced complexity of code
+            \n * Bugfixes</item>
         <item>Version 1.71
             \n * Moved lots of stuff to the background so the UI should be more responsive
             \n * Fixed several bugs introduced with the christmas-update
