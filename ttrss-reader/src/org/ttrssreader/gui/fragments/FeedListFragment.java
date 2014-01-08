@@ -28,9 +28,7 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.app.Activity;
-import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
@@ -74,21 +72,8 @@ public class FeedListFragment extends MainListFragment {
     @Override
     public void onActivityCreated(Bundle instance) {
         adapter = new FeedAdapter(getActivity());
-        setListAdapter(adapter);
-        getLoaderManager().initLoader(TYPE_FEED_ID, null, this);
+        getLoaderManager().restartLoader(TYPE_FEED_ID, null, this);
         super.onActivityCreated(instance);
-    }
-    
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        
-        int[] attrs = new int[] { android.R.attr.windowBackground };
-        TypedArray ta = getActivity().obtainStyledAttributes(attrs);
-        Drawable drawableFromTheme = ta.getDrawable(0);
-        ta.recycle();
-        
-        view.setBackground(drawableFromTheme);
     }
     
     @Override

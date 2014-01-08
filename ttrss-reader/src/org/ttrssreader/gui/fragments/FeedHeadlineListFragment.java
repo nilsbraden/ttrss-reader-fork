@@ -40,9 +40,7 @@ import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
@@ -113,8 +111,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     @Override
     public void onActivityCreated(Bundle instance) {
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-        setListAdapter(adapter);
-        getLoaderManager().initLoader(TYPE_HEADLINE_ID, null, this);
+        getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
         
         super.onActivityCreated(instance);
         
@@ -130,19 +127,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         getView().setOnTouchListener(gestureListener);
         
         parentAdapter = new FeedAdapter(getActivity());
-        getLoaderManager().initLoader(TYPE_FEED_ID, null, this);
-    }
-    
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        
-        int[] attrs = new int[] { android.R.attr.windowBackground };
-        TypedArray ta = getActivity().obtainStyledAttributes(attrs);
-        Drawable drawableFromTheme = ta.getDrawable(0);
-        ta.recycle();
-        
-        view.setBackground(drawableFromTheme);
+        getLoaderManager().restartLoader(TYPE_FEED_ID, null, this);
     }
     
     @Override

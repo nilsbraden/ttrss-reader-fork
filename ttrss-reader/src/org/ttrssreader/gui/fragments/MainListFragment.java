@@ -25,8 +25,10 @@ import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -53,12 +55,9 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     protected static final int SELECTED_ID_DEFAULT = Integer.MIN_VALUE;
     
     private int selectedId = SELECTED_ID_DEFAULT;
-    
-    protected MainAdapter adapter = null;
-    
-    private ListView listView;
     private int scrollPosition;
     
+    protected MainAdapter adapter = null;
     protected GestureDetector gestureDetector;
     protected View.OnTouchListener gestureListener;
     
@@ -74,12 +73,33 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     }
     
     @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        int[] attrs = new int[] { android.R.attr.windowBackground };
+        TypedArray ta = getActivity().obtainStyledAttributes(attrs);
+        Drawable drawableFromTheme = ta.getDrawable(0);
+        ta.recycle();
+        
+        view.setBackground(drawableFromTheme);
+        
+        super.onViewCreated(view, savedInstanceState);
+    }
+    
+    @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
         
-        listView = getListView();
-        listView.setSelector(R.drawable.list_item_background);
-        registerForContextMenu(listView);
+        setListAdapter(adapter);
+        
+        adapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                setChecked(selectedId);
+                super.onChanged();
+            }
+        });
+        
+        getListView().setSelector(R.drawable.list_item_background);
+        registerForContextMenu(getListView());
         
         ActionBar actionBar = ((SherlockFragmentActivity) getActivity()).getSupportActionBar();
         
@@ -90,24 +110,15 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
                 return gestureDetector.onTouchEvent(event);
             }
         };
-        listView.setOnTouchListener(gestureListener);
+        getListView().setOnTouchListener(gestureListener);
         
         // Read the selected list item after orientation changes and similar
-        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         if (instance != null) {
             int selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);
             selectedId = adapter.getId(selectedIndex);
-            
             setChecked(selectedId);
         }
-        
-        adapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                setChecked(selectedId);
-                super.onChanged();
-            }
-        });
     }
     
     @Override
@@ -119,25 +130,20 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     @Override
     public void onStop() {
         super.onStop();
-        listView.setVisibility(View.GONE);
-    }
-    
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+        getListView().setVisibility(View.GONE);
     }
     
     @Override
     public void onResume() {
+        getListView().setVisibility(View.VISIBLE);
+        getListView().setSelectionFromTop(scrollPosition, 0);
         super.onResume();
-        listView.setVisibility(View.VISIBLE);
-        listView.setSelectionFromTop(scrollPosition, 0);
     }
     
     @Override
     public void onPause() {
         super.onPause();
-        scrollPosition = listView.getFirstVisiblePosition();
+        scrollPosition = getListView().getFirstVisiblePosition();
     }
     
     @Override
@@ -159,15 +165,15 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
             for (int item : adapter.getIds()) {
                 pos++;
                 if (item == id) {
-                    listView.setItemChecked(pos, true);
-                    listView.smoothScrollToPosition(pos);
+                    getListView().setItemChecked(pos, true);
+                    getListView().smoothScrollToPosition(pos);
                     return;
                 }
             }
         }
-        if (listView != null) {
+        if (getListView() != null) {
             // Nothing found, uncheck everything:
-            listView.setItemChecked(listView.getCheckedItemPosition(), false);
+            getListView().setItemChecked(getListView().getCheckedItemPosition(), false);
         }
     }
     
