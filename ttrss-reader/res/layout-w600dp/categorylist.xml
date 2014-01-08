@@ -23,7 +23,7 @@
     android:orientation="vertical" >
 
     <FrameLayout
-        android:id="@+id/frame_left"
+        android:id="@+id/frame_main"
         android:layout_width="match_parent"
         android:layout_height="0px"
         android:layout_weight="1" />
@@ -37,7 +37,7 @@
         tools:ignore="PxUsage" />
 
     <FrameLayout
-        android:id="@+id/frame_right"
+        android:id="@+id/frame_sub"
         android:layout_width="match_parent"
         android:layout_height="0px"
         android:layout_weight="1" />

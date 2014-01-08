@@ -104,8 +104,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void initTabletLayout() {
-        primaryFrame = findViewById(R.id.frame_left);
-        secondaryFrame = findViewById(R.id.frame_right);
+        primaryFrame = findViewById(R.id.frame_main);
+        secondaryFrame = findViewById(R.id.frame_sub);
         divider = findViewById(R.id.list_divider);
         
         // Initialize values for layout changes:
