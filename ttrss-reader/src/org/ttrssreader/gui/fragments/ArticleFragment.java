@@ -184,7 +184,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         articleJSInterface = new ArticleJSInterface(getSherlockActivity());
         
         parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-        getLoaderManager().initLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
+        getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
         
         initData();
         initUI();
