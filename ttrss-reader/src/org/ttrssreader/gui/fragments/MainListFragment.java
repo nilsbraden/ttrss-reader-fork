@@ -29,6 +29,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -72,6 +73,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
         updateTitleAndUnread();
     }
     
+    @SuppressWarnings("deprecation")
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         int[] attrs = new int[] { android.R.attr.windowBackground };
@@ -79,7 +81,10 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
         Drawable drawableFromTheme = ta.getDrawable(0);
         ta.recycle();
         
-        view.setBackground(drawableFromTheme);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+            view.setBackgroundDrawable(drawableFromTheme);
+        else
+            view.setBackground(drawableFromTheme);
         
         super.onViewCreated(view, savedInstanceState);
     }
