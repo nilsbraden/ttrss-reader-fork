@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.72 ==
+== Version 1.72 (1) ==
   * Implemented better error reporting mechanism
   * Modified tablet layout, reduced complexity of code
   * Bugfixes
