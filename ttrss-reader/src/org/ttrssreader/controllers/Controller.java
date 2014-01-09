@@ -765,8 +765,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public void setTheme(int theme) {
-        put(Constants.THEME, theme + "");
         this.theme = theme;
+        put(Constants.THEME, theme + "");
     }
     
     public int getThemeBackground() {
