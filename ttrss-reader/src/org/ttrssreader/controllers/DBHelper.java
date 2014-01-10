@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
@@ -40,7 +39,6 @@ import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -65,7 +63,7 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 58;
+    public static final int DATABASE_VERSION = 59;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -113,7 +111,8 @@ public class DBHelper {
         + " isStarred INTEGER,"
         + " isPublished INTEGER,"
         + " cachedImages INTEGER DEFAULT 0,"
-        + " articleLabels TEXT)";
+        + " articleLabels TEXT,"
+        + " author TEXT)";
     
     private static final String CREATE_TABLE_ARTICLES2LABELS =
         "CREATE TABLE "
@@ -147,8 +146,8 @@ public class DBHelper {
     private static final String INSERT_ARTICLE =
         "INSERT OR REPLACE INTO "
         + TABLE_ARTICLES
-        + " (_id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages, articleLabels)"
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE _id=?), NULL), ?)";
+        + " (_id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content, attachments, isStarred, isPublished, cachedImages, articleLabels, author)"
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES + " WHERE _id=?), NULL), ?, ?)";
     // This should insert new values or replace existing values but should always keep an already inserted value for "cachedImages".
     // When inserting it is set to the default value which is 0 (not "NULL").
 
@@ -586,6 +585,18 @@ public class DBHelper {
                 }
             }
             
+            if (oldVersion < 59) {
+                // @formatter:off
+                String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN author TEXT";
+                // @formatter:on
+                
+                Log.i(Utils.TAG, String.format("Upgrading database from %s to 59.", oldVersion));
+                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                
+                db.execSQL(sql);
+                didUpgrade = true;
+            }
+            
             if (didUpgrade == false) {
                 Log.i(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
@@ -834,6 +845,8 @@ public class DBHelper {
             a.attachments = new LinkedHashSet<String>();
         if (a.labels == null)
             a.labels = new LinkedHashSet<Label>();
+        if (a.author == null)
+            a.author = "";
         
         // articleLabels
         long retId = -1;
@@ -851,6 +864,7 @@ public class DBHelper {
             insertArticle.bindLong(11, (a.isPublished ? 1 : 0));
             insertArticle.bindLong(12, a.id); // ID again for the where-clause
             insertArticle.bindString(13, Utils.separateItems(a.labels, "---"));
+            insertArticle.bindString(14, a.author);
             
             if (!isDBAvailable())
                 return;
@@ -879,87 +893,6 @@ public class DBHelper {
         } finally {
             db.endTransaction();
         }
-    }
-    
-    public static Object[] prepareArticleArray(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl, Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished, int label, Set<Label> labels) {
-        Object[] ret = new Object[12];
-        
-        ret[0] = id;
-        ret[1] = feedId;
-        ret[2] = (title == null ? "" : title);
-        ret[3] = (isUnread ? 1 : 0);
-        ret[4] = (articleUrl == null ? "" : articleUrl);
-        ret[5] = (articleCommentUrl == null ? "" : articleCommentUrl);
-        ret[6] = updateDate.getTime();
-        ret[7] = (content == null ? "" : content);
-        ret[8] = Utils.separateItems(attachments, ";");
-        ret[9] = (isStarred ? 1 : 0);
-        ret[10] = (isPublished ? 1 : 0);
-        ret[11] = labels;
-        
-        return ret;
-    }
-    
-    /**
-     * New method of inserting many articles into the DB at once. Doesn't seem to run faster then the old way so i'll
-     * just leave this code here for future reference and ignore it until it proves to be useful.
-     * 
-     * @param input
-     *            Object-Array with the fields of an article-object.
-     */
-    public void bulkInsertArticles(List<Object[]> input) {
-        if (input == null || input.isEmpty())
-            return;
-        
-        StringBuilder stmt = new StringBuilder();
-        stmt.append("INSERT OR REPLACE INTO " + TABLE_ARTICLES);
-        
-        Object[] entry = input.get(0);
-        stmt.append(" SELECT ");
-        
-        stmt.append(entry[0] + " AS _id, ");
-        stmt.append(entry[1] + " AS feedId, ");
-        stmt.append(DatabaseUtils.sqlEscapeString(entry[2] + "") + " AS title, ");
-        stmt.append(entry[3] + " AS isUnread, ");
-        stmt.append("'" + entry[4] + "' AS articleUrl, ");
-        stmt.append("'" + entry[5] + "' AS articleCommentUrl, ");
-        stmt.append(entry[6] + " AS updateDate, ");
-        stmt.append(DatabaseUtils.sqlEscapeString(entry[7] + "") + " AS content, ");
-        stmt.append("'" + entry[8] + "' AS attachments, ");
-        stmt.append(entry[9] + " AS isStarred, ");
-        stmt.append(entry[10] + " AS isPublished, ");
-        stmt.append("coalesce((SELECT cachedImages FROM articles WHERE _id=" + entry[0] + "), 0) AS cachedImages UNION");
-        
-        for (int i = 1; i < input.size(); i++) {
-            entry = input.get(i);
-            
-            stmt.append(" SELECT ");
-            for (int j = 0; j < entry.length; j++) {
-                
-                if (j == 2 || j == 7) {
-                    // Escape and enquote Content and Title, they can contain quotes
-                    stmt.append(DatabaseUtils.sqlEscapeString(entry[j] + ""));
-                } else if (j == 4 || j == 5 || j == 8) {
-                    // Just enquote Text-Fields
-                    stmt.append("'" + entry[j] + "'");
-                } else {
-                    // Leave numbers..
-                    stmt.append(entry[j]);
-                }
-                
-                if (j < (entry.length - 1))
-                    stmt.append(", ");
-                if (j == (entry.length - 1))
-                    stmt.append(", coalesce((SELECT cachedImages FROM articles WHERE _id=" + entry[0] + "), 0)");
-            }
-            if (i < input.size() - 1)
-                stmt.append(" UNION ");
-            
-        }
-        
-        if (!isDBAvailable())
-            return;
-        db.execSQL(stmt.toString());
     }
     
     private void insertLabels(int articleId, Set<Label> labels) {
@@ -1341,14 +1274,6 @@ public class DBHelper {
         Log.i(Utils.TAG, "Fixed counters, total unread: " + total);
     }
     
-    // public void updateAllArticlesCachedImages(boolean isCachedImages) {
-    // ContentValues cv = new ContentValues(1);
-    // cv.put("cachedImages", isCachedImages);
-    // if (!isDBAvailable())
-    // return;
-    // db.update(TABLE_ARTICLES, cv, "cachedImages=0", null); // Only apply if not yet applied
-    // }
-    
     /**
      * update amount of remote file references for article.
      * normally should only be used with {@code null} ("unknown") and {@code 0} (no references)
@@ -1480,14 +1405,6 @@ public class DBHelper {
         }
         Log.d(Utils.TAG, "purgeOrphanedArticles took " + (System.currentTimeMillis() - time) + "ms");
     }
-    
-    // TODO FIXME is it necessary? I don't think we should remove published or starred articles at all!!!
-    // public void purgeVirtualCategories(int minId) {
-    // if (isDBAvailable()) {
-    // safelyDeleteArticles(" ( isPublished>0 OR isStarred>0 ) AND _id >= ? ",
-    // new String[] { String.valueOf(minId) });
-    // }
-    // }
     
     private void purgeLabels() {
         if (isDBAvailable()) {
@@ -1968,7 +1885,8 @@ public class DBHelper {
                 (c.getInt(9) != 0),                 // isStarred
                 (c.getInt(10) != 0),                // isPublished
                 c.getInt(11),                       // cachedImages,
-                parseArticleLabels(c.getString(12)) // Labels
+                parseArticleLabels(c.getString(12)),// Labels
+                c.getString(13)                     // Author
         );
         // @formatter:on
         try {

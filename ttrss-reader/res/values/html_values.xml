@@ -121,10 +121,10 @@
   #header_small_text {
     overflow: auto;
   }
-  #subscription, #datetime, #labels {
+  #subscription, #datetime, #labels, #author{
     font-size: 11px;
   }
-  #subscription {
+  #subscription, #author {
     float: left;
   }
   #datetime {
@@ -215,6 +215,9 @@
     <div id=\"datetime\">
       $UPDATED$
     </div>
+  </div>
+  <div id=\"author\">
+    $article.author$
   </div>
   <div id=\"labels\">
     $LABELS$

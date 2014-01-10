@@ -561,6 +561,9 @@ public abstract class JSONConnector {
                             case labels:
                                 a.labels = parseLabels(reader);
                                 break;
+                            case author:
+                                a.author = reader.nextString();
+                                break;
                             // valid, but currently unused
                             // TODO: incorporate into Article object?
                             case is_updated:
@@ -569,7 +572,6 @@ public abstract class JSONConnector {
                             case comments_count:
                             case comments_link:
                             case always_display_attachments:
-                            case author:
                             case score:
                                 reader.skipValue();
                                 continue;
