@@ -1202,21 +1202,26 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Integer sizeVerticalHeadline;
     private Integer sizeHorizontalHeadline;
     
-    public int getViewSize(MenuActivity activity, boolean isVertical) {
+    public int getMainFrameSize(MenuActivity activity, boolean isVertical, int min, int max) {
+        int ret = -1;
         if (activity instanceof CategoryActivity) {
             if (isVertical) {
-                return sizeVerticalCategory;
+                ret = sizeVerticalCategory;
             } else {
-                return sizeHorizontalCategory;
+                ret = sizeHorizontalCategory;
             }
         } else if (activity instanceof FeedHeadlineActivity) {
             if (isVertical) {
-                return sizeVerticalHeadline;
+                ret = sizeVerticalHeadline;
             } else {
-                return sizeHorizontalHeadline;
+                ret = sizeHorizontalHeadline;
             }
         }
-        return -1;
+        
+        if (ret < min && ret > max)
+            ret = (min + max) / 2;
+        
+        return ret;
     }
     
     public void setViewSize(MenuActivity activity, boolean isVertical, int size) {
