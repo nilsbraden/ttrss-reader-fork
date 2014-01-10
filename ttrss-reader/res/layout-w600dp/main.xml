@@ -15,7 +15,7 @@
     copy of the GNU General Public License along with this program; If
     not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -25,13 +25,13 @@
     <FrameLayout
         android:id="@+id/frame_main"
         android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1" />
+        android:layout_height="0px" />
 
     <ImageView
         android:id="@+id/list_divider"
         android:layout_width="match_parent"
         android:layout_height="16dp"
+        android:layout_below="@+id/frame_main"
         android:layout_gravity="center"
         android:background="@drawable/list_divider"
         tools:ignore="PxUsage" />
@@ -40,6 +40,6 @@
         android:id="@+id/frame_sub"
         android:layout_width="match_parent"
         android:layout_height="0px"
-        android:layout_weight="1" />
+        android:layout_below="@+id/list_divider" />
 
-</LinearLayout>
+</RelativeLayout>

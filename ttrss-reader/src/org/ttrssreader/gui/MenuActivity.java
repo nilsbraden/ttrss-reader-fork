@@ -49,7 +49,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.LinearLayout.LayoutParams;
+import android.widget.RelativeLayout.LayoutParams;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -70,11 +71,12 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected Updater updater;
     protected SherlockFragmentActivity activity;
     protected boolean isVertical;
-    protected static int minListSize;
-    protected static int maxListSize;
+    protected static int minSize;
+    protected static int maxSize;
     
-    private View divider = null;
     private View frameMain = null;
+    private View divider = null;
+    private View frameSub = null;
     private TextView header_title;
     private TextView header_unread;
     
@@ -105,39 +107,80 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected void initTabletLayout() {
         frameMain = findViewById(R.id.frame_main);
         divider = findViewById(R.id.list_divider);
+        frameSub = findViewById(R.id.frame_sub);
         
         // Initialize values for layout changes:
         Controller
                 .refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
         isVertical = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT);
-        int size = Controller.displayWidth;
+        int sizeDisplay = Controller.displayWidth;
         if (isVertical) {
             TypedValue tv = new TypedValue();
             context.getTheme().resolveAttribute(R.attr.actionBarSize, tv, true);
             int actionBarHeight = getResources().getDimensionPixelSize(tv.resourceId);
-            size = Controller.displayHeight - actionBarHeight;
+            sizeDisplay = Controller.displayHeight - actionBarHeight;
         }
         
-        minListSize = (int) (size * 0.1);
-        maxListSize = size - (int) (size * 0.1);
+        minSize = (int) (sizeDisplay * 0.1);
+        maxSize = sizeDisplay - (int) (sizeDisplay * 0.1);
         
-        if (Controller.getInstance().allowTabletLayout()) {
+        // use tablet layout?
+        if (Controller.getInstance().allowTabletLayout())
             Controller.isTablet = divider != null;
-        } else {
+        else
             Controller.isTablet = false;
-        }
         
+        // Set frame sizes and hide divider if necessary
         if (Controller.isTablet) {
+            
             // Resize frames and do it only if stored size is within our bounds:
-            int newSize = Controller.getInstance().getViewSize(this, isVertical);
-            if (newSize >= minListSize && newSize <= maxListSize) {
-                if (isVertical)
-                    frameMain.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, newSize));
-                else
-                    frameMain.setLayoutParams(new LayoutParams(newSize, LayoutParams.MATCH_PARENT));
-                getWindow().getDecorView().getRootView().invalidate();
+            int mainFrameSize = Controller.getInstance().getMainFrameSize(this, isVertical, minSize, maxSize);
+            int subFrameSize = sizeDisplay - mainFrameSize;
+            
+            LayoutParams lpMain = null;
+            LayoutParams lpSub = null;
+            
+            if (isVertical) {
+                // calculate height of divider
+                int padding = divider.getPaddingTop() + divider.getPaddingBottom();
+                int dividerHeight = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, context
+                        .getResources().getDisplayMetrics()));
+                
+                // calculate bottom frame height
+                subFrameSize = subFrameSize - dividerHeight;
+                
+                // Create LayoutParams for all three views
+                lpMain = new LayoutParams(LayoutParams.MATCH_PARENT, mainFrameSize);
+                lpSub = new LayoutParams(LayoutParams.MATCH_PARENT, subFrameSize);
+                lpSub.addRule(RelativeLayout.BELOW, divider.getId());
+            } else {
+                // calculate width of divider
+                int padding = divider.getPaddingLeft() + divider.getPaddingRight();
+                int dividerWidth = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, context
+                        .getResources().getDisplayMetrics()));
+                
+                // calculate right frame height
+                subFrameSize = subFrameSize - dividerWidth;
+                
+                // Create LayoutParams for all three views
+                lpMain = new LayoutParams(mainFrameSize, LayoutParams.MATCH_PARENT);
+                lpSub = new LayoutParams(subFrameSize, LayoutParams.MATCH_PARENT);
+                lpSub.addRule(RelativeLayout.RIGHT_OF, divider.getId());
             }
+            
+            // Set all params and visibility
+            frameMain.setLayoutParams(lpMain);
+            frameSub.setLayoutParams(lpSub);
             divider.setVisibility(View.VISIBLE);
+            getWindow().getDecorView().getRootView().invalidate();
+            
+        } else {
+            
+            frameMain.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            frameSub.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            if (divider != null)
+                divider.setVisibility(View.GONE);
+            
         }
     }
     
@@ -145,8 +188,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         // Go to the CategoryActivity and clean the return-stack
         // getSupportActionBar().setHomeButtonEnabled(true);
         
-        ActionBar.LayoutParams params = new ActionBar.LayoutParams(ActionBar.LayoutParams.WRAP_CONTENT,
-                ActionBar.LayoutParams.WRAP_CONTENT);
+        ActionBar.LayoutParams params = new ActionBar.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView = inflator.inflate(R.layout.actionbar, null);
         
@@ -567,10 +609,10 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     
     private int calculateSize(final int size) {
         int ret = size;
-        if (ret < minListSize)
-            ret = minListSize;
-        if (ret > maxListSize)
-            ret = maxListSize;
+        if (ret < minSize)
+            ret = minSize;
+        if (ret > maxSize)
+            ret = maxSize;
         return ret;
     }
     
