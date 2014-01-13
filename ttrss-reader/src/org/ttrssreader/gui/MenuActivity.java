@@ -49,8 +49,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.RelativeLayout.LayoutParams;
 import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -59,8 +59,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
 /**
- * This class pulls common functionality from the three subclasses (CategoryActivity, FeedListActivity and
- * FeedHeadlineListActivity).
+ * This class provides common functionality for Activities.
  */
 public abstract class MenuActivity extends SherlockFragmentActivity implements IUpdateEndListener, ICacheEndListener,
         IItemSelectedListener, IDataChangedListener {
@@ -109,6 +108,9 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         divider = findViewById(R.id.list_divider);
         frameSub = findViewById(R.id.frame_sub);
         
+        if (frameMain == null || frameSub == null || divider == null)
+            return; // Do nothing, the views do not exist...
+            
         // Initialize values for layout changes:
         Controller
                 .refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
