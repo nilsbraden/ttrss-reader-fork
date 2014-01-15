@@ -116,7 +116,6 @@ public class Data {
             limit = limit / 2;
         
         if (!overrideDelay && (time > (System.currentTimeMillis() - Utils.UPDATE_TIME))) {
-            Log.d(Utils.TAG, "Skip articles caching");
             return;
         } else if (!Utils.isConnected(cm) && !(overrideOffline && Utils.checkConnected(cm))) {
             return;
@@ -159,7 +158,6 @@ public class Data {
         Controller.getInstance().getConnector()
                 .getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId, null, null, updatedFilter);
         
-        Log.d(Utils.TAG, "Got " + articles.size() + " articles to be cached");
         handleInsertArticles(articles, VCAT_ALL, true, true);
         
         // Only mark as updated if the calls were successful
@@ -254,18 +252,6 @@ public class Data {
         }
     }
     
-    public void searchArticles(int feedId, boolean isCat, boolean overrideOffline) {
-        if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
-            
-            Set<Article> articles = new HashSet<Article>();
-            Controller.getInstance().getConnector().getHeadlines(articles, feedId, 400, VIEW_ALL, isCat);
-            
-            // TODO: articles in DB packen oder direkt irgendwie zurueck geben? Wenn ja, wohin?
-            // Temporaere-DB erstellen und Adapter so umbauen, dass er Suchergebnisse automatisch daraus laedt?
-            
-        }
-    }
-    
     /**
      * Calculate an appropriate upper limit for the number of articles
      */
@@ -312,12 +298,6 @@ public class Data {
             }
             
             DBHelper.getInstance().purgeLastArticles(articles.size());
-            
-            // We set isCategory=false for starred/published articles...
-            // if ((feedId == Data.VCAT_STAR || feedId == Data.VCAT_PUB) && !isCategory)
-            // TODO FIXME is it necessary? Articles will be completely DELETED it is probably wrong!!!
-            // DBHelper.getInstance().purgeVirtualCategories(minId);
-            
             DBHelper.getInstance().insertArticles(articles);
             
             // correct counters according to real local DB-Data
@@ -566,16 +546,13 @@ public class Data {
         if (!Utils.isConnected(cm))
             return;
         
-        Log.d(Utils.TAG, "Start status sync");
+        long time = System.currentTimeMillis();
         
         String[] marks = new String[] { DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH,
                 DBHelper.MARK_NOTE };
         for (String mark : marks) {
             Map<Integer, String> idsMark = DBHelper.getInstance().getMarked(mark, 1);
             Map<Integer, String> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
-            
-            // Log.d(Utils.TAG, "Syncing status '" + mark + "' mark count: " + idsMark.size() + " unmark count:"
-            // + idsUnmark.size());
             
             if (DBHelper.MARK_READ.equals(mark)) {
                 if (Controller.getInstance().getConnector().setArticleRead(idsMark.keySet(), 1))
@@ -618,7 +595,7 @@ public class Data {
         // Controller.getInstance().getConnector()
         // .getHeadlines(articles, VCAT_ALL, 400, VIEW_ALL, true, minUnread, null, skipProperties);
         
-        Log.d(Utils.TAG, "Status is synced");
+        Log.d(Utils.TAG, String.format("Syncing Status took %sms", (System.currentTimeMillis() - time)));
     }
     
     public void purgeOrphanedArticles() {

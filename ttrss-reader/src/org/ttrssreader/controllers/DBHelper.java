@@ -1200,6 +1200,7 @@ public class DBHelper {
      * @return {@code true} if counters was successfully updated, {@code false} otherwise
      */
     public void calculateCounters() {
+        long time = System.currentTimeMillis();
         int total = 0;
         Cursor c = null;
         ContentValues cv = null;
@@ -1208,13 +1209,10 @@ public class DBHelper {
             return;
         db.beginTransaction();
         try {
-            @SuppressWarnings("unused")
-            int updateCount = 0;
-            
             cv = new ContentValues(1);
             cv.put("unread", 0);
-            updateCount = db.update(TABLE_FEEDS, cv, null, null);
-            updateCount = db.update(TABLE_CATEGORIES, cv, null, null);
+            db.update(TABLE_FEEDS, cv, null, null);
+            db.update(TABLE_CATEGORIES, cv, null, null);
             
             try {
                 // select feedId, count(*) from articles where isUnread>0 group by feedId
@@ -1229,7 +1227,7 @@ public class DBHelper {
                     total += unreadCount;
                     
                     cv.put("unread", unreadCount);
-                    updateCount = db.update(TABLE_FEEDS, cv, "_id=" + feedId, null);
+                    db.update(TABLE_FEEDS, cv, "_id=" + feedId, null);
                 }
             } finally {
                 if (c != null && !c.isClosed())
@@ -1247,7 +1245,7 @@ public class DBHelper {
                     int unreadCount = c.getInt(1);
                     
                     cv.put("unread", unreadCount);
-                    updateCount = db.update(TABLE_CATEGORIES, cv, "_id=" + categoryId, null);
+                    db.update(TABLE_CATEGORIES, cv, "_id=" + categoryId, null);
                 }
             } finally {
                 if (c != null && !c.isClosed())
@@ -1271,7 +1269,8 @@ public class DBHelper {
             db.endTransaction();
         }
         
-        Log.i(Utils.TAG, "Fixed counters, total unread: " + total);
+        Log.i(Utils.TAG, String.format("Fixed counters, total unread: %s (took %sms)", total,
+                (System.currentTimeMillis() - time)));
     }
     
     /**

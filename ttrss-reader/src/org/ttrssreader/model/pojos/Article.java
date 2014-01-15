@@ -98,7 +98,8 @@ public class Article implements Comparable<Article> {
     
     public enum ArticleField {
         id, title, unread, updated, feed_id, content, link, comments, attachments, marked, published, labels,
-        is_updated, tags, feed_title, comments_count, comments_link, always_display_attachments, author, score
+        is_updated, tags, feed_title, comments_count, comments_link, always_display_attachments, author, score, lang,
+        note
     }
     
 }
