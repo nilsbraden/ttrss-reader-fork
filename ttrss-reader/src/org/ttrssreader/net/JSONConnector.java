@@ -573,6 +573,8 @@ public abstract class JSONConnector {
                             case comments_link:
                             case always_display_attachments:
                             case score:
+                            case note:
+                            case lang:
                                 reader.skipValue();
                                 continue;
                         }
