@@ -27,7 +27,6 @@
     padding: 1.5%;
     font-size: 16px;
     font-weight: normal;
-    word-wrap: break-word !important;
   }
   
   /************ BEGIN THEMES --> ************/
@@ -102,7 +101,6 @@
     white-space: -pre-wrap !important;
     white-space: -o-pre-wrap !important;
     white-space: normal !important; /* used to be \"pre-wrap\" but I dont know why and it breaks \"align:justify\" */
-    word-wrap: break-word !important;
   }
   pre, code, blockquote {
     white-space: pre-wrap !important;
@@ -114,29 +112,27 @@
   }
   #header {
     padding: 2px;
-    margin-bottom: 5px;
+    margin-bottom: 1em;
     font-size: 18px;
     font-weight: bold;
-    background-color: #424242;
   }
   #header a:link, a:active, a:hover, a:visited {
-    color: #DADADA !important;
+    color: #FF0000 !important;
     text-decoration: none !important;
   }
   #header_small_text {
     overflow: auto;
   }
-  #subscription, #datetime, #labels, #author{
+  #subscription, #datetime, #author, #labels {
     font-size: 11px;
   }
-  #subscription, #author {
+  #subscription {
     float: left;
   }
   #datetime {
     float: right;
   }
-  #labels {
-    color: #04B404;
+  #author, #labels {
     margin: 0 auto;
   }
   #zierleiste {
