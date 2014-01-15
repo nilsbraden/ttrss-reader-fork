@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.Field;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -170,26 +168,38 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             pi.versionCode = 69;
         }
         Date theDate = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss_zzz", Locale.ENGLISH);
-        String s = "-------- Environment --------\n";
-        s += "Time\t= " + sdf.format(theDate) + "\n";
-        s += "Device\t= " + Build.FINGERPRINT + "\n";
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy_HH.mm.ss_zzz", Locale.ENGLISH);
+        StringBuilder s = new StringBuilder();
+        
+        s.append("--------- Application ---------------------\n");
+        s.append("Version     = " + Controller.getInstance().getLastVersionRun() + "\n");
+        s.append("VersionCode = " + (pi != null ? pi.versionCode : "null") + "\n");
+        s.append("-------------------------------------------\n\n");
+        
+        s.append("--------- Environment ---------------------\n");
+        s.append("Time        = " + sdf.format(theDate) + "\n");
         try {
             Field theMfrField = Build.class.getField("MANUFACTURER");
-            s += "Make\t=" + theMfrField.get(null) + "\n";
-        } catch (SecurityException e) {
-        } catch (NoSuchFieldException e) {
-        } catch (IllegalArgumentException e) {
-        } catch (IllegalAccessException e) {
+            s.append("Make        = " + theMfrField.get(null) + "\n");
+        } catch (Exception e) {
         }
-        s += "Model\t= " + Build.MODEL + "\n";
-        s += "Product\t= " + Build.PRODUCT + "\n";
-        s += "App\t\t= " + mAct.getPackageName() + ", version " + pi.versionName + " (build " + pi.versionCode + ")\n";
-        s += "Locale\t= " + mAct.getResources().getConfiguration().locale.getDisplayName() + "\n";
-        s += "Res\t\t= " + mAct.getResources().getDisplayMetrics().toString() + "\n"; // toString() useful in Android
-                                                                                      // 1.6+
-        s += "-----------------------------\n\n";
-        return s;
+        s.append("Brand       = " + Build.BRAND + "\n");
+        s.append("Device      = " + Build.DEVICE + "\n");
+        s.append("Model       = " + Build.MODEL + "\n");
+        s.append("Id          = " + Build.ID + "\n");
+        s.append("Fingerprint = " + Build.FINGERPRINT + "\n");
+        s.append("Product     = " + Build.PRODUCT + "\n");
+        s.append("Locale      = " + mAct.getResources().getConfiguration().locale.getDisplayName() + "\n");
+        s.append("Res         = " + mAct.getResources().getDisplayMetrics().toString() + "\n");
+        s.append("-------------------------------------------\n\n");
+        
+        s.append("--------- Firmware -----------------------\n");
+        s.append("SDK         = " + Build.VERSION.SDK_INT + "\n");
+        s.append("Release     = " + Build.VERSION.RELEASE + "\n");
+        s.append("Inc         = " + Build.VERSION.INCREMENTAL + "\n");
+        s.append("-------------------------------------------\n\n");
+        
+        return s.toString();
     }
     
     /**
@@ -238,50 +248,49 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
      * @return Returns a string with a lot of debug information.
      */
     public String getDebugReport(Throwable aException) {
-        NumberFormat theFormatter = new DecimalFormat("#0.");
-        String theErrReport = "";
+        StringBuilder theErrReport = new StringBuilder();
         
-        theErrReport += getDeviceEnvironment();
-        theErrReport += getAppName() + " generated the following exception:\n";
-        theErrReport += aException.toString() + "\n\n";
+        theErrReport.append(getDeviceEnvironment());
+        theErrReport.append(getAppName() + " generated the following exception:\n");
+        theErrReport.append(aException.toString() + "\n\n");
         
         // activity stack trace
         List<CharSequence> theActivityTrace = getActivityTrace(null);
         if (theActivityTrace != null && theActivityTrace.size() > 0) {
-            theErrReport += "--------- Activity Stack Trace ---------\n";
+            theErrReport.append("--------- Activity Stacktrace -------------\n");
             for (int i = 0; i < theActivityTrace.size(); i++) {
-                theErrReport += theFormatter.format(i + 1) + "\t" + theActivityTrace.get(i) + "\n";
+                theErrReport.append("    " + theActivityTrace.get(i) + "\n");
             }// for
-            theErrReport += "----------------------------------------\n\n";
+            theErrReport.append("-------------------------------------------\n\n");
         }
         
         if (aException != null) {
             // instruction stack trace
             StackTraceElement[] theStackTrace = aException.getStackTrace();
             if (theStackTrace.length > 0) {
-                theErrReport += "--------- Instruction Stack trace ---------\n";
+                theErrReport.append("--------- Instruction Stacktrace ----------\n");
                 for (int i = 0; i < theStackTrace.length; i++) {
-                    theErrReport += theFormatter.format(i + 1) + "\t" + theStackTrace[i].toString() + "\n";
+                    theErrReport.append("    " + theStackTrace[i].toString() + "\n");
                 }// for
-                theErrReport += "-------------------------------------------\n\n";
+                theErrReport.append("-------------------------------------------\n\n");
             }
             
             // if the exception was thrown in a background thread inside
             // AsyncTask, then the actual exception can be found with getCause
             Throwable theCause = aException.getCause();
             if (theCause != null) {
-                theErrReport += "----------- Cause -----------\n";
-                theErrReport += theCause.toString() + "\n\n";
+                theErrReport.append("--------- Cause ---------------------------\n");
+                theErrReport.append(theCause.toString() + "\n\n");
                 theStackTrace = theCause.getStackTrace();
                 for (int i = 0; i < theStackTrace.length; i++) {
-                    theErrReport += theFormatter.format(i + 1) + "\t" + theStackTrace[i].toString() + "\n";
+                    theErrReport.append("    " + theStackTrace[i].toString() + "\n");
                 }// for
-                theErrReport += "-----------------------------\n\n";
+                theErrReport.append("-------------------------------------------\n\n");
             }
         }
         
-        theErrReport += "END REPORT.";
-        return theErrReport;
+        theErrReport.append("END REPORT.");
+        return theErrReport.toString();
     }
     
     /**
