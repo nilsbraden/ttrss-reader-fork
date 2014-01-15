@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.model;
+package org.ttrssreader;
 
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
