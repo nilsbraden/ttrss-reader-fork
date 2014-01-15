@@ -51,6 +51,8 @@ import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -102,6 +104,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     private static final int CONTEXT_MENU_SHARE_URL = 1000;
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
     private static final int CONTEXT_MENU_DISPLAY_CAPTION = 1002;
+    private static final int CONTEXT_MENU_COPY_URL = 1003;
     
     private static final char TEMPLATE_DELIMITER_START = '$';
     private static final char TEMPLATE_DELIMITER_END = '$';
@@ -573,6 +576,8 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             mSelectedExtra = result.getExtra();
             menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_URL, 2,
                     getResources().getString(R.string.ArticleActivity_ShareURL));
+            menu.add(ContextMenu.NONE, CONTEXT_MENU_COPY_URL, 3,
+                    getResources().getString(R.string.ArticleActivity_CopyURL));
         }
         if (result.getType() == HitTestResult.IMAGE_TYPE) {
             mSelectedAltText = getAltTextForImageUrl(result.getExtra());
@@ -660,6 +665,14 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
                 if (mSelectedExtra != null) {
                     shareIntent = getUrlShareIntent(mSelectedExtra);
                     startActivity(Intent.createChooser(shareIntent, "Share URL"));
+                }
+                break;
+            case CONTEXT_MENU_COPY_URL:
+                if (mSelectedExtra != null) {
+                    ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(
+                            Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("URL from TTRSS", mSelectedExtra);
+                    clipboard.setPrimaryClip(clip);
                 }
                 break;
             case CONTEXT_MENU_DISPLAY_CAPTION:
