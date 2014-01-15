@@ -46,6 +46,7 @@
     <string name="ArticleActivity.MediaDisplayLink">Open attachment</string>
     <string name="ArticleActivity.ArticleLink">-> Article-Link</string>
     <string name="ArticleActivity.ShareURL">Share URL</string>
+    <string name="ArticleActivity.CopyURL">Copy URL</string>
     <string name="ArticleActivity.ShareArticle">Share Article</string>
     <string name="ArticleActivity.ShowCaption">Show image-caption</string>
     <string name="SubscribeActivity.offline">Working offline, can\'t request action from server.</string>
