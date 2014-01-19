@@ -1218,7 +1218,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             }
         }
         
-        if (ret < min && ret > max)
+        if (ret < min || ret > max)
             ret = (min + max) / 2;
         
         return ret;
