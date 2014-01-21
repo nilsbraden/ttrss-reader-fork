@@ -93,6 +93,7 @@ public class CategoryCursorHelper extends MainCursorHelper {
         insertValues(db, query.toString());
         
         String[] columns = { "_id", "title", "unread" };
+        memoryDb.delete(MemoryDBOpenHelper.TABLE_NAME, null, null);
         return memoryDb.query(MemoryDBOpenHelper.TABLE_NAME, columns, null, null, null, null, null, "600");
     }
     
