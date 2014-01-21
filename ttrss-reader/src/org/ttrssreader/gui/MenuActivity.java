@@ -42,7 +42,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MotionEventCompat;
 import android.util.TypedValue;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -81,15 +80,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     private View frameSub = null;
     private TextView header_title;
     private TextView header_unread;
-    
-    public static final int MARK_GROUP = 42;
-    public static final int MARK_READ = MARK_GROUP + 1;
-    public static final int MARK_STAR = MARK_GROUP + 2;
-    public static final int MARK_PUBLISH = MARK_GROUP + 3;
-    public static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
-    public static final int MARK_ABOVE_READ = MARK_GROUP + 5;
-    public static final int SHARE = MARK_GROUP + 6;
-    public static final int UNSUBSCRIBE = MARK_GROUP + 7;
     
     @Override
     protected void onCreate(Bundle instance) {
@@ -283,12 +273,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         } else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
             finish();
         }
-    }
-    
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
     }
     
     @Override
