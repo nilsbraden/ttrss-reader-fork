@@ -18,7 +18,6 @@ package org.ttrssreader.gui.fragments;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.FeedAdapter;
@@ -48,6 +47,10 @@ public class FeedListFragment extends MainListFragment {
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
+    
+    private static final int MARK_GROUP = 300;
+    private static final int MARK_READ = MARK_GROUP + 1;
+    private static final int UNSUBSCRIBE = MARK_GROUP + 2;
     
     // Extras
     private int categoryId;
@@ -87,17 +90,21 @@ public class FeedListFragment extends MainListFragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(MenuActivity.MARK_GROUP, MenuActivity.UNSUBSCRIBE, Menu.NONE, R.string.Subscribe_unsubscribe);
+        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
+        menu.add(MARK_GROUP, UNSUBSCRIBE, Menu.NONE, R.string.Subscribe_unsubscribe);
     }
     
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
+        if (cmi == null)
+            return false;
+        
         switch (item.getItemId()) {
-            case MenuActivity.MARK_READ:
+            case MARK_READ:
                 new Updater(getActivity(), new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
                 return true;
-            case MenuActivity.UNSUBSCRIBE:
+            case UNSUBSCRIBE:
                 YesNoUpdaterDialog dialog = YesNoUpdaterDialog
                         .getInstance(getActivity(), new UnsubscribeUpdater(adapter.getId(cmi.position)),
                                 R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);

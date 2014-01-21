@@ -210,11 +210,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         }
     }
     
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        return super.onMenuItemSelected(featureId, item);
-    }
-    
     /**
      * This does a full update including all labels, feeds, categories and all articles.
      */

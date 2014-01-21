@@ -21,7 +21,6 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.FeedHeadlineActivity;
-import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
@@ -74,6 +73,14 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     public static final String FEED_TITLE = "FEED_TITLE";
     public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
     public static final String FEED_INDEX = "INDEX";
+    
+    private static final int MARK_GROUP = 200;
+    private static final int MARK_READ = MARK_GROUP + 1;
+    private static final int MARK_STAR = MARK_GROUP + 2;
+    private static final int MARK_PUBLISH = MARK_GROUP + 3;
+    private static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
+    private static final int MARK_ABOVE_READ = MARK_GROUP + 5;
+    private static final int SHARE = MARK_GROUP + 6;
     
     private int categoryId = Integer.MIN_VALUE;
     private int feedId = Integer.MIN_VALUE;
@@ -151,31 +158,29 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         // Get selected Article
         AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         Article a = (Article) adapter.getItem(info.position);
-        menu.removeItem(MenuActivity.MARK_READ); // Remove "Mark read" from super-class
         
-        menu.add(MenuActivity.MARK_GROUP, MenuActivity.MARK_ABOVE_READ, Menu.NONE, R.string.Commons_MarkAboveRead);
+        menu.add(MARK_GROUP, MARK_ABOVE_READ, Menu.NONE, R.string.Commons_MarkAboveRead);
         
         if (a.isUnread) {
-            menu.add(MenuActivity.MARK_GROUP, MenuActivity.MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
+            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
         } else {
-            menu.add(MenuActivity.MARK_GROUP, MenuActivity.MARK_READ, Menu.NONE, R.string.Commons_MarkUnread);
+            menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkUnread);
         }
         
         if (a.isStarred) {
-            menu.add(MenuActivity.MARK_GROUP, MenuActivity.MARK_STAR, Menu.NONE, R.string.Commons_MarkUnstar);
+            menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkUnstar);
         } else {
-            menu.add(MenuActivity.MARK_GROUP, MenuActivity.MARK_STAR, Menu.NONE, R.string.Commons_MarkStar);
+            menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkStar);
         }
         
         if (a.isPublished) {
-            menu.add(MenuActivity.MARK_GROUP, MenuActivity.MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkUnpublish);
+            menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkUnpublish);
         } else {
-            menu.add(MenuActivity.MARK_GROUP, MenuActivity.MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
-            menu.add(MenuActivity.MARK_GROUP, MenuActivity.MARK_PUBLISH_NOTE, Menu.NONE,
-                    R.string.Commons_MarkPublishNote);
+            menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
+            menu.add(MARK_GROUP, MARK_PUBLISH_NOTE, Menu.NONE, R.string.Commons_MarkPublishNote);
         }
         
-        menu.add(MenuActivity.MARK_GROUP, MenuActivity.SHARE, Menu.NONE, R.string.ArticleActivity_ShareLink);
+        menu.add(MARK_GROUP, SHARE, Menu.NONE, R.string.ArticleActivity_ShareLink);
     }
     
     @Override
@@ -189,22 +194,22 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             return false;
         
         switch (item.getItemId()) {
-            case MenuActivity.MARK_READ:
+            case MARK_READ:
                 new Updater(getActivity(), new ReadStateUpdater(a, feedId, a.isUnread ? 0 : 1)).exec();
                 break;
-            case MenuActivity.MARK_STAR:
+            case MARK_STAR:
                 new Updater(getActivity(), new StarredStateUpdater(a, a.isStarred ? 0 : 1)).exec();
                 break;
-            case MenuActivity.MARK_PUBLISH:
+            case MARK_PUBLISH:
                 new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).exec();
                 break;
-            case MenuActivity.MARK_PUBLISH_NOTE:
+            case MARK_PUBLISH_NOTE:
                 new TextInputAlert(this, a).show(getActivity());
                 break;
-            case MenuActivity.MARK_ABOVE_READ:
+            case MARK_ABOVE_READ:
                 new Updater(getActivity(), new ReadStateUpdater(getUnreadAbove(cmi.position), feedId, 0)).exec();
                 break;
-            case MenuActivity.SHARE:
+            case SHARE:
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
                 i.putExtra(Intent.EXTRA_TEXT, a.url);
