@@ -32,7 +32,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
@@ -42,8 +41,9 @@ import android.view.View;
 import android.widget.ListView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.app.SherlockListFragment;
 
-public abstract class MainListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public abstract class MainListFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     
     protected static final String TAG = MainListFragment.class.getSimpleName();
     
@@ -56,7 +56,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     protected static final String SELECTED_ID = "selectedId";
     protected static final int SELECTED_ID_DEFAULT = Integer.MIN_VALUE;
     
-    private int selectedId = SELECTED_ID_DEFAULT;
+    protected int selectedId = SELECTED_ID_DEFAULT;
     private int scrollPosition;
     
     protected MainAdapter adapter = null;

@@ -31,7 +31,10 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.ErrorActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
+import org.ttrssreader.gui.TextInputAlert;
+import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
+import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.ArticleWebViewClient;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.gui.view.MyWebView;
@@ -42,7 +45,9 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.pojos.RemoteFile;
+import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
+import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.DateUtils;
@@ -62,6 +67,7 @@ import android.net.Uri.Builder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -89,9 +95,12 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 @SuppressWarnings("deprecation")
-public class ArticleFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ArticleFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        TextInputAlertCallback {
     
     protected static final String TAG = ArticleFragment.class.getSimpleName();
     
@@ -159,7 +168,6 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         detail.categoryId = categoryId;
         detail.selectArticlesForCategory = selectArticles;
         detail.lastMove = lastMove;
-        detail.setHasOptionsMenu(true);
         detail.setRetainInstance(true);
         return detail;
     }
@@ -179,6 +187,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             lastMove = instance.getInt(ARTICLE_MOVE);
             if (webView != null)
                 webView.restoreState(instance);
+            setHasOptionsMenu(true);
         }
         super.onCreate(instance);
     }
@@ -590,6 +599,79 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
                 getResources().getString(R.string.ArticleActivity_ShareArticle));
     }
     
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
+        if (article.isUnread) {
+            read.setTitle(getString(R.string.Commons_MarkRead));
+            read.setIcon(R.drawable.ic_menu_mark);
+        } else {
+            read.setTitle(getString(R.string.Commons_MarkUnread));
+            read.setIcon(R.drawable.ic_menu_clear_playlist);
+        }
+        
+        MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
+        if (article.isPublished) {
+            publish.setTitle(getString(R.string.Commons_MarkUnpublish));
+            publish.setIcon(R.drawable.menu_published);
+        } else {
+            publish.setTitle(getString(R.string.Commons_MarkPublish));
+            publish.setIcon(R.drawable.menu_publish);
+        }
+        
+        MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
+        if (article.isStarred) {
+            star.setTitle(getString(R.string.Commons_MarkUnstar));
+            star.setIcon(R.drawable.menu_starred);
+        } else {
+            star.setTitle(getString(R.string.Commons_MarkStar));
+            star.setIcon(R.drawable.ic_menu_star);
+        }
+    }
+    
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.Article_Menu_MarkRead: {
+                if (article != null)
+                    new Updater(getActivity(), new ReadStateUpdater(article, article.feedId, article.isUnread ? 0 : 1))
+                            .exec();
+                return true;
+            }
+            case R.id.Article_Menu_MarkStar: {
+                if (article != null)
+                    new Updater(getActivity(), new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
+                return true;
+            }
+            case R.id.Article_Menu_MarkPublish: {
+                if (article != null)
+                    new Updater(getActivity(), new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
+                return true;
+            }
+            case R.id.Article_Menu_MarkPublishNote: {
+                new TextInputAlert(this, article).show(getActivity());
+                return true;
+            }
+            case R.id.Article_Menu_AddArticleLabel: {
+                if (article != null) {
+                    DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
+                    dialog.show(getFragmentManager(), "Edit Labels");
+                }
+                return true;
+            }
+            case R.id.Article_Menu_ShareLink: {
+                if (article != null) {
+                    Intent i = new Intent(Intent.ACTION_SEND);
+                    i.setType("text/plain");
+                    i.putExtra(Intent.EXTRA_TEXT, article.url);
+                    i.putExtra(Intent.EXTRA_SUBJECT, article.title);
+                    startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
+                }
+                return true;
+            }
+            default:
+                return false;
+        }
+    }
+    
     /**
      * Using a small html parser with a visitor which goes through the html I extract the alt-attribute from the
      * content. If nothing is found it is left as null and the menu should'nt contain the item to display the caption.
@@ -883,6 +965,11 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     public void onLoaderReset(Loader<Cursor> loader) {
         if (loader.getId() == MainListFragment.TYPE_HEADLINE_ID)
             parentAdapter.changeCursor(null);
+    }
+    
+    @Override
+    public void onPublishNoteResult(Article a, String note) {
+        new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
     }
     
 }

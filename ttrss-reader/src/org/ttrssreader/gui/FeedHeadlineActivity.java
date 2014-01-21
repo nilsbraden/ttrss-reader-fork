@@ -19,23 +19,11 @@ package org.ttrssreader.gui;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
-import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
-import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
-import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.updaters.PublishedStateUpdater;
-import org.ttrssreader.model.updaters.ReadStateUpdater;
-import org.ttrssreader.model.updaters.StarredStateUpdater;
-import org.ttrssreader.model.updaters.UnsubscribeUpdater;
-import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
@@ -43,7 +31,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
+public class FeedHeadlineActivity extends MenuActivity {
     
     protected static final String TAG = FeedHeadlineActivity.class.getSimpleName();
     
@@ -152,7 +140,7 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenu(Menu menu) {
         if (selectedArticleId != Integer.MIN_VALUE) {
             getSupportMenuInflater().inflate(R.menu.article, menu);
             if (Controller.isTablet)
@@ -166,118 +154,18 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
     }
     
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        boolean ret = super.onPrepareOptionsMenu(menu);
-        if (selectedArticleId != Integer.MIN_VALUE)
-            prepareArticleMenu(menu, getArticle());
-        return ret;
-    }
-    
-    public void prepareArticleMenu(final Menu menu, final Article article) {
-        if (article != null) {
-            MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
-            if (article.isUnread) {
-                read.setTitle(getString(R.string.Commons_MarkRead));
-                read.setIcon(R.drawable.ic_menu_mark);
-            } else {
-                read.setTitle(getString(R.string.Commons_MarkUnread));
-                read.setIcon(R.drawable.ic_menu_clear_playlist);
-            }
-            
-            MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
-            if (article.isPublished) {
-                publish.setTitle(getString(R.string.Commons_MarkUnpublish));
-                publish.setIcon(R.drawable.menu_published);
-            } else {
-                publish.setTitle(getString(R.string.Commons_MarkPublish));
-                publish.setIcon(R.drawable.menu_publish);
-            }
-            
-            MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
-            if (article.isStarred) {
-                star.setTitle(getString(R.string.Commons_MarkUnstar));
-                star.setIcon(R.drawable.menu_starred);
-            } else {
-                star.setTitle(getString(R.string.Commons_MarkStar));
-                star.setIcon(R.drawable.ic_menu_star);
-            }
-        }
-    }
-    
-    @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         if (super.onOptionsItemSelected(item))
             return true;
         
-        Article article = getArticle();
         switch (item.getItemId()) {
             case R.id.Menu_Refresh: {
                 doUpdate(true);
                 return true;
             }
-            case R.id.Menu_MarkFeedRead: {
-                boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
-                if (selectArticlesForCategory) {
-                    new Updater(this, new ReadStateUpdater(categoryId), backAfterUpdate).exec();
-                } else {
-                    new Updater(this, new ReadStateUpdater(headlineFragment.getFeedId(), 42), backAfterUpdate).exec();
-                }
-                
-                return true;
-            }
-            case R.id.Menu_FeedUnsubscribe: {
-                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(this, new UnsubscribeUpdater(feedId),
-                        R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
-                dialog.show(getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
-                return true;
-            }
-            case R.id.Article_Menu_MarkRead: {
-                if (article != null)
-                    new Updater(this, new ReadStateUpdater(article, article.feedId, article.isUnread ? 0 : 1)).exec();
-                return true;
-            }
-            case R.id.Article_Menu_MarkStar: {
-                if (article != null)
-                    new Updater(this, new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
-                return true;
-            }
-            case R.id.Article_Menu_MarkPublish: {
-                if (article != null)
-                    new Updater(this, new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
-                return true;
-            }
-            case R.id.Article_Menu_MarkPublishNote: {
-                new TextInputAlert(this, article).show(this);
-                return true;
-            }
-            case R.id.Article_Menu_AddArticleLabel: {
-                if (article != null) {
-                    DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
-                    dialog.show(getSupportFragmentManager(), "Edit Labels");
-                }
-                return true;
-            }
-            case R.id.Article_Menu_ShareLink: {
-                if (article != null) {
-                    Intent i = new Intent(Intent.ACTION_SEND);
-                    i.setType("text/plain");
-                    i.putExtra(Intent.EXTRA_TEXT, article.url);
-                    i.putExtra(Intent.EXTRA_SUBJECT, article.title);
-                    startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
-                }
-                return true;
-            }
             default:
                 return false;
         }
-        
-    }
-    
-    private Article getArticle() {
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(ArticleFragment.FRAGMENT);
-        if (fragment instanceof ArticleFragment)
-            return ((ArticleFragment) fragment).getArticle();
-        return null;
     }
     
     @Override
@@ -418,11 +306,6 @@ public class FeedHeadlineActivity extends MenuActivity implements TextInputAlert
         ft.commit();
         
         articleFragment = null;
-    }
-    
-    @Override
-    public void onPublishNoteResult(Article a, String note) {
-        new Updater(this, new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
     }
     
     @Override

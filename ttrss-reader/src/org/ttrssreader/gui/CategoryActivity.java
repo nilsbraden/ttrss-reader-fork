@@ -25,15 +25,12 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.dialogs.ChangelogDialog;
 import org.ttrssreader.gui.dialogs.WelcomeDialog;
-import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.fragments.CategoryListFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.model.pojos.Feed;
-import org.ttrssreader.model.updaters.IUpdatable;
-import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
@@ -194,11 +191,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean ret = super.onPrepareOptionsMenu(menu);
-        if (!Controller.isTablet && selectedCategoryId != Integer.MIN_VALUE)
-            menu.removeItem(R.id.Menu_MarkAllRead);
-        if (selectedCategoryId == Integer.MIN_VALUE)
-            menu.removeItem(R.id.Menu_MarkFeedsRead);
-        // Always:
         menu.removeItem(R.id.Menu_MarkFeedRead);
         return ret;
     }
@@ -213,24 +205,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                 doUpdate(true);
                 return true;
             }
-            case R.id.Menu_MarkAllRead: {
-                boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
-                IUpdatable updater = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
-                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(this, updater, R.string.Dialog_Title,
-                        R.string.Dialog_MarkAllRead, backAfterUpdate);
-                dialog.show(getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
-                return true;
-            }
-            case R.id.Menu_MarkFeedsRead:
-                if (selectedCategoryId > Integer.MIN_VALUE) {
-                    boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
-                    IUpdatable updateable = new ReadStateUpdater(selectedCategoryId);
-                    
-                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(this, updateable, R.string.Dialog_Title,
-                            R.string.Dialog_MarkFeedsRead, backAfterUpdate);
-                    dialog.show(getSupportFragmentManager(), YesNoUpdaterDialog.DIALOG);
-                }
-                return true;
             default:
                 return false;
         }
@@ -238,7 +212,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        // TODO Auto-generated method stub
         return super.onMenuItemSelected(featureId, item);
     }
     

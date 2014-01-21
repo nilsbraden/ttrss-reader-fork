@@ -22,9 +22,11 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.CategoryActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
+import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.ListContentProvider;
+import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import android.app.Activity;
@@ -35,14 +37,15 @@ import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.ContextMenu;
-import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 public class CategoryListFragment extends MainListFragment {
     
     protected static final String TAG = CategoryListFragment.class.getSimpleName();
-
+    
     protected static final TYPE THIS_TYPE = TYPE.CATEGORY;
     public static final String FRAGMENT = "CATEGORY_FRAGMENT";
     
@@ -54,7 +57,6 @@ public class CategoryListFragment extends MainListFragment {
     public static CategoryListFragment newInstance() {
         // Create a new fragment instance
         CategoryListFragment detail = new CategoryListFragment();
-        detail.setHasOptionsMenu(true);
         detail.setRetainInstance(true);
         return detail;
     }
@@ -64,6 +66,7 @@ public class CategoryListFragment extends MainListFragment {
         if (!Controller.isTablet)
             Controller.getInstance().lastOpenedFeeds.clear();
         Controller.getInstance().lastOpenedArticles.clear();
+        setHasOptionsMenu(true);
         super.onCreate(instance);
     }
     
@@ -111,6 +114,44 @@ public class CategoryListFragment extends MainListFragment {
                 return true;
         }
         return false;
+    }
+    
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        if (!Controller.isTablet && selectedId != Integer.MIN_VALUE)
+            menu.removeItem(R.id.Menu_MarkAllRead);
+        if (selectedId == Integer.MIN_VALUE)
+            menu.removeItem(R.id.Menu_MarkFeedsRead);
+        super.onPrepareOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (super.onOptionsItemSelected(item))
+            return true;
+        
+        switch (item.getItemId()) {
+            case R.id.Menu_MarkAllRead: {
+                boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
+                IUpdatable updater = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
+                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(getActivity(), updater,
+                        R.string.Dialog_Title, R.string.Dialog_MarkAllRead, backAfterUpdate);
+                dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                return true;
+            }
+            case R.id.Menu_MarkFeedsRead:
+                if (selectedId > Integer.MIN_VALUE) {
+                    boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
+                    IUpdatable updateable = new ReadStateUpdater(selectedId);
+                    
+                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(getActivity(), updateable,
+                            R.string.Dialog_Title, R.string.Dialog_MarkFeedsRead, backAfterUpdate);
+                    dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                }
+                return true;
+            default:
+                return false;
+        }
     }
     
     @Override
