@@ -18,6 +18,14 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.73
+            \n * Fixed \"Go back after mark all read\"
+            \n * Added style for blockquote-tag
+            \n * Improved logging and error reporting
+            \n * Add \"Copy URL to clipboard\" option to context menu of URLs
+            \n * Fixed long-press on feed getting redirected to category
+            \n * Fixed duplicate virtual categories when no unread articles exist
+            \n * Attemted fix for large tablets getting no tablet layout</item>
         <item>Version 1.72
             \n * Implemented better error reporting mechanism
             \n * Modified tablet layout, reduced complexity of code
