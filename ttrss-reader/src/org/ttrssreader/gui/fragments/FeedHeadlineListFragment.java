@@ -23,6 +23,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
+import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.MyGestureDetector;
@@ -35,6 +36,7 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
+import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
 import android.app.Activity;
@@ -49,7 +51,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -57,6 +58,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineListFragment extends MainListFragment implements TextInputAlertCallback {
     
@@ -90,7 +93,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         detail.feedId = id;
         detail.selectArticlesForCategory = selectArticles;
         detail.articleId = articleId;
-        detail.setHasOptionsMenu(true);
         detail.setRetainInstance(true);
         return detail;
     }
@@ -107,6 +109,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         if (feedId > 0)
             Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
+        setHasOptionsMenu(true);
         super.onCreate(instance);
     }
     
@@ -212,6 +215,34 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 return false;
         }
         return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (super.onOptionsItemSelected(item))
+            return true;
+        
+        switch (item.getItemId()) {
+            case R.id.Menu_MarkFeedRead: {
+                boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
+                if (selectArticlesForCategory) {
+                    new Updater(getActivity(), new ReadStateUpdater(categoryId), backAfterUpdate).exec();
+                } else {
+                    new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate).exec();
+                }
+                
+                return true;
+            }
+            case R.id.Menu_FeedUnsubscribe: {
+                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(getActivity(),
+                        new UnsubscribeUpdater(feedId), R.string.Dialog_unsubscribeTitle,
+                        R.string.Dialog_unsubscribeText);
+                dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                return true;
+            }
+            default:
+                return false;
+        }
     }
     
     /**

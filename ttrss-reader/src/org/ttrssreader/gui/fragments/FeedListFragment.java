@@ -58,7 +58,6 @@ public class FeedListFragment extends MainListFragment {
         // Create a new fragment instance
         FeedListFragment detail = new FeedListFragment();
         detail.categoryId = id;
-        detail.setHasOptionsMenu(true);
         detail.setRetainInstance(true);
         return detail;
     }
@@ -68,6 +67,7 @@ public class FeedListFragment extends MainListFragment {
         Controller.getInstance().lastOpenedFeeds.clear();
         if (instance != null)
             categoryId = instance.getInt(FEED_CAT_ID);
+        setHasOptionsMenu(true);
         super.onCreate(instance);
     }
     
