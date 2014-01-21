@@ -43,6 +43,7 @@ public class Updater extends AsyncTask<Void, Void, Void> {
         boolean goBackAfterUpdate;
         public MsgHandler(IUpdateEndListener parent, boolean goBackAfterUpdate) {
             super(parent);
+            this.goBackAfterUpdate = goBackAfterUpdate;
         }
         
         @Override
