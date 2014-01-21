@@ -6,6 +6,8 @@ import android.webkit.WebView;
 
 public class MyWebView extends WebView {
     
+    protected static final String TAG = MyWebView.class.getSimpleName();
+    
     public MyWebView(Context context) {
         super(context);
     }

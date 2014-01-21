@@ -33,6 +33,8 @@ import android.widget.TextView;
 
 public class CategoryAdapter extends MainAdapter {
     
+    protected static final String TAG = CategoryAdapter.class.getSimpleName();
+    
     public CategoryAdapter(Context context) {
         super(context);
     }

@@ -19,6 +19,8 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public class ProgressBarManager {
     
+    protected static final String TAG = ProgressBarManager.class.getSimpleName();
+    
     private static ProgressBarManager instance = null;
     private int progressIndeterminateCount = 0;
     

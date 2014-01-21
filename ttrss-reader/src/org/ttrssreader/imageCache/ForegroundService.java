@@ -29,6 +29,8 @@ import android.util.Log;
 
 public class ForegroundService extends Service implements ICacheEndListener {
     
+    protected static final String TAG = ForegroundService.class.getSimpleName();
+    
     public static final String ACTION_LOAD_IMAGES = "load_images";
     public static final String ACTION_LOAD_ARTICLES = "load_articles";
     public static final String PARAM_SHOW_NOTIFICATION = "show_notification";
@@ -105,12 +107,12 @@ public class ForegroundService extends Service implements ICacheEndListener {
                 title = getText(R.string.Cache_service_imagecache);
                 imageCacher = new ImageCacher(this, this, false);
                 imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                Log.i(Utils.TAG, "Caching images started");
+                Log.i(TAG, "Caching images started");
             } else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
                 title = getText(R.string.Cache_service_articlecache);
                 imageCacher = new ImageCacher(this, this, true);
                 imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                Log.i(Utils.TAG, "Caching (articles only) started");
+                Log.i(TAG, "Caching (articles only) started");
             }
             
             WakeLocker.acquire(this);

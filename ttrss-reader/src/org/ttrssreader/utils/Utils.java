@@ -47,6 +47,8 @@ import android.util.Log;
 
 public class Utils {
     
+    protected static final String TAG = Utils.class.getSimpleName();
+    
     public static final long SECOND = 1000;
     public static final long MINUTE = 60 * SECOND;
     public static final long HOUR = 60 * MINUTE;
@@ -66,11 +68,6 @@ public class Utils {
      * Min supported versions of the Tiny Tiny RSS Server
      */
     public static final int SERVER_VERSION = 150;
-    
-    /**
-     * The TAG for Log-Output
-     */
-    public static final String TAG = "ttrss";
     
     /**
      * Vibrate-Time for vibration when end of list is reached
@@ -369,7 +366,7 @@ public class Utils {
                 notification = buildOldNotification(context, icon, ticker, title, text, pendingIntent);
             }
         } catch (Exception re) {
-            Log.e(Utils.TAG, "Exception while building notification. Does your device propagate the right API-Level? ("
+            Log.e(TAG, "Exception while building notification. Does your device propagate the right API-Level? ("
                     + Build.VERSION.SDK_INT + ")", re);
             re.printStackTrace();
             

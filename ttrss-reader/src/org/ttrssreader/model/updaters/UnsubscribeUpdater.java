@@ -20,6 +20,8 @@ import org.ttrssreader.controllers.Data;
 
 public class UnsubscribeUpdater implements IUpdatable {
     
+    protected static final String TAG = UnsubscribeUpdater.class.getSimpleName();
+    
     private int feed_id;
     
     public UnsubscribeUpdater(int feed_id) {

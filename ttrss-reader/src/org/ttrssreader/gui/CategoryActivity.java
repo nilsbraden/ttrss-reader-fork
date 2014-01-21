@@ -50,6 +50,8 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class CategoryActivity extends MenuActivity implements IItemSelectedListener {
     
+    protected static final String TAG = CategoryActivity.class.getSimpleName();
+    
     private static final String DIALOG_WELCOME = "welcome";
     private static final String DIALOG_UPDATE = "update";
     
@@ -117,7 +119,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
                 NetworkInfo mWifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                 
                 if (!mWifi.isConnected()) {
-                    Log.i(Utils.TAG, "Preference Start ImageCache only on WIFI set, doing nothing...");
+                    Log.i(TAG, "Preference Start ImageCache only on WIFI set, doing nothing...");
                     startCache = false;
                 }
             }
@@ -127,7 +129,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             cacherStarted = true;
             
             if (startCache) {
-                Log.i(Utils.TAG, "Starting ImageCache...");
+                Log.i(TAG, "Starting ImageCache...");
                 doCache(false); // images
             }
         }
@@ -232,6 +234,12 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             default:
                 return false;
         }
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        // TODO Auto-generated method stub
+        return super.onMenuItemSelected(featureId, item);
     }
     
     /**

@@ -21,6 +21,9 @@ import android.util.Log;
  * Class for managing the {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE} for this plug-in.
  */
 public final class PluginBundleManager {
+    
+    protected static final String TAG = PluginBundleManager.class.getSimpleName();
+    
     /**
      * Type: {@code String}.
      * <p>
@@ -59,15 +62,15 @@ public final class PluginBundleManager {
          * Make sure the expected extras exist
          */
         if (!bundle.containsKey(BUNDLE_EXTRA_IMAGES)) {
-            Log.e(Utils.TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_IMAGES)); //$NON-NLS-1$
+            Log.e(TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_IMAGES)); //$NON-NLS-1$
             return false;
         }
         if (!bundle.containsKey(BUNDLE_EXTRA_NOTIFICATION)) {
-            Log.e(Utils.TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_NOTIFICATION)); //$NON-NLS-1$
+            Log.e(TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_NOTIFICATION)); //$NON-NLS-1$
             return false;
         }
         if (!bundle.containsKey(BUNDLE_EXTRA_INT_VERSION_CODE)) {
-            Log.e(Utils.TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_INT_VERSION_CODE)); //$NON-NLS-1$
+            Log.e(TAG, String.format("bundle must contain extra %s", BUNDLE_EXTRA_INT_VERSION_CODE)); //$NON-NLS-1$
             return false;
         }
         
@@ -77,14 +80,14 @@ public final class PluginBundleManager {
          * missing, rather than just a message that there is the wrong number).
          */
         if (3 != bundle.keySet().size()) {
-            Log.e(Utils.TAG,
+            Log.e(TAG,
                     String.format(
                             "bundle must contain 3 keys, but currently contains %d keys: %s", bundle.keySet().size(), bundle.keySet())); //$NON-NLS-1$
             return false;
         }
         
         if (bundle.getInt(BUNDLE_EXTRA_INT_VERSION_CODE, 0) != bundle.getInt(BUNDLE_EXTRA_INT_VERSION_CODE, 1)) {
-            Log.e(Utils.TAG, String.format(
+            Log.e(TAG, String.format(
                     "bundle extra %s appears to be the wrong type.  It must be an int", BUNDLE_EXTRA_INT_VERSION_CODE)); //$NON-NLS-1$
             return false;
         }

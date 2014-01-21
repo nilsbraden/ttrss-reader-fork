@@ -14,6 +14,8 @@ import android.net.Uri;
 
 public class ListContentProvider extends ContentProvider {
     
+    protected static final String TAG = ListContentProvider.class.getSimpleName();
+    
     private OpenHelper dbOpenHelper;
     
     private static final String AUTHORITY = "org.ttrssreader";

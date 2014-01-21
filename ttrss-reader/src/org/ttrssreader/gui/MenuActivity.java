@@ -63,6 +63,9 @@ import com.actionbarsherlock.view.Window;
  */
 public abstract class MenuActivity extends SherlockFragmentActivity implements IUpdateEndListener, ICacheEndListener,
         IItemSelectedListener, IDataChangedListener {
+    
+    protected static final String TAG = MenuActivity.class.getSimpleName();
+    
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     protected final Context context = this;

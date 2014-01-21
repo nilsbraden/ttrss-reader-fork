@@ -29,6 +29,8 @@ import org.ttrssreader.model.pojos.Feed;
 
 public class ReadStateUpdater implements IUpdatable {
     
+    protected static final String TAG = ReadStateUpdater.class.getSimpleName();
+    
     private int state;
     
     private Collection<Category> categories = null;

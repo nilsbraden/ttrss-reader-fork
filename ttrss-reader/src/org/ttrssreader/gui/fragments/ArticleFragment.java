@@ -93,6 +93,8 @@ import com.actionbarsherlock.app.SherlockFragment;
 @SuppressWarnings("deprecation")
 public class ArticleFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     
+    protected static final String TAG = ArticleFragment.class.getSimpleName();
+    
     public static final String FRAGMENT = "ARTICLE_FRAGMENT";
     
     public static final String ARTICLE_ID = "ARTICLE_ID";
@@ -457,7 +459,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             
             if (!linkAutoOpened && article.content.length() < 3) {
                 if (Controller.getInstance().openUrlEmptyArticle()) {
-                    Log.i(Utils.TAG, "Article-Content is empty, opening URL in browser");
+                    Log.i(TAG, "Article-Content is empty, opening URL in browser");
                     linkAutoOpened = true;
                     openLink();
                 }
@@ -466,8 +468,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             // Everything did load, we dont have to do this again.
             webviewInitialized = true;
         } catch (Exception e) {
-            Log.w(Utils.TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause()
-                    + ")");
+            Log.w(TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause() + ")");
         } finally {
             ProgressBarManager.getInstance().removeProgress(getSherlockActivity());
         }
@@ -490,7 +491,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             i.setData(Uri.parse(url));
             startActivity(i);
         } catch (ActivityNotFoundException e) {
-            Log.e(Utils.TAG, "Couldn't find a suitable activity for the uri: " + url);
+            Log.e(TAG, "Couldn't find a suitable activity for the uri: " + url);
         }
     }
     
@@ -794,10 +795,10 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
          */
         @JavascriptInterface
         public void prev() {
-            Log.d(Utils.TAG, "JS: PREV");
+            Log.d(TAG, "JS: PREV");
             activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    Log.d(Utils.TAG, "JS: PREV");
+                    Log.d(TAG, "JS: PREV");
                     FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
                     activity.openNextArticle(-1);
                 }
@@ -809,10 +810,10 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
          */
         @JavascriptInterface
         public void next() {
-            Log.d(Utils.TAG, "JS: NEXT");
+            Log.d(TAG, "JS: NEXT");
             activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    Log.d(Utils.TAG, "JS: NEXT");
+                    Log.d(TAG, "JS: NEXT");
                     FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
                     activity.openNextArticle(1);
                 }

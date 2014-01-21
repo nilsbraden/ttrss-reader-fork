@@ -31,6 +31,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class AboutActivity extends Activity {
+    
+    protected static final String TAG = AboutActivity.class.getSimpleName();
+    
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     @Override

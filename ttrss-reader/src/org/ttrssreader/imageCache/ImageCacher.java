@@ -45,6 +45,8 @@ import android.util.Log;
 
 public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
+    protected static final String TAG = ImageCacher.class.getSimpleName();
+    
     private static final int DEFAULT_TASK_COUNT = 6;
     
     private static volatile int progressImageDownload;
@@ -126,7 +128,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         while (true) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (!Utils.checkConnected(cm)) {
-                Log.e(Utils.TAG, "No connectivity, aborting...");
+                Log.e(TAG, "No connectivity, aborting...");
                 break;
             }
             
@@ -161,7 +163,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             }
             
             publishProgress(++progress);
-            Log.i(Utils.TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
+            Log.i(TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
             
             if (onlyArticles) // We are done here..
                 break;
@@ -179,7 +181,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             publishProgress(++progress);
             purgeCache();
             
-            Log.i(Utils.TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
+            Log.i(TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
                     cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / Utils.SECOND));
             
             break;
@@ -215,12 +217,12 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         ArrayList<Article> articles = DBHelper.getInstance().queryArticlesForImagecache();
         
         taskCount = articles.size();
-        Log.d(Utils.TAG, "Articles count for image caching: " + taskCount);
+        Log.d(TAG, "Articles count for image caching: " + taskCount);
         
         for (Article article : articles) {
             int articleId = article.id;
             
-            // Log.d(Utils.TAG, "Cache images for article ID: " + articleId);
+            // Log.d(TAG, "Cache images for article ID: " + articleId);
             
             // Get images included in HTML
             Set<String> set = new HashSet<String>();
@@ -230,7 +232,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     if (!imageCache.containsKey(url))
                         set.add(url);
                 }
-                // Log.d(Utils.TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size());
+                // Log.d(TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size());
                 
                 // Get images from attachments separately
                 for (String url : article.attachments) {
@@ -241,7 +243,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                         }
                     }
                 }
-                // Log.d(Utils.TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size());
+                // Log.d(TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size());
             } catch (IllegalStateException e) {
                 // sometimes get Cursor error, the String (content) could not
                 // be read, so just skip such records
@@ -257,7 +259,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             }
             
             if (downloaded > cacheSizeMax) {
-                Log.w(Utils.TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
+                Log.w(TAG, "Stopping download, downloaded data exceeds cache-size-limit from options.");
                 break;
             }
         }
@@ -272,12 +274,12 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     map.wait(Utils.SECOND);
                     map.notifyAll();
                 } catch (InterruptedException e) {
-                    Log.d(Utils.TAG, "Got an InterruptedException!");
+                    Log.d(TAG, "Got an InterruptedException!");
                 }
             }
         }
         
-        Log.i(Utils.TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
+        Log.i(TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     public class DownloadImageTask implements Runnable {
@@ -333,7 +335,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         
         if (folderSize > cacheSizeMax) {
             Collection<RemoteFile> rfs = DBHelper.getInstance().getUncacheFiles(folderSize - cacheSizeMax);
-            Log.d(Utils.TAG, "Found " + rfs.size() + " cached files for deletion");
+            Log.d(TAG, "Found " + rfs.size() + " cached files for deletion");
             
             ArrayList<Integer> rfIds = new ArrayList<Integer>(rfs.size());
             for (RemoteFile rf : rfs) {
@@ -341,7 +343,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 
                 if (f.exists()) {
                     if (!f.delete()) {
-                        Log.w(Utils.TAG, "File " + f.getAbsolutePath() + " was not deleted!!!");
+                        Log.w(TAG, "File " + f.getAbsolutePath() + " was not deleted!!!");
                     }
                 }
                 
@@ -350,7 +352,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             DBHelper.getInstance().markRemoteFilesNonCached(rfIds);
         }
-        Log.i(Utils.TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
+        Log.i(TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     /**

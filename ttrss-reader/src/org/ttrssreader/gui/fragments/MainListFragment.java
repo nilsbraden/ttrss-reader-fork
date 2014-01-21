@@ -23,7 +23,6 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.Utils;
 import android.app.Activity;
 import android.content.res.TypedArray;
 import android.database.Cursor;
@@ -45,6 +44,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public abstract class MainListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    
+    protected static final String TAG = MainListFragment.class.getSimpleName();
     
     protected static final int TYPE_CAT_ID = 1;
     protected static final int TYPE_FEED_ID = 2;
@@ -206,7 +207,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
             newInstance.setInitialSavedState(savedState);
             return newInstance;
         } catch (Exception e) {
-            Log.e(Utils.TAG, "Error while recreating Fragment-Instance...", e);
+            Log.e(TAG, "Error while recreating Fragment-Instance...", e);
             return null;
         }
     }

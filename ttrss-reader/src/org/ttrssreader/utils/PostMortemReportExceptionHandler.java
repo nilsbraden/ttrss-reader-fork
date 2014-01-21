@@ -34,6 +34,8 @@ import android.util.Log;
  *         Source has been released to the public as is and without any warranty.
  */
 public class PostMortemReportExceptionHandler implements UncaughtExceptionHandler, Runnable {
+    
+    protected static final String TAG = PostMortemReportExceptionHandler.class.getSimpleName();
     public static final String ExceptionReportFilename = "postmortem.trace";
     
     // "app label + this tag" = email subject
@@ -62,7 +64,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
         
         // Ignore crashreport if user has chosen to ignore it
         if (Controller.getInstance().isNoCrashreports()) {
-            Log.w(Utils.TAG, "User has disabled error reporting.");
+            Log.w(TAG, "User has disabled error reporting.");
             return;
         }
         
@@ -70,12 +72,12 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
         int latest = Controller.getInstance().appLatestVersion();
         int current = Utils.getAppVersionCode(mAct);
         if (latest > current) {
-            Log.w(Utils.TAG, "App is not updated, error reports are disabled.");
+            Log.w(TAG, "App is not updated, error reports are disabled.");
             return;
         }
         
         if ((mAct.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-            Log.w(Utils.TAG, "Application runs with DEBUGGABLE=true, error reports are disabled.");
+            Log.w(TAG, "Application runs with DEBUGGABLE=true, error reports are disabled.");
             return;
         }
         
@@ -105,7 +107,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             // Cannot be reproduced, seems to be related to Cyanogenmod with Android 4.0.4 on some devices:
             // http://stackoverflow.com/questions/11025182/webview-java-lang-securityexception-no-permission-to-modify-given-thread
             if (e.getMessage().toLowerCase(Locale.ENGLISH).contains("no permission to modify given thread")) {
-                Log.w(Utils.TAG, "Error-Reporting for Exception \"no permission to modify given thread\" is disabled.");
+                Log.w(TAG, "Error-Reporting for Exception \"no permission to modify given thread\" is disabled.");
                 handleException = false;
             }
         }
@@ -115,14 +117,14 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             // anymore.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
                     && e.getMessage().toLowerCase(Locale.ENGLISH).contains("database is locked")) {
-                Log.w(Utils.TAG, "Error-Reporting for Exception \"database is locked\" is disabled.");
+                Log.w(TAG, "Error-Reporting for Exception \"database is locked\" is disabled.");
                 handleException = false;
             }
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             // Don't want to keep working so much for old api levels, most errors are also sent via market and that
             // should be enough.
-            Log.w(Utils.TAG, "Error-Reporting for android versions below Honeycomb is disabled.");
+            Log.w(TAG, "Error-Reporting for android versions below Honeycomb is disabled.");
             handleException = false;
         }
         

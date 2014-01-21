@@ -12,6 +12,8 @@ import android.widget.EditText;
 
 public class TextInputAlert {
     
+    protected static final String TAG = TextInputAlert.class.getSimpleName();
+    
     private Article article;
     private TextInputAlertCallback callback;
     

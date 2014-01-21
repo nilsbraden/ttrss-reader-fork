@@ -19,6 +19,8 @@ import org.ttrssreader.controllers.Data;
 
 public class StateSynchronisationUpdater implements IUpdatable {
     
+    protected static final String TAG = StateSynchronisationUpdater.class.getSimpleName();
+    
     @Override
     public void update(Updater parent) {
         Data.getInstance().synchronizeStatus();

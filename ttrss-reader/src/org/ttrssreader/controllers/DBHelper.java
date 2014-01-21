@@ -49,6 +49,8 @@ import android.widget.Toast;
 
 public class DBHelper {
     
+    protected static final String TAG = DBHelper.class.getSimpleName();
+    
     private volatile boolean initialized = false;
     private String LOCK = "";
     
@@ -227,7 +229,7 @@ public class DBHelper {
                         c.getInt(0);
                     
                 } catch (Exception e) {
-                    Log.e(Utils.TAG, "Database was corrupted, creating a new one...", e);
+                    Log.e(TAG, "Database was corrupted, creating a new one...", e);
                     closeDB();
                     File dbFile = context.getDatabasePath(DATABASE_NAME);
                     if (dbFile.delete())
@@ -248,7 +250,7 @@ public class DBHelper {
     private boolean initializeDBHelper() {
         synchronized (LOCK) {
             if (context == null) {
-                Log.e(Utils.TAG, "Can't handle internal DB without Context-Object.");
+                Log.e(TAG, "Can't handle internal DB without Context-Object.");
                 return false;
             }
             
@@ -307,7 +309,7 @@ public class DBHelper {
             if (context == null)
                 return false;
             
-            Log.i(Utils.TAG, "Deleting Database as requested by preferences.");
+            Log.i(TAG, "Deleting Database as requested by preferences.");
             File f = context.getDatabasePath(DATABASE_NAME);
             if (f.exists()) {
                 if (db != null) {
@@ -339,7 +341,7 @@ public class DBHelper {
                 initialized = db.isOpen();
                 return initialized;
             } else {
-                Log.i(Utils.TAG, "Controller not initialized, trying to do that now...");
+                Log.i(TAG, "Controller not initialized, trying to do that now...");
                 initializeDBHelper();
                 return true;
             }
@@ -398,8 +400,8 @@ public class DBHelper {
             if (oldVersion < 40) {
                 String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isStarred INTEGER";
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 40.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format("Upgrading database from %s to 40.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -408,8 +410,8 @@ public class DBHelper {
             if (oldVersion < 42) {
                 String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isPublished INTEGER";
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 42.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format("Upgrading database from %s to 42.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -427,8 +429,8 @@ public class DBHelper {
                     + " PRIMARY KEY(id, type))";
                 // @formatter:on
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 45.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format("Upgrading database from %s to 45.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -447,9 +449,9 @@ public class DBHelper {
                     + " " + MARK_PUBLISH + " INTEGER)";
                 // @formatter:on
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 46.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql2));
+                Log.i(TAG, String.format("Upgrading database from %s to 46.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format(" (Executing: %s", sql2));
                 
                 db.execSQL(sql);
                 db.execSQL(sql2);
@@ -459,8 +461,8 @@ public class DBHelper {
             if (oldVersion < 47) {
                 String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN cachedImages INTEGER DEFAULT 0";
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 47.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format("Upgrading database from %s to 47.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -478,8 +480,8 @@ public class DBHelper {
                         + " PRIMARY KEY(id, type))";
                 // @formatter:on
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 48.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format("Upgrading database from %s to 48.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
@@ -493,15 +495,15 @@ public class DBHelper {
                         + " labelId INTEGER, PRIMARY KEY(articleId, labelId))";
                 // @formatter:on
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 49.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format("Upgrading database from %s to 49.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
             }
             
             if (oldVersion < 50) {
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 50.", oldVersion));
+                Log.i(TAG, String.format("Upgrading database from %s to 50.", oldVersion));
                 ContentValues cv = new ContentValues(1);
                 cv.put("cachedImages", 0);
                 db.update(TABLE_ARTICLES, cv, "cachedImages IS null", null);
@@ -523,9 +525,9 @@ public class DBHelper {
                     + " PRIMARY KEY(id, type))";
                 // @formatter:on
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 51.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql2));
+                Log.i(TAG, String.format("Upgrading database from %s to 51.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format(" (Executing: %s", sql2));
                 
                 db.execSQL(sql);
                 db.execSQL(sql2);
@@ -537,15 +539,15 @@ public class DBHelper {
                 String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN articleLabels TEXT";
                 // @formatter:on
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 52.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format("Upgrading database from %s to 52.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
             }
             
             if (oldVersion < 53) {
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 53.", oldVersion));
+                Log.i(TAG, String.format("Upgrading database from %s to 53.", oldVersion));
                 didUpgrade = createRemoteFilesSupportDBObjects(db);
                 if (didUpgrade) {
                     ContentValues cv = new ContentValues(1);
@@ -559,7 +561,7 @@ public class DBHelper {
             }
             
             if (oldVersion < 58) {
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 58.", oldVersion));
+                Log.i(TAG, String.format("Upgrading database from %s to 58.", oldVersion));
                 
                 // Rename columns "id" to "_id" by modifying the table structure:
                 db.beginTransaction();
@@ -590,15 +592,15 @@ public class DBHelper {
                 String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN author TEXT";
                 // @formatter:on
                 
-                Log.i(Utils.TAG, String.format("Upgrading database from %s to 59.", oldVersion));
-                Log.i(Utils.TAG, String.format(" (Executing: %s", sql));
+                Log.i(TAG, String.format("Upgrading database from %s to 59.", oldVersion));
+                Log.i(TAG, String.format(" (Executing: %s", sql));
                 
                 db.execSQL(sql);
                 didUpgrade = true;
             }
             
             if (didUpgrade == false) {
-                Log.i(Utils.TAG, "Upgrading database, this will drop tables and recreate.");
+                Log.i(TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
@@ -743,7 +745,7 @@ public class DBHelper {
                 
                 success = true;
             } catch (SQLException e) {
-                Log.e(Utils.TAG, "Creation of remote file support DB objects failed.\n" + e);
+                Log.e(TAG, "Creation of remote file support DB objects failed.\n" + e);
             }
             
             return success;
@@ -1269,7 +1271,7 @@ public class DBHelper {
             db.endTransaction();
         }
         
-        Log.i(Utils.TAG, String.format("Fixed counters, total unread: %s (took %sms)", total,
+        Log.i(TAG, String.format("Fixed counters, total unread: %s (took %sms)", total,
                 (System.currentTimeMillis() - time)));
     }
     
@@ -1391,7 +1393,7 @@ public class DBHelper {
             
             safelyDeleteArticles(query, null);
         }
-        Log.d(Utils.TAG, "purgeLastArticles took " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(TAG, "purgeLastArticles took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     /**
@@ -1402,7 +1404,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             safelyDeleteArticles("feedId NOT IN (SELECT _id FROM " + TABLE_FEEDS + ")", null);
         }
-        Log.d(Utils.TAG, "purgeOrphanedArticles took " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(TAG, "purgeOrphanedArticles took " + (System.currentTimeMillis() - time) + "ms");
     }
     
     private void purgeLabels() {
@@ -2186,7 +2188,7 @@ public class DBHelper {
                 while (c.moveToNext()) {
                     rfs.add(handleRemoteFileCursor(c));
                 }
-                Log.d(Utils.TAG, "Query in getRemoteFilesForArticles took " + (System.currentTimeMillis() - time)
+                Log.d(TAG, "Query in getRemoteFilesForArticles took " + (System.currentTimeMillis() - time)
                         + "ms... (remotefiles: " + rfs.size() + ")");
                 
             } catch (Exception e) {

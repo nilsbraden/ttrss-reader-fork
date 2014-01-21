@@ -25,6 +25,8 @@ import android.database.sqlite.SQLiteStatement;
 
 public class CategoryCursorHelper extends MainCursorHelper {
     
+    protected static final String TAG = CategoryCursorHelper.class.getSimpleName();
+    
     /*
      * This is quite a hack. Since partial-sorting of sql-results is not possible I wasn't able to sort virtual
      * categories by id, Labels by title, insert uncategorized feeds there and sort categories by title again.

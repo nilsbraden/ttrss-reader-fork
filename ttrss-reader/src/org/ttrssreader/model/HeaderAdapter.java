@@ -19,6 +19,8 @@ import android.widget.TextView;
  */
 public class HeaderAdapter extends ArrayAdapter<Header> {
     
+    protected static final String TAG = HeaderAdapter.class.getSimpleName();
+    
     static final int HEADER_TYPE_CATEGORY = 0;
     static final int HEADER_TYPE_NORMAL = 1;
     private static final int HEADER_TYPE_COUNT = HEADER_TYPE_NORMAL + 1;
