@@ -140,7 +140,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
     
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         if (selectedArticleId != Integer.MIN_VALUE) {
             getSupportMenuInflater().inflate(R.menu.article, menu);
             if (Controller.isTablet)
@@ -148,9 +148,14 @@ public class FeedHeadlineActivity extends MenuActivity {
         } else {
             super.onCreateOptionsMenu(menu);
         }
+        return true;
+    }
+    
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
         menu.removeItem(R.id.Menu_MarkAllRead);
         menu.removeItem(R.id.Menu_MarkFeedsRead);
-        return true;
+        return super.onPrepareOptionsMenu(menu);
     }
     
     @Override
