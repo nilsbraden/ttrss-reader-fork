@@ -47,6 +47,8 @@ import com.google.gson.stream.MalformedJsonException;
 
 public abstract class JSONConnector {
     
+    protected static final String TAG = JSONConnector.class.getSimpleName();
+    
     protected static String lastError = "";
     protected static boolean hasLastError = false;
     
@@ -184,7 +186,7 @@ public abstract class JSONConnector {
         // Filter password and session-id
         Object paramPw = json.remove(PARAM_PW);
         Object paramSID = json.remove(SID);
-        Log.i(Utils.TAG, json.toString());
+        Log.i(TAG, json.toString());
         json.put(PARAM_PW, paramPw);
         json.put(SID, paramSID);
     }
@@ -417,7 +419,7 @@ public abstract class JSONConnector {
             try {
                 sessionId = readResult(params, true, false);
                 if (sessionId != null) {
-                    Log.d(Utils.TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+                    Log.d(TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
                     return true;
                 }
             } catch (IOException e) {
@@ -582,7 +584,7 @@ public abstract class JSONConnector {
                         if (filter != null)
                             skipObject = filter.omitArticle(field, a);
                     } catch (IllegalArgumentException e) {
-                        Log.w(Utils.TAG, "Result contained illegal value for entry \"" + name + "\".");
+                        Log.w(TAG, "Result contained illegal value for entry \"" + name + "\".");
                         reader.skipValue();
                         continue;
                     }
@@ -598,15 +600,15 @@ public abstract class JSONConnector {
             }
             reader.endArray();
         } catch (StopJsonParsingException e) {
-            Log.i(Utils.TAG, "Parsing of aricle array was broken after " + count + " articles");
+            Log.i(TAG, "Parsing of aricle array was broken after " + count + " articles");
         } catch (OutOfMemoryError e) {
             Controller.getInstance().lowMemory(true); // Low memory detected
         } catch (Exception e) {
-            Log.e(Utils.TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
+            Log.e(TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
         }
         
-        Log.d(Utils.TAG, "parseArticleArray: parsing " + count + " articles took "
-                + (System.currentTimeMillis() - time) + "ms");
+        Log.d(TAG, "parseArticleArray: parsing " + count + " articles took " + (System.currentTimeMillis() - time)
+                + "ms");
         return count;
     }
     
@@ -722,7 +724,7 @@ public abstract class JSONConnector {
                 }
         }
         
-        Log.d(Utils.TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
     
@@ -810,7 +812,7 @@ public abstract class JSONConnector {
                 }
         }
         
-        Log.d(Utils.TAG, "getFeeds: " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(TAG, "getFeeds: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
     
@@ -954,7 +956,7 @@ public abstract class JSONConnector {
             }
         }
         
-        Log.d(Utils.TAG, "getHeadlines: " + (System.currentTimeMillis() - time) + "ms");
+        Log.d(TAG, "getHeadlines: " + (System.currentTimeMillis() - time) + "ms");
     }
     
     /**
@@ -1165,7 +1167,7 @@ public abstract class JSONConnector {
         params.put(PARAM_ARTICLE_ID, articleId.toString());
         
         JsonReader reader = null;
-        Label label = new Label();;
+        Label label = new Label();
         try {
             reader = prepareReader(params);
             if (reader == null)

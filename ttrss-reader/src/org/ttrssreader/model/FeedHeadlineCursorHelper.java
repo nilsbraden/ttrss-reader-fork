@@ -25,6 +25,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class FeedHeadlineCursorHelper extends MainCursorHelper {
     
+    protected static final String TAG = FeedHeadlineCursorHelper.class.getSimpleName();
+    
     public FeedHeadlineCursorHelper(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
         super(context);
         this.feedId = feedId;

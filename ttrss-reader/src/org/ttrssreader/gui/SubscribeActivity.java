@@ -43,6 +43,9 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 
 public class SubscribeActivity extends MenuActivity {
+    
+    protected static final String TAG = SubscribeActivity.class.getSimpleName();
+    
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PARAM_FEEDURL = "feed_url";

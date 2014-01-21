@@ -22,6 +22,8 @@ import org.ttrssreader.model.pojos.Article;
 
 public class StarredStateUpdater implements IUpdatable {
     
+    protected static final String TAG = StarredStateUpdater.class.getSimpleName();
+    
     private Article article;
     private int articleState;
     

@@ -27,8 +27,8 @@ import android.content.res.XmlResourceParser;
 
 public class MimeTypeParser {
     
-    public static final String TAG_MIMETYPES = "MimeTypes";
-    public static final String TAG_TYPE = "type";
+    protected static final String TAG_MIMETYPES = "MimeTypes";
+    protected static final String TAG_TYPE = "type";
     
     public static final String ATTR_EXTENSION = "extension";
     public static final String ATTR_MIMETYPE = "mimetype";

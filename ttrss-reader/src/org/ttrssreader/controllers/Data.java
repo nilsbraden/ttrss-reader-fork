@@ -40,6 +40,8 @@ import android.util.Log;
 @SuppressLint("UseSparseArrays")
 public class Data {
     
+    protected static final String TAG = Data.class.getSimpleName();
+    
     /** uncategorized */
     public static final int VCAT_UNCAT = 0;
     
@@ -179,7 +181,7 @@ public class Data {
             }
             
             articleUnreadIds.addAll(unreadUpdatedFilter.getOmittedArticles());
-            Log.d(Utils.TAG, "Amount of unread articles: " + articleUnreadIds.size());
+            Log.d(TAG, "Amount of unread articles: " + articleUnreadIds.size());
             DBHelper.getInstance().markRead(VCAT_ALL, false);
             DBHelper.getInstance().markArticles(articleUnreadIds, "isUnread", 1);
         }
@@ -229,7 +231,7 @@ public class Data {
         if (Controller.getInstance().isLowMemory())
             limit = limit / 2;
         
-        Log.d(Utils.TAG, "UPDATE limit: " + limit);
+        Log.d(TAG, "UPDATE limit: " + limit);
         String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
         
         Set<Article> articles = new HashSet<Article>();
@@ -533,7 +535,7 @@ public class Data {
         
         boolean erg = false;
         if (Utils.isConnected(cm)) {
-            Log.d(Utils.TAG, "Calling connector with Label: " + label + ") and ids.size() " + articleIds.size());
+            Log.d(TAG, "Calling connector with Label: " + label + ") and ids.size() " + articleIds.size());
             erg = Controller.getInstance().getConnector().setArticleLabel(articleIds, label.id, label.checked);
         }
         return erg;
@@ -595,7 +597,7 @@ public class Data {
         // Controller.getInstance().getConnector()
         // .getHeadlines(articles, VCAT_ALL, 400, VIEW_ALL, true, minUnread, null, skipProperties);
         
-        Log.d(Utils.TAG, String.format("Syncing Status took %sms", (System.currentTimeMillis() - time)));
+        Log.d(TAG, String.format("Syncing Status took %sms", (System.currentTimeMillis() - time)));
     }
     
     public void purgeOrphanedArticles() {

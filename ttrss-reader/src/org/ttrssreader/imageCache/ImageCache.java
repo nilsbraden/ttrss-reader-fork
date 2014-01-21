@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AbstractCache;
-import org.ttrssreader.utils.Utils;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
@@ -35,6 +34,8 @@ import android.util.Log;
  * @author Nils Braden (modified some stuff)
  */
 public class ImageCache extends AbstractCache<String, byte[]> {
+    
+    protected static final String TAG = ImageCache.class.getSimpleName();
     
     public ImageCache(int initialCapacity, String cacheDir) {
         super("ImageCache", initialCapacity, 1);
@@ -79,7 +80,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
         }
         
         if (!isDiskCacheEnabled)
-            Log.e(Utils.TAG, "Failed creating disk cache directory " + diskCacheDir);
+            Log.e(TAG, "Failed creating disk cache directory " + diskCacheDir);
         
         return isDiskCacheEnabled;
     }
@@ -89,7 +90,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
         File folder = new File(diskCacheDir);
         File[] files = folder.listFiles();
         
-        Log.d(Utils.TAG, "Image cache before fillMemoryCacheFromDisk: " + cache.size());
+        Log.d(TAG, "Image cache before fillMemoryCacheFromDisk: " + cache.size());
         if (files == null)
             return;
         
@@ -97,10 +98,10 @@ public class ImageCache extends AbstractCache<String, byte[]> {
             try {
                 cache.put(file.getName(), b);
             } catch (RuntimeException e) {
-                Log.e(Utils.TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
+                Log.e(TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
             }
         }
-        Log.d(Utils.TAG, "Image cache after fillMemoryCacheFromDisk: " + cache.size());
+        Log.d(TAG, "Image cache after fillMemoryCacheFromDisk: " + cache.size());
     }
     
     public boolean containsKey(String key) {

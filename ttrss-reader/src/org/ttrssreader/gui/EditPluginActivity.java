@@ -37,6 +37,9 @@ import android.widget.CheckBox;
  * @see com.twofortyfouram.locale.Intent#EXTRA_BUNDLE
  */
 public final class EditPluginActivity extends AbstractPluginActivity {
+    
+    protected static final String TAG = EditPluginActivity.class.getSimpleName();
+    
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     @Override

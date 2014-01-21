@@ -31,6 +31,8 @@ import android.widget.EditText;
 import com.actionbarsherlock.view.Menu;
 
 public class ShareActivity extends MenuActivity {
+    
+    protected static final String TAG = ShareActivity.class.getSimpleName();
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PARAM_TITLE = "title";

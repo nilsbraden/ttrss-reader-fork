@@ -2,7 +2,6 @@ package org.ttrssreader.preferences;
 
 import java.util.Map;
 import org.ttrssreader.R;
-import org.ttrssreader.utils.Utils;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -17,6 +16,8 @@ import com.actionbarsherlock.view.MenuItem;
 
 @SuppressWarnings("deprecation")
 public class ConnectionSettings extends SherlockPreferenceActivity {
+    
+    protected static final String TAG = ConnectionSettings.class.getSimpleName();
     
     private static final String KEY_CONNECTION_CATEGORY = "connectionCategory";
     public static final String KEY_SSID = "SSID";
@@ -84,7 +85,7 @@ public class ConnectionSettings extends SherlockPreferenceActivity {
         
         category.setTitle(category.getTitle() + " ( Network: " + keyPrefix + " )");
         
-        Log.d(Utils.TAG, "Adding WifiPreferences...");
+        Log.d(TAG, "Adding WifiPreferences...");
         for (int i = 0; i < category.getPreferenceCount(); i++) {
             Preference pref = category.getPreference(i);
             
@@ -102,7 +103,7 @@ public class ConnectionSettings extends SherlockPreferenceActivity {
             // Remove and add again to reinitialize default values
             category.removePreference(pref);
             category.addPreference(pref);
-            Log.d(Utils.TAG, String.format("  oldKey: \"%s\" newKey: \"%s\"", oldKey, newKey));
+            Log.d(TAG, String.format("  oldKey: \"%s\" newKey: \"%s\"", oldKey, newKey));
         }
         
         onContentChanged();

@@ -26,13 +26,14 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.HttpParams;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.SSLUtils;
-import org.ttrssreader.utils.Utils;
 import android.util.Log;
 
 /**
  * Create a HttpClient object based on the user preferences.
  */
 public class HttpClientFactory {
+    
+    protected static final String TAG = HttpClientFactory.class.getSimpleName();
     
     private static HttpClientFactory instance;
     private SchemeRegistry registry;
@@ -53,7 +54,7 @@ public class HttpClientFactory {
             socketFactory = newSslSocketFactory(keystorePassword);
             if (socketFactory == null) {
                 socketFactory = SSLSocketFactory.getSocketFactory();
-                Log.w(Utils.TAG, "Custom key store could not be read, using default settings.");
+                Log.w(TAG, "Custom key store could not be read, using default settings.");
             }
             
         } else if (trustAllSslCerts) {

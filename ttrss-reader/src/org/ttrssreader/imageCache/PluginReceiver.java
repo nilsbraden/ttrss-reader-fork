@@ -15,7 +15,6 @@ package org.ttrssreader.imageCache;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.imageCache.bundle.BundleScrubber;
 import org.ttrssreader.imageCache.bundle.PluginBundleManager;
-import org.ttrssreader.utils.Utils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +28,8 @@ import android.util.Log;
  * @see com.twofortyfouram.locale.Intent#EXTRA_BUNDLE
  */
 public final class PluginReceiver extends BroadcastReceiver {
+    
+    protected static final String TAG = PluginReceiver.class.getSimpleName();
     
     public static final String ACTION_FIRE_SETTING = "com.twofortyfouram.locale.intent.action.FIRE_SETTING";
     public static final String EXTRA_BUNDLE = "com.twofortyfouram.locale.intent.extra.BUNDLE";
@@ -48,7 +49,7 @@ public final class PluginReceiver extends BroadcastReceiver {
          */
         
         if (!ACTION_FIRE_SETTING.equals(intent.getAction())) {
-            Log.e(Utils.TAG, "Received unexpected Intent action " + intent.getAction());
+            Log.e(TAG, "Received unexpected Intent action " + intent.getAction());
             return;
         }
         
@@ -58,7 +59,7 @@ public final class PluginReceiver extends BroadcastReceiver {
         BundleScrubber.scrub(bundle);
         
         if (!PluginBundleManager.isBundleValid(bundle)) {
-            Log.e(Utils.TAG, "Received invalid Bundle for action " + intent.getAction());
+            Log.e(TAG, "Received invalid Bundle for action " + intent.getAction());
             return;
         }
         

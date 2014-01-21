@@ -22,6 +22,8 @@ import com.actionbarsherlock.app.ActionBar;
 
 public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
     
+    protected static final String TAG = MyGestureDetector.class.getSimpleName();
+    
     private ActionBar actionBar;
     private boolean hideActionbar;
     private long lastShow = -1;

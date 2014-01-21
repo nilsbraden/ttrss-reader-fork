@@ -26,6 +26,8 @@ import android.view.ViewGroup;
 
 public abstract class MainAdapter extends SimpleCursorAdapter {
     
+    protected static final String TAG = MainAdapter.class.getSimpleName();
+    
     private static final int layout = R.layout.main;
     
     protected Context context;

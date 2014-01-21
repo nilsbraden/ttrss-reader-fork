@@ -58,6 +58,8 @@ import android.view.Display;
  */
 public class Controller implements OnSharedPreferenceChangeListener {
     
+    protected static final String TAG = Controller.class.getSimpleName();
+    
     public final static String JSON_END_URL = "api/index.php";
     
     private final static char TEMPLATE_DELIMITER_START = '$';
@@ -1000,7 +1002,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public void lowMemory(boolean lowMemory) {
         if (lowMemory && !this.lowMemory)
-            Log.w(Utils.TAG, "lowMemory-Situation detected, trying to reduce memory footprint...");
+            Log.w(TAG, "lowMemory-Situation detected, trying to reduce memory footprint...");
         this.lowMemory = lowMemory;
     }
     
@@ -1047,7 +1049,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                             freshArticleMaxAgeDate = System.currentTimeMillis();
                             put(Constants.FRESH_ARTICLE_MAX_AGE_DATE, freshArticleMaxAgeDate);
                         } catch (Exception e) {
-                            Log.d(Utils.TAG, "Pref \"FRESH_ARTICLE_MAX_AGE\" could not be fetched from server: " + s);
+                            Log.d(TAG, "Pref \"FRESH_ARTICLE_MAX_AGE\" could not be fetched from server: " + s);
                         }
                         return null;
                     }
@@ -1162,7 +1164,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 setPreferencesChanged(true);
                 
             } catch (Exception e) {
-                Log.e(Utils.TAG, "Field not found: " + fieldName);
+                Log.e(TAG, "Field not found: " + fieldName);
             }
             
         }

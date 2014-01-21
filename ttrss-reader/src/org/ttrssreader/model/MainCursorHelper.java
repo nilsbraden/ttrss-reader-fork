@@ -22,6 +22,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 public abstract class MainCursorHelper {
     
+    protected static final String TAG = MainCursorHelper.class.getSimpleName();
+    
     protected Context context;
     
     protected int categoryId = Integer.MIN_VALUE;

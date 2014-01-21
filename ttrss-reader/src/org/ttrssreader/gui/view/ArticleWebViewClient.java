@@ -44,6 +44,8 @@ import android.webkit.WebViewClient;
 
 public class ArticleWebViewClient extends WebViewClient {
     
+    protected static final String TAG = ArticleWebViewClient.class.getSimpleName();
+    
     private Context context;
     private Activity activity;
     
@@ -101,7 +103,7 @@ public class ArticleWebViewClient extends WebViewClient {
                     
                     switch (item) {
                         case 0:
-                            Log.i(Utils.TAG, "Displaying file in mediaplayer: " + url);
+                            Log.i(TAG, "Displaying file in mediaplayer: " + url);
                             Intent i = new Intent(context, MediaPlayerActivity.class);
                             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             i.putExtra(MediaPlayerActivity.URL, url);
@@ -115,7 +117,7 @@ public class ArticleWebViewClient extends WebViewClient {
                             }
                             break;
                         default:
-                            Log.e(Utils.TAG, "Doing nothing, but why is that?? Item: " + item);
+                            Log.e(TAG, "Doing nothing, but why is that?? Item: " + item);
                             break;
                     }
                 }
@@ -154,14 +156,14 @@ public class ArticleWebViewClient extends WebViewClient {
             if (urls.length < 1) {
                 
                 String msg = "No URL given, skipping download...";
-                Log.w(Utils.TAG, msg);
+                Log.w(TAG, msg);
                 Utils.showFinishedNotification(msg, 0, true, context);
                 return null;
                 
             } else if (!externalStorageState()) {
                 
                 String msg = "External Storage not available, skipping download...";
-                Log.w(Utils.TAG, msg);
+                Log.w(TAG, msg);
                 Utils.showFinishedNotification(msg, 0, true, context);
                 return null;
                 
@@ -242,12 +244,12 @@ public class ArticleWebViewClient extends WebViewClient {
                 if (file != null)
                     intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
                 
-                Log.i(Utils.TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + count);
+                Log.i(TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + count);
                 Utils.showFinishedNotification(file.getAbsolutePath(), time, false, context, intent);
                 
             } catch (IOException e) {
                 String msg = "Error while downloading: " + e;
-                Log.e(Utils.TAG, msg);
+                Log.e(TAG, msg);
                 e.printStackTrace();
                 Utils.showFinishedNotification(msg, 0, true, context);
             } finally {

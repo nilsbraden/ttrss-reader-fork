@@ -13,7 +13,6 @@
 package org.ttrssreader.gui;
 
 import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.utils.Utils;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -30,6 +29,8 @@ import com.twofortyfouram.locale.api.R;
  * look more integrated with the plug-in host.
  */
 public abstract class AbstractPluginActivity extends Activity {
+    
+    protected static final String TAG = AbstractPluginActivity.class.getSimpleName();
     /**
      * Flag boolean that can only be set to true via the "Don't Save"
      * {@link com.twofortyfouram.locale.platform.R.id#twofortyfouram_locale_menu_dontsave} menu item in
@@ -60,7 +61,7 @@ public abstract class AbstractPluginActivity extends Activity {
             callingApplicationLabel = getPackageManager().getApplicationLabel(
                     getPackageManager().getApplicationInfo(getCallingPackage(), 0));
         } catch (final NameNotFoundException e) {
-            Log.e(Utils.TAG, "Calling package couldn't be found", e); //$NON-NLS-1$
+            Log.e(TAG, "Calling package couldn't be found", e); //$NON-NLS-1$
         }
         if (null != callingApplicationLabel) {
             setTitle(callingApplicationLabel);
@@ -106,7 +107,7 @@ public abstract class AbstractPluginActivity extends Activity {
         try {
             getActionBar().setIcon(getPackageManager().getApplicationIcon(getCallingPackage()));
         } catch (final NameNotFoundException e) {
-            Log.w(Utils.TAG, "An error occurred loading the host's icon", e); //$NON-NLS-1$
+            Log.w(TAG, "An error occurred loading the host's icon", e); //$NON-NLS-1$
         }
     }
     

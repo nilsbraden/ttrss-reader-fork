@@ -45,6 +45,8 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineActivity extends MenuActivity implements TextInputAlertCallback {
     
+    protected static final String TAG = FeedHeadlineActivity.class.getSimpleName();
+    
     public static final int FEED_NO_ID = 37846914;
     
     private int categoryId = Integer.MIN_VALUE;

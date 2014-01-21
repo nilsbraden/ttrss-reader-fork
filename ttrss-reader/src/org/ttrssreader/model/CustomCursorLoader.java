@@ -11,6 +11,8 @@ import android.support.v4.content.CursorLoader;
 
 public class CustomCursorLoader extends CursorLoader {
     
+    protected static final String TAG = CustomCursorLoader.class.getSimpleName();
+    
     TYPE type;
     
     int categoryId;

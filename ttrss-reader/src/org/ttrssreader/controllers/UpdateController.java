@@ -23,6 +23,8 @@ import android.os.Message;
 
 public class UpdateController {
     
+    protected static final String TAG = UpdateController.class.getSimpleName();
+    
     private static UpdateController instance = null;
     private static List<IDataChangedListener> listeners = new ArrayList<IDataChangedListener>();
     

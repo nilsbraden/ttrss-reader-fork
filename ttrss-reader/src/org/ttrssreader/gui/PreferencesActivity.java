@@ -48,6 +48,9 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 public class PreferencesActivity extends SherlockPreferenceActivity {
+    
+    protected static final String TAG = PreferencesActivity.class.getSimpleName();
+    
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PREFS_DISPLAY = "prefs_display";

@@ -33,6 +33,8 @@ import android.util.Log;
 
 public class JavaJSONConnector extends JSONConnector {
     
+    protected static final String TAG = JavaJSONConnector.class.getSimpleName();
+    
     public JavaJSONConnector(Context context) {
         super(context);
         disableConnectionReuseIfNecessary();
@@ -78,20 +80,20 @@ public class JavaJSONConnector extends JSONConnector {
             // Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
             // Not doing anything here since this error should happen only when no certificate is received from the
             // server.
-            Log.w(Utils.TAG, "SSLPeerUnverifiedException in doRequest(): " + formatException(e));
+            Log.w(TAG, "SSLPeerUnverifiedException in doRequest(): " + formatException(e));
         } catch (SSLException e) {
             if ("No peer certificate".equals(e.getMessage())) {
                 // Handle this by ignoring it, this occurrs very often when the connection is instable.
-                Log.w(Utils.TAG, "SSLException in doRequest(): " + formatException(e));
+                Log.w(TAG, "SSLException in doRequest(): " + formatException(e));
             } else {
                 hasLastError = true;
                 lastError = "SSLException in doRequest(): " + formatException(e);
             }
         } catch (InterruptedIOException e) {
-            Log.w(Utils.TAG, "InterruptedIOException in doRequest(): " + formatException(e));
+            Log.w(TAG, "InterruptedIOException in doRequest(): " + formatException(e));
         } catch (SocketException e) {
             // http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243#1565243
-            Log.w(Utils.TAG, "SocketException in doRequest(): " + formatException(e));
+            Log.w(TAG, "SocketException in doRequest(): " + formatException(e));
         } catch (Exception e) {
             hasLastError = true;
             lastError = "Exception in doRequest(): " + formatException(e);
