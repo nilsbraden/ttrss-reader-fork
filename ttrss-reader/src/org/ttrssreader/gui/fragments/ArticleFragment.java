@@ -368,7 +368,8 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         
-        getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
         
         // Reload content on next doRefresh()
         webviewInitialized = false;
