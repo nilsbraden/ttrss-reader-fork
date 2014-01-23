@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.73 (1) ==
+== Version 1.73 (2) ==
   * Fixed "Go back after mark all read"
   * Added style for blockquote-tag
   * Improved logging and error reporting
@@ -10,6 +10,7 @@
   * Fixed duplicate virtual categories when no unread articles exist
   * Attemted fix for large tablets getting no tablet layout
   * Fixed bug that prevented users of api level < 11 from opening articles
+  * Fixed wrong action bar items beeing displayed
 
 == Version 1.72 (2) ==
   * Implemented better error reporting mechanism
