@@ -187,8 +187,8 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             lastMove = instance.getInt(ARTICLE_MOVE);
             if (webView != null)
                 webView.restoreState(instance);
-            setHasOptionsMenu(true);
         }
+        setHasOptionsMenu(true);
         super.onCreate(instance);
     }
     
