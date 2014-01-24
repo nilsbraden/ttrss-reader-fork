@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="InvalidPackage">
+        <ignore path="libs/" />
+    </issue>
+    <issue id="MissingTranslation" severity="ignore" />
+    <issue id="NewApi" severity="ignore" />
+    <issue id="Typos">
+        <ignore path="res/values/strings.xml" />
+    </issue>
+</lint>

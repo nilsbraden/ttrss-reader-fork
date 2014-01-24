@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2010 N. Braden.
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/ConnectionPreferenceCategoryTitle" >
+
+    <PreferenceCategory
+        android:key="connectionCategory"
+        android:title="@string/ConnectionPreferenceCategoryTitle" >
+        <EditTextPreference
+            android:name="@string/ConnectionUrlPreferenceTitle"
+            android:defaultValue="http://localhost/"
+            android:inputType="textUri"
+            android:key="ConnectionUrlPreference"
+            android:order="10"
+            android:summary="@string/ConnectionUrlPreferenceSummary"
+            android:title="@string/ConnectionUrlPreferenceTitle" />
+        <EditTextPreference
+            android:name="@string/ConnectionUsernamePreferenceTitle"
+            android:defaultValue=""
+            android:inputType="textFilter"
+            android:key="ConnectionUsernamePreference"
+            android:order="20"
+            android:summary="@string/ConnectionUsernamePreferenceSummary"
+            android:title="@string/ConnectionUsernamePreferenceTitle" />
+        <EditTextPreference
+            android:name="@string/ConnectionPasswordPreferenceTitle"
+            android:defaultValue=""
+            android:inputType="textPassword"
+            android:key="ConnectionPasswordPreference"
+            android:order="30"
+            android:summary="@string/ConnectionPasswordPreferenceSummary"
+            android:title="@string/ConnectionPasswordPreferenceTitle" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="ConnectionLazyServerPreference"
+            android:order="40"
+            android:summary="@string/ConnectionLazyServerPreferenceSummary"
+            android:title="@string/ConnectionLazyServerPreferenceTitle" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

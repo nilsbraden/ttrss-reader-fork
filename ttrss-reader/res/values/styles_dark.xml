@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     File created by the Android Action Bar Style Generator
+
+     Copyright (C) 2011 The Android Open Source Project
+     Copyright (C) 2012 readyState Software Ltd
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+  
+          http://www.apache.org/licenses/LICENSE-2.0
+  
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.Dark" parent="Theme.Sherlock">
+        <item name="actionBarItemBackground">@drawable/selectable_background_dark</item>
+        <item name="popupMenuStyle">@style/PopupMenu.Dark</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Dark</item>
+        <item name="actionBarTabStyle">@style/ActionBarTabStyle.Dark</item>
+        <item name="actionDropDownStyle">@style/DropDownNav.Dark</item>
+        <item name="actionBarStyle">@style/ActionBar.Solid.Dark</item>
+        <item name="actionModeBackground">@drawable/cab_background_top_dark</item>
+        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_dark</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Dark</item>
+        <!-- Text and Background -->
+        <item name="android:textColor">@color/font_color_dark</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+        <!-- ListItems -->
+        <item name="ListItemText">@style/ListItemText.Dark</item>
+    </style>
+
+    <style name="ActionBar.Solid.Dark" parent="@style/Widget.Sherlock.ActionBar.Solid">
+        <item name="background">@drawable/ab_solid_dark</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_solid_dark</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_solid_dark</item>
+        <item name="progressBarStyle">@style/ProgressBar.Dark</item>
+    </style>
+
+    <style name="PopupMenu.Dark" parent="@style/Widget.Sherlock.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_dark</item>
+    </style>
+
+    <style name="DropDownListView.Dark" parent="@style/Widget.Sherlock.ListView.DropDown">
+        <item name="android:listSelector">@drawable/selectable_background_dark</item>
+    </style>
+
+    <style name="ActionBarTabStyle.Dark" parent="@style/Widget.Sherlock.ActionBar.TabView">
+        <item name="android:background">@drawable/tab_indicator_ab_dark</item>
+    </style>
+
+    <style name="DropDownNav.Dark" parent="@style/Widget.Sherlock.Spinner.DropDown.ActionBar">
+        <item name="android:background">@drawable/spinner_background_ab_dark</item>
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_dark</item>
+        <item name="android:dropDownSelector">@drawable/selectable_background_dark</item>
+    </style>
+
+    <style name="ProgressBar.Dark" parent="@style/Widget.Sherlock.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/progress_horizontal_dark</item>
+    </style>
+
+    <style name="ActionButton.CloseMode.Dark" parent="@style/Widget.Sherlock.ActionButton.CloseMode">
+        <item name="android:background">@drawable/btn_cab_done_dark</item>
+    </style>
+
+    <!-- this style is only referenced in a Light.DarkActionBar based theme -->
+    <style name="Theme.Dark.Widget" parent="@style/Theme.Sherlock">
+        <item name="popupMenuStyle">@style/PopupMenu.Dark</item>
+        <item name="dropDownListViewStyle">@style/DropDownListView.Dark</item>
+    </style>
+
+    <style name="ListItemText.Dark" parent="@android:style/TextAppearance.Small">
+        <item name="android:textColor">@color/font_color_dark</item>
+    </style>
+
+</resources>

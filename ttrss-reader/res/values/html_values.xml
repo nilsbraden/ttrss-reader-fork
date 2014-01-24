@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * ttrss-reader-fork for Android
+ *
+ * Copyright (C) 2010 N. Braden.
+ * Copyright (C) 2009-2010 J. Devauchelle.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 3 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+-->
+<resources>
+
+    <!-- MAIN TEMPLATE -->
+    <string name="HTML_TEMPLATE" formatted="false">
+<![CDATA[
+<!DOCTYPE html>
+<head>
+  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
+  <style type=\"text/css\">
+  body {
+    padding: 1.5%;
+    font-size: 16px;
+    font-weight: normal;
+  }
+  
+  /************ BEGIN THEMES --> ************/
+  /*** THEME: DARK ***/
+  body#darkTheme {
+    background-color: #222;
+    color: #DDD;
+  }
+  body#darkTheme #header {
+    background-color: #454545;
+  }
+  body#darkTheme a:link, a:active, a:hover {
+    color: #E1E1E1 !important;
+  }
+  body#darkTheme a:visited {
+    color: #FFF !important;
+  }
+  
+  /*** THEME: LIGHT ***/
+  body#lightTheme {
+    background-color: #E1E1E1;
+    color: #333;
+  }
+  body#lightTheme #header {
+    background-color: #B8B3B3;
+  }
+  body#lightTheme a:link, a:active, a:hover {
+    color: #555 !important;
+  }
+  body#lightTheme a:visited {
+    color: #000 !important;
+  }
+  
+  /*** THEME: BLACK ***/
+  body#blackTheme {
+    background-color: #000;
+    color: #FFF;
+  }
+  body#blackTheme #header {
+    background-color: #454545;
+  }
+  body#blackTheme a:link, a:active, a:hover {
+    color: #E1E1E1 !important;
+  }
+  body#blackTheme a:visited {
+    color: #FFF !important;
+  }
+  
+  /*** THEME: WHITE ***/
+  body#whiteTheme {
+    background-color: #FFF;
+    color: #000;
+  }
+  body#whiteTheme #header {
+    background-color: #DBDBDB;
+  }
+  body#whiteTheme a:link, a:active, a:hover {
+    color: #555 !important;
+  }
+  body#whiteTheme a:visited {
+    color: #000 !important;
+  }
+  /************ END THEMES --> ************/
+  
+  body, blockquote, img, iframe, video, div, table, tbody, tr, td, pre, code, p, em, b {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+  }
+  pre, code, blockquote, p, em, b {
+    white-space: -moz-pre-wrap !important;
+    white-space: -pre-wrap !important;
+    white-space: -o-pre-wrap !important;
+    white-space: normal !important; /* used to be \"pre-wrap\" but I dont know why and it breaks \"align:justify\" */
+  }
+  pre, code, blockquote {
+    white-space: pre-wrap !important;
+  }
+  blockquote {
+    margin: 1em 3em;
+    border-left: 2px solid #999;
+    padding-left: 1em;
+  }
+  #header {
+    padding: 2px;
+    margin-bottom: 1em;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  #header a:link, a:active, a:hover, a:visited {
+    color: #FF0000 !important;
+    text-decoration: none !important;
+  }
+  #header_small_text {
+    overflow: auto;
+  }
+  #subscription, #datetime, #author, #labels {
+    font-size: 11px;
+  }
+  #subscription {
+    float: left;
+  }
+  #datetime {
+    float: right;
+  }
+  #author, #labels {
+    margin: 0 auto;
+  }
+  #zierleiste {
+    margin-top: 2px !important;
+    height: 1px !important;
+  }
+  #content {
+    margin-top: 10px;
+    text-align: $TEXT_ALIGN_MARKER$;
+  }
+  #content table {
+    width: 100% !important;
+    table-layout: fixed;
+  }
+  #attachments {
+    font-size: 11px;
+    text-align: right;
+    color: #04B404;
+  }
+  </style>
+  <script type=\"text/javascript\">
+    var cacheDir = \"file://$CACHE_DIR_MARKER$\";
+
+    function replaceCachedImages() {
+      var cachedImages = {
+        $CACHED_IMAGES_MARKER$
+      };
+      var hasCachedImages = false;
+      for (var u in cachedImages) {
+        hasCachedImages = true;
+        break;
+      }
+      if (hasCachedImages) {
+        var docImages = document.getElementsByTagName(\"img\");
+        var element;
+        var imgSrc;
+        var cachedFileName;
+        for (var i = 0; i < docImages.length; i++) {
+          element = docImages[i];
+          imgSrc = element.getAttribute(\"src\");
+          cachedFileName = cachedImages[imgSrc];
+          if (cachedFileName) {
+            element.setAttribute(\"src\", cacheDir + cachedFileName);
+          }
+        }
+      }
+    }
+    document.addEventListener(\"DOMContentLoaded\", replaceCachedImages, false);
+  </script>
+  $JS_MARKER$
+</head>
+<body id=\"$THEME_MARKER$\" class=\"hyphenate\" lang=\"$LANG_MARKER$\">
+    $TOP_NAVIGATION_MARKER$
+    <div id=\"zierleiste\"></div>
+    $CONTENT_MARKER$
+    $BOTTOM_NAVIGATION_MARKER$
+  </body>
+</html>]]>
+    </string>
+
+    <!-- IMAGE_HASHES -->
+    <string name="CACHED_IMAGES_TEMPLATE" formatted="false"><![CDATA[$CACHED_IMAGES$]]></string>
+
+    <!-- HYPHENATION -->
+    <string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">
+<![CDATA[
+<script src=\"file:///android_asset/Hyphenator.js\" type=\"text/javascript\"></script>
+<script type=\"text/javascript\">Hyphenator.run();</script>
+<script type=\"text/javascript\" src=\"file:///android_asset/patterns/$LANG_MARKER$.js\"></script>]]>
+    </string>
+
+    <!-- HEADER -->
+    <string name="TOP_NAVIGATION_TEMPLATE" formatted="false">
+<![CDATA[
+<div id=\"header\">
+  <a href=\"$article.url$\" rel=\"alternate\">$article.title$</a>
+  <div id=\"header_small_text\">
+    <div id=\"subscription\">
+      $feed.title$
+    </div>
+    <div id=\"datetime\">
+      $UPDATED$
+    </div>
+  </div>
+  <div id=\"author\">
+    $article.author$
+  </div>
+  <div id=\"labels\">
+    $LABELS$
+  </div>
+</div>]]>
+    </string>
+
+    <!-- CONTENT -->
+    <string name="CONTENT_TEMPLATE" formatted="false">
+<![CDATA[
+<div id=\"content\">
+  $CONTENT$
+</div>
+<div id=\"attachments\">
+  $ATTACHMENTS$
+</div>]]>
+    </string>
+
+    <!-- BOTTOM NAVIGATION -->
+    <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
+<![CDATA[
+<style type=\"text/css\">
+  .bottom_navigation {
+    text-align: justify;
+  }
+  .bottom_navigation button {
+    display: block;
+    width: 40%;
+    font-size: 230%;
+  }
+  .bottom_navigation button.first {
+    float: left;
+  }
+  .bottom_navigation button.last {
+    float: right;
+  }
+</style>
+<div class=\"bottom_navigation\">
+  <button id=\"btnPrev\" class=\"first prev\" onclick=\"articleController.prev();\">&leftarrow;</button>
+  <button id=\"btnNext\" class=\"last next\" onclick=\"articleController.next();\">&rightarrow;</button>
+</div>]]>
+    </string>
+
+    <!-- ATTACHMENTS -->
+    <string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]></string>
+    <string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]></string>
+
+    <!-- EVERYTHING ELSE -->
+    <string name="ALIGN_JUSTIFY">justify</string>
+    <string name="ALIGN_LEFT">left</string>
+    <string name="HTML_THEME_DARK">darkTheme</string>
+    <string name="HTML_THEME_LIGHT">lightTheme</string>
+    <string name="HTML_THEME_BLACK">blackTheme</string>
+    <string name="HTML_THEME_WHITE">whiteTheme</string>
+
+</resources>
