@@ -1,16 +1,17 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.73 (2) ==
+== Version 1.73 (3) ==
   * Fixed "Go back after mark all read"
   * Added style for blockquote-tag
   * Improved logging and error reporting
   * Add "Copy URL to clipboard" option to context menu of URLs
   * Fixed long-press on feed getting redirected to category
   * Fixed duplicate virtual categories when no unread articles exist
-  * Attemted fix for large tablets getting no tablet layout
+  * Attempted fix for large tablets getting no tablet layout
   * Fixed bug that prevented users of api level < 11 from opening articles
   * Fixed wrong action bar items beeing displayed
+  * Fixed NPE on article open
 
 == Version 1.72 (2) ==
   * Implemented better error reporting mechanism
