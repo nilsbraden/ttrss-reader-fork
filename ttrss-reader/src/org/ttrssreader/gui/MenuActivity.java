@@ -383,7 +383,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     public void onUpdateEnd(boolean goBackAfterUpdate) {
         updater = null;
         doRefresh();
-        if (goBackAfterUpdate)
+        if (goBackAfterUpdate && !isFinishing())
             onBackPressed();
     }
     
