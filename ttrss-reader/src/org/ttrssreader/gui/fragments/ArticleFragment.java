@@ -284,6 +284,9 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             webView.getSettings().setSupportZoom(supportZoom);
             webView.getSettings().setBuiltInZoomControls(supportZoom);
             
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+                webView.getSettings().setDisplayZoomControls(false);
+            
             webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
