@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.73 (3) ==
+== Version 1.73 (4) ==
   * Fixed "Go back after mark all read"
   * Added style for blockquote-tag
   * Improved logging and error reporting
@@ -12,6 +12,8 @@
   * Fixed bug that prevented users of api level < 11 from opening articles
   * Fixed wrong action bar items beeing displayed
   * Fixed NPE on article open
+  * Fixed some more FCs
+  * Improved refresh of starred/published articles
 
 == Version 1.72 (2) ==
   * Implemented better error reporting mechanism
