@@ -24,7 +24,6 @@
   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
   <style type=\"text/css\">
   body {
-    padding: 1.5%;
     font-size: 16px;
     font-weight: normal;
   }
@@ -112,7 +111,7 @@
   }
   #header {
     padding: 2px;
-    margin-bottom: 1em;
+    margin-bottom: .3em;
     font-size: 18px;
     font-weight: bold;
   }
@@ -140,7 +139,7 @@
     height: 1px !important;
   }
   #content {
-    margin-top: 10px;
+    margin-top: .4em;
     text-align: $TEXT_ALIGN_MARKER$;
   }
   #content table {
@@ -185,11 +184,11 @@
   $JS_MARKER$
 </head>
 <body id=\"$THEME_MARKER$\" class=\"hyphenate\" lang=\"$LANG_MARKER$\">
-    $TOP_NAVIGATION_MARKER$
-    <div id=\"zierleiste\"></div>
-    $CONTENT_MARKER$
-    $BOTTOM_NAVIGATION_MARKER$
-  </body>
+$TOP_NAVIGATION_MARKER$
+<div id=\"zierleiste\"></div>
+$CONTENT_MARKER$
+$BOTTOM_NAVIGATION_MARKER$
+</body>
 </html>]]>
     </string>
 
@@ -241,20 +240,20 @@
     <string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
 <![CDATA[
 <style type=\"text/css\">
-  .bottom_navigation {
-    text-align: justify;
-  }
-  .bottom_navigation button {
-    display: block;
-    width: 40%;
-    font-size: 230%;
-  }
-  .bottom_navigation button.first {
-    float: left;
-  }
-  .bottom_navigation button.last {
-    float: right;
-  }
+.bottom_navigation {
+  text-align: justify;
+}
+.bottom_navigation button {
+  display: block;
+  width: 40%;
+  font-size: 230%;
+}
+.bottom_navigation button.first {
+  float: left;
+}
+.bottom_navigation button.last {
+  float: right;
+}
 </style>
 <div class=\"bottom_navigation\">
   <button id=\"btnPrev\" class=\"first prev\" onclick=\"articleController.prev();\">&leftarrow;</button>
