@@ -160,7 +160,7 @@ public class Data {
         Controller.getInstance().getConnector()
                 .getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId, null, null, updatedFilter);
         
-        handleInsertArticles(articles, VCAT_ALL, true, true);
+        handleInsertArticles(articles, true);
         
         // Only mark as updated if the calls were successful
         if (!articles.isEmpty() || !unreadUpdatedFilter.getOmittedArticles().isEmpty()) {
@@ -219,12 +219,20 @@ public class Data {
             return;
         }
         
-        int sinceId = Controller.getInstance().getSinceId();
+        boolean isVcat = (feedId == VCAT_PUB || feedId == VCAT_STAR);
+        int sinceId = 0;
+        IArticleOmitter filter;
         
-        if (feedId == VCAT_PUB || feedId == VCAT_STAR) {
-            displayOnlyUnread = false; // Display all articles for Starred/Published
+        if (isVcat) {
+            // Display all articles for Starred/Published:
+            displayOnlyUnread = false;
+            // Don't omit any articles, isPublished should never be < 0:
+            filter = new IdUpdatedArticleOmitter("isPublished<0", null);
+        } else {
+            sinceId = Controller.getInstance().getSinceId();
+            // TODO: passing null adds all(!) articles to the map, this can take a second or two on slow devices...
+            filter = new IdUpdatedArticleOmitter(null, null);
         }
-        sinceId = 0; // Also reset sinceId since we explicitly want older articles too
         
         // Calculate an appropriate upper limit for the number of articles
         int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
@@ -232,15 +240,22 @@ public class Data {
             limit = limit / 2;
         
         Log.d(TAG, "UPDATE limit: " + limit);
-        String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
-        
         Set<Article> articles = new HashSet<Article>();
+        
         if (!displayOnlyUnread) {
             // If not displaying only unread articles: Refresh unread articles to get them too.
-            Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat);
+            Controller.getInstance().getConnector()
+                    .getHeadlines(articles, feedId, limit, VIEW_UNREAD, isCat, 0, null, null, filter);
         }
-        Controller.getInstance().getConnector().getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId);
-        handleInsertArticles(articles, feedId, isCat, false);
+        
+        String viewMode = (displayOnlyUnread ? VIEW_UNREAD : VIEW_ALL);
+        Controller.getInstance().getConnector()
+                .getHeadlines(articles, feedId, limit, viewMode, isCat, sinceId, null, null, filter);
+        
+        if (isVcat)
+            handlePurgeMarked(articles, feedId);
+        
+        handleInsertArticles(articles, false);
         
         long currentTime = System.currentTimeMillis();
         // Store requested feed-/category-id and ids of all feeds in db for this category if a category was requested
@@ -279,6 +294,30 @@ public class Data {
         return limit;
     }
     
+    private void handlePurgeMarked(Set<Article> articles, int feedId) {
+        // TODO Alle Artikel mit ID > minId als nicht starred und nicht published markieren
+        
+        // Search min and max ids
+        int minId = Integer.MAX_VALUE;
+        Set<String> idSet = new HashSet<String>();
+        for (Article article : articles) {
+            if (article.id < minId)
+                minId = article.id;
+            idSet.add(article.id + "");
+        }
+        
+        String idList = Utils.separateItems(idSet, ",");
+        String vcat = "";
+        if (feedId == VCAT_STAR)
+            vcat = "isStarred";
+        else if (feedId == VCAT_PUB)
+            vcat = "isPublished";
+        else
+            return;
+        
+        DBHelper.getInstance().handlePurgeMarked(idList, minId, vcat);
+    }
+    
     /**
      * prepare the DB and store given articles
      * 
@@ -286,7 +325,7 @@ public class Data {
      *            articles to be stored
      * @param isCategory
      */
-    private void handleInsertArticles(final Collection<Article> articles, int feedId, boolean isCategory, boolean isCaching) {
+    private void handleInsertArticles(final Collection<Article> articles, boolean isCaching) {
         if (!articles.isEmpty()) {
             
             // Search min and max ids

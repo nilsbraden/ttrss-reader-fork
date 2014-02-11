@@ -1426,6 +1426,19 @@ public class DBHelper {
         }
     }
     
+    public void handlePurgeMarked(String idList, int minId, String vcat) {
+        if (isDBAvailable()) {
+            long time = System.currentTimeMillis();
+            
+            ContentValues cv = new ContentValues(1);
+            cv.put(vcat, 0);
+            
+            int count = db.update(TABLE_ARTICLES, cv,
+                    vcat + ">0 AND _id>" + minId + " AND _id NOT IN (" + idList + ")", null);
+            Log.d(TAG, "Marked " + count + " articles " + vcat + "=0 (" + (System.currentTimeMillis() - time) + "ms)");
+        }
+    }
+    
     // *******| SELECT |*******************************************************************
     
     /**
