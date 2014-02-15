@@ -285,6 +285,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     public class DownloadImageTask implements Runnable {
         // Max size for one image
         private final long maxFileSize = Controller.getInstance().cacheImageMaxSize() * Utils.KB;
+        private final long minFileSize = Controller.getInstance().cacheImageMinSize() * Utils.KB;
         private ImageCache imageCache;
         private int articleId;
         private String[] fileUrls;
@@ -302,7 +303,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             try {
                 DBHelper.getInstance().insertArticleFiles(articleId, fileUrls);
                 for (String url : fileUrls) {
-                    size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize);
+					Log.d(TAG, "maxFileSize = " + maxFileSize + " and minFileSize = " + minFileSize);
+                    size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
                     
                     if (size <= 0) {
                         allOK = false; // Error
