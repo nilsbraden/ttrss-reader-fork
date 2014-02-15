@@ -862,12 +862,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public Integer cacheImageMaxSize() {
         if (cacheImageMaxSize == null)
             cacheImageMaxSize = prefs.getInt(Constants.CACHE_IMAGE_MAX_SIZE, Constants.CACHE_IMAGE_MAX_SIZE_DEFAULT);
-        
-        // Convert to MB since we changed the unit. I think it is safe to assume nobody really wants to set 1000 MB or
-        // greater as a reasonable ImageMaxSize.
-        if (cacheImageMaxSize >= 1000)
-            setCacheImageMaxSize(cacheImageMaxSize / 1024);
-        
         return cacheImageMaxSize;
     }
     

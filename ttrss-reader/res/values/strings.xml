@@ -258,8 +258,8 @@
     <string name="CacheFolderTitle">Cache-Folder…</string>
     <string name="CacheFolderMaxSizeTitle">Cache-Folder maximal size</string>
     <string name="CacheFolderMaxSizeSummary">Maximal size of all cached files in MB</string>
-    <string name="CacheImageMaxSizeTitle">Cacheable image maximal size</string>
-	<string name="CacheImageMaxSizeSummary">Maximal file size of images which should be cached in KB</string>
+    <string name="CacheImageMaxSizeTitle">Cacheable image maximum size</string>
+    <string name="CacheImageMaxSizeSummary">Maximum file size of images which should be cached in KB</string>
     <string name="CacheImageMinSizeTitle">Cacheable image minimum size</string>
     <string name="CacheImageMinSizeSummary">Minimum file size of images which should be cached in KB</string>
     <string name="Utils.FileSaveTitle">Save attachment</string>

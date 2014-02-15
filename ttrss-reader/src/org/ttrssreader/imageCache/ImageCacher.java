@@ -301,9 +301,9 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         public void run() {
             long size = 0;
             try {
+                Log.d(TAG, "maxFileSize = " + maxFileSize + " and minFileSize = " + minFileSize);
                 DBHelper.getInstance().insertArticleFiles(articleId, fileUrls);
                 for (String url : fileUrls) {
-					Log.d(TAG, "maxFileSize = " + maxFileSize + " and minFileSize = " + minFileSize);
                     size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
                     
                     if (size <= 0) {
