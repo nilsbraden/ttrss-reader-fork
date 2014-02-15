@@ -136,6 +136,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private String cacheFolder = null;
     private Integer cacheFolderMaxSize = null;
     private Integer cacheImageMaxSize = null;
+    private Integer cacheImageMinSize = null;
     private Boolean deleteDbScheduled = null;
     private Boolean cacheImagesOnStartup = null;
     private Boolean cacheImagesOnlyWifi = null;
@@ -861,12 +862,29 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public Integer cacheImageMaxSize() {
         if (cacheImageMaxSize == null)
             cacheImageMaxSize = prefs.getInt(Constants.CACHE_IMAGE_MAX_SIZE, Constants.CACHE_IMAGE_MAX_SIZE_DEFAULT);
+        
+        // Convert to MB since we changed the unit. I think it is safe to assume nobody really wants to set 1000 MB or
+        // greater as a reasonable ImageMaxSize.
+        if (cacheImageMaxSize >= 1000)
+            setCacheImageMaxSize(cacheImageMaxSize / 1024);
+        
         return cacheImageMaxSize;
     }
     
     public void setCacheImageMaxSize(Integer cacheImageMaxSize) {
         put(Constants.CACHE_IMAGE_MAX_SIZE, cacheImageMaxSize);
         this.cacheImageMaxSize = cacheImageMaxSize;
+    }
+    
+    public Integer cacheImageMinSize() {
+        if (cacheImageMinSize == null)
+            cacheImageMinSize = prefs.getInt(Constants.CACHE_IMAGE_MIN_SIZE, Constants.CACHE_IMAGE_MIN_SIZE_DEFAULT);
+        return cacheImageMinSize;
+    }
+    
+    public void setCacheImageMinSize(Integer cacheImageMinSize) {
+        put(Constants.CACHE_IMAGE_MIN_SIZE, cacheImageMinSize);
+        this.cacheImageMinSize = cacheImageMinSize;
     }
     
     public boolean isDeleteDBScheduled() {

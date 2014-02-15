@@ -75,10 +75,13 @@ public class FileUtils {
      *            the destination file
      * @param maxSize
      *            the size in bytes after which to abort the download
+     * @param minSize
+     *            the minimum size in bytes after which to start the download
+     * 
      * @return length of downloaded file or negated file length if it exceeds {@code maxSize} or downloaded with errors.
      *         So, if returned value less or equals to 0, then the file was not cached.
      */
-    public static long downloadToFile(String downloadUrl, File file, long maxSize) {
+    public static long downloadToFile(String downloadUrl, File file, long maxSize, long minSize) {
         FileOutputStream fos = null;
         long byteWritten = 0l;
         
@@ -99,6 +102,13 @@ public class FileUtils {
                                 String.format(
                                         "Not starting download of %s, the size (%s bytes) exceeds the maximum filesize of %s bytes.",
                                         downloadUrl, length, maxSize));
+                        byteWritten = -length;
+                    }
+                    if (length < minSize) {
+                        Log.i(TAG,
+                                String.format(
+                                        "Not starting download of %s, the size (%s bytes) is less then the minimum filesize of %s bytes.",
+                                        downloadUrl, length, minSize));
                         byteWritten = -length;
                     }
                 }
