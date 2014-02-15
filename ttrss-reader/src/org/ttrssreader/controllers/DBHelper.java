@@ -65,7 +65,7 @@ public class DBHelper {
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
-    public static final int DATABASE_VERSION = 59;
+    public static final int DATABASE_VERSION = 60;
     
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_FEEDS = "feeds";
@@ -599,6 +599,14 @@ public class DBHelper {
                 didUpgrade = true;
             }
             
+            if (oldVersion < 60) {
+                Log.i(TAG, String.format("Upgrading database from %s to 59.", oldVersion));
+                Log.i(TAG, String.format(" (Re-Creating View: remotefiles_sequence )"));
+                
+                createRemotefilesView(db);
+                didUpgrade = true;
+            }
+            
             if (didUpgrade == false) {
                 Log.i(TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
@@ -621,128 +629,9 @@ public class DBHelper {
         private boolean createRemoteFilesSupportDBObjects(SQLiteDatabase db) {
             boolean success = false;
             try {
-                // @formatter:off
-
-                // remote files (images, attachments, etc) belonging to articles,
-                // which are locally stored (cached)
-                db.execSQL("CREATE TABLE "
-                        + TABLE_REMOTEFILES
-                        + " (id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                        // remote file URL
-                        + " url TEXT UNIQUE NOT NULL,"
-                        // file size
-                        + " length INTEGER DEFAULT 0,"
-                        // extension - some kind of additional info
-                        // (i.e. file extension)
-                        + " ext TEXT NOT NULL,"
-                        // unix timestamp of last change
-                        // (set automatically by triggers)
-                        + " updateDate INTEGER,"
-                        // boolean flag determining if the file is locally stored
-                        + " cached INTEGER DEFAULT 0)");
-    
-                // index for quiicker search by by URL
-                db.execSQL("DROP INDEX IF EXISTS idx_remotefiles_by_url");
-                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_remotefiles_by_url"
-                        + " ON " + TABLE_REMOTEFILES
-                        + " (url)");
-    
-                // sets last change unix timestamp after row creation
-                db.execSQL("DROP TRIGGER IF EXISTS insert_remotefiles");
-                db.execSQL("CREATE TRIGGER IF NOT EXISTS insert_remotefiles AFTER INSERT"
-                        + " ON " + TABLE_REMOTEFILES
-                        + "   BEGIN"
-                        + "     UPDATE " + TABLE_REMOTEFILES
-                        + "       SET updateDate = strftime('%s', 'now')"
-                        + "     WHERE id = new.id;"
-                        + "   END");
-    
-                // sets last change unix timestamp after row update
-                db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_lastchanged");
-                db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_lastchanged AFTER UPDATE"
-                        + " ON " + TABLE_REMOTEFILES
-                        + "   BEGIN"
-                        + "     UPDATE " + TABLE_REMOTEFILES
-                        + "       SET updateDate = strftime('%s', 'now')"
-                        + "     WHERE id = new.id;"
-                        + "   END");
-    
-                // m to n relations between articles and remote files
-                db.execSQL("CREATE TABLE "
-                        + TABLE_REMOTEFILE2ARTICLE
-                        // ID of remote file
-                        + "(remotefileId INTEGER"
-                        + "   REFERENCES " + TABLE_REMOTEFILES + "(id)"
-                        + "     ON DELETE CASCADE,"
-                        // ID of article
-                        + " articleId INTEGER"
-                        + "   REFERENCES " + TABLE_ARTICLES + "(_id)"
-                        + "     ON UPDATE CASCADE"
-                        + "     ON DELETE NO ACTION,"
-                        // if both IDs are known, then the row should be found faster
-                        + " PRIMARY KEY(remotefileId, articleId))");
-    
-                // update count of cached images for article on change of "cached"
-                // field of remotefiles
-                db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_articlefiles");
-                db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_articlefiles AFTER UPDATE"
-                        + " OF cached"
-                        + " ON " + TABLE_REMOTEFILES
-                        + "   BEGIN"
-                        + "     UPDATE " + TABLE_ARTICLES + ""
-                        + "       SET"
-                        + "         cachedImages = ("
-                        + "           SELECT"
-                        + "             COUNT(r.id)"
-                        + "           FROM " + TABLE_REMOTEFILES + " r,"
-                        +               TABLE_REMOTEFILE2ARTICLE + " m"
-                        + "           WHERE"
-                        + "             m.remotefileId=r.id"
-                        + "             AND m.articleId=" + TABLE_ARTICLES + "._id"
-                        + "             AND r.cached=1)"
-                        + "       WHERE _id IN ("
-                        + "         SELECT"
-                        + "           a._id"
-                        + "         FROM " + TABLE_REMOTEFILE2ARTICLE + " m,"
-                        +             TABLE_ARTICLES + " a"
-                        + "         WHERE"
-                        + "           m.remotefileId=new.id AND m.articleId=a._id);"
-                        + "   END");
-    
-                // represents importance of cached files
-                // the sequence is defined by
-                // 1. the article to which the remote file belongs to is not read
-                // 2. update date of the article to which the remote file belongs to
-                // 3. the file length
-                db.execSQL("CREATE VIEW IF NOT EXISTS remotefile_sequence AS"
-                        + " SELECT r.*, MAX(a.isUnread) AS isUnread,"
-                        + "   MAX(a.updateDate) AS articleUpdateDate,"
-                        + "   MAX(a.isUnread)||MAX(a.updateDate)||(100000000000-r.length)"
-                        + "     AS ord"
-                        + " FROM " + TABLE_REMOTEFILES + " r,"
-                        +     TABLE_REMOTEFILE2ARTICLE + " m,"
-                        +     TABLE_ARTICLES + " a"
-                        + " WHERE m.remotefileId=r.id AND m.articleId=a._id"
-                        + " GROUP BY r.id");
-    
-                // Represents cached remote files sorted by their importance.
-                // runningSum field in each row represents the summary length of
-                // all files in the importance sequence until the next row.
-                // This view is used to determine which cached files should be
-                // deleted as next to free some amount of space in cache.
-//                db.execSQL("CREATE VIEW remotefile_runningsum AS"
-//                        + " SELECT"
-//                        + "   f1.*, sum(f2.length) AS runningSum"
-//                        + " FROM"
-//                        + "   remotefile_sequence f1"
-//                        + "     INNER JOIN"
-//                        + "       remotefile_sequence f2"
-//                        + "       ON"
-//                        + "         f1.cached=1 AND f1.ord>=f2.ord"
-//                        + " GROUP by f1.id"
-//                        + " ORDER by runningSum");
-                // @formatter:on
-                
+                createRemotefiles(db);
+                createRemotefiles2Articles(db);
+                createRemotefilesView(db);
                 success = true;
             } catch (SQLException e) {
                 Log.e(TAG, "Creation of remote file support DB objects failed.\n" + e);
@@ -750,6 +639,123 @@ public class DBHelper {
             
             return success;
         }
+        
+        private void createRemotefiles(SQLiteDatabase db) {
+            // @formatter:off
+            // remote files (images, attachments, etc) belonging to articles,
+            // which are locally stored (cached)
+            db.execSQL("CREATE TABLE "
+                    + TABLE_REMOTEFILES
+                    + " (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    // remote file URL
+                    + " url TEXT UNIQUE NOT NULL,"
+                    // file size
+                    + " length INTEGER DEFAULT 0,"
+                    // extension - some kind of additional info
+                    // (i.e. file extension)
+                    + " ext TEXT NOT NULL,"
+                    // unix timestamp of last change
+                    // (set automatically by triggers)
+                    + " updateDate INTEGER,"
+                    // boolean flag determining if the file is locally stored
+                    + " cached INTEGER DEFAULT 0)");
+   
+            // index for quiicker search by by URL
+            db.execSQL("DROP INDEX IF EXISTS idx_remotefiles_by_url");
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_remotefiles_by_url"
+                    + " ON " + TABLE_REMOTEFILES
+                    + " (url)");
+   
+            // sets last change unix timestamp after row creation
+            db.execSQL("DROP TRIGGER IF EXISTS insert_remotefiles");
+            db.execSQL("CREATE TRIGGER IF NOT EXISTS insert_remotefiles AFTER INSERT"
+                    + " ON " + TABLE_REMOTEFILES
+                    + "   BEGIN"
+                    + "     UPDATE " + TABLE_REMOTEFILES
+                    + "       SET updateDate = strftime('%s', 'now')"
+                    + "     WHERE id = new.id;"
+                    + "   END");
+   
+            // sets last change unix timestamp after row update
+            db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_lastchanged");
+            db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_lastchanged AFTER UPDATE"
+                    + " ON " + TABLE_REMOTEFILES
+                    + "   BEGIN"
+                    + "     UPDATE " + TABLE_REMOTEFILES
+                    + "       SET updateDate = strftime('%s', 'now')"
+                    + "     WHERE id = new.id;"
+                    + "   END");
+
+            // @formatter:on
+        }
+        
+        private void createRemotefiles2Articles(SQLiteDatabase db) {
+            // @formatter:off
+            // m to n relations between articles and remote files
+            db.execSQL("CREATE TABLE "
+                    + TABLE_REMOTEFILE2ARTICLE
+                    // ID of remote file
+                    + "(remotefileId INTEGER"
+                    + "   REFERENCES " + TABLE_REMOTEFILES + "(id)"
+                    + "     ON DELETE CASCADE,"
+                    // ID of article
+                    + " articleId INTEGER"
+                    + "   REFERENCES " + TABLE_ARTICLES + "(_id)"
+                    + "     ON UPDATE CASCADE"
+                    + "     ON DELETE NO ACTION,"
+                    // if both IDs are known, then the row should be found faster
+                    + " PRIMARY KEY(remotefileId, articleId))");
+            
+            // update count of cached images for article on change of "cached"
+            // field of remotefiles
+            db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_articlefiles");
+            db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_articlefiles AFTER UPDATE"
+                    + " OF cached"
+                    + " ON " + TABLE_REMOTEFILES
+                    + "   BEGIN"
+                    + "     UPDATE " + TABLE_ARTICLES + ""
+                    + "       SET"
+                    + "         cachedImages = ("
+                    + "           SELECT"
+                    + "             COUNT(r.id)"
+                    + "           FROM " + TABLE_REMOTEFILES + " r,"
+                    +               TABLE_REMOTEFILE2ARTICLE + " m"
+                    + "           WHERE"
+                    + "             m.remotefileId=r.id"
+                    + "             AND m.articleId=" + TABLE_ARTICLES + "._id"
+                    + "             AND r.cached=1)"
+                    + "       WHERE _id IN ("
+                    + "         SELECT"
+                    + "           a._id"
+                    + "         FROM " + TABLE_REMOTEFILE2ARTICLE + " m,"
+                    +             TABLE_ARTICLES + " a"
+                    + "         WHERE"
+                    + "           m.remotefileId=new.id AND m.articleId=a._id);"
+                    + "   END");
+            // @formatter:on
+        }
+        
+        private void createRemotefilesView(SQLiteDatabase db) {
+            // @formatter:off
+            // represents importance of cached files
+            // the sequence is defined by
+            // 1. the article to which the remote file belongs to is not read
+            // 2. update date of the article to which the remote file belongs to
+            // 3. the file length
+            db.execSQL("DROP VIEW IF EXISTS remotefile_sequence");
+            db.execSQL("CREATE VIEW IF NOT EXISTS remotefile_sequence AS"
+                    + " SELECT r.*, MAX(a.isUnread) AS isUnread,"
+                    + "   MAX(a.updateDate) AS articleUpdateDate,"
+                    + "   MAX(a.isUnread)||MAX(a.updateDate)||(100000000000-r.length)"
+                    + "     AS ord"
+                    + " FROM " + TABLE_REMOTEFILES + " r,"
+                    +     TABLE_REMOTEFILE2ARTICLE + " m,"
+                    +     TABLE_ARTICLES + " a"
+                    + " WHERE m.remotefileId=r.id AND m.articleId=a._id"
+                    + " GROUP BY r.id");
+            // @formatter:on
+        }
+        
     }
     
     /**
@@ -2252,7 +2258,7 @@ public class DBHelper {
             db.beginTransaction();
             try {
                 ContentValues cv = new ContentValues(1);
-                cv.put("cached", false);
+                cv.put("cached", 0);
                 for (String ids : StringSupport.convertListToString(rfIds, 1000)) {
                     db.update(TABLE_REMOTEFILES, cv, "id in (" + ids + ")", null);
                 }
@@ -2277,6 +2283,8 @@ public class DBHelper {
                 if (c.moveToFirst())
                     ret = c.getLong(0);
             } finally {
+                if (c != null && !c.isClosed())
+                    c.close();
             }
         }
         return ret;
@@ -2296,7 +2304,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             Cursor c = null;
             try {
-                c = db.query("remotefile_sequence", new String[] { "*" }, "cached = 1", null, null, null, "ord");
+                c = db.query("remotefile_sequence", null, "cached = 1", null, null, null, "ord");
                 
                 long spaceToFree = spaceToBeFreed;
                 while (spaceToFree > 0 && c.moveToNext()) {
@@ -2304,8 +2312,6 @@ public class DBHelper {
                     spaceToFree -= rf.length;
                     rfs.add(rf);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             } finally {
                 if (c != null && !c.isClosed())
                     c.close();
