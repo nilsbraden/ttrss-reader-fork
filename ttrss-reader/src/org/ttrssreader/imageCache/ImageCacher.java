@@ -341,13 +341,12 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             
             ArrayList<Integer> rfIds = new ArrayList<Integer>(rfs.size());
             for (RemoteFile rf : rfs) {
-                File f = imageCache.getCacheFile(rf.url);
+                File file = imageCache.getCacheFile(rf.url);
                 
-                if (f.exists()) {
-                    if (!f.delete()) {
-                        Log.w(TAG, "File " + f.getAbsolutePath() + " was not deleted!!!");
-                    }
-                }
+                if (file.exists() && !file.delete())
+                    Log.w(TAG, "File " + file.getAbsolutePath() + " was not deleted!");
+                else 
+                    Log.w(TAG, "WTF.");
                 
                 rfIds.add(rf.id);
             }
