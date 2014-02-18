@@ -20,9 +20,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 
-public class ErrorDialog extends DialogFragment {
+public class ErrorDialog extends MyDialogFragment {
     
     Context context;
     String message;

@@ -239,9 +239,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 return true;
             }
             case R.id.Menu_FeedUnsubscribe: {
-                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(getActivity(),
-                        new UnsubscribeUpdater(feedId), R.string.Dialog_unsubscribeTitle,
-                        R.string.Dialog_unsubscribeText);
+                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(new UnsubscribeUpdater(feedId),
+                        R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
                 dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
                 return true;
             }

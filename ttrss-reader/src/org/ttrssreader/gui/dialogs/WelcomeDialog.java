@@ -22,9 +22,8 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 
-public class WelcomeDialog extends DialogFragment {
+public class WelcomeDialog extends MyDialogFragment {
     
     public static WelcomeDialog getInstance() {
         return new WelcomeDialog();
