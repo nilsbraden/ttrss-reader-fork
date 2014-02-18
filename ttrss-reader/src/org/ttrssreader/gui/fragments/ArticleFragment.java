@@ -699,7 +699,9 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
     }
     
     /**
-     * create javascript associative array with article cached image url as key and image hash as value
+     * Create javascript associative array with article cached image url as key and image hash as value. Only
+     * RemoteFiles which are "cached" are added to this array so if an image is not available locally it is left as it
+     * is.
      * 
      * @param id
      *            article ID
@@ -712,16 +714,27 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         
         if (rfs != null && !rfs.isEmpty()) {
             for (RemoteFile rf : rfs) {
-                if (hashes.length() > 0) {
-                    hashes.append(",\n");
+                
+                if (rf.cached) {
+                    if (hashes.length() > 0)
+                        hashes.append(",\n");
+                    
+                    hashes.append("'");
+                    hashes.append(rf.url);
+                    hashes.append("': '");
+                    hashes.append(ImageCache.getHashForKey(rf.url));
+                    hashes.append("'");
                 }
-                hashes.append("'").append(rf.url).append("': '").append(ImageCache.getHashForKey(rf.url)).append("'");
+                
             }
         }
         
         return hashes.toString();
     }
     
+    /**
+     * This is necessary to iterate over all HTML-Nodes and scan for images with ALT-Attributes.
+     */
     class MyTagNodeVisitor implements TagNodeVisitor {
         public String alt = null;
         private String extra;
