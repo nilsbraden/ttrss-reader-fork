@@ -136,8 +136,8 @@ public class CategoryListFragment extends MainListFragment {
             case R.id.Menu_MarkAllRead: {
                 boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
                 IUpdatable updater = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
-                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(getActivity(), updater,
-                        R.string.Dialog_Title, R.string.Dialog_MarkAllRead, backAfterUpdate);
+                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(updater, R.string.Dialog_Title,
+                        R.string.Dialog_MarkAllRead, backAfterUpdate);
                 dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
                 return true;
             }
@@ -146,8 +146,8 @@ public class CategoryListFragment extends MainListFragment {
                     boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
                     IUpdatable updateable = new ReadStateUpdater(selectedId);
                     
-                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(getActivity(), updateable,
-                            R.string.Dialog_Title, R.string.Dialog_MarkFeedsRead, backAfterUpdate);
+                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(updateable, R.string.Dialog_Title,
+                            R.string.Dialog_MarkFeedsRead, backAfterUpdate);
                     dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
                 }
                 return true;

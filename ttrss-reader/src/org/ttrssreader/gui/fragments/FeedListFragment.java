@@ -105,9 +105,9 @@ public class FeedListFragment extends MainListFragment {
                 new Updater(getActivity(), new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
                 return true;
             case UNSUBSCRIBE:
-                YesNoUpdaterDialog dialog = YesNoUpdaterDialog
-                        .getInstance(getActivity(), new UnsubscribeUpdater(adapter.getId(cmi.position)),
-                                R.string.Dialog_unsubscribeTitle, R.string.Dialog_unsubscribeText);
+                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(
+                        new UnsubscribeUpdater(adapter.getId(cmi.position)), R.string.Dialog_unsubscribeTitle,
+                        R.string.Dialog_unsubscribeText);
                 dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
                 return true;
         }
