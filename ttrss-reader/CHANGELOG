@@ -1,6 +1,12 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.74 ==
+  * Added preference for min and max size of cached files
+  * Increased length of max size of ImageCache
+  * Fixed some bugs regarding caching of files
+  * Fixed crashes after rotating while dialogs are visible 
+
 == Version 1.73 (4) ==
   * Fixed "Go back after mark all read"
   * Added style for blockquote-tag
