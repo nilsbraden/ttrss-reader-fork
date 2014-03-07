@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.74
+            \n * Added preference for min and max size of cached files
+            \n * Increased length of max size of ImageCache
+            \n * Fixed some bugs regarding caching of files
+            \n * Fixed crashes after rotating while dialogs are visible</item>
         <item>Version 1.73
             \n * Fixed \"Go back after mark all read\"
             \n * Added style for blockquote-tag
@@ -66,6 +71,9 @@
 			\n * Allow API-Level 18
 			\n * French translation (thanks to Jean-François BILGER)
 			\n * Lots of background changes and bugfixes</item>
+
+        <!-- Old Entries: -->
+        <!--
         <item>Version 1.52
 			\n * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
 			\n * Hide ActionBar while scrolling down
@@ -133,9 +141,6 @@
             \n * Added Label-Editing for articles
 			\n * Fixed some bugs preventing labels from beeing refreshed properly
 			\n * Fixed some UI glitches in the progressbar</item>
-
-        <!-- Old Entries: -->
-        <!--
         <item>Version 1.39
             \n * Added preference for "Load images" which, when disabled, forces the Webview to not load any content from the web.
 		    \n * Fixed Issue #99 "Sharing with Firefox Sync"
