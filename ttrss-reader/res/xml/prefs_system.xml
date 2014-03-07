@@ -13,7 +13,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
     General Public License for more details. You should have received a
     copy of the GNU General Public License along with this program; If
-    not, see <http://www.gnu.org/licenses/>.
+    not, see <http://www.gnu.org/licenses/>.
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/SystemPreferenceCategoryTitle" >
@@ -61,7 +61,7 @@
             android:title="@string/CacheImageMaxSizeTitle" />
         <org.ttrssreader.preferences.EditIntegerPreference
             android:name="@string/CacheImageMinSizeTitle"
-            android:defaultValue="64"
+            android:defaultValue="32"
             android:inputType="number"
             android:key="CacheImageMinSizePreference"
             android:maxLength="4"
