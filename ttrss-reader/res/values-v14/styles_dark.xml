@@ -35,7 +35,7 @@
         <item name="android:textColor">@color/font_color_dark</item>
         <item name="android:windowBackground">@color/background_dark</item>
         <!-- ListItems -->
-        <item name="ListItem">@style/ListItem.Light</item>
+        <item name="ListItem">@style/ListItem.Dark</item>
     </style>
 
     <style name="ActionBar.Solid.Dark" parent="@style/Widget.Sherlock.ActionBar.Solid">
@@ -51,7 +51,7 @@
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Dark</item>
     </style>
 
-    <style name="ListItem.Light" parent="@android:style/TextAppearance.Small">
+    <style name="ListItem.Dark" parent="@android:style/TextAppearance.Small">
         <item name="android:background">?android:attr/activatedBackgroundIndicator</item>
     </style>
 
