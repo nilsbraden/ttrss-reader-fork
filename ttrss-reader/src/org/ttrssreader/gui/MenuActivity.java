@@ -74,6 +74,8 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected boolean isVertical;
     protected static int minSize;
     protected static int maxSize;
+    protected int dividerSize;
+    protected int displaySize;
     
     private View frameMain = null;
     private View divider = null;
@@ -108,16 +110,16 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         Controller
                 .refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
         isVertical = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT);
-        int sizeDisplay = Controller.displayWidth;
+        displaySize = Controller.displayWidth;
         if (isVertical) {
             TypedValue tv = new TypedValue();
             context.getTheme().resolveAttribute(R.attr.actionBarSize, tv, true);
             int actionBarHeight = getResources().getDimensionPixelSize(tv.resourceId);
-            sizeDisplay = Controller.displayHeight - actionBarHeight;
+            displaySize = Controller.displayHeight - actionBarHeight;
         }
         
-        minSize = (int) (sizeDisplay * 0.1);
-        maxSize = sizeDisplay - (int) (sizeDisplay * 0.1);
+        minSize = (int) (displaySize * 0.1);
+        maxSize = displaySize - (int) (displaySize * 0.1);
         
         // use tablet layout?
         if (Controller.getInstance().allowTabletLayout())
@@ -130,36 +132,30 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             
             // Resize frames and do it only if stored size is within our bounds:
             int mainFrameSize = Controller.getInstance().getMainFrameSize(this, isVertical, minSize, maxSize);
-            int subFrameSize = sizeDisplay - mainFrameSize;
+            int subFrameSize = displaySize - mainFrameSize;
             
-            LayoutParams lpMain = null;
-            LayoutParams lpSub = null;
+            LayoutParams lpMain = (RelativeLayout.LayoutParams) frameMain.getLayoutParams();
+            LayoutParams lpSub = (RelativeLayout.LayoutParams) frameSub.getLayoutParams();
             
             if (isVertical) {
                 // calculate height of divider
                 int padding = divider.getPaddingTop() + divider.getPaddingBottom();
-                int dividerHeight = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, context
+                dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, context
                         .getResources().getDisplayMetrics()));
                 
-                // calculate bottom frame height
-                subFrameSize = subFrameSize - dividerHeight;
-                
                 // Create LayoutParams for all three views
-                lpMain = new LayoutParams(LayoutParams.MATCH_PARENT, mainFrameSize);
-                lpSub = new LayoutParams(LayoutParams.MATCH_PARENT, subFrameSize);
+                lpMain.height = mainFrameSize;
+                lpSub.height = subFrameSize - dividerSize;
                 lpSub.addRule(RelativeLayout.BELOW, divider.getId());
             } else {
                 // calculate width of divider
                 int padding = divider.getPaddingLeft() + divider.getPaddingRight();
-                int dividerWidth = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, context
+                dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, context
                         .getResources().getDisplayMetrics()));
                 
-                // calculate right frame height
-                subFrameSize = subFrameSize - dividerWidth;
-                
                 // Create LayoutParams for all three views
-                lpMain = new LayoutParams(mainFrameSize, LayoutParams.MATCH_PARENT);
-                lpSub = new LayoutParams(subFrameSize, LayoutParams.MATCH_PARENT);
+                lpMain.width = mainFrameSize;
+                lpSub.width = subFrameSize - dividerSize;
                 lpSub.addRule(RelativeLayout.RIGHT_OF, divider.getId());
             }
             
@@ -177,6 +173,27 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
                 divider.setVisibility(View.GONE);
             
         }
+    }
+    
+    protected void handleResize() {
+        int mainFrameSize = calculateSize((int) (frameMain.getHeight() + (isVertical ? mDeltaY : mDeltaX)));
+        int subFrameSize = displaySize - dividerSize - mainFrameSize;
+        
+        LayoutParams lpMain = (RelativeLayout.LayoutParams) frameMain.getLayoutParams();
+        LayoutParams lpSub = (RelativeLayout.LayoutParams) frameSub.getLayoutParams();
+        
+        if (isVertical) {
+            lpMain.height = mainFrameSize;
+            lpSub.height = subFrameSize;
+        } else {
+            lpMain.width = mainFrameSize;
+            lpSub.width = subFrameSize;
+        }
+        
+        frameMain.setLayoutParams(lpMain);
+        frameSub.setLayoutParams(lpSub);
+        
+        getWindow().getDecorView().getRootView().invalidate();
     }
     
     private void initActionbar() {
@@ -582,18 +599,6 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         
         }
         return true;
-    }
-    
-    private void handleResize() {
-        if (isVertical) {
-            final int size = calculateSize((int) (frameMain.getHeight() + mDeltaY));
-            frameMain.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, size));
-        } else {
-            final int size = calculateSize((int) (frameMain.getWidth() + mDeltaX));
-            frameMain.setLayoutParams(new LayoutParams(size, LayoutParams.MATCH_PARENT));
-        }
-        
-        getWindow().getDecorView().getRootView().invalidate();
     }
     
     private int calculateSize(final int size) {
