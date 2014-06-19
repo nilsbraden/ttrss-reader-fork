@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.75
+            \n * Fixed some FCs
+            \n * Fixed broken themes
+            \n * Fixed PRNG used for SSL connections
+            \n * Fixed resizing of views in tablet layout</item>
         <item>Version 1.74
             \n * Added preference for min and max size of cached files
             \n * Increased length of max size of ImageCache
@@ -52,6 +57,9 @@
             \n * Scroll headlines when using two-pane layout and opening next article
             \n * Add warning dialog before marking several or all feeds as read 
             \n * Security-Bugfix for fragment vulnerability</item>
+
+        <!-- Old Entries: -->
+        <!--
         <item>Version 1.62
             \n * Fixed some rotation related issues, app should not crash anymore but it might display wrong stuff sometimes
             \n * Fixed crash when entering preferences on some old devices
@@ -71,9 +79,6 @@
 			\n * Allow API-Level 18
 			\n * French translation (thanks to Jean-François BILGER)
 			\n * Lots of background changes and bugfixes</item>
-
-        <!-- Old Entries: -->
-        <!--
         <item>Version 1.52
 			\n * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
 			\n * Hide ActionBar while scrolling down

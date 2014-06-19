@@ -1,6 +1,12 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.75 ==
+  * Fixed some FCs
+  * Fixed broken themes
+  * Fixed PRNG used for SSL connections
+  * Fixed resizing of views in tablet layout
+
 == Version 1.74 ==
   * Added preference for min and max size of cached files
   * Increased length of max size of ImageCache
