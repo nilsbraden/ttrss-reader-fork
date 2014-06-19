@@ -30,10 +30,12 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+import android.annotation.SuppressLint;
 import android.os.Environment;
 
 public class SSLUtils {
     
+    @SuppressLint("TrulyRandom")
     public static SSLSocketFactory initializePrivateKeystore(String password) throws Exception {
         KeyStore keystore = SSLUtils.loadKeystore(password);
         if (keystore == null)
@@ -45,6 +47,8 @@ public class SSLUtils {
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(keystore, password.toCharArray());
         
+        // Apply fix for PRNG from http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html
+        PRNGFixes.apply();
         SSLContext sc = SSLContext.getInstance("TLS");
         sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
         
