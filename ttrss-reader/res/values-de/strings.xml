@@ -171,8 +171,6 @@
     <string name="HyphenationLanguage_te">Telugu</string>
     <string name="HyphenationLanguage_tr">Türkisch</string>
     <string name="HyphenationLanguage_uk">Ukrainisch</string>
-    <string name="MarkReadInMenuTitle">Zeige \"Als gelesen markien\" Button</string>
-    <string name="MarkReadInMenuSummary">Wenn deaktiviert ist diese Funktion nur über das Menü erreichbar.</string>
     <string name="CacheImagesOnStartupTitle">ImageCache beim Start?</string>
     <string name="CacheImagesOnStartupSummary">Aktiviert den ImageCache automatisch einmalig beim Start der Anwendung. Alle Artikel und Bilder werden abgeholt.</string>
     <string name="CacheImagesOnlyWifiTitle">Nur mit aktiviertem WLAN?</string>

@@ -119,7 +119,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean supportZoomControls = null;
     private Boolean allowHyphenation = null;
     private String hyphenationLanguage = null;
-    private Boolean markReadInMenu = null;
     private Boolean showVirtual = null;
     private Integer showButtonsMode = null;
     private Boolean onlyUnread = null;
@@ -621,17 +620,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setHyphenationLanguage(String hyphenationLanguage) {
         put(Constants.HYPHENATION_LANGUAGE, hyphenationLanguage);
         this.hyphenationLanguage = hyphenationLanguage;
-    }
-    
-    public boolean markReadInMenu() {
-        if (markReadInMenu == null)
-            markReadInMenu = prefs.getBoolean(Constants.MARK_READ_IN_MENU, Constants.MARK_READ_IN_MENU_DEFAULT);
-        return markReadInMenu;
-    }
-    
-    public void setMarkReadInMenu(boolean markReadInMenu) {
-        put(Constants.MARK_READ_IN_MENU, markReadInMenu);
-        this.markReadInMenu = markReadInMenu;
     }
     
     public boolean showVirtual() {

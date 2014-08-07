@@ -187,8 +187,6 @@
     <string name="HyphenationLanguage_te">Telugu</string>
     <string name="HyphenationLanguage_tr">Turkish</string>
     <string name="HyphenationLanguage_uk">Ukrainian</string>
-    <string name="MarkReadInMenuTitle">Show \"MarkRead\" Button</string>
-    <string name="MarkReadInMenuSummary">When disabled this is only accessible via the menu.</string>
     <string name="CacheImagesOnStartupTitle">Start ImageCache on startup?</string>
     <string name="CacheImagesOnStartupSummary">Enable to start the image-cache on every start of the reader, all articles+images will be fetched in the background.</string>
     <string name="CacheImagesOnlyWifiTitle">Only on Wifi?</string>
