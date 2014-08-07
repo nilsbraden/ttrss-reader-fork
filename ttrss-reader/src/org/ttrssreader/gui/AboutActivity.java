@@ -51,6 +51,9 @@ public class AboutActivity extends Activity {
         
         TextView versionText = (TextView) this.findViewById(R.id.AboutActivity_VersionText);
         versionText.setText(this.getString(R.string.AboutActivity_VersionText) + " " + Utils.getAppVersionName(this));
+        TextView versionCodeText = (TextView) this.findViewById(R.id.AboutActivity_VersionCodeText);
+        versionCodeText.setText(this.getString(R.string.AboutActivity_VersionCodeText) + " "
+                + Utils.getAppVersionCode(this));
         
         TextView licenseText = (TextView) this.findViewById(R.id.AboutActivity_LicenseText);
         licenseText.setText(this.getString(R.string.AboutActivity_LicenseText) + " "
