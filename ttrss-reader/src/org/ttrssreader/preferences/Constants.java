@@ -90,7 +90,6 @@ public class Constants {
     public static final String SUPPORT_ZOOM_CONTROLS = "SupportZoomControlsPreference";
     public static final String ALLOW_HYPHENATION = "AllowHyphenationPreference";
     public static final String HYPHENATION_LANGUAGE = "HyphenationLanguagePreference";
-    public static final String MARK_READ_IN_MENU = "MarkReadInMenuPreference";
     public static final String SHOW_VIRTUAL = "DisplayShowVirtualPreference";
     public static final String SHOW_BUTTONS_MODE = "ShowButtonsModePreference";
     public static final String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
@@ -108,7 +107,6 @@ public class Constants {
     public static final boolean SUPPORT_ZOOM_CONTROLS_DEFAULT = true;
     public static final boolean ALLOW_HYPHENATION_DEFAULT = false;
     public static final String HYPHENATION_LANGUAGE_DEFAULT = "en-gb";
-    public static final boolean MARK_READ_IN_MENU_DEFAULT = true;
     public static final boolean SHOW_VIRTUAL_DEFAULT = true;
     public static final String SHOW_BUTTONS_MODE_DEFAULT = "0";
     public static final int SHOW_BUTTONS_MODE_NONE = 0;
