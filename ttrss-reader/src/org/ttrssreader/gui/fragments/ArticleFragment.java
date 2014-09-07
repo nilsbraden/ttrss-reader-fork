@@ -277,8 +277,8 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         // Initialize the WebView if necessary
         if (webView == null) {
             webView = new MyWebView(getActivity());
-            webView.setWebViewClient(new ArticleWebViewClient(getActivity()));
-            webView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+            webView.setWebViewClient(new ArticleWebViewClient());
+            webView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             
             boolean supportZoom = Controller.getInstance().supportZoomControls();
             webView.getSettings().setSupportZoom(supportZoom);
@@ -313,6 +313,24 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             }
+            
+            if (gestureDetector == null || gestureListener == null) {
+                ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+                
+                // Detect touch gestures like swipe and scroll down:
+                gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller
+                        .getInstance().hideActionbar()));
+                
+                gestureListener = new View.OnTouchListener() {
+                    public boolean onTouch(View v, MotionEvent event) {
+                        gestureDetector.onTouchEvent(event);
+                        // Call webView.onTouchEvent(event) everytime, seems to fix issues with webview not beeing
+                        // refreshed after swiping:
+                        return webView.onTouchEvent(event) || v.performClick();
+                    }
+                };
+            }
+            webView.setOnTouchListener(gestureListener);
         }
         
         // TODO: Is this still necessary?
@@ -332,22 +350,6 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
                 Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
                         : View.GONE);
         
-        if (gestureDetector == null || gestureListener == null) {
-            ActionBar actionBar = getSherlockActivity().getSupportActionBar();
-            
-            // Detect touch gestures like swipe and scroll down:
-            gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller
-                    .getInstance().hideActionbar()));
-            
-            gestureListener = new View.OnTouchListener() {
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (gestureDetector.onTouchEvent(event) || webView.onTouchEvent(event))
-                        return true;
-                    return v.performClick();
-                }
-            };
-        }
-        webView.setOnTouchListener(gestureListener);
         setHasOptionsMenu(true);
     }
     
@@ -465,11 +467,10 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             // Inject the specific code for attachments, <img> for images, http-link for Videos
             contentTemplate.add(MARKER_ATTACHMENTS, getAttachmentsMarkup(getActivity(), article.attachments));
             
-            webView.getSettings().setLightTouchEnabled(true);
             webView.getSettings().setJavaScriptEnabled(true);
             webView.addJavascriptInterface(articleJSInterface, "articleController");
             content = contentTemplate.render();
-            webView.loadDataWithBaseURL("fake://ForJS", content, "text/html", "utf-8", null);
+            webView.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
             
             if (!linkAutoOpened && article.content.length() < 3) {
                 if (Controller.getInstance().openUrlEmptyArticle()) {

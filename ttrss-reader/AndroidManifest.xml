@@ -41,6 +41,7 @@
         android:allowBackup="true"
         android:backupAgent=".preferences.MyPrefsBackupAgent"
         android:description="@string/ApplicationDescription"
+        android:hardwareAccelerated="true"
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName" >
         <provider
