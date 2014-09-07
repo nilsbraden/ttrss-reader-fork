@@ -24,6 +24,7 @@ import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.LabelTitleComparator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -104,6 +105,7 @@ public class ArticleLabelDialog extends MyDialogFragment {
         }
     }
     
+    @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle args) {
         // AboutDialog benutzt als Schriftfarbe automatisch die invertierte Hintergrundfarbe

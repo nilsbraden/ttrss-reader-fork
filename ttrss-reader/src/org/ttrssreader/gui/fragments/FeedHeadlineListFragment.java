@@ -133,7 +133,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 .getInstance().hideActionbar()));
         gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
+                return gestureDetector.onTouchEvent(event) || v.performClick();
             }
         };
         getView().setOnTouchListener(gestureListener);

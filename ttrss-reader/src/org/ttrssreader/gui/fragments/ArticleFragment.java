@@ -341,7 +341,9 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             
             gestureListener = new View.OnTouchListener() {
                 public boolean onTouch(View v, MotionEvent event) {
-                    return (gestureDetector.onTouchEvent(event) || webView.onTouchEvent(event));
+                    if (gestureDetector.onTouchEvent(event) || webView.onTouchEvent(event))
+                        return true;
+                    return v.performClick();
                 }
             };
         }
@@ -938,27 +940,25 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             Controller.refreshDisplayMetrics(((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay());
             
-            try {
-                if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
-                    return false;
-                if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
-                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                    
-                    // right to left swipe
-                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-                    activity.openNextArticle(1);
-                    return true;
-                    
-                } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
-                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                    
-                    // left to right swipe
-                    FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
-                    activity.openNextArticle(-1);
-                    return true;
-                    
-                }
-            } catch (Exception e) {
+            if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
+                return false;
+            
+            if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
+                    && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                
+                // right to left swipe
+                FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                activity.openNextArticle(1);
+                return true;
+                
+            } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
+                    && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                
+                // left to right swipe
+                FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
+                activity.openNextArticle(-1);
+                return true;
+                
             }
             return false;
         }
