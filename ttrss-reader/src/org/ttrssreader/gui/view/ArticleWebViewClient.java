@@ -31,7 +31,6 @@ import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,32 +45,10 @@ public class ArticleWebViewClient extends WebViewClient {
     
     protected static final String TAG = ArticleWebViewClient.class.getSimpleName();
     
-    private Context context;
-    private Activity activity;
-    
-    public ArticleWebViewClient(Activity a) {
-        this.activity = a;
-    }
-    
-    /**
-     * clear internal WebView cache after page was viewed (this should save storage place).
-     * The use can manually cache images, they should not be stored twice.
-     * 
-     * @param view
-     *            web view, which was just viewed
-     * @param url
-     *            viewed URL
-     */
-    @Override
-    public void onPageFinished(WebView view, String url) {
-        super.onPageFinished(view, url);
-        view.clearCache(true);
-    }
-    
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, final String url) {
         
-        context = view.getContext();
+        final Context context = view.getContext();
         
         boolean audioOrVideo = false;
         for (String s : FileUtils.AUDIO_EXTENSIONS) {
@@ -95,7 +72,7 @@ public class ArticleWebViewClient extends WebViewClient {
                     (String) context.getText(R.string.WebViewClientActivity_Download) };
             // @formatter:on
             
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("What shall we do?");
             builder.setItems(items, new DialogInterface.OnClickListener() {
                 
@@ -111,7 +88,8 @@ public class ArticleWebViewClient extends WebViewClient {
                             break;
                         case 1:
                             try {
-                                new AsyncDownloader().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new URL(url));
+                                new AsyncDownloader(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new URL(
+                                        url));
                             } catch (MalformedURLException e) {
                                 e.printStackTrace();
                             }
@@ -150,6 +128,12 @@ public class ArticleWebViewClient extends WebViewClient {
     
     private class AsyncDownloader extends AsyncTask<URL, Void, Void> {
         private final static int BUFFER = (int) Utils.KB;
+        
+        private Context context;
+        
+        public AsyncDownloader(Context context) {
+            this.context = context;
+        }
         
         protected Void doInBackground(URL... urls) {
             
@@ -266,10 +250,5 @@ public class ArticleWebViewClient extends WebViewClient {
             return null;
         }
     }
-    
-    // @Override
-    // public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-    // handler.proceed(); // Ignore SSL certificate errors // TODO
-    // }
     
 }
