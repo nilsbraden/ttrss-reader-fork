@@ -18,6 +18,10 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.76
+            \n * Fixed swiping gestures
+            \n * Removed unnecessary preferences
+            \n * Added Version-Code to about-box for easier debugging</item>
         <item>Version 1.75
             \n * Fixed some FCs
             \n * Fixed broken themes

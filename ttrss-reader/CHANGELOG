@@ -1,6 +1,13 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.76 ==
+  * Fix swiping on kitkat
+  * Enable hardwareAcceleration in Manifest
+  * Clean up references on context in WebViewClient
+  * Add Version-Code to about-box for easier debugging
+  * Removed preference "MarkReadInMenu" since there is a dialog before marking multiple feeds as read.
+
 == Version 1.75 ==
   * Fixed some FCs
   * Fixed broken themes
