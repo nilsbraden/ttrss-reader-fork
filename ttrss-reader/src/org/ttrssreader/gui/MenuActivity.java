@@ -32,6 +32,7 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -196,6 +197,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         getWindow().getDecorView().getRootView().invalidate();
     }
     
+    @SuppressLint("InflateParams")
     private void initActionbar() {
         // Go to the CategoryActivity and clean the return-stack
         // getSupportActionBar().setHomeButtonEnabled(true);

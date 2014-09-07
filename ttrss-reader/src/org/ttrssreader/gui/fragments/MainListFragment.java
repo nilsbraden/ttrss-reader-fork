@@ -113,7 +113,7 @@ public abstract class MainListFragment extends SherlockListFragment implements L
                 .hideActionbar()), null);
         gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
+                return gestureDetector.onTouchEvent(event) || v.performClick();
             }
         };
         getListView().setOnTouchListener(gestureListener);

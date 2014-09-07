@@ -5,7 +5,7 @@
     </issue>
     <issue id="MissingTranslation" severity="ignore" />
     <issue id="NewApi" severity="ignore" />
-    <issue id="Typos">
+    <issue id="Typos" severity="ignore">
         <ignore path="res/values/strings.xml" />
     </issue>
 </lint>
