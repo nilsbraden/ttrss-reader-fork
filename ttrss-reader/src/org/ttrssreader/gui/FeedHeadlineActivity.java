@@ -23,13 +23,13 @@ import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineActivity extends MenuActivity {
     
@@ -68,7 +68,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             selectedArticleId = extras.getInt(SELECTED, Integer.MIN_VALUE);
         }
         
-        FragmentManager fm = getSupportFragmentManager();
+        FragmentManager fm = getFragmentManager();
         headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
         articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
         
@@ -76,7 +76,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     selectedArticleId);
             
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.add(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
@@ -142,7 +142,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (selectedArticleId != Integer.MIN_VALUE) {
-            getSupportMenuInflater().inflate(R.menu.article, menu);
+            getMenuInflater().inflate(R.menu.article, menu);
             if (Controller.isTablet)
                 super.onCreateOptionsMenu(menu);
         } else {
@@ -208,7 +208,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     
     public void openNextArticle(int direction) {
         // Open next article
-        FragmentManager fm = getSupportFragmentManager();
+        FragmentManager fm = getFragmentManager();
         articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
         if (articleFragment instanceof ArticleFragment) {
             selectedArticleId = ((ArticleFragment) articleFragment).openNextArticle(direction);
@@ -221,7 +221,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         headlineFragment.openNextFeed(direction);
         feedId = headlineFragment.getFeedId();
         
-        FragmentManager fm = getSupportFragmentManager();
+        FragmentManager fm = getFragmentManager();
         articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
         if (articleFragment instanceof ArticleFragment)
             articleFragment.resetParentInformation();
@@ -275,13 +275,13 @@ public class FeedHeadlineActivity extends MenuActivity {
         headlineFragment.setSelectedId(selectedArticleId);
         
         // Clear back stack
-        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         
         if (articleFragment == null) {
             articleFragment = ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
                     selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT);
             
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
             
             // Animation
@@ -306,7 +306,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         if (articleFragment == null)
             return;
         
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.remove(articleFragment);
         ft.commit();
         

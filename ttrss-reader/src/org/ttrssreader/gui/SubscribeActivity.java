@@ -31,6 +31,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -39,7 +40,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import com.actionbarsherlock.view.Menu;
 
 public class SubscribeActivity extends MenuActivity {
     
@@ -67,7 +67,7 @@ public class SubscribeActivity extends MenuActivity {
         setContentView(R.layout.feedsubscribe);
         setTitle(R.string.IntentSubscribe);
         ProgressBarManager.getInstance().addProgress(activity);
-        setSupportProgressBarVisibility(true);
+        setProgressBarVisibility(true);
         
         String urlValue = getIntent().getStringExtra(Intent.EXTRA_TEXT);
         
@@ -236,7 +236,7 @@ public class SubscribeActivity extends MenuActivity {
                 categoriesAdapter.addAll(catList);
             
             ProgressBarManager.getInstance().removeProgress(activity);
-            setSupportProgressBarVisibility(false);
+            setProgressBarVisibility(false);
         }
     }
     

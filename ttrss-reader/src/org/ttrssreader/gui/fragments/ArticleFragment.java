@@ -54,28 +54,32 @@ import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.LoaderManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -91,14 +95,8 @@ import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 
-@SuppressWarnings("deprecation")
-public class ArticleFragment extends SherlockFragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        TextInputAlertCallback {
+public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, TextInputAlertCallback {
     
     protected static final String TAG = ArticleFragment.class.getSimpleName();
     
@@ -262,6 +260,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         }
     }
     
+    @SuppressLint("ClickableViewAccessibility")
     private void initUI() {
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
         // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
@@ -289,7 +288,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             
             if (gestureDetector == null || gestureListener == null) {
-                ActionBar actionBar = getSherlockActivity().getSupportActionBar();
+                ActionBar actionBar = getActivity().getActionBar();
                 
                 // Detect touch gestures like swipe and scroll down:
                 gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller
@@ -304,6 +303,8 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
                     }
                 };
             }
+            // TODO: Lint-Error
+            // "Custom view org/ttrssreader/gui/view/MyWebView has setOnTouchListener called on it but does not override performClick"
             webView.setOnTouchListener(gestureListener);
         }
         
@@ -391,7 +392,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             return;
         
         try {
-            ProgressBarManager.getInstance().addProgress(getSherlockActivity());
+            ProgressBarManager.getInstance().addProgress(getActivity());
             
             if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
                 webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
@@ -458,7 +459,7 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         } catch (Exception e) {
             Log.w(TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause() + ")");
         } finally {
-            ProgressBarManager.getInstance().removeProgress(getSherlockActivity());
+            ProgressBarManager.getInstance().removeProgress(getActivity());
         }
     }
     

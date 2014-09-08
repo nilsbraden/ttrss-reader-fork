@@ -15,7 +15,7 @@
 
 package org.ttrssreader.controllers;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+import android.app.Activity;
 
 public class ProgressBarManager {
     
@@ -39,29 +39,29 @@ public class ProgressBarManager {
         return instance;
     }
     
-    public void addProgress(SherlockFragmentActivity activity) {
+    public void addProgress(Activity activity) {
         progressIndeterminateCount++;
         setIndeterminateVisibility(activity);
     }
     
-    public void removeProgress(SherlockFragmentActivity activity) {
+    public void removeProgress(Activity activity) {
         progressIndeterminateCount--;
         if (progressIndeterminateCount <= 0)
             progressIndeterminateCount = 0;
         setIndeterminateVisibility(activity);
     }
     
-    public void resetProgress(SherlockFragmentActivity activity) {
+    public void resetProgress(Activity activity) {
         progressIndeterminateCount = 0;
         setIndeterminateVisibility(activity);
     }
     
-    public void setIndeterminateVisibility(SherlockFragmentActivity activity) {
+    public void setIndeterminateVisibility(Activity activity) {
         boolean visible = (progressIndeterminateCount > 0);
-        activity.setSupportProgressBarIndeterminateVisibility(visible);
+        activity.setProgressBarIndeterminateVisibility(visible);
         if (!visible) {
             activity.setProgress(0);
-            activity.setSupportProgressBarVisibility(false);
+            activity.setProgressBarVisibility(false);
         }
     }
     

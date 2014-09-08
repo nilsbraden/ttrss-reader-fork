@@ -6,16 +6,16 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.Log;
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.view.Menu;
+import android.view.MenuItem;
 
 @SuppressWarnings("deprecation")
-public class ConnectionSettings extends SherlockPreferenceActivity {
+public class ConnectionSettings extends PreferenceActivity {
     
     protected static final String TAG = ConnectionSettings.class.getSimpleName();
     

@@ -34,20 +34,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ListAdapter;
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 
-public class PreferencesActivity extends SherlockPreferenceActivity {
+public class PreferencesActivity extends PreferenceActivity {
     
     protected static final String TAG = PreferencesActivity.class.getSimpleName();
     
@@ -231,7 +229,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = this.getSupportMenuInflater();
+        MenuInflater inflater = this.getMenuInflater();
         inflater.inflate(R.menu.preferences, menu);
         return true;
     }

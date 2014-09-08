@@ -38,27 +38,26 @@ import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.Utils;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 
 public class FeedHeadlineListFragment extends MainListFragment implements TextInputAlertCallback {
     
@@ -128,7 +127,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         super.onActivityCreated(instance);
         
         // Detect touch gestures like swipe and scroll down:
-        ActionBar actionBar = ((SherlockFragmentActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = getActivity().getActionBar();
         gestureDetector = new GestureDetector(getActivity(), new HeadlineGestureDetector(actionBar, Controller
                 .getInstance().hideActionbar()));
         gestureListener = new View.OnTouchListener() {
@@ -385,7 +384,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
         
-        getActivity().supportInvalidateOptionsMenu(); // Force redraw of menu items in actionbar
+        getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
         return feedId;
     }
     

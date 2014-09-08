@@ -33,35 +33,34 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MotionEventCompat;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 
 /**
  * This class provides common functionality for Activities.
  */
-public abstract class MenuActivity extends SherlockFragmentActivity implements IUpdateEndListener, ICacheEndListener,
+public abstract class MenuActivity extends Activity implements IUpdateEndListener, ICacheEndListener,
         IItemSelectedListener, IDataChangedListener {
     
     protected static final String TAG = MenuActivity.class.getSimpleName();
@@ -71,7 +70,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     protected final Context context = this;
     
     protected Updater updater;
-    protected SherlockFragmentActivity activity;
+    protected Activity activity;
     protected boolean isVertical;
     protected static int minSize;
     protected static int maxSize;
@@ -114,7 +113,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         displaySize = Controller.displayWidth;
         if (isVertical) {
             TypedValue tv = new TypedValue();
-            context.getTheme().resolveAttribute(R.attr.actionBarSize, tv, true);
+            context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true);
             int actionBarHeight = getResources().getDimensionPixelSize(tv.resourceId);
             displaySize = Controller.displayHeight - actionBarHeight;
         }
@@ -206,7 +205,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView = inflator.inflate(R.layout.actionbar, null);
         
-        ActionBar ab = getSupportActionBar();
+        ActionBar ab = getActionBar();
         ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowCustomEnabled(true);
@@ -297,7 +296,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getSupportMenuInflater().inflate(R.menu.generic, menu);
+        getMenuInflater().inflate(R.menu.generic, menu);
         return true;
     }
     
@@ -421,12 +420,12 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         this.startService(intent);
         
         ProgressBarManager.getInstance().addProgress(this);
-        setSupportProgressBarVisibility(true);
+        setProgressBarVisibility(true);
     }
     
     @Override
     public void onCacheEnd() {
-        setSupportProgressBarVisibility(false);
+        setProgressBarVisibility(false);
         ProgressBarManager.getInstance().removeProgress(this);
     }
     
@@ -449,7 +448,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
             updater.cancel(true);
             updater = null;
         }
-        setSupportProgressBarVisibility(false);
+        setProgressBarVisibility(false);
         ProgressBarManager.getInstance().resetProgress(this);
         Intent i = new Intent(this, ErrorActivity.class);
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
@@ -457,7 +456,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void showErrorDialog(String message) {
-        ErrorDialog.getInstance(this, message).show(getSupportFragmentManager(), "error");
+        ErrorDialog.getInstance(this, message).show(getFragmentManager(), "error");
     }
     
     protected void refreshAndUpdate() {
@@ -479,7 +478,7 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
     }
     
     protected void doRefresh() {
-        supportInvalidateOptionsMenu();
+        invalidateOptionsMenu();
         ProgressBarManager.getInstance().setIndeterminateVisibility(this);
         if (Controller.getInstance().getConnector().hasLastError())
             openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
@@ -497,13 +496,13 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         public ActivityUpdater(boolean forceUpdate) {
             this.forceUpdate = forceUpdate;
             ProgressBarManager.getInstance().addProgress(activity);
-            setSupportProgressBarVisibility(true);
+            setProgressBarVisibility(true);
         }
         
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
-                setSupportProgressBarVisibility(false);
+                setProgressBarVisibility(false);
                 if (!isCacherRunning())
                     ProgressBarManager.getInstance().removeProgress(activity);
                 return;
@@ -540,32 +539,32 @@ public abstract class MenuActivity extends SherlockFragmentActivity implements I
         if (view == null && !resizing)
             return false;
         
-        switch (MotionEventCompat.getActionMasked(ev)) {
+        switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
                 divider.setSelected(true);
                 resizing = true;
-                final int pointerIndex = MotionEventCompat.getActionIndex(ev);
+                final int pointerIndex = ev.getActionIndex();
                 
                 // Remember where we started (for dragging)
-                mLastTouchX = MotionEventCompat.getX(ev, pointerIndex);
-                mLastTouchY = MotionEventCompat.getY(ev, pointerIndex);
+                mLastTouchX = ev.getX(pointerIndex);
+                mLastTouchY = ev.getY(pointerIndex);
                 mDeltaX = 0;
                 mDeltaY = 0;
                 
                 // Save the ID of this pointer (for dragging)
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
+                mActivePointerId = ev.getPointerId(0);
                 break;
             }
             
             case MotionEvent.ACTION_MOVE: {
                 // Find the index of the active pointer and fetch its position
-                final int pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
+                final int pointerIndex = ev.findPointerIndex(mActivePointerId);
                 
                 if (pointerIndex < 0)
                     break;
                 
-                final float x = MotionEventCompat.getX(ev, pointerIndex);
-                final float y = MotionEventCompat.getY(ev, pointerIndex);
+                final float x = ev.getX(pointerIndex);
+                final float y = ev.getY(pointerIndex);
                 
                 // Calculate the distance moved
                 mDeltaX = (int) (x - mLastTouchX);
