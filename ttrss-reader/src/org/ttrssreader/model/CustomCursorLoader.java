@@ -4,10 +4,10 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryCursorHelper.MemoryDBOpenHelper;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.content.CursorLoader;
 
 public class CustomCursorLoader extends CursorLoader {
     

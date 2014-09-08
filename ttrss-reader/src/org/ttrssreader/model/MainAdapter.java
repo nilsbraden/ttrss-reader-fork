@@ -20,9 +20,9 @@ import java.util.List;
 import org.ttrssreader.R;
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SimpleCursorAdapter;
 
 public abstract class MainAdapter extends SimpleCursorAdapter {
     

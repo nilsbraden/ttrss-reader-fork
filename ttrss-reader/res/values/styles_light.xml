@@ -20,16 +20,15 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Light" parent="Theme.Sherlock.Light">
-        <item name="actionBarItemBackground">@drawable/selectable_background_light</item>
-        <item name="popupMenuStyle">@style/PopupMenu.Light</item>
-        <item name="dropDownListViewStyle">@style/DropDownListView.Light</item>
-        <item name="actionBarTabStyle">@style/ActionBarTabStyle.Light</item>
-        <item name="actionDropDownStyle">@style/DropDownNav.Light</item>
-        <item name="actionBarStyle">@style/ActionBar.Solid.Light</item>
-        <item name="actionModeBackground">@drawable/cab_background_top_light</item>
-        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_light</item>
-        <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
+    <style name="Theme.Light" parent="@android:style/Theme.Light">
+        <item name="android:popupMenuStyle">@style/PopupMenu.Light</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Light</item>
+        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Light</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav.Light</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Solid.Light</item>
+        <item name="android:actionModeBackground">@drawable/cab_background_top_light</item>
+        <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_light</item>
+        <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Light</item>
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_light</item>
         <item name="android:windowBackground">@color/background_light</item>
@@ -37,43 +36,43 @@
         <item name="ListItemText">@style/ListItemText.Light</item>
     </style>
 
-    <style name="ActionBar.Solid.Light" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
-        <item name="background">@drawable/ab_solid_light</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_solid_light</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_solid_light</item>
-        <item name="progressBarStyle">@style/ProgressBar.Light</item>
+    <style name="ActionBar.Solid.Light" parent="@android:style/Widget.ActionBar">
+        <item name="android:background">@drawable/ab_solid_light</item>
+        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_light</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_light</item>
+        <item name="android:progressBarStyle">@style/ProgressBar.Light</item>
     </style>
 
-    <style name="PopupMenu.Light" parent="@style/Widget.Sherlock.Light.ListPopupWindow">
+    <style name="PopupMenu.Light" parent="@android:style/Widget.ListPopupWindow">
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_light</item>
     </style>
 
-    <style name="DropDownListView.Light" parent="@style/Widget.Sherlock.Light.ListView.DropDown">
+    <style name="DropDownListView.Light" parent="@android:style/Widget.ListView.DropDown">
         <item name="android:listSelector">@drawable/selectable_background_light</item>
     </style>
 
-    <style name="ActionBarTabStyle.Light" parent="@style/Widget.Sherlock.Light.ActionBar.TabView">
+    <style name="ActionBarTabStyle.Light" parent="@android:style/Widget.ActionBar.TabView">
         <item name="android:background">@drawable/tab_indicator_ab_light</item>
     </style>
 
-    <style name="DropDownNav.Light" parent="@style/Widget.Sherlock.Light.Spinner.DropDown.ActionBar">
+    <style name="DropDownNav.Light" parent="@android:style/Widget.Spinner.DropDown">
         <item name="android:background">@drawable/spinner_background_ab_light</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_light</item>
         <item name="android:dropDownSelector">@drawable/selectable_background_light</item>
     </style>
 
-    <style name="ProgressBar.Light" parent="@style/Widget.Sherlock.Light.ProgressBar.Horizontal">
+    <style name="ProgressBar.Light" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/progress_horizontal_light</item>
     </style>
 
-    <style name="ActionButton.CloseMode.Light" parent="@style/Widget.Sherlock.Light.ActionButton.CloseMode">
+    <style name="ActionButton.CloseMode.Light" parent="@android:style/Widget.ActionButton.CloseMode">
         <item name="android:background">@drawable/btn_cab_done_light</item>
     </style>
 
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
-    <style name="Theme.Light.Widget" parent="@style/Theme.Sherlock">
-        <item name="popupMenuStyle">@style/PopupMenu.Light</item>
-        <item name="dropDownListViewStyle">@style/DropDownListView.Light</item>
+    <style name="Theme.Light.Widget" parent="@android:style/Theme">
+        <item name="android:popupMenuStyle">@style/PopupMenu.Light</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Light</item>
     </style>
 
     <style name="ListItemText.Light" parent="@android:style/TextAppearance.Small">

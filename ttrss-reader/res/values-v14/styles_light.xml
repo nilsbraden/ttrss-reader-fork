@@ -20,7 +20,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Light" parent="Theme.Sherlock.Light">
+    <style name="Theme.Light" parent="@android:style/Theme.Holo.Light">
         <item name="android:selectableItemBackground">@drawable/selectable_background_light</item>
         <item name="android:actionBarItemBackground">@drawable/selectable_background_light</item>
         <item name="android:popupMenuStyle">@style/PopupMenu.Light</item>
@@ -38,20 +38,20 @@
         <item name="ListItem">@style/ListItem.Light</item>
     </style>
 
-    <style name="ActionBar.Solid.Light" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
+    <style name="ActionBar.Solid.Light" parent="@android:style/Widget.ActionBar">
         <item name="android:background">@drawable/ab_solid_light</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_light</item>
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid_light</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Light</item>
     </style>
 
-    <style name="ActionBar.Transparent.Light" parent="@style/Widget.Sherlock.Light.ActionBar">
+    <style name="ActionBar.Transparent.Light" parent="@android:style/Widget.ActionBar">
         <item name="android:background">@drawable/ab_transparent_light</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Light</item>
     </style>
 
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
-    <style name="Theme.Light.Widget" parent="@style/Theme.Sherlock">
+    <style name="Theme.Light.Widget" parent="@android:style/Theme.Holo.Light">
         <item name="android:popupMenuStyle">@style/PopupMenu.Light</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Light</item>
     </style>

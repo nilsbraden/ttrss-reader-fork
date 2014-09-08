@@ -33,17 +33,17 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 
 public class CategoryActivity extends MenuActivity implements IItemSelectedListener {
     
@@ -84,14 +84,14 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
         }
         
-        FragmentManager fm = getSupportFragmentManager();
+        FragmentManager fm = getFragmentManager();
         categoryFragment = (CategoryListFragment) fm.findFragmentByTag(CategoryListFragment.FRAGMENT);
         feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
         
         if (categoryFragment == null) {
             categoryFragment = CategoryListFragment.newInstance();
             
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
@@ -312,9 +312,9 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         feedFragment = FeedListFragment.newInstance(categoryId);
         
         // Clear back stack
-        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
         
         // Animation
@@ -333,7 +333,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         if (feedFragment == null)
             return;
         
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.remove(feedFragment);
         ft.commit();
         

@@ -20,16 +20,15 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Dark" parent="Theme.Sherlock">
-        <item name="actionBarItemBackground">@drawable/selectable_background_dark</item>
-        <item name="popupMenuStyle">@style/PopupMenu.Dark</item>
-        <item name="dropDownListViewStyle">@style/DropDownListView.Dark</item>
-        <item name="actionBarTabStyle">@style/ActionBarTabStyle.Dark</item>
-        <item name="actionDropDownStyle">@style/DropDownNav.Dark</item>
-        <item name="actionBarStyle">@style/ActionBar.Solid.Dark</item>
-        <item name="actionModeBackground">@drawable/cab_background_top_dark</item>
-        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_dark</item>
-        <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Dark</item>
+    <style name="Theme.Dark" parent="@android:style/Theme">
+        <item name="android:popupMenuStyle">@style/PopupMenu.Dark</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Dark</item>
+        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Dark</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav.Dark</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Solid.Dark</item>
+        <item name="android:actionModeBackground">@drawable/cab_background_top_dark</item>
+        <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_dark</item>
+        <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Dark</item>
         <!-- Text and Background -->
         <item name="android:textColor">@color/font_color_dark</item>
         <item name="android:windowBackground">@color/background_dark</item>
@@ -37,43 +36,43 @@
         <item name="ListItemText">@style/ListItemText.Dark</item>
     </style>
 
-    <style name="ActionBar.Solid.Dark" parent="@style/Widget.Sherlock.ActionBar.Solid">
-        <item name="background">@drawable/ab_solid_dark</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_solid_dark</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_solid_dark</item>
-        <item name="progressBarStyle">@style/ProgressBar.Dark</item>
+    <style name="ActionBar.Solid.Dark" parent="@android:style/Widget.ActionBar">
+        <item name="android:background">@drawable/ab_solid_dark</item>
+        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_dark</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_dark</item>
+        <item name="android:progressBarStyle">@style/ProgressBar.Dark</item>
     </style>
 
-    <style name="PopupMenu.Dark" parent="@style/Widget.Sherlock.ListPopupWindow">
+    <style name="PopupMenu.Dark" parent="@android:style/Widget.ListPopupWindow">
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_dark</item>
     </style>
 
-    <style name="DropDownListView.Dark" parent="@style/Widget.Sherlock.ListView.DropDown">
+    <style name="DropDownListView.Dark" parent="@android:style/Widget.ListView.DropDown">
         <item name="android:listSelector">@drawable/selectable_background_dark</item>
     </style>
 
-    <style name="ActionBarTabStyle.Dark" parent="@style/Widget.Sherlock.ActionBar.TabView">
+    <style name="ActionBarTabStyle.Dark" parent="@android:style/Widget.ActionBar.TabView">
         <item name="android:background">@drawable/tab_indicator_ab_dark</item>
     </style>
 
-    <style name="DropDownNav.Dark" parent="@style/Widget.Sherlock.Spinner.DropDown.ActionBar">
+    <style name="DropDownNav.Dark" parent="@android:style/Widget.Spinner.DropDown">
         <item name="android:background">@drawable/spinner_background_ab_dark</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_dark</item>
         <item name="android:dropDownSelector">@drawable/selectable_background_dark</item>
     </style>
 
-    <style name="ProgressBar.Dark" parent="@style/Widget.Sherlock.ProgressBar.Horizontal">
+    <style name="ProgressBar.Dark" parent="@android:style/Widget.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/progress_horizontal_dark</item>
     </style>
 
-    <style name="ActionButton.CloseMode.Dark" parent="@style/Widget.Sherlock.ActionButton.CloseMode">
+    <style name="ActionButton.CloseMode.Dark" parent="@android:style/Widget.ActionButton.CloseMode">
         <item name="android:background">@drawable/btn_cab_done_dark</item>
     </style>
 
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
-    <style name="Theme.Dark.Widget" parent="@style/Theme.Sherlock">
-        <item name="popupMenuStyle">@style/PopupMenu.Dark</item>
-        <item name="dropDownListViewStyle">@style/DropDownListView.Dark</item>
+    <style name="Theme.Dark.Widget" parent="@android:style/Theme">
+        <item name="android:popupMenuStyle">@style/PopupMenu.Dark</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Dark</item>
     </style>
 
     <style name="ListItemText.Dark" parent="@android:style/TextAppearance.Small">

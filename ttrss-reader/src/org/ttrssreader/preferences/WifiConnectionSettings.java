@@ -8,11 +8,11 @@ import android.content.Intent;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
 
-public class WifiConnectionSettings extends SherlockPreferenceActivity {
+public class WifiConnectionSettings extends PreferenceActivity {
     
     private PreferenceCategory mWifibasedCategory;
     

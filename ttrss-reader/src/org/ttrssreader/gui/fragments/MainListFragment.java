@@ -23,27 +23,26 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.utils.AsyncTask;
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.ListFragment;
+import android.app.LoaderManager;
+import android.content.Loader;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListView;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.app.SherlockListFragment;
 
-public abstract class MainListFragment extends SherlockListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public abstract class MainListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     
     protected static final String TAG = MainListFragment.class.getSimpleName();
     
@@ -107,7 +106,7 @@ public abstract class MainListFragment extends SherlockListFragment implements L
         getListView().setSelector(R.drawable.list_item_background);
         registerForContextMenu(getListView());
         
-        ActionBar actionBar = ((SherlockFragmentActivity) getActivity()).getSupportActionBar();
+        ActionBar actionBar = getActivity().getActionBar();
         
         gestureDetector = new GestureDetector(getActivity(), new MyGestureDetector(actionBar, Controller.getInstance()
                 .hideActionbar()), null);

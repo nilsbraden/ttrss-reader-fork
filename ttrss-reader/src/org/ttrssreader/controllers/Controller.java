@@ -46,7 +46,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
