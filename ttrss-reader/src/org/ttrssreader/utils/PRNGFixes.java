@@ -10,9 +10,6 @@ package org.ttrssreader.utils;
  * freely, as long as the origin is not misrepresented.
  */
 
-import android.os.Build;
-import android.os.Process;
-import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -27,6 +24,9 @@ import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.SecureRandomSpi;
 import java.security.Security;
+import android.os.Build;
+import android.os.Process;
+import android.util.Log;
 
 /**
  * Fixes for the output of the default PRNG having low entropy.
@@ -285,28 +285,13 @@ public final class PRNGFixes {
         }
     }
     
-    /**
-     * Gets the hardware serial number of this device.
-     * 
-     * @return serial number or {@code null} if not available.
-     */
-    private static String getDeviceSerialNumber() {
-        // We're using the Reflection API because Build.SERIAL is only available
-        // since API Level 9 (Gingerbread, Android 2.3).
-        try {
-            return (String) Build.class.getField("SERIAL").get(null);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-    
     private static byte[] getBuildFingerprintAndDeviceSerial() {
         StringBuilder result = new StringBuilder();
         String fingerprint = Build.FINGERPRINT;
         if (fingerprint != null) {
             result.append(fingerprint);
         }
-        String serial = getDeviceSerialNumber();
+        String serial = Build.SERIAL;
         if (serial != null) {
             result.append(serial);
         }

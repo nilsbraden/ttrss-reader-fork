@@ -30,7 +30,6 @@ import org.ttrssreader.utils.Utils;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -64,7 +63,7 @@ public class SubscribeActivity extends MenuActivity {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
         mDamageReport.initialize();
-
+        
         setContentView(R.layout.feedsubscribe);
         setTitle(R.string.IntentSubscribe);
         ProgressBarManager.getInstance().addProgress(activity);
@@ -233,15 +232,9 @@ public class SubscribeActivity extends MenuActivity {
         
         @Override
         protected void onProgressUpdate(Integer... values) {
-            if (catList != null && !catList.isEmpty()) {
-                if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-                    categoriesAdapter.addAll(catList);
-                } else {
-                    for (Category cat : catList) {
-                        categoriesAdapter.add(cat);
-                    }
-                }
-            }
+            if (catList != null && !catList.isEmpty())
+                categoriesAdapter.addAll(catList);
+            
             ProgressBarManager.getInstance().removeProgress(activity);
             setSupportProgressBarVisibility(false);
         }

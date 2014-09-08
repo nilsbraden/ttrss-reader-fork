@@ -64,7 +64,6 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v4.app.DialogFragment;
@@ -87,7 +86,6 @@ import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
-import android.webkit.WebSettings.TextSize;
 import android.webkit.WebView;
 import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
@@ -264,7 +262,6 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
         }
     }
     
-    @SuppressLint("InlinedApi")
     private void initUI() {
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
         // http://stackoverflow.com/questions/3130654/memory-leak-in-webview
@@ -283,36 +280,13 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             boolean supportZoom = Controller.getInstance().supportZoomControls();
             webView.getSettings().setSupportZoom(supportZoom);
             webView.getSettings().setBuiltInZoomControls(supportZoom);
-            
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-                webView.getSettings().setDisplayZoomControls(false);
-            
+            webView.getSettings().setDisplayZoomControls(false);
             webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
             webView.setScrollBarStyle(WebView.SCROLLBARS_OUTSIDE_OVERLAY);
             webView.setScrollbarFadingEnabled(true);
             webView.setOnKeyListener(keyListener);
-            
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
-            } else {
-                // Use rough estimation of new size for old api levels:
-                int size = Controller.getInstance().textZoom();
-                TextSize newSize = TextSize.NORMAL;
-                if (size < 50)
-                    newSize = TextSize.SMALLEST;
-                else if (size < 80)
-                    newSize = TextSize.SMALLER;
-                else if (size > 120)
-                    newSize = TextSize.LARGER;
-                else if (size > 150)
-                    newSize = TextSize.LARGEST;
-                webView.getSettings().setTextSize(newSize);
-            }
-            
-            // prevent flicker in ics
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            }
+            webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             
             if (gestureDetector == null || gestureListener == null) {
                 ActionBar actionBar = getSherlockActivity().getSupportActionBar();
@@ -374,9 +348,8 @@ public class ArticleFragment extends SherlockFragment implements LoaderManager.L
             new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
         }
         
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-            getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
-            
+        getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
+        
         // Reload content on next doRefresh()
         webviewInitialized = false;
     }

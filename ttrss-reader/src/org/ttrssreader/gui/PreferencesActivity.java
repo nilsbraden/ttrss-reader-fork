@@ -87,7 +87,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
         activity = this;
         setResult(ACTIVITY_SHOW_PREFERENCES);
         
-        if (needResource || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+        if (needResource) {
             addPreferencesFromResource(R.xml.prefs_main_top);
             addPreferencesFromResource(R.xml.prefs_http);
             addPreferencesFromResource(R.xml.prefs_ssl);
