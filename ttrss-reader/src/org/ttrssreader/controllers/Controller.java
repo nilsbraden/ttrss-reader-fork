@@ -305,7 +305,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         if (ttrssConnector != null)
             return;
         
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO || useOldConnector()) {
+        if (useOldConnector()) {
             ttrssConnector = new ApacheJSONConnector(context);
         } else {
             ttrssConnector = new JavaJSONConnector(context);

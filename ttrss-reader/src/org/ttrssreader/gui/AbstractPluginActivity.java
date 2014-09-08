@@ -13,15 +13,12 @@
 package org.ttrssreader.gui;
 
 import org.ttrssreader.controllers.Controller;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.twofortyfouram.locale.BreadCrumber;
 import com.twofortyfouram.locale.api.R;
 
 /**
@@ -45,17 +42,6 @@ public abstract class AbstractPluginActivity extends Activity {
     protected void onCreate(final Bundle savedInstanceState) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            setupTitleApi11();
-        } else {
-            setTitle(BreadCrumber.generateBreadcrumb(getApplicationContext(), getIntent(),
-                    getString(org.ttrssreader.R.string.ApplicationName)));
-        }
-    }
-    
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void setupTitleApi11() {
         CharSequence callingApplicationLabel = null;
         try {
             callingApplicationLabel = getPackageManager().getApplicationLabel(
@@ -73,27 +59,6 @@ public abstract class AbstractPluginActivity extends Activity {
         super.onCreateOptionsMenu(menu);
         
         getMenuInflater().inflate(R.menu.twofortyfouram_locale_help_save_dontsave, menu);
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            setupActionBarApi11();
-        }
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            setupActionBarApi14();
-        }
-        
-        return true;
-    }
-    
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void setupActionBarApi11() {
-        getActionBar().setSubtitle(
-                BreadCrumber.generateBreadcrumb(getApplicationContext(), getIntent(),
-                        getString(org.ttrssreader.R.string.ApplicationName)));
-    }
-    
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-    private void setupActionBarApi14() {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         
         /*
@@ -109,6 +74,7 @@ public abstract class AbstractPluginActivity extends Activity {
         } catch (final NameNotFoundException e) {
             Log.w(TAG, "An error occurred loading the host's icon", e); //$NON-NLS-1$
         }
+        return true;
     }
     
     @Override

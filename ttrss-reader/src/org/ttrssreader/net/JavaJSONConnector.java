@@ -28,7 +28,6 @@ import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
 public class JavaJSONConnector extends JSONConnector {
@@ -37,7 +36,6 @@ public class JavaJSONConnector extends JSONConnector {
     
     public JavaJSONConnector(Context context) {
         super(context);
-        disableConnectionReuseIfNecessary();
     }
     
     protected InputStream doRequest(Map<String, String> params) {
@@ -114,14 +112,6 @@ public class JavaJSONConnector extends JSONConnector {
                 return new PasswordAuthentication(httpUsername, httpPassword.toCharArray());
             }
         });
-    }
-    
-    @SuppressWarnings("deprecation")
-    private void disableConnectionReuseIfNecessary() {
-        // Work around pre-Froyo bugs in HTTP connection reuse.
-        if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
-            System.setProperty("http.keepAlive", "false");
-        }
     }
     
 }

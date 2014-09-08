@@ -43,6 +43,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.os.Build;
 import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
@@ -259,7 +260,9 @@ public class DBHelper {
             
             OpenHelper openHelper = new OpenHelper(context);
             db = openHelper.getWritableDatabase();
-            db.setLockingEnabled(true);
+            
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+                db.setLockingEnabled(true);
             
             if (specialUpgradeSuccessful) {
                 // Re-open DB for final usage:

@@ -349,42 +349,23 @@ public class Utils {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         
         try {
-            if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-                Notification.Builder builder = new Notification.Builder(context);
-                builder.setSmallIcon(icon);
-                builder.setTicker(ticker);
-                builder.setWhen(System.currentTimeMillis());
-                builder.setContentTitle(title);
-                builder.setContentText(text);
-                builder.setContentIntent(pendingIntent);
-                builder.setAutoCancel(autoCancel);
-                if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
-                    notification = builder.getNotification();
-                else
-                    notification = builder.build();
-            } else {
-                notification = buildOldNotification(context, icon, ticker, title, text, pendingIntent);
-            }
+            Notification.Builder builder = new Notification.Builder(context);
+            builder.setSmallIcon(icon);
+            builder.setTicker(ticker);
+            builder.setWhen(System.currentTimeMillis());
+            builder.setContentTitle(title);
+            builder.setContentText(text);
+            builder.setContentIntent(pendingIntent);
+            builder.setAutoCancel(autoCancel);
+            if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
+                notification = builder.getNotification();
+            else
+                notification = builder.build();
         } catch (Exception re) {
             Log.e(TAG, "Exception while building notification. Does your device propagate the right API-Level? ("
                     + Build.VERSION.SDK_INT + ")", re);
-            re.printStackTrace();
-            
-            // fallback
-            try {
-                notification = buildOldNotification(context, icon, ticker, title, text, pendingIntent);
-            } catch (Exception e) {
-            }
         }
         
-        return notification;
-    }
-    
-    @SuppressWarnings("deprecation")
-    private static Notification buildOldNotification(Context context, int icon, CharSequence ticker, CharSequence title, CharSequence text, PendingIntent pendingIntent) {
-        Notification notification = new Notification(icon, ticker, System.currentTimeMillis());
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        notification.setLatestEventInfo(context, title, text, pendingIntent);
         return notification;
     }
     
@@ -414,21 +395,7 @@ public class Utils {
         
     }
     
-    @SuppressWarnings("deprecation")
     public static String getTextFromClipboard(Context context) {
-        int api = Build.VERSION.SDK_INT;
-        
-        if (api < Build.VERSION_CODES.HONEYCOMB) {
-            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context
-                    .getSystemService(Context.CLIPBOARD_SERVICE);
-            
-            CharSequence chars = clipboard.getText();
-            if (chars != null && chars.length() > 0)
-                return chars.toString();
-            else
-                return null;
-        }
-        
         // New Clipboard API
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboard.hasPrimaryClip()) {
@@ -446,7 +413,6 @@ public class Utils {
                     return pasteUri.toString();
                 }
             }
-            
         }
         return null;
     }

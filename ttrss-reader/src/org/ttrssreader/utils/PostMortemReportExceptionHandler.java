@@ -112,20 +112,10 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             }
         }
         if (e instanceof SQLiteException) {
-            // SQLiteDatabase.isDbLockedByOtherThreads() was deprecated with API Level 16 so I won't spend any more time
-            // fixing these bugs for old devices. The javadoc states that there shouldn't be any explicit locking
-            // anymore.
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
-                    && e.getMessage().toLowerCase(Locale.ENGLISH).contains("database is locked")) {
+            if (e.getMessage().toLowerCase(Locale.ENGLISH).contains("database is locked")) {
                 Log.w(TAG, "Error-Reporting for Exception \"database is locked\" is disabled.");
                 handleException = false;
             }
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            // Don't want to keep working so much for old api levels, most errors are also sent via market and that
-            // should be enough.
-            Log.w(TAG, "Error-Reporting for android versions below Honeycomb is disabled.");
-            handleException = false;
         }
         
         if (handleException)
