@@ -155,7 +155,7 @@ public abstract class JSONConnector {
     protected String httpPassword;
     
     protected String sessionId = null;
-    protected String loginLock = "";
+    protected final Object lock = new Object();
     protected DefaultHttpClient client;
     protected Context context;
     private int apiLevel = -1;
@@ -407,7 +407,7 @@ public abstract class JSONConnector {
         if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
             return true;
         
-        synchronized (loginLock) {
+        synchronized (lock) {
             if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
                 return true; // Login done while we were waiting for the lock
                 
