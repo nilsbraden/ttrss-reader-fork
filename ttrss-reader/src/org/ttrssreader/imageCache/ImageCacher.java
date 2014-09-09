@@ -77,7 +77,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private static Thread myHandler;
     private static Handler handler;
     
-    private static String myLock = "";
+    private static final Object lock = new Object();
+    
     private static volatile Boolean handlerInitialized = false;
     
     private static class MyHandler extends Thread {
@@ -87,9 +88,9 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             try {
                 Looper.prepare();
                 handler = new Handler();
-                synchronized (myLock) {
+                synchronized (lock) {
                     handlerInitialized = true;
-                    myLock.notifyAll();
+                    lock.notifyAll();
                 }
                 Looper.loop();
             } catch (Throwable t) {
@@ -103,11 +104,11 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         // Wait for the handler to be fully initialized:
         long wait = Utils.SECOND * 2;
         if (!handlerInitialized) {
-            synchronized (myLock) {
+            synchronized (lock) {
                 while (!handlerInitialized && wait > 0) {
                     try {
                         wait = wait - 300;
-                        myLock.wait(300);
+                        lock.wait(300);
                     } catch (InterruptedException e) {
                     }
                 }
@@ -268,8 +269,8 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         while (!map.isEmpty()) {
             synchronized (map) {
                 try {
-                    // Only wait for 15 Minutes
-                    if (System.currentTimeMillis() - timeWait > Utils.MINUTE * 15)
+                    // Only wait for 10 Minutes
+                    if (System.currentTimeMillis() - timeWait > Utils.MINUTE * 10)
                         break;
                     map.wait(Utils.SECOND);
                     map.notifyAll();
@@ -345,7 +346,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 
                 if (file.exists() && !file.delete())
                     Log.w(TAG, "File " + file.getAbsolutePath() + " was not deleted!");
-                else 
+                else
                     Log.w(TAG, "WTF.");
                 
                 rfIds.add(rf.id);

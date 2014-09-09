@@ -53,16 +53,7 @@ public class DBHelper {
     protected static final String TAG = DBHelper.class.getSimpleName();
     
     private volatile boolean initialized = false;
-    private String LOCK = "";
-    
-    /*
-     * We use two locks here to avoid too much locking for reading and be able to completely lock everything up when we
-     * need to close the DB. In this case we lock both locks with write-access to avoid any other Threads holding the
-     * locks while we use only read-locking on the "dbReadLock" for normal accesss. The "dbWriteLock" is always locked
-     * on one Thread since concurrent write-access is not possible.
-     */
-    // private static final ReentrantReadWriteLock dbReadLock = new ReentrantReadWriteLock();
-    // private static final ReentrantLock dbWriteLock = new ReentrantLock();
+    private static final Object lock = new Object();
     
     public static final String DATABASE_NAME = "ttrss.db";
     public static final String DATABASE_BACKUP_NAME = "_backup_";
@@ -198,7 +189,7 @@ public class DBHelper {
     }
     
     public void checkAndInitializeDB(final Context context) {
-        synchronized (LOCK) {
+        synchronized (lock) {
             this.context = context;
             
             // Check if deleteDB is scheduled or if DeleteOnStartup is set
@@ -249,7 +240,7 @@ public class DBHelper {
     
     @SuppressWarnings("deprecation")
     private boolean initializeDBHelper() {
-        synchronized (LOCK) {
+        synchronized (lock) {
             if (context == null) {
                 Log.e(TAG, "Can't handle internal DB without Context-Object.");
                 return false;
@@ -308,7 +299,7 @@ public class DBHelper {
     }
     
     private boolean deleteDB() {
-        synchronized (LOCK) {
+        synchronized (lock) {
             if (context == null)
                 return false;
             
@@ -326,7 +317,7 @@ public class DBHelper {
     }
     
     private void closeDB() {
-        synchronized (LOCK) {
+        synchronized (lock) {
             db.releaseReference();
             db.close();
             db = null;
@@ -334,7 +325,7 @@ public class DBHelper {
     }
     
     private boolean isDBAvailable() {
-        synchronized (LOCK) {
+        synchronized (lock) {
             if (db != null && db.isOpen())
                 return true;
             

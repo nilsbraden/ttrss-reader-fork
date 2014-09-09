@@ -83,12 +83,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private WifiManager wifiManager;
     
     private JSONConnector ttrssConnector;
+    private static final Object lockConnector = new Object();
+    
     private ImageCache imageCache = null;
     
     private boolean isHeadless = false;
-    private String imageCacheLock = "lock";
+    private static final Object lockImageCache = new Object();
     
     private static Boolean initialized = false;
+    private static final Object lockInitialize = new Object();
+    
     private SharedPreferences prefs = null;
     private static boolean preferencesChanged = false;
     
@@ -158,6 +162,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // Article-View-Stuff
     public static String htmlTemplate = "";
+    private static final Object lockHtmlTemplate = new Object();
+    
     public static int relSwipeMinDistance;
     public static int relSwipeMaxOffPath;
     public static int relSwipteThresholdVelocity;
@@ -183,7 +189,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public void checkAndInitializeController(final Context context, final Display display) {
-        synchronized (initialized) {
+        synchronized (lockInitialize) {
             this.context = context;
             this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             
@@ -279,7 +285,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         htmlTmpl.add(MARKER_BOTTOM_NAV, buttons);
         
         // This is only needed once an article is displayed
-        synchronized (htmlTemplate) {
+        synchronized (lockHtmlTemplate) {
             htmlTemplate = htmlTmpl.render();
         }
     }
@@ -297,17 +303,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
             Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class)
                     .invoke(null, httpCacheDir, httpCacheSize);
         } catch (Exception httpResponseCacheNotAvailable) {
-        }
-    }
-    
-    private synchronized void initializeConnector() {
-        if (ttrssConnector != null)
-            return;
-        
-        if (useOldConnector()) {
-            ttrssConnector = new ApacheJSONConnector(context);
-        } else {
-            ttrssConnector = new JavaJSONConnector(context);
         }
     }
     
@@ -429,7 +424,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
         if (ttrssConnector != null) {
             return ttrssConnector;
         } else {
-            initializeConnector();
+            
+            synchronized (lockConnector) {
+                if (ttrssConnector == null) {
+                    if (useOldConnector()) {
+                        ttrssConnector = new ApacheJSONConnector(context);
+                    } else {
+                        ttrssConnector = new JavaJSONConnector(context);
+                    }
+                }
+            }
+            
             if (ttrssConnector != null)
                 return ttrssConnector;
             else
@@ -443,7 +448,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public ImageCache getImageCache(boolean wait) {
         if (imageCache == null && wait) {
-            synchronized (imageCacheLock) {
+            synchronized (lockImageCache) {
                 if (imageCache == null) {
                     imageCache = new ImageCache(1000, cacheFolder());
                     if (!imageCache.enableDiskCache()) {
