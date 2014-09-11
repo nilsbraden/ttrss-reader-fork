@@ -218,7 +218,7 @@
     <string name="NoCrashreportsTitle">Disable crash reports</string>
     <string name="NoCrashreportsSummary">Completely disables the reporting functionality. Please note that in NO case any data is transferred without your consent anyway, I just open the mail app and you can review any transmitted data before sending it to me.</string>
     <string name="NoCrashreportsUntilUpdateTitle">Disable crash reports until next update</string>
-    <string name="NoCrashreportsUntilUpdateSummary">Disables cras reporting until the next update of the app is installed. Please note that in NO case any data is transferred without your consent anyway, I just open the mail app and you can review any transmitted data before sending it to me.</string>
+    <string name="NoCrashreportsUntilUpdateSummary">Disables crash reporting until the next update of the app is installed. Please note that in NO case any data is transferred without your consent anyway, I just open the mail app and you can review any transmitted data before sending it to me.</string>
     <string name="DeleteDBOnStartupTitle">Delete DB on startup</string>
     <string name="DeleteDBOnStartupSummary">If set to true the internal Database will be deleted on EVERY start of the application.</string>
     <string name="ConnectionWifiPrefScreenTitle">Wifi (per network) connectivity settings</string>
