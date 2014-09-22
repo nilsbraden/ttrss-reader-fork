@@ -1,4 +1,7 @@
 /*
+ * ttrss-reader-fork for Android
+ * 
+ * Copyright (C) 2010 Nils Braden
  * Copyright 2013 two forty four a.m. LLC <http://www.twofortyfouram.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
