@@ -16,21 +16,20 @@
 <resources>
 
     <string name="AboutActivity.ThanksTextValue" formatted="false">Special thanks to: \n 
+            \n - J.Devauchelle for starting this project
             \n - Andrew Dolgov for TT-RSS (http://tt-rss.org/)
             \n - Google Inc. for some Code (Apache License)
             \n - The Android Open Source Project for some Code (Apache License)
             \n - Matthias Kaeppler for his implementation of an AbstractCache (Apache License)
             \n - Ryan Fischbach for his implementation of PostMortemReportExceptionHandler (http://www.blackmoonit.com)
             \n - OpenIntents.org for several parts of the OI FileManager
-            \n - The Apache Software foundation
-            \n - J.Devauchelle for starting this project
             \n - http://hubpic.com/ for some images (Creative Commons License)
-            \n - Jake Wharton for ActionBarSherlock (http://actionbarsherlock.com/)
             \n - two forty four a.m. LLC for the Locale Plugin-API (http://www.twofortyfouram.com/)
-            \n - Eduardo Ruiz for the spanish translation (http://www.edubox.org/)
             \n - Vladimir Nikic for HtmlCleaner (http://htmlcleaner.sourceforge.net)
             \n - Igor Lyubimov for several improvements to the code (igor.lyubimov@gmail.com)
             \n - David Luhmer for an improved HTML-Template (http://david-luhmer.de/wordpress/)
-            \n - Jean-François BILGER for the french translation</string>
+            \n - Eduardo Ruiz for the spanish translation
+            \n - Jean-François Bilger for the french translation
+            \n - Stephan Windmüller for the german translation</string>
 
 </resources>
