@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * ttrss-reader-fork for Android
- *
- * Copyright (C) 2010 N. Braden.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 3 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+    Copyright (C) 2010 Nils Braden
+
+    This file is part of ttrss-reader-fork. This program is free software; you
+    can redistribute it and/or modify it under the terms of the GNU
+    General Public License as published by the Free Software Foundation;
+    either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+    General Public License for more details. You should have received a
+    copy of the GNU General Public License along with this program; If
+    not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
 
@@ -71,7 +73,6 @@
     <string name="Commons.MarkPublish">Veröffentlichen</string>
     <string name="Commons.MarkUnpublish">Veröffentlicht</string>
     <string name="Commons.AddArticleLabel">Label hinzufügen</string>
-    <string name="Commons.MarkUnpublish">Veröffentlicht</string>
     <string name="Commons.MarkAboveRead">Markiere obige Artikel als gelesen</string>
     <string name="VCategory.AllArticles">Alle Artikel</string>
     <string name="VCategory.FreshArticles">Neue Artikel</string>
@@ -204,7 +205,6 @@
     <string name="DisplayDateTimeFormatSummary">Gibt ein eigenes Format für Datum mit Zeit an (siehe Wiki). Standard ist \"dd.MM.yyyy kk:mm\". Ungültige Werte werden stillschweigend ignoriert und die Standardwerte gesetzt.</string>
     <string name="DisplayDateTimeFormatDefault">dd.MM.yyyy kk:mm</string>
     <string name="DisplayDarkBackgroundTitle">Dunklen Hintergrund verwenden?</string>
-    <string name="DisplayDarkBackgroundTitle">Verwende dunklen Hintergrund?</string>
     <string name="DisplayThemeTitle">App-Theme auswählen</string>
     <string name="DisplayThemeSummary">Schwarz/Weiß verwendet schwarze Schrift auf weißem Hintergrund (oder umgekehrt), um das Lesen auf E-Book-Readern zu ermöglichen.</string>
     <string name="SystemPreferenceCategoryTitle">System</string>
@@ -259,7 +259,6 @@
     <string name="CacheImageMaxSizeTitle">Maximale Größe von zwischengespeicherten Bildern</string>
     <string name="CacheImageMaxSizeSummary">Maximale Dateigröße von Bildern, die zwischengespeichert werden sollen in KB</string>
     <string name="CacheImageMinSizeTitle">Minimale Größe von zwischengespeicherten Bildern</string>
-    <string name="CacheImageMaxSizeSummary">Minimale Dateigröße von Bildern, die zwischengespeichert werden sollen in KB</string>
     <string name="Utils.FileSaveTitle">Anhang speichern</string>
     <string name="Utils.FileSaveMessage">Kein Dateimanager gefunden. Wo möchten Sie diesen Anhang speichern?</string>
     <string name="Utils.OkayAction">OK</string>

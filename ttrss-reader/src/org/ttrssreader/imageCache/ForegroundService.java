@@ -1,4 +1,7 @@
 /*
+ * ttrss-reader-fork for Android
+ * 
+ * Copyright (C) 2010 Nils Braden
  * Copyright (C) 2009 The Android Open Source Project
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");

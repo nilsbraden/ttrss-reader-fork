@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 
 /**
+ * Source: http://stackoverflow.com/a/13493726 (User: Timmmm)<br>
  * A handler which keeps a weak reference to a fragment. According to
  * Android's lint, references to Handlers can be kept around for a long
  * time - longer than Fragments for example. So we should use handlers

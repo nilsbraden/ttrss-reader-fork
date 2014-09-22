@@ -1,7 +1,7 @@
 /*
  * ttrss-reader-fork for Android
  * 
- * Copyright (C) 2010 N. Braden.
+ * Copyright (C) 2010 Nils Braden
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,6 +12,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  */
+
 package org.ttrssreader.utils;
 
 import java.io.File;
