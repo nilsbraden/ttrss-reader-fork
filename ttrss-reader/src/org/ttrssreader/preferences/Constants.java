@@ -93,6 +93,7 @@ public class Constants {
     public static final String SHOW_VIRTUAL = "DisplayShowVirtualPreference";
     public static final String SHOW_BUTTONS_MODE = "ShowButtonsModePreference";
     public static final String ONLY_UNREAD = "DisplayShowUnreadOnlyPreference";
+    public static final String ONLY_CACHED_IMAGES = "DisplayShowCachedImagesPreference";
     public static final String INVERT_SORT_ARTICLELIST = "InvertSortArticlelistPreference";
     public static final String INVERT_SORT_FEEDSCATS = "InvertSortFeedscatsPreference";
     public static final String ALIGN_FLUSH_LEFT = "DisplayAlignFlushLeftPreference";
@@ -113,6 +114,7 @@ public class Constants {
     public static final int SHOW_BUTTONS_MODE_ALLWAYS = 1;
     public static final int SHOW_BUTTONS_MODE_HTML = 2;
     public static final boolean ONLY_UNREAD_DEFAULT = false;
+    public static final boolean ONLY_CACHED_IMAGES_DEFAULT = false;
     public static final boolean INVERT_SORT_ARTICLELIST_DEFAULT = false;
     public static final boolean INVERT_SORT_FEEDSCATS_DEFAULT = false;
     public static final boolean ALIGN_FLUSH_LEFT_DEFAULT = false;

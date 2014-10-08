@@ -125,6 +125,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Boolean showVirtual = null;
     private Integer showButtonsMode = null;
     private Boolean onlyUnread = null;
+    private Boolean onlyDisplayCachedImages = null;
     private Boolean invertSortArticlelist = null;
     private Boolean invertSortFeedscats = null;
     private Boolean alignFlushLeft = null;
@@ -658,6 +659,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
         put(Constants.ONLY_UNREAD, displayOnlyUnread);
         this.onlyUnread = displayOnlyUnread;
+    }
+    
+    public boolean onlyDisplayCachedImages() {
+        if (onlyDisplayCachedImages == null)
+            onlyDisplayCachedImages = prefs.getBoolean(Constants.ONLY_CACHED_IMAGES, Constants.ONLY_CACHED_IMAGES_DEFAULT);
+        return onlyDisplayCachedImages;
+    }
+    
+    public void setDisplayCachedImages(boolean onlyDisplayCachedImages) {
+        put(Constants.ONLY_CACHED_IMAGES, onlyDisplayCachedImages);
+        this.onlyDisplayCachedImages = onlyDisplayCachedImages;
     }
     
     public boolean invertSortArticlelist() {

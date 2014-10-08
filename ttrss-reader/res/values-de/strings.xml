@@ -59,6 +59,7 @@
     <string name="SubscribeActivity.cannotDownload">Konnte die Seite nicht laden.</string>
     <string name="SubscribeActivity.errorCode">Server hat den Fehlercode %s und die folgende Nachricht zurückgegeben:</string>
     <string name="Commons.DisplayOnlyUnread">Ungelesene anzeigen</string>
+    <string name="Commons.DisplayOnlyCachedImages">Nur Artikel aus Cache</string>
     <string name="Commons.InvertSort">Sortierung umkehren</string>
     <string name="Commons.DisplayAll">Alle zeigen</string>
     <string name="Commons.SelectArticles">Zeige alle Artikel</string>

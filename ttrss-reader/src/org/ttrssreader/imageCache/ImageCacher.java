@@ -228,28 +228,22 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
             // Get images included in HTML
             Set<String> set = new HashSet<String>();
             
-            try {
-                for (String url : findAllImageUrls(article.content)) {
-                    if (!imageCache.containsKey(url))
+            for (String url : findAllImageUrls(article.content)) {
+                if (!imageCache.containsKey(url))
+                    set.add(url);
+            }
+            // Log.d(TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size());
+            
+            // Get images from attachments separately
+            for (String url : article.attachments) {
+                for (String ext : FileUtils.IMAGE_EXTENSIONS) {
+                    if (url.toLowerCase(Locale.getDefault()).contains("." + ext) && !imageCache.containsKey(url)) {
                         set.add(url);
-                }
-                // Log.d(TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size());
-                
-                // Get images from attachments separately
-                for (String url : article.attachments) {
-                    for (String ext : FileUtils.IMAGE_EXTENSIONS) {
-                        if (url.toLowerCase(Locale.getDefault()).contains("." + ext) && !imageCache.containsKey(url)) {
-                            set.add(url);
-                            break;
-                        }
+                        break;
                     }
                 }
-                // Log.d(TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size());
-            } catch (IllegalStateException e) {
-                // sometimes get Cursor error, the String (content) could not
-                // be read, so just skip such records
-                e.printStackTrace();
             }
+            // Log.d(TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size());
             
             if (!set.isEmpty()) {
                 DownloadImageTask task = new DownloadImageTask(imageCache, articleId, StringSupport.setToArray(set));

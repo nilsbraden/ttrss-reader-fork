@@ -329,6 +329,15 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             }
         }
         
+        MenuItem displayOnlyCachedImages = menu.findItem(R.id.Menu_DisplayOnlyCachedImages);
+        if (displayOnlyCachedImages != null) {
+            if (Controller.getInstance().onlyUnread()) {
+                displayOnlyCachedImages.setTitle(getString(R.string.Commons_DisplayAll));
+            } else {
+                displayOnlyCachedImages.setTitle(getString(R.string.Commons_DisplayOnlyCachedImages));
+            }
+        }
+        
         if (!(this instanceof FeedHeadlineActivity)) {
             menu.removeItem(R.id.Menu_FeedUnsubscribe);
         }
@@ -350,6 +359,10 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 return true;
             case R.id.Menu_DisplayOnlyUnread:
                 Controller.getInstance().setDisplayOnlyUnread(!Controller.getInstance().onlyUnread());
+                doRefresh();
+                return true;
+            case R.id.Menu_DisplayOnlyCachedImages:
+                Controller.getInstance().setDisplayCachedImages(!Controller.getInstance().onlyDisplayCachedImages());
                 doRefresh();
                 return true;
             case R.id.Menu_InvertSort:
