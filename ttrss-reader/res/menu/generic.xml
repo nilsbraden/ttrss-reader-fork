@@ -60,6 +60,12 @@
         android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.DisplayOnlyUnread"/>
     <item
+        android:id="@+id/Menu_DisplayOnlyCachedImages"
+        android:icon="@drawable/ic_menu_view"
+        android:orderInCategory="501"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/Commons.DisplayOnlyCachedImages"/>
+    <item
         android:id="@+id/Menu_InvertSort"
         android:icon="@drawable/ic_menu_rotate"
         android:orderInCategory="600"

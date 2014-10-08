@@ -104,13 +104,15 @@ public class FileUtils {
                                         "Not starting download of %s, the size (%s bytes) exceeds the maximum filesize of %s bytes.",
                                         downloadUrl, length, maxSize));
                         byteWritten = -length;
-                    }
-                    if (length < minSize) {
+                    } else if (length < minSize && length > 0) {
                         Log.i(TAG,
                                 String.format(
                                         "Not starting download of %s, the size (%s bytes) is less then the minimum filesize of %s bytes.",
                                         downloadUrl, length, minSize));
                         byteWritten = -length;
+                    } else {
+                        Log.i(TAG, "Content-Length equals 0 or is negative: " + length);
+                        byteWritten = length;
                     }
                 }
                 

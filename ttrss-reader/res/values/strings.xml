@@ -59,6 +59,7 @@
     <string name="SubscribeActivity.cannotDownload">Couldn\'t download the URL content.</string>
     <string name="SubscribeActivity.errorCode">Server returned code %s and the following message:</string>
     <string name="Commons.DisplayOnlyUnread">Display unread</string>
+    <string name="Commons.DisplayOnlyCachedImages">Only cached articles</string>
     <string name="Commons.InvertSort">Invert order</string>
     <string name="Commons.DisplayAll">Display all</string>
     <string name="Commons.SelectArticles">Show all articles</string>

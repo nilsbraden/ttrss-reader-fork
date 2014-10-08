@@ -50,6 +50,7 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
         String lastOpenedArticlesList = Utils.separateItems(Controller.getInstance().lastOpenedArticles, ",");
         
         boolean displayUnread = Controller.getInstance().onlyUnread();
+        boolean displayCachedImages = Controller.getInstance().onlyDisplayCachedImages();
         boolean invertSortArticles = Controller.getInstance().invertSortArticlelist();
         
         if (overrideDisplayUnread)
@@ -86,6 +87,13 @@ public class FeedHeadlineCursorHelper extends MainCursorHelper {
                 query.append(selectArticlesForCategory ? (" AND b.categoryId=" + categoryId)
                         : (" AND a.feedId=" + feedId));
                 query.append(displayUnread ? " AND a.isUnread>0" : "");
+                if (displayCachedImages) {
+                    query.append(" AND 0 < (SELECT SUM(r.cached) FROM ");
+                    query.append(DBHelper.TABLE_REMOTEFILE2ARTICLE);
+                    query.append(" r2a, ");
+                    query.append(DBHelper.TABLE_REMOTEFILES);
+                    query.append(" r WHERE a._id=r2a.articleId and r2a.remotefileId=r.id) ");
+                }
         }
         
         if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
