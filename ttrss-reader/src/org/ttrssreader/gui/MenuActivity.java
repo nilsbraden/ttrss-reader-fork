@@ -331,7 +331,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         
         MenuItem displayOnlyCachedImages = menu.findItem(R.id.Menu_DisplayOnlyCachedImages);
         if (displayOnlyCachedImages != null) {
-            if (Controller.getInstance().onlyUnread()) {
+            if (Controller.getInstance().onlyDisplayCachedImages()) {
                 displayOnlyCachedImages.setTitle(getString(R.string.Commons_DisplayAll));
             } else {
                 displayOnlyCachedImages.setTitle(getString(R.string.Commons_DisplayOnlyCachedImages));
