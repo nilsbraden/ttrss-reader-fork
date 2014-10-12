@@ -85,6 +85,7 @@ public class FileUtils {
     public static long downloadToFile(String downloadUrl, File file, long maxSize, long minSize) {
         FileOutputStream fos = null;
         long byteWritten = 0l;
+        boolean error = false;
         
         try {
             if (file.exists() && file.length() > 0l) {
@@ -96,24 +97,29 @@ public class FileUtils {
                 connection.setReadTimeout((int) Utils.SECOND);
                 
                 // Check filesize if available from header
-                if (connection.getHeaderField("Content-Length") != null) {
+                try {
                     long length = Long.parseLong(connection.getHeaderField("Content-Length"));
-                    if (length > maxSize) {
-                        Log.i(TAG,
-                                String.format(
-                                        "Not starting download of %s, the size (%s bytes) exceeds the maximum filesize of %s bytes.",
-                                        downloadUrl, length, maxSize));
+                    
+                    if (length <= 0) {
+                        byteWritten = length;
+                        Log.w(TAG, "Content-Length equals 0 or is negative: " + length);
+                    } else if (length < minSize) {
+                        error = true;
                         byteWritten = -length;
-                    } else if (length < minSize && length > 0) {
                         Log.i(TAG,
                                 String.format(
                                         "Not starting download of %s, the size (%s bytes) is less then the minimum filesize of %s bytes.",
                                         downloadUrl, length, minSize));
+                    } else if (length > maxSize) {
+                        error = true;
                         byteWritten = -length;
-                    } else {
-                        Log.i(TAG, "Content-Length equals 0 or is negative: " + length);
-                        byteWritten = length;
+                        Log.i(TAG,
+                                String.format(
+                                        "Not starting download of %s, the size (%s bytes) exceeds the maximum filesize of %s bytes.",
+                                        downloadUrl, length, maxSize));
                     }
+                } catch (Exception e) {
+                    Log.w(TAG, "Couldn't read Content-Length from url: " + downloadUrl);
                 }
                 
                 if (byteWritten == 0l) {
@@ -134,6 +140,7 @@ public class FileUtils {
                                     .format("Download interrupted, the size of %s bytes exceeds maximum filesize.",
                                             byteWritten));
                             // file length should be negated if file size exceeds {@code maxSize}
+                            error = true;
                             byteWritten = -byteWritten;
                             break;
                         }
@@ -144,6 +151,9 @@ public class FileUtils {
             Log.e(TAG, "Download not finished properly. Exception: " + e.getMessage(), e);
             byteWritten = -file.length();
         } finally {
+            if (byteWritten <= 0)
+                error = true;
+            
             if (fos != null) {
                 try {
                     fos.close();
@@ -152,11 +162,13 @@ public class FileUtils {
             }
         }
         
-        Log.d(TAG, String.format("Stop download from url '%s'. Downloaded %d bytes", downloadUrl, byteWritten));
+        if (error)
+            Log.e(TAG, String.format("Stopped download from url '%s'. Downloaded %d bytes", downloadUrl, byteWritten));
+        else
+            Log.e(TAG, String.format("Download from '%s' finished. Downloaded %d bytes", downloadUrl, byteWritten));
         
-        if (byteWritten <= 0l && file.exists()) {
+        if (error && file.exists())
             file.delete();
-        }
         
         return byteWritten;
     }

@@ -284,7 +284,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         private ImageCache imageCache;
         private int articleId;
         private String[] fileUrls;
-        public boolean allOK = true;
         
         public DownloadImageTask(ImageCache cache, int articleId, String... params) {
             this.imageCache = cache;
@@ -302,7 +301,6 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
                     size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
                     
                     if (size <= 0) {
-                        allOK = false; // Error
                         DBHelper.getInstance().markRemoteFileCached(url, false, -size);
                     } else {
                         DBHelper.getInstance().markRemoteFileCached(url, true, size);
