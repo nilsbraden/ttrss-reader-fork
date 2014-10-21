@@ -97,8 +97,8 @@
     <string name="ConnectionSslPreferenceSummary">Alle SSL-Zertifikate akzeptieren.</string>
     <string name="ConnectionTrustHostsPreferenceTitle">Vertraue allen Servern</string>
     <string name="ConnectionTrustHostsPreferenceSummary">Akzeptiere Zertifikate von allen Servern</string>
-    <string name="ConnectionUseOldConnectorTitle">Verwende alten Verbindungsmodus (Digest)</string>
-    <string name="ConnectionUseOldConnectorSummary">Der alte Verbindungsmodus erlaubt Digest-Authentifizierung, kann aber nicht zu Servern verbinden, welche SNI verwenden.</string>
+    <string name="ConnectionUseOldConnectorTitle">Verwende alten Verbindungsmodus (Digest) (veraltet!)</string>
+    <string name="ConnectionUseOldConnectorSummary">Der alte Verbindungsmodus erlaubt Digest-Authentifizierung, kann aber nicht zu Servern verbinden, welche SNI verwenden. Diese Methode wird nicht weiter unterstützt!</string>
     <string name="ConnectionKeystorePasswordPreferenceTitle">Individuelles Keystore-Passwort</string>
     <string name="ConnectionKeystorePasswordPreferenceSummary">Das Passwort für den eigenen Keystore</string>
     <string name="ConnectionUseKeystorePreferenceTitle">Eigener Keystore</string>
