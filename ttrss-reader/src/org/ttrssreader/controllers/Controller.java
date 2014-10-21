@@ -27,16 +27,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
-import javax.net.ssl.SSLSocketFactory;
 import org.stringtemplate.v4.ST;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.CategoryActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.imageCache.ImageCache;
-import org.ttrssreader.net.ApacheJSONConnector;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.net.JavaJSONConnector;
+import org.ttrssreader.net.deprecated.ApacheJSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.SSLUtils;
@@ -174,9 +173,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public static boolean isTablet = false;
     private boolean scheduledRestart = false;
     
-    // SocketFactory for SSL-Connections, doesn't need to be accessed but indicates it is initialized if != null.
-    private SSLSocketFactory sslSocketFactory = null;
-    
     // Singleton (see http://stackoverflow.com/a/11165926)
     private Controller() {
     }
@@ -220,13 +216,23 @@ public class Controller implements OnSharedPreferenceChangeListener {
         new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... params) {
                 try {
-                    SSLUtils.trustAllCertOrHost(Controller.getInstance().trustAllSsl(), Controller.getInstance()
-                            .trustAllHosts());
                     
-                    if (sslSocketFactory == null && Controller.getInstance().useKeystore()) {
-                        sslSocketFactory = SSLUtils.initializePrivateKeystore(Controller.getInstance()
-                                .getKeystorePassword());
+                    if (Controller.getInstance().trustAllHosts()) {
+                        // Ignore if Certificate matches host:
+                        SSLUtils.trustAllHost();
                     }
+                    
+                    if (Controller.getInstance().useKeystore()) {
+                        // Trust certificates from keystore:
+                        SSLUtils.initPrivateKeystore(Controller.getInstance().getKeystorePassword());
+                    } else if (Controller.getInstance().trustAllSsl()) {
+                        // Trust all certificates:
+                        SSLUtils.trustAllCert();
+                    } else {
+                        // Normal certificate-checks:
+                        SSLUtils.initSslSocketFactory(null, null);
+                    }
+                    
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -411,7 +417,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     public boolean trustAllHosts() {
         if (trustAllHosts == null)
             trustAllHosts = prefs.getBoolean(Constants.TRUST_ALL_HOSTS, Constants.TRUST_ALL_HOSTS_DEFAULT);
-        return trustAllSsl;
+        return trustAllHosts;
     }
     
     private boolean useOldConnector() {
@@ -663,7 +669,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public boolean onlyDisplayCachedImages() {
         if (onlyDisplayCachedImages == null)
-            onlyDisplayCachedImages = prefs.getBoolean(Constants.ONLY_CACHED_IMAGES, Constants.ONLY_CACHED_IMAGES_DEFAULT);
+            onlyDisplayCachedImages = prefs.getBoolean(Constants.ONLY_CACHED_IMAGES,
+                    Constants.ONLY_CACHED_IMAGES_DEFAULT);
         return onlyDisplayCachedImages;
     }
     

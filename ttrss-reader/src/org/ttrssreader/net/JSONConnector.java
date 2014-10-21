@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
@@ -156,7 +155,6 @@ public abstract class JSONConnector {
     
     protected String sessionId = null;
     protected final Object lock = new Object();
-    protected DefaultHttpClient client;
     protected Context context;
     private int apiLevel = -1;
     
