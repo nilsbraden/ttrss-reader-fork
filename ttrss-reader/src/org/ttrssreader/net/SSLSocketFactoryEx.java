@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLContextSpi;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -243,7 +244,8 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 // Use them if available. Normative names can be found at (TLS spec depends on IPSec spec):
                 // http://tools.ietf.org/html/draft-nir-ipsecme-chacha20-poly1305-01
                 // http://tools.ietf.org/html/draft-mavrogiannopoulos-chacha-tls-02
-                "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305", "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305",
+                "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+                "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305",
                 "TLS_ECDHE_ECDSA_WITH_CHACHA20_SHA",
                 "TLS_ECDHE_RSA_WITH_CHACHA20_SHA",
                 
@@ -253,8 +255,10 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 "TLS_RSA_WITH_CHACHA20_SHA",
                 
                 // Done with bleeding edge, back to TLS v1.2 and below
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
                 
                 "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
                 "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
@@ -269,8 +273,12 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 
                 "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
                 "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
-                "SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA",
-                "SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA",
+                
+                // Removed SSLv3 cipher suites (see
+                // http://www.openssl.org/docs/apps/ciphers.html#SSL_v3_0_cipher_suites_ for lists of cipher suite
+                // names):
+                // "SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA",
+                // "SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA",
                 
                 // RSA key transport sucks, but they are needed as a fallback.
                 // For example, microsoft.com fails under all versions of TLS
