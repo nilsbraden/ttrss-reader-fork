@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.net;
+package org.ttrssreader.net.deprecated;
 
 import java.io.IOException;
 import java.net.InetAddress;

@@ -18,28 +18,44 @@ package org.ttrssreader.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+import org.ttrssreader.net.SSLSocketFactoryEx;
 import android.annotation.SuppressLint;
 import android.os.Environment;
 
 public class SSLUtils {
     
+    public static SSLSocketFactory initSslSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
+        return initSslSocketFactory(null, null);
+    }
+    
     @SuppressLint("TrulyRandom")
-    public static SSLSocketFactory initializePrivateKeystore(String password) throws Exception {
+    public static SSLSocketFactory initSslSocketFactory(KeyManager[] km, TrustManager[] tm) throws KeyManagementException, NoSuchAlgorithmException {
+        // Apply fix for PRNG from http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html
+        PRNGFixes.apply();
+        SSLSocketFactoryEx factory = new SSLSocketFactoryEx(km, tm, new SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(factory);
+        return factory;
+    }
+    
+    public static void initPrivateKeystore(String password) throws Exception {
         KeyStore keystore = SSLUtils.loadKeystore(password);
         if (keystore == null)
-            return null;
+            return;
         
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         tmf.init(keystore);
@@ -47,14 +63,7 @@ public class SSLUtils {
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         kmf.init(keystore, password.toCharArray());
         
-        // Apply fix for PRNG from http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html
-        PRNGFixes.apply();
-        SSLContext sc = SSLContext.getInstance("TLS");
-        sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new java.security.SecureRandom());
-        
-        SSLSocketFactory ret = sc.getSocketFactory();
-        HttpsURLConnection.setDefaultSSLSocketFactory(ret);
-        return ret;
+        initSslSocketFactory(kmf.getKeyManagers(), tmf.getTrustManagers());
     }
     
     public static KeyStore loadKeystore(String keystorePassword) throws Exception {
@@ -76,37 +85,31 @@ public class SSLUtils {
         return trusted;
     }
     
-    public static void trustAllCertOrHost(boolean trustAnyCert, boolean trustAnyHost) throws Exception {
-        if (trustAnyCert) {
-            X509TrustManager easyTrustManager = new X509TrustManager() {
-                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                }
-                
-                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                }
-                
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-                
-            };
+    public static void trustAllCert() throws Exception {
+        X509TrustManager easyTrustManager = new X509TrustManager() {
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            }
             
-            // Create a trust manager that does not validate certificate chains
-            TrustManager[] trustAllCerts = new TrustManager[] { easyTrustManager };
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            }
             
-            // Install the all-trusting trust manager
-            SSLContext sc = SSLContext.getInstance("TLS");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        }
-        if (trustAnyHost) {
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
-        }
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+            
+        };
+        
+        // Create a trust manager that does not validate certificate chains
+        initSslSocketFactory(null, new TrustManager[] { easyTrustManager });
+    }
+    
+    public static void trustAllHost() throws Exception {
+        HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
     }
     
 }

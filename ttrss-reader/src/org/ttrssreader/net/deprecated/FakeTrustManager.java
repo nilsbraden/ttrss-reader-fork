@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.net;
+package org.ttrssreader.net.deprecated;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;

@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.net;
+package org.ttrssreader.net.deprecated;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,10 +34,12 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 import android.content.Context;
@@ -48,6 +50,7 @@ public class ApacheJSONConnector extends JSONConnector {
     protected static final String TAG = ApacheJSONConnector.class.getSimpleName();
     
     protected CredentialsProvider credProvider = null;
+    protected DefaultHttpClient client;
     
     public ApacheJSONConnector(Context context) {
         super(context);
