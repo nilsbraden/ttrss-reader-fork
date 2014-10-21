@@ -18,6 +18,13 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.77
+			\n * Added support for TLS v1.3, dropped support for SSL v3 
+			\n * Fixed problems with ImageCache not downloading images
+			\n * Added menuitem to filter \"articles with cached images\"
+			\n * Fixed some locking problems
+			\n * Updated translations, license statements and thanks
+			\n * Dropped support for android versions below 4.0 (Api-Level 14)</item>
         <item>Version 1.76
             \n * Fixed swiping gestures
             \n * Removed unnecessary preferences

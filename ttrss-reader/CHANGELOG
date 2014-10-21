@@ -1,6 +1,14 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.77 ==
+  * Added support for TLS v1.3, dropped support for SSL v3 
+  * Fixed problems with ImageCache not downloading images
+  * Added menuitem to filter "articles with cached images"
+  * Fixed some locking problems
+  * Updated translations, license statements and thanks
+  * Dropped support for android versions below 4.0 (Api-Level 14)
+
 == Version 1.76 ==
   * Fix swiping on kitkat
   * Enable hardwareAcceleration in Manifest
