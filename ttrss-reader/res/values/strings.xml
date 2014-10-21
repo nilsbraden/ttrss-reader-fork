@@ -98,8 +98,8 @@
     <string name="ConnectionSslPreferenceSummary">Accept all SSL certificates.</string>
     <string name="ConnectionTrustHostsPreferenceTitle">Trust all Hosts</string>
     <string name="ConnectionTrustHostsPreferenceSummary">Accept Certificates from all hosts</string>
-    <string name="ConnectionUseOldConnectorTitle">Use old connector (Digest)</string>
-    <string name="ConnectionUseOldConnectorSummary">The old connector allows digest authentication but can\'t connect to servers that use SNI.</string>
+    <string name="ConnectionUseOldConnectorTitle">Use old connector (for Digest-Auth) (deprecated)</string>
+    <string name="ConnectionUseOldConnectorSummary">The old connector allows digest authentication but can\'t connect to servers that use SNI. This connection method is deprecated and won't receive bugfixes anymore!</string>
     <string name="ConnectionKeystorePasswordPreferenceTitle">Custom Keystore Password</string>
     <string name="ConnectionKeystorePasswordPreferenceSummary">Password to unlock custom keystore</string>
     <string name="ConnectionUseKeystorePreferenceTitle">Custom Keystore</string>
