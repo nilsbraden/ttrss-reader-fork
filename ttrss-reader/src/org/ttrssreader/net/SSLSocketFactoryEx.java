@@ -137,7 +137,7 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         SSLSocket ss = (SSLSocket) factory.createSocket(s, host, port, autoClose);
         
         ss.setEnabledProtocols(m_protocols);
-        // ss.setEnabledCipherSuites(m_ciphers);
+        ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
@@ -148,7 +148,7 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         SSLSocket ss = (SSLSocket) factory.createSocket(address, port, localAddress, localPort);
         
         ss.setEnabledProtocols(m_protocols);
-        // ss.setEnabledCipherSuites(m_ciphers);
+        ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
@@ -159,7 +159,7 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         SSLSocket ss = (SSLSocket) factory.createSocket(host, port, localHost, localPort);
         
         ss.setEnabledProtocols(m_protocols);
-        // ss.setEnabledCipherSuites(m_ciphers);
+        ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
@@ -170,7 +170,7 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         SSLSocket ss = (SSLSocket) factory.createSocket(host, port);
         
         ss.setEnabledProtocols(m_protocols);
-        // ss.setEnabledCipherSuites(m_ciphers);
+        ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
@@ -181,7 +181,7 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         SSLSocket ss = (SSLSocket) factory.createSocket(host, port);
         
         ss.setEnabledProtocols(m_protocols);
-        // ss.setEnabledCipherSuites(m_ciphers);
+        ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
