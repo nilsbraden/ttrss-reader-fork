@@ -121,68 +121,67 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         initSSLSocketFactoryEx(ctx);
     }
     
+    @Override
     public String[] getDefaultCipherSuites() {
         return m_ciphers;
     }
     
+    @Override
     public String[] getSupportedCipherSuites() {
         return m_ciphers;
     }
     
-    public String[] getDefaultProtocols() {
-        return m_protocols;
-    }
-    
-    public String[] getSupportedProtocols() {
-        return m_protocols;
-    }
-    
+    @Override
     public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
         SSLSocketFactory factory = m_ctx.getSocketFactory();
         SSLSocket ss = (SSLSocket) factory.createSocket(s, host, port, autoClose);
         
         ss.setEnabledProtocols(m_protocols);
-        ss.setEnabledCipherSuites(m_ciphers);
+        // ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
     
+    @Override
     public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
         SSLSocketFactory factory = m_ctx.getSocketFactory();
         SSLSocket ss = (SSLSocket) factory.createSocket(address, port, localAddress, localPort);
         
         ss.setEnabledProtocols(m_protocols);
-        ss.setEnabledCipherSuites(m_ciphers);
+        // ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
     
+    @Override
     public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
         SSLSocketFactory factory = m_ctx.getSocketFactory();
         SSLSocket ss = (SSLSocket) factory.createSocket(host, port, localHost, localPort);
         
         ss.setEnabledProtocols(m_protocols);
-        ss.setEnabledCipherSuites(m_ciphers);
+        // ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
     
+    @Override
     public Socket createSocket(InetAddress host, int port) throws IOException {
         SSLSocketFactory factory = m_ctx.getSocketFactory();
         SSLSocket ss = (SSLSocket) factory.createSocket(host, port);
         
         ss.setEnabledProtocols(m_protocols);
-        ss.setEnabledCipherSuites(m_ciphers);
+        // ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
     
+    @Override
     public Socket createSocket(String host, int port) throws IOException {
         SSLSocketFactory factory = m_ctx.getSocketFactory();
         SSLSocket ss = (SSLSocket) factory.createSocket(host, port);
         
         ss.setEnabledProtocols(m_protocols);
-        ss.setEnabledCipherSuites(m_ciphers);
+        // ss.setEnabledCipherSuites(m_ciphers);
         
         return ss;
     }
@@ -191,18 +190,18 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         m_ctx = SSLContext.getInstance("TLS");
         m_ctx.init(km, tm, random);
         
-        m_protocols = GetProtocolList();
-        m_ciphers = GetCipherList();
+        m_protocols = getProtocolList();
+        m_ciphers = getCipherList();
     }
     
     private void initSSLSocketFactoryEx(SSLContext ctx) throws NoSuchAlgorithmException, KeyManagementException {
         m_ctx = ctx;
         
-        m_protocols = GetProtocolList();
-        m_ciphers = GetCipherList();
+        m_protocols = getProtocolList();
+        m_ciphers = getCipherList();
     }
     
-    protected String[] GetProtocolList() {
+    protected String[] getProtocolList() {
         String[] preferredProtocols = { "TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3" };
         String[] availableProtocols = null;
         
@@ -235,9 +234,9 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         return aa.toArray(new String[0]);
     }
     
-    protected String[] GetCipherList() {
+    protected String[] getCipherList() {
         String[] preferredCiphers = {
-                
+                // @formatter:off
                 // *_CHACHA20_POLY1305 are 3x to 4x faster than existing cipher suites.
                 // http://googleonlinesecurity.blogspot.com/2014/04/speeding-up-and-strengthening-https.html
                 // Use them if available. Normative names can be found at (TLS spec depends on IPSec spec):
@@ -267,6 +266,8 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 // TLS v1.0 (with some SSLv3 interop)
                 "TLS_DHE_RSA_WITH_AES_256_CBC_SHA384",
                 "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
                 "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
                 "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
                 
@@ -285,8 +286,12 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 // the client, then google.com will fail too. TLS v1.3 is
                 // trying to deprecate them, so it will be interesteng to see
                 // what happens.
-                "TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_RSA_WITH_AES_128_CBC_SHA" };
+                "TLS_RSA_WITH_AES_256_CBC_SHA256",
+                "TLS_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_RSA_WITH_AES_128_CBC_SHA"
+                // @formatter:on
+        };
         
         String[] availableCiphers = null;
         
@@ -295,11 +300,19 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
             availableCiphers = factory.getSupportedCipherSuites();
             Arrays.sort(availableCiphers);
         } catch (Exception e) {
-            return new String[] { "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
-                    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-                    "TLS_RSA_WITH_AES_256_CBC_SHA256", "TLS_RSA_WITH_AES_256_CBC_SHA",
-                    "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_RSA_WITH_AES_128_CBC_SHA",
-                    "TLS_EMPTY_RENEGOTIATION_INFO_SCSV" };
+            return new String[] {
+                    // @formatter:off
+                    "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                    "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+                    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                    "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                    "TLS_RSA_WITH_AES_256_CBC_SHA256",
+                    "TLS_RSA_WITH_AES_256_CBC_SHA",
+                    "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                    "TLS_RSA_WITH_AES_128_CBC_SHA",
+                    "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"
+                    // @formatter:on
+            };
         }
         
         List<String> aa = new ArrayList<String>();
