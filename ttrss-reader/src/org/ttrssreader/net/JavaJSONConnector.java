@@ -21,6 +21,7 @@ import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.SocketException;
+import java.net.URL;
 import java.util.Map;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -49,8 +50,12 @@ public class JavaJSONConnector extends JSONConnector {
             logRequest(json);
             refreshHTTPAuth();
             
+            URL url = Controller.getInstance().url();
+            url = new URL("https://ttrss.example.de/");
+            
             // Create Connection
-            HttpURLConnection con = (HttpURLConnection) Controller.getInstance().url().openConnection();
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            // DEBUG: ((HttpsURLConnection)con).setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
             con.setDoInput(true);
             con.setDoOutput(true);
             con.setUseCaches(false);
@@ -64,6 +69,8 @@ public class JavaJSONConnector extends JSONConnector {
             
             // Add POST data
             con.getOutputStream().write(outputBytes);
+            // DEBUG: ((HttpsURLConnection)con).getSSLSocketFactory().getSupportedCipherSuites();
+            // DEBUG: ((HttpsURLConnection)con).getCipherSuite();
             
             // Try to check for HTTP Status codes
             int code = con.getResponseCode();
@@ -80,6 +87,7 @@ public class JavaJSONConnector extends JSONConnector {
             // server.
             Log.w(TAG, "SSLPeerUnverifiedException in doRequest(): " + formatException(e));
         } catch (SSLException e) {
+            e.printStackTrace();
             if ("No peer certificate".equals(e.getMessage())) {
                 // Handle this by ignoring it, this occurrs very often when the connection is instable.
                 Log.w(TAG, "SSLException in doRequest(): " + formatException(e));
