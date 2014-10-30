@@ -38,6 +38,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -88,8 +89,8 @@ public class ArticleWebViewClient extends WebViewClient {
                             break;
                         case 1:
                             try {
-                                new AsyncDownloader(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, new URL(
-                                        url));
+                                new AsyncMediaDownloader(context).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+                                        new URL(url));
                             } catch (MalformedURLException e) {
                                 e.printStackTrace();
                             }
@@ -126,63 +127,38 @@ public class ArticleWebViewClient extends WebViewClient {
         }
     }
     
-    private class AsyncDownloader extends AsyncTask<URL, Void, Void> {
+    private class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
         private final static int BUFFER = (int) Utils.KB;
         
         private Context context;
         
-        public AsyncDownloader(Context context) {
+        public AsyncMediaDownloader(Context context) {
             this.context = context;
         }
         
         protected Void doInBackground(URL... urls) {
             
             if (urls.length < 1) {
-                
                 String msg = "No URL given, skipping download...";
                 Log.w(TAG, msg);
                 Utils.showFinishedNotification(msg, 0, true, context);
                 return null;
-                
             } else if (!externalStorageState()) {
-                
                 String msg = "External Storage not available, skipping download...";
                 Log.w(TAG, msg);
                 Utils.showFinishedNotification(msg, 0, true, context);
                 return null;
-                
             }
             
-            Utils.showRunningNotification(context, false);
-            
-            URL url = urls[0];
             long start = System.currentTimeMillis();
-            
-            // Build name as "download_123801230712", then try to extract a proper name from URL
-            String name = "download_" + System.currentTimeMillis();
-            if (!url.getFile().equals("")) {
-                String n = url.getFile();
-                name = n.substring(1).replaceAll("[^A-Za-z0-9_.]", "");
-                
-                if (name.contains(".") && name.length() > name.indexOf(".") + 4) {
-                    // Try to guess the position of the extension..
-                    name = name.substring(0, name.indexOf(".") + 4);
-                } else if (name.length() == 0) {
-                    // just to make sure..
-                    name = "download_" + System.currentTimeMillis();
-                }
-            }
+            Utils.showRunningNotification(context, false);
             
             // Use configured output directory
             File folder = new File(Controller.getInstance().saveAttachmentPath());
-            
-            if (!folder.exists()) {
-                if (!folder.mkdirs()) {
-                    // Folder could not be created, fallback to internal directory on sdcard
-                    // Path: /sdcard/Android/data/org.ttrssreader/files/
-                    folder = new File(Constants.SAVE_ATTACHMENT_DEFAULT);
-                    folder.mkdirs();
-                }
+            if (!folder.exists() && !folder.mkdirs()) {
+                // Folder could not be created, fallback to internal directory on sdcard
+                folder = new File(Constants.SAVE_ATTACHMENT_DEFAULT);
+                folder.mkdirs();
             }
             
             if (!folder.exists())
@@ -192,16 +168,17 @@ public class ArticleWebViewClient extends WebViewClient {
             FileOutputStream fos = null;
             BufferedOutputStream bout = null;
             
-            int count = -1;
+            int size = -1;
             
             File file = null;
             try {
+                URL url = urls[0];
                 HttpURLConnection c = (HttpURLConnection) url.openConnection();
                 
-                file = new File(folder, name);
+                file = new File(folder, URLUtil.guessFileName(url.toString(), null, ".mp3"));
                 if (file.exists()) {
-                    count = (int) file.length();
-                    c.setRequestProperty("Range", "bytes=" + file.length() + "-"); // try to resume downloads
+                    size = (int) file.length();
+                    c.setRequestProperty("Range", "bytes=" + size + "-"); // try to resume downloads
                 }
                 
                 c.setRequestMethod("GET");
@@ -209,15 +186,14 @@ public class ArticleWebViewClient extends WebViewClient {
                 c.setDoOutput(true);
                 
                 in = new BufferedInputStream(c.getInputStream());
-                fos = (count == 0) ? new FileOutputStream(file) : new FileOutputStream(file, true);
+                fos = (size == 0) ? new FileOutputStream(file) : new FileOutputStream(file, true);
                 bout = new BufferedOutputStream(fos, BUFFER);
                 
                 byte[] data = new byte[BUFFER];
-                int x = 0;
-                
-                while ((x = in.read(data, 0, BUFFER)) >= 0) {
-                    bout.write(data, 0, x);
-                    count += x;
+                int count = 0;
+                while ((count = in.read(data, 0, BUFFER)) >= 0) {
+                    bout.write(data, 0, count);
+                    size += count;
                 }
                 
                 int time = (int) ((System.currentTimeMillis() - start) / Utils.SECOND);
@@ -228,18 +204,16 @@ public class ArticleWebViewClient extends WebViewClient {
                 if (file != null)
                     intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
                 
-                Log.i(TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + count);
+                Log.i(TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + size);
                 Utils.showFinishedNotification(file.getAbsolutePath(), time, false, context, intent);
                 
             } catch (IOException e) {
                 String msg = "Error while downloading: " + e;
-                Log.e(TAG, msg);
-                e.printStackTrace();
+                Log.e(TAG, msg, e);
                 Utils.showFinishedNotification(msg, 0, true, context);
             } finally {
                 // Remove "running"-notification
                 Utils.showRunningNotification(context, true);
-                
                 if (bout != null) {
                     try {
                         bout.close();
