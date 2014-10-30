@@ -1,3 +1,18 @@
+/*
+ * ttrss-reader-fork for Android
+ * 
+ * Copyright (C) 2010 Nils Braden
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 3 as published by the Free Software Foundation.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
 package org.ttrssreader.net;
 
 import java.io.IOException;
@@ -243,24 +258,24 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 // http://tools.ietf.org/html/draft-nir-ipsecme-chacha20-poly1305-01
                 // http://tools.ietf.org/html/draft-mavrogiannopoulos-chacha-tls-02
                 "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
-                "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305",
                 "TLS_ECDHE_ECDSA_WITH_CHACHA20_SHA",
+                "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305",
                 "TLS_ECDHE_RSA_WITH_CHACHA20_SHA",
                 
                 "TLS_DHE_RSA_WITH_CHACHA20_POLY1305",
-                "TLS_RSA_WITH_CHACHA20_POLY1305",
                 "TLS_DHE_RSA_WITH_CHACHA20_SHA",
+                "TLS_RSA_WITH_CHACHA20_POLY1305",
                 "TLS_RSA_WITH_CHACHA20_SHA",
                 
                 // Done with bleeding edge, back to TLS v1.2 and below
                 "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
                 "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
                 "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
                 
                 "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-                "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
                 "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
                 "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256",
                 
                 // TLS v1.0 (with some SSLv3 interop)
@@ -270,7 +285,6 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
                 "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
                 "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-                
                 "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
                 "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
                 
@@ -287,9 +301,26 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 // trying to deprecate them, so it will be interesteng to see
                 // what happens.
                 "TLS_RSA_WITH_AES_256_CBC_SHA256",
-                "TLS_RSA_WITH_AES_256_CBC_SHA",
                 "TLS_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_RSA_WITH_AES_128_CBC_SHA"
+                "TLS_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_RSA_WITH_AES_128_CBC_SHA",
+                
+                // Cipher-Suites that were disabled but I couldn't find any reason why:
+                "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+                
+                "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                
+                "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
+                
+                "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA"
                 // @formatter:on
         };
         
