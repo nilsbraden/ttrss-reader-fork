@@ -51,7 +51,7 @@ public class JavaJSONConnector extends JSONConnector {
             refreshHTTPAuth();
             
             URL url = Controller.getInstance().url();
-            url = new URL("https://ttrss.example.de/");
+            // DEBUG: url = new URL("https://ttrss.example.de/");
             
             // Create Connection
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
