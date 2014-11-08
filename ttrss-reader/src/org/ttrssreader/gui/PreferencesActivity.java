@@ -25,6 +25,7 @@ import org.ttrssreader.model.HeaderAdapter;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.preferences.FileBrowserHelper;
 import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
+import org.ttrssreader.preferences.WifiPreferencesActivity;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
@@ -34,12 +35,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -58,7 +63,7 @@ public class PreferencesActivity extends PreferenceActivity {
     private static final String PREFS_SSL = "prefs_ssl";
     private static final String PREFS_SYSTEM = "prefs_system";
     private static final String PREFS_USAGE = "prefs_usage";
-    private static final String PREFS_WIFI = "prefs_wifi";
+    private static final String PREFS_WIFI = "prefs_wifibased";
     
     public static final int ACTIVITY_SHOW_PREFERENCES = 43;
     public static final int ACTIVITY_CHOOSE_ATTACHMENT_FOLDER = 1;
@@ -301,9 +306,41 @@ public class PreferencesActivity extends PreferenceActivity {
             }
             if (PREFS_USAGE.equals(cat))
                 addPreferencesFromResource(R.xml.prefs_usage);
-            if (PREFS_WIFI.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_wifi);
+            if (PREFS_WIFI.equals(cat)) {
+                initWifibasedPreferences();
+            }
         }
+        
+        private void initWifibasedPreferences() {
+            addPreferencesFromResource(R.xml.prefs_wifibased);
+            PreferenceCategory mWifibasedCategory = (PreferenceCategory) findPreference("wifibasedCategory");
+            WifiManager mWifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+            List<WifiConfiguration> mWifiList = mWifiManager.getConfiguredNetworks();
+            
+            if (mWifiList == null)
+                return;
+            
+            for (WifiConfiguration wifi : mWifiList) {
+                // Friendly SSID-Name
+                String ssid = wifi.SSID.replaceAll("\"", "");
+                // Add PreferenceScreen for each network
+                
+                PreferenceScreen pref = getPreferenceManager().createPreferenceScreen(getActivity());
+                pref.setPersistent(false);
+                pref.setKey("wifiNetwork" + ssid);
+                pref.setTitle(ssid);
+                
+                Intent intent = new Intent(getActivity(), WifiPreferencesActivity.class);
+                intent.putExtra(WifiPreferencesActivity.KEY_SSID, ssid); // TODO: ssid == null?
+                pref.setIntent(intent);
+                if (WifiConfiguration.Status.CURRENT == wifi.status)
+                    pref.setSummary(getResources().getString(R.string.ConnectionWifiConnected));
+                else
+                    pref.setSummary(getResources().getString(R.string.ConnectionWifiNotInRange));
+                mWifibasedCategory.addPreference(pref);
+            }
+        }
+        
     }
     
     @Override
@@ -311,6 +348,13 @@ public class PreferencesActivity extends PreferenceActivity {
         if (PreferencesFragment.class.getName().equals(fragmentName))
             return true;
         return false;
+    }
+    
+    @Override
+    public void switchToHeader(Header header) {
+        if (header.fragment != null) {
+            super.switchToHeader(header);
+        }
     }
     
 }

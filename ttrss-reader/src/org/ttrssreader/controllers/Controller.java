@@ -96,18 +96,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static boolean preferencesChanged = false;
     
     private String url = null;
-    private String username = null;
-    private String password = null;
-    private String httpUsername = null;
-    private String httpPassword = null;
-    private Boolean useHttpAuth = null;
-    private Boolean trustAllSsl = null;
-    private Boolean trustAllHosts = null;
-    private Boolean useOldConnector;
-    private Boolean useKeystore = null;
-    private String keystorePassword = null;
-    private Boolean useOfALazyServer = null;
     
+    private Boolean useOfALazyServer = null;
     private Boolean openUrlEmptyArticle = null;
     private Boolean useVolumeKeys = null;
     private Boolean loadImages = null;
@@ -333,6 +323,12 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // ******* CONNECTION-Options ****************************
     
+    public boolean wifibasedPrefsEnabled() {
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.ENABLE_WIFI_BASED_SUFFIX, getCurrentSSID(wifiManager), true);
+        return prefs.getBoolean(key, false);
+    }
+    
     public URI uri() throws URISyntaxException {
         return new URI(hostname());
     }
@@ -343,7 +339,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public String hostname() {
         // Load from Wifi-Preferences:
-        String key = getStringWithSSID(Constants.URL, getCurrentSSID(wifiManager));
+        String key = getStringWithSSID(Constants.URL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
         
         if (prefs.contains(key))
             url = prefs.getString(key, Constants.URL_DEFAULT);
@@ -362,86 +358,140 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     public String username() {
         // Load from Wifi-Preferences:
-        String key = getStringWithSSID(Constants.USERNAME, getCurrentSSID(wifiManager));
+        String key = getStringWithSSID(Constants.USERNAME, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
         
         if (prefs.contains(key))
-            username = prefs.getString(key, Constants.EMPTY);
+            return prefs.getString(key, Constants.EMPTY);
         else
-            username = prefs.getString(Constants.USERNAME, Constants.EMPTY);
-        
-        return username;
+            return prefs.getString(Constants.USERNAME, Constants.EMPTY);
     }
     
     public String password() {
         // Load from Wifi-Preferences:
-        String key = getStringWithSSID(Constants.PASSWORD, getCurrentSSID(wifiManager));
+        String key = getStringWithSSID(Constants.PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
         
         if (prefs.contains(key))
-            password = prefs.getString(key, Constants.EMPTY);
+            return prefs.getString(key, Constants.EMPTY);
         else
-            password = prefs.getString(Constants.PASSWORD, Constants.EMPTY);
+            return prefs.getString(Constants.PASSWORD, Constants.EMPTY);
+    }
+    
+    public boolean lazyServer() {
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.USE_OF_A_LAZY_SERVER, getCurrentSSID(wifiManager),
+                wifibasedPrefsEnabled());
         
-        return password;
+        if (prefs.contains(key))
+            useOfALazyServer = prefs.getBoolean(key, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
+        else
+            useOfALazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
+        
+        return useOfALazyServer;
     }
     
     public boolean useHttpAuth() {
-        if (useHttpAuth == null)
-            useHttpAuth = prefs.getBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
-        return useHttpAuth;
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.USE_HTTP_AUTH, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+        
+        if (prefs.contains(key))
+            return prefs.getBoolean(key, Constants.USE_HTTP_AUTH_DEFAULT);
+        else
+            return prefs.getBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
     }
     
     public String httpUsername() {
-        if (httpUsername == null)
-            httpUsername = prefs.getString(Constants.HTTP_USERNAME, Constants.EMPTY);
-        return httpUsername;
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.HTTP_USERNAME, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+        
+        if (prefs.contains(key))
+            return prefs.getString(key, Constants.EMPTY);
+        else
+            return prefs.getString(Constants.HTTP_USERNAME, Constants.EMPTY);
     }
     
     public String httpPassword() {
-        if (httpPassword == null)
-            httpPassword = prefs.getString(Constants.HTTP_PASSWORD, Constants.EMPTY);
-        return httpPassword;
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.HTTP_PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+        
+        if (prefs.contains(key))
+            return prefs.getString(key, Constants.EMPTY);
+        else
+            return prefs.getString(Constants.HTTP_PASSWORD, Constants.EMPTY);
     }
     
     public boolean useKeystore() {
-        if (useKeystore == null)
-            useKeystore = prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
-        return useKeystore;
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.USE_KEYSTORE, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+        
+        if (prefs.contains(key))
+            return prefs.getBoolean(key, Constants.USE_KEYSTORE_DEFAULT);
+        else
+            return prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
     }
     
     public boolean trustAllSsl() {
-        if (trustAllSsl == null)
-            trustAllSsl = prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
-        return trustAllSsl;
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.TRUST_ALL_SSL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+        
+        if (prefs.contains(key))
+            return prefs.getBoolean(key, Constants.TRUST_ALL_SSL_DEFAULT);
+        else
+            return prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
     }
     
     public boolean trustAllHosts() {
-        if (trustAllHosts == null)
-            trustAllHosts = prefs.getBoolean(Constants.TRUST_ALL_HOSTS, Constants.TRUST_ALL_HOSTS_DEFAULT);
-        return trustAllHosts;
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.TRUST_ALL_HOSTS, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+        
+        if (prefs.contains(key))
+            return prefs.getBoolean(key, Constants.TRUST_ALL_HOSTS_DEFAULT);
+        else
+            return prefs.getBoolean(Constants.TRUST_ALL_HOSTS, Constants.TRUST_ALL_HOSTS_DEFAULT);
     }
     
     private boolean useOldConnector() {
-        if (useOldConnector == null)
-            useOldConnector = prefs.getBoolean(Constants.USE_OLD_CONNECTOR, Constants.USE_OLD_CONNECTOR_DEFAULT);
-        return useOldConnector;
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.USE_OLD_CONNECTOR, getCurrentSSID(wifiManager),
+                wifibasedPrefsEnabled());
+        
+        if (prefs.contains(key))
+            return prefs.getBoolean(key, Constants.USE_OLD_CONNECTOR_DEFAULT);
+        else
+            return prefs.getBoolean(Constants.USE_OLD_CONNECTOR, Constants.USE_OLD_CONNECTOR_DEFAULT);
+    }
+    
+    public String getKeystorePassword() {
+        // Load from Wifi-Preferences:
+        String key = getStringWithSSID(Constants.KEYSTORE_PASSWORD, getCurrentSSID(wifiManager),
+                wifibasedPrefsEnabled());
+        
+        if (prefs.contains(key))
+            return prefs.getString(key, Constants.EMPTY);
+        else
+            return prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
     }
     
     public JSONConnector getConnector() {
+        // Check if connector needs to be reinitialized because of per-wifi-settings:
+        boolean useOldConnector = useOldConnector();
+        if (useOldConnector && ttrssConnector instanceof JavaJSONConnector)
+            ttrssConnector = null;
+        if (!useOldConnector && ttrssConnector instanceof ApacheJSONConnector)
+            ttrssConnector = null;
+        
         // Initialized inside initializeController();
         if (ttrssConnector != null) {
             return ttrssConnector;
         } else {
-            
             synchronized (lockConnector) {
                 if (ttrssConnector == null) {
-                    if (useOldConnector()) {
+                    if (useOldConnector) {
                         ttrssConnector = new ApacheJSONConnector(context);
                     } else {
                         ttrssConnector = new JavaJSONConnector(context);
                     }
                 }
             }
-            
             if (ttrssConnector != null)
                 return ttrssConnector;
             else
@@ -467,12 +517,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return imageCache;
     }
     
-    public String getKeystorePassword() {
-        if (keystorePassword == null)
-            keystorePassword = prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
-        return keystorePassword;
-    }
-    
     public boolean isHeadless() {
         return isHeadless;
     }
@@ -482,18 +526,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     // ******* USAGE-Options ****************************
-    
-    public boolean lazyServer() {
-        // Load from Wifi-Preferences:
-        String key = getStringWithSSID(Constants.USE_OF_A_LAZY_SERVER, getCurrentSSID(wifiManager));
-        
-        if (prefs.contains(key))
-            useOfALazyServer = prefs.getBoolean(key, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
-        else
-            useOfALazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
-        
-        return useOfALazyServer;
-    }
     
     public boolean openUrlEmptyArticle() {
         if (openUrlEmptyArticle == null)
@@ -1211,8 +1243,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
         }
     }
     
-    private static String getStringWithSSID(String param, String wifiSSID) {
-        if (wifiSSID == null)
+    private static String getStringWithSSID(String param, String wifiSSID, boolean wifibasedPrefsEnabled) {
+        if (wifiSSID == null || !wifibasedPrefsEnabled)
             return param;
         else
             return wifiSSID + param;

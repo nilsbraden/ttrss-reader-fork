@@ -41,16 +41,6 @@
                 android:action="android.intent.action.VIEW"
                 android:data="https://code.google.com/p/ttrss-reader-fork/issues/list" />
         </PreferenceScreen>
-
-        <!--
-        PreferenceScreen
-            android:summary="@string/About.twitter_hint"
-            android:title="@string/About.twitter" >
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="@string/About.twitter_acc" />
-        </PreferenceScreen
-        -->
     </PreferenceCategory>
 
 </PreferenceScreen>

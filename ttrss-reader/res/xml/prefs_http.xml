@@ -18,7 +18,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/ConnectionHttpPreferenceCategoryTitle" >
 
-    <PreferenceCategory android:title="@string/ConnectionHttpPreferenceCategoryTitle" >
+    <PreferenceCategory
+        android:key="httpCategory"
+        android:title="@string/ConnectionHttpPreferenceCategoryTitle" >
         <CheckBoxPreference
             android:defaultValue="false"
             android:disableDependentsState="false"

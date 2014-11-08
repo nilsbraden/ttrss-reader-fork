@@ -18,21 +18,21 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/ConnectionSslPreferenceCategoryTitle" >
 
-    <PreferenceCategory android:title="@string/ConnectionSslPreferenceCategoryTitle" >
+    <PreferenceCategory
+        android:key="sslCategory"
+        android:title="@string/ConnectionSslPreferenceCategoryTitle" >
         <CheckBoxPreference
             android:defaultValue="false"
             android:disableDependentsState="true"
             android:key="ConnectionSSLPreference"
             android:summary="@string/ConnectionSslPreferenceSummary"
             android:title="@string/ConnectionSslPreferenceTitle" />
-
         <CheckBoxPreference
             android:defaultValue="false"
             android:disableDependentsState="true"
             android:key="ConnectionTrustHostsPreference"
             android:summary="@string/ConnectionTrustHostsPreferenceSummary"
             android:title="@string/ConnectionTrustHostsPreferenceTitle" />
-
         <CheckBoxPreference
             android:defaultValue="false"
             android:dependency="ConnectionSSLPreference"
