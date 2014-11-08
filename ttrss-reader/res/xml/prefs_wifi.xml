@@ -20,12 +20,12 @@
 
     <PreferenceCategory android:title="@string/ConnectionWifiPrefScreenTitle" >
         <PreferenceScreen
+            android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
             android:summary="@string/ConnectionWifiPrefScreenSummary"
             android:title="@string/ConnectionWifiPrefScreenTitle" >
-            <intent
-                android:action="android.intent.action.MAIN"
-                android:targetClass="org.ttrssreader.preferences.WifiConnectionSettings"
-                android:targetPackage="org.ttrssreader" />
+            <extra
+                android:name="cat"
+                android:value="prefs_wifibased" />
         </PreferenceScreen>
     </PreferenceCategory>
 

@@ -223,8 +223,12 @@
     <string name="NoCrashreportsUntilUpdateSummary">Disables crash reporting until the next update of the app is installed. Please note that in NO case any data is transferred without your consent anyway, I just open the mail app and you can review any transmitted data before sending it to me.</string>
     <string name="DeleteDBOnStartupTitle">Delete DB on startup</string>
     <string name="DeleteDBOnStartupSummary">If set to true the internal Database will be deleted on EVERY start of the application.</string>
+    <string name="ConnectionWifiPrefEnableTitle">Enable settings for this network?</string>
+    <string name="ConnectionWifiPrefEnabledSummary">Preferences for this Wifi network are enabled.</string>
+    <string name="ConnectionWifiPrefDisbledSummary">Preferences for this Wifi network are disbled.</string>
     <string name="ConnectionWifiPrefScreenTitle">Wifi (per network) connectivity settings</string>
     <string name="ConnectionWifiPrefScreenSummary">Special configuration for the connected network</string>
+    <string name="ConnectionWifiPrefSelectionTitle">Wifi: \"%s\"</string>
     <string name="ConnectionWifiPrefCatTitle">Available networks</string>
     <string name="ConnectionWifiPrefCatDescription">Choose a Network and define special connection-settings to be used when connected.</string>
     <string name="ConnectionWifiConnected">Connected</string>

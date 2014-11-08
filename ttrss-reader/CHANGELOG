@@ -1,6 +1,12 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.78 ==
+  * Enable API-Level 21 (Lollipop, 5.0)
+  * Fixed several bugs regarding the improved TLS-security (Issue #233)
+  * Enable SSL- and HTTP-Auth-Preferences to be specified per Wifi network too (Issue #261)
+  * Fixed download of attached media files (Issue #256)
+
 == Version 1.77 (2) ==
   * Added support for TLS v1.3, dropped support for SSL v3 
   * Fixed problems with ImageCache not downloading images

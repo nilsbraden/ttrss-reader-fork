@@ -161,6 +161,7 @@ public class Constants {
     public static final String SINCE_ID = "sinceId";
     public static final String LAST_SYNC = "lastSync";
     public static final String LAST_CLEANUP = "lastCleanup";
+    public static final String ENABLE_WIFI_BASED_SUFFIX = "_pref_enable_wifibased";
     // Internal Default Values
     public static final long API_LEVEL_UPDATED_DEFAULT = -1;
     public static final int API_LEVEL_DEFAULT = -1;
@@ -173,6 +174,7 @@ public class Constants {
     public static final int SINCE_ID_DEFAULT = 0;
     public static final long LAST_SYNC_DEFAULT = 0l;
     public static final long LAST_CLEANUP_DEFAULT = 0l;
+    public static final boolean ENABLE_WIFI_BASED_SUFFIX_DEFAULT = false;
     
     /*
      * Returns a list of the values of all constants in this class which represent preferences. Allows for easier
