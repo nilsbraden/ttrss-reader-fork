@@ -18,6 +18,11 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.78
+            \n * Enable API-Level 21 (Lollipop, 5.0)
+            \n * Fixed several bugs regarding the improved TLS-security (Issue #233)
+            \n * Enabled SSL- and HTTP-Auth-Preferences to be specified per Wifi network too (Issue #261)
+            \n * Fixed download of attached media files (Issue #256)</item>
         <item>Version 1.77
 			\n * Added support for TLS v1.3, dropped support for SSL v3 
 			\n * Fixed problems with ImageCache not downloading images
