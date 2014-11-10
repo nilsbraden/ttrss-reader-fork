@@ -18,8 +18,6 @@ package org.ttrssreader.controllers;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -193,8 +191,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
         // Initially read absolutely necessary preferences:
         sizeVerticalCategory = prefs.getInt(SIZE_VERTICAL_CATEGORY, -1);
         sizeHorizontalCategory = prefs.getInt(SIZE_HORIZONTAL_CATEGORY, -1);
-        sizeVerticalHeadline = prefs.getInt(SIZE_VERTICAL_HEADLINE, -1);
-        sizeHorizontalHeadline = prefs.getInt(SIZE_HORIZONTAL_HEADLINE, -1);
         
         // Check for new installation
         if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
@@ -1131,49 +1127,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         } else if (o instanceof Boolean) {
             editor.putBoolean(constant, (Boolean) o);
         }
-        
-        /*
-         * The following Code is extracted from
-         * https://code.google.com/p/zippy-android/source/browse/trunk/examples/SharedPreferencesCompat.java
-         * 
-         * Copyright (C) 2010 The Android Open Source Project
-         * 
-         * Licensed under the Apache License, Version 2.0 (the "License");
-         * you may not use this file except in compliance with the License.
-         * You may obtain a copy of the License at
-         * 
-         * http://www.apache.org/licenses/LICENSE-2.0
-         * 
-         * Unless required by applicable law or agreed to in writing, software
-         * distributed under the License is distributed on an "AS IS" BASIS,
-         * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-         * See the License for the specific language governing permissions and
-         * limitations under the License.
-         */
-        // Uses faster apply() instead of commit() if method is available
-        if (sApplyMethod != null) {
-            try {
-                sApplyMethod.invoke(editor);
-                return;
-            } catch (InvocationTargetException unused) {
-                // fall through
-            } catch (IllegalAccessException unused) {
-                // fall through
-            }
-        }
-        editor.commit();
-    }
-    
-    private static final Method sApplyMethod = findApplyMethod();
-    
-    private static Method findApplyMethod() {
-        try {
-            Class<?> cls = SharedPreferences.Editor.class;
-            return cls.getMethod("apply");
-        } catch (NoSuchMethodException unused) {
-            // fall through
-        }
-        return null;
+        editor.apply();
     }
     
     /**
@@ -1256,8 +1210,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static final String SIZE_HORIZONTAL_HEADLINE = "sizeHorizontalHeadline";
     private Integer sizeVerticalCategory;
     private Integer sizeHorizontalCategory;
-    private Integer sizeVerticalHeadline;
-    private Integer sizeHorizontalHeadline;
     
     public int getMainFrameSize(MenuActivity activity, boolean isVertical, int min, int max) {
         int ret = -1;
@@ -1268,10 +1220,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 ret = sizeHorizontalCategory;
             }
         } else if (activity instanceof FeedHeadlineActivity) {
+            String key = getKeyCategoryFeedId((FeedHeadlineActivity) activity);
             if (isVertical) {
-                ret = sizeVerticalHeadline;
+                ret = prefs.getInt(SIZE_VERTICAL_HEADLINE + key, -1);
             } else {
-                ret = sizeHorizontalHeadline;
+                ret = prefs.getInt(SIZE_HORIZONTAL_HEADLINE + key, -1);
             }
         }
         
@@ -1293,14 +1246,17 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 put(SIZE_HORIZONTAL_CATEGORY, size);
             }
         } else if (activity instanceof FeedHeadlineActivity) {
+            String key = getKeyCategoryFeedId((FeedHeadlineActivity) activity);
             if (isVertical) {
-                sizeVerticalHeadline = size;
-                put(SIZE_VERTICAL_HEADLINE, size);
+                put(SIZE_VERTICAL_HEADLINE + key, size);
             } else {
-                sizeHorizontalHeadline = size;
-                put(SIZE_HORIZONTAL_HEADLINE, size);
+                put(SIZE_HORIZONTAL_HEADLINE + key, size);
             }
         }
+    }
+    
+    private static String getKeyCategoryFeedId(FeedHeadlineActivity activity) {
+        return "_" + activity.getFeedId() + " " + activity.getCategoryId();
     }
     
 }

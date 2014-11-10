@@ -118,8 +118,8 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             displaySize = Controller.displayHeight - actionBarHeight;
         }
         
-        minSize = (int) (displaySize * 0.1);
-        maxSize = displaySize - (int) (displaySize * 0.1);
+        minSize = (int) (displaySize * 0.05);
+        maxSize = displaySize - (int) (displaySize * 0.05);
         
         // use tablet layout?
         if (Controller.getInstance().allowTabletLayout())
@@ -176,9 +176,14 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
     }
     
     protected void handleResize() {
-        int mainFrameSize = calculateSize((int) (frameMain.getHeight() + (isVertical ? mDeltaY : mDeltaX)));
-        int subFrameSize = displaySize - dividerSize - mainFrameSize;
+        int mainFrameSize = 0;
+        if (isVertical) {
+            mainFrameSize = calculateSize((int) (frameMain.getHeight() + mDeltaY));
+        } else {
+            mainFrameSize = calculateSize((int) (frameMain.getWidth() + mDeltaX));
+        }
         
+        int subFrameSize = displaySize - dividerSize - mainFrameSize;
         LayoutParams lpMain = (RelativeLayout.LayoutParams) frameMain.getLayoutParams();
         LayoutParams lpSub = (RelativeLayout.LayoutParams) frameSub.getLayoutParams();
         
