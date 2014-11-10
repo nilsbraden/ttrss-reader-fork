@@ -43,7 +43,7 @@ public class CategoryCursorHelper extends MainCursorHelper {
     public CategoryCursorHelper(Context context, SQLiteDatabase memoryDb) {
         super(context);
         this.memoryDb = memoryDb;
-        insert = memoryDb.compileStatement(INSERT);
+        this.insert = memoryDb.compileStatement(INSERT);
     }
     
     @Override

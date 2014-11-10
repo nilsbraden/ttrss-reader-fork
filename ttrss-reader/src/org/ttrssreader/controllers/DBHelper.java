@@ -165,7 +165,11 @@ public class DBHelper {
     // @formatter:on
     
     private Context context;
-    private SQLiteDatabase db;
+    private OpenHelper openHelper;
+    
+    public synchronized OpenHelper getOpenHelper() {
+        return openHelper;
+    }
     
     private SQLiteStatement insertCategory;
     private SQLiteStatement insertFeed;
@@ -204,7 +208,7 @@ public class DBHelper {
             // Initialize DB
             if (!initialized) {
                 initializeDBHelper();
-            } else if (db == null || !db.isOpen()) {
+            } else if (getOpenHelper() == null) {
                 initializeDBHelper();
             } else {
                 return; // DB was already initialized, no need to check anything.
@@ -215,7 +219,8 @@ public class DBHelper {
                 Cursor c = null;
                 try {
                     // Try to access the DB
-                    c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_CATEGORIES, null);
+                    c = getOpenHelper().getReadableDatabase()
+                            .rawQuery("SELECT COUNT(*) FROM " + TABLE_CATEGORIES, null);
                     c.getCount();
                     if (c.moveToFirst())
                         c.getInt(0);
@@ -246,18 +251,18 @@ public class DBHelper {
                 return false;
             }
             
-            if (db != null)
+            if (getOpenHelper() != null)
                 closeDB();
             
-            OpenHelper openHelper = new OpenHelper(context);
-            db = openHelper.getWritableDatabase();
+            openHelper = new OpenHelper(context);
+            SQLiteDatabase db = openHelper.getWritableDatabase();
             
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
                 db.setLockingEnabled(true);
             
             if (specialUpgradeSuccessful) {
                 // Re-open DB for final usage:
-                db.close();
+                closeDB();
                 openHelper = new OpenHelper(context);
                 db = openHelper.getWritableDatabase();
                 
@@ -306,7 +311,7 @@ public class DBHelper {
             Log.i(TAG, "Deleting Database as requested by preferences.");
             File f = context.getDatabasePath(DATABASE_NAME);
             if (f.exists()) {
-                if (db != null) {
+                if (getOpenHelper() != null) {
                     closeDB();
                 }
                 return f.delete();
@@ -318,22 +323,15 @@ public class DBHelper {
     
     private void closeDB() {
         synchronized (lock) {
-            db.releaseReference();
-            db.close();
-            db = null;
+            getOpenHelper().close();
+            openHelper = null;
         }
     }
     
     private boolean isDBAvailable() {
         synchronized (lock) {
-            if (db != null && db.isOpen())
+            if (getOpenHelper() != null) {
                 return true;
-            
-            if (db != null) {
-                OpenHelper openHelper = new OpenHelper(context);
-                db = openHelper.getWritableDatabase();
-                initialized = db.isOpen();
-                return initialized;
             } else {
                 Log.i(TAG, "Controller not initialized, trying to do that now...");
                 initializeDBHelper();
@@ -342,7 +340,7 @@ public class DBHelper {
         }
     }
     
-    private static class OpenHelper extends SQLiteOpenHelper {
+    public static class OpenHelper extends SQLiteOpenHelper {
         
         OpenHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -762,7 +760,7 @@ public class DBHelper {
     public Cursor query(String sql, String[] selectionArgs) {
         if (!isDBAvailable())
             return null;
-        Cursor cursor = db.rawQuery(sql, selectionArgs);
+        Cursor cursor = getOpenHelper().getReadableDatabase().rawQuery(sql, selectionArgs);
         return cursor;
     }
     
@@ -787,6 +785,7 @@ public class DBHelper {
         if (!isDBAvailable() || set == null)
             return;
         
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.beginTransaction();
         try {
             for (Category c : set) {
@@ -821,6 +820,7 @@ public class DBHelper {
         if (!isDBAvailable() || set == null)
             return;
         
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.beginTransaction();
         try {
             for (Feed f : set) {
@@ -886,6 +886,7 @@ public class DBHelper {
         if (!isDBAvailable() || articles == null || articles.isEmpty())
             return;
         
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.beginTransaction();
         try {
             for (Article a : articles) {
@@ -920,6 +921,8 @@ public class DBHelper {
             String[] args = new String[] { articleId + "", label.id + "" };
             if (!isDBAvailable())
                 return;
+            
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             db.delete(TABLE_ARTICLES2LABELS, "articleId=? AND labelId=?", args);
         }
     }
@@ -1026,29 +1029,24 @@ public class DBHelper {
             }
             
             where.append(" and isUnread>0 ");
-            Cursor c = null;
             
-            db.beginTransaction();
+            Cursor c = null;
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             try {
                 // select id from articles where categoryId in (...)
                 c = db.query(TABLE_ARTICLES, new String[] { "_id" }, where.toString(), null, null, null, null);
                 
                 int count = c.getCount();
-                
                 if (count > 0) {
                     markedIds = new HashSet<Integer>(count);
-                    
                     while (c.moveToNext()) {
                         markedIds.add(c.getInt(0));
                     }
-                    
                 }
                 
-                db.setTransactionSuccessful();
             } finally {
                 if (c != null && !c.isClosed())
                     c.close();
-                db.endTransaction();
             }
         }
         
@@ -1067,6 +1065,8 @@ public class DBHelper {
         
         if (!isDBAvailable())
             return;
+        
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.update(TABLE_ARTICLES, cv, "isUnread>0 AND _id IN(" + idList + ")", null);
     }
     
@@ -1082,17 +1082,16 @@ public class DBHelper {
      */
     public void markArticles(Set<Integer> idList, String mark, int state) {
         if (isDBAvailable() && idList != null && !idList.isEmpty()) {
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             db.beginTransaction();
             try {
                 for (String ids : StringSupport.convertListToString(idList, 400)) {
                     markArticles(ids, mark, state);
                 }
-                
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
             }
-            
             calculateCounters();
         }
     }
@@ -1110,6 +1109,8 @@ public class DBHelper {
     public void markArticle(int id, String mark, int state) {
         if (!isDBAvailable())
             return;
+        
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.beginTransaction();
         try {
             markArticles("" + id, mark, state);
@@ -1139,6 +1140,8 @@ public class DBHelper {
         if (isDBAvailable()) {
             ContentValues cv = new ContentValues(1);
             cv.put(mark, state);
+            
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             rowCount = db.update(TABLE_ARTICLES, cv, "_id IN (" + idList + ") AND ? != ?",
                     new String[] { mark, String.valueOf(state) });
         }
@@ -1158,6 +1161,8 @@ public class DBHelper {
         
         if (!isDBAvailable())
             return;
+        
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.beginTransaction();
         try {
             for (Integer id : ids) {
@@ -1178,6 +1183,8 @@ public class DBHelper {
     public void markUnsynchronizedNotes(Map<Integer, String> ids, String markPublish) {
         if (!isDBAvailable())
             return;
+        
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.beginTransaction();
         try {
             for (Integer id : ids.keySet()) {
@@ -1209,6 +1216,8 @@ public class DBHelper {
         
         if (!isDBAvailable())
             return;
+        
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.beginTransaction();
         try {
             cv = new ContentValues(1);
@@ -1292,6 +1301,8 @@ public class DBHelper {
             } else {
                 cv.put("cachedImages", filesCount);
             }
+            
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             db.update(TABLE_ARTICLES, cv, "_id=?", new String[] { String.valueOf(id) });
         }
     }
@@ -1302,6 +1313,8 @@ public class DBHelper {
             wherePart = "_id > 0";
         if (!isDBAvailable())
             return;
+        
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.delete(TABLE_CATEGORIES, wherePart, null);
     }
     
@@ -1311,6 +1324,8 @@ public class DBHelper {
     public void deleteFeeds() {
         if (!isDBAvailable())
             return;
+        
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.delete(TABLE_FEEDS, null, null);
     }
     
@@ -1358,6 +1373,7 @@ public class DBHelper {
             " )"                                                  );
         // @formatter:on
         
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.beginTransaction();
         try {
             // first, delete article referencies from linking table to preserve foreign key constraint on the next step
@@ -1421,6 +1437,7 @@ public class DBHelper {
                 + " ON a2l.labelId = f._id WHERE f._id IS null";
             // @formatter:on
             
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
             db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
         }
@@ -1433,6 +1450,7 @@ public class DBHelper {
             ContentValues cv = new ContentValues(1);
             cv.put(vcat, 0);
             
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             int count = db.update(TABLE_ARTICLES, cv,
                     vcat + ">0 AND _id>" + minId + " AND _id NOT IN (" + idList + ")", null);
             Log.d(TAG, "Marked " + count + " articles " + vcat + "=0 (" + (System.currentTimeMillis() - time) + "ms)");
@@ -1453,6 +1471,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_ARTICLES, new String[] { "min(_id)" }, "isUnread>0", null, null, null, null, null);
             if (c.moveToFirst())
                 ret = c.getInt(0);
@@ -1479,6 +1498,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_ARTICLES, new String[] { "count(*)" }, null, null, null, null, null, null);
             if (c.moveToFirst())
                 ret = c.getInt(0);
@@ -1499,6 +1519,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_ARTICLES, null, "_id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
                 ret = handleArticleCursor(c);
@@ -1528,6 +1549,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new HashSet<Label>();
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.rawQuery(sql, null);
             Set<Label> ret = new HashSet<Label>(c.getCount());
             while (c.moveToNext()) {
@@ -1552,6 +1574,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_FEEDS, null, "_id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
                 ret = handleFeedCursor(c);
@@ -1571,6 +1594,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_CATEGORIES, null, "_id=?", new String[] { id + "" }, null, null, null, null);
             if (c.moveToFirst())
                 ret = handleCategoryCursor(c);
@@ -1589,6 +1613,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new LinkedHashSet<Article>();
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_ARTICLES, null, "feedId=? AND isUnread>0", new String[] { feedId + "" }, null, null,
                     null, null);
             Set<Article> ret = new LinkedHashSet<Article>(c.getCount());
@@ -1621,6 +1646,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             Cursor c = null;
             try {
+                SQLiteDatabase db = getOpenHelper().getReadableDatabase();
                 c = db.query(TABLE_ARTICLES, new String[] { "_id", "updateDate" }, selection, selectionArgs, null,
                         null, null);
                 
@@ -1674,6 +1700,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new LinkedHashSet<Feed>();
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_FEEDS, null, where, null, null, null, "UPPER(title) ASC");
             Set<Feed> ret = new LinkedHashSet<Feed>(c.getCount());
             while (c.moveToNext()) {
@@ -1693,6 +1720,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new LinkedHashSet<Category>();
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_CATEGORIES, null, "_id<1", null, null, null, "_id ASC");
             
             Set<Category> ret = new LinkedHashSet<Category>(c.getCount());
@@ -1713,6 +1741,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new LinkedHashSet<Category>();
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_CATEGORIES, null, "_id>=0", null, null, null, "title ASC");
             Set<Category> ret = new LinkedHashSet<Category>(c.getCount());
             while (c.moveToNext()) {
@@ -1740,6 +1769,7 @@ public class DBHelper {
                 if (!isDBAvailable())
                     return ret;
                 
+                SQLiteDatabase db = getOpenHelper().getReadableDatabase();
                 c = db.query(isCat ? TABLE_CATEGORIES : TABLE_FEEDS, new String[] { "unread" }, "_id=" + id, null,
                         null, null, null, null);
                 if (c.moveToFirst())
@@ -1807,6 +1837,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return ret;
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_ARTICLES, new String[] { "count(*)" }, selection.toString(), selectionArgs, null, null,
                     null, null);
             
@@ -1828,6 +1859,7 @@ public class DBHelper {
             if (!isDBAvailable())
                 return new HashMap<Integer, String>();
             
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_MARK, new String[] { "id", MARK_NOTE }, mark + "=" + status, null, null, null, null,
                     null);
             
@@ -1856,6 +1888,7 @@ public class DBHelper {
         if (!isDBAvailable())
             return;
         
+        SQLiteDatabase db = getOpenHelper().getWritableDatabase();
         db.beginTransaction();
         try {
             ContentValues cv = new ContentValues(1);
@@ -1995,6 +2028,8 @@ public class DBHelper {
         
         Cursor c = null;
         try {
+            
+            SQLiteDatabase db = getOpenHelper().getReadableDatabase();
             c = db.query(TABLE_ARTICLES, new String[] { "_id", "content", "attachments" },
                     "cachedImages IS NULL AND isUnread>0", null, null, null, null, "1000");
             
@@ -2024,6 +2059,7 @@ public class DBHelper {
      */
     public void insertArticleFiles(int articleId, String[] fileUrls) {
         if (isDBAvailable()) {
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             db.beginTransaction();
             try {
                 for (String url : fileUrls) {
@@ -2051,6 +2087,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             Cursor c = null;
             try {
+                SQLiteDatabase db = getOpenHelper().getReadableDatabase();
                 c = db.query(TABLE_REMOTEFILES, null, "url=?", new String[] { url }, null, null, null, null);
                 if (c.moveToFirst())
                     rf = handleRemoteFileCursor(c);
@@ -2078,6 +2115,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             Cursor c = null;
             try {
+                SQLiteDatabase db = getOpenHelper().getReadableDatabase();
                 c = db.rawQuery(" SELECT r.*"
                         // @formatter:off
                               + " FROM "
@@ -2194,6 +2232,7 @@ public class DBHelper {
                 // @formatter:on
                 
                 long time = System.currentTimeMillis();
+                SQLiteDatabase db = getOpenHelper().getReadableDatabase();
                 c = db.rawQuery(query.toString(), queryArgs);
                 
                 rfs = new ArrayList<RemoteFile>();
@@ -2226,6 +2265,7 @@ public class DBHelper {
      */
     public void markRemoteFileCached(String url, boolean cached, Long size) {
         if (isDBAvailable()) {
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             db.beginTransaction();
             try {
                 ContentValues cv = new ContentValues(2);
@@ -2249,6 +2289,7 @@ public class DBHelper {
      */
     public void markRemoteFilesNonCached(Collection<Integer> rfIds) {
         if (isDBAvailable()) {
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             db.beginTransaction();
             try {
                 ContentValues cv = new ContentValues(1);
@@ -2273,6 +2314,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             Cursor c = null;
             try {
+                SQLiteDatabase db = getOpenHelper().getReadableDatabase();
                 c = db.query(TABLE_REMOTEFILES, new String[] { "SUM(length)" }, "cached=1", null, null, null, null);
                 if (c.moveToFirst())
                     ret = c.getLong(0);
@@ -2298,6 +2340,7 @@ public class DBHelper {
         if (isDBAvailable()) {
             Cursor c = null;
             try {
+                SQLiteDatabase db = getOpenHelper().getReadableDatabase();
                 c = db.query("remotefile_sequence", null, "cached = 1", null, null, null, "ord");
                 
                 long spaceToFree = spaceToBeFreed;
@@ -2326,6 +2369,7 @@ public class DBHelper {
         int deletedCount = 0;
         
         if (isDBAvailable() && idList != null && !idList.isEmpty()) {
+            SQLiteDatabase db = getOpenHelper().getWritableDatabase();
             for (String ids : StringSupport.convertListToString(idList, 400)) {
                 deletedCount += db.delete(TABLE_REMOTEFILES, "id IN (" + ids + ")", null);
             }

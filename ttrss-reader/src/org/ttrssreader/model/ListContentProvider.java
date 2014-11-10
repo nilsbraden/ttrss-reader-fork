@@ -30,9 +30,6 @@ import android.net.Uri;
 public class ListContentProvider extends ContentProvider {
     
     protected static final String TAG = ListContentProvider.class.getSimpleName();
-    
-    private OpenHelper dbOpenHelper;
-    
     private static final String AUTHORITY = "org.ttrssreader";
     
     // Uri path segments
@@ -57,6 +54,8 @@ public class ListContentProvider extends ContentProvider {
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/listitems";
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/listitem";
     
+    private static MemoryDBOpenHelper memoryDbOpenHelper;
+    
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
         // Request all items:
@@ -67,7 +66,7 @@ public class ListContentProvider extends ContentProvider {
     
     @Override
     public boolean onCreate() {
-        dbOpenHelper = new OpenHelper(getContext(), DBHelper.DATABASE_NAME, DBHelper.DATABASE_VERSION);
+        memoryDbOpenHelper = new MemoryDBOpenHelper(getContext());
         return false;
     }
     
@@ -96,7 +95,6 @@ public class ListContentProvider extends ContentProvider {
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
             case CATS: {
-                MemoryDBOpenHelper memoryDbOpenHelper = new MemoryDBOpenHelper(getContext());
                 SQLiteDatabase memoryDb = memoryDbOpenHelper.getWritableDatabase();
                 cursorHelper = new CategoryCursorHelper(getContext(), memoryDb);
                 break;
@@ -111,10 +109,7 @@ public class ListContentProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         
-        SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
-        // Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
-        Cursor cursor = cursorHelper.makeQuery(db);
-        // make sure that potential listeners are getting notified
+        Cursor cursor = cursorHelper.makeQuery(DBHelper.getInstance().getOpenHelper().getReadableDatabase());
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         
         return cursor;
@@ -126,21 +121,21 @@ public class ListContentProvider extends ContentProvider {
     }
     
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    final public Uri insert(Uri uri, ContentValues values) {
         throw new NoSuchMethodError(); // Not implemented!
     }
     
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    final public int delete(Uri uri, String selection, String[] selectionArgs) {
         throw new NoSuchMethodError(); // Not implemented!
     }
     
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    final public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new NoSuchMethodError(); // Not implemented!
     }
     
-    class OpenHelper extends SQLiteOpenHelper {
+    final class OpenHelper extends SQLiteOpenHelper {
         public OpenHelper(Context context, String databaseName, int databaseVersion) {
             super(context, databaseName, null, databaseVersion);
         }
