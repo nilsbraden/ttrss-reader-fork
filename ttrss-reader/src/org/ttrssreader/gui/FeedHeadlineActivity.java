@@ -318,5 +318,13 @@ public class FeedHeadlineActivity extends MenuActivity {
         selectedArticleId = Integer.MIN_VALUE;
         super.onBackPressed();
     }
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public int getFeedId() {
+        return feedId;
+    }
     
 }
