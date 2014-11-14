@@ -41,7 +41,7 @@ import android.widget.TextView;
 
 public class ArticleLabelDialog extends MyDialogFragment {
     
-    public static final String PARAM_ARTICLE_ID = "article_id";
+    private static final String PARAM_ARTICLE_ID = "article_id";
     
     private int articleId;
     private List<Label> labels;
@@ -133,7 +133,7 @@ public class ArticleLabelDialog extends MyDialogFragment {
         return builder.create();
     }
     
-    public class ArticleLabelUpdater implements IUpdatable {
+    private class ArticleLabelUpdater implements IUpdatable {
         @Override
         public void update(Updater parent) {
             for (Label label : labels) {

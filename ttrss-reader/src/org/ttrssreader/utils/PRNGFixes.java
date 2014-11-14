@@ -35,7 +35,7 @@ import android.util.Log;
  * Cryptography Architecture primitives. A good place to invoke them is in the
  * application's {@code onCreate}.
  */
-public final class PRNGFixes {
+final class PRNGFixes {
     
     private static final int VERSION_CODE_JELLY_BEAN = 16;
     private static final int VERSION_CODE_JELLY_BEAN_MR2 = 18;
@@ -51,7 +51,7 @@ public final class PRNGFixes {
      * @throws SecurityException
      *             if a fix is needed but could not be applied.
      */
-    public static void apply() {
+    static void apply() {
         applyOpenSSLFix();
         installLinuxPRNGSecureRandom();
     }
@@ -150,7 +150,7 @@ public final class PRNGFixes {
      * {@link SecureRandomSpi} which passes all requests to the Linux PRNG
      * ({@code /dev/urandom}).
      */
-    public static class LinuxPRNGSecureRandom extends SecureRandomSpi {
+    private static class LinuxPRNGSecureRandom extends SecureRandomSpi {
         
         private static final long serialVersionUID = 8996012769968439505L;
         

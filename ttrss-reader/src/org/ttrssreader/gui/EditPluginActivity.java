@@ -41,7 +41,8 @@ import android.widget.CheckBox;
  */
 public final class EditPluginActivity extends AbstractPluginActivity {
     
-    protected static final String TAG = EditPluginActivity.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = EditPluginActivity.class.getSimpleName();
     
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     

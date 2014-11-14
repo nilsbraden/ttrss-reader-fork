@@ -27,7 +27,8 @@ import android.view.WindowManager;
 
 public class MyApplication extends Application {
     
-    protected static final String TAG = MyApplication.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = MyApplication.class.getSimpleName();
     
     public void onCreate() {
         super.onCreate();

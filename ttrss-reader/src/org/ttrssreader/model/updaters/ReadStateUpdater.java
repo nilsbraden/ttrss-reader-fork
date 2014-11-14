@@ -29,7 +29,8 @@ import org.ttrssreader.model.pojos.Feed;
 
 public class ReadStateUpdater implements IUpdatable {
     
-    protected static final String TAG = ReadStateUpdater.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = ReadStateUpdater.class.getSimpleName();
     
     private int state;
     
@@ -45,7 +46,7 @@ public class ReadStateUpdater implements IUpdatable {
         this(type, -1);
     }
     
-    public ReadStateUpdater(TYPE type, int id) {
+    private ReadStateUpdater(TYPE type, int id) {
         switch (type) {
             case ALL_CATEGORIES:
                 categories = DBHelper.getInstance().getAllCategories();

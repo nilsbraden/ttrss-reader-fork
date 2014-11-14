@@ -26,13 +26,14 @@ import android.widget.SimpleCursorAdapter;
 
 public abstract class MainAdapter extends SimpleCursorAdapter {
     
-    protected static final String TAG = MainAdapter.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = MainAdapter.class.getSimpleName();
     
     private static final int layout = R.layout.main;
     
     protected Context context;
     
-    public MainAdapter(Context context) {
+    MainAdapter(Context context) {
         super(context, layout, null, new String[] {}, new int[] {}, 0);
         this.context = context;
     }

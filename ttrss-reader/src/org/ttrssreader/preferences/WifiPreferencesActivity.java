@@ -39,15 +39,15 @@ import android.widget.ListAdapter;
 @SuppressWarnings("deprecation")
 public class WifiPreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
     
-    protected static final String TAG = WifiPreferencesActivity.class.getSimpleName();
+    private static final String TAG = WifiPreferencesActivity.class.getSimpleName();
     
-    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+    private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PREFS_MAIN_TOP = "prefs_main_top";
     private static final String PREFS_HTTP = "prefs_http";
     private static final String PREFS_SSL = "prefs_ssl";
     
-    public static final int ACTIVITY_SHOW_PREFERENCES = 43;
+    private static final int ACTIVITY_SHOW_PREFERENCES = 43;
     public static final String KEY_SSID = "SSID";
     private String m_SSID = null;
     
@@ -120,7 +120,7 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
         super.onDestroy();
     }
     
-    public static class WifiPreferencesFragment extends PreferenceFragment {
+    private static class WifiPreferencesFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);

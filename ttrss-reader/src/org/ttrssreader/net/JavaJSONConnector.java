@@ -28,16 +28,11 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.Utils;
-import android.content.Context;
 import android.util.Log;
 
 public class JavaJSONConnector extends JSONConnector {
     
-    protected static final String TAG = JavaJSONConnector.class.getSimpleName();
-    
-    public JavaJSONConnector(Context context) {
-        super(context);
-    }
+    private static final String TAG = JavaJSONConnector.class.getSimpleName();
     
     protected InputStream doRequest(Map<String, String> params) {
         try {

@@ -34,8 +34,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class FeedHeadlineAdapter extends MainAdapter {
-    
-    protected static final String TAG = FeedHeadlineAdapter.class.getSimpleName();
+
+    @SuppressWarnings("unused")
+    private static final String TAG = FeedHeadlineAdapter.class.getSimpleName();
     
     private int feedId;
     private boolean selectArticlesForCategory;

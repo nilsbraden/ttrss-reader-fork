@@ -18,18 +18,16 @@ package org.ttrssreader.model;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.CategoryCursorHelper.MemoryDBOpenHelper;
 import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 
 public class ListContentProvider extends ContentProvider {
     
-    protected static final String TAG = ListContentProvider.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = ListContentProvider.class.getSimpleName();
     private static final String AUTHORITY = "org.ttrssreader";
     
     // Uri path segments
@@ -50,9 +48,6 @@ public class ListContentProvider extends ContentProvider {
     public static final Uri CONTENT_URI_CAT = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_CATEGORIES);
     public static final Uri CONTENT_URI_FEED = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_FEEDS);
     public static final Uri CONTENT_URI_HEAD = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_HEADLINES);
-    
-    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/listitems";
-    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/listitem";
     
     private static MemoryDBOpenHelper memoryDbOpenHelper;
     
@@ -96,14 +91,14 @@ public class ListContentProvider extends ContentProvider {
         switch (uriType) {
             case CATS: {
                 SQLiteDatabase memoryDb = memoryDbOpenHelper.getWritableDatabase();
-                cursorHelper = new CategoryCursorHelper(getContext(), memoryDb);
+                cursorHelper = new CategoryCursorHelper(memoryDb);
                 break;
             }
             case FEEDS:
-                cursorHelper = new FeedCursorHelper(getContext(), categoryId);
+                cursorHelper = new FeedCursorHelper(categoryId);
                 break;
             case HEADLINES:
-                cursorHelper = new FeedHeadlineCursorHelper(getContext(), feedId, categoryId, selectArticlesForCategory);
+                cursorHelper = new FeedHeadlineCursorHelper(feedId, categoryId, selectArticlesForCategory);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -133,22 +128,6 @@ public class ListContentProvider extends ContentProvider {
     @Override
     final public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new NoSuchMethodError(); // Not implemented!
-    }
-    
-    final class OpenHelper extends SQLiteOpenHelper {
-        public OpenHelper(Context context, String databaseName, int databaseVersion) {
-            super(context, databaseName, null, databaseVersion);
-        }
-        
-        @Override
-        public void onCreate(SQLiteDatabase database) {
-            throw new NoSuchMethodError(); // Not implemented!
-        }
-        
-        @Override
-        public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-            throw new NoSuchMethodError(); // Not implemented!
-        }
     }
     
 }

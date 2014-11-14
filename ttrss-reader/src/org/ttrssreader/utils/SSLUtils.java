@@ -39,10 +39,6 @@ import android.os.Environment;
 
 public class SSLUtils {
     
-    public static SSLSocketFactory initSslSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
-        return initSslSocketFactory(null, null);
-    }
-    
     @SuppressLint("TrulyRandom")
     public static SSLSocketFactory initSslSocketFactory(KeyManager[] km, TrustManager[] tm) throws KeyManagementException, NoSuchAlgorithmException {
         // Apply fix for PRNG from http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html

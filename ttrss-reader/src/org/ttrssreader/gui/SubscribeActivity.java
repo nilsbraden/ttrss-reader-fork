@@ -41,11 +41,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class SubscribeActivity extends MenuActivity {
+class SubscribeActivity extends MenuActivity {
     
-    protected static final String TAG = SubscribeActivity.class.getSimpleName();
-    
-    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+    @SuppressWarnings("unused")
+    private static final String TAG = SubscribeActivity.class.getSimpleName();
+
+    private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PARAM_FEEDURL = "feed_url";
     
@@ -133,7 +134,7 @@ public class SubscribeActivity extends MenuActivity {
         super.onDestroy();
     }
     
-    public class MyPublisherTask extends AsyncTask<Void, Integer, Void> {
+    private class MyPublisherTask extends AsyncTask<Void, Integer, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             try {
@@ -195,8 +196,8 @@ public class SubscribeActivity extends MenuActivity {
         return true;
     }
     
-    class SimpleCategoryAdapter extends ArrayAdapter<Category> {
-        public SimpleCategoryAdapter(Context context) {
+    private class SimpleCategoryAdapter extends ArrayAdapter<Category> {
+        private SimpleCategoryAdapter(Context context) {
             super(context, android.R.layout.simple_list_item_1);
         }
         
@@ -220,8 +221,8 @@ public class SubscribeActivity extends MenuActivity {
     }
     
     // Fill the adapter for the spinner in the background to avoid direct DB-access
-    class SubscribeCategoryUpdater extends AsyncTask<Void, Integer, Void> {
-        ArrayList<Category> catList = null;
+    private class SubscribeCategoryUpdater extends AsyncTask<Void, Integer, Void> {
+        private ArrayList<Category> catList = null;
         
         @Override
         protected Void doInBackground(Void... params) {

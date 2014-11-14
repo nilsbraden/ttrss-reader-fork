@@ -33,7 +33,7 @@ import android.util.Log;
  */
 public class FileUtils {
     
-    protected static final String TAG = FileUtils.class.getSimpleName();
+    private static final String TAG = FileUtils.class.getSimpleName();
     
     /**
      * Supported extensions of imagefiles, see http://developer.android.com/guide/appendix/media-formats.html

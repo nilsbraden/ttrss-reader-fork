@@ -43,9 +43,10 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class CategoryListFragment extends MainListFragment {
     
-    protected static final String TAG = CategoryListFragment.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = CategoryListFragment.class.getSimpleName();
     
-    protected static final TYPE THIS_TYPE = TYPE.CATEGORY;
+    private static final TYPE THIS_TYPE = TYPE.CATEGORY;
     public static final String FRAGMENT = "CATEGORY_FRAGMENT";
     
     private static final int MARK_GROUP = 100;

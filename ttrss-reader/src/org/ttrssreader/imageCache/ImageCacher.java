@@ -43,9 +43,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-public class ImageCacher extends AsyncTask<Void, Integer, Void> {
+class ImageCacher extends AsyncTask<Void, Integer, Void> {
     
-    protected static final String TAG = ImageCacher.class.getSimpleName();
+    private static final String TAG = ImageCacher.class.getSimpleName();
     
     private static final int DEFAULT_TASK_COUNT = 6;
     
@@ -64,7 +64,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private long start;
     private Map<Integer, DownloadImageTask> map;
     
-    public ImageCacher(ICacheEndListener parent, Context context, boolean onlyArticles) {
+    ImageCacher(ICacheEndListener parent, Context context, boolean onlyArticles) {
         this.parent = parent;
         this.context = context;
         this.onlyArticles = onlyArticles;
@@ -100,7 +100,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     };
     
     // This method is allowed to be called from any thread
-    public synchronized void requestStop() {
+    private synchronized void requestStop() {
         // Wait for the handler to be fully initialized:
         long wait = Utils.SECOND * 2;
         if (!handlerInitialized) {
@@ -277,7 +277,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         Log.i(TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
     }
     
-    public class DownloadImageTask implements Runnable {
+    private class DownloadImageTask implements Runnable {
         // Max size for one image
         private final long maxFileSize = Controller.getInstance().cacheImageMaxSize() * Utils.KB;
         private final long minFileSize = Controller.getInstance().cacheImageMinSize() * Utils.KB;
@@ -285,7 +285,7 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
         private int articleId;
         private String[] fileUrls;
         
-        public DownloadImageTask(ImageCache cache, int articleId, String... params) {
+        private DownloadImageTask(ImageCache cache, int articleId, String... params) {
             this.imageCache = cache;
             this.articleId = articleId;
             this.fileUrls = params;
@@ -350,39 +350,13 @@ public class ImageCacher extends AsyncTask<Void, Integer, Void> {
     }
     
     /**
-     * Searches for cached versions of the given image and returns the local URL to access the file.
-     * 
-     * @param url
-     *            the original URL
-     * @return the local URL or null if no image in cache or if the file couldn't be found or another thread is creating
-     *         the imagecache at the moment.
-     */
-    public static String getCachedImageUrl(String url) {
-        ImageCache cache = Controller.getInstance().getImageCache(false);
-        if (cache != null && cache.containsKey(url)) {
-            
-            StringBuilder sb = new StringBuilder();
-            sb.append(cache.getDiskCacheDirectory());
-            sb.append(File.separator);
-            sb.append(cache.getFileNameForKey(url));
-            
-            File file = new File(sb.toString());
-            if (file.exists()) {
-                sb.insert(0, "file://"); // Add "file:" at the beginning..
-                return sb.toString();
-            }
-        }
-        return null;
-    }
-    
-    /**
      * Searches the given html code for img-Tags and filters out all src-attributes, beeing URLs to images.
      * 
      * @param html
      *            the html code which is to be searched
      * @return a set of URLs in their string representation
      */
-    public static Set<String> findAllImageUrls(String html) {
+    private static Set<String> findAllImageUrls(String html) {
         Set<String> ret = new LinkedHashSet<String>();
         if (html == null || html.length() < 10)
             return ret;

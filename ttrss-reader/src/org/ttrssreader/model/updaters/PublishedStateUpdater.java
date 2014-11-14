@@ -21,8 +21,9 @@ import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.model.pojos.Article;
 
 public class PublishedStateUpdater implements IUpdatable {
-    
-    protected static final String TAG = PublishedStateUpdater.class.getSimpleName();
+
+    @SuppressWarnings("unused")
+    private static final String TAG = PublishedStateUpdater.class.getSimpleName();
     
     private Article article;
     private int articleState;

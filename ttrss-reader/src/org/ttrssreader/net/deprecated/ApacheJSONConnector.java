@@ -42,19 +42,14 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
-import android.content.Context;
 import android.util.Log;
 
 public class ApacheJSONConnector extends JSONConnector {
     
-    protected static final String TAG = ApacheJSONConnector.class.getSimpleName();
+    private static final String TAG = ApacheJSONConnector.class.getSimpleName();
     
-    protected CredentialsProvider credProvider = null;
-    protected DefaultHttpClient client;
-    
-    public ApacheJSONConnector(Context context) {
-        super(context);
-    }
+    private CredentialsProvider credProvider = null;
+    private DefaultHttpClient client;
     
     protected InputStream doRequest(Map<String, String> params) {
         HttpPost post = new HttpPost();

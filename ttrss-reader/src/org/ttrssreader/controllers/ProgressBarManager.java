@@ -18,8 +18,9 @@ package org.ttrssreader.controllers;
 import android.app.Activity;
 
 public class ProgressBarManager {
-    
-    protected static final String TAG = ProgressBarManager.class.getSimpleName();
+
+    @SuppressWarnings("unused")
+    private static final String TAG = ProgressBarManager.class.getSimpleName();
     
     private static ProgressBarManager instance = null;
     private int progressIndeterminateCount = 0;

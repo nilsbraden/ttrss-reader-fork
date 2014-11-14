@@ -32,11 +32,11 @@ import android.util.Log;
 
 public class ForegroundService extends Service implements ICacheEndListener {
     
-    protected static final String TAG = ForegroundService.class.getSimpleName();
+    private static final String TAG = ForegroundService.class.getSimpleName();
     
     public static final String ACTION_LOAD_IMAGES = "load_images";
     public static final String ACTION_LOAD_ARTICLES = "load_articles";
-    public static final String PARAM_SHOW_NOTIFICATION = "show_notification";
+    static final String PARAM_SHOW_NOTIFICATION = "show_notification";
     
     private ImageCacher imageCacher;
     private static volatile ForegroundService instance = null;
@@ -66,7 +66,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
     /**
      * Cleans up all running notifications, notifies waiting activities and clears the instance of the service.
      */
-    public void finishService() {
+    private void finishService() {
         if (instance != null) {
             stopForeground(true);
             instance = null;

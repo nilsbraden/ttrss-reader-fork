@@ -44,7 +44,7 @@ import android.webkit.WebViewClient;
 
 public class ArticleWebViewClient extends WebViewClient {
     
-    protected static final String TAG = ArticleWebViewClient.class.getSimpleName();
+    private static final String TAG = ArticleWebViewClient.class.getSimpleName();
     
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, final String url) {

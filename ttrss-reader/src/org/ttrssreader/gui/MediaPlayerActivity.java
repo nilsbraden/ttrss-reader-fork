@@ -27,9 +27,10 @@ import android.widget.VideoView;
 
 public class MediaPlayerActivity extends Activity {
     
-    protected static final String TAG = MediaPlayerActivity.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = MediaPlayerActivity.class.getSimpleName();
     
-    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+    private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     public static final String URL = "media_url";
     

@@ -25,7 +25,7 @@ public class ImageCaptionDialog extends MyDialogFragment {
     
     public static final String DIALOG_CAPTION = "image_caption";
     
-    String caption;
+    private String caption;
     
     public static ImageCaptionDialog getInstance(String caption) {
         ImageCaptionDialog fragment = new ImageCaptionDialog();

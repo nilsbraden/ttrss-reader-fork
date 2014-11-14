@@ -16,24 +16,18 @@
 package org.ttrssreader.model;
 
 import org.ttrssreader.controllers.Controller;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public abstract class MainCursorHelper {
+abstract class MainCursorHelper {
     
-    protected static final String TAG = MainCursorHelper.class.getSimpleName();
-    
-    protected Context context;
+    @SuppressWarnings("unused")
+    private static final String TAG = MainCursorHelper.class.getSimpleName();
     
     protected int categoryId = Integer.MIN_VALUE;
     protected int feedId = Integer.MIN_VALUE;
     
     protected boolean selectArticlesForCategory;
-    
-    public MainCursorHelper(Context context) {
-        this.context = context;
-    }
     
     /**
      * Creates a new query
@@ -41,7 +35,7 @@ public abstract class MainCursorHelper {
      * @param force
      *            forces the creation of a new query
      */
-    public Cursor makeQuery(SQLiteDatabase db) {
+    Cursor makeQuery(SQLiteDatabase db) {
         Cursor cursor = null;
         try {
             if (categoryId == 0 && (feedId == -1 || feedId == -2)) {

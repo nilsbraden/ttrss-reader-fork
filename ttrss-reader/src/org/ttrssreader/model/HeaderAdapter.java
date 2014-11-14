@@ -34,10 +34,11 @@ import android.widget.TextView;
  */
 public class HeaderAdapter extends ArrayAdapter<Header> {
     
-    protected static final String TAG = HeaderAdapter.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = HeaderAdapter.class.getSimpleName();
     
-    static final int HEADER_TYPE_CATEGORY = 0;
-    static final int HEADER_TYPE_NORMAL = 1;
+    private static final int HEADER_TYPE_CATEGORY = 0;
+    private static final int HEADER_TYPE_NORMAL = 1;
     private static final int HEADER_TYPE_COUNT = HEADER_TYPE_NORMAL + 1;
     
     private LayoutInflater mInflater;
@@ -55,7 +56,7 @@ public class HeaderAdapter extends ArrayAdapter<Header> {
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
     
-    static int getHeaderType(Header header) {
+    private static int getHeaderType(Header header) {
         
         if (header.fragment == null && header.intent == null)
             return HEADER_TYPE_CATEGORY;

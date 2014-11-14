@@ -33,7 +33,8 @@ import android.widget.Toast;
 
 public class FeedHeadlineActivity extends MenuActivity {
     
-    protected static final String TAG = FeedHeadlineActivity.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = FeedHeadlineActivity.class.getSimpleName();
     
     public static final int FEED_NO_ID = 37846914;
     
@@ -230,10 +231,10 @@ public class FeedHeadlineActivity extends MenuActivity {
     /**
      * Updates all articles from the selected feed.
      */
-    public class FeedHeadlineUpdater extends ActivityUpdater {
+    private class FeedHeadlineUpdater extends ActivityUpdater {
         private static final int DEFAULT_TASK_COUNT = 2;
         
-        public FeedHeadlineUpdater(boolean forceUpdate) {
+        private FeedHeadlineUpdater(boolean forceUpdate) {
             super(forceUpdate);
         }
         
@@ -302,7 +303,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
     }
     
-    public void hideArticleFragment() {
+    private void hideArticleFragment() {
         if (articleFragment == null)
             return;
         
@@ -318,11 +319,11 @@ public class FeedHeadlineActivity extends MenuActivity {
         selectedArticleId = Integer.MIN_VALUE;
         super.onBackPressed();
     }
-
+    
     public int getCategoryId() {
         return categoryId;
     }
-
+    
     public int getFeedId() {
         return feedId;
     }

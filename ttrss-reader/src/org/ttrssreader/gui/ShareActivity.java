@@ -32,7 +32,8 @@ import android.widget.EditText;
 
 public class ShareActivity extends MenuActivity {
     
-    protected static final String TAG = ShareActivity.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = ShareActivity.class.getSimpleName();
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PARAM_TITLE = "title";
@@ -108,7 +109,7 @@ public class ShareActivity extends MenuActivity {
         super.onDestroy();
     }
     
-    public class MyPublisherTask extends AsyncTask<Void, Integer, Void> {
+    private class MyPublisherTask extends AsyncTask<Void, Integer, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             
