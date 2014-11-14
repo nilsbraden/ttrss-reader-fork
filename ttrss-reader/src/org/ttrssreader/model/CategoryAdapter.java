@@ -32,8 +32,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class CategoryAdapter extends MainAdapter {
-    
-    protected static final String TAG = CategoryAdapter.class.getSimpleName();
+
+    @SuppressWarnings("unused")
+    private static final String TAG = CategoryAdapter.class.getSimpleName();
     
     public CategoryAdapter(Context context) {
         super(context);

@@ -33,11 +33,8 @@ public class RemoteFile implements Comparable<RemoteFile> {
     /** file size */
     public int length;
     
-    /** extension - some kind of additional info (i.e. file extension) */
-    public String ext;
-    
     /** last change date */
-    public Date updated;
+    private Date updated;
     
     /** boolean flag determining if the file is locally stored */
     public volatile boolean cached;
@@ -64,11 +61,10 @@ public class RemoteFile implements Comparable<RemoteFile> {
      * @param cached
      *            boolean flag determining if the file is locally stored
      */
-    public RemoteFile(int id, String url, int length, String ext, Date updated, boolean cached) {
+    public RemoteFile(int id, String url, int length, Date updated, boolean cached) {
         this.id = id;
         this.url = url;
         this.length = length;
-        this.ext = ext;
         this.updated = updated;
         this.cached = cached;
     }

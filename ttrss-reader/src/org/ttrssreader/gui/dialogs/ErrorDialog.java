@@ -23,8 +23,8 @@ import android.os.Bundle;
 
 public class ErrorDialog extends MyDialogFragment {
     
-    Context context;
-    String message;
+    private Context context;
+    private String message;
     
     public static ErrorDialog getInstance(Context context, String message) {
         ErrorDialog dialog = new ErrorDialog();

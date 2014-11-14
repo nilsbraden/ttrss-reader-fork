@@ -52,9 +52,10 @@ import android.widget.ListAdapter;
 
 public class PreferencesActivity extends PreferenceActivity {
     
-    protected static final String TAG = PreferencesActivity.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = PreferencesActivity.class.getSimpleName();
     
-    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+    private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PREFS_DISPLAY = "prefs_display";
     private static final String PREFS_HEADERS = "prefs_headers";
@@ -65,9 +66,9 @@ public class PreferencesActivity extends PreferenceActivity {
     private static final String PREFS_USAGE = "prefs_usage";
     private static final String PREFS_WIFI = "prefs_wifibased";
     
-    public static final int ACTIVITY_SHOW_PREFERENCES = 43;
-    public static final int ACTIVITY_CHOOSE_ATTACHMENT_FOLDER = 1;
-    public static final int ACTIVITY_CHOOSE_CACHE_FOLDER = 2;
+    static final int ACTIVITY_SHOW_PREFERENCES = 43;
+    private static final int ACTIVITY_CHOOSE_ATTACHMENT_FOLDER = 1;
+    private static final int ACTIVITY_CHOOSE_CACHE_FOLDER = 2;
     
     private static AsyncTask<Void, Void, Void> init;
     private static List<Header> _headers;
@@ -284,7 +285,7 @@ public class PreferencesActivity extends PreferenceActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
     
-    public static class PreferencesFragment extends PreferenceFragment {
+    private static class PreferencesFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);

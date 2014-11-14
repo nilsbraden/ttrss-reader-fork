@@ -19,7 +19,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.X509TrustManager;
 
-public class FakeTrustManager implements X509TrustManager {
+class FakeTrustManager implements X509TrustManager {
     
     private static final X509Certificate[] _AcceptedIssuers = new X509Certificate[] {};
     

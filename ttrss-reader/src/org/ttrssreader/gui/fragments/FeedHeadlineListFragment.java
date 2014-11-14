@@ -61,17 +61,16 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class FeedHeadlineListFragment extends MainListFragment implements TextInputAlertCallback {
     
-    protected static final String TAG = FeedHeadlineListFragment.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = FeedHeadlineListFragment.class.getSimpleName();
     
-    protected static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
+    private static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
     public static final String FRAGMENT = "FEEDHEADLINE_FRAGMENT";
     
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "ARTICLE_FEED_ID";
     public static final String ARTICLE_ID = "ARTICLE_ID";
-    public static final String FEED_TITLE = "FEED_TITLE";
     public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
-    public static final String FEED_INDEX = "INDEX";
     
     private static final int MARK_GROUP = 200;
     private static final int MARK_READ = MARK_GROUP + 1;
@@ -290,8 +289,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         return selectArticlesForCategory;
     }
     
-    class HeadlineGestureDetector extends MyGestureDetector {
-        public HeadlineGestureDetector(ActionBar actionBar, boolean hideActionbar) {
+    private class HeadlineGestureDetector extends MyGestureDetector {
+        private HeadlineGestureDetector(ActionBar actionBar, boolean hideActionbar) {
             super(actionBar, hideActionbar);
         }
         

@@ -19,16 +19,15 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.utils.Utils;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class FeedHeadlineCursorHelper extends MainCursorHelper {
+class FeedHeadlineCursorHelper extends MainCursorHelper {
     
-    protected static final String TAG = FeedHeadlineCursorHelper.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = FeedHeadlineCursorHelper.class.getSimpleName();
     
-    public FeedHeadlineCursorHelper(Context context, int feedId, int categoryId, boolean selectArticlesForCategory) {
-        super(context);
+    FeedHeadlineCursorHelper(int feedId, int categoryId, boolean selectArticlesForCategory) {
         this.feedId = feedId;
         this.categoryId = categoryId;
         this.selectArticlesForCategory = selectArticlesForCategory;

@@ -37,7 +37,6 @@ import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
-import android.content.Context;
 import android.util.Log;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
@@ -46,121 +45,97 @@ import com.google.gson.stream.MalformedJsonException;
 
 public abstract class JSONConnector {
     
-    protected static final String TAG = JSONConnector.class.getSimpleName();
+    private static final String TAG = JSONConnector.class.getSimpleName();
     
     protected static String lastError = "";
     protected static boolean hasLastError = false;
     
-    protected static final String PARAM_OP = "op";
-    protected static final String PARAM_USER = "user";
-    protected static final String PARAM_PW = "password";
-    protected static final String PARAM_CAT_ID = "cat_id";
-    protected static final String PARAM_CATEGORY_ID = "category_id";
-    protected static final String PARAM_FEED_ID = "feed_id";
-    protected static final String PARAM_FEED_URL = "feed_url";
-    protected static final String PARAM_ARTICLE_ID = "article_id";
-    protected static final String PARAM_ARTICLE_IDS = "article_ids";
-    protected static final String PARAM_LIMIT = "limit";
-    protected static final int PARAM_LIMIT_API_5 = 60;
-    public static final int PARAM_LIMIT_MAX_VALUE = 200;
-    protected static final String PARAM_VIEWMODE = "view_mode";
-    protected static final String PARAM_ORDERBY = "order_by";
-    protected static final String PARAM_SHOW_CONTENT = "show_content";
-    protected static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
-                                                                                 // 1.5.3 but is ignored on older
-                                                                                 // versions
-    protected static final String PARAM_SINCE_ID = "since_id";
-    protected static final String PARAM_SEARCH = "search";
-    protected static final String PARAM_SKIP = "skip";
-    protected static final String PARAM_MODE = "mode";
-    protected static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
-                                                         // level 1)
-    protected static final String PARAM_DATA = "data"; // optional data parameter when setting note field
-    protected static final String PARAM_IS_CAT = "is_cat";
-    protected static final String PARAM_PREF = "pref_name";
-    protected static final String PARAM_OUTPUT_MODE = "output_mode"; // output_mode (default: flc) - what kind of
-                                                                     // information to return (f-feeds, l-labels,
-                                                                     // c-categories, t-tags)
+    private static final String PARAM_OP = "op";
+    private static final String PARAM_USER = "user";
+    private static final String PARAM_PW = "password";
+    private static final String PARAM_CAT_ID = "cat_id";
+    private static final String PARAM_CATEGORY_ID = "category_id";
+    private static final String PARAM_FEED_ID = "feed_id";
+    private static final String PARAM_FEED_URL = "feed_url";
+    private static final String PARAM_ARTICLE_IDS = "article_ids";
+    private static final String PARAM_LIMIT = "limit";
+    private static final int PARAM_LIMIT_API_5 = 60;
+    private static final String PARAM_VIEWMODE = "view_mode";
+    private static final String PARAM_SHOW_CONTENT = "show_content";
+    private static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
+                                                                               // 1.5.3 but is ignored on older
+                                                                               // versions
+    private static final String PARAM_SINCE_ID = "since_id";
+    private static final String PARAM_SEARCH = "search";
+    private static final String PARAM_SKIP = "skip";
+    private static final String PARAM_MODE = "mode";
+    private static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
+                                                       // level 1)
+    private static final String PARAM_DATA = "data"; // optional data parameter when setting note field
+    private static final String PARAM_IS_CAT = "is_cat";
+    private static final String PARAM_PREF = "pref_name";
     
-    protected static final String VALUE_LOGIN = "login";
-    protected static final String VALUE_GET_CATEGORIES = "getCategories";
-    protected static final String VALUE_GET_FEEDS = "getFeeds";
-    protected static final String VALUE_GET_HEADLINES = "getHeadlines";
-    protected static final String VALUE_UPDATE_ARTICLE = "updateArticle";
-    protected static final String VALUE_CATCHUP = "catchupFeed";
-    protected static final String VALUE_UPDATE_FEED = "updateFeed";
-    protected static final String VALUE_GET_PREF = "getPref";
-    protected static final String VALUE_GET_VERSION = "getVersion";
-    protected static final String VALUE_GET_LABELS = "getLabels";
-    protected static final String VALUE_SET_LABELS = "setArticleLabel";
-    protected static final String VALUE_SHARE_TO_PUBLISHED = "shareToPublished";
-    protected static final String VALUE_FEED_SUBSCRIBE = "subscribeToFeed";
-    protected static final String VALUE_FEED_UNSUBSCRIBE = "unsubscribeFeed";
+    private static final String VALUE_LOGIN = "login";
+    private static final String VALUE_GET_CATEGORIES = "getCategories";
+    private static final String VALUE_GET_FEEDS = "getFeeds";
+    private static final String VALUE_GET_HEADLINES = "getHeadlines";
+    private static final String VALUE_UPDATE_ARTICLE = "updateArticle";
+    private static final String VALUE_CATCHUP = "catchupFeed";
+    private static final String VALUE_UPDATE_FEED = "updateFeed";
+    private static final String VALUE_GET_PREF = "getPref";
+    private static final String VALUE_GET_VERSION = "getVersion";
+    private static final String VALUE_SET_LABELS = "setArticleLabel";
+    private static final String VALUE_SHARE_TO_PUBLISHED = "shareToPublished";
+    private static final String VALUE_FEED_SUBSCRIBE = "subscribeToFeed";
+    private static final String VALUE_FEED_UNSUBSCRIBE = "unsubscribeFeed";
     
-    protected static final String VALUE_LABEL_ID = "label_id";
-    protected static final String VALUE_ASSIGN = "assign";
-    protected static final String VALUE_API_LEVEL = "getApiLevel";
-    protected static final String VALUE_OUTPUT_MODE = "flc"; // f - feeds, l - labels, c - categories, t - tags
+    private static final String VALUE_LABEL_ID = "label_id";
+    private static final String VALUE_ASSIGN = "assign";
     
-    protected static final String ERROR = "error";
-    protected static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
-    protected static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
-    protected static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
-    protected static final String API_DISABLED = "API_DISABLED";
-    protected static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
-    protected static final String STATUS = "status";
-    protected static final String API_LEVEL = "api_level";
+    private static final String ERROR = "error";
+    private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
+    private static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
+    private static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
+    private static final String API_DISABLED = "API_DISABLED";
+    private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
+    private static final String STATUS = "status";
+    private static final String API_LEVEL = "api_level";
     
-    protected static final String SESSION_ID = "session_id"; // session id as an OUT parameter
+    private static final String SESSION_ID = "session_id"; // session id as an OUT parameter
+    private static final String ID = "id";
+    
+    private static final String TITLE = "title";
+    private static final String UNREAD = "unread";
+    
+    private static final String CAT_ID = "cat_id";
+    
+    private static final String CONTENT = "content";
+    
+    private static final String URL_SHARE = "url";
+    private static final String FEED_URL = "feed_url";
+    
+    private static final String CONTENT_URL = "content_url";
+    
+    private static final String VALUE = "value";
+    private static final String VERSION = "version";
+    
+    private static final int MAX_ID_LIST_LENGTH = 100;
+    
     protected static final String SID = "sid"; // session id as an IN parameter
-    protected static final String ID = "id";
-    
-    public static final String TITLE = "title";
-    public static final String UNREAD = "unread";
-    
-    protected static final String CAT_ID = "cat_id";
-    
-    public static final String FEED_ID = "feed_id";
-    public static final String UPDATED = "updated";
-    public static final String CONTENT = "content";
-    public static final String URL = "link";
-    
-    protected static final String URL_SHARE = "url";
-    protected static final String FEED_URL = "feed_url";
-    
-    public static final String COMMENT_URL = "comments";
-    public static final String ATTACHMENTS = "attachments";
-    
-    protected static final String CONTENT_URL = "content_url";
-    
-    public static final String STARRED = "marked";
-    public static final String PUBLISHED = "published";
-    
-    protected static final String VALUE = "value";
-    protected static final String VERSION = "version";
-    protected static final String LEVEL = "level";
-    protected static final String CAPTION = "caption";
-    protected static final String CHECKED = "checked";
-    
-    protected static final String COUNTER_KIND = "kind";
-    protected static final String COUNTER_CAT = "cat";
-    protected static final String COUNTER_ID = "id";
-    protected static final String COUNTER_COUNTER = "counter";
-    
-    protected static final int MAX_ID_LIST_LENGTH = 100;
     
     protected boolean httpAuth = false;
     protected String httpUsername;
     protected String httpPassword;
     
     protected String sessionId = null;
-    protected final Object lock = new Object();
-    protected Context context;
+    
+    private final Object lock = new Object();
     private int apiLevel = -1;
     
-    public JSONConnector(Context context) {
+    public static final int PARAM_LIMIT_MAX_VALUE = 200;
+    
+    public JSONConnector() {
         refreshHTTPAuth();
-        this.context = context;
     }
     
     protected abstract InputStream doRequest(Map<String, String> params);
@@ -348,7 +323,7 @@ public abstract class JSONConnector {
         return null;
     }
     
-    public boolean sessionAlive() {
+    private boolean sessionAlive() {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
             if (!login())
@@ -852,21 +827,6 @@ public abstract class JSONConnector {
     }
     
     /**
-     * @see #getHeadlines(Integer, int, String, boolean, int, int)
-     */
-    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory) {
-        getHeadlines(articles, id, limit, viewMode, isCategory, 0);
-    }
-    
-    /**
-     * @see #getHeadlines(Integer, int, String, boolean, int, int)
-     */
-    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, int sinceId) {
-        getHeadlines(articles, id, limit, viewMode, isCategory, sinceId, null, null, new IdUpdatedArticleOmitter(null,
-                null));
-    }
-    
-    /**
      * Retrieves the specified articles.
      * 
      * @param articles
@@ -1136,66 +1096,6 @@ public abstract class JSONConnector {
             
             // Replace dots, parse integer
             ret = Integer.parseInt(response.replace(".", ""));
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null)
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                }
-        }
-        
-        return ret;
-    }
-    
-    /**
-     * Returns a Set of all existing labels. If some of the labels are checked for the given article the property
-     * "checked" is true.
-     * 
-     * @return a set of labels.
-     */
-    public Set<Label> getLabels(Integer articleId) {
-        Set<Label> ret = new HashSet<Label>();
-        if (!sessionAlive())
-            return ret;
-        
-        Map<String, String> params = new HashMap<String, String>();
-        params.put(PARAM_OP, VALUE_GET_LABELS);
-        params.put(PARAM_ARTICLE_ID, articleId.toString());
-        
-        JsonReader reader = null;
-        Label label = new Label();
-        try {
-            reader = prepareReader(params);
-            if (reader == null)
-                return ret;
-            
-            reader.beginArray();
-            while (reader.hasNext()) {
-                try {
-                    
-                    reader.beginObject();
-                    label = new Label();
-                    while (reader.hasNext()) {
-                        String name = reader.nextName();
-                        if (ID.equals(name)) {
-                            label.id = reader.nextInt();
-                        } else if (CAPTION.equals(name)) {
-                            label.caption = reader.nextString();
-                        } else if (CHECKED.equals(name)) {
-                            label.checked = reader.nextBoolean();
-                        } else {
-                            reader.skipValue();
-                        }
-                    }
-                    
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                }
-            }
-            reader.endArray();
-            ret.add(label);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

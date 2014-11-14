@@ -30,7 +30,7 @@ import com.twofortyfouram.locale.api.R;
  */
 public abstract class AbstractPluginActivity extends Activity {
     
-    protected static final String TAG = AbstractPluginActivity.class.getSimpleName();
+    private static final String TAG = AbstractPluginActivity.class.getSimpleName();
     /**
      * Flag boolean that can only be set to true via the "Don't Save"
      * {@link com.twofortyfouram.locale.platform.R.id#twofortyfouram_locale_menu_dontsave} menu item in

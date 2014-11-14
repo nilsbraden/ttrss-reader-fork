@@ -25,7 +25,7 @@ import android.util.Log;
  */
 public final class PluginBundleManager {
     
-    protected static final String TAG = PluginBundleManager.class.getSimpleName();
+    private static final String TAG = PluginBundleManager.class.getSimpleName();
     
     /**
      * Type: {@code String}.
@@ -45,7 +45,7 @@ public final class PluginBundleManager {
      * easier. For example, suppose a bug is found in how some version of the plug-in stored its Bundle. By
      * having the version, the plug-in can better detect when such bugs occur.
      */
-    public static final String BUNDLE_EXTRA_INT_VERSION_CODE = "org.ttrssreader.INT_VERSION_CODE"; //$NON-NLS-1$
+    private static final String BUNDLE_EXTRA_INT_VERSION_CODE = "org.ttrssreader.INT_VERSION_CODE"; //$NON-NLS-1$
     
     /**
      * Method to verify the content of the bundle are correct.

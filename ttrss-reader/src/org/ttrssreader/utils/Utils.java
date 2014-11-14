@@ -46,14 +46,12 @@ import android.util.Log;
 
 public class Utils {
     
-    protected static final String TAG = Utils.class.getSimpleName();
+    private static final String TAG = Utils.class.getSimpleName();
     
     public static final long SECOND = 1000;
     public static final long MINUTE = 60 * SECOND;
     public static final long HOUR = 60 * MINUTE;
     public static final long DAY = 24 * HOUR;
-    public static final long WEEK = 7 * DAY;
-    public static final long MONTH = 31 * DAY;
     
     public static final long KB = 1024;
     public static final long MB = KB * KB;
@@ -64,11 +62,6 @@ public class Utils {
     public static final int ARTICLE_LIMIT = 5000;
     
     /**
-     * Min supported versions of the Tiny Tiny RSS Server
-     */
-    public static final int SERVER_VERSION = 150;
-    
-    /**
      * Vibrate-Time for vibration when end of list is reached
      */
     public static final long SHORT_VIBRATE = 50;
@@ -77,7 +70,6 @@ public class Utils {
      * The time after which data will be fetched again from the server if asked for the data
      */
     public static final long UPDATE_TIME = MINUTE * 30;
-    public static final long HALF_UPDATE_TIME = UPDATE_TIME / 2;
     
     /**
      * The time after which the DB and other data will be cleaned up again,
@@ -279,7 +271,7 @@ public class Utils {
      * @param finished
      *            if the notification is to be removed
      */
-    public static void showRunningNotification(Context context, boolean finished, Intent intent) {
+    private static void showRunningNotification(Context context, boolean finished, Intent intent) {
         NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         
         // if finished remove notification and return, else display notification

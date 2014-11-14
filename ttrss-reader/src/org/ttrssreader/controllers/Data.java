@@ -40,10 +40,10 @@ import android.util.Log;
 @SuppressLint("UseSparseArrays")
 public class Data {
     
-    protected static final String TAG = Data.class.getSimpleName();
+    private static final String TAG = Data.class.getSimpleName();
     
     /** uncategorized */
-    public static final int VCAT_UNCAT = 0;
+    private static final int VCAT_UNCAT = 0;
     
     /** starred */
     public static final int VCAT_STAR = -1;
@@ -56,13 +56,6 @@ public class Data {
     
     /** all articles */
     public static final int VCAT_ALL = -4;
-    
-    /** read articles */
-    public static final int VCAT_READ = -6;
-    
-    public static final int TIME_CATEGORY = 1;
-    public static final int TIME_FEED = 2;
-    public static final int TIME_FEEDHEADLINE = 3;
     
     private static final String VIEW_ALL = "all_articles";
     private static final String VIEW_UNREAD = "unread";
@@ -544,7 +537,7 @@ public class Data {
         return false;
     }
     
-    public String getPref(String pref) {
+    String getPref(String pref) {
         if (Utils.isConnected(cm))
             return Controller.getInstance().getConnector().getPref(pref);
         return null;
@@ -567,7 +560,7 @@ public class Data {
         return setLabel(set, label);
     }
     
-    public boolean setLabel(Set<Integer> articleIds, Label label) {
+    private boolean setLabel(Set<Integer> articleIds, Label label) {
         
         DBHelper.getInstance().insertLabels(articleIds, label, label.checked);
         notifyListeners();

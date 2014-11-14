@@ -35,9 +35,6 @@ import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -63,19 +60,20 @@ import android.widget.TextView;
 public abstract class MenuActivity extends Activity implements IUpdateEndListener, ICacheEndListener,
         IItemSelectedListener, IDataChangedListener {
     
-    protected static final String TAG = MenuActivity.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = MenuActivity.class.getSimpleName();
     
-    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+    private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     protected final Context context = this;
-    
-    protected Updater updater;
     protected Activity activity;
-    protected boolean isVertical;
-    protected static int minSize;
-    protected static int maxSize;
-    protected int dividerSize;
-    protected int displaySize;
+    
+    private Updater updater;
+    private boolean isVertical;
+    private static int minSize;
+    private static int maxSize;
+    private int dividerSize;
+    private int displaySize;
     
     private View frameMain = null;
     private View divider = null;
@@ -175,7 +173,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         }
     }
     
-    protected void handleResize() {
+    private void handleResize() {
         int mainFrameSize = 0;
         if (isVertical) {
             mainFrameSize = calculateSize((int) (frameMain.getHeight() + mDeltaY));
@@ -477,7 +475,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         ErrorDialog.getInstance(this, message).show(getFragmentManager(), "error");
     }
     
-    protected void refreshAndUpdate() {
+    private void refreshAndUpdate() {
         initTabletLayout();
         if (!Utils.checkIsConfigInvalid()) {
             doUpdate(false);
@@ -511,7 +509,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         protected int taskCount = 0;
         protected boolean forceUpdate;
         
-        public ActivityUpdater(boolean forceUpdate) {
+        ActivityUpdater(boolean forceUpdate) {
             this.forceUpdate = forceUpdate;
             ProgressBarManager.getInstance().addProgress(activity);
             setProgressBarVisibility(true);
@@ -527,13 +525,6 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             }
             setProgress((10000 / (taskCount + 1)) * values[0]);
         }
-    }
-    
-    protected static void removeOldFragment(FragmentManager fm, Fragment fragment) {
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.remove(fragment);
-        ft.commit();
-        fm.executePendingTransactions();
     }
     
     // The "active pointer" is the one currently moving our object.

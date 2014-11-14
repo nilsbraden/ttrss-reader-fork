@@ -23,9 +23,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 
-public class CategoryCursorHelper extends MainCursorHelper {
+class CategoryCursorHelper extends MainCursorHelper {
     
-    protected static final String TAG = CategoryCursorHelper.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = CategoryCursorHelper.class.getSimpleName();
     
     /*
      * This is quite a hack. Since partial-sorting of sql-results is not possible I wasn't able to sort virtual
@@ -37,11 +38,11 @@ public class CategoryCursorHelper extends MainCursorHelper {
     private static final String INSERT = "REPLACE INTO " + MemoryDBOpenHelper.TABLE_NAME
             + " (_id, title, unread, sortId) VALUES (?, ?, ?, null)";
     
-    SQLiteDatabase memoryDb;
-    SQLiteStatement insert;
+    private SQLiteDatabase memoryDb;
+    private SQLiteStatement insert;
     
-    public CategoryCursorHelper(Context context, SQLiteDatabase memoryDb) {
-        super(context);
+    CategoryCursorHelper(SQLiteDatabase memoryDb) {
+        super();
         this.memoryDb = memoryDb;
         this.insert = memoryDb.compileStatement(INSERT);
     }
@@ -122,7 +123,7 @@ public class CategoryCursorHelper extends MainCursorHelper {
     }
     
     static class MemoryDBOpenHelper extends SQLiteOpenHelper {
-        public static final String TABLE_NAME = "categories_memory_db";
+        private static final String TABLE_NAME = "categories_memory_db";
         
         MemoryDBOpenHelper(Context context) {
             super(context, null, null, 1);

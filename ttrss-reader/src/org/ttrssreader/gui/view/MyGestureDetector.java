@@ -22,7 +22,8 @@ import android.view.MotionEvent;
 
 public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
     
-    protected static final String TAG = MyGestureDetector.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = MyGestureDetector.class.getSimpleName();
     
     private ActionBar actionBar;
     private boolean hideActionbar;

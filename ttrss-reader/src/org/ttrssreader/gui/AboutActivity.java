@@ -30,11 +30,12 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class AboutActivity extends Activity {
+class AboutActivity extends Activity {
     
-    protected static final String TAG = AboutActivity.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = AboutActivity.class.getSimpleName();
     
-    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+    private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {

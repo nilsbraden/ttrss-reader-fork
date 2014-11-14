@@ -132,10 +132,6 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         initSSLSocketFactoryEx(km, tm, random);
     }
     
-    public SSLSocketFactoryEx(SSLContext ctx) throws NoSuchAlgorithmException, KeyManagementException {
-        initSSLSocketFactoryEx(ctx);
-    }
-    
     @Override
     public String[] getDefaultCipherSuites() {
         return m_ciphers;
@@ -209,14 +205,7 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         m_ciphers = getCipherList();
     }
     
-    private void initSSLSocketFactoryEx(SSLContext ctx) throws NoSuchAlgorithmException, KeyManagementException {
-        m_ctx = ctx;
-        
-        m_protocols = getProtocolList();
-        m_ciphers = getCipherList();
-    }
-    
-    protected String[] getProtocolList() {
+    private String[] getProtocolList() {
         String[] preferredProtocols = { "TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3" };
         String[] availableProtocols = null;
         
@@ -249,7 +238,7 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         return aa.toArray(new String[0]);
     }
     
-    protected String[] getCipherList() {
+    private String[] getCipherList() {
         String[] preferredCiphers = {
                 // @formatter:off
                 // *_CHACHA20_POLY1305 are 3x to 4x faster than existing cipher suites.

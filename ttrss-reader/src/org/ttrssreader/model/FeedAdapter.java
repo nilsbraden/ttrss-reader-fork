@@ -29,8 +29,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class FeedAdapter extends MainAdapter {
-    
-    protected static final String TAG = FeedAdapter.class.getSimpleName();
+
+    @SuppressWarnings("unused")
+    private static final String TAG = FeedAdapter.class.getSimpleName();
     
     public FeedAdapter(Context context) {
         super(context);

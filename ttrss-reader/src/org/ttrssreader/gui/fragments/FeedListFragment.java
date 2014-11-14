@@ -40,13 +40,13 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class FeedListFragment extends MainListFragment {
     
-    protected static final String TAG = FeedListFragment.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = FeedListFragment.class.getSimpleName();
     
-    protected static final TYPE THIS_TYPE = TYPE.FEED;
+    private static final TYPE THIS_TYPE = TYPE.FEED;
     public static final String FRAGMENT = "FEED_FRAGMENT";
     
-    public static final String FEED_CAT_ID = "FEED_CAT_ID";
-    public static final String FEED_CAT_TITLE = "FEED_CAT_TITLE";
+    private static final String FEED_CAT_ID = "FEED_CAT_ID";
     
     private static final int MARK_GROUP = 300;
     private static final int MARK_READ = MARK_GROUP + 1;

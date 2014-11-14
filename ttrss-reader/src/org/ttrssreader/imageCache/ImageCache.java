@@ -37,7 +37,7 @@ import android.util.Log;
  */
 public class ImageCache extends AbstractCache<String, byte[]> {
     
-    protected static final String TAG = ImageCache.class.getSimpleName();
+    private static final String TAG = ImageCache.class.getSimpleName();
     
     public ImageCache(int initialCapacity, String cacheDir) {
         super("ImageCache", initialCapacity, 1);
@@ -106,7 +106,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
         Log.d(TAG, "Image cache after fillMemoryCacheFromDisk: " + cache.size());
     }
     
-    public boolean containsKey(String key) {
+    boolean containsKey(String key) {
         return cache.containsKey(getFileNameForKey(key)) || (isDiskCacheEnabled && getCacheFile((String) key).exists());
     }
     

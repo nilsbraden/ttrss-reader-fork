@@ -31,9 +31,9 @@ import android.util.Log;
 /**
  * Create a HttpClient object based on the user preferences.
  */
-public class HttpClientFactory {
+class HttpClientFactory {
     
-    protected static final String TAG = HttpClientFactory.class.getSimpleName();
+    private static final String TAG = HttpClientFactory.class.getSimpleName();
     
     private static HttpClientFactory instance;
     private SchemeRegistry registry;
@@ -67,13 +67,13 @@ public class HttpClientFactory {
         
     }
     
-    public DefaultHttpClient getHttpClient(HttpParams httpParams) {
+    DefaultHttpClient getHttpClient(HttpParams httpParams) {
         DefaultHttpClient httpInstance = new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry),
                 httpParams);
         return httpInstance;
     }
     
-    public static HttpClientFactory getInstance() {
+    static HttpClientFactory getInstance() {
         synchronized (HttpClientFactory.class) {
             if (instance == null) {
                 instance = new HttpClientFactory();

@@ -18,8 +18,9 @@ package org.ttrssreader.model.updaters;
 import org.ttrssreader.controllers.Data;
 
 public class StateSynchronisationUpdater implements IUpdatable {
-    
-    protected static final String TAG = StateSynchronisationUpdater.class.getSimpleName();
+
+    @SuppressWarnings("unused")
+    private static final String TAG = StateSynchronisationUpdater.class.getSimpleName();
     
     @Override
     public void update(Updater parent) {

@@ -35,8 +35,8 @@ import android.util.Log;
  */
 public class PostMortemReportExceptionHandler implements UncaughtExceptionHandler, Runnable {
     
-    protected static final String TAG = PostMortemReportExceptionHandler.class.getSimpleName();
-    public static final String ExceptionReportFilename = "postmortem.trace";
+    private static final String TAG = PostMortemReportExceptionHandler.class.getSimpleName();
+    private static final String ExceptionReportFilename = "postmortem.trace";
     
     // "app label + this tag" = email subject
     private static final String MSG_SUBJECT_TAG = "Exception Report";
@@ -133,7 +133,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
      * @param e
      *            - exception being handled
      */
-    protected void bubbleUncaughtException(Thread t, Throwable e) {
+    private void bubbleUncaughtException(Thread t, Throwable e) {
         if (mDefaultUEH != null) {
             if (mDefaultUEH instanceof PostMortemReportExceptionHandler)
                 ((PostMortemReportExceptionHandler) mDefaultUEH).bubbleUncaughtException(t, e);
@@ -219,7 +219,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
      *            - pass in null to force a new list to be created
      * @return Returns the list of Activities in the handler chain.
      */
-    public LinkedList<CharSequence> getActivityTrace(LinkedList<CharSequence> aTrace) {
+    private LinkedList<CharSequence> getActivityTrace(LinkedList<CharSequence> aTrace) {
         if (aTrace == null)
             aTrace = new LinkedList<CharSequence>();
         aTrace.add(mAct.getLocalClassName() + " (" + mAct.getTitle() + ")");
@@ -239,7 +239,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
      *            - exception to report on
      * @return Returns a string with a lot of debug information.
      */
-    public String getDebugReport(Throwable aException) {
+    private String getDebugReport(Throwable aException) {
         StringBuilder theErrReport = new StringBuilder();
         
         theErrReport.append(getDeviceEnvironment());
@@ -291,7 +291,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
      * @param aReport
      *            - the debug report
      */
-    protected void saveDebugReport(String aReport) {
+    private void saveDebugReport(String aReport) {
         // save report to file
         try {
             FileOutputStream theFile = mAct.openFileOutput(ExceptionReportFilename, Context.MODE_PRIVATE);
@@ -305,7 +305,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
     /**
      * Read in saved debug report and send to email app.
      */
-    public void sendDebugReportToAuthor() {
+    private void sendDebugReportToAuthor() {
         String theLine = "";
         String theTrace = "";
         try {
@@ -331,7 +331,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
      *            - the debug report to send
      * @return Returns true if the email app was launched regardless if the email was sent.
      */
-    public Boolean sendDebugReportToAuthor(String aReport) {
+    private Boolean sendDebugReportToAuthor(String aReport) {
         if (aReport != null) {
             Intent theIntent = new Intent(Intent.ACTION_SEND);
             String theSubject = getAppName() + " " + MSG_SUBJECT_TAG;
@@ -363,7 +363,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
      * @param e
      *            - the exception
      */
-    public void submit(Throwable e) {
+    private void submit(Throwable e) {
         String theErrReport = getDebugReport(e);
         saveDebugReport(theErrReport);
         // try to send file contents via email (need to do so via the UI thread)

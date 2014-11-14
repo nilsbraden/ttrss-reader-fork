@@ -21,14 +21,15 @@ import android.webkit.WebView;
 
 public class MyWebView extends WebView {
     
-    protected static final String TAG = MyWebView.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = MyWebView.class.getSimpleName();
     
     public MyWebView(Context context) {
         super(context);
     }
     
-    public OnEdgeReachedListener mOnTopReachedListener = null;
-    public OnEdgeReachedListener mOnBottomReachedListener = null;
+    private OnEdgeReachedListener mOnTopReachedListener = null;
+    private OnEdgeReachedListener mOnBottomReachedListener = null;
     private int mMinTopDistance = 0;
     private int mMinBottomDistance = 0;
     
@@ -39,20 +40,19 @@ public class MyWebView extends WebView {
      * @param bottomReachedListener
      * @param allowedDifference
      */
-    public void setOnTopReachedListener(OnEdgeReachedListener topReachedListener, int allowedDifference) {
-        mOnTopReachedListener = topReachedListener;
-        mMinTopDistance = allowedDifference;
-    }
-    
-    public void setOnBottomReachedListener(OnEdgeReachedListener bottomReachedListener, int allowedDifference) {
-        mOnBottomReachedListener = bottomReachedListener;
-        mMinBottomDistance = allowedDifference;
-    }
+    // public void setOnTopReachedListener(OnEdgeReachedListener topReachedListener, int allowedDifference) {
+    // mOnTopReachedListener = topReachedListener;
+    // mMinTopDistance = allowedDifference;
+    // }
+    // public void setOnBottomReachedListener(OnEdgeReachedListener bottomReachedListener, int allowedDifference) {
+    // mOnBottomReachedListener = bottomReachedListener;
+    // mMinBottomDistance = allowedDifference;
+    // }
     
     /**
      * Implement this interface if you want to be notified when the WebView has scrolled to the top or bottom.
      */
-    public interface OnEdgeReachedListener {
+    private interface OnEdgeReachedListener {
         void onTopReached(View v, boolean reached);
         
         void onBottomReached(View v, boolean reached);

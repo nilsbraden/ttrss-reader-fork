@@ -28,12 +28,13 @@ import android.widget.TextView;
 
 public class ErrorActivity extends Activity {
     
-    protected static final String TAG = ErrorActivity.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = ErrorActivity.class.getSimpleName();
     
-    protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+    private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     public static final int ACTIVITY_SHOW_ERROR = 42;
-    public static final int ACTIVITY_EXIT = 40;
+    static final int ACTIVITY_EXIT = 40;
     public static final String ERROR_MESSAGE = "ERROR_MESSAGE";
     
     private String message;

@@ -54,7 +54,7 @@ import android.view.Display;
  */
 public class Controller implements OnSharedPreferenceChangeListener {
     
-    protected static final String TAG = Controller.class.getSimpleName();
+    private static final String TAG = Controller.class.getSimpleName();
     
     public final static String JSON_END_URL = "api/index.php";
     
@@ -71,10 +71,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static final String MARKER_CONTENT = "CONTENT_MARKER";
     private static final String MARKER_BOTTOM_NAV = "BOTTOM_NAVIGATION_MARKER";
     
-    public static final int THEME_DARK = 1;
-    public static final int THEME_LIGHT = 2;
-    public static final int THEME_BLACK = 3;
-    public static final int THEME_WHITE = 4;
+    private static final int THEME_DARK = 1;
+    private static final int THEME_LIGHT = 2;
+    private static final int THEME_BLACK = 3;
+    private static final int THEME_WHITE = 4;
     
     private Context context;
     private WifiManager wifiManager;
@@ -319,7 +319,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     
     // ******* CONNECTION-Options ****************************
     
-    public boolean wifibasedPrefsEnabled() {
+    private boolean wifibasedPrefsEnabled() {
         // Load from Wifi-Preferences:
         String key = getStringWithSSID(Constants.ENABLE_WIFI_BASED_SUFFIX, getCurrentSSID(wifiManager), true);
         return prefs.getBoolean(key, false);
@@ -333,7 +333,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return new URL(hostname());
     }
     
-    public String hostname() {
+    private String hostname() {
         // Load from Wifi-Preferences:
         String key = getStringWithSSID(Constants.URL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
         
@@ -435,7 +435,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             return prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
     }
     
-    public boolean trustAllHosts() {
+    private boolean trustAllHosts() {
         // Load from Wifi-Preferences:
         String key = getStringWithSSID(Constants.TRUST_ALL_HOSTS, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
         
@@ -482,9 +482,9 @@ public class Controller implements OnSharedPreferenceChangeListener {
             synchronized (lockConnector) {
                 if (ttrssConnector == null) {
                     if (useOldConnector) {
-                        ttrssConnector = new ApacheJSONConnector(context);
+                        ttrssConnector = new ApacheJSONConnector();
                     } else {
-                        ttrssConnector = new JavaJSONConnector(context);
+                        ttrssConnector = new JavaJSONConnector();
                     }
                 }
             }
@@ -638,7 +638,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.supportZoomControls = supportZoomControls;
     }
     
-    public boolean allowHyphenation() {
+    private boolean allowHyphenation() {
         if (allowHyphenation == null)
             allowHyphenation = prefs.getBoolean(Constants.ALLOW_HYPHENATION, Constants.ALLOW_HYPHENATION_DEFAULT);
         return allowHyphenation;
@@ -649,7 +649,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.allowHyphenation = allowHyphenation;
     }
     
-    public String hyphenationLanguage() {
+    private String hyphenationLanguage() {
         if (hyphenationLanguage == null)
             hyphenationLanguage = prefs.getString(Constants.HYPHENATION_LANGUAGE,
                     Constants.HYPHENATION_LANGUAGE_DEFAULT);
@@ -731,7 +731,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.invertSortFeedscats = invertSortFeedsCats;
     }
     
-    public boolean alignFlushLeft() {
+    private boolean alignFlushLeft() {
         if (alignFlushLeft == null)
             alignFlushLeft = prefs.getBoolean(Constants.ALIGN_FLUSH_LEFT, Constants.ALIGN_FLUSH_LEFT_DEFAULT);
         return alignFlushLeft;

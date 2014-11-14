@@ -98,15 +98,15 @@ import android.widget.TextView;
 
 public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, TextInputAlertCallback {
     
-    protected static final String TAG = ArticleFragment.class.getSimpleName();
+    private static final String TAG = ArticleFragment.class.getSimpleName();
     
     public static final String FRAGMENT = "ARTICLE_FRAGMENT";
     
-    public static final String ARTICLE_ID = "ARTICLE_ID";
-    public static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
+    private static final String ARTICLE_ID = "ARTICLE_ID";
+    private static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
     
-    public static final String ARTICLE_MOVE = "ARTICLE_MOVE";
-    public static final int ARTICLE_MOVE_NONE = 0;
+    private static final String ARTICLE_MOVE = "ARTICLE_MOVE";
+    private static final int ARTICLE_MOVE_NONE = 0;
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
     private static final int CONTEXT_MENU_SHARE_URL = 1000;
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
@@ -467,7 +467,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
      * Starts a new activity with the url of the current article. This should open a webbrowser in most cases. If the
      * url contains spaces or newline-characters it is first trim()'ed.
      */
-    public void openLink() {
+    private void openLink() {
         if (article.url == null || article.url.length() == 0)
             return;
         
@@ -718,11 +718,11 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     /**
      * This is necessary to iterate over all HTML-Nodes and scan for images with ALT-Attributes.
      */
-    class MyTagNodeVisitor implements TagNodeVisitor {
-        public String alt = null;
+    private class MyTagNodeVisitor implements TagNodeVisitor {
+        private String alt = null;
         private String extra;
         
-        public MyTagNodeVisitor(String extra) {
+        private MyTagNodeVisitor(String extra) {
             this.extra = extra;
         }
         
@@ -856,12 +856,12 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
      * this class represents an object, which methods can be called from article's {@code WebView} javascript to
      * manipulate the article activity
      */
-    public class ArticleJSInterface {
+    private class ArticleJSInterface {
         
         /**
          * current article activity
          */
-        Activity activity;
+        private Activity activity;
         
         /**
          * public constructor, which saves calling activity as member variable
@@ -869,7 +869,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
          * @param aa
          *            current article activity
          */
-        public ArticleJSInterface(Activity aa) {
+        private ArticleJSInterface(Activity aa) {
             activity = aa;
         }
         
@@ -904,8 +904,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
     
-    class ArticleGestureDetector extends MyGestureDetector {
-        public ArticleGestureDetector(ActionBar actionBar, boolean hideActionbar) {
+    private class ArticleGestureDetector extends MyGestureDetector {
+        private ArticleGestureDetector(ActionBar actionBar, boolean hideActionbar) {
             super(actionBar, hideActionbar);
         }
         

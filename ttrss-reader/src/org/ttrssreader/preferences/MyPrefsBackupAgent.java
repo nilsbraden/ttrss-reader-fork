@@ -26,7 +26,7 @@ import android.util.Log;
  */
 public class MyPrefsBackupAgent extends BackupAgentHelper {
     
-    protected static final String TAG = MyPrefsBackupAgent.class.getSimpleName();
+    private static final String TAG = MyPrefsBackupAgent.class.getSimpleName();
     
     static final String PREFS = "org.ttrssreader_preferences";
     static final String PREFS_BACKUP_KEY = "prefs";

@@ -18,16 +18,16 @@ package org.ttrssreader.model;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.utils.Utils;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-public class FeedCursorHelper extends MainCursorHelper {
+class FeedCursorHelper extends MainCursorHelper {
     
-    protected static final String TAG = FeedCursorHelper.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = FeedCursorHelper.class.getSimpleName();
     
-    public FeedCursorHelper(Context context, int categoryId) {
-        super(context);
+    FeedCursorHelper(int categoryId) {
+        super();
         this.categoryId = categoryId;
     }
     

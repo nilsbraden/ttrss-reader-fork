@@ -25,8 +25,6 @@ import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.utils.AsyncTask;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.Loader;
@@ -36,7 +34,6 @@ import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,16 +41,17 @@ import android.widget.ListView;
 
 public abstract class MainListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
     
-    protected static final String TAG = MainListFragment.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = MainListFragment.class.getSimpleName();
     
     protected static final int TYPE_CAT_ID = 1;
     protected static final int TYPE_FEED_ID = 2;
     protected static final int TYPE_HEADLINE_ID = 3;
     
-    protected static final String SELECTED_INDEX = "selectedIndex";
-    protected static final int SELECTED_INDEX_DEFAULT = Integer.MIN_VALUE;
-    protected static final String SELECTED_ID = "selectedId";
-    protected static final int SELECTED_ID_DEFAULT = Integer.MIN_VALUE;
+    private static final String SELECTED_INDEX = "selectedIndex";
+    private static final int SELECTED_INDEX_DEFAULT = Integer.MIN_VALUE;
+    private static final String SELECTED_ID = "selectedId";
+    private static final int SELECTED_ID_DEFAULT = Integer.MIN_VALUE;
     
     protected int selectedId = SELECTED_ID_DEFAULT;
     private int scrollPosition;
@@ -198,18 +196,6 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
     }
     
     public abstract TYPE getType();
-    
-    public static Fragment recreateFragment(FragmentManager fm, Fragment f) {
-        try {
-            Fragment.SavedState savedState = fm.saveFragmentInstanceState(f);
-            Fragment newInstance = f.getClass().newInstance();
-            newInstance.setInitialSavedState(savedState);
-            return newInstance;
-        } catch (Exception e) {
-            Log.e(TAG, "Error while recreating Fragment-Instance...", e);
-            return null;
-        }
-    }
     
     public void setSelectedId(int selectedId) {
         this.selectedId = selectedId;

@@ -32,9 +32,9 @@ import android.util.Log;
  */
 public final class PluginReceiver extends BroadcastReceiver {
     
-    protected static final String TAG = PluginReceiver.class.getSimpleName();
+    private static final String TAG = PluginReceiver.class.getSimpleName();
     
-    public static final String ACTION_FIRE_SETTING = "com.twofortyfouram.locale.intent.action.FIRE_SETTING";
+    private static final String ACTION_FIRE_SETTING = "com.twofortyfouram.locale.intent.action.FIRE_SETTING";
     public static final String EXTRA_BUNDLE = "com.twofortyfouram.locale.intent.extra.BUNDLE";
     
     /**

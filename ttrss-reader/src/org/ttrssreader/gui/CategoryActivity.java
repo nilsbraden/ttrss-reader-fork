@@ -46,7 +46,7 @@ import android.widget.Toast;
 
 public class CategoryActivity extends MenuActivity implements IItemSelectedListener {
     
-    protected static final String TAG = CategoryActivity.class.getSimpleName();
+    private static final String TAG = CategoryActivity.class.getSimpleName();
     
     private static final String DIALOG_WELCOME = "welcome";
     private static final String DIALOG_UPDATE = "update";
@@ -212,10 +212,10 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     /**
      * This does a full update including all labels, feeds, categories and all articles.
      */
-    public class CategoryUpdater extends ActivityUpdater {
+    private class CategoryUpdater extends ActivityUpdater {
         private static final int DEFAULT_TASK_COUNT = 4;
         
-        public CategoryUpdater(boolean forceUpdate) {
+        private CategoryUpdater(boolean forceUpdate) {
             super(forceUpdate);
         }
         
@@ -328,7 +328,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         ft.commit();
     }
     
-    public void hideFeedFragment() {
+    private void hideFeedFragment() {
         if (feedFragment == null)
             return;
         

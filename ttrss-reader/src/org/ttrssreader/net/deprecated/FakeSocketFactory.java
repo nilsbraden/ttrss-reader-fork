@@ -29,7 +29,7 @@ import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-public class FakeSocketFactory implements SocketFactory, LayeredSocketFactory {
+class FakeSocketFactory implements SocketFactory, LayeredSocketFactory {
     
     private SSLContext sslcontext = null;
     
