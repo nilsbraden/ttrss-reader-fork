@@ -34,12 +34,15 @@ public class ReadStateUpdater implements IUpdatable {
     
     private int state;
     
+    TYPE type;
+    int id;
+    
     private Collection<Category> categories = null;
     private Collection<Feed> feeds = null;
     private Collection<Article> articles = null;
     
     public static enum TYPE {
-        ALL_CATEGORIES, ALL_FEEDS
+        ALL_CATEGORIES, ALL_FEEDS, CATEGORY, FEED
     }
     
     public ReadStateUpdater(TYPE type) {
@@ -47,35 +50,22 @@ public class ReadStateUpdater implements IUpdatable {
     }
     
     private ReadStateUpdater(TYPE type, int id) {
-        switch (type) {
-            case ALL_CATEGORIES:
-                categories = DBHelper.getInstance().getAllCategories();
-                break;
-            case ALL_FEEDS:
-                feeds = DBHelper.getInstance().getFeeds(id);
-                break;
-        }
+        this.type = type;
+        this.id = id;
     }
     
     public ReadStateUpdater(int categoryId) {
-        categories = new HashSet<Category>();
-        Category ci = DBHelper.getInstance().getCategory(categoryId);
-        if (ci != null) {
-            categories.add(ci);
-        }
+        type = TYPE.CATEGORY;
+        id = categoryId;
     }
     
     public ReadStateUpdater(int feedId, int dummy) {
         if (feedId <= 0 && feedId >= -4) { // Virtual Category...
-            categories = new HashSet<Category>();
-            Category ci = DBHelper.getInstance().getCategory(feedId);
-            if (ci != null)
-                categories.add(ci);
+            type = TYPE.CATEGORY;
+            id = feedId;
         } else {
-            feeds = new HashSet<Feed>();
-            Feed fi = DBHelper.getInstance().getFeed(feedId);
-            if (fi != null)
-                feeds.add(fi);
+            type = TYPE.FEED;
+            id = feedId;
         }
     }
     
@@ -99,6 +89,30 @@ public class ReadStateUpdater implements IUpdatable {
     
     @Override
     public void update(Updater parent) {
+        // Read appropriate data from the DB
+        switch (type) {
+            case ALL_CATEGORIES:
+                categories = DBHelper.getInstance().getAllCategories();
+                break;
+            case CATEGORY:
+                categories = new HashSet<Category>();
+                Category c = DBHelper.getInstance().getCategory(id);
+                if (c != null)
+                    categories.add(c);
+                break;
+            case ALL_FEEDS:
+                feeds = DBHelper.getInstance().getFeeds(id);
+                break;
+            case FEED:
+                feeds = new HashSet<Feed>();
+                Feed f = DBHelper.getInstance().getFeed(id);
+                if (f != null)
+                    feeds.add(f);
+                break;
+            default:
+                break;
+        }
+        
         if (categories != null) {
             for (Category ci : categories) {
                 // VirtualCats are actually Feeds (the server handles them as such) so we have to set isCat to false
