@@ -61,7 +61,7 @@ public class UpdateController {
         listeners.remove(listener);
     }
     
-    public void notifyListeners() {
+    void notifyListeners() {
         handler.sendEmptyMessage(0);
     }
     

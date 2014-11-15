@@ -253,7 +253,8 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             publishProgress(++progress);
             
             Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
-            DBHelper.getInstance().calculateCounters();
+            Data.getInstance().calculateCounters();
+            Data.getInstance().notifyListeners();
             publishProgress(taskCount); // Move progress forward to 100%
             
             // Silently try to synchronize any ids left in TABLE_MARK:

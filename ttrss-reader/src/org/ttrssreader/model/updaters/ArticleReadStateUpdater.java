@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.model.pojos.Article;
 
 public class ArticleReadStateUpdater implements IUpdatable {
@@ -62,8 +61,8 @@ public class ArticleReadStateUpdater implements IUpdatable {
             
             if (!ids.isEmpty()) {
                 DBHelper.getInstance().markArticles(ids, "isUnread", state);
-                DBHelper.getInstance().calculateCounters();
-                UpdateController.getInstance().notifyListeners();
+                Data.getInstance().calculateCounters();
+                Data.getInstance().notifyListeners();
                 Data.getInstance().setArticleRead(ids, state);
             }
         }

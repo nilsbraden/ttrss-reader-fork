@@ -17,11 +17,10 @@ package org.ttrssreader.model.updaters;
 
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.model.pojos.Article;
 
 public class StarredStateUpdater implements IUpdatable {
-
+    
     @SuppressWarnings("unused")
     private static final String TAG = StarredStateUpdater.class.getSimpleName();
     
@@ -41,8 +40,8 @@ public class StarredStateUpdater implements IUpdatable {
         if (articleState >= 0) {
             article.isStarred = articleState > 0 ? true : false;
             DBHelper.getInstance().markArticle(article.id, "isStarred", articleState);
-            DBHelper.getInstance().calculateCounters();
-            UpdateController.getInstance().notifyListeners();
+            Data.getInstance().calculateCounters();
+            Data.getInstance().notifyListeners();
             Data.getInstance().setArticleStarred(article.id, articleState);
         }
     }
