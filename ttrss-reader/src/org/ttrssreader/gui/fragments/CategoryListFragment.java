@@ -28,6 +28,7 @@ import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.AsyncTask;
 import android.app.Activity;
 import android.content.CursorLoader;
 import android.content.Loader;
@@ -100,8 +101,9 @@ public class CategoryListFragment extends MainListFragment {
         switch (item.getItemId()) {
             case MARK_READ:
                 if (id < -10)
-                    new Updater(getActivity(), new ReadStateUpdater(id, 42)).exec();
-                new Updater(getActivity(), new ReadStateUpdater(id)).exec();
+                    new Updater(getActivity(), new ReadStateUpdater(id, 42))
+                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new Updater(getActivity(), new ReadStateUpdater(id)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
             case SELECT_ARTICLES:
                 if (id < 0)

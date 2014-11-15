@@ -45,11 +45,12 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.pojos.RemoteFile;
+import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
-import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
@@ -346,7 +347,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         if (article.isUnread) {
             article.isUnread = false;
             markedRead = true;
-            new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
+            new Updater(null, new ArticleReadStateUpdater(article, feedId, 0))
+                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         
         getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
@@ -366,7 +368,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
             if (article != null && article.isUnread)
-                new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
+                new Updater(null, new ArticleReadStateUpdater(article, feedId, 0))
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         super.onStop();
         getView().setVisibility(View.GONE);
@@ -377,7 +380,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
             if (article != null && article.isUnread)
-                new Updater(null, new ReadStateUpdater(article, feedId, 0)).exec();
+                new Updater(null, new ArticleReadStateUpdater(article, feedId, 0))
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         super.onDestroy();
         if (webContainer != null)
@@ -620,18 +624,20 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead: {
                 if (article != null)
-                    new Updater(getActivity(), new ReadStateUpdater(article, article.feedId, article.isUnread ? 0 : 1))
-                            .exec();
+                    new Updater(getActivity(), new ArticleReadStateUpdater(article, article.feedId,
+                            article.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
             }
             case R.id.Article_Menu_MarkStar: {
                 if (article != null)
-                    new Updater(getActivity(), new StarredStateUpdater(article, article.isStarred ? 0 : 1)).exec();
+                    new Updater(getActivity(), new StarredStateUpdater(article, article.isStarred ? 0 : 1))
+                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
             }
             case R.id.Article_Menu_MarkPublish: {
                 if (article != null)
-                    new Updater(getActivity(), new PublishedStateUpdater(article, article.isPublished ? 0 : 1)).exec();
+                    new Updater(getActivity(), new PublishedStateUpdater(article, article.isPublished ? 0 : 1))
+                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
             }
             case R.id.Article_Menu_MarkPublishNote: {
@@ -968,7 +974,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     
     @Override
     public void onPublishNoteResult(Article a, String note) {
-        new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
+        new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note))
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
     
 }

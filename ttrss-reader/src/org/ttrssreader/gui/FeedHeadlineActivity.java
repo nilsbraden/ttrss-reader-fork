@@ -18,6 +18,7 @@ package org.ttrssreader.gui;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
@@ -252,6 +253,7 @@ public class FeedHeadlineActivity extends MenuActivity {
                 Data.getInstance().updateArticles(headlineFragment.getFeedId(), displayUnread, false, false,
                         forceUpdate);
             }
+            DBHelper.getInstance().calculateCounters();
             publishProgress(taskCount); // Move progress forward to 100%
             return null;
         }

@@ -41,6 +41,7 @@ public class StarredStateUpdater implements IUpdatable {
         if (articleState >= 0) {
             article.isStarred = articleState > 0 ? true : false;
             DBHelper.getInstance().markArticle(article.id, "isStarred", articleState);
+            DBHelper.getInstance().calculateCounters();
             UpdateController.getInstance().notifyListeners();
             Data.getInstance().setArticleStarred(article.id, articleState);
         }

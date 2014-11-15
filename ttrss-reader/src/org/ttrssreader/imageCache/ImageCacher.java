@@ -163,6 +163,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
                 Data.getInstance().updateArticles(f.id, true, false, false, true);
             }
             
+            DBHelper.getInstance().calculateCounters();
+            
             publishProgress(++progress);
             Log.i(TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
             
