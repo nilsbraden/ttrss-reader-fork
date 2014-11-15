@@ -27,6 +27,7 @@ import org.apache.http.util.EntityUtils;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -42,7 +43,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Vibrator;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 public class Utils {
     
@@ -410,6 +415,27 @@ public class Utils {
     
     public static boolean clipboardHasText(Context context) {
         return (getTextFromClipboard(context) != null);
+    }
+    
+    public static void alert(Activity activity) {
+        alert(activity, false);
+    }
+    
+    /**
+     * Alert the user by a short vibration or a flash of the whole screen.
+     * 
+     * @param activity
+     */
+    public static void alert(Activity activity, boolean error) {
+        Vibrator vib = ((Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE));
+        if (vib.hasVibrator()) {
+            vib.vibrate(Utils.SHORT_VIBRATE);
+        } else if (error) {
+            // Only flash when user tried to move forward, flashing when reaching the last article looks just wrong.
+            Animation flash = AnimationUtils.loadAnimation(activity, R.anim.flash);
+            View main = activity.findViewById(R.id.frame_all);
+            main.startAnimation(flash);
+        }
     }
     
 }

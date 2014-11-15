@@ -72,7 +72,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -820,7 +819,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     public int openNextArticle(int direction) {
         int id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
         if (id == Integer.MIN_VALUE) {
-            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            Utils.alert(getActivity(), true);
             return feedId;
         }
         
@@ -831,7 +830,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         // Find next id in this direction and see if there is another next article or not
         id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
         if (id == Integer.MIN_VALUE)
-            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            Utils.alert(getActivity());
         
         initData();
         doRefresh();
@@ -841,7 +840,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     
     public void openArticle(int articleId, int feedId, int categoryId, boolean selectArticlesForCategory, int lastMove) {
         if (articleId == Integer.MIN_VALUE) {
-            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            Utils.alert(getActivity());
             return;
         }
         

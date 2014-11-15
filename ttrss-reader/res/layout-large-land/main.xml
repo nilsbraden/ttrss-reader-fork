@@ -17,6 +17,7 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frame_all"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:baselineAligned="false"
@@ -32,6 +33,7 @@
         android:layout_width="16dp"
         android:layout_height="match_parent"
         android:layout_gravity="center"
+        android:layout_toEndOf="@+id/frame_main"
         android:layout_toRightOf="@+id/frame_main"
         android:background="@drawable/list_divider_vertical"
         tools:ignore="PxUsage" />
@@ -40,6 +42,7 @@
         android:id="@+id/frame_sub"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_toEndOf="@+id/list_divider"
         android:layout_toRightOf="@+id/list_divider" />
 
 </RelativeLayout>
