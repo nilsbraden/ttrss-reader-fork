@@ -1208,7 +1208,7 @@ public class DBHelper {
      * 
      * @return {@code true} if counters was successfully updated, {@code false} otherwise
      */
-    public void calculateCounters() {
+    void calculateCounters() {
         if (!isDBAvailable())
             return;
         
