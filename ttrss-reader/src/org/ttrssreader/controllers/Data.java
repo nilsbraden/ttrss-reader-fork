@@ -333,7 +333,6 @@ public class Data {
             
             DBHelper.getInstance().purgeLastArticles(articles.size());
             DBHelper.getInstance().insertArticles(articles);
-            notifyListeners();
             
             // Only store sinceId when doing a full cache of new articles, else it doesn't work.
             if (isCaching) {
@@ -631,7 +630,11 @@ public class Data {
         Controller.getInstance().setLastCleanup(System.currentTimeMillis());
     }
     
-    private void notifyListeners() {
+    public void calculateCounters() {
+        DBHelper.getInstance().calculateCounters();
+    }
+    
+    public void notifyListeners() {
         if (!Controller.getInstance().isHeadless())
             UpdateController.getInstance().notifyListeners();
     }

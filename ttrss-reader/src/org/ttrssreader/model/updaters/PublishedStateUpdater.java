@@ -17,7 +17,6 @@ package org.ttrssreader.model.updaters;
 
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.model.pojos.Article;
 
 public class PublishedStateUpdater implements IUpdatable {
@@ -52,8 +51,8 @@ public class PublishedStateUpdater implements IUpdatable {
         if (articleState >= 0) {
             article.isPublished = articleState > 0 ? true : false;
             DBHelper.getInstance().markArticle(article.id, "isPublished", articleState);
-            DBHelper.getInstance().calculateCounters();
-            UpdateController.getInstance().notifyListeners();
+            Data.getInstance().calculateCounters();
+            Data.getInstance().notifyListeners();
             Data.getInstance().setArticlePublished(article.id, articleState, note);
         }
     }

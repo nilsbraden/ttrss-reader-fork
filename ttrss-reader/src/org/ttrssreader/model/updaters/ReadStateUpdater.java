@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 
@@ -97,16 +96,15 @@ public class ReadStateUpdater implements IUpdatable {
                 } else {
                     Data.getInstance().setRead(ci.id, false);
                 }
-                DBHelper.getInstance().calculateCounters();
-                UpdateController.getInstance().notifyListeners();
             }
         } else if (feeds != null) {
             for (Feed fi : feeds) {
                 Data.getInstance().setRead(fi.id, false);
-                DBHelper.getInstance().calculateCounters();
-                UpdateController.getInstance().notifyListeners();
             }
         }
+        
+        Data.getInstance().calculateCounters();
+        Data.getInstance().notifyListeners();
     }
     
 }
