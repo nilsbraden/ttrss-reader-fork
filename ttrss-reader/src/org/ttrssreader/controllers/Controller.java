@@ -499,7 +499,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return getImageCache(true);
     }
     
-    public ImageCache getImageCache(boolean wait) {
+    private ImageCache getImageCache(boolean wait) {
         if (imageCache == null && wait) {
             synchronized (lockImageCache) {
                 if (imageCache == null) {
