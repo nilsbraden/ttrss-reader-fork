@@ -32,11 +32,13 @@ import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -193,19 +195,23 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(getActivity(), new ReadStateUpdater(a, feedId, a.isUnread ? 0 : 1)).exec();
+                new Updater(getActivity(), new ArticleReadStateUpdater(a, feedId, a.isUnread ? 0 : 1))
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
             case MARK_STAR:
-                new Updater(getActivity(), new StarredStateUpdater(a, a.isStarred ? 0 : 1)).exec();
+                new Updater(getActivity(), new StarredStateUpdater(a, a.isStarred ? 0 : 1))
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
             case MARK_PUBLISH:
-                new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1)).exec();
+                new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1))
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
             case MARK_PUBLISH_NOTE:
                 new TextInputAlert(this, a).show(getActivity());
                 break;
             case MARK_ABOVE_READ:
-                new Updater(getActivity(), new ReadStateUpdater(getUnreadAbove(cmi.position), feedId, 0)).exec();
+                new Updater(getActivity(), new ArticleReadStateUpdater(getUnreadAbove(cmi.position), feedId, 0))
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
             case SHARE:
                 Intent i = new Intent(Intent.ACTION_SEND);
@@ -229,9 +235,11 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             case R.id.Menu_MarkFeedRead: {
                 boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
                 if (selectArticlesForCategory) {
-                    new Updater(getActivity(), new ReadStateUpdater(categoryId), backAfterUpdate).exec();
+                    new Updater(getActivity(), new ReadStateUpdater(categoryId), backAfterUpdate)
+                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 } else {
-                    new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate).exec();
+                    new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate)
+                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
                 
                 return true;
@@ -265,7 +273,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     }
     
     public void onPublishNoteResult(Article a, String note) {
-        new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note)).exec();
+        new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note))
+                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
     
     @Override

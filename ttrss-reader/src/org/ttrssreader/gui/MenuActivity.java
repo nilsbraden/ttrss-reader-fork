@@ -381,7 +381,8 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 Controller.getInstance().setWorkOffline(!Controller.getInstance().workOffline());
                 if (!Controller.getInstance().workOffline()) {
                     // Synchronize status of articles with server
-                    new Updater(this, new StateSynchronisationUpdater()).exec();
+                    new Updater(this, new StateSynchronisationUpdater())
+                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
                 doRefresh();
                 return true;

@@ -18,6 +18,7 @@ package org.ttrssreader.gui.dialogs;
 import org.ttrssreader.R;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.AsyncTask;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -60,7 +61,7 @@ public class YesNoUpdaterDialog extends MyDialogFragment {
         builder.setPositiveButton(getResources().getString(R.string.Yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface d, final int which) {
-                new Updater(getActivity(), updater, backAfterUpdate).exec();
+                new Updater(getActivity(), updater, backAfterUpdate).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 d.dismiss();
             }
         });

@@ -333,9 +333,6 @@ public class Data {
             
             DBHelper.getInstance().purgeLastArticles(articles.size());
             DBHelper.getInstance().insertArticles(articles);
-            
-            // correct counters according to real local DB-Data
-            DBHelper.getInstance().calculateCounters();
             notifyListeners();
             
             // Only store sinceId when doing a full cache of new articles, else it doesn't work.
@@ -501,20 +498,14 @@ public class Data {
      *            ID, otherwise - feed ID
      */
     public void setRead(int id, boolean isCategory) {
-        
         Collection<Integer> markedArticleIds = DBHelper.getInstance().markRead(id, isCategory);
-        
         if (markedArticleIds != null) {
-            notifyListeners();
-            
             boolean isSync = false;
-            if (Utils.isConnected(cm)) {
+            if (Utils.isConnected(cm))
                 isSync = Controller.getInstance().getConnector().setRead(id, isCategory);
-            }
             
-            if (!isSync) {
+            if (!isSync)
                 DBHelper.getInstance().markUnsynchronizedStates(markedArticleIds, DBHelper.MARK_READ, 0);
-            }
         }
         
     }

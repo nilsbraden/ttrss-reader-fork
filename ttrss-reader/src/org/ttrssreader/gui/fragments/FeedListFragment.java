@@ -26,6 +26,7 @@ import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.AsyncTask;
 import android.app.Activity;
 import android.content.CursorLoader;
 import android.content.Loader;
@@ -102,7 +103,8 @@ public class FeedListFragment extends MainListFragment {
         
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(getActivity(), new ReadStateUpdater(adapter.getId(cmi.position), 42)).exec();
+                new Updater(getActivity(), new ReadStateUpdater(adapter.getId(cmi.position), 42))
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
             case UNSUBSCRIBE:
                 YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(
