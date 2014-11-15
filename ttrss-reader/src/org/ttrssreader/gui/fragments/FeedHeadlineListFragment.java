@@ -50,7 +50,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.net.Uri.Builder;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -371,7 +370,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         
         int id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
         if (id == Integer.MIN_VALUE) {
-            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
+            Utils.alert(getActivity(), true);
             return feedId;
         }
         
@@ -384,9 +383,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         
         // Find next id in this direction and see if there is another next article or not
         id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
-        if (id == Integer.MIN_VALUE) {
-            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(Utils.SHORT_VIBRATE);
-        }
+        if (id == Integer.MIN_VALUE)
+            Utils.alert(getActivity());
         
         if (feedId > 0)
             Controller.getInstance().lastOpenedFeeds.add(feedId);

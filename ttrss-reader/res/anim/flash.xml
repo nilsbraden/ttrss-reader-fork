@@ -15,23 +15,14 @@
     copy of the GNU General Public License along with this program; If
     not, see <http://www.gnu.org/licenses/>.
 -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/frame_all"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:baselineAligned="false"
-    android:orientation="horizontal" >
+<set xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <FrameLayout
-        android:id="@+id/frame_main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <alpha
+        android:duration="@android:integer/config_shortAnimTime"
+        android:fromAlpha="1.0"
+        android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+        android:repeatCount="1"
+        android:repeatMode="reverse"
+        android:toAlpha="0.0" />
 
-    <!-- android:background="?android:attr/windowBackground" -->
-
-    <FrameLayout
-        android:id="@+id/frame_sub"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-</RelativeLayout>
+</set>
