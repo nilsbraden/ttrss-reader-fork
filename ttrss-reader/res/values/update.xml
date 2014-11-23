@@ -18,18 +18,26 @@
 <resources>
 
     <string-array name="updates">
+        <item>Version 1.79
+            \n * Flash screen when notify is necessary and device has no vibrator
+            \n * Store size of tablet view per feed
+            \n * Fixed tab resizing in horizontal mode
+            \n * Make sure to use only one SQLite Connection throughout the whole app. Makes the UI quite smooth and you can start reading while updates are fetched in the background which was quite annoying before.
+            \n * Removed lots of dead code
+            \n * Moved some DB-Access into background tasks, missed these bits before.
+            \n</item>
         <item>Version 1.78
             \n * Enable API-Level 21 (Lollipop, 5.0)
             \n * Fixed several bugs regarding the improved TLS-security (Issue #233)
             \n * Enabled SSL- and HTTP-Auth-Preferences to be specified per Wifi network too (Issue #261)
             \n * Fixed download of attached media files (Issue #256)</item>
         <item>Version 1.77
-			\n * Added support for TLS v1.3, dropped support for SSL v3 
-			\n * Fixed problems with ImageCache not downloading images
-			\n * Added menuitem to filter \"articles with cached images\"
-			\n * Fixed some locking problems
-			\n * Updated translations, license statements and thanks
-			\n * Dropped support for android versions below 4.0 (Api-Level 14)</item>
+            \n * Added support for TLS v1.3, dropped support for SSL v3 
+            \n * Fixed problems with ImageCache not downloading images
+            \n * Added menuitem to filter \"articles with cached images\"
+            \n * Fixed some locking problems
+            \n * Updated translations, license statements and thanks
+            \n * Dropped support for android versions below 4.0 (Api-Level 14)</item>
         <item>Version 1.76
             \n * Fixed swiping gestures
             \n * Removed unnecessary preferences
@@ -85,91 +93,91 @@
             \n * Bugfixes
             \n -> Please don\'t use the play store to ask for features, we got a bugtracker on the project page for this kind of thing.</item>
         <item>Version 1.6
-			\n * Added two-pane tablet-layout
-			\n * Added preference to set some preference based on which wifi-network is currently used 
-			\n * Many changes to ImageCache and DB-access
-			\n * Updated german translation (thanks to Martin Mueller)</item>
+            \n * Added two-pane tablet-layout
+            \n * Added preference to set some preference based on which wifi-network is currently used 
+            \n * Many changes to ImageCache and DB-access
+            \n * Updated german translation (thanks to Martin Mueller)</item>
         <item>Version 1.53
-			\n * Added all drawables for different screen-sizes
-			\n * Modified "Subscribe to feed" and "Share to published" layouts
-			\n * Allow API-Level 18
-			\n * French translation (thanks to Jean-François BILGER)
-			\n * Lots of background changes and bugfixes</item>
+            \n * Added all drawables for different screen-sizes
+            \n * Modified "Subscribe to feed" and "Share to published" layouts
+            \n * Allow API-Level 18
+            \n * French translation (thanks to Jean-François BILGER)
+            \n * Lots of background changes and bugfixes</item>
         <item>Version 1.52
-			\n * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
-			\n * Hide ActionBar while scrolling down
-			\n * Better dark/light themes for articles
-			\n * Performance: faster refresh on startup
-			\n * Counters managed locally (reduces server communication)
-			\n * ActionBar buttons: read/unread, star, publish, share</item>
+            \n * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
+            \n * Hide ActionBar while scrolling down
+            \n * Better dark/light themes for articles
+            \n * Performance: faster refresh on startup
+            \n * Counters managed locally (reduces server communication)
+            \n * ActionBar buttons: read/unread, star, publish, share</item>
         <item>Version 1.51
-			\n * Replaced article-header with a custom actionbar-layout (click title to view the full title if it doesn\'t fit in the space)
-			\n * Reduce memory usage when low-memory conditions are detected
-			\n * Bugfixes</item>
+            \n * Replaced article-header with a custom actionbar-layout (click title to view the full title if it doesn\'t fit in the space)
+            \n * Reduce memory usage when low-memory conditions are detected
+            \n * Bugfixes</item>
         <item> Version 1.50
-			\n * Fixed Issue 140: View image captions (longpress on image)
-			\n * Temporary workaround for devices without menubutton, Preferences \"Show Actionbar\" (Issue 144)
-			\n * Fixed Issue 145: starred list won\'t fully sync
-			\n * Fixed Issue 150: sub date/time options in preferences menu do not auto-disable
-			\n * Fixed Issue 151: handling of disabled date/time format string
-			\n * Fixed Issue 155: category totals often don\'t update correctly
-			\n * Fixed rotation of article with dark background</item>
+            \n * Fixed Issue 140: View image captions (longpress on image)
+            \n * Temporary workaround for devices without menubutton, Preferences \"Show Actionbar\" (Issue 144)
+            \n * Fixed Issue 145: starred list won\'t fully sync
+            \n * Fixed Issue 150: sub date/time options in preferences menu do not auto-disable
+            \n * Fixed Issue 151: handling of disabled date/time format string
+            \n * Fixed Issue 155: category totals often don\'t update correctly
+            \n * Fixed rotation of article with dark background</item>
         <item>Version 1.49
-		  	\n * Added a preference to \"Invert browsing articles\"
-		  	\n * Fixed problems with the new preference-dialog
-		  	\n * Added confirmation dialog to unsubscribe from feed</item>
+            \n * Added a preference to \"Invert browsing articles\"
+            \n * Fixed problems with the new preference-dialog
+            \n * Added confirmation dialog to unsubscribe from feed</item>
         <item>Version 1.48
-			\n * New Preference-Layout, new Icons
-			\n * Fixed progressbar for ImageCache
-			\n * Fixed Exceptions when returning from article
-			\n * Fixed problem with ImageCache
-			\n * Added spanish translation (thanks to Eduardo Ruiz from http://www.edubox.org)</item>
+            \n * New Preference-Layout, new Icons
+            \n * Fixed progressbar for ImageCache
+            \n * Fixed Exceptions when returning from article
+            \n * Fixed problem with ImageCache
+            \n * Added spanish translation (thanks to Eduardo Ruiz from http://www.edubox.org)</item>
         <item>Version 1.47
-			\n * Fixed Activity-Indicators
-			\n * Implemented "Subscribe to Feed" and \"Unsubscribe\" (only Server > 1.7.6)
-			\n * Added Paste-Button for URLs in Subscribe-View
-			\n * Dark background now without white border
-			\n * Link-color for dark background set to light blue
-			\n * Articleheader layout and borders fixed
-			\n * Removed unnecessary preferences</item>
+            \n * Fixed Activity-Indicators
+            \n * Implemented "Subscribe to Feed" and \"Unsubscribe\" (only Server > 1.7.6)
+            \n * Added Paste-Button for URLs in Subscribe-View
+            \n * Dark background now without white border
+            \n * Link-color for dark background set to light blue
+            \n * Articleheader layout and borders fixed
+            \n * Removed unnecessary preferences</item>
         <item>Version 1.46
-			\n * Fixed bugs in new connection method
-			\n * Rewrote code for swipe, should work better now on all screen sizes
-			\n * New Preference: Scale article font by n%
-			\n * Fixed bugs in tasker integration
-			\n * Disabled automatic vacuum, this can still be started manually via preferences
-			\n * Added long-press options in article, share article and (if selected an URL) share URL.</item>
+            \n * Fixed bugs in new connection method
+            \n * Rewrote code for swipe, should work better now on all screen sizes
+            \n * New Preference: Scale article font by n%
+            \n * Fixed bugs in tasker integration
+            \n * Disabled automatic vacuum, this can still be started manually via preferences
+            \n * Added long-press options in article, share article and (if selected an URL) share URL.</item>
         <item>Version 1.45
-			\n * Remember reading position inside articles
-			\n * Reduce memory usage
-			\n * Several bugfixes</item>
+            \n * Remember reading position inside articles
+            \n * Reduce memory usage
+            \n * Several bugfixes</item>
         <item>Version 1.44
-			\n * Add preference for fallback to old connector which supports digest authentication but doesn\'t support SNI
-			\n * Fixed http-auth for apache connector
-			\n * Added preference to hide the button \"Mark Read\" from the actionbar
-			\n * Restore position in list after orientation change
-			\n * Fixed errors in ShareToPublish and Tasker-Integration</item>
+            \n * Add preference for fallback to old connector which supports digest authentication but doesn\'t support SNI
+            \n * Fixed http-auth for apache connector
+            \n * Added preference to hide the button \"Mark Read\" from the actionbar
+            \n * Restore position in list after orientation change
+            \n * Fixed errors in ShareToPublish and Tasker-Integration</item>
         <item>Version 1.43
             \n * Added ability to schedule updates with Tasker/Locale</item>
         <item>Version 1.42
-			\n * Switching to next or previous articles/feeds is much faster now
-			\n * Major refactoring to make use of fragments and someday be able to implement a two-pane-layout…
-			\n * Fixed several Bugs, closed forgotten cursors and layout-problems
-			\n * Switched HTTP-Library (Apache -> HttpUrlConnection) for SSL-SNI Support</item>
+            \n * Switching to next or previous articles/feeds is much faster now
+            \n * Major refactoring to make use of fragments and someday be able to implement a two-pane-layout…
+            \n * Fixed several Bugs, closed forgotten cursors and layout-problems
+            \n * Switched HTTP-Library (Apache -> HttpUrlConnection) for SSL-SNI Support</item>
         <item>Version 1.41
-    		\n * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.</item>
+            \n * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.</item>
         <item>Version 1.4
             \n * Added Label-Editing for articles
-			\n * Fixed some bugs preventing labels from beeing refreshed properly
-			\n * Fixed some UI glitches in the progressbar</item>
+            \n * Fixed some bugs preventing labels from beeing refreshed properly
+            \n * Fixed some UI glitches in the progressbar</item>
         <item>Version 1.39
             \n * Added preference for "Load images" which, when disabled, forces the Webview to not load any content from the web.
-		    \n * Fixed Issue #99 "Sharing with Firefox Sync"
-		    \n * Implemented Issue #81: Show temporarily read items in "new articles", the read articles now are all left in the displayed list.
-		    \n * Longer update-interval for background refresh</item>
+            \n * Fixed Issue #99 "Sharing with Firefox Sync"
+            \n * Implemented Issue #81: Show temporarily read items in "new articles", the read articles now are all left in the displayed list.
+            \n * Longer update-interval for background refresh</item>
         <item>Version 1.38
-		  	\n * Adapt to API-changes, number of articles to be fetched at once has been reduced to 60, got no idea why but am now dealing with it properly.
-		  	\n * Fixed some bugs in the mechanism to fetch new articles.</item>
+            \n * Adapt to API-changes, number of articles to be fetched at once has been reduced to 60, got no idea why but am now dealing with it properly.
+            \n * Fixed some bugs in the mechanism to fetch new articles.</item>
         <item>Version 1.37
             \n * Changed events, refreshing of the UI should now be really fast
             \n * Changed update-mechanism
