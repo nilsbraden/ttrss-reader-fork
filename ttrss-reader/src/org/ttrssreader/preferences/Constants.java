@@ -163,6 +163,7 @@ public class Constants {
     public static final int SINCE_ID_DEFAULT = 0;
     public static final long LAST_SYNC_DEFAULT = 0l;
     public static final long LAST_CLEANUP_DEFAULT = 0l;
+    public static final int ACTIVITY_SHOW_PREFERENCES = 43;
     
     /*
      * Resets all preferences to their default values. Only preferences which are mentioned in this class are reset, old

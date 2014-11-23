@@ -20,7 +20,7 @@
 
     <PreferenceCategory android:title="@string/ConnectionWifiPrefScreenTitle" >
         <PreferenceScreen
-            android:fragment="org.ttrssreader.gui.PreferencesActivity$PreferencesFragment"
+            android:fragment="org.ttrssreader.gui.fragments.PreferencesFragment"
             android:summary="@string/ConnectionWifiPrefScreenSummary"
             android:title="@string/ConnectionWifiPrefScreenTitle" >
             <extra
