@@ -29,6 +29,7 @@ import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
@@ -289,7 +290,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
             refreshAndUpdate();
-        } else if (resultCode == PreferencesActivity.ACTIVITY_SHOW_PREFERENCES) {
+        } else if (resultCode == Constants.ACTIVITY_SHOW_PREFERENCES) {
             refreshAndUpdate();
         } else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
             finish();
@@ -387,8 +388,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 doRefresh();
                 return true;
             case R.id.Menu_ShowPreferences:
-                startActivityForResult(new Intent(this, PreferencesActivity.class),
-                        PreferencesActivity.ACTIVITY_SHOW_PREFERENCES);
+                startActivityForResult(new Intent(this, PreferencesActivity.class), Constants.ACTIVITY_SHOW_PREFERENCES);
                 return true;
             case R.id.Menu_About:
                 startActivity(new Intent(this, AboutActivity.class));

@@ -13,41 +13,31 @@
  * GNU General Public License for more details.
  */
 
-package org.ttrssreader.preferences;
+package org.ttrssreader.gui;
 
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.fragments.WifiPreferencesFragment;
 import org.ttrssreader.model.HeaderAdapter;
+import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import android.app.backup.BackupManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 @SuppressWarnings("deprecation")
 public class WifiPreferencesActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
     
+    @SuppressWarnings("unused")
     private static final String TAG = WifiPreferencesActivity.class.getSimpleName();
     
     private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
-    private static final String PREFS_MAIN_TOP = "prefs_main_top";
-    private static final String PREFS_HTTP = "prefs_http";
-    private static final String PREFS_SSL = "prefs_ssl";
-    
-    private static final int ACTIVITY_SHOW_PREFERENCES = 43;
     public static final String KEY_SSID = "SSID";
     private String m_SSID = null;
     
@@ -59,7 +49,7 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState); // IMPORTANT!
         mDamageReport.initialize();
-        setResult(ACTIVITY_SHOW_PREFERENCES);
+        setResult(Constants.ACTIVITY_SHOW_PREFERENCES);
         
         if (needResource)
             addPreferencesFromResource(R.xml.prefs_main_top);
@@ -118,82 +108,6 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
         mDamageReport.restoreOriginalHandler();
         mDamageReport = null;
         super.onDestroy();
-    }
-    
-    private static class WifiPreferencesFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setHasOptionsMenu(true);
-            
-            String ssid = getArguments().getString(KEY_SSID);
-            String cat = getArguments().getString("cat");
-            
-            if (PREFS_MAIN_TOP.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_main_top);
-            if (PREFS_HTTP.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_http);
-            if (PREFS_SSL.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_ssl);
-            
-            initDynamicConnectionPrefs(ssid, PREFS_MAIN_TOP.equals(cat));
-        }
-        
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            return super.onCreateView(inflater, container, savedInstanceState);
-        }
-        
-        private void initDynamicConnectionPrefs(String ssid, boolean addEnableWifiPref) {
-            if (getPreferenceScreen().getPreferenceCount() != 1)
-                return;
-            if (!(getPreferenceScreen().getPreference(0) instanceof PreferenceCategory))
-                return;
-            
-            PreferenceCategory category = (PreferenceCategory) getPreferenceScreen().getPreference(0);
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            
-            for (int i = 0; i < category.getPreferenceCount(); i++) {
-                Preference pref = category.getPreference(i);
-                
-                String oldKey = pref.getKey();
-                String newKey = ssid + oldKey;
-                
-                pref.setKey(newKey);
-                
-                Object defaultValue = null;
-                if (prefs.getAll().containsKey(newKey))
-                    defaultValue = prefs.getAll().get(newKey);
-                pref.setDefaultValue(defaultValue);
-                
-                // Key of dependency has probably been renamed. Beware: This might stop working if dependencies are
-                // added in another order.
-                if (pref.getDependency() != null)
-                    pref.setDependency(ssid + pref.getDependency());
-                
-                // Remove and add again to reinitialize default values
-                category.removePreference(pref);
-                category.addPreference(pref);
-                Log.d(TAG, String.format("  oldKey: \"%s\" newKey: \"%s\"", oldKey, newKey));
-            }
-            
-            if (addEnableWifiPref) {
-                // TODO
-                String key = ssid + Constants.ENABLE_WIFI_BASED_SUFFIX;
-                CheckBoxPreference enableWifiPref = new CheckBoxPreference(getActivity());
-                enableWifiPref.setKey(key);
-                enableWifiPref.setTitle(R.string.ConnectionWifiPrefEnableTitle);
-                enableWifiPref.setSummaryOn(R.string.ConnectionWifiPrefEnabledSummary);
-                enableWifiPref.setSummaryOff(R.string.ConnectionWifiPrefDisbledSummary);
-                
-                Object defaultValue = null;
-                if (prefs.getAll().containsKey(key))
-                    defaultValue = prefs.getAll().get(key);
-                enableWifiPref.setDefaultValue(defaultValue);
-                
-                category.addPreference(enableWifiPref);
-            }
-        }
     }
     
     @Override

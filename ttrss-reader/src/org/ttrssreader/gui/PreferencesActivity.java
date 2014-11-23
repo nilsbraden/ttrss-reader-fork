@@ -16,35 +16,23 @@
 
 package org.ttrssreader.gui;
 
-import java.io.File;
 import java.util.List;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.gui.fragments.PreferencesFragment;
 import org.ttrssreader.model.HeaderAdapter;
 import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.preferences.FileBrowserHelper;
-import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
-import org.ttrssreader.preferences.WifiPreferencesActivity;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 import android.app.backup.BackupManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -57,27 +45,8 @@ public class PreferencesActivity extends PreferenceActivity {
     
     private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
-    private static final String PREFS_DISPLAY = "prefs_display";
-    private static final String PREFS_HEADERS = "prefs_headers";
-    private static final String PREFS_HTTP = "prefs_http";
-    private static final String PREFS_MAIN_TOP = "prefs_main_top";
-    private static final String PREFS_SSL = "prefs_ssl";
-    private static final String PREFS_SYSTEM = "prefs_system";
-    private static final String PREFS_USAGE = "prefs_usage";
-    private static final String PREFS_WIFI = "prefs_wifibased";
-    
-    static final int ACTIVITY_SHOW_PREFERENCES = 43;
-    private static final int ACTIVITY_CHOOSE_ATTACHMENT_FOLDER = 1;
-    private static final int ACTIVITY_CHOOSE_CACHE_FOLDER = 2;
-    
     private static AsyncTask<Void, Void, Void> init;
     private static List<Header> _headers;
-    
-    private static Preference downloadPath;
-    private static Preference cachePath;
-    private static PreferenceActivity activity;
-    
-    private Context context;
     private boolean needResource = false;
     
     @SuppressWarnings("deprecation")
@@ -86,10 +55,7 @@ public class PreferencesActivity extends PreferenceActivity {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState); // IMPORTANT!
         mDamageReport.initialize();
-        
-        context = getApplicationContext();
-        activity = this;
-        setResult(ACTIVITY_SHOW_PREFERENCES);
+        setResult(Constants.ACTIVITY_SHOW_PREFERENCES);
         
         if (needResource) {
             addPreferencesFromResource(R.xml.prefs_main_top);
@@ -101,8 +67,6 @@ public class PreferencesActivity extends PreferenceActivity {
             addPreferencesFromResource(R.xml.prefs_system);
             addPreferencesFromResource(R.xml.prefs_main_bottom);
         }
-        
-        initializePreferences(null);
     }
     
     @Override
@@ -121,68 +85,6 @@ public class PreferencesActivity extends PreferenceActivity {
             super.setListAdapter(null);
         } else {
             super.setListAdapter(new HeaderAdapter(this, _headers));
-        }
-    }
-    
-    @SuppressWarnings("deprecation")
-    private static void initializePreferences(PreferenceFragment fragment) {
-        
-        if (fragment != null) {
-            downloadPath = fragment.findPreference(Constants.SAVE_ATTACHMENT);
-            cachePath = fragment.findPreference(Constants.CACHE_FOLDER);
-        } else {
-            downloadPath = activity.findPreference(Constants.SAVE_ATTACHMENT);
-            cachePath = activity.findPreference(Constants.CACHE_FOLDER);
-        }
-        
-        if (downloadPath != null) {
-            downloadPath.setSummary(Controller.getInstance().saveAttachmentPath());
-            downloadPath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    FileBrowserHelper.getInstance().showFileBrowserActivity(activity,
-                            new File(Controller.getInstance().saveAttachmentPath()), ACTIVITY_CHOOSE_ATTACHMENT_FOLDER,
-                            callbackDownloadPath);
-                    return true;
-                }
-                
-                FileBrowserFailOverCallback callbackDownloadPath = new FileBrowserFailOverCallback() {
-                    @Override
-                    public void onPathEntered(String path) {
-                        downloadPath.setSummary(path);
-                        Controller.getInstance().setSaveAttachmentPath(path);
-                    }
-                    
-                    @Override
-                    public void onCancel() {
-                    }
-                };
-            });
-        }
-        
-        if (cachePath != null) {
-            cachePath.setSummary(Controller.getInstance().cacheFolder());
-            cachePath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    FileBrowserHelper.getInstance().showFileBrowserActivity(activity,
-                            new File(Controller.getInstance().cacheFolder()), ACTIVITY_CHOOSE_CACHE_FOLDER,
-                            callbackCachePath);
-                    return true;
-                }
-                
-                FileBrowserFailOverCallback callbackCachePath = new FileBrowserFailOverCallback() {
-                    @Override
-                    public void onPathEntered(String path) {
-                        cachePath.setSummary(path);
-                        Controller.getInstance().setCacheFolder(path);
-                    }
-                    
-                    @Override
-                    public void onCancel() {
-                    }
-                };
-            });
         }
     }
     
@@ -213,7 +115,7 @@ public class PreferencesActivity extends PreferenceActivity {
             init = new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
-                    Controller.getInstance().checkAndInitializeController(context, null);
+                    Controller.getInstance().checkAndInitializeController(getApplicationContext(), null);
                     return null;
                 }
             };
@@ -258,90 +160,6 @@ public class PreferencesActivity extends PreferenceActivity {
                 return true;
         }
         return false;
-    }
-    
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        String path = null;
-        if (resultCode == RESULT_OK && data != null) {
-            // obtain the filename
-            Uri fileUri = data.getData();
-            if (fileUri != null)
-                path = fileUri.getPath();
-        }
-        if (path != null) {
-            switch (requestCode) {
-                case ACTIVITY_CHOOSE_ATTACHMENT_FOLDER:
-                    downloadPath.setSummary(path);
-                    Controller.getInstance().setSaveAttachmentPath(path);
-                    break;
-                
-                case ACTIVITY_CHOOSE_CACHE_FOLDER:
-                    cachePath.setSummary(path);
-                    Controller.getInstance().setCacheFolder(path);
-                    break;
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-    
-    private static class PreferencesFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            
-            String cat = getArguments().getString("cat");
-            if (PREFS_DISPLAY.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_display);
-            if (PREFS_HEADERS.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_headers);
-            if (PREFS_HTTP.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_http);
-            if (PREFS_MAIN_TOP.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_main_top);
-            if (PREFS_SSL.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_ssl);
-            if (PREFS_SYSTEM.equals(cat)) {
-                addPreferencesFromResource(R.xml.prefs_system);
-                initializePreferences(this); // Manually initialize Listeners for Download- and CachePath
-            }
-            if (PREFS_USAGE.equals(cat))
-                addPreferencesFromResource(R.xml.prefs_usage);
-            if (PREFS_WIFI.equals(cat)) {
-                initWifibasedPreferences();
-            }
-        }
-        
-        private void initWifibasedPreferences() {
-            addPreferencesFromResource(R.xml.prefs_wifibased);
-            PreferenceCategory mWifibasedCategory = (PreferenceCategory) findPreference("wifibasedCategory");
-            WifiManager mWifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
-            List<WifiConfiguration> mWifiList = mWifiManager.getConfiguredNetworks();
-            
-            if (mWifiList == null)
-                return;
-            
-            for (WifiConfiguration wifi : mWifiList) {
-                // Friendly SSID-Name
-                String ssid = wifi.SSID.replaceAll("\"", "");
-                // Add PreferenceScreen for each network
-                
-                PreferenceScreen pref = getPreferenceManager().createPreferenceScreen(getActivity());
-                pref.setPersistent(false);
-                pref.setKey("wifiNetwork" + ssid);
-                pref.setTitle(ssid);
-                
-                Intent intent = new Intent(getActivity(), WifiPreferencesActivity.class);
-                intent.putExtra(WifiPreferencesActivity.KEY_SSID, ssid); // TODO: ssid == null?
-                pref.setIntent(intent);
-                if (WifiConfiguration.Status.CURRENT == wifi.status)
-                    pref.setSummary(getResources().getString(R.string.ConnectionWifiConnected));
-                else
-                    pref.setSummary(getResources().getString(R.string.ConnectionWifiNotInRange));
-                mWifibasedCategory.addPreference(pref);
-            }
-        }
-        
     }
     
     @Override

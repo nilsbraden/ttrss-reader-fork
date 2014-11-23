@@ -5,6 +5,7 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -79,7 +80,7 @@ public class FileBrowserHelper {
      * 
      * 
      */
-    public boolean showFileBrowserActivity(Activity c, File startPath, int requestcode, FileBrowserFailOverCallback callback) {
+    public boolean showFileBrowserActivity(Fragment c, File startPath, int requestcode, FileBrowserFailOverCallback callback) {
         boolean success = false;
         
         if (startPath == null) {
@@ -104,7 +105,7 @@ public class FileBrowserHelper {
         
         if (listIndex == PICK_DIRECTORY_INTENTS.length) {
             // No Filebrowser is installed => show a fallback textdialog
-            showPathTextInput(c, startPath, callback);
+            showPathTextInput(c.getActivity(), startPath, callback);
             success = false;
         }
         
