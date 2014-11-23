@@ -1,13 +1,14 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.79 ==
+== Version 1.79 (1) ==
   * Flash screen when notify is necessary and device has no vibrator
   * Store size of tablet view per feed
   * Fixed tab resizing in horizontal mode
   * Make sure to use only one SQLite Connection throughout the whole app. Makes the UI quite smooth and you can start reading while updates are fetched in the background which was quite annoying before.
   * Removed lots of dead code
   * Moved some DB-Access into background tasks, missed these bits before.
+  * Fixed some more FCs
 
 == Version 1.78 ==
   * Enable API-Level 21 (Lollipop, 5.0)
