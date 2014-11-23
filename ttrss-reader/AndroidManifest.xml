@@ -19,7 +19,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.ttrssreader"
     android:installLocation="internalOnly"
-    android:versionCode="1791"
+    android:versionCode="1792"
     android:versionName="1.79" >
 
     <uses-sdk
