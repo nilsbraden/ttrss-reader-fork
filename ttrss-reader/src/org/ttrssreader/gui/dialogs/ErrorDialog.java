@@ -17,25 +17,22 @@ package org.ttrssreader.gui.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
 public class ErrorDialog extends MyDialogFragment {
     
-    private Context context;
     private String message;
     
-    public static ErrorDialog getInstance(Context context, String message) {
+    public static ErrorDialog getInstance(String message) {
         ErrorDialog dialog = new ErrorDialog();
-        dialog.context = context;
         dialog.message = message;
         return dialog;
     }
     
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         alertDialogBuilder.setTitle("Error");
         alertDialogBuilder.setMessage(message);
         alertDialogBuilder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {

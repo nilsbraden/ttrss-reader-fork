@@ -47,8 +47,6 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     /**
      * Enable caching to the phone's SD card.
      * 
-     * @param context
-     *            the current context
      * @return
      */
     public boolean enableDiskCache() {

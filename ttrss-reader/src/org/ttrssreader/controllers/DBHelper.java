@@ -17,6 +17,7 @@ package org.ttrssreader.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -162,6 +163,7 @@ public class DBHelper {
         + " VALUES (?, ?)";
     // @formatter:on
     
+    WeakReference<Context> contextRef;
     private volatile boolean initialized = false;
     
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
@@ -182,7 +184,6 @@ public class DBHelper {
             w.unlock();
     }
     
-    private Context context;
     private OpenHelper openHelper;
     
     public synchronized OpenHelper getOpenHelper() {
@@ -211,13 +212,13 @@ public class DBHelper {
     }
     
     public synchronized void initialize(final Context context) {
-        this.context = context;
+        this.contextRef = new WeakReference<Context>(context); // TODO: Remove leak of context
         new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... params) {
                 
                 // Check if deleteDB is scheduled or if DeleteOnStartup is set
                 if (Controller.getInstance().isDeleteDBScheduled()) {
-                    if (deleteDB()) {
+                    if (deleteDB(context)) {
                         Controller.getInstance().setDeleteDBScheduled(false);
                         initializeDBHelper();
                         return null; // Don't need to check if DB is corrupted, it is NEW!
@@ -252,9 +253,7 @@ public class DBHelper {
                         if (dbFile.delete())
                             initializeDBHelper();
                         ErrorDialog
-                                .getInstance(
-                                        context,
-                                        "The Database was corrupted and had to be recreated. If this happened more than once to you please let me know under what circumstances this happened.");
+                                .getInstance("The Database was corrupted and had to be recreated. If this happened more than once to you please let me know under what circumstances this happened.");
                     } finally {
                         if (c != null && !c.isClosed())
                             c.close();
@@ -268,6 +267,7 @@ public class DBHelper {
     
     @SuppressWarnings("deprecation")
     private synchronized boolean initializeDBHelper() {
+        final Context context = contextRef.get();
         if (context == null) {
             Log.e(TAG, "Can't handle internal DB without Context-Object.");
             return false;
@@ -324,7 +324,7 @@ public class DBHelper {
         return true;
     }
     
-    private synchronized boolean deleteDB() {
+    private synchronized boolean deleteDB(final Context context) {
         if (context == null)
             return false;
         

@@ -17,6 +17,7 @@
 package org.ttrssreader.controllers;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -77,7 +78,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private static final int THEME_BLACK = 3;
     private static final int THEME_WHITE = 4;
     
-    private Context context;
+    private WeakReference<Context> contextRef;
     private WifiManager wifiManager;
     
     private JSONConnector ttrssConnector;
@@ -175,7 +176,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     public void initialize(final Context context) {
-        this.context = context;
+        this.contextRef = new WeakReference<Context>(context);
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         
         synchronized (lockInitialize) {
@@ -243,6 +244,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
     
     private void reloadTheme() {
+        Context context = contextRef.get();
+        if (context == null)
+            return;
+        
         // Article-Prefetch-Stuff from Raw-Ressources and System
         ST htmlTmpl = new ST(context.getResources().getString(R.string.HTML_TEMPLATE), TEMPLATE_DELIMITER_START,
                 TEMPLATE_DELIMITER_END);
