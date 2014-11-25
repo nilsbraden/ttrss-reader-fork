@@ -47,6 +47,7 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.WindowManager;
 
 /**
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
@@ -173,71 +174,72 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return InstanceHolder.instance;
     }
     
-    public void checkAndInitializeController(final Context context, final Display display) {
+    public void initialize(final Context context) {
+        this.context = context;
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        
         synchronized (lockInitialize) {
-            this.context = context;
-            this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             
-            if (!initialized) {
-                initializeController(display);
-                initialized = true;
-            }
-        }
-    }
-    
-    private void initializeController(final Display display) {
-        prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        
-        // Initially read absolutely necessary preferences:
-        sizeVerticalCategory = prefs.getInt(SIZE_VERTICAL_CATEGORY, -1);
-        sizeHorizontalCategory = prefs.getInt(SIZE_HORIZONTAL_CATEGORY, -1);
-        
-        // Check for new installation
-        if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
-            newInstallation = true;
-        }
-        
-        // Attempt to initialize some stuff in a background-thread to reduce loading time. Start a login-request
-        // separately because this takes some time. Also initialize SSL-Stuff since the login needs this.
-        new AsyncTask<Void, Void, Void>() {
-            protected Void doInBackground(Void... params) {
-                try {
+            if (initialized)
+                return;
+            
+            // Attempt to initialize some stuff in a background-thread to reduce loading time. Start a login-request
+            // separately because this takes some time. Also initialize SSL-Stuff since the login needs this.
+            new AsyncTask<Void, Void, Void>() {
+                protected Void doInBackground(Void... params) {
+                    wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                     
-                    if (Controller.getInstance().trustAllHosts()) {
-                        // Ignore if Certificate matches host:
-                        SSLUtils.trustAllHost();
+                    // Initially read absolutely necessary preferences:
+                    sizeVerticalCategory = prefs.getInt(SIZE_VERTICAL_CATEGORY, -1);
+                    sizeHorizontalCategory = prefs.getInt(SIZE_HORIZONTAL_CATEGORY, -1);
+                    
+                    // Check for new installation
+                    if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
+                        newInstallation = true;
+                    }
+                    try {
+                        
+                        if (Controller.getInstance().trustAllHosts()) {
+                            // Ignore if Certificate matches host:
+                            SSLUtils.trustAllHost();
+                        }
+                        
+                        if (Controller.getInstance().useKeystore()) {
+                            // Trust certificates from keystore:
+                            SSLUtils.initPrivateKeystore(Controller.getInstance().getKeystorePassword());
+                        } else if (Controller.getInstance().trustAllSsl()) {
+                            // Trust all certificates:
+                            SSLUtils.trustAllCert();
+                        } else {
+                            // Normal certificate-checks:
+                            SSLUtils.initSslSocketFactory(null, null);
+                        }
+                        
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                     
-                    if (Controller.getInstance().useKeystore()) {
-                        // Trust certificates from keystore:
-                        SSLUtils.initPrivateKeystore(Controller.getInstance().getKeystorePassword());
-                    } else if (Controller.getInstance().trustAllSsl()) {
-                        // Trust all certificates:
-                        SSLUtils.trustAllCert();
-                    } else {
-                        // Normal certificate-checks:
-                        SSLUtils.initSslSocketFactory(null, null);
-                    }
+                    // This will be accessed when displaying an article or starting the imageCache. When caching it
+                    // is done
+                    // anyway so we can just do it in background and the ImageCache starts once it is done.
+                    getImageCache();
                     
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    // Only need once we are displaying the feed-list or an article...
+                    Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
+                            .getDefaultDisplay();
+                    refreshDisplayMetrics(display);
+                    
+                    // Loads all article and webview related resources
+                    reloadTheme();
+                    
+                    enableHttpResponseCache(context);
+                    
+                    return null;
                 }
-                
-                // This will be accessed when displaying an article or starting the imageCache. When caching it is done
-                // anyway so we can just do it in background and the ImageCache starts once it is done.
-                getImageCache();
-                
-                // Only need once we are displaying the feed-list or an article...
-                refreshDisplayMetrics(display);
-                
-                // Loads all article and webview related resources
-                reloadTheme();
-                
-                enableHttpResponseCache(context);
-                
-                return null;
-            }
-        }.execute();
+            }.execute();
+            
+            initialized = true;
+        }
     }
     
     private void reloadTheme() {
