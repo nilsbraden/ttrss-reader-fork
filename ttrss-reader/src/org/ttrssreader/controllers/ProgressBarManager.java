@@ -18,26 +18,22 @@ package org.ttrssreader.controllers;
 import android.app.Activity;
 
 public class ProgressBarManager {
-
+    
     @SuppressWarnings("unused")
     private static final String TAG = ProgressBarManager.class.getSimpleName();
     
-    private static ProgressBarManager instance = null;
     private int progressIndeterminateCount = 0;
     
-    // Singleton
+    // Singleton (see http://stackoverflow.com/a/11165926)
     private ProgressBarManager() {
     }
     
+    private static class InstanceHolder {
+        private static final ProgressBarManager instance = new ProgressBarManager();
+    }
+    
     public static ProgressBarManager getInstance() {
-        if (instance == null) {
-            synchronized (ProgressBarManager.class) {
-                if (instance == null) {
-                    instance = new ProgressBarManager();
-                }
-            }
-        }
-        return instance;
+        return InstanceHolder.instance;
     }
     
     public void addProgress(Activity activity) {
