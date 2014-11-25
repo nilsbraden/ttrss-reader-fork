@@ -21,8 +21,6 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.utils.AsyncTask;
 import android.app.Application;
-import android.content.Context;
-import android.view.WindowManager;
 
 public class MyApplication extends Application {
     
@@ -43,11 +41,10 @@ public class MyApplication extends Application {
     }
     
     protected void initSingletons() {
-        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         ProgressBarManager.getInstance();
-        Controller.getInstance().checkAndInitializeController(this, wm.getDefaultDisplay());
-        DBHelper.getInstance().checkAndInitializeDB(this);
-        Data.getInstance().checkAndInitializeData(this);
+        Controller.getInstance().initialize(this);
+        DBHelper.getInstance().initialize(this);
+        Data.getInstance().initialize(this);
         Data.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
     }
     

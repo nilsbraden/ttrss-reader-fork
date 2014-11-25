@@ -35,6 +35,7 @@ import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.pojos.RemoteFile;
+import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
@@ -209,54 +210,60 @@ public class DBHelper {
         return InstanceHolder.instance;
     }
     
-    public synchronized void checkAndInitializeDB(final Context context) {
+    public synchronized void initialize(final Context context) {
         this.context = context;
-        
-        // Check if deleteDB is scheduled or if DeleteOnStartup is set
-        if (Controller.getInstance().isDeleteDBScheduled()) {
-            if (deleteDB()) {
-                Controller.getInstance().setDeleteDBScheduled(false);
-                initializeDBHelper();
-                return; // Don't need to check if DB is corrupted, it is NEW!
-            }
-        }
-        
-        // Initialize DB
-        if (!initialized) {
-            initializeDBHelper();
-        } else if (getOpenHelper() == null) {
-            initializeDBHelper();
-        } else {
-            return; // DB was already initialized, no need to check anything.
-        }
-        
-        // Test if DB is accessible, backup and delete if not
-        if (initialized) {
-            Cursor c = null;
-            readLock(true);
-            try {
-                // Try to access the DB
-                c = getOpenHelper().getReadableDatabase().rawQuery("SELECT COUNT(*) FROM " + TABLE_CATEGORIES, null);
-                c.getCount();
-                if (c.moveToFirst())
-                    c.getInt(0);
+        new AsyncTask<Void, Void, Void>() {
+            protected Void doInBackground(Void... params) {
                 
-            } catch (Exception e) {
-                Log.e(TAG, "Database was corrupted, creating a new one...", e);
-                closeDB();
-                File dbFile = context.getDatabasePath(DATABASE_NAME);
-                if (dbFile.delete())
+                // Check if deleteDB is scheduled or if DeleteOnStartup is set
+                if (Controller.getInstance().isDeleteDBScheduled()) {
+                    if (deleteDB()) {
+                        Controller.getInstance().setDeleteDBScheduled(false);
+                        initializeDBHelper();
+                        return null; // Don't need to check if DB is corrupted, it is NEW!
+                    }
+                }
+                
+                // Initialize DB
+                if (!initialized) {
                     initializeDBHelper();
-                ErrorDialog
-                        .getInstance(
-                                context,
-                                "The Database was corrupted and had to be recreated. If this happened more than once to you please let me know under what circumstances this happened.");
-            } finally {
-                if (c != null && !c.isClosed())
-                    c.close();
-                readLock(false);
+                } else if (getOpenHelper() == null) {
+                    initializeDBHelper();
+                } else {
+                    return null; // DB was already initialized, no need to check anything.
+                }
+                
+                // Test if DB is accessible, backup and delete if not
+                if (initialized) {
+                    Cursor c = null;
+                    readLock(true);
+                    try {
+                        // Try to access the DB
+                        c = getOpenHelper().getReadableDatabase().rawQuery("SELECT COUNT(*) FROM " + TABLE_CATEGORIES,
+                                null);
+                        c.getCount();
+                        if (c.moveToFirst())
+                            c.getInt(0);
+                        
+                    } catch (Exception e) {
+                        Log.e(TAG, "Database was corrupted, creating a new one...", e);
+                        closeDB();
+                        File dbFile = context.getDatabasePath(DATABASE_NAME);
+                        if (dbFile.delete())
+                            initializeDBHelper();
+                        ErrorDialog
+                                .getInstance(
+                                        context,
+                                        "The Database was corrupted and had to be recreated. If this happened more than once to you please let me know under what circumstances this happened.");
+                    } finally {
+                        if (c != null && !c.isClosed())
+                            c.close();
+                        readLock(false);
+                    }
+                }
+                return null;
             }
-        }
+        }.execute();
     }
     
     @SuppressWarnings("deprecation")

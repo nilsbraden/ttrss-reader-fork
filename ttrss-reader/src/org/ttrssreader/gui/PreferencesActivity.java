@@ -115,7 +115,7 @@ public class PreferencesActivity extends PreferenceActivity {
             init = new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
-                    Controller.getInstance().checkAndInitializeController(getApplicationContext(), null);
+                    Controller.getInstance().initialize(getApplicationContext());
                     return null;
                 }
             };
@@ -154,7 +154,7 @@ public class PreferencesActivity extends PreferenceActivity {
                 return true;
             case R.id.Preferences_Menu_ResetDatabase:
                 Controller.getInstance().setDeleteDBScheduled(true);
-                DBHelper.getInstance().checkAndInitializeDB(this);
+                DBHelper.getInstance().initialize(this);
                 this.finish();
                 startActivity(new Intent().setComponent(comp));
                 return true;

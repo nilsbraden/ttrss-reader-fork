@@ -264,7 +264,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             startActivity(intent);
         } else {
             UpdateController.getInstance().registerActivity(this);
-            DBHelper.getInstance().checkAndInitializeDB(this);
+            DBHelper.getInstance().initialize(this);
         }
         refreshAndUpdate();
     }

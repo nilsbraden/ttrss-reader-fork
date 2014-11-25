@@ -86,7 +86,7 @@ public class Data {
         return InstanceHolder.instance;
     }
     
-    public synchronized void checkAndInitializeData(final Context context) {
+    public synchronized void initialize(final Context context) {
         this.context = context;
         if (context != null)
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
