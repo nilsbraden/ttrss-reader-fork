@@ -102,6 +102,7 @@ public class CategoryAdapter extends MainAdapter {
     
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        Context context = parent.getContext();
         if (position >= getCount() || position < 0)
             return new View(context);
         

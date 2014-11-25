@@ -473,7 +473,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
     }
     
     protected void showErrorDialog(String message) {
-        ErrorDialog.getInstance(this, message).show(getFragmentManager(), "error");
+        ErrorDialog.getInstance(message).show(getFragmentManager(), "error");
     }
     
     private void refreshAndUpdate() {

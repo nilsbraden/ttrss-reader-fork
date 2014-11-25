@@ -246,7 +246,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             
             // This stuff will be done in background without UI-notification, but the progress-calls will be done anyway
             // to ensure the UI is refreshed properly.
-            Data.getInstance().updateVirtualCategories();
+            Data.getInstance().updateVirtualCategories(getApplicationContext());
             publishProgress(++progress);
             
             Data.getInstance().updateCategories(false);

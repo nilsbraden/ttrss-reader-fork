@@ -52,7 +52,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private static volatile int progressImageDownload;
     
     private ICacheEndListener parent;
-    private Context context;
+    ConnectivityManager cm;
     
     private boolean onlyArticles;
     private long cacheSizeMax;
@@ -64,10 +64,10 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private long start;
     private Map<Integer, DownloadImageTask> map;
     
-    ImageCacher(ICacheEndListener parent, Context context, boolean onlyArticles) {
+    ImageCacher(ICacheEndListener parent, final Context context, boolean onlyArticles) {
         this.parent = parent;
-        this.context = context;
         this.onlyArticles = onlyArticles;
+        this.cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         
         // Create Handler in a new Thread so all tasks are started in this new thread instead of the main UI-Thread
         myHandler = new MyHandler();
@@ -127,7 +127,6 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
         start = System.currentTimeMillis();
         
         while (true) {
-            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (!Utils.checkConnected(cm)) {
                 Log.e(TAG, "No connectivity, aborting...");
                 break;

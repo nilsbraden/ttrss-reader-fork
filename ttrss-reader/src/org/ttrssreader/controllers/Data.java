@@ -60,8 +60,6 @@ public class Data {
     private static final String VIEW_ALL = "all_articles";
     private static final String VIEW_UNREAD = "unread";
     
-    private Context context;
-    
     private long time = 0;
     
     private long articlesCached;
@@ -87,7 +85,6 @@ public class Data {
     }
     
     public synchronized void initialize(final Context context) {
-        this.context = context;
         if (context != null)
             cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
@@ -389,7 +386,7 @@ public class Data {
     
     // *** CATEGORIES *******************************************************************
     
-    public Set<Category> updateVirtualCategories() {
+    public Set<Category> updateVirtualCategories(final Context context) {
         if (virtCategoriesChanged > System.currentTimeMillis() - Utils.UPDATE_TIME)
             return null;
         
@@ -399,13 +396,11 @@ public class Data {
         String vCatStarredArticles = "";
         String uncatFeeds = "";
         
-        if (context != null) {
-            vCatAllArticles = (String) context.getText(R.string.VCategory_AllArticles);
-            vCatFreshArticles = (String) context.getText(R.string.VCategory_FreshArticles);
-            vCatPublishedArticles = (String) context.getText(R.string.VCategory_PublishedArticles);
-            vCatStarredArticles = (String) context.getText(R.string.VCategory_StarredArticles);
-            uncatFeeds = (String) context.getText(R.string.Feed_UncategorizedFeeds);
-        }
+        vCatAllArticles = (String) context.getText(R.string.VCategory_AllArticles);
+        vCatFreshArticles = (String) context.getText(R.string.VCategory_FreshArticles);
+        vCatPublishedArticles = (String) context.getText(R.string.VCategory_PublishedArticles);
+        vCatStarredArticles = (String) context.getText(R.string.VCategory_StarredArticles);
+        uncatFeeds = (String) context.getText(R.string.Feed_UncategorizedFeeds);
         
         Set<Category> vCats = new LinkedHashSet<Category>();
         vCats.add(new Category(VCAT_ALL, vCatAllArticles, DBHelper.getInstance().getUnreadCount(VCAT_ALL, true)));

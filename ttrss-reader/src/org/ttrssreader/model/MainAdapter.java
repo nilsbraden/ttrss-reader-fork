@@ -31,11 +31,8 @@ public abstract class MainAdapter extends SimpleCursorAdapter {
     
     private static final int layout = R.layout.main;
     
-    protected Context context;
-    
     MainAdapter(Context context) {
         super(context, layout, null, new String[] {}, new int[] {}, 0);
-        this.context = context;
     }
     
     @Override

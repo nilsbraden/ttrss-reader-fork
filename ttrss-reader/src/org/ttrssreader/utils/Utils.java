@@ -242,6 +242,8 @@ public class Utils {
      *            the context
      */
     public static void showFinishedNotification(String content, int time, boolean error, Context context, Intent intent) {
+        if (context == null)
+            return;
         
         NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         
@@ -277,6 +279,9 @@ public class Utils {
      *            if the notification is to be removed
      */
     private static void showRunningNotification(Context context, boolean finished, Intent intent) {
+        if (context == null)
+            return;
+        
         NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         
         // if finished remove notification and return, else display notification

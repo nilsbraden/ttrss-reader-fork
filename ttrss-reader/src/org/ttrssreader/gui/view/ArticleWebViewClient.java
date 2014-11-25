@@ -20,6 +20,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -130,10 +131,10 @@ public class ArticleWebViewClient extends WebViewClient {
     private class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
         private final static int BUFFER = (int) Utils.KB;
         
-        private Context context;
+        private WeakReference<Context> contextRef;
         
         public AsyncMediaDownloader(Context context) {
-            this.context = context;
+            this.contextRef = new WeakReference<Context>(context);
         }
         
         protected Void doInBackground(URL... urls) {
@@ -141,17 +142,17 @@ public class ArticleWebViewClient extends WebViewClient {
             if (urls.length < 1) {
                 String msg = "No URL given, skipping download...";
                 Log.w(TAG, msg);
-                Utils.showFinishedNotification(msg, 0, true, context);
+                Utils.showFinishedNotification(msg, 0, true, contextRef.get());
                 return null;
             } else if (!externalStorageState()) {
                 String msg = "External Storage not available, skipping download...";
                 Log.w(TAG, msg);
-                Utils.showFinishedNotification(msg, 0, true, context);
+                Utils.showFinishedNotification(msg, 0, true, contextRef.get());
                 return null;
             }
             
             long start = System.currentTimeMillis();
-            Utils.showRunningNotification(context, false);
+            Utils.showRunningNotification(contextRef.get(), false);
             
             // Use configured output directory
             File folder = new File(Controller.getInstance().saveAttachmentPath());
@@ -205,15 +206,15 @@ public class ArticleWebViewClient extends WebViewClient {
                     intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
                 
                 Log.i(TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + size);
-                Utils.showFinishedNotification(file.getAbsolutePath(), time, false, context, intent);
+                Utils.showFinishedNotification(file.getAbsolutePath(), time, false, contextRef.get(), intent);
                 
             } catch (IOException e) {
                 String msg = "Error while downloading: " + e;
                 Log.e(TAG, msg, e);
-                Utils.showFinishedNotification(msg, 0, true, context);
+                Utils.showFinishedNotification(msg, 0, true, contextRef.get());
             } finally {
                 // Remove "running"-notification
-                Utils.showRunningNotification(context, true);
+                Utils.showRunningNotification(contextRef.get(), true);
                 if (bout != null) {
                     try {
                         bout.close();
