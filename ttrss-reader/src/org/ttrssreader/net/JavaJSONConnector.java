@@ -82,7 +82,6 @@ public class JavaJSONConnector extends JSONConnector {
             // server.
             Log.w(TAG, "SSLPeerUnverifiedException in doRequest(): " + formatException(e));
         } catch (SSLException e) {
-            e.printStackTrace();
             if ("No peer certificate".equals(e.getMessage())) {
                 // Handle this by ignoring it, this occurrs very often when the connection is instable.
                 Log.w(TAG, "SSLException in doRequest(): " + formatException(e));
@@ -98,7 +97,6 @@ public class JavaJSONConnector extends JSONConnector {
         } catch (Exception e) {
             hasLastError = true;
             lastError = "Exception in doRequest(): " + formatException(e);
-            e.printStackTrace();
         }
         
         return null;

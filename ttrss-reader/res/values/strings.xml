@@ -307,5 +307,8 @@
     <string name="LightTheme">Light Theme</string>
     <string name="BlackTheme">Black Theme</string>
     <string name="WhiteTheme">White Theme</string>
+    <string name="Error.SSL.Keystore">Couldn\'t load private keystore.</string>
+    <string name="Error.SSL.TrustAllHosts">Couldn\'t configure SSL to trust all hosts.</string>
+    <string name="Error.SSL.SocketFactory">Couldn\'t create SSLSocketFactory, SSL-Connections cannot be established.</string>
 
 </resources>
