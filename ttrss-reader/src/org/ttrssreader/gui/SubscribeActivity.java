@@ -41,7 +41,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-class SubscribeActivity extends MenuActivity {
+public class SubscribeActivity extends MenuActivity {
     
     @SuppressWarnings("unused")
     private static final String TAG = SubscribeActivity.class.getSimpleName();
