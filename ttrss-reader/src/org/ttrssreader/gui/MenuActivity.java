@@ -66,7 +66,6 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
     
     private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
-    protected final Context context = this;
     protected Activity activity;
     
     private Updater updater;
@@ -112,7 +111,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         displaySize = Controller.displayWidth;
         if (isVertical) {
             TypedValue tv = new TypedValue();
-            context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true);
+            getApplicationContext().getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true);
             int actionBarHeight = getResources().getDimensionPixelSize(tv.resourceId);
             displaySize = Controller.displayHeight - actionBarHeight;
         }
@@ -139,8 +138,8 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             if (isVertical) {
                 // calculate height of divider
                 int padding = divider.getPaddingTop() + divider.getPaddingBottom();
-                dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, context
-                        .getResources().getDisplayMetrics()));
+                dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding,
+                        getApplicationContext().getResources().getDisplayMetrics()));
                 
                 // Create LayoutParams for all three views
                 lpMain.height = mainFrameSize;
@@ -149,8 +148,8 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             } else {
                 // calculate width of divider
                 int padding = divider.getPaddingLeft() + divider.getPaddingRight();
-                dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding, context
-                        .getResources().getDisplayMetrics()));
+                dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding,
+                        getApplicationContext().getResources().getDisplayMetrics()));
                 
                 // Create LayoutParams for all three views
                 lpMain.width = mainFrameSize;
