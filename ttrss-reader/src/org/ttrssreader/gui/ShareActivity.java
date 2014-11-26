@@ -78,7 +78,7 @@ public class ShareActivity extends MenuActivity {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progress = ProgressDialog.show(context, null, "Sending...");
+                progress = ProgressDialog.show(getApplicationContext(), null, "Sending...");
                 new MyPublisherTask().execute();
             }
         });

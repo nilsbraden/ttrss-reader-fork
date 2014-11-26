@@ -45,7 +45,7 @@ class SubscribeActivity extends MenuActivity {
     
     @SuppressWarnings("unused")
     private static final String TAG = SubscribeActivity.class.getSimpleName();
-
+    
     private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
     
     private static final String PARAM_FEEDURL = "feed_url";
@@ -79,7 +79,7 @@ class SubscribeActivity extends MenuActivity {
         feedUrl = (EditText) findViewById(R.id.subscribe_url);
         feedUrl.setText(urlValue);
         
-        categoriesAdapter = new SimpleCategoryAdapter(context);
+        categoriesAdapter = new SimpleCategoryAdapter(getApplicationContext());
         categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorieSpinner = (Spinner) findViewById(R.id.subscribe_categories);
         categorieSpinner.setAdapter(categoriesAdapter);
@@ -91,7 +91,7 @@ class SubscribeActivity extends MenuActivity {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progress = ProgressDialog.show(context, null, "Sending...");
+                progress = ProgressDialog.show(getApplicationContext(), null, "Sending...");
                 new MyPublisherTask().execute();
             }
         });
