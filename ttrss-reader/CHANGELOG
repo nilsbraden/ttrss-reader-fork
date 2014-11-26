@@ -1,7 +1,7 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
-== Version 1.79 (1) ==
+== Version 1.79 (2) ==
   * Flash screen when notify is necessary and device has no vibrator
   * Store size of tablet view per feed
   * Fixed tab resizing in horizontal mode
@@ -9,6 +9,8 @@
   * Removed lots of dead code
   * Moved some DB-Access into background tasks, missed these bits before.
   * Fixed some more FCs
+  * Fixed "Accept all certificates" not working (Issue #263)
+  * Faster startup
 
 == Version 1.78 ==
   * Enable API-Level 21 (Lollipop, 5.0)
