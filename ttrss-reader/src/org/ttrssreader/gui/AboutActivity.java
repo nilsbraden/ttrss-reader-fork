@@ -30,7 +30,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
-class AboutActivity extends Activity {
+public class AboutActivity extends Activity {
     
     @SuppressWarnings("unused")
     private static final String TAG = AboutActivity.class.getSimpleName();
