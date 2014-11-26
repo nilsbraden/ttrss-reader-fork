@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.Set;
 import org.stringtemplate.v4.ST;
@@ -49,6 +50,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 /**
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
@@ -198,26 +200,39 @@ public class Controller implements OnSharedPreferenceChangeListener {
                     if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
                         newInstallation = true;
                     }
-                    try {
-                        
-                        if (Controller.getInstance().trustAllHosts()) {
-                            // Ignore if Certificate matches host:
-                            SSLUtils.trustAllHost();
-                        }
-                        
-                        if (Controller.getInstance().useKeystore()) {
+                    
+                    if (Controller.getInstance().useKeystore()) {
+                        try {
                             // Trust certificates from keystore:
                             SSLUtils.initPrivateKeystore(Controller.getInstance().getKeystorePassword());
-                        } else if (Controller.getInstance().trustAllSsl()) {
+                        } catch (GeneralSecurityException e) {
+                            String msg = context.getString(R.string.Error_SSL_Keystore);
+                            Log.e(TAG, msg, e);
+                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                        }
+                    } else if (Controller.getInstance().trustAllSsl()) {
+                        try {
                             // Trust all certificates:
                             SSLUtils.trustAllCert();
-                        } else {
+                        } catch (GeneralSecurityException e) {
+                            String msg = context.getString(R.string.Error_SSL_TrustAllHosts);
+                            Log.e(TAG, msg, e);
+                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        try {
                             // Normal certificate-checks:
                             SSLUtils.initSslSocketFactory(null, null);
+                        } catch (GeneralSecurityException e) {
+                            String msg = context.getString(R.string.Error_SSL_SocketFactory);
+                            Log.e(TAG, msg, e);
+                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                         }
-                        
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    }
+                    
+                    if (Controller.getInstance().trustAllHosts()) {
+                        // Ignore if Certificate matches host:
+                        SSLUtils.trustAllHost();
                     }
                     
                     // This will be accessed when displaying an article or starting the imageCache. When caching it

@@ -396,7 +396,6 @@ public abstract class JSONConnector {
                     return true;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
                 if (!hasLastError) {
                     hasLastError = true;
                     lastError = formatException(e);
