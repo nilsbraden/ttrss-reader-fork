@@ -37,6 +37,8 @@ import android.util.Log;
  */
 final class PRNGFixes {
     
+    private static final String TAG = PRNGFixes.class.getSimpleName();
+    
     private static final int VERSION_CODE_JELLY_BEAN = 16;
     private static final int VERSION_CODE_JELLY_BEAN_MR2 = 18;
     private static final byte[] BUILD_FINGERPRINT_AND_DEVICE_SERIAL = getBuildFingerprintAndDeviceSerial();
@@ -52,8 +54,12 @@ final class PRNGFixes {
      *             if a fix is needed but could not be applied.
      */
     static void apply() {
-        applyOpenSSLFix();
-        installLinuxPRNGSecureRandom();
+        try {
+            applyOpenSSLFix();
+            installLinuxPRNGSecureRandom();
+        } catch (Exception e) {
+            Log.e(TAG, "Exception while applying PRNGFixes, SSL-Connections might be slightly insecure.");
+        }
     }
     
     /**
