@@ -19,8 +19,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.ttrssreader"
     android:installLocation="internalOnly"
-    android:versionCode="1793"
-    android:versionName="1.79" >
+    android:versionCode="1800"
+    android:versionName="1.80" >
 
     <uses-sdk
         android:minSdkVersion="14"

@@ -23,7 +23,6 @@ import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HostnameVerifier;
@@ -46,9 +45,7 @@ public class SSLUtils {
     
     @SuppressLint("TrulyRandom")
     public static SSLSocketFactory initSslSocketFactory(KeyManager[] km, TrustManager[] tm) throws KeyManagementException, NoSuchAlgorithmException {
-        // Apply fix for PRNG from http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html
-        PRNGFixes.apply();
-        SSLSocketFactoryEx factory = new SSLSocketFactoryEx(km, tm, new SecureRandom());
+        SSLSocketFactoryEx factory = new SSLSocketFactoryEx(km, tm, null);
         HttpsURLConnection.setDefaultSSLSocketFactory(factory);
         return factory;
     }
