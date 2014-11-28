@@ -17,9 +17,11 @@ package org.ttrssreader.net;
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.UnsupportedEncodingException;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
+import java.net.Proxy;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.Map;
@@ -28,11 +30,14 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import org.json.JSONObject;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.Utils;
+import android.util.Base64;
 import android.util.Log;
 
 public class JavaJSONConnector extends JSONConnector {
     
     private static final String TAG = JavaJSONConnector.class.getSimpleName();
+    
+    protected String base64NameAndPw = null;
     
     protected InputStream doRequest(Map<String, String> params) {
         try {
@@ -43,29 +48,29 @@ public class JavaJSONConnector extends JSONConnector {
             byte[] outputBytes = json.toString().getBytes("UTF-8");
             
             logRequest(json);
-            refreshHTTPAuth();
             
             URL url = Controller.getInstance().url();
-            // DEBUG: url = new URL("https://ttrss.example.de/");
-            
-            // Create Connection
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            // DEBUG: ((HttpsURLConnection)con).setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
+            HttpURLConnection con = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
             con.setDoInput(true);
             con.setDoOutput(true);
             con.setUseCaches(false);
+            
+            // Content
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
             
+            // Timeouts
             int timeoutSocket = (int) ((Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE : 10 * Utils.SECOND);
             con.setReadTimeout(timeoutSocket);
             con.setConnectTimeout((int) (8 * Utils.SECOND));
             
+            // HTTP-Basic Authentication
+            if (base64NameAndPw != null)
+                con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+            
             // Add POST data
             con.getOutputStream().write(outputBytes);
-            // DEBUG: ((HttpsURLConnection)con).getSSLSocketFactory().getSupportedCipherSuites();
-            // DEBUG: ((HttpsURLConnection)con).getCipherSuite();
             
             // Try to check for HTTP Status codes
             int code = con.getResponseCode();
@@ -74,6 +79,8 @@ public class JavaJSONConnector extends JSONConnector {
                 lastError = "Server returned status: " + code + " (Message: " + con.getResponseMessage() + ")";
                 return null;
             }
+            
+            // Everything is fine!
             return con.getInputStream();
             
         } catch (SSLPeerUnverifiedException e) {
@@ -108,6 +115,12 @@ public class JavaJSONConnector extends JSONConnector {
         if (!httpAuth)
             return;
         
+        try {
+            base64NameAndPw = Base64.encodeToString((httpUsername + ":" + httpPassword).getBytes("UTF-8"),
+                    Base64.NO_WRAP);
+        } catch (UnsupportedEncodingException e) {
+            base64NameAndPw = null;
+        }
         Authenticator.setDefault(new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(httpUsername, httpPassword.toCharArray());

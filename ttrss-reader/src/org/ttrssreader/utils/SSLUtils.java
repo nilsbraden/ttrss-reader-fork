@@ -45,7 +45,7 @@ public class SSLUtils {
     
     @SuppressLint("TrulyRandom")
     public static SSLSocketFactory initSslSocketFactory(KeyManager[] km, TrustManager[] tm) throws KeyManagementException, NoSuchAlgorithmException {
-        SSLSocketFactoryEx factory = new SSLSocketFactoryEx(km, tm, null);
+        SSLSocketFactoryEx factory = new SSLSocketFactoryEx(km, tm);
         HttpsURLConnection.setDefaultSSLSocketFactory(factory);
         return factory;
     }

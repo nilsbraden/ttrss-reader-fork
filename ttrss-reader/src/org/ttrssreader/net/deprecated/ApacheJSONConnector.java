@@ -58,9 +58,6 @@ public class ApacheJSONConnector extends JSONConnector {
             if (sessionId != null)
                 params.put(SID, sessionId);
             
-            // check if http-Auth-Settings have changed, reload values if necessary
-            refreshHTTPAuth();
-            
             // Set Address
             post.setURI(Controller.getInstance().uri());
             post.addHeader("Accept-Encoding", "gzip");

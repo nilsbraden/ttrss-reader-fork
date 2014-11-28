@@ -19,6 +19,7 @@ package org.ttrssreader.net;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,9 +35,9 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.utils.Base64;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
+import android.util.Base64;
 import android.util.Log;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
@@ -96,6 +97,7 @@ public abstract class JSONConnector {
     private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
     private static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
     private static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
+    private static final String ENCODE_PASSWORD = "Couldn't login to your account, your password could not be encoded properly.";
     private static final String API_DISABLED = "API_DISABLED";
     private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
     private static final String STATUS = "status";
@@ -145,9 +147,9 @@ public abstract class JSONConnector {
         if (!httpAuth)
             return;
         
-        if (httpUsername != null && httpUsername.equals(Controller.getInstance().httpUsername()))
+        if (httpUsername != null)
             return;
-        if (httpPassword != null && httpPassword.equals(Controller.getInstance().httpPassword()))
+        if (httpPassword != null)
             return;
         
         // Refresh data
@@ -381,31 +383,37 @@ public abstract class JSONConnector {
             return true;
         
         synchronized (lock) {
-            if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
-                return true; // Login done while we were waiting for the lock
-                
-            Map<String, String> params = new HashMap<String, String>();
-            params.put(PARAM_OP, VALUE_LOGIN);
-            params.put(PARAM_USER, Controller.getInstance().username());
-            params.put(PARAM_PW, Base64.encodeBytes(Controller.getInstance().password().getBytes()));
-            
             try {
-                sessionId = readResult(params, true, false);
-                if (sessionId != null) {
-                    Log.d(TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
-                    return true;
+                if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
+                    return true; // Login done while we were waiting for the lock
+                    
+                Map<String, String> params = new HashMap<String, String>();
+                params.put(PARAM_OP, VALUE_LOGIN);
+                params.put(PARAM_USER, Controller.getInstance().username());
+                params.put(PARAM_PW,
+                        Base64.encodeToString(Controller.getInstance().password().getBytes("UTF-8"), Base64.NO_WRAP));
+                
+                try {
+                    sessionId = readResult(params, true, false);
+                    if (sessionId != null) {
+                        Log.d(TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+                        return true;
+                    }
+                } catch (IOException e) {
+                    if (!hasLastError) {
+                        hasLastError = true;
+                        lastError = formatException(e);
+                    }
                 }
-            } catch (IOException e) {
+                
                 if (!hasLastError) {
+                    // Login didnt succeed, write message
                     hasLastError = true;
-                    lastError = formatException(e);
+                    lastError = NOT_LOGGED_IN_MESSAGE;
                 }
-            }
-            
-            if (!hasLastError) {
-                // Login didnt succeed, write message
+            } catch (UnsupportedEncodingException e) {
                 hasLastError = true;
-                lastError = NOT_LOGGED_IN_MESSAGE;
+                lastError = ENCODE_PASSWORD;
             }
             return false;
         }
