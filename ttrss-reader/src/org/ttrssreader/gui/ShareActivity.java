@@ -22,6 +22,7 @@ import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,6 +54,8 @@ public class ShareActivity extends MenuActivity {
         super.onCreate(savedInstanceState);
         mDamageReport.initialize();
         
+        final Context context = this;
+        
         setContentView(R.layout.sharetopublished);
         setTitle(R.string.IntentPublish);
         
@@ -78,7 +81,7 @@ public class ShareActivity extends MenuActivity {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progress = ProgressDialog.show(getApplicationContext(), null, "Sending...");
+                progress = ProgressDialog.show(context, null, "Sending...");
                 new MyPublisherTask().execute();
             }
         });
