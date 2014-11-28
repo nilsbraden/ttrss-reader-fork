@@ -65,6 +65,8 @@ public class SubscribeActivity extends MenuActivity {
         super.onCreate(savedInstanceState);
         mDamageReport.initialize();
         
+        final Context context = this;
+        
         setContentView(R.layout.feedsubscribe);
         setTitle(R.string.IntentSubscribe);
         ProgressBarManager.getInstance().addProgress(activity);
@@ -91,7 +93,7 @@ public class SubscribeActivity extends MenuActivity {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progress = ProgressDialog.show(getApplicationContext(), null, "Sending...");
+                progress = ProgressDialog.show(context, null, "Sending...");
                 new MyPublisherTask().execute();
             }
         });
