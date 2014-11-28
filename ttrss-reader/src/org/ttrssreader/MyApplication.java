@@ -20,6 +20,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PRNGFixes;
 import android.app.Application;
 
 public class MyApplication extends Application {
@@ -29,6 +30,15 @@ public class MyApplication extends Application {
     
     public void onCreate() {
         super.onCreate();
+        
+        PRNGFixes.apply();
+        initAsyncTask();
+        initSingletons();
+        
+        Data.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
+    }
+    
+    private void initAsyncTask() {
         // make sure AsyncTask is loaded in the Main thread
         new AsyncTask<Void, Void, Void>() {
             @Override
@@ -36,8 +46,6 @@ public class MyApplication extends Application {
                 return null;
             }
         }.execute();
-        
-        initSingletons();
     }
     
     protected void initSingletons() {
@@ -45,7 +53,6 @@ public class MyApplication extends Application {
         Controller.getInstance().initialize(this);
         DBHelper.getInstance().initialize(this);
         Data.getInstance().initialize(this);
-        Data.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
     }
     
     @Override

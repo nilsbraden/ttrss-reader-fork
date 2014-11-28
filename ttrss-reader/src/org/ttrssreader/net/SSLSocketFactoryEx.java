@@ -20,7 +20,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -124,12 +123,12 @@ import javax.net.ssl.TrustManager;
 public class SSLSocketFactoryEx extends SSLSocketFactory {
     
     public SSLSocketFactoryEx() throws NoSuchAlgorithmException, KeyManagementException {
-        initSSLSocketFactoryEx(null, null, null);
+        initSSLSocketFactoryEx(null, null);
     }
     
-    public SSLSocketFactoryEx(KeyManager[] km, TrustManager[] tm, SecureRandom random) throws NoSuchAlgorithmException,
+    public SSLSocketFactoryEx(KeyManager[] km, TrustManager[] tm) throws NoSuchAlgorithmException,
             KeyManagementException {
-        initSSLSocketFactoryEx(km, tm, random);
+        initSSLSocketFactoryEx(km, tm);
     }
     
     @Override
@@ -197,9 +196,9 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
         return ss;
     }
     
-    private void initSSLSocketFactoryEx(KeyManager[] km, TrustManager[] tm, SecureRandom random) throws NoSuchAlgorithmException, KeyManagementException {
+    private void initSSLSocketFactoryEx(KeyManager[] km, TrustManager[] tm) throws NoSuchAlgorithmException, KeyManagementException {
         m_ctx = SSLContext.getInstance("TLS");
-        m_ctx.init(km, tm, random);
+        m_ctx.init(km, tm, null);
         
         m_protocols = getProtocolList();
         m_ciphers = getCipherList();
