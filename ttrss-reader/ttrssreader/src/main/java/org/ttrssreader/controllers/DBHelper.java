@@ -1067,7 +1067,7 @@ public class DBHelper {
         }
         
         if (ret != null && !ret.isEmpty()) {
-            // TODO Zugriff prüfen!
+            // TODO Check access
             markArticles(ret, "isUnread", 0);
         }
         
