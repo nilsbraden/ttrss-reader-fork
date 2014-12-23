@@ -1,6 +1,10 @@
 #summary Changelog for all changes since the fork
 
 = Changes =
+== Version 1.81 ==
+  * Attempt to build with PRNGFixes again
+  * Fixed some FCs
+
 == Version 1.80 ==
   * Revert to default implementation of SecureRandom because the suggested bugfix from Google (http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html) seems to crash on some devices. Due to this the SSL implementation "may not receive cryptographically strong values". I'm investigating solutions for this. Thank you for your patience. :)
   
