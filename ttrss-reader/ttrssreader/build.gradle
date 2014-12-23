@@ -20,6 +20,10 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
     }
+
+    if(new File("../signingconfig.gradle").exists()) {
+        apply from: "../signingconfig.gradle";
+    }
 }
 
 dependencies {

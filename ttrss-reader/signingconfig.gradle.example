@@ -1,0 +1,25 @@
+android {
+	signingConfigs {
+		debug {
+			storeFile file('../../debug.keystore')
+			keyAlias 'androiddebugkey'
+			keyPassword 'android'
+			storePassword 'android'
+		}
+		release {
+			storeFile file('../../release.keystore')
+			keyAlias 'ttrss-reader-fork'
+			keyPassword '...'
+			storePassword '...'
+		}
+	}
+
+	buildTypes {
+		debug {
+			signingConfig signingConfigs.debug
+		}
+		release {
+			signingConfig signingConfigs.release
+		}
+	}
+}
