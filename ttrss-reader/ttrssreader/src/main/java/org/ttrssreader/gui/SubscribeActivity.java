@@ -146,14 +146,14 @@ public class SubscribeActivity extends MenuActivity {
                 }
                 
                 String urlValue = feedUrl.getText().toString();
-                int category = (int) categorieSpinner.getSelectedItemId();
-                
+                Category category = categoriesAdapter.getItem((int) categorieSpinner.getSelectedItemId());
+
                 if (!Utils.validateURL(urlValue)) {
                     showErrorDialog(getResources().getString(R.string.SubscribeActivity_invalidUrl));
                     return null;
                 }
                 
-                SubscriptionResponse ret = Data.getInstance().feedSubscribe(urlValue, category);
+                SubscriptionResponse ret = Data.getInstance().feedSubscribe(urlValue, category.id);
                 String message = "\n\n(" + ret.message + ")";
                 
                 if (ret.code == 0)
