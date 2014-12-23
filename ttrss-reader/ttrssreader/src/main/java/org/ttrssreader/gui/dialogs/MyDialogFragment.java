@@ -18,7 +18,7 @@ package org.ttrssreader.gui.dialogs;
 import android.app.DialogFragment;
 import android.os.Bundle;
 
-class MyDialogFragment extends DialogFragment {
+public class MyDialogFragment extends DialogFragment {
     
     @Override
     public void onCreate(Bundle instance) {
