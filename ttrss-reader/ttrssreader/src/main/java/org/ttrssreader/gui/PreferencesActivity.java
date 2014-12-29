@@ -81,10 +81,10 @@ public class PreferencesActivity extends PreferenceActivity {
     
     @Override
     public void setListAdapter(ListAdapter adapter) {
-        if (adapter == null) {
-            super.setListAdapter(null);
-        } else {
+        if (adapter != null && _headers != null) {
             super.setListAdapter(new HeaderAdapter(this, _headers));
+        } else {
+            super.setListAdapter(null);
         }
     }
     
