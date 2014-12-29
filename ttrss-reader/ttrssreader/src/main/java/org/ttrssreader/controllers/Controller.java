@@ -510,9 +510,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
                     }
                 }
             }
-            if (ttrssConnector != null)
+            if (ttrssConnector != null) {
+                ttrssConnector.init();
                 return ttrssConnector;
-            else
+            } else
                 throw new RuntimeException("Connector could not be initialized.");
         }
     }

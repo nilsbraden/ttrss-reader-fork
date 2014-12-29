@@ -108,10 +108,10 @@ public class JavaJSONConnector extends JSONConnector {
         
         return null;
     }
-    
+
     @Override
-    protected void refreshHTTPAuth() {
-        super.refreshHTTPAuth();
+    public void init() {
+        super.init();
         if (!httpAuth)
             return;
         

@@ -47,9 +47,9 @@ import android.util.Log;
 public class ApacheJSONConnector extends JSONConnector {
     
     private static final String TAG = ApacheJSONConnector.class.getSimpleName();
-    
-    private CredentialsProvider credProvider = null;
-    private DefaultHttpClient client;
+
+    protected CredentialsProvider credProvider = null;
+    protected DefaultHttpClient client;
     
     protected InputStream doRequest(Map<String, String> params) {
         HttpPost post = new HttpPost();
@@ -182,9 +182,10 @@ public class ApacheJSONConnector extends JSONConnector {
         
         return instream;
     }
-    
-    protected void refreshHTTPAuth() {
-        super.refreshHTTPAuth();
+
+    @Override
+    public void init() {
+        super.init();
         if (!httpAuth) {
             credProvider = null;
             return;

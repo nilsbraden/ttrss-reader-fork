@@ -128,7 +128,7 @@ public abstract class JSONConnector {
     protected boolean httpAuth = false;
     protected String httpUsername;
     protected String httpPassword;
-    
+
     protected String sessionId = null;
     
     private final Object lock = new Object();
@@ -136,13 +136,9 @@ public abstract class JSONConnector {
     
     public static final int PARAM_LIMIT_MAX_VALUE = 200;
     
-    public JSONConnector() {
-        refreshHTTPAuth();
-    }
-    
     protected abstract InputStream doRequest(Map<String, String> params);
     
-    protected void refreshHTTPAuth() {
+    public void init() {
         httpAuth = Controller.getInstance().useHttpAuth();
         if (!httpAuth)
             return;
