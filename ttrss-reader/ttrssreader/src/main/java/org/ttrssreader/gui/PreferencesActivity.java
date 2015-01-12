@@ -1,31 +1,22 @@
 /*
- * ttrss-reader-fork for Android
- * 
- * Copyright (C) 2010 Nils Braden
- * Copyright (C) 2009-2010 J. Devauchelle.
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 3 as published by the Free Software Foundation.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * Copyright (c) 2015, Nils Braden
+ *
+ * This file is part of ttrss-reader-fork. This program is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation;
+ * either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a
+ * copy of the GNU General Public License along with this program; If
+ * not, see http://www.gnu.org/licenses/.
  */
 
 package org.ttrssreader.gui;
 
-import java.util.List;
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.gui.fragments.PreferencesFragment;
-import org.ttrssreader.model.HeaderAdapter;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-import org.ttrssreader.utils.Utils;
 import android.app.backup.BackupManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -37,6 +28,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ListAdapter;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.gui.fragments.PreferencesFragment;
+import org.ttrssreader.model.HeaderAdapter;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
+import org.ttrssreader.utils.Utils;
+
+import java.util.List;
 
 public class PreferencesActivity extends PreferenceActivity {
     

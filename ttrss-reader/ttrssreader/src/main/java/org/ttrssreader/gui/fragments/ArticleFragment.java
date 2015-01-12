@@ -1,59 +1,22 @@
 /*
- * ttrss-reader-fork for Android
- * 
- * Copyright (C) 2010 Nils Braden
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 3 as published by the Free Software Foundation.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * Copyright (c) 2015, Nils Braden
+ *
+ * This file is part of ttrss-reader-fork. This program is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation;
+ * either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a
+ * copy of the GNU General Public License along with this program; If
+ * not, see http://www.gnu.org/licenses/.
  */
 
 package org.ttrssreader.gui.fragments;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.HtmlNode;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.TagNodeVisitor;
-import org.stringtemplate.v4.ST;
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.ProgressBarManager;
-import org.ttrssreader.gui.ErrorActivity;
-import org.ttrssreader.gui.FeedHeadlineActivity;
-import org.ttrssreader.gui.TextInputAlert;
-import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
-import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
-import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
-import org.ttrssreader.gui.view.ArticleWebViewClient;
-import org.ttrssreader.gui.view.MyGestureDetector;
-import org.ttrssreader.gui.view.MyWebView;
-import org.ttrssreader.imageCache.ImageCache;
-import org.ttrssreader.model.FeedHeadlineAdapter;
-import org.ttrssreader.model.ListContentProvider;
-import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.pojos.Feed;
-import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.model.pojos.RemoteFile;
-import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
-import org.ttrssreader.model.updaters.PublishedStateUpdater;
-import org.ttrssreader.model.updaters.StarredStateUpdater;
-import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.DateUtils;
-import org.ttrssreader.utils.FileUtils;
-import org.ttrssreader.utils.Utils;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -95,6 +58,47 @@ import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.HtmlNode;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.TagNodeVisitor;
+import org.stringtemplate.v4.ST;
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.gui.ErrorActivity;
+import org.ttrssreader.gui.FeedHeadlineActivity;
+import org.ttrssreader.gui.TextInputAlert;
+import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
+import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
+import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
+import org.ttrssreader.gui.view.ArticleWebViewClient;
+import org.ttrssreader.gui.view.MyGestureDetector;
+import org.ttrssreader.gui.view.MyWebView;
+import org.ttrssreader.imageCache.ImageCache;
+import org.ttrssreader.model.FeedHeadlineAdapter;
+import org.ttrssreader.model.ListContentProvider;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.model.pojos.RemoteFile;
+import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
+import org.ttrssreader.model.updaters.PublishedStateUpdater;
+import org.ttrssreader.model.updaters.StarredStateUpdater;
+import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.DateUtils;
+import org.ttrssreader.utils.FileUtils;
+import org.ttrssreader.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, TextInputAlertCallback {
     
