@@ -564,15 +564,22 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         menu.setHeaderTitle(getResources().getString(R.string.ArticleActivity_ShareLink));
         mSelectedExtra = null;
         mSelectedAltText = null;
-        
-        if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
+
+        int type = result.getType();
+        boolean image = (type == HitTestResult.SRC_IMAGE_ANCHOR_TYPE || type == HitTestResult.IMAGE_TYPE);
+        boolean anchor = (type == HitTestResult.SRC_IMAGE_ANCHOR_TYPE || type == HitTestResult.SRC_ANCHOR_TYPE);
+
+        // Anchors get a context-menu with "Share URL" and "Copy URL"
+        if (anchor) {
             mSelectedExtra = result.getExtra();
             menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_URL, 2,
                     getResources().getString(R.string.ArticleActivity_ShareURL));
             menu.add(ContextMenu.NONE, CONTEXT_MENU_COPY_URL, 3,
                     getResources().getString(R.string.ArticleActivity_CopyURL));
         }
-        if (result.getType() == HitTestResult.IMAGE_TYPE) {
+
+        // Images get a context-menu with "Show caption" which displays the content of the title- or alt-attribute
+        if (image) {
             mSelectedAltText = getAltTextForImageUrl(result.getExtra());
             if (mSelectedAltText != null)
                 menu.add(ContextMenu.NONE, CONTEXT_MENU_DISPLAY_CAPTION, 1,
@@ -737,6 +744,10 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 String tagName = tag.getName();
                 // Only if the image-url is the same as the url of the image the long-press was on:
                 if ("img".equals(tagName) && extra.equals(tag.getAttributeByName("src"))) {
+                    // Prefer title-attribute over alt since this is the html default
+                    alt = tag.getAttributeByName("title");
+                    if (alt != null)
+                        return false;
                     alt = tag.getAttributeByName("alt");
                     if (alt != null)
                         return false;
