@@ -1,20 +1,40 @@
 /*
- * ttrss-reader-fork for Android
- * 
- * Copyright (C) 2010 Nils Braden
- * Copyright (C) 2009-2010 J. Devauchelle.
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * version 3 as published by the Free Software Foundation.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * Copyright (c) 2015, Nils Braden
+ *
+ * This file is part of ttrss-reader-fork. This program is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation;
+ * either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a
+ * copy of the GNU General Public License along with this program; If
+ * not, see http://www.gnu.org/licenses/.
  */
 
 package org.ttrssreader.net;
+
+import android.util.Base64;
+import android.util.Log;
+
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.MalformedJsonException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.utils.StringSupport;
+import org.ttrssreader.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,22 +47,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.pojos.Category;
-import org.ttrssreader.model.pojos.Feed;
-import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.utils.StringSupport;
-import org.ttrssreader.utils.Utils;
-import android.util.Base64;
-import android.util.Log;
-import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.MalformedJsonException;
 
 public abstract class JSONConnector {
     
