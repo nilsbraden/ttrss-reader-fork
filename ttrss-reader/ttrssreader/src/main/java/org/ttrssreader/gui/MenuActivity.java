@@ -17,6 +17,24 @@
 
 package org.ttrssreader.gui;
 
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.gui.dialogs.ErrorDialog;
+import org.ttrssreader.gui.interfaces.ICacheEndListener;
+import org.ttrssreader.gui.interfaces.IDataChangedListener;
+import org.ttrssreader.gui.interfaces.IItemSelectedListener;
+import org.ttrssreader.gui.interfaces.IUpdateEndListener;
+import org.ttrssreader.imageCache.ForegroundService;
+import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
+import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
+import org.ttrssreader.utils.Utils;
+
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -39,24 +57,6 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.ProgressBarManager;
-import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.gui.dialogs.ErrorDialog;
-import org.ttrssreader.gui.interfaces.ICacheEndListener;
-import org.ttrssreader.gui.interfaces.IDataChangedListener;
-import org.ttrssreader.gui.interfaces.IItemSelectedListener;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
-import org.ttrssreader.imageCache.ForegroundService;
-import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
-import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-import org.ttrssreader.utils.Utils;
-
 import java.lang.reflect.Field;
 
 /**
@@ -64,50 +64,50 @@ import java.lang.reflect.Field;
  */
 public abstract class MenuActivity extends Activity implements IUpdateEndListener, ICacheEndListener,
         IItemSelectedListener, IDataChangedListener {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = MenuActivity.class.getSimpleName();
-    
+
     private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
-    
+
     protected Activity activity;
-    
+
     private Updater updater;
     private boolean isVertical;
     private static int minSize;
     private static int maxSize;
     private int dividerSize;
     private int displaySize;
-    
+
     private View frameMain = null;
     private View divider = null;
     private View frameSub = null;
     private TextView header_title;
     private TextView header_unread;
-    
+
     @Override
     protected void onCreate(Bundle instance) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(instance);
         mDamageReport.initialize();
-        
+
         activity = this;
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
-        
+
         Controller.getInstance().setHeadless(false);
         initActionbar();
         getOverflowMenu();
     }
-    
+
     protected void initTabletLayout() {
         frameMain = findViewById(R.id.frame_main);
         divider = findViewById(R.id.list_divider);
         frameSub = findViewById(R.id.frame_sub);
-        
+
         if (frameMain == null || frameSub == null || divider == null)
             return; // Do nothing, the views do not exist...
-            
+
         // Initialize values for layout changes:
         Controller
                 .refreshDisplayMetrics(((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
@@ -119,32 +119,32 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             int actionBarHeight = getResources().getDimensionPixelSize(tv.resourceId);
             displaySize = Controller.displayHeight - actionBarHeight;
         }
-        
+
         minSize = (int) (displaySize * 0.05);
         maxSize = displaySize - (int) (displaySize * 0.05);
-        
+
         // use tablet layout?
         if (Controller.getInstance().allowTabletLayout())
             Controller.isTablet = divider != null;
         else
             Controller.isTablet = false;
-        
+
         // Set frame sizes and hide divider if necessary
         if (Controller.isTablet) {
-            
+
             // Resize frames and do it only if stored size is within our bounds:
             int mainFrameSize = Controller.getInstance().getMainFrameSize(this, isVertical, minSize, maxSize);
             int subFrameSize = displaySize - mainFrameSize;
-            
+
             LayoutParams lpMain = (RelativeLayout.LayoutParams) frameMain.getLayoutParams();
             LayoutParams lpSub = (RelativeLayout.LayoutParams) frameSub.getLayoutParams();
-            
+
             if (isVertical) {
                 // calculate height of divider
                 int padding = divider.getPaddingTop() + divider.getPaddingBottom();
                 dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding,
                         getApplicationContext().getResources().getDisplayMetrics()));
-                
+
                 // Create LayoutParams for all three views
                 lpMain.height = mainFrameSize;
                 lpSub.height = subFrameSize - dividerSize;
@@ -154,29 +154,29 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 int padding = divider.getPaddingLeft() + divider.getPaddingRight();
                 dividerSize = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, padding,
                         getApplicationContext().getResources().getDisplayMetrics()));
-                
+
                 // Create LayoutParams for all three views
                 lpMain.width = mainFrameSize;
                 lpSub.width = subFrameSize - dividerSize;
                 lpSub.addRule(RelativeLayout.RIGHT_OF, divider.getId());
             }
-            
+
             // Set all params and visibility
             frameMain.setLayoutParams(lpMain);
             frameSub.setLayoutParams(lpSub);
             divider.setVisibility(View.VISIBLE);
             getWindow().getDecorView().getRootView().invalidate();
-            
+
         } else {
-            
+
             frameMain.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             frameSub.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
             if (divider != null)
                 divider.setVisibility(View.GONE);
-            
+
         }
     }
-    
+
     private void handleResize() {
         int mainFrameSize = 0;
         if (isVertical) {
@@ -184,11 +184,11 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         } else {
             mainFrameSize = calculateSize((int) (frameMain.getWidth() + mDeltaX));
         }
-        
+
         int subFrameSize = displaySize - dividerSize - mainFrameSize;
         LayoutParams lpMain = (RelativeLayout.LayoutParams) frameMain.getLayoutParams();
         LayoutParams lpSub = (RelativeLayout.LayoutParams) frameSub.getLayoutParams();
-        
+
         if (isVertical) {
             lpMain.height = mainFrameSize;
             lpSub.height = subFrameSize;
@@ -196,40 +196,41 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             lpMain.width = mainFrameSize;
             lpSub.width = subFrameSize;
         }
-        
+
         frameMain.setLayoutParams(lpMain);
         frameSub.setLayoutParams(lpSub);
-        
+
         getWindow().getDecorView().getRootView().invalidate();
     }
-    
+
     @SuppressLint("InflateParams")
     private void initActionbar() {
         // Go to the CategoryActivity and clean the return-stack
         // getSupportActionBar().setHomeButtonEnabled(true);
-        
-        ActionBar.LayoutParams params = new ActionBar.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+        ActionBar.LayoutParams params = new ActionBar.LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT);
         LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView = inflator.inflate(R.layout.actionbar, null);
-        
+
         ActionBar ab = getActionBar();
         ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowCustomEnabled(true);
         ab.setDisplayShowTitleEnabled(false);
         ab.setCustomView(actionbarView, params);
-        
+
         header_unread = (TextView) actionbarView.findViewById(R.id.head_unread);
         header_title = (TextView) actionbarView.findViewById(R.id.head_title);
         header_title.setText(getString(R.string.ApplicationName));
     }
-    
+
     @Override
     public void setTitle(CharSequence title) {
         header_title.setText(title);
         super.setTitle(title);
     }
-    
+
     public void setUnread(int unread) {
         if (unread > 0) {
             header_unread.setVisibility(View.VISIBLE);
@@ -238,10 +239,10 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         }
         header_unread.setText("( " + unread + " )");
     }
-    
+
     /**
      * Force-display the three dots for overflow, would be disabled on devices with a menu-key.
-     * 
+     *
      * @see http://stackoverflow.com/a/13098824
      */
     private void getOverflowMenu() {
@@ -255,7 +256,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         } catch (Exception e) {
         }
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -271,13 +272,13 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         }
         refreshAndUpdate();
     }
-    
+
     @Override
     protected void onStop() {
         super.onStop();
         UpdateController.getInstance().unregisterActivity(this);
     }
-    
+
     @Override
     protected void onDestroy() {
         mDamageReport.restoreOriginalHandler();
@@ -288,7 +289,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             updater = null;
         }
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
@@ -299,18 +300,18 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             finish();
         }
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.generic, menu);
         return true;
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        
+
         MenuItem offline = menu.findItem(R.id.Menu_WorkOffline);
         MenuItem refresh = menu.findItem(R.id.Menu_Refresh);
         if (offline != null) {
@@ -326,7 +327,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                     menu.findItem(R.id.Menu_Refresh).setVisible(true);
             }
         }
-        
+
         MenuItem displayUnread = menu.findItem(R.id.Menu_DisplayOnlyUnread);
         if (displayUnread != null) {
             if (Controller.getInstance().onlyUnread()) {
@@ -335,7 +336,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 displayUnread.setTitle(getString(R.string.Commons_DisplayOnlyUnread));
             }
         }
-        
+
         MenuItem displayOnlyCachedImages = menu.findItem(R.id.Menu_DisplayOnlyCachedImages);
         if (displayOnlyCachedImages != null) {
             if (Controller.getInstance().onlyDisplayCachedImages()) {
@@ -344,19 +345,19 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 displayOnlyCachedImages.setTitle(getString(R.string.Commons_DisplayOnlyCachedImages));
             }
         }
-        
+
         if (!(this instanceof FeedHeadlineActivity)) {
             menu.removeItem(R.id.Menu_FeedUnsubscribe);
         }
-        
+
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         if (super.onOptionsItemSelected(item))
             return true;
-        
+
         switch (item.getItemId()) {
             case android.R.id.home:
                 // Go to the CategoryActivity and clean the return-stack
@@ -391,7 +392,8 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 doRefresh();
                 return true;
             case R.id.Menu_ShowPreferences:
-                startActivityForResult(new Intent(this, PreferencesActivity.class), Constants.ACTIVITY_SHOW_PREFERENCES);
+                startActivityForResult(new Intent(this, PreferencesActivity.class),
+                        Constants.ACTIVITY_SHOW_PREFERENCES);
                 return true;
             case R.id.Menu_About:
                 startActivity(new Intent(this, AboutActivity.class));
@@ -406,7 +408,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 return false;
         }
     }
-    
+
     @Override
     public void onUpdateEnd(boolean goBackAfterUpdate) {
         updater = null;
@@ -414,12 +416,12 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         if (goBackAfterUpdate && !isFinishing())
             onBackPressed();
     }
-    
+
     /* ############# BEGIN: Cache */
     protected void doCache(boolean onlyArticles) {
         // Register for progress-updates
         ForegroundService.registerCallback(this);
-        
+
         if (isCacherRunning()) {
             if (!onlyArticles) // Tell cacher to do images too
                 ForegroundService.loadImagesToo();
@@ -427,7 +429,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 // Running and already caching images, no need to do anything
                 return;
         }
-        
+
         // Start new cacher
         Intent intent;
         if (onlyArticles) {
@@ -436,19 +438,19 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
         }
         intent.setClass(this.getApplicationContext(), ForegroundService.class);
-        
+
         this.startService(intent);
-        
+
         ProgressBarManager.getInstance().addProgress(this);
         setProgressBarVisibility(true);
     }
-    
+
     @Override
     public void onCacheEnd() {
         setProgressBarVisibility(false);
         ProgressBarManager.getInstance().removeProgress(this);
     }
-    
+
     @Override
     public void onCacheProgress(int taskCount, int progress) {
         if (taskCount == 0)
@@ -456,13 +458,13 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         else
             setProgress((10000 / taskCount) * progress);
     }
-    
+
     protected boolean isCacherRunning() {
         return ForegroundService.isInstanceCreated();
     }
     
     /* ############# END: Cache */
-    
+
     protected void openConnectionErrorDialog(String errorMessage) {
         if (updater != null) {
             updater.cancel(true);
@@ -474,11 +476,11 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
         startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
     }
-    
+
     protected void showErrorDialog(String message) {
         ErrorDialog.getInstance(message).show(getFragmentManager(), "error");
     }
-    
+
     private void refreshAndUpdate() {
         initTabletLayout();
         if (!Utils.checkIsConfigInvalid()) {
@@ -486,39 +488,39 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             doRefresh();
         }
     }
-    
+
     @Override
     public final void dataChanged() {
         doRefresh();
     }
-    
+
     @Override
     public void dataLoadingFinished() {
         // Empty!
     }
-    
+
     protected void doRefresh() {
         invalidateOptionsMenu();
         ProgressBarManager.getInstance().setIndeterminateVisibility(this);
         if (Controller.getInstance().getConnector().hasLastError())
             openConnectionErrorDialog(Controller.getInstance().getConnector().pullLastError());
     }
-    
+
     protected abstract void doUpdate(boolean forceUpdate);
-    
+
     /**
      * Can be used in child activities to update their data and get a UI refresh afterwards.
      */
     abstract class ActivityUpdater extends AsyncTask<Void, Integer, Void> {
         protected int taskCount = 0;
         protected boolean forceUpdate;
-        
+
         ActivityUpdater(boolean forceUpdate) {
             this.forceUpdate = forceUpdate;
             ProgressBarManager.getInstance().addProgress(activity);
             setProgressBarVisibility(true);
         }
-        
+
         @Override
         protected void onProgressUpdate(Integer... values) {
             if (values[0] == taskCount) {
@@ -530,67 +532,68 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             setProgress((10000 / (taskCount + 1)) * values[0]);
         }
     }
-    
+
     // The "active pointer" is the one currently moving our object.
     private static final int INVALID_POINTER_ID = -1;
     private int mActivePointerId = INVALID_POINTER_ID;
-    
+
     private float mLastTouchX = 0;
     private float mLastTouchY = 0;
     private int mDeltaX = 0;
     private int mDeltaY = 0;
-    
+
     private boolean resizing = false;
-    
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (!Controller.isTablet)
             return false;
-        
+
         // Only handle events when the list-divider is selected or we are already resizing:
-        View view = findViewAtPosition(getWindow().getDecorView().getRootView(), (int) ev.getRawX(), (int) ev.getRawY());
+        View view = findViewAtPosition(getWindow().getDecorView().getRootView(), (int) ev.getRawX(),
+                (int) ev.getRawY());
         if (view == null && !resizing)
             return false;
-        
+
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
                 divider.setSelected(true);
                 resizing = true;
                 final int pointerIndex = ev.getActionIndex();
-                
+
                 // Remember where we started (for dragging)
                 mLastTouchX = ev.getX(pointerIndex);
                 mLastTouchY = ev.getY(pointerIndex);
                 mDeltaX = 0;
                 mDeltaY = 0;
-                
+
                 // Save the ID of this pointer (for dragging)
                 mActivePointerId = ev.getPointerId(0);
                 break;
             }
-            
+
             case MotionEvent.ACTION_MOVE: {
                 // Find the index of the active pointer and fetch its position
                 final int pointerIndex = ev.findPointerIndex(mActivePointerId);
-                
+
                 if (pointerIndex < 0)
                     break;
-                
+
                 final float x = ev.getX(pointerIndex);
                 final float y = ev.getY(pointerIndex);
-                
+
                 // Calculate the distance moved
                 mDeltaX = (int) (x - mLastTouchX);
                 mDeltaY = (int) (y - mLastTouchY);
-                
+
                 // Store location for next difference
                 mLastTouchX = x;
                 mLastTouchY = y;
-                
+
                 handleResize();
                 break;
             }
-            
+
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
             default:
@@ -600,11 +603,11 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 divider.setSelected(false);
                 resizing = false;
                 break;
-        
+
         }
         return true;
     }
-    
+
     private int calculateSize(final int size) {
         int ret = size;
         if (ret < minSize)
@@ -613,12 +616,12 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             ret = maxSize;
         return ret;
     }
-    
+
     private void storeSize() {
         int size = isVertical ? frameMain.getHeight() : frameMain.getWidth();
         Controller.getInstance().setViewSize(this, isVertical, size);
     }
-    
+
     private static View findViewAtPosition(View parent, int x, int y) {
         if (parent instanceof ViewGroup) {
             ViewGroup viewGroup = (ViewGroup) parent;
@@ -640,5 +643,5 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             }
         }
     }
-    
+
 }

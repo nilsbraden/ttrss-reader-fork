@@ -17,6 +17,10 @@
 
 package org.ttrssreader.gui;
 
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
+
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -24,30 +28,26 @@ import android.os.Bundle;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-
 public class MediaPlayerActivity extends Activity {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = MediaPlayerActivity.class.getSimpleName();
-    
+
     private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
-    
+
     public static final String URL = "media_url";
-    
+
     private String url;
     private MediaPlayer mp;
-    
+
     @Override
     protected void onCreate(Bundle instance) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(instance);
         mDamageReport.initialize();
-        
+
         setContentView(R.layout.media);
-        
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             url = extras.getString(URL);
@@ -56,7 +56,7 @@ public class MediaPlayerActivity extends Activity {
         } else {
             url = "";
         }
-        
+
         VideoView videoView = (VideoView) findViewById(R.id.MediaView);
         MediaController mediaController = new MediaController(this);
         mediaController.setAnchorView(videoView);
@@ -65,21 +65,21 @@ public class MediaPlayerActivity extends Activity {
         videoView.setVideoURI(video);
         videoView.start();
     }
-    
+
     @Override
     protected void onResume() {
         if (mp != null)
             mp.start();
         super.onResume();
     }
-    
+
     @Override
     protected void onPause() {
         if (mp != null)
             mp.pause();
         super.onPause();
     }
-    
+
     @Override
     protected void onDestroy() {
         mDamageReport.restoreOriginalHandler();
@@ -88,5 +88,5 @@ public class MediaPlayerActivity extends Activity {
         if (mp != null)
             mp.release();
     }
-    
+
 }

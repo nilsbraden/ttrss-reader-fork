@@ -19,7 +19,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp" >
+    android:padding="10dp">
 
     <EditText
         android:id="@+id/subscribe_url"
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/Subscribe.url"
         android:inputType="textUri"
-        android:singleLine="true" >
+        android:singleLine="true">
 
         <requestFocus />
     </EditText>

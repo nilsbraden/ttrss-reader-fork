@@ -17,6 +17,14 @@
 
 package org.ttrssreader.gui.view;
 
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.MediaPlayerActivity;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.FileUtils;
+import org.ttrssreader.utils.Utils;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,14 +35,6 @@ import android.util.Log;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.MediaPlayerActivity;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.FileUtils;
-import org.ttrssreader.utils.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -48,14 +48,14 @@ import java.net.URL;
 import java.util.Locale;
 
 public class ArticleWebViewClient extends WebViewClient {
-    
+
     private static final String TAG = ArticleWebViewClient.class.getSimpleName();
-    
+
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, final String url) {
-        
+
         final Context context = view.getContext();
-        
+
         boolean audioOrVideo = false;
         for (String s : FileUtils.AUDIO_EXTENSIONS) {
             if (url.toLowerCase(Locale.getDefault()).contains("." + s)) {
@@ -63,27 +63,27 @@ public class ArticleWebViewClient extends WebViewClient {
                 break;
             }
         }
-        
+
         for (String s : FileUtils.VIDEO_EXTENSIONS) {
             if (url.toLowerCase(Locale.getDefault()).contains("." + s)) {
                 audioOrVideo = true;
                 break;
             }
         }
-        
+
         if (audioOrVideo) {
             // @formatter:off
             final CharSequence[] items = {
                     (String) context.getText(R.string.WebViewClientActivity_Display),
-                    (String) context.getText(R.string.WebViewClientActivity_Download) };
+                    (String) context.getText(R.string.WebViewClientActivity_Download)};
             // @formatter:on
-            
+
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("What shall we do?");
             builder.setItems(items, new DialogInterface.OnClickListener() {
-                
+
                 public void onClick(DialogInterface dialog, int item) {
-                    
+
                     switch (item) {
                         case 0:
                             Log.i(TAG, "Displaying file in mediaplayer: " + url);
@@ -110,7 +110,7 @@ public class ArticleWebViewClient extends WebViewClient {
             alert.show();
         } else {
             Uri uri = Uri.parse(url);
-            
+
             try {
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -119,10 +119,10 @@ public class ArticleWebViewClient extends WebViewClient {
                 e.printStackTrace();
             }
         }
-        
+
         return true;
     }
-    
+
     private boolean externalStorageState() {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -131,18 +131,18 @@ public class ArticleWebViewClient extends WebViewClient {
             return false;
         }
     }
-    
+
     private class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
         private final static int BUFFER = (int) Utils.KB;
-        
+
         private WeakReference<Context> contextRef;
-        
+
         public AsyncMediaDownloader(Context context) {
             this.contextRef = new WeakReference<Context>(context);
         }
-        
+
         protected Void doInBackground(URL... urls) {
-            
+
             if (urls.length < 1) {
                 String msg = "No URL given, skipping download...";
                 Log.w(TAG, msg);
@@ -154,10 +154,10 @@ public class ArticleWebViewClient extends WebViewClient {
                 Utils.showFinishedNotification(msg, 0, true, contextRef.get());
                 return null;
             }
-            
+
             long start = System.currentTimeMillis();
             Utils.showRunningNotification(contextRef.get(), false);
-            
+
             // Use configured output directory
             File folder = new File(Controller.getInstance().saveAttachmentPath());
             if (!folder.exists() && !folder.mkdirs()) {
@@ -165,53 +165,53 @@ public class ArticleWebViewClient extends WebViewClient {
                 folder = new File(Constants.SAVE_ATTACHMENT_DEFAULT);
                 folder.mkdirs();
             }
-            
+
             if (!folder.exists())
                 folder.mkdirs();
-            
+
             BufferedInputStream in = null;
             FileOutputStream fos = null;
             BufferedOutputStream bout = null;
-            
+
             int size = -1;
-            
+
             File file = null;
             try {
                 URL url = urls[0];
                 HttpURLConnection c = (HttpURLConnection) url.openConnection();
-                
+
                 file = new File(folder, URLUtil.guessFileName(url.toString(), null, ".mp3"));
                 if (file.exists()) {
                     size = (int) file.length();
                     c.setRequestProperty("Range", "bytes=" + size + "-"); // try to resume downloads
                 }
-                
+
                 c.setRequestMethod("GET");
                 c.setDoInput(true);
                 c.setDoOutput(true);
-                
+
                 in = new BufferedInputStream(c.getInputStream());
                 fos = (size == 0) ? new FileOutputStream(file) : new FileOutputStream(file, true);
                 bout = new BufferedOutputStream(fos, BUFFER);
-                
+
                 byte[] data = new byte[BUFFER];
                 int count = 0;
                 while ((count = in.read(data, 0, BUFFER)) >= 0) {
                     bout.write(data, 0, count);
                     size += count;
                 }
-                
+
                 int time = (int) ((System.currentTimeMillis() - start) / Utils.SECOND);
-                
+
                 // Show Intent which opens the file
                 Intent intent = new Intent();
                 intent.setAction(android.content.Intent.ACTION_VIEW);
                 if (file != null)
                     intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
-                
+
                 Log.i(TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + size);
                 Utils.showFinishedNotification(file.getAbsolutePath(), time, false, contextRef.get(), intent);
-                
+
             } catch (IOException e) {
                 String msg = "Error while downloading: " + e;
                 Log.e(TAG, msg, e);
@@ -229,5 +229,5 @@ public class ArticleWebViewClient extends WebViewClient {
             return null;
         }
     }
-    
+
 }

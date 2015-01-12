@@ -18,13 +18,13 @@
 package org.ttrssreader.model.pojos;
 
 public class Feed implements Comparable<Feed> {
-    
+
     public int id;
     public int categoryId;
     public String title;
     public String url;
     public int unread;
-    
+
     public Feed() {
         this.id = 0;
         this.categoryId = 0;
@@ -32,7 +32,7 @@ public class Feed implements Comparable<Feed> {
         this.url = "";
         this.unread = 0;
     }
-    
+
     public Feed(int id, int categoryId, String title, String url, int unread) {
         this.id = id;
         this.categoryId = categoryId;
@@ -40,12 +40,12 @@ public class Feed implements Comparable<Feed> {
         this.url = url;
         this.unread = unread;
     }
-    
+
     @Override
     public int compareTo(Feed fi) {
         return title.compareToIgnoreCase(fi.title);
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof Feed) {
@@ -55,10 +55,10 @@ public class Feed implements Comparable<Feed> {
             return false;
         }
     }
-    
+
     @Override
     public int hashCode() {
         return id + "".hashCode();
     }
-    
+
 }

@@ -17,6 +17,13 @@
 
 package org.ttrssreader.gui.fragments;
 
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.WifiPreferencesActivity;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.preferences.FileBrowserHelper;
+import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -30,21 +37,14 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.WifiPreferencesActivity;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.preferences.FileBrowserHelper;
-import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
-
 import java.io.File;
 import java.util.List;
 
 public class PreferencesFragment extends PreferenceFragment {
-    
+
     private static final int ACTIVITY_CHOOSE_ATTACHMENT_FOLDER = 1;
     private static final int ACTIVITY_CHOOSE_CACHE_FOLDER = 2;
-    
+
     private static final String PREFS_DISPLAY = "prefs_display";
     private static final String PREFS_HEADERS = "prefs_headers";
     private static final String PREFS_HTTP = "prefs_http";
@@ -53,11 +53,11 @@ public class PreferencesFragment extends PreferenceFragment {
     private static final String PREFS_SYSTEM = "prefs_system";
     private static final String PREFS_USAGE = "prefs_usage";
     private static final String PREFS_WIFI = "prefs_wifibased";
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         String cat = getArguments().getString("cat");
         if (PREFS_DISPLAY.equals(cat))
             addPreferencesFromResource(R.xml.prefs_display);
@@ -80,11 +80,11 @@ public class PreferencesFragment extends PreferenceFragment {
             initWifibasedPreferences();
         }
     }
-    
+
     public static void initializePreferences(final PreferencesFragment fragment) {
         final Preference downloadPath = fragment.findPreference(Constants.SAVE_ATTACHMENT);
         final Preference cachePath = fragment.findPreference(Constants.CACHE_FOLDER);
-        
+
         if (downloadPath != null) {
             downloadPath.setSummary(Controller.getInstance().saveAttachmentPath());
             downloadPath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -95,7 +95,7 @@ public class PreferencesFragment extends PreferenceFragment {
                             callbackDownloadPath);
                     return true;
                 }
-                
+
                 // Fail-Safe Dialog for when there is no filebrowser installed:
                 FileBrowserFailOverCallback callbackDownloadPath = new FileBrowserFailOverCallback() {
                     @Override
@@ -103,14 +103,14 @@ public class PreferencesFragment extends PreferenceFragment {
                         downloadPath.setSummary(path);
                         Controller.getInstance().setSaveAttachmentPath(path);
                     }
-                    
+
                     @Override
                     public void onCancel() {
                     }
                 };
             });
         }
-        
+
         if (cachePath != null) {
             cachePath.setSummary(Controller.getInstance().cacheFolder());
             cachePath.setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -121,7 +121,7 @@ public class PreferencesFragment extends PreferenceFragment {
                             callbackCachePath);
                     return true;
                 }
-                
+
                 // Fail-Safe Dialog for when there is no filebrowser installed:
                 FileBrowserFailOverCallback callbackCachePath = new FileBrowserFailOverCallback() {
                     @Override
@@ -129,7 +129,7 @@ public class PreferencesFragment extends PreferenceFragment {
                         cachePath.setSummary(path);
                         Controller.getInstance().setCacheFolder(path);
                     }
-                    
+
                     @Override
                     public void onCancel() {
                     }
@@ -137,26 +137,26 @@ public class PreferencesFragment extends PreferenceFragment {
             });
         }
     }
-    
+
     private void initWifibasedPreferences() {
         addPreferencesFromResource(R.xml.prefs_wifibased);
         PreferenceCategory mWifibasedCategory = (PreferenceCategory) findPreference("wifibasedCategory");
         WifiManager mWifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
         List<WifiConfiguration> mWifiList = mWifiManager.getConfiguredNetworks();
-        
+
         if (mWifiList == null)
             return;
-        
+
         for (WifiConfiguration wifi : mWifiList) {
             // Friendly SSID-Name
             String ssid = wifi.SSID.replaceAll("\"", "");
             // Add PreferenceScreen for each network
-            
+
             PreferenceScreen pref = getPreferenceManager().createPreferenceScreen(getActivity());
             pref.setPersistent(false);
             pref.setKey("wifiNetwork" + ssid);
             pref.setTitle(ssid);
-            
+
             Intent intent = new Intent(getActivity(), WifiPreferencesActivity.class);
             intent.putExtra(WifiPreferencesActivity.KEY_SSID, ssid); // TODO: ssid == null?
             pref.setIntent(intent);
@@ -167,7 +167,7 @@ public class PreferencesFragment extends PreferenceFragment {
             mWifibasedCategory.addPreference(pref);
         }
     }
-    
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         String path = null;
@@ -184,7 +184,7 @@ public class PreferencesFragment extends PreferenceFragment {
                     downloadPath.setSummary(path);
                     Controller.getInstance().setSaveAttachmentPath(path);
                     break;
-                
+
                 case ACTIVITY_CHOOSE_CACHE_FOLDER:
                     Preference cachePath = findPreference(Constants.CACHE_FOLDER);
                     cachePath.setSummary(path);
@@ -194,5 +194,5 @@ public class PreferencesFragment extends PreferenceFragment {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
-    
+
 }

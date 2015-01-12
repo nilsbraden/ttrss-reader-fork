@@ -20,41 +20,41 @@ package org.ttrssreader.controllers;
 import android.app.Activity;
 
 public class ProgressBarManager {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = ProgressBarManager.class.getSimpleName();
-    
+
     private int progressIndeterminateCount = 0;
-    
+
     // Singleton (see http://stackoverflow.com/a/11165926)
     private ProgressBarManager() {
     }
-    
+
     private static class InstanceHolder {
         private static final ProgressBarManager instance = new ProgressBarManager();
     }
-    
+
     public static ProgressBarManager getInstance() {
         return InstanceHolder.instance;
     }
-    
+
     public void addProgress(Activity activity) {
         progressIndeterminateCount++;
         setIndeterminateVisibility(activity);
     }
-    
+
     public void removeProgress(Activity activity) {
         progressIndeterminateCount--;
         if (progressIndeterminateCount <= 0)
             progressIndeterminateCount = 0;
         setIndeterminateVisibility(activity);
     }
-    
+
     public void resetProgress(Activity activity) {
         progressIndeterminateCount = 0;
         setIndeterminateVisibility(activity);
     }
-    
+
     public void setIndeterminateVisibility(Activity activity) {
         boolean visible = (progressIndeterminateCount > 0);
         activity.setProgressBarIndeterminateVisibility(visible);
@@ -63,5 +63,5 @@ public class ProgressBarManager {
             activity.setProgressBarVisibility(false);
         }
     }
-    
+
 }

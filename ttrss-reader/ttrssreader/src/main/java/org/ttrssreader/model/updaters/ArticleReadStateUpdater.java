@@ -27,13 +27,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ArticleReadStateUpdater implements IUpdatable {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = ArticleReadStateUpdater.class.getSimpleName();
-    
+
     private int state;
     private Collection<Article> articles = null;
-    
+
     /* articleState: 0 = mark as read, 1 = mark as unread */
     public ArticleReadStateUpdater(Article article, int pid, int articleState) {
         articles = new ArrayList<Article>();
@@ -41,7 +41,7 @@ public class ArticleReadStateUpdater implements IUpdatable {
         state = articleState;
         article.isUnread = (articleState > 0);
     }
-    
+
     /* articleState: 0 = mark as read, 1 = mark as unread */
     public ArticleReadStateUpdater(Collection<Article> articlesList, int pid, int articleState) {
         articles = new ArrayList<Article>();
@@ -51,7 +51,7 @@ public class ArticleReadStateUpdater implements IUpdatable {
             article.isUnread = (articleState > 0);
         }
     }
-    
+
     @Override
     public void update(Updater parent) {
         if (articles != null) {
@@ -60,7 +60,7 @@ public class ArticleReadStateUpdater implements IUpdatable {
                 ids.add(article.id);
                 article.isUnread = (state > 0);
             }
-            
+
             if (!ids.isEmpty()) {
                 DBHelper.getInstance().markArticles(ids, "isUnread", state);
                 Data.getInstance().calculateCounters();
@@ -69,5 +69,5 @@ public class ArticleReadStateUpdater implements IUpdatable {
             }
         }
     }
-    
+
 }

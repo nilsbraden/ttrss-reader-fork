@@ -23,10 +23,10 @@ public class StateSynchronisationUpdater implements IUpdatable {
 
     @SuppressWarnings("unused")
     private static final String TAG = StateSynchronisationUpdater.class.getSimpleName();
-    
+
     @Override
     public void update(Updater parent) {
         Data.getInstance().synchronizeStatus();
     }
-    
+
 }

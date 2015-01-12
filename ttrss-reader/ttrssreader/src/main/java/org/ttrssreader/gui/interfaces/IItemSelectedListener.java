@@ -20,11 +20,11 @@ package org.ttrssreader.gui.interfaces;
 import org.ttrssreader.gui.fragments.MainListFragment;
 
 public interface IItemSelectedListener {
-    
+
     enum TYPE {
         CATEGORY, FEED, FEEDHEADLINE
     }
-    
+
     public void itemSelected(MainListFragment source, int selectedIndex, int selectedId);
-    
+
 }

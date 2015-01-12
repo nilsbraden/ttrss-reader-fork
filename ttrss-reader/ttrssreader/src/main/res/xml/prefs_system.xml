@@ -16,9 +16,9 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/SystemPreferenceCategoryTitle" >
+    android:title="@string/SystemPreferenceCategoryTitle">
 
-    <PreferenceCategory android:title="@string/SystemPreferenceCategoryTitle" >
+    <PreferenceCategory android:title="@string/SystemPreferenceCategoryTitle">
         <CheckBoxPreference
             android:defaultValue="false"
             android:disableDependentsState="false"

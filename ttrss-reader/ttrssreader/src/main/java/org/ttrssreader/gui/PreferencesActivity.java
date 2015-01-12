@@ -17,6 +17,16 @@
 
 package org.ttrssreader.gui;
 
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.gui.fragments.PreferencesFragment;
+import org.ttrssreader.model.HeaderAdapter;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
+import org.ttrssreader.utils.Utils;
+
 import android.app.backup.BackupManager;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -29,29 +39,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ListAdapter;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.gui.fragments.PreferencesFragment;
-import org.ttrssreader.model.HeaderAdapter;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-import org.ttrssreader.utils.Utils;
-
 import java.util.List;
 
 public class PreferencesActivity extends PreferenceActivity {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = PreferencesActivity.class.getSimpleName();
-    
+
     private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
-    
+
     private static AsyncTask<Void, Void, Void> init;
     private static List<Header> _headers;
     private boolean needResource = false;
-    
+
     @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class PreferencesActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState); // IMPORTANT!
         mDamageReport.initialize();
         setResult(Constants.ACTIVITY_SHOW_PREFERENCES);
-        
+
         if (needResource) {
             addPreferencesFromResource(R.xml.prefs_main_top);
             addPreferencesFromResource(R.xml.prefs_http);
@@ -71,7 +71,7 @@ public class PreferencesActivity extends PreferenceActivity {
             addPreferencesFromResource(R.xml.prefs_main_bottom);
         }
     }
-    
+
     @Override
     public void onBuildHeaders(List<Header> headers) {
         _headers = headers;
@@ -81,7 +81,7 @@ public class PreferencesActivity extends PreferenceActivity {
             loadHeadersFromResource(R.xml.prefs_headers, headers);
         }
     }
-    
+
     @Override
     public void setListAdapter(ListAdapter adapter) {
         if (adapter != null && _headers != null) {
@@ -90,30 +90,30 @@ public class PreferencesActivity extends PreferenceActivity {
             super.setListAdapter(null);
         }
     }
-    
+
     @Override
     protected void onPause() {
         super.onPause();
         PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(
                 Controller.getInstance());
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(
                 Controller.getInstance());
     }
-    
+
     @Override
     protected void onStop() {
         super.onStop();
-        
+
         if (init != null) {
             init.cancel(true);
             init = null;
         }
-        
+
         if (!Utils.checkIsConfigInvalid()) {
             init = new AsyncTask<Void, Void, Void>() {
                 @Override
@@ -129,14 +129,14 @@ public class PreferencesActivity extends PreferenceActivity {
             Controller.getInstance().setPreferencesChanged(false);
         }
     }
-    
+
     @Override
     protected void onDestroy() {
         mDamageReport.restoreOriginalHandler();
         mDamageReport = null;
         super.onDestroy();
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -144,7 +144,7 @@ public class PreferencesActivity extends PreferenceActivity {
         inflater.inflate(R.menu.preferences, menu);
         return true;
     }
-    
+
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
@@ -164,19 +164,19 @@ public class PreferencesActivity extends PreferenceActivity {
         }
         return false;
     }
-    
+
     @Override
     protected boolean isValidFragment(String fragmentName) {
         if (PreferencesFragment.class.getName().equals(fragmentName))
             return true;
         return false;
     }
-    
+
     @Override
     public void switchToHeader(Header header) {
         if (header.fragment != null) {
             super.switchToHeader(header);
         }
     }
-    
+
 }

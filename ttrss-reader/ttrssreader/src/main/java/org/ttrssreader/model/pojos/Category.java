@@ -18,23 +18,23 @@
 package org.ttrssreader.model.pojos;
 
 public class Category implements Comparable<Category> {
-    
+
     public int id;
     public String title;
     public int unread;
-    
+
     public Category() {
         this.id = 0;
         this.title = "";
         this.unread = 0;
     }
-    
+
     public Category(int id, String title, int unread) {
         this.id = id;
         this.title = title;
         this.unread = unread;
     }
-    
+
     @Override
     public int compareTo(Category ci) {
         // Sort by Id if Id is 0 or smaller, else sort by Title
@@ -45,7 +45,7 @@ public class Category implements Comparable<Category> {
         }
         return title.compareToIgnoreCase(ci.title);
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof Category) {
@@ -55,10 +55,10 @@ public class Category implements Comparable<Category> {
             return false;
         }
     }
-    
+
     @Override
     public int hashCode() {
         return id + "".hashCode();
     }
-    
+
 }

@@ -20,9 +20,9 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:drawable="@drawable/spinner_ab_disabled_light" android:state_enabled="false"/>
-    <item android:drawable="@drawable/spinner_ab_pressed_light" android:state_pressed="true"/>
-    <item android:drawable="@drawable/spinner_ab_focused_light" android:state_focused="true" android:state_pressed="false"/>
-    <item android:drawable="@drawable/spinner_ab_default_light"/>
+    <item android:drawable="@drawable/spinner_ab_disabled_light" android:state_enabled="false" />
+    <item android:drawable="@drawable/spinner_ab_pressed_light" android:state_pressed="true" />
+    <item android:drawable="@drawable/spinner_ab_focused_light" android:state_focused="true" android:state_pressed="false" />
+    <item android:drawable="@drawable/spinner_ab_default_light" />
 
 </selector>

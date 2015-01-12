@@ -18,9 +18,9 @@
 package org.ttrssreader.gui.interfaces;
 
 public interface IDataChangedListener {
-    
+
     public void dataLoadingFinished();
-    
+
     public void dataChanged();
-    
+
 }

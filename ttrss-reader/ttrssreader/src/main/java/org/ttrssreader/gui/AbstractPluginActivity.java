@@ -15,21 +15,23 @@
 
 package org.ttrssreader.gui;
 
+import com.twofortyfouram.locale.api.R;
+
 import org.ttrssreader.controllers.Controller;
+
 import android.app.Activity;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.twofortyfouram.locale.api.R;
 
 /**
  * Superclass for plug-in Activities. This class takes care of initializing aspects of the plug-in's UI to
  * look more integrated with the plug-in host.
  */
 public abstract class AbstractPluginActivity extends Activity {
-    
+
     private static final String TAG = AbstractPluginActivity.class.getSimpleName();
     /**
      * Flag boolean that can only be set to true via the "Don't Save"
@@ -40,7 +42,7 @@ public abstract class AbstractPluginActivity extends Activity {
      * There is no need to save/restore this field's state.
      */
     private boolean mIsCancelled = false;
-    
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         setTheme(Controller.getInstance().getTheme());
@@ -56,11 +58,11 @@ public abstract class AbstractPluginActivity extends Activity {
             setTitle(callingApplicationLabel);
         }
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         super.onCreateOptionsMenu(menu);
-        
+
         getMenuInflater().inflate(R.menu.twofortyfouram_locale_help_save_dontsave, menu);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         
@@ -79,11 +81,11 @@ public abstract class AbstractPluginActivity extends Activity {
         }
         return true;
     }
-    
+
     @Override
     public boolean onMenuItemSelected(final int featureId, final MenuItem item) {
         final int id = item.getItemId();
-        
+
         if (android.R.id.home == id) {
             finish();
             return true;
@@ -95,14 +97,14 @@ public abstract class AbstractPluginActivity extends Activity {
             finish();
             return true;
         }
-        
+
         return super.onOptionsItemSelected(item);
     }
-    
+
     /**
      * During {@link #finish()}, subclasses can call this method to determine whether the Activity was
      * canceled.
-     * 
+     *
      * @return True if the Activity was canceled. False if the Activity was not canceled.
      */
     protected boolean isCanceled() {

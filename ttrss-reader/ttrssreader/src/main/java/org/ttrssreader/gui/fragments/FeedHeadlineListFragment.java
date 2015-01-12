@@ -17,26 +17,6 @@
 
 package org.ttrssreader.gui.fragments;
 
-import android.app.ActionBar;
-import android.app.Activity;
-import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.net.Uri.Builder;
-import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.GestureDetector;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -61,22 +41,42 @@ import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 
+import android.app.ActionBar;
+import android.app.Activity;
+import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
+import android.net.Uri.Builder;
+import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class FeedHeadlineListFragment extends MainListFragment implements TextInputAlertCallback {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = FeedHeadlineListFragment.class.getSimpleName();
-    
+
     private static final TYPE THIS_TYPE = TYPE.FEEDHEADLINE;
     public static final String FRAGMENT = "FEEDHEADLINE_FRAGMENT";
-    
+
     public static final String FEED_CAT_ID = "FEED_CAT_ID";
     public static final String FEED_ID = "ARTICLE_FEED_ID";
     public static final String ARTICLE_ID = "ARTICLE_ID";
     public static final String FEED_SELECT_ARTICLES = "FEED_SELECT_ARTICLES";
-    
+
     private static final int MARK_GROUP = 200;
     private static final int MARK_READ = MARK_GROUP + 1;
     private static final int MARK_STAR = MARK_GROUP + 2;
@@ -84,19 +84,19 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     private static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
     private static final int MARK_ABOVE_READ = MARK_GROUP + 5;
     private static final int SHARE = MARK_GROUP + 6;
-    
+
     private int categoryId = Integer.MIN_VALUE;
     private int feedId = Integer.MIN_VALUE;
     private int articleId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
-    
+
     private FeedAdapter parentAdapter;
     private List<Integer> parentIds = null;
     private int[] parentIdsBeforeAndAfter = new int[2];
-    
+
     private Uri headlineUri;
     private Uri feedUri;
-    
+
     public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles, int articleId) {
         FeedHeadlineListFragment detail = new FeedHeadlineListFragment();
         detail.categoryId = categoryId;
@@ -106,7 +106,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         detail.setRetainInstance(true);
         return detail;
     }
-    
+
     @Override
     public void onCreate(Bundle instance) {
         if (instance != null) {
@@ -115,21 +115,21 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
             articleId = instance.getInt(ARTICLE_ID);
         }
-        
+
         if (feedId > 0)
             Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
         setHasOptionsMenu(true);
         super.onCreate(instance);
     }
-    
+
     @Override
     public void onActivityCreated(Bundle instance) {
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
         getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
-        
+
         super.onActivityCreated(instance);
-        
+
         // Detect touch gestures like swipe and scroll down:
         ActionBar actionBar = getActivity().getActionBar();
         gestureDetector = new GestureDetector(getActivity(), new HeadlineGestureDetector(actionBar, Controller
@@ -140,11 +140,11 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             }
         };
         getView().setOnTouchListener(gestureListener);
-        
+
         parentAdapter = new FeedAdapter(getActivity());
         getLoaderManager().restartLoader(TYPE_FEED_ID, null, this);
     }
-    
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(FEED_CAT_ID, categoryId);
@@ -153,49 +153,49 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         outState.putInt(ARTICLE_ID, articleId);
         super.onSaveInstanceState(outState);
     }
-    
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        
+
         // Get selected Article
         AdapterView.AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
         Article a = (Article) adapter.getItem(info.position);
-        
+
         menu.add(MARK_GROUP, MARK_ABOVE_READ, Menu.NONE, R.string.Commons_MarkAboveRead);
-        
+
         if (a.isUnread) {
             menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
         } else {
             menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkUnread);
         }
-        
+
         if (a.isStarred) {
             menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkUnstar);
         } else {
             menu.add(MARK_GROUP, MARK_STAR, Menu.NONE, R.string.Commons_MarkStar);
         }
-        
+
         if (a.isPublished) {
             menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkUnpublish);
         } else {
             menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
             menu.add(MARK_GROUP, MARK_PUBLISH_NOTE, Menu.NONE, R.string.Commons_MarkPublishNote);
         }
-        
+
         menu.add(MARK_GROUP, SHARE, Menu.NONE, R.string.ArticleActivity_ShareLink);
     }
-    
+
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (cmi == null)
             return false;
-        
+
         Article a = (Article) adapter.getItem(cmi.position);
         if (a == null)
             return false;
-        
+
         switch (item.getItemId()) {
             case MARK_READ:
                 new Updater(getActivity(), new ArticleReadStateUpdater(a, feedId, a.isUnread ? 0 : 1))
@@ -228,12 +228,12 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         }
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (super.onOptionsItemSelected(item))
             return true;
-        
+
         switch (item.getItemId()) {
             case R.id.Menu_MarkFeedRead: {
                 boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
@@ -244,7 +244,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                     new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate)
                             .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
-                
+
                 return true;
             }
             case R.id.Menu_FeedUnsubscribe: {
@@ -257,12 +257,11 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 return false;
         }
     }
-    
+
     /**
      * Creates a list of articles which are above the given index in the currently displayed list of items.
-     * 
-     * @param index
-     *            the selected index, will be excluded in returned list
+     *
+     * @param index the selected index, will be excluded in returned list
      * @return a list of items above the selected item
      */
     private List<Article> getUnreadAbove(int index) {
@@ -274,81 +273,83 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         }
         return ret;
     }
-    
+
     public void onPublishNoteResult(Article a, String note) {
         new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note))
                 .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
-    
+
     @Override
     public TYPE getType() {
         return THIS_TYPE;
     }
-    
+
     public int getCategoryId() {
         return categoryId;
     }
-    
+
     public int getFeedId() {
         return feedId;
     }
-    
+
     public int getArticleId() {
         return articleId;
     }
-    
+
     public boolean getSelectArticlesForCategory() {
         return selectArticlesForCategory;
     }
-    
+
     private class HeadlineGestureDetector extends MyGestureDetector {
         private HeadlineGestureDetector(ActionBar actionBar, boolean hideActionbar) {
             super(actionBar, hideActionbar);
         }
-        
+
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             // Refresh metrics-data in Controller
             Controller.refreshDisplayMetrics(((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay());
-            
+
             try {
                 if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
                     return false;
                 if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                    
+
                     // right to left swipe
                     FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
                     activity.openNextFeed(1);
                     return true;
-                    
+
                 } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
                         && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                    
+
                     // left to right swipe
                     FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
                     activity.openNextFeed(-1);
                     return true;
-                    
+
                 }
             } catch (Exception e) {
             }
             return false;
         }
-    };
-    
+    }
+
+    ;
+
     private void fillParentInformation() {
         if (parentIds == null) {
             parentIds = new ArrayList<Integer>(parentAdapter.getCount() + 2);
-            
+
             parentIds.add(Integer.MIN_VALUE);
             parentIds.addAll(parentAdapter.getIds());
             parentIds.add(Integer.MIN_VALUE);
-            
+
             parentAdapter.notifyDataSetInvalidated(); // Not needed anymore
         }
-        
+
         // Added dummy-elements at top and bottom of list for easier access, index == 0 cannot happen.
         int index = -1;
         int i = 0;
@@ -367,37 +368,37 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
         }
     }
-    
+
     public int openNextFeed(int direction) {
         if (feedId < 0)
             return feedId;
-        
+
         int id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
         if (id == Integer.MIN_VALUE) {
             Utils.alert(getActivity(), true);
             return feedId;
         }
-        
+
         feedId = id;
         adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
         setListAdapter(adapter);
         getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
-        
+
         fillParentInformation();
-        
+
         // Find next id in this direction and see if there is another next article or not
         id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
         if (id == Integer.MIN_VALUE)
             Utils.alert(getActivity());
-        
+
         if (feedId > 0)
             Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.clear();
-        
+
         getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
         return feedId;
     }
-    
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
@@ -419,7 +420,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         }
         return null;
     }
-    
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
@@ -433,7 +434,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         }
         super.onLoadFinished(loader, data);
     }
-    
+
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         switch (loader.getId()) {
@@ -445,7 +446,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 break;
         }
     }
-    
+
     @Override
     protected void fetchOtherData() {
         if (selectArticlesForCategory) {
@@ -464,7 +465,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         unreadCount = DBHelper.getInstance().getUnreadCount(selectArticlesForCategory ? categoryId : feedId,
                 selectArticlesForCategory);
     }
-    
+
     @Override
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
@@ -473,5 +474,5 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             activity.getContentResolver().notifyChange(headlineUri, null);
         super.doRefresh();
     }
-    
+
 }

@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.Set;
 
 public class Article implements Comparable<Article> {
-    
+
     public int id;
     public String title;
     public int feedId;
@@ -35,7 +35,7 @@ public class Article implements Comparable<Article> {
     public boolean isPublished;
     public Set<Label> labels;
     public String author;
-    
+
     public Article() {
         id = -1;
         title = null;
@@ -51,7 +51,7 @@ public class Article implements Comparable<Article> {
         isPublished = false;
         author = null;
     }
-    
+
     public Article(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
             Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished,
             Set<Label> labels, String author) {
@@ -73,12 +73,12 @@ public class Article implements Comparable<Article> {
         this.labels = labels;
         this.author = author;
     }
-    
+
     @Override
     public int compareTo(Article ai) {
         return ai.updated.compareTo(this.updated);
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == null)
@@ -89,16 +89,16 @@ public class Article implements Comparable<Article> {
         }
         return false;
     }
-    
+
     @Override
     public int hashCode() {
         return id;
     }
-    
+
     public enum ArticleField {
         id, title, unread, updated, feed_id, content, link, comments, attachments, marked, published, labels,
         is_updated, tags, feed_title, comments_count, comments_link, always_display_attachments, author, score, lang,
         note
     }
-    
+
 }

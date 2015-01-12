@@ -17,6 +17,41 @@
 
 package org.ttrssreader.gui.fragments;
 
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.HtmlNode;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.TagNodeVisitor;
+import org.stringtemplate.v4.ST;
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.gui.ErrorActivity;
+import org.ttrssreader.gui.FeedHeadlineActivity;
+import org.ttrssreader.gui.TextInputAlert;
+import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
+import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
+import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
+import org.ttrssreader.gui.view.ArticleWebViewClient;
+import org.ttrssreader.gui.view.MyGestureDetector;
+import org.ttrssreader.gui.view.MyWebView;
+import org.ttrssreader.imageCache.ImageCache;
+import org.ttrssreader.model.FeedHeadlineAdapter;
+import org.ttrssreader.model.ListContentProvider;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.model.pojos.RemoteFile;
+import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
+import org.ttrssreader.model.updaters.PublishedStateUpdater;
+import org.ttrssreader.model.updaters.StarredStateUpdater;
+import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.DateUtils;
+import org.ttrssreader.utils.FileUtils;
+import org.ttrssreader.utils.Utils;
+
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -59,41 +94,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.HtmlNode;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.TagNodeVisitor;
-import org.stringtemplate.v4.ST;
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.ProgressBarManager;
-import org.ttrssreader.gui.ErrorActivity;
-import org.ttrssreader.gui.FeedHeadlineActivity;
-import org.ttrssreader.gui.TextInputAlert;
-import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
-import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
-import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
-import org.ttrssreader.gui.view.ArticleWebViewClient;
-import org.ttrssreader.gui.view.MyGestureDetector;
-import org.ttrssreader.gui.view.MyWebView;
-import org.ttrssreader.imageCache.ImageCache;
-import org.ttrssreader.model.FeedHeadlineAdapter;
-import org.ttrssreader.model.ListContentProvider;
-import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.pojos.Feed;
-import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.model.pojos.RemoteFile;
-import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
-import org.ttrssreader.model.updaters.PublishedStateUpdater;
-import org.ttrssreader.model.updaters.StarredStateUpdater;
-import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.DateUtils;
-import org.ttrssreader.utils.FileUtils;
-import org.ttrssreader.utils.Utils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -101,14 +101,14 @@ import java.util.Map;
 import java.util.Set;
 
 public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, TextInputAlertCallback {
-    
+
     private static final String TAG = ArticleFragment.class.getSimpleName();
-    
+
     public static final String FRAGMENT = "ARTICLE_FRAGMENT";
-    
+
     private static final String ARTICLE_ID = "ARTICLE_ID";
     private static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
-    
+
     private static final String ARTICLE_MOVE = "ARTICLE_MOVE";
     private static final int ARTICLE_MOVE_NONE = 0;
     public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
@@ -116,11 +116,11 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
     private static final int CONTEXT_MENU_DISPLAY_CAPTION = 1002;
     private static final int CONTEXT_MENU_COPY_URL = 1003;
-    
+
     private static final char TEMPLATE_DELIMITER_START = '$';
     private static final char TEMPLATE_DELIMITER_END = '$';
     private static final String LABEL_COLOR_STRING = "<span style=\"color: %s; background-color: %s\">%s</span>";
-    
+
     private static final String TEMPLATE_ARTICLE_VAR = "article";
     private static final String TEMPLATE_FEED_VAR = "feed";
     private static final String MARKER_CACHED_IMAGES = "CACHED_IMAGES";
@@ -128,39 +128,40 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     private static final String MARKER_LABELS = "LABELS";
     private static final String MARKER_CONTENT = "CONTENT";
     private static final String MARKER_ATTACHMENTS = "ATTACHMENTS";
-    
+
     // Extras
     private int articleId = -1;
     private int feedId = -1;
     private int categoryId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
     private int lastMove = ARTICLE_MOVE_DEFAULT;
-    
+
     private Article article = null;
     private Feed feed = null;
     private String content;
     private boolean linkAutoOpened;
     private boolean markedRead = false;
-    
+
     private FrameLayout webContainer = null;
     private MyWebView webView;
     private boolean webviewInitialized = false;
     private Button buttonNext;
     private Button buttonPrev;
-    
+
     private FeedHeadlineAdapter parentAdapter = null;
     private List<Integer> parentIds = null;
     private int[] parentIdsBeforeAndAfter = new int[2];
-    
+
     private String mSelectedExtra;
     private String mSelectedAltText;
-    
+
     private ArticleJSInterface articleJSInterface;
-    
+
     private GestureDetector gestureDetector = null;
     private View.OnTouchListener gestureListener = null;
-    
-    public static ArticleFragment newInstance(int id, int feedId, int categoryId, boolean selectArticles, int lastMove) {
+
+    public static ArticleFragment newInstance(int id, int feedId, int categoryId, boolean selectArticles,
+            int lastMove) {
         // Create a new fragment instance
         ArticleFragment detail = new ArticleFragment();
         detail.articleId = id;
@@ -171,12 +172,12 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         detail.setRetainInstance(true);
         return detail;
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.articleitem, container, false);
     }
-    
+
     @Override
     public void onCreate(Bundle instance) {
         if (instance != null) {
@@ -190,32 +191,32 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         }
         super.onCreate(instance);
     }
-    
+
     @Override
     public void onActivityCreated(Bundle instance) {
         super.onActivityCreated(instance);
         articleJSInterface = new ArticleJSInterface(getActivity());
-        
+
         parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
         getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
-        
+
         initData();
         initUI();
         doRefresh();
     }
-    
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         // Remove the WebView from the old placeholder
         if (webView != null)
             webContainer.removeView(webView);
-        
+
         super.onConfigurationChanged(newConfig);
-        
+
         initUI();
         doRefresh();
     }
-    
+
     @Override
     public void onSaveInstanceState(Bundle instance) {
         instance.putInt(ARTICLE_ID, articleId);
@@ -227,24 +228,24 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             webView.saveState(instance);
         super.onSaveInstanceState(instance);
     }
-    
+
     public void resetParentInformation() {
         parentIds.clear();
         parentIdsBeforeAndAfter[0] = Integer.MIN_VALUE;
         parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
     }
-    
+
     private void fillParentInformation() {
         if (parentIds == null) {
             parentIds = new ArrayList<Integer>(parentAdapter.getCount() + 2);
-            
+
             parentIds.add(Integer.MIN_VALUE);
             parentIds.addAll(parentAdapter.getIds());
             parentIds.add(Integer.MIN_VALUE);
-            
+
             parentAdapter.notifyDataSetInvalidated(); // Not needed anymore
         }
-        
+
         // Added dummy-elements at top and bottom of list for easier access, index == 0 cannot happen.
         int index = -1;
         int i = 0;
@@ -263,7 +264,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
         }
     }
-    
+
     @SuppressLint("ClickableViewAccessibility")
     private void initUI() {
         // Wrap webview inside another FrameLayout to avoid memory leaks as described here:
@@ -273,13 +274,13 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         buttonNext = (Button) getActivity().findViewById(R.id.article_buttonNext);
         buttonPrev.setOnClickListener(onButtonPressedListener);
         buttonNext.setOnClickListener(onButtonPressedListener);
-        
+
         // Initialize the WebView if necessary
         if (webView == null) {
             webView = new MyWebView(getActivity());
             webView.setWebViewClient(new ArticleWebViewClient());
             webView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-            
+
             boolean supportZoom = Controller.getInstance().supportZoomControls();
             webView.getSettings().setSupportZoom(supportZoom);
             webView.getSettings().setBuiltInZoomControls(supportZoom);
@@ -290,14 +291,14 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             webView.setOnKeyListener(keyListener);
             webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
             webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            
+
             if (gestureDetector == null || gestureListener == null) {
                 ActionBar actionBar = getActivity().getActionBar();
-                
+
                 // Detect touch gestures like swipe and scroll down:
                 gestureDetector = new GestureDetector(getActivity(), new ArticleGestureDetector(actionBar, Controller
                         .getInstance().hideActionbar()));
-                
+
                 gestureListener = new View.OnTouchListener() {
                     public boolean onTouch(View v, MotionEvent event) {
                         gestureDetector.onTouchEvent(event);
@@ -311,32 +312,32 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             // "Custom view org/ttrssreader/gui/view/MyWebView has setOnTouchListener called on it but does not override performClick"
             webView.setOnTouchListener(gestureListener);
         }
-        
+
         // TODO: Is this still necessary?
         int backgroundColor = Controller.getInstance().getThemeBackground();
         int fontColor = Controller.getInstance().getThemeFont();
         webView.setBackgroundColor(backgroundColor);
         if (getActivity().findViewById(R.id.article_view) instanceof ViewGroup)
             setBackground((ViewGroup) getActivity().findViewById(R.id.article_view), backgroundColor, fontColor);
-        
+
         registerForContextMenu(webView);
         // Attach the WebView to its placeholder
         if (webView.getParent() != null && webView.getParent() instanceof FrameLayout)
             ((FrameLayout) webView.getParent()).removeAllViews();
         webContainer.addView(webView);
-        
+
         getActivity().findViewById(R.id.article_button_view).setVisibility(
                 Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
                         : View.GONE);
-        
+
         setHasOptionsMenu(true);
     }
-    
+
     private void initData() {
         if (feedId > 0)
             Controller.getInstance().lastOpenedFeeds.add(feedId);
         Controller.getInstance().lastOpenedArticles.add(articleId);
-        
+
         // Get article from DB
         article = DBHelper.getInstance().getArticle(articleId);
         if (article == null) {
@@ -344,7 +345,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             return;
         }
         feed = DBHelper.getInstance().getFeed(article.feedId);
-        
+
         // Mark as read if necessary, do it here because in doRefresh() it will be done several times even if you set
         // it to "unread" in the meantime.
         if (article.isUnread) {
@@ -353,19 +354,19 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             new Updater(null, new ArticleReadStateUpdater(article, feedId, 0))
                     .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
-        
+
         getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
-        
+
         // Reload content on next doRefresh()
         webviewInitialized = false;
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
         getView().setVisibility(View.VISIBLE);
     }
-    
+
     @Override
     public void onStop() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
@@ -377,7 +378,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         super.onStop();
         getView().setVisibility(View.GONE);
     }
-    
+
     @Override
     public void onDestroy() {
         // Check again to make sure it didnt get updated and marked as unread again in the background
@@ -392,25 +393,25 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         if (webView != null)
             webView.destroy();
     }
-    
+
     @SuppressLint("SetJavaScriptEnabled")
     private void doRefresh() {
         if (webView == null)
             return;
-        
+
         try {
             ProgressBarManager.getInstance().addProgress(getActivity());
-            
+
             if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
                 webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
             } else {
                 webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
             }
-            
+
             // No need to reload everything
             if (webviewInitialized)
                 return;
-            
+
             // Check for errors
             if (Controller.getInstance().getConnector().hasLastError()) {
                 Intent i = new Intent(getActivity(), ErrorActivity.class);
@@ -418,16 +419,16 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 startActivityForResult(i, ErrorActivity.ACTIVITY_SHOW_ERROR);
                 return;
             }
-            
+
             if (article.content == null)
                 return;
-            
+
             StringBuilder labels = new StringBuilder();
             for (Label label : article.labels) {
                 if (label.checked) {
                     if (labels.length() > 0)
                         labels.append(", ");
-                    
+
                     String labelString = label.caption;
                     if (label.foregroundColor != null && label.backgroundColor != null)
                         labelString = String.format(LABEL_COLOR_STRING, label.foregroundColor, label.backgroundColor,
@@ -435,10 +436,10 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                     labels.append(labelString);
                 }
             }
-            
+
             // Load html from Controller and insert content
             ST contentTemplate = new ST(Controller.htmlTemplate, TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
-            
+
             contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
             contentTemplate.add(TEMPLATE_FEED_VAR, feed);
             contentTemplate.add(MARKER_CACHED_IMAGES, getCachedImagesJS(article.id));
@@ -447,12 +448,12 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             contentTemplate.add(MARKER_CONTENT, article.content);
             // Inject the specific code for attachments, <img> for images, http-link for Videos
             contentTemplate.add(MARKER_ATTACHMENTS, getAttachmentsMarkup(getActivity(), article.attachments));
-            
+
             webView.getSettings().setJavaScriptEnabled(true);
             webView.addJavascriptInterface(articleJSInterface, "articleController");
             content = contentTemplate.render();
             webView.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
-            
+
             if (!linkAutoOpened && article.content.length() < 3) {
                 if (Controller.getInstance().openUrlEmptyArticle()) {
                     Log.i(TAG, "Article-Content is empty, opening URL in browser");
@@ -460,7 +461,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                     openLink();
                 }
             }
-            
+
             // Everything did load, we dont have to do this again.
             webviewInitialized = true;
         } catch (Exception e) {
@@ -469,7 +470,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             ProgressBarManager.getInstance().removeProgress(getActivity());
         }
     }
-    
+
     /**
      * Starts a new activity with the url of the current article. This should open a webbrowser in most cases. If the
      * url contains spaces or newline-characters it is first trim()'ed.
@@ -477,11 +478,11 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     private void openLink() {
         if (article.url == null || article.url.length() == 0)
             return;
-        
+
         String url = article.url;
         if (article.url.contains(" ") || article.url.contains("\n"))
             url = url.trim();
-        
+
         try {
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
@@ -490,51 +491,49 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             Log.e(TAG, "Couldn't find a suitable activity for the uri: " + url);
         }
     }
-    
+
     public Article getArticle() {
         return article;
     }
-    
+
     public int getArticleId() {
         return articleId;
     }
-    
+
     /**
-     * Recursively walks all viewGroups and their Views inside the given ViewGroup and sets the background to black and,
+     * Recursively walks all viewGroups and their Views inside the given ViewGroup and sets the background to black
+     * and,
      * in case a TextView is found, the Text-Color to white.
-     * 
-     * @param v
-     *            the ViewGroup to walk through
+     *
+     * @param v the ViewGroup to walk through
      */
     private void setBackground(ViewGroup v, int background, int font) {
         v.setBackgroundColor(getResources().getColor(background));
-        
+
         for (int i = 0; i < v.getChildCount(); i++) { // View at index 0 seems to be this view itself.
             View vChild = v.getChildAt(i);
-            
+
             if (vChild == null)
                 continue;
-            
+
             if (vChild instanceof TextView)
                 ((TextView) vChild).setTextColor(font);
-            
+
             if (vChild instanceof ViewGroup)
                 setBackground(((ViewGroup) vChild), background, font);
         }
     }
-    
+
     /**
      * generate HTML code for attachments to be shown inside article
-     * 
-     * @param context
-     *            current context
-     * @param attachments
-     *            collection of attachment URLs
+     *
+     * @param context     current context
+     * @param attachments collection of attachment URLs
      */
     private static String getAttachmentsMarkup(Context context, Set<String> attachments) {
         StringBuilder content = new StringBuilder();
         Map<String, Collection<String>> attachmentsByMimeType = FileUtils.groupFilesByMimeType(attachments);
-        
+
         if (!attachmentsByMimeType.isEmpty()) {
             for (String mimeType : attachmentsByMimeType.keySet()) {
                 Collection<String> mimeTypeUrls = attachmentsByMimeType.get(mimeType);
@@ -556,14 +555,14 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 }
             }
         }
-        
+
         return content.toString();
     }
-    
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        
+
         HitTestResult result = ((WebView) v).getHitTestResult();
         menu.setHeaderTitle(getResources().getString(R.string.ArticleActivity_ShareLink));
         mSelectedExtra = null;
@@ -592,7 +591,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 10,
                 getResources().getString(R.string.ArticleActivity_ShareArticle));
     }
-    
+
     public void onPrepareOptionsMenu(Menu menu) {
         if (article != null) {
             MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
@@ -605,7 +604,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                     read.setIcon(R.drawable.ic_menu_clear_playlist);
                 }
             }
-            
+
             MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
             if (publish != null) {
                 if (article.isPublished) {
@@ -616,7 +615,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                     publish.setIcon(R.drawable.menu_publish);
                 }
             }
-            
+
             MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
             if (star != null) {
                 if (article.isStarred) {
@@ -629,7 +628,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             }
         }
     }
-    
+
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead: {
@@ -675,73 +674,70 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 return false;
         }
     }
-    
+
     /**
      * Using a small html parser with a visitor which goes through the html I extract the alt-attribute from the
      * content. If nothing is found it is left as null and the menu should'nt contain the item to display the caption.
-     * 
-     * @param extra
-     *            the
+     *
+     * @param extra the
      * @return the alt-text or null if none was found.
      */
     private String getAltTextForImageUrl(String extra) {
         if (content == null || !content.contains(extra))
             return null;
-        
+
         HtmlCleaner cleaner = new HtmlCleaner();
         TagNode node = cleaner.clean(content);
-        
+
         MyTagNodeVisitor tnv = new MyTagNodeVisitor(extra);
         node.traverse(tnv);
-        
+
         return tnv.alt;
     }
-    
+
     /**
      * Create javascript associative array with article cached image url as key and image hash as value. Only
      * RemoteFiles which are "cached" are added to this array so if an image is not available locally it is left as it
      * is.
-     * 
-     * @param id
-     *            article ID
-     * 
+     *
+     * @param id article ID
      * @return javascript associative array content as text
      */
     private String getCachedImagesJS(int id) {
         StringBuilder hashes = new StringBuilder("");
         Collection<RemoteFile> rfs = DBHelper.getInstance().getRemoteFiles(id);
-        
+
         if (rfs != null && !rfs.isEmpty()) {
             for (RemoteFile rf : rfs) {
-                
+
                 if (rf.cached) {
                     if (hashes.length() > 0)
                         hashes.append(",\n");
-                    
+
                     hashes.append("'");
                     hashes.append(rf.url);
                     hashes.append("': '");
                     hashes.append(ImageCache.getHashForKey(rf.url));
                     hashes.append("'");
                 }
-                
+
             }
         }
-        
+
         return hashes.toString();
     }
-    
+
     /**
      * This is necessary to iterate over all HTML-Nodes and scan for images with ALT-Attributes.
      */
     private class MyTagNodeVisitor implements TagNodeVisitor {
         private String alt = null;
         private String extra;
-        
+
         private MyTagNodeVisitor(String extra) {
             this.extra = extra;
         }
-        
+
         public boolean visit(TagNode tagNode, HtmlNode htmlNode) {
             if (htmlNode instanceof TagNode) {
                 TagNode tag = (TagNode) htmlNode;
@@ -759,8 +755,10 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             }
             return true;
         }
-    };
-    
+    }
+
+    ;
+
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         Intent shareIntent = null;
@@ -791,7 +789,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         }
         return super.onContextItemSelected(item);
     }
-    
+
     private Intent getUrlShareIntent(String url) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("text/plain");
@@ -799,7 +797,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         i.putExtra(Intent.EXTRA_TEXT, url);
         return i;
     }
-    
+
     private OnClickListener onButtonPressedListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -812,7 +810,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             }
         }
     };
-    
+
     private OnKeyListener keyListener = new OnKeyListener() {
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -830,69 +828,69 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             return false;
         }
     };
-    
+
     public int openNextArticle(int direction) {
         int id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
         if (id == Integer.MIN_VALUE) {
             Utils.alert(getActivity(), true);
             return feedId;
         }
-        
+
         articleId = id;
         lastMove = direction;
         fillParentInformation();
-        
+
         // Find next id in this direction and see if there is another next article or not
         id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
         if (id == Integer.MIN_VALUE)
             Utils.alert(getActivity());
-        
+
         initData();
         doRefresh();
-        
+
         return articleId;
     }
-    
-    public void openArticle(int articleId, int feedId, int categoryId, boolean selectArticlesForCategory, int lastMove) {
+
+    public void openArticle(int articleId, int feedId, int categoryId, boolean selectArticlesForCategory,
+            int lastMove) {
         if (articleId == Integer.MIN_VALUE) {
             Utils.alert(getActivity());
             return;
         }
-        
+
         this.articleId = articleId;
         this.feedId = feedId;
         this.categoryId = categoryId;
         this.selectArticlesForCategory = selectArticlesForCategory;
         this.lastMove = lastMove;
-        
+
         parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
         getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
-        
+
         initData();
         doRefresh();
     }
-    
+
     /**
      * this class represents an object, which methods can be called from article's {@code WebView} javascript to
      * manipulate the article activity
      */
     private class ArticleJSInterface {
-        
+
         /**
          * current article activity
          */
         private Activity activity;
-        
+
         /**
          * public constructor, which saves calling activity as member variable
-         * 
-         * @param aa
-         *            current article activity
+         *
+         * @param aa current article activity
          */
         private ArticleJSInterface(Activity aa) {
             activity = aa;
         }
-        
+
         /**
          * go to previous article
          */
@@ -907,7 +905,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 }
             });
         }
-        
+
         /**
          * go to next article
          */
@@ -923,42 +921,44 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             });
         }
     }
-    
+
     private class ArticleGestureDetector extends MyGestureDetector {
         private ArticleGestureDetector(ActionBar actionBar, boolean hideActionbar) {
             super(actionBar, hideActionbar);
         }
-        
+
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             // Refresh metrics-data in Controller
             Controller.refreshDisplayMetrics(((WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay());
-            
+
             if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
                 return false;
-            
+
             if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
                     && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                
+
                 // right to left swipe
                 FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
                 activity.openNextArticle(1);
                 return true;
-                
+
             } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
                     && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
-                
+
                 // left to right swipe
                 FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
                 activity.openNextArticle(-1);
                 return true;
-                
+
             }
             return false;
         }
-    };
-    
+    }
+
+    ;
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == MainListFragment.TYPE_HEADLINE_ID) {
@@ -971,7 +971,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         }
         return null;
     }
-    
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == MainListFragment.TYPE_HEADLINE_ID) {
@@ -979,17 +979,17 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             fillParentInformation();
         }
     }
-    
+
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         if (loader.getId() == MainListFragment.TYPE_HEADLINE_ID)
             parentAdapter.changeCursor(null);
     }
-    
+
     @Override
     public void onPublishNoteResult(Article a, String note) {
         new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note))
                 .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
-    
+
 }

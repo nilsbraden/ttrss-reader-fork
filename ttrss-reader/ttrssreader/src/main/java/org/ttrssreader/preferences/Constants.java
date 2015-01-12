@@ -17,33 +17,33 @@
 
 package org.ttrssreader.preferences;
 
-import android.content.SharedPreferences;
-import android.os.Environment;
-
 import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.Utils;
+
+import android.content.SharedPreferences;
+import android.os.Environment;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Locale;
 
 public class Constants {
-    
+
     public static final String EMPTY = "";
     public static final String APPENDED_DEFAULT = "_DEFAULT";
-    
+
     static {
         StringBuilder sbAttachments = new StringBuilder();
         sbAttachments.append(Environment.getExternalStorageDirectory()).append(File.separator)
                 .append(FileUtils.SDCARD_PATH_FILES);
         SAVE_ATTACHMENT_DEFAULT = sbAttachments.toString();
-        
+
         StringBuilder sbCache = new StringBuilder();
         sbCache.append(Environment.getExternalStorageDirectory()).append(File.separator)
                 .append(FileUtils.SDCARD_PATH_CACHE);
         CACHE_FOLDER_DEFAULT = sbCache.toString();
     }
-    
+
     // Connection
     public static final String URL = "ConnectionUrlPreference";
     public static final String USERNAME = "ConnectionUsernamePreference";
@@ -65,7 +65,7 @@ public class Constants {
     public static final boolean USE_OLD_CONNECTOR_DEFAULT = false;
     public static final boolean USE_KEYSTORE_DEFAULT = false;
     public static final boolean USE_OF_A_LAZY_SERVER_DEFAULT = false;
-    
+
     // Usage
     public static final String OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
     public static final String USE_VOLUME_KEYS = "UsageUseVolumeKeysPreference";
@@ -84,7 +84,7 @@ public class Constants {
     public static final boolean GO_BACK_AFTER_MARK_ALL_READ_DEFAULT = false;
     public static final boolean HIDE_ACTIONBAR_DEFAULT = true;
     public static final boolean ALLOW_TABLET_LAYOUT_DEFAULT = true;
-    
+
     // Display
     public static final String TEXT_ZOOM = "TextZoomPreference";
     public static final String SUPPORT_ZOOM_CONTROLS = "SupportZoomControlsPreference";
@@ -121,7 +121,7 @@ public class Constants {
     public static final String TIME_STRING_DEFAULT = "kk:mm";
     public static final String DATE_TIME_STRING_DEFAULT = "dd.MM.yyyy kk:mm";
     public static final String THEME_DEFAULT = "1";
-    
+
     // System
     public static final String SAVE_ATTACHMENT = "SaveAttachmentPreference";
     public static final String CACHE_FOLDER = "CacheFolderPreference";
@@ -146,7 +146,7 @@ public class Constants {
     public static final boolean ONLY_USE_WIFI_DEFAULT = false;
     public static final boolean NO_CRASHREPORTS_DEFAULT = false;
     public static final boolean NO_CRASHREPORTS_UNTIL_UPDATE_DEFAULT = false;
-    
+
     // Internal
     public static final String APP_VERSION_CHECK_TIME = "appVersionCheckTime";
     public static final String APP_LATEST_VERSION = "appLatestVersion";
@@ -167,50 +167,50 @@ public class Constants {
     public static final long LAST_SYNC_DEFAULT = 0l;
     public static final long LAST_CLEANUP_DEFAULT = 0l;
     public static final int ACTIVITY_SHOW_PREFERENCES = 43;
-    
+
     /*
      * Resets all preferences to their default values. Only preferences which are mentioned in this class are reset, old
      * or unsused values don't get reset.
      */
     public static void resetPreferences(SharedPreferences prefs) {
         SharedPreferences.Editor editor = prefs.edit();
-        
+
         // Iterate over all fields
         for (Field field : Constants.class.getDeclaredFields()) {
-            
+
             // Continue on "_DEFAULT"-Fields, these hold only the default values for a preference
             if (field.getName().endsWith(APPENDED_DEFAULT))
                 continue;
-            
+
             try {
                 // Get the default value
                 Field fieldDefault = Constants.class.getDeclaredField(field.getName() + APPENDED_DEFAULT);
                 String value = (String) field.get(new Constants());
-                
+
                 // Get the default type and store value for the specific type
                 String type = fieldDefault.getType().getSimpleName();
                 if (type.equals("String")) {
-                    
+
                     String defaultValue = (String) fieldDefault.get(null);
                     editor.putString(value, defaultValue);
-                    
+
                 } else if (type.equals("boolean")) {
-                    
+
                     boolean defaultValue = fieldDefault.getBoolean(null);
                     editor.putBoolean(value, defaultValue);
-                    
+
                 } else if (type.equals("int")) {
-                    
+
                     int defaultValue = fieldDefault.getInt(null);
                     editor.putInt(value, defaultValue);
-                    
+
                 } else if (type.equals("long")) {
-                    
+
                     long defaultValue = fieldDefault.getLong(null);
                     editor.putLong(value, defaultValue);
-                    
+
                 }
-                
+
             } catch (SecurityException e) {
                 e.printStackTrace();
             } catch (NoSuchFieldException e) {
@@ -222,11 +222,11 @@ public class Constants {
                 e.printStackTrace();
             }
         }
-        
+
         // Commit when finished
         editor.commit();
     }
-    
+
     public static String constant2Var(String s) {
         String[] parts = s.split("_");
         String camelCaseString = "";
@@ -236,9 +236,9 @@ public class Constants {
         // We want the String to starrt with a lower-case letter...
         return camelCaseString.substring(0, 1).toLowerCase(Locale.getDefault()) + camelCaseString.substring(1);
     }
-    
+
     private static String toProperCase(String s) {
         return s.substring(0, 1).toUpperCase(Locale.getDefault()) + s.substring(1).toLowerCase(Locale.getDefault());
     }
-    
+
 }

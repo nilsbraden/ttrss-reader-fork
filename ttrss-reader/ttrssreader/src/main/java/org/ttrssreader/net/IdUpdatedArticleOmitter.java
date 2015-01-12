@@ -45,12 +45,13 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
     /**
      * construct the object according to selection parameters
      *
-     * @param selection
-     *            A filter declaring which rows to return, formatted as an SQL WHERE clause (excluding the WHERE
-     *            itself). Passing null will return all rows.
-     * @param selectionArgs
-     *            You may include ?s in selection, which will be replaced by the values from selectionArgs, in order
-     *            that they appear in the selection. The values will be bound as Strings.
+     * @param selection     A filter declaring which rows to return, formatted as an SQL WHERE clause (excluding the
+     *                      WHERE
+     *                      itself). Passing null will return all rows.
+     * @param selectionArgs You may include ?s in selection, which will be replaced by the values from selectionArgs,
+     *                      in
+     *                      order
+     *                      that they appear in the selection. The values will be bound as Strings.
      */
     public IdUpdatedArticleOmitter(String selection, String[] selectionArgs) {
         idUpdatedMap = DBHelper.getInstance().getArticleIdUpdatedMap(selection, selectionArgs);
@@ -61,13 +62,10 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
      * article should be omitted if it's ID already exist in DB and updated date is not after date, which is stored in
      * DB
      *
-     * @param field
-     *            current article field added to article on this iteration
-     * @param a
-     *            article to test
+     * @param field current article field added to article on this iteration
+     * @param a     article to test
      * @return {@code true} if given article should be omitted, {@code false} otherwise
-     * @throws StopJsonParsingException
-     *             if parsing process make no sense (anymore) and should be broken
+     * @throws StopJsonParsingException if parsing process make no sense (anymore) and should be broken
      */
     public boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException {
         boolean skip = false;
@@ -101,8 +99,7 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
     /**
      * map of article IDs to it's updated date
      *
-     * @param idUpdatedMap
-     *            the idUpdatedMap to set
+     * @param idUpdatedMap the idUpdatedMap to set
      */
     public void setIdUpdatedMap(Map<Integer, Long> idUpdatedMap) {
         this.idUpdatedMap = idUpdatedMap;
@@ -120,8 +117,7 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
     /**
      * articles, which was skipped
      *
-     * @param omittedArticles
-     *            the omittedArticles to set
+     * @param omittedArticles the omittedArticles to set
      */
     public void setOmittedArticles(Set<Integer> omittedArticles) {
         this.omittedArticles = omittedArticles;

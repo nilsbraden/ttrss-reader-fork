@@ -17,6 +17,13 @@
 
 package org.ttrssreader.gui;
 
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.gui.fragments.MainListFragment;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -27,59 +34,52 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.fragments.MainListFragment;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-
 public class ShareActivity extends MenuActivity {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = ShareActivity.class.getSimpleName();
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
-    
+
     private static final String PARAM_TITLE = "title";
     private static final String PARAM_URL = "url";
     private static final String PARAM_CONTENT = "content";
-    
+
     private Button shareButton;
     private EditText title;
     private EditText url;
     private EditText content;
-    
+
     private ProgressDialog progress;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         setTheme(Controller.getInstance().getTheme());
         super.onCreate(savedInstanceState);
         mDamageReport.initialize();
-        
+
         final Context context = this;
-        
+
         setContentView(R.layout.sharetopublished);
         setTitle(R.string.IntentPublish);
-        
+
         String titleValue = getIntent().getStringExtra(Intent.EXTRA_SUBJECT);
         String urlValue = getIntent().getStringExtra(Intent.EXTRA_TEXT);
         String contentValue = "";
-        
+
         if (savedInstanceState != null) {
             titleValue = savedInstanceState.getString(PARAM_TITLE);
             urlValue = savedInstanceState.getString(PARAM_URL);
             contentValue = savedInstanceState.getString(PARAM_CONTENT);
         }
-        
+
         title = (EditText) findViewById(R.id.share_title);
         url = (EditText) findViewById(R.id.share_url);
         content = (EditText) findViewById(R.id.share_content);
-        
+
         title.setText(titleValue);
         url.setText(urlValue);
         content.setText(contentValue);
-        
+
         shareButton = (Button) findViewById(R.id.share_ok_button);
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,17 +89,17 @@ public class ShareActivity extends MenuActivity {
             }
         });
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
         doRefresh();
     }
-    
+
     @Override
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
-        
+
         EditText url = (EditText) findViewById(R.id.share_url);
         EditText title = (EditText) findViewById(R.id.share_title);
         EditText content = (EditText) findViewById(R.id.share_content);
@@ -107,26 +107,26 @@ public class ShareActivity extends MenuActivity {
         out.putString(PARAM_URL, url.getText().toString());
         out.putString(PARAM_CONTENT, content.getText().toString());
     }
-    
+
     @Override
     protected void onDestroy() {
         mDamageReport.restoreOriginalHandler();
         mDamageReport = null;
         super.onDestroy();
     }
-    
+
     private class MyPublisherTask extends AsyncTask<Void, Integer, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            
+
             String titleValue = title.getText().toString();
             String urlValue = url.getText().toString();
             String contentValue = content.getText().toString();
-            
+
             try {
                 boolean ret = Data.getInstance().shareToPublished(titleValue, urlValue, contentValue);
                 progress.dismiss();
-                
+
                 if (ret)
                     finishCompat();
                 else if (Controller.getInstance().getConnector().hasLastError())
@@ -135,23 +135,23 @@ public class ShareActivity extends MenuActivity {
                     showErrorDialog("Working offline, synchronisation of published articles is not implemented yet.");
                 else
                     showErrorDialog("An unknown error occurred.");
-                
+
             } catch (RuntimeException r) {
                 showErrorDialog(r.getMessage());
             }
-            
+
             return null;
         }
-        
+
         private void finishCompat() {
             if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN)
                 finishAffinity();
             else
                 finish();
         }
-        
+
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (super.onCreateOptionsMenu(menu)) {
@@ -166,10 +166,15 @@ public class ShareActivity extends MenuActivity {
         }
         return true;
     }
-    
+
     // @formatter:off // Not needed here:
-    @Override public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) { }
-    @Override protected void doUpdate(boolean forceUpdate) { }
+    @Override
+    public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) {
+    }
+
+    @Override
+    protected void doUpdate(boolean forceUpdate) {
+    }
     //@formatter:on
-    
+
 }

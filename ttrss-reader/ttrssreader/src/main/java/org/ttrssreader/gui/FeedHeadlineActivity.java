@@ -17,14 +17,6 @@
 
 package org.ttrssreader.gui;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
-
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
@@ -33,31 +25,39 @@ import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
+
 public class FeedHeadlineActivity extends MenuActivity {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = FeedHeadlineActivity.class.getSimpleName();
-    
+
     public static final int FEED_NO_ID = 37846914;
-    
+
     private int categoryId = Integer.MIN_VALUE;
     private int feedId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
-    
+
     private FeedHeadlineUpdater headlineUpdater = null;
-    
+
     private static final String SELECTED = "SELECTED";
     private int selectedArticleId = Integer.MIN_VALUE;
-    
+
     private FeedHeadlineListFragment headlineFragment;
     private ArticleFragment articleFragment;
-    
+
     @Override
     protected void onCreate(Bundle instance) {
         super.onCreate(instance);
         setContentView(R.layout.main);
         super.initTabletLayout();
-        
+
         Bundle extras = getIntent().getExtras();
         if (instance != null) {
             categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
@@ -70,22 +70,22 @@ public class FeedHeadlineActivity extends MenuActivity {
             selectArticlesForCategory = extras.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
             selectedArticleId = extras.getInt(SELECTED, Integer.MIN_VALUE);
         }
-        
+
         FragmentManager fm = getFragmentManager();
         headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
         articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
-        
+
         if (headlineFragment == null) {
             headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     selectedArticleId);
-            
+
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.add(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
         }
     }
-    
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
@@ -94,7 +94,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         outState.putInt(SELECTED, selectedArticleId);
         super.onSaveInstanceState(outState);
     }
-    
+
     @Override
     protected void onRestoreInstanceState(Bundle instance) {
         categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
@@ -103,20 +103,20 @@ public class FeedHeadlineActivity extends MenuActivity {
         selectedArticleId = instance.getInt(SELECTED, Integer.MIN_VALUE);
         super.onRestoreInstanceState(instance);
     }
-    
+
     @Override
     public void dataLoadingFinished() {
         setTitleAndUnread();
     }
-    
+
     @Override
     protected void doRefresh() {
         super.doRefresh();
         headlineFragment.doRefresh();
-        
+
         setTitleAndUnread();
     }
-    
+
     private void setTitleAndUnread() {
         // Title and unread information:
         if (headlineFragment != null) {
@@ -124,7 +124,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             setUnread(headlineFragment.getUnread());
         }
     }
-    
+
     @Override
     protected void doUpdate(boolean forceUpdate) {
         // Only update if no headlineUpdater already running
@@ -135,13 +135,13 @@ public class FeedHeadlineActivity extends MenuActivity {
                 return;
             }
         }
-        
+
         if (!isCacherRunning()) {
             headlineUpdater = new FeedHeadlineUpdater(forceUpdate);
             headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (selectedArticleId != Integer.MIN_VALUE) {
@@ -153,19 +153,19 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
         return true;
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.removeItem(R.id.Menu_MarkAllRead);
         menu.removeItem(R.id.Menu_MarkFeedsRead);
         return super.onPrepareOptionsMenu(menu);
     }
-    
+
     @Override
     public final boolean onOptionsItemSelected(final MenuItem item) {
         if (super.onOptionsItemSelected(item))
             return true;
-        
+
         switch (item.getItemId()) {
             case R.id.Menu_Refresh: {
                 doUpdate(true);
@@ -175,7 +175,7 @@ public class FeedHeadlineActivity extends MenuActivity {
                 return false;
         }
     }
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
@@ -189,7 +189,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-    
+
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
@@ -200,7 +200,7 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
         return super.onKeyUp(keyCode, event);
     }
-    
+
     private void openNextFragment(int direction) {
         if (selectedArticleId != Integer.MIN_VALUE) {
             openNextArticle(direction);
@@ -208,7 +208,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             openNextFeed(direction);
         }
     }
-    
+
     public void openNextArticle(int direction) {
         // Open next article
         FragmentManager fm = getFragmentManager();
@@ -218,35 +218,35 @@ public class FeedHeadlineActivity extends MenuActivity {
             headlineFragment.setSelectedId(selectedArticleId);
         }
     }
-    
+
     public void openNextFeed(int direction) {
         // Open next Feed
         headlineFragment.openNextFeed(direction);
         feedId = headlineFragment.getFeedId();
-        
+
         FragmentManager fm = getFragmentManager();
         articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
         if (articleFragment instanceof ArticleFragment)
             articleFragment.resetParentInformation();
     }
-    
+
     /**
      * Updates all articles from the selected feed.
      */
     private class FeedHeadlineUpdater extends ActivityUpdater {
         private static final int DEFAULT_TASK_COUNT = 2;
-        
+
         private FeedHeadlineUpdater(boolean forceUpdate) {
             super(forceUpdate);
         }
-        
+
         @Override
         protected Void doInBackground(Void... params) {
             taskCount = DEFAULT_TASK_COUNT;
-            
+
             int progress = 0;
             boolean displayUnread = Controller.getInstance().onlyUnread();
-            
+
             publishProgress(++progress); // Move progress forward
             if (selectArticlesForCategory) {
                 Data.getInstance().updateArticles(categoryId, displayUnread, true, false, forceUpdate);
@@ -260,7 +260,7 @@ public class FeedHeadlineActivity extends MenuActivity {
             return null;
         }
     }
-    
+
     @Override
     public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) {
         switch (source.getType()) {
@@ -272,33 +272,33 @@ public class FeedHeadlineActivity extends MenuActivity {
                 break;
         }
     }
-    
+
     private void displayArticle(int articleId) {
         hideArticleFragment();
-        
+
         selectedArticleId = articleId;
         headlineFragment.setSelectedId(selectedArticleId);
-        
+
         // Clear back stack
         getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        
+
         if (articleFragment == null) {
             articleFragment = ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
                     selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT);
-            
+
             FragmentTransaction ft = getFragmentManager().beginTransaction();
             ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
-            
+
             // Animation
             if (Controller.isTablet)
                 ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out, android.R.anim.fade_in,
                         R.anim.slide_out_left);
             else
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            
+
             if (!Controller.isTablet)
                 ft.addToBackStack(null);
-            
+
             ft.commit();
         } else {
             // Reuse existing ArticleFragment
@@ -306,30 +306,30 @@ public class FeedHeadlineActivity extends MenuActivity {
                     ArticleFragment.ARTICLE_MOVE_DEFAULT);
         }
     }
-    
+
     private void hideArticleFragment() {
         if (articleFragment == null)
             return;
-        
+
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.remove(articleFragment);
         ft.commit();
-        
+
         articleFragment = null;
     }
-    
+
     @Override
     public void onBackPressed() {
         selectedArticleId = Integer.MIN_VALUE;
         super.onBackPressed();
     }
-    
+
     public int getCategoryId() {
         return categoryId;
     }
-    
+
     public int getFeedId() {
         return feedId;
     }
-    
+
 }

@@ -15,16 +15,16 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/Preferences_Menu_Reset"
         android:icon="@drawable/ic_menu_revert"
-        android:title="@string/Preferences.Reset"/>
+        android:title="@string/Preferences.Reset" />
 
     <item
         android:id="@+id/Preferences_Menu_ResetDatabase"
         android:icon="@drawable/ic_menu_revert"
-        android:title="@string/Preferences.ResetDatabase"/>
+        android:title="@string/Preferences.ResetDatabase" />
 
 </menu>

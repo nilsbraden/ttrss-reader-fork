@@ -17,30 +17,31 @@
 
 package org.ttrssreader.gui.dialogs;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.os.Bundle;
-
 import org.ttrssreader.R;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+
 public class YesNoUpdaterDialog extends MyDialogFragment {
-    
+
     public static final String DIALOG = "yesnodialog";
-    
+
     private IUpdatable updater;
     private int titleRes;
     private int msgRes;
     private boolean backAfterUpdate;
-    
+
     public static YesNoUpdaterDialog getInstance(IUpdatable updater, int titleRes, int msgRes) {
         return getInstance(updater, titleRes, msgRes, false);
     }
-    
-    public static YesNoUpdaterDialog getInstance(IUpdatable updater, int titleRes, int msgRes, boolean backAfterUpdate) {
+
+    public static YesNoUpdaterDialog getInstance(IUpdatable updater, int titleRes, int msgRes,
+            boolean backAfterUpdate) {
         YesNoUpdaterDialog fragment = new YesNoUpdaterDialog();
         fragment.updater = updater;
         fragment.titleRes = titleRes;
@@ -48,17 +49,17 @@ public class YesNoUpdaterDialog extends MyDialogFragment {
         fragment.backAfterUpdate = backAfterUpdate;
         return fragment;
     }
-    
+
     @Override
     public void onCreate(Bundle instance) {
         super.onCreate(instance);
     }
-    
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setIcon(android.R.drawable.ic_dialog_info);
-        
+
         builder.setTitle(getResources().getString(titleRes));
         builder.setMessage(getResources().getString(msgRes));
         builder.setPositiveButton(getResources().getString(R.string.Yes), new DialogInterface.OnClickListener() {
@@ -74,8 +75,8 @@ public class YesNoUpdaterDialog extends MyDialogFragment {
                 d.dismiss();
             }
         });
-        
+
         return builder.create();
     }
-    
+
 }

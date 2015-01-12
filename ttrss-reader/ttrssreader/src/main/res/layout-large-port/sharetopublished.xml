@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:padding="10dp" >
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/labelTitle"
@@ -75,7 +75,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/Share.content"
             android:inputType="textMultiLine"
-            android:maxLines="3" >
+            android:maxLines="3">
 
             <requestFocus />
         </EditText>
