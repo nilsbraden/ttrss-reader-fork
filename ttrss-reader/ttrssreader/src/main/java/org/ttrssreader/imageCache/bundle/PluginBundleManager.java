@@ -16,6 +16,7 @@
 package org.ttrssreader.imageCache.bundle;
 
 import org.ttrssreader.utils.Utils;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,9 +25,9 @@ import android.util.Log;
  * Class for managing the {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE} for this plug-in.
  */
 public final class PluginBundleManager {
-    
+
     private static final String TAG = PluginBundleManager.class.getSimpleName();
-    
+
     /**
      * Type: {@code String}.
      * <p>
@@ -34,7 +35,7 @@ public final class PluginBundleManager {
      */
     public static final String BUNDLE_EXTRA_IMAGES = "org.ttrssreader.FETCH_IMAGES"; //$NON-NLS-1$
     public static final String BUNDLE_EXTRA_NOTIFICATION = "org.ttrssreader.SHOW_NOTIFICATION"; //$NON-NLS-1$
-    
+
     /**
      * Type: {@code int}.
      * <p>
@@ -46,14 +47,13 @@ public final class PluginBundleManager {
      * having the version, the plug-in can better detect when such bugs occur.
      */
     private static final String BUNDLE_EXTRA_INT_VERSION_CODE = "org.ttrssreader.INT_VERSION_CODE"; //$NON-NLS-1$
-    
+
     /**
      * Method to verify the content of the bundle are correct.
      * <p>
      * This method will not mutate {@code bundle}.
-     * 
-     * @param bundle
-     *            bundle to verify. May be null, which will always return false.
+     *
+     * @param bundle bundle to verify. May be null, which will always return false.
      * @return true if the Bundle is valid, false if the bundle is invalid.
      */
     public static boolean isBundleValid(final Bundle bundle) {
@@ -85,43 +85,43 @@ public final class PluginBundleManager {
         if (3 != bundle.keySet().size()) {
             Log.e(TAG,
                     String.format(
-                            "bundle must contain 3 keys, but currently contains %d keys: %s", bundle.keySet().size(), bundle.keySet())); //$NON-NLS-1$
+                            "bundle must contain 3 keys, but currently contains %d keys: %s", bundle.keySet().size(),
+                            bundle.keySet())); //$NON-NLS-1$
             return false;
         }
-        
+
         if (bundle.getInt(BUNDLE_EXTRA_INT_VERSION_CODE, 0) != bundle.getInt(BUNDLE_EXTRA_INT_VERSION_CODE, 1)) {
             Log.e(TAG, String.format(
-                    "bundle extra %s appears to be the wrong type.  It must be an int", BUNDLE_EXTRA_INT_VERSION_CODE)); //$NON-NLS-1$
+                    "bundle extra %s appears to be the wrong type.  It must be an int",
+                    BUNDLE_EXTRA_INT_VERSION_CODE)); //$NON-NLS-1$
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
-     * @param context
-     *            Application context.
-     * @param message
-     *            The toast message to be displayed by the plug-in. Cannot be null.
+     * @param context Application context.
+     * @param message The toast message to be displayed by the plug-in. Cannot be null.
      * @return A plug-in bundle.
      */
-    public static Bundle generateBundle(final Context context, final boolean fetchImages, final boolean showNotification) {
+    public static Bundle generateBundle(final Context context, final boolean fetchImages,
+            final boolean showNotification) {
         final Bundle result = new Bundle();
         result.putInt(BUNDLE_EXTRA_INT_VERSION_CODE, Utils.getAppVersionCode(context));
         result.putBoolean(BUNDLE_EXTRA_IMAGES, fetchImages);
         result.putBoolean(BUNDLE_EXTRA_NOTIFICATION, showNotification);
-        
+
         return result;
     }
-    
+
     /**
      * Private constructor prevents instantiation
-     * 
-     * @throws UnsupportedOperationException
-     *             because this class cannot be instantiated.
+     *
+     * @throws UnsupportedOperationException because this class cannot be instantiated.
      */
     private PluginBundleManager() {
         throw new UnsupportedOperationException("This class is non-instantiable"); //$NON-NLS-1$
     }
-    
+
 }

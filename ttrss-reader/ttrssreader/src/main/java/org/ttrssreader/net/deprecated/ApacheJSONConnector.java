@@ -17,8 +17,6 @@
 
 package org.ttrssreader.net.deprecated;
 
-import android.util.Log;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -38,6 +36,8 @@ import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.Utils;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -50,57 +50,57 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
 public class ApacheJSONConnector extends JSONConnector {
-    
+
     private static final String TAG = ApacheJSONConnector.class.getSimpleName();
 
     protected CredentialsProvider credProvider = null;
     protected DefaultHttpClient client;
-    
+
     protected InputStream doRequest(Map<String, String> params) {
         HttpPost post = new HttpPost();
-        
+
         try {
             if (sessionId != null)
                 params.put(SID, sessionId);
-            
+
             // Set Address
             post.setURI(Controller.getInstance().uri());
             post.addHeader("Accept-Encoding", "gzip");
-            
+
             // Add POST data
             JSONObject json = new JSONObject(params);
             StringEntity jsonData = new StringEntity(json.toString(), "UTF-8");
             jsonData.setContentType("application/json");
             post.setEntity(jsonData);
-            
+
             // Add timeouts for the connection
             {
                 HttpParams httpParams = post.getParams();
-                
+
                 // Set the timeout until a connection is established.
                 int timeoutConnection = (int) (8 * Utils.SECOND);
                 HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
-                
+
                 // Set the default socket timeout (SO_TIMEOUT) which is the timeout for waiting for data.
                 // use longer timeout when lazyServer-Feature is used
                 int timeoutSocket = (int) ((Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE
                         : 10 * Utils.SECOND);
                 HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
-                
+
                 post.setParams(httpParams);
             }
-            
+
             logRequest(json);
-            
+
             if (client == null)
                 client = HttpClientFactory.getInstance().getHttpClient(post.getParams());
             else
                 client.setParams(post.getParams());
-            
+
             // Add SSL-Stuff
             if (credProvider != null)
                 client.setCredentialsProvider(credProvider);
-            
+
         } catch (URISyntaxException e) {
             hasLastError = true;
             lastError = "Invalid URI.";
@@ -111,7 +111,7 @@ public class ApacheJSONConnector extends JSONConnector {
             e.printStackTrace();
             return null;
         }
-        
+
         HttpResponse response = null;
         try {
             response = client.execute(post); // Execute the request
@@ -146,7 +146,7 @@ public class ApacheJSONConnector extends JSONConnector {
             lastError = "Exception in (old) doRequest(): " + formatException(e);
             return null;
         }
-        
+
         // Try to check for HTTP Status codes
         int code = response.getStatusLine().getStatusCode();
         if (code >= 400 && code < 600) {
@@ -154,21 +154,21 @@ public class ApacheJSONConnector extends JSONConnector {
             lastError = "Server returned status: " + code;
             return null;
         }
-        
+
         InputStream instream = null;
         try {
             HttpEntity entity = response.getEntity();
             if (entity != null)
                 instream = entity.getContent();
-            
+
             // Try to decode gzipped instream, if it is not gzip we stay to normal reading
             Header contentEncoding = response.getFirstHeader("Content-Encoding");
             if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip"))
                 instream = new GZIPInputStream(instream);
-            
+
             // Header size = response.getFirstHeader("Api-Content-Length");
             // Log.d(TAG, "SIZE: " + size.getValue());
-            
+
             if (instream == null) {
                 hasLastError = true;
                 lastError = "Couldn't get InputStream in (old) Method doRequest(String url) [instream was null]";
@@ -184,7 +184,7 @@ public class ApacheJSONConnector extends JSONConnector {
             lastError = "Exception in (old) doRequest(): " + formatException(e);
             return null;
         }
-        
+
         return instream;
     }
 
@@ -195,7 +195,7 @@ public class ApacheJSONConnector extends JSONConnector {
             credProvider = null;
             return;
         }
-        
+
         // Refresh Credentials-Provider
         if (httpUsername.equals(Constants.EMPTY) || httpPassword.equals(Constants.EMPTY)) {
             credProvider = null;

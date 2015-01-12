@@ -22,14 +22,14 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 
 public class PublishedStateUpdater implements IUpdatable {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = PublishedStateUpdater.class.getSimpleName();
-    
+
     private Article article;
     private int articleState;
     private String note;
-    
+
     /**
      * Sets the articles' Published-Status according to articleState
      */
@@ -38,7 +38,7 @@ public class PublishedStateUpdater implements IUpdatable {
         this.articleState = articleState;
         this.note = null;
     }
-    
+
     /**
      * Sets the articles' Published-Status according to articleState and adds the given note to the article.
      */
@@ -47,7 +47,7 @@ public class PublishedStateUpdater implements IUpdatable {
         this.articleState = articleState;
         this.note = note;
     }
-    
+
     @Override
     public void update(Updater parent) {
         if (articleState >= 0) {
@@ -58,5 +58,5 @@ public class PublishedStateUpdater implements IUpdatable {
             Data.getInstance().setArticlePublished(article.id, articleState, note);
         }
     }
-    
+
 }

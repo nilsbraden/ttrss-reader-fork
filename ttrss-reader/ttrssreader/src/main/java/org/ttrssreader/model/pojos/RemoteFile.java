@@ -22,46 +22,40 @@ import java.util.Date;
 /**
  * this class represents remote file (image, attachment, etc)
  * belonging to article(s), which may be locally stored (cached)
- * 
+ *
  * @author igor
  */
 public class RemoteFile implements Comparable<RemoteFile> {
     /** numerical ID */
     public int id;
-    
+
     /** remote file URL */
     public String url;
-    
+
     /** file size */
     public int length;
-    
+
     /** last change date */
     private Date updated;
-    
+
     /** boolean flag determining if the file is locally stored */
     public volatile boolean cached;
-    
+
     /**
      * default constructor
      */
     public RemoteFile() {
     }
-    
+
     /**
      * constructor with parameters
-     * 
-     * @param id
-     *            numerical ID
-     * @param url
-     *            remote file URL
-     * @param length
-     *            file size
-     * @param ext
-     *            extension - some kind of additional info
-     * @param updated
-     *            last change date
-     * @param cached
-     *            boolean flag determining if the file is locally stored
+     *
+     * @param id      numerical ID
+     * @param url     remote file URL
+     * @param length  file size
+     * @param ext     extension - some kind of additional info
+     * @param updated last change date
+     * @param cached  boolean flag determining if the file is locally stored
      */
     public RemoteFile(int id, String url, int length, Date updated, boolean cached) {
         this.id = id;
@@ -70,12 +64,12 @@ public class RemoteFile implements Comparable<RemoteFile> {
         this.updated = updated;
         this.cached = cached;
     }
-    
+
     @Override
     public int compareTo(RemoteFile rf) {
         return rf.updated.compareTo(this.updated);
     }
-    
+
     @Override
     public boolean equals(Object o) {
         boolean isEqual = false;
@@ -85,10 +79,10 @@ public class RemoteFile implements Comparable<RemoteFile> {
         }
         return isEqual;
     }
-    
+
     @Override
     public int hashCode() {
         return id;
     }
-    
+
 }

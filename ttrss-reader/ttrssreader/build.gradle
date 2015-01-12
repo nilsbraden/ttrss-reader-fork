@@ -19,6 +19,8 @@
 
 
 
+
+
 apply plugin: 'com.android.application'
 
 android {
@@ -42,7 +44,7 @@ android {
         exclude 'META-INF/LICENSE.txt'
     }
 
-    if(new File("../signingconfig.gradle").exists()) {
+    if (new File("../signingconfig.gradle").exists()) {
         apply from: "../signingconfig.gradle";
     }
 }

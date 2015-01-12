@@ -20,8 +20,8 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:drawable="@drawable/btn_cab_done_pressed_dark" android:state_pressed="true"/>
-    <item android:drawable="@drawable/btn_cab_done_focused_dark" android:state_enabled="true" android:state_focused="true"/>
-    <item android:drawable="@drawable/btn_cab_done_default_dark" android:state_enabled="true"/>
+    <item android:drawable="@drawable/btn_cab_done_pressed_dark" android:state_pressed="true" />
+    <item android:drawable="@drawable/btn_cab_done_focused_dark" android:state_enabled="true" android:state_focused="true" />
+    <item android:drawable="@drawable/btn_cab_done_default_dark" android:state_enabled="true" />
 
 </selector>

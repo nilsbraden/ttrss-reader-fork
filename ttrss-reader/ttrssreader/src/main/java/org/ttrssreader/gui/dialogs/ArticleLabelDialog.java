@@ -17,6 +17,13 @@
 
 package org.ttrssreader.gui.dialogs;
 
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.model.updaters.IUpdatable;
+import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.LabelTitleComparator;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,27 +39,20 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.model.updaters.IUpdatable;
-import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.utils.LabelTitleComparator;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class ArticleLabelDialog extends MyDialogFragment {
-    
+
     private static final String PARAM_ARTICLE_ID = "article_id";
-    
+
     private int articleId;
     private List<Label> labels;
-    
+
     private View view;
     private LinearLayout labelsView;
-    
+
     public static ArticleLabelDialog newInstance(int articleId) {
         ArticleLabelDialog frag = new ArticleLabelDialog();
         Bundle args = new Bundle();
@@ -60,25 +60,25 @@ public class ArticleLabelDialog extends MyDialogFragment {
         frag.setArguments(args);
         return frag;
     }
-    
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        
+
         Bundle extras = getArguments();
         if (extras != null) {
             articleId = extras.getInt(PARAM_ARTICLE_ID);
         } else if (savedInstanceState != null) {
             articleId = savedInstanceState.getInt(PARAM_ARTICLE_ID);
         }
-        
+
         // Put labels into list and sort by caption:
         labels = new ArrayList<Label>();
         for (Label label : Data.getInstance().getLabels(articleId)) {
             labels.add(label);
         }
         Collections.sort(labels, LabelTitleComparator.LABELTITLE_COMPARATOR);
-        
+
         for (Label label : labels) {
             CheckBox checkbox = new CheckBox(getActivity());
             checkbox.setId(label.id);
@@ -101,21 +101,21 @@ public class ArticleLabelDialog extends MyDialogFragment {
             });
             labelsView.addView(checkbox);
         }
-        
+
         if (labels.size() == 0) {
             TextView tv = new TextView(getActivity());
             tv.setText(R.string.Labels_NoLabels);
             labelsView.addView(tv);
         }
     }
-    
+
     @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle args) {
         // AboutDialog benutzt als Schriftfarbe automatisch die invertierte Hintergrundfarbe
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(),
                 R.style.AboutDialog));
-        
+
         LayoutInflater inflater = getActivity().getLayoutInflater();
         view = inflater.inflate(R.layout.articlelabeldialog, null);
         builder.setView(view).setPositiveButton(R.string.Utils_OkayAction, new DialogInterface.OnClickListener() {
@@ -131,12 +131,12 @@ public class ArticleLabelDialog extends MyDialogFragment {
                 dismiss();
             }
         });
-        
+
         labelsView = (LinearLayout) view.findViewById(R.id.labels);
-        
+
         return builder.create();
     }
-    
+
     private class ArticleLabelUpdater implements IUpdatable {
         @Override
         public void update(Updater parent) {
@@ -147,5 +147,5 @@ public class ArticleLabelDialog extends MyDialogFragment {
             }
         }
     }
-    
+
 }

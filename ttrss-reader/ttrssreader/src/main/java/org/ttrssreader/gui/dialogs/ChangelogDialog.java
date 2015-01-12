@@ -17,6 +17,8 @@
 
 package org.ttrssreader.gui.dialogs;
 
+import org.ttrssreader.R;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -24,19 +26,17 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import org.ttrssreader.R;
-
 public class ChangelogDialog extends MyDialogFragment {
-    
+
     public static ChangelogDialog getInstance() {
         return new ChangelogDialog();
     }
-    
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setIcon(android.R.drawable.ic_dialog_info);
-        
+
         builder.setTitle(getResources().getString(R.string.Changelog_Title));
         final String[] changes = getResources().getStringArray(R.array.updates);
         final StringBuilder sb = new StringBuilder();
@@ -57,8 +57,8 @@ public class ChangelogDialog extends MyDialogFragment {
                         d.dismiss();
                     }
                 });
-        
+
         return builder.create();
     }
-    
+
 }

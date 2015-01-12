@@ -21,13 +21,13 @@ import android.app.DialogFragment;
 import android.os.Bundle;
 
 public class MyDialogFragment extends DialogFragment {
-    
+
     @Override
     public void onCreate(Bundle instance) {
         super.onCreate(instance);
         setRetainInstance(true);
     }
-    
+
     @Override
     public void onDestroyView() {
         // See http://stackoverflow.com/a/15444485
@@ -35,5 +35,5 @@ public class MyDialogFragment extends DialogFragment {
             getDialog().setDismissMessage(null);
         super.onDestroyView();
     }
-    
+
 }

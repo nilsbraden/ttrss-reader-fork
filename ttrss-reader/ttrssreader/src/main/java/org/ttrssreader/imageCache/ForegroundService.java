@@ -24,6 +24,7 @@ import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 import org.ttrssreader.utils.WakeLocker;
+
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
@@ -31,38 +32,38 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class ForegroundService extends Service implements ICacheEndListener {
-    
+
     private static final String TAG = ForegroundService.class.getSimpleName();
-    
+
     public static final String ACTION_LOAD_IMAGES = "load_images";
     public static final String ACTION_LOAD_ARTICLES = "load_articles";
     static final String PARAM_SHOW_NOTIFICATION = "show_notification";
-    
+
     private ImageCacher imageCacher;
     private static volatile ForegroundService instance = null;
     private static ICacheEndListener parent;
-    
+
     public static boolean isInstanceCreated() {
         return instance != null;
     }
-    
+
     private boolean imageCache = false;
-    
+
     public static void loadImagesToo() {
         if (instance != null)
             instance.imageCache = true;
     }
-    
+
     public static void registerCallback(ICacheEndListener parentGUI) {
         parent = parentGUI;
     }
-    
+
     @Override
     public void onCreate() {
         instance = this;
         super.onCreate();
     }
-    
+
     /**
      * Cleans up all running notifications, notifies waiting activities and clears the instance of the service.
      */
@@ -74,11 +75,11 @@ public class ForegroundService extends Service implements ICacheEndListener {
         if (parent != null)
             parent.onCacheEnd();
     }
-    
+
     @Override
     public void onCacheEnd() {
         WakeLocker.release();
-        
+
         // Start a new cacher if images have been requested
         if (imageCache) {
             imageCache = false;
@@ -89,22 +90,22 @@ public class ForegroundService extends Service implements ICacheEndListener {
             this.stopSelf();
         }
     }
-    
+
     @Override
     public void onCacheProgress(int taskCount, int progress) {
         if (parent != null)
             parent.onCacheProgress(taskCount, progress);
     }
-    
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-    
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
-            
+
             CharSequence title = "";
             if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
                 title = getText(R.string.Cache_service_imagecache);
@@ -117,9 +118,9 @@ public class ForegroundService extends Service implements ICacheEndListener {
                 imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 Log.i(TAG, "Caching (articles only) started");
             }
-            
+
             WakeLocker.acquire(this);
-            
+
             if (intent.getBooleanExtra(PARAM_SHOW_NOTIFICATION, false)) {
                 int icon = R.drawable.notification_icon;
                 CharSequence ticker = getText(R.string.Cache_service_started);
@@ -128,9 +129,9 @@ public class ForegroundService extends Service implements ICacheEndListener {
                         .buildNotification(this, icon, ticker, title, text, true, new Intent());
                 startForeground(R.string.Cache_service_started, notification);
             }
-            
+
         }
         return START_STICKY;
     }
-    
+
 }

@@ -17,26 +17,26 @@
 
 package org.ttrssreader.controllers;
 
+import org.ttrssreader.gui.interfaces.IDataChangedListener;
+
 import android.os.Handler;
 import android.os.Message;
-
-import org.ttrssreader.gui.interfaces.IDataChangedListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateController {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = UpdateController.class.getSimpleName();
-    
+
     private static UpdateController instance = null;
     private static List<IDataChangedListener> listeners = new ArrayList<IDataChangedListener>();
-    
+
     // Singleton
     private UpdateController() {
     }
-    
+
     private static Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -45,7 +45,7 @@ public class UpdateController {
             }
         }
     };
-    
+
     public static UpdateController getInstance() {
         if (instance == null) {
             synchronized (UpdateController.class) {
@@ -56,17 +56,17 @@ public class UpdateController {
         }
         return instance;
     }
-    
+
     public void registerActivity(IDataChangedListener listener) {
         listeners.add(listener);
     }
-    
+
     public void unregisterActivity(IDataChangedListener listener) {
         listeners.remove(listener);
     }
-    
+
     void notifyListeners() {
         handler.sendEmptyMessage(0);
     }
-    
+
 }

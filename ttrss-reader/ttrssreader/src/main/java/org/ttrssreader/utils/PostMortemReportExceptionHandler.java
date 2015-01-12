@@ -17,6 +17,8 @@
 
 package org.ttrssreader.utils;
 
+import org.ttrssreader.controllers.Controller;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -27,8 +29,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.util.Log;
-
-import org.ttrssreader.controllers.Controller;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -46,47 +46,47 @@ import java.util.Locale;
 /**
  * Exception report delivery via email and user interaction. Avoids giving an app the
  * permission to access the Internet.
- * 
+ *
  * @author Ryan Fischbach <br>
  *         Blackmoon Info Tech Services<br>
- * 
+ *
  *         Source has been released to the public as is and without any warranty.
  */
 public class PostMortemReportExceptionHandler implements UncaughtExceptionHandler, Runnable {
-    
+
     private static final String TAG = PostMortemReportExceptionHandler.class.getSimpleName();
     private static final String ExceptionReportFilename = "postmortem.trace";
-    
+
     // "app label + this tag" = email subject
     private static final String MSG_SUBJECT_TAG = "Exception Report";
-    
+
     // email will be sent to this account the following may be something you wish to consider localizing
     private static final String MSG_SENDTO = "ttrss@nilsbraden.de";
-    
+
     private static final String MSG_BODY = "Please help by sending this email. "
             + "No personal information is being sent (you can check by reading the rest of the email).";
-    
+
     private Thread.UncaughtExceptionHandler mDefaultUEH;
     private Activity mAct = null;
-    
+
     public PostMortemReportExceptionHandler(Activity aAct) {
         mDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();
         mAct = aAct;
     }
-    
+
     /**
      * Call this method after creation to start protecting all code thereafter.
      */
     public void initialize() {
         if (mAct == null)
             throw new NullPointerException();
-        
+
         // Ignore crashreport if user has chosen to ignore it
         if (Controller.getInstance().isNoCrashreports()) {
             Log.w(TAG, "User has disabled error reporting.");
             return;
         }
-        
+
         // Ignore crashreport if this version isn't the newest from market
         int latest = Controller.getInstance().appLatestVersion();
         int current = Utils.getAppVersionCode(mAct);
@@ -94,16 +94,16 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             Log.w(TAG, "App is not updated, error reports are disabled.");
             return;
         }
-        
+
         if ((mAct.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
             Log.w(TAG, "Application runs with DEBUGGABLE=true, error reports are disabled.");
             return;
         }
-        
+
         sendDebugReportToAuthor(); // in case a previous error did not get sent to the email app
         Thread.setDefaultUncaughtExceptionHandler(this);
     }
-    
+
     /**
      * Call this method at the end of the protected code, usually in {@link finalize()}.
      */
@@ -111,17 +111,17 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
         if (Thread.getDefaultUncaughtExceptionHandler().equals(this))
             Thread.setDefaultUncaughtExceptionHandler(mDefaultUEH);
     }
-    
+
     @Override
     protected void finalize() throws Throwable {
         restoreOriginalHandler();
         super.finalize();
     }
-    
+
     @Override
     public void uncaughtException(Thread t, Throwable e) {
         boolean handleException = true;
-        
+
         if (e instanceof SecurityException) {
             // Cannot be reproduced, seems to be related to Cyanogenmod with Android 4.0.4 on some devices:
             // http://stackoverflow.com/questions/11025182/webview-java-lang-securityexception-no-permission-to-modify-given-thread
@@ -136,21 +136,19 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
                 handleException = false;
             }
         }
-        
+
         if (handleException)
             submit(e);
-        
+
         // do not forget to pass this exception through up the chain
         bubbleUncaughtException(t, e);
     }
-    
+
     /**
      * Send the Exception up the chain, skipping other handlers of this type so only 1 report is sent.
-     * 
-     * @param t
-     *            - thread object
-     * @param e
-     *            - exception being handled
+     *
+     * @param t - thread object
+     * @param e - exception being handled
      */
     private void bubbleUncaughtException(Thread t, Throwable e) {
         if (mDefaultUEH != null) {
@@ -160,10 +158,10 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
                 mDefaultUEH.uncaughtException(t, e);
         }
     }
-    
+
     /**
      * Return a string containing the device environment.
-     * 
+     *
      * @return Returns a string with the device info used for debugging.
      */
     public String getDeviceEnvironment() {
@@ -181,12 +179,12 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
         Date theDate = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy_HH.mm.ss_zzz", Locale.ENGLISH);
         StringBuilder s = new StringBuilder();
-        
+
         s.append("--------- Application ---------------------\n");
         s.append("Version     = " + Controller.getInstance().getLastVersionRun() + "\n");
         s.append("VersionCode = " + (pi != null ? pi.versionCode : "null") + "\n");
         s.append("-------------------------------------------\n\n");
-        
+
         s.append("--------- Environment ---------------------\n");
         s.append("Time        = " + sdf.format(theDate) + "\n");
         try {
@@ -203,19 +201,19 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
         s.append("Locale      = " + mAct.getResources().getConfiguration().locale.getDisplayName() + "\n");
         s.append("Res         = " + mAct.getResources().getDisplayMetrics().toString() + "\n");
         s.append("-------------------------------------------\n\n");
-        
+
         s.append("--------- Firmware -----------------------\n");
         s.append("SDK         = " + Build.VERSION.SDK_INT + "\n");
         s.append("Release     = " + Build.VERSION.RELEASE + "\n");
         s.append("Inc         = " + Build.VERSION.INCREMENTAL + "\n");
         s.append("-------------------------------------------\n\n");
-        
+
         return s.toString();
     }
-    
+
     /**
      * Return the application's friendly name.
-     * 
+     *
      * @return Returns the application name as defined by the android:name attribute.
      */
     public CharSequence getAppName() {
@@ -229,13 +227,12 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             return mAct.getPackageName();
         }
     }
-    
+
     /**
      * If subactivities create their own report handler, report all Activities as a trace list.
      * A separate line is included if a calling activity/package is detected with the Intent it supplied.
-     * 
-     * @param aTrace
-     *            - pass in null to force a new list to be created
+     *
+     * @param aTrace - pass in null to force a new list to be created
      * @return Returns the list of Activities in the handler chain.
      */
     private LinkedList<CharSequence> getActivityTrace(LinkedList<CharSequence> aTrace) {
@@ -250,21 +247,20 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             ((PostMortemReportExceptionHandler) mDefaultUEH).getActivityTrace(aTrace);
         return aTrace;
     }
-    
+
     /**
      * Create a report based on the given exception.
-     * 
-     * @param aException
-     *            - exception to report on
+     *
+     * @param aException - exception to report on
      * @return Returns a string with a lot of debug information.
      */
     private String getDebugReport(Throwable aException) {
         StringBuilder theErrReport = new StringBuilder();
-        
+
         theErrReport.append(getDeviceEnvironment());
         theErrReport.append(getAppName() + " generated the following exception:\n");
         theErrReport.append(aException.toString() + "\n\n");
-        
+
         // activity stack trace
         List<CharSequence> theActivityTrace = getActivityTrace(null);
         if (theActivityTrace != null && theActivityTrace.size() > 0) {
@@ -274,7 +270,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             }// for
             theErrReport.append("-------------------------------------------\n\n");
         }
-        
+
         if (aException != null) {
             // instruction stack trace
             StackTraceElement[] theStackTrace = aException.getStackTrace();
@@ -285,7 +281,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
                 }// for
                 theErrReport.append("-------------------------------------------\n\n");
             }
-            
+
             // if the exception was thrown in a background thread inside
             // AsyncTask, then the actual exception can be found with getCause
             Throwable theCause = aException.getCause();
@@ -299,16 +295,15 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
                 theErrReport.append("-------------------------------------------\n\n");
             }
         }
-        
+
         theErrReport.append("END REPORT.");
         return theErrReport.toString();
     }
-    
+
     /**
      * Write the given debug report to the file system.
-     * 
-     * @param aReport
-     *            - the debug report
+     *
+     * @param aReport - the debug report
      */
     private void saveDebugReport(String aReport) {
         // save report to file
@@ -320,7 +315,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             // error during error report needs to be ignored, do not wish to start infinite loop
         }
     }
-    
+
     /**
      * Read in saved debug report and send to email app.
      */
@@ -342,12 +337,11 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             // not going to report
         }
     }
-    
+
     /**
      * Send the given report to email app.
-     * 
-     * @param aReport
-     *            - the debug report to send
+     *
+     * @param aReport - the debug report to send
      * @return Returns true if the email app was launched regardless if the email was sent.
      */
     private Boolean sendDebugReportToAuthor(String aReport) {
@@ -355,7 +349,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             Intent theIntent = new Intent(Intent.ACTION_SEND);
             String theSubject = getAppName() + " " + MSG_SUBJECT_TAG;
             String theBody = "\n" + MSG_BODY + "\n\n" + aReport + "\n\n";
-            theIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { MSG_SENDTO });
+            theIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{MSG_SENDTO});
             theIntent.putExtra(Intent.EXTRA_TEXT, theBody);
             theIntent.putExtra(Intent.EXTRA_SUBJECT, theSubject);
             theIntent.setType("message/rfc822");
@@ -370,17 +364,16 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             return true;
         }
     }
-    
+
     @Override
     public void run() {
         sendDebugReportToAuthor();
     }
-    
+
     /**
      * Create an exception report and start an email with the contents of the report.
-     * 
-     * @param e
-     *            - the exception
+     *
+     * @param e - the exception
      */
     private void submit(Throwable e) {
         String theErrReport = getDebugReport(e);

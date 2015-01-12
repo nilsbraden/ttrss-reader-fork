@@ -23,15 +23,15 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 public class ErrorDialog extends MyDialogFragment {
-    
+
     private String message;
-    
+
     public static ErrorDialog getInstance(String message) {
         ErrorDialog dialog = new ErrorDialog();
         dialog.message = message;
         return dialog;
     }
-    
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -45,5 +45,5 @@ public class ErrorDialog extends MyDialogFragment {
         });
         return alertDialogBuilder.create();
     }
-    
+
 }

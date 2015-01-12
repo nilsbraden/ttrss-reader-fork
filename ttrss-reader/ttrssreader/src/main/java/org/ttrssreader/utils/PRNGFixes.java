@@ -52,7 +52,8 @@ import java.security.Security;
  * Fixes for the output of the default PRNG having low entropy.
  * </p>
  * <p>
- * The fixes need to be applied via {@link #apply()} before any use of Java Cryptography Architecture primitives. A good
+ * The fixes need to be applied via {@link #apply()} before any use of Java Cryptography Architecture primitives. A
+ * good
  * place to invoke them is in the application's {@code onCreate}.
  * </p>
  * <p>
@@ -62,32 +63,30 @@ import java.security.Security;
  * </p>
  */
 public final class PRNGFixes {
-    
+
     private static final String TAG = PRNGFixes.class.getSimpleName();
-    
+
     private static final byte[] BUILD_FINGERPRINT_AND_DEVICE_SERIAL = getBuildFingerprintAndDeviceSerial();
-    
+
     /** Hidden constructor to prevent instantiation. */
     private PRNGFixes() {
     }
-    
+
     /**
      * Applies all fixes.
-     * 
-     * @throws SecurityException
-     *             if a fix is needed but could not be applied.
+     *
+     * @throws SecurityException if a fix is needed but could not be applied.
      */
     public static void apply() {
         applyOpenSSLFix();
         installLinuxPRNGSecureRandom();
     }
-    
+
     /**
      * Applies the fix for OpenSSL PRNG having low entropy. Does nothing if the
      * fix is not needed.
-     * 
-     * @throws SecurityException
-     *             if the fix is needed but could not be applied.
+     *
+     * @throws SecurityException if the fix is needed but could not be applied.
      */
     private static void applyOpenSSLFix() throws SecurityException {
         if ((Build.VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN)
@@ -95,12 +94,12 @@ public final class PRNGFixes {
             // No need to apply the fix
             return;
         }
-        
+
         try {
             // Mix in the device- and invocation-specific seed.
             Class.forName("org.apache.harmony.xnet.provider.jsse.NativeCrypto").getMethod("RAND_seed", byte[].class)
                     .invoke(null, generateSeed());
-            
+
             // Mix output of Linux PRNG into OpenSSL's PRNG
             int bytesRead = (Integer) Class.forName("org.apache.harmony.xnet.provider.jsse.NativeCrypto")
                     .getMethod("RAND_load_file", String.class, long.class).invoke(null, "/dev/urandom", 1024);
@@ -111,21 +110,20 @@ public final class PRNGFixes {
             throw new SecurityException("Failed to seed OpenSSL PRNG", e);
         }
     }
-    
+
     /**
      * Installs a Linux PRNG-backed {@code SecureRandom} implementation as the
      * default. Does nothing if the implementation is already the default or if
      * there is not need to install the implementation.
-     * 
-     * @throws SecurityException
-     *             if the fix is needed but could not be applied.
+     *
+     * @throws SecurityException if the fix is needed but could not be applied.
      */
     private static void installLinuxPRNGSecureRandom() throws SecurityException {
         if (Build.VERSION.SDK_INT > VERSION_CODES.JELLY_BEAN_MR2) {
             // No need to apply the fix
             return;
         }
-        
+
         // Install a Linux PRNG-based SecureRandom implementation as the
         // default, if not yet installed.
         Provider[] secureRandomProviders = Security.getProviders("SecureRandom.SHA1PRNG");
@@ -133,15 +131,16 @@ public final class PRNGFixes {
                 || (!LinuxPRNGSecureRandomProvider.class.equals(secureRandomProviders[0].getClass()))) {
             Security.insertProviderAt(new LinuxPRNGSecureRandomProvider(), 1);
         }
-        
+
         // Assert that new SecureRandom() and
         // SecureRandom.getInstance("SHA1PRNG") return a SecureRandom backed
         // by the Linux PRNG-based SecureRandom implementation.
         SecureRandom rng1 = new SecureRandom();
         if (!LinuxPRNGSecureRandomProvider.class.equals(rng1.getProvider().getClass())) {
-            throw new SecurityException("new SecureRandom() backed by wrong Provider: " + rng1.getProvider().getClass());
+            throw new SecurityException(
+                    "new SecureRandom() backed by wrong Provider: " + rng1.getProvider().getClass());
         }
-        
+
         SecureRandom rng2;
         try {
             rng2 = SecureRandom.getInstance("SHA1PRNG");
@@ -153,15 +152,15 @@ public final class PRNGFixes {
                     + rng2.getProvider().getClass());
         }
     }
-    
+
     /**
      * {@code Provider} of {@code SecureRandom} engines which pass through
      * all requests to the Linux PRNG.
      */
     private static class LinuxPRNGSecureRandomProvider extends Provider {
-        
+
         private static final long serialVersionUID = 1L;
-        
+
         public LinuxPRNGSecureRandomProvider() {
             super("LinuxPRNG", 1.0, "A Linux-specific random number provider that uses /dev/urandom");
             // Although /dev/urandom is not a SHA-1 PRNG, some apps
@@ -172,13 +171,13 @@ public final class PRNGFixes {
             put("SecureRandom.SHA1PRNG ImplementedIn", "Software");
         }
     }
-    
+
     /**
      * {@link SecureRandomSpi} which passes all requests to the Linux PRNG
      * ({@code /dev/urandom}).
      */
     public static class LinuxPRNGSecureRandom extends SecureRandomSpi {
-        
+
         /*
          * IMPLEMENTATION NOTE: Requests to generate bytes and to mix in a seed
          * are passed through to the Linux PRNG (/dev/urandom). Instances of
@@ -191,34 +190,34 @@ public final class PRNGFixes {
          * duplicated PRNG output.
          */
         private static final long serialVersionUID = 1L;
-        
+
         private static final File URANDOM_FILE = new File("/dev/urandom");
-        
+
         private static final Object sLock = new Object();
-        
+
         /**
          * Input stream for reading from Linux PRNG or {@code null} if not yet
          * opened.
-         * 
+         *
          * @GuardedBy("sLock")
          */
         private static DataInputStream sUrandomIn;
-        
+
         /**
          * Output stream for writing to Linux PRNG or {@code null} if not yet
          * opened.
-         * 
+         *
          * @GuardedBy("sLock")
          */
         private static OutputStream sUrandomOut;
-        
+
         /**
          * Whether this engine instance has been seeded. This is needed because
          * each instance needs to seed itself if the client does not explicitly
          * seed it.
          */
         private boolean mSeeded;
-        
+
         @Override
         protected void engineSetSeed(byte[] bytes) {
             try {
@@ -234,14 +233,14 @@ public final class PRNGFixes {
                 mSeeded = true;
             }
         }
-        
+
         @Override
         protected void engineNextBytes(byte[] bytes) {
             if (!mSeeded) {
                 // Mix in the device- and invocation-specific seed.
                 engineSetSeed(generateSeed());
             }
-            
+
             try {
                 DataInputStream in;
                 synchronized (sLock) {
@@ -254,14 +253,14 @@ public final class PRNGFixes {
                 throw new SecurityException("Failed to read from " + URANDOM_FILE, e);
             }
         }
-        
+
         @Override
         protected byte[] engineGenerateSeed(int size) {
             byte[] seed = new byte[size];
             engineNextBytes(seed);
             return seed;
         }
-        
+
         private DataInputStream getUrandomInputStream() {
             synchronized (sLock) {
                 if (sUrandomIn == null) {
@@ -278,7 +277,7 @@ public final class PRNGFixes {
                 return sUrandomIn;
             }
         }
-        
+
         private OutputStream getUrandomOutputStream() throws IOException {
             synchronized (sLock) {
                 if (sUrandomOut == null) {
@@ -288,7 +287,7 @@ public final class PRNGFixes {
             }
         }
     }
-    
+
     /**
      * Generates a device- and invocation-specific seed to be mixed into the
      * Linux PRNG.
@@ -308,7 +307,7 @@ public final class PRNGFixes {
             throw new SecurityException("Failed to generate seed", e);
         }
     }
-    
+
     private static byte[] getBuildFingerprintAndDeviceSerial() {
         StringBuilder result = new StringBuilder();
         String fingerprint = Build.FINGERPRINT;

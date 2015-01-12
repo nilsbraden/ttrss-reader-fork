@@ -18,6 +18,7 @@ package org.ttrssreader.imageCache;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.imageCache.bundle.BundleScrubber;
 import org.ttrssreader.imageCache.bundle.PluginBundleManager;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,51 +27,49 @@ import android.util.Log;
 
 /**
  * This is the "fire" BroadcastReceiver for a Locale Plug-in setting.
- * 
+ *
  * @see com.twofortyfouram.locale.Intent#ACTION_FIRE_SETTING
  * @see com.twofortyfouram.locale.Intent#EXTRA_BUNDLE
  */
 public final class PluginReceiver extends BroadcastReceiver {
-    
+
     private static final String TAG = PluginReceiver.class.getSimpleName();
-    
+
     private static final String ACTION_FIRE_SETTING = "com.twofortyfouram.locale.intent.action.FIRE_SETTING";
     public static final String EXTRA_BUNDLE = "com.twofortyfouram.locale.intent.extra.BUNDLE";
-    
+
     /**
-     * @param context
-     *            {@inheritDoc}.
-     * @param intent
-     *            the incoming {@link com.twofortyfouram.locale.Intent#ACTION_FIRE_SETTING} Intent. This
-     *            should contain the {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE} that was saved by
-     *            {@link EditActivity} and later broadcast by Locale.
+     * @param context {@inheritDoc}.
+     * @param intent  the incoming {@link com.twofortyfouram.locale.Intent#ACTION_FIRE_SETTING} Intent. This
+     *                should contain the {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE} that was saved by
+     *                {@link EditActivity} and later broadcast by Locale.
      */
     @Override
     public void onReceive(final Context context, final Intent intent) {
         /*
          * Always be strict on input parameters! A malicious third-party app could send a malformed Intent.
          */
-        
+
         if (!ACTION_FIRE_SETTING.equals(intent.getAction())) {
             Log.e(TAG, "Received unexpected Intent action " + intent.getAction());
             return;
         }
-        
+
         BundleScrubber.scrub(intent);
-        
+
         final Bundle bundle = intent.getBundleExtra(EXTRA_BUNDLE);
         BundleScrubber.scrub(bundle);
-        
+
         if (!PluginBundleManager.isBundleValid(bundle)) {
             Log.e(TAG, "Received invalid Bundle for action " + intent.getAction());
             return;
         }
-        
+
         Controller.getInstance().setHeadless(true);
-        
+
         final boolean images = bundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_IMAGES);
         final boolean notification = bundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_NOTIFICATION);
-        
+
         Intent serviceIntent;
         if (images) {
             serviceIntent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
@@ -81,5 +80,5 @@ public final class PluginReceiver extends BroadcastReceiver {
         serviceIntent.putExtra(ForegroundService.PARAM_SHOW_NOTIFICATION, notification);
         context.startService(serviceIntent);
     }
-    
+
 }

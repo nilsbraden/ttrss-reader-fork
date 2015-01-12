@@ -17,9 +17,6 @@
 
 package org.ttrssreader.net;
 
-import android.util.Base64;
-import android.util.Log;
-
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -36,6 +33,9 @@ import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 
+import android.util.Base64;
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -49,12 +49,12 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class JSONConnector {
-    
+
     private static final String TAG = JSONConnector.class.getSimpleName();
-    
+
     protected static String lastError = "";
     protected static boolean hasLastError = false;
-    
+
     private static final String PARAM_OP = "op";
     private static final String PARAM_USER = "user";
     private static final String PARAM_PW = "password";
@@ -68,18 +68,18 @@ public abstract class JSONConnector {
     private static final String PARAM_VIEWMODE = "view_mode";
     private static final String PARAM_SHOW_CONTENT = "show_content";
     private static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
-                                                                               // 1.5.3 but is ignored on older
-                                                                               // versions
+    // 1.5.3 but is ignored on older
+    // versions
     private static final String PARAM_SINCE_ID = "since_id";
     private static final String PARAM_SEARCH = "search";
     private static final String PARAM_SKIP = "skip";
     private static final String PARAM_MODE = "mode";
     private static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
-                                                       // level 1)
+    // level 1)
     private static final String PARAM_DATA = "data"; // optional data parameter when setting note field
     private static final String PARAM_IS_CAT = "is_cat";
     private static final String PARAM_PREF = "pref_name";
-    
+
     private static final String VALUE_LOGIN = "login";
     private static final String VALUE_GET_CATEGORIES = "getCategories";
     private static final String VALUE_GET_FEEDS = "getFeeds";
@@ -93,70 +93,73 @@ public abstract class JSONConnector {
     private static final String VALUE_SHARE_TO_PUBLISHED = "shareToPublished";
     private static final String VALUE_FEED_SUBSCRIBE = "subscribeToFeed";
     private static final String VALUE_FEED_UNSUBSCRIBE = "unsubscribeFeed";
-    
+
     private static final String VALUE_LABEL_ID = "label_id";
     private static final String VALUE_ASSIGN = "assign";
-    
+
     private static final String ERROR = "error";
     private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
     private static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
-    private static final String NOT_LOGGED_IN_MESSAGE = "Couldn't login to your account, please check your credentials.";
-    private static final String ENCODE_PASSWORD = "Couldn't login to your account, your password could not be encoded properly.";
+    private static final String NOT_LOGGED_IN_MESSAGE
+            = "Couldn't login to your account, please check your credentials.";
+    private static final String ENCODE_PASSWORD
+            = "Couldn't login to your account, your password could not be encoded properly.";
     private static final String API_DISABLED = "API_DISABLED";
-    private static final String API_DISABLED_MESSAGE = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
+    private static final String API_DISABLED_MESSAGE
+            = "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
     private static final String STATUS = "status";
     private static final String API_LEVEL = "api_level";
-    
+
     private static final String SESSION_ID = "session_id"; // session id as an OUT parameter
     private static final String ID = "id";
-    
+
     private static final String TITLE = "title";
     private static final String UNREAD = "unread";
-    
+
     private static final String CAT_ID = "cat_id";
-    
+
     private static final String CONTENT = "content";
-    
+
     private static final String URL_SHARE = "url";
     private static final String FEED_URL = "feed_url";
-    
+
     private static final String CONTENT_URL = "content_url";
-    
+
     private static final String VALUE = "value";
     private static final String VERSION = "version";
-    
+
     private static final int MAX_ID_LIST_LENGTH = 100;
-    
+
     protected static final String SID = "sid"; // session id as an IN parameter
-    
+
     protected boolean httpAuth = false;
     protected String httpUsername;
     protected String httpPassword;
 
     protected String sessionId = null;
-    
+
     private final Object lock = new Object();
     private int apiLevel = -1;
-    
+
     public static final int PARAM_LIMIT_MAX_VALUE = 200;
-    
+
     protected abstract InputStream doRequest(Map<String, String> params);
-    
+
     public void init() {
         httpAuth = Controller.getInstance().useHttpAuth();
         if (!httpAuth)
             return;
-        
+
         if (httpUsername != null)
             return;
         if (httpPassword != null)
             return;
-        
+
         // Refresh data
         httpUsername = Controller.getInstance().httpUsername();
         httpPassword = Controller.getInstance().httpPassword();
     }
-    
+
     protected void logRequest(final JSONObject json) throws JSONException {
         // Filter password and session-id
         Object paramPw = json.remove(PARAM_PW);
@@ -165,37 +168,37 @@ public abstract class JSONConnector {
         json.put(PARAM_PW, paramPw);
         json.put(SID, paramSID);
     }
-    
+
     private String readResult(Map<String, String> params, boolean login) throws IOException {
         return readResult(params, login, true);
     }
-    
+
     private String readResult(Map<String, String> params, boolean login, boolean retry) throws IOException {
         InputStream in = doRequest(params);
         if (in == null)
             return null;
-        
+
         JsonReader reader = null;
         String ret = "";
         try {
             reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
             // Check if content contains array or object, array indicates login-response or error, object is content
-            
+
             reader.beginObject();
             while (reader.hasNext()) {
                 String name = reader.nextName();
                 if (name.equals("content")) {
                     JsonToken t = reader.peek();
-                    
+
                     if (t.equals(JsonToken.BEGIN_OBJECT)) {
-                        
+
                         JsonObject object = new JsonObject();
                         reader.beginObject();
                         while (reader.hasNext()) {
                             object.addProperty(reader.nextName(), reader.nextString());
                         }
                         reader.endObject();
-                        
+
                         if (object.get(SESSION_ID) != null) {
                             ret = object.get(SESSION_ID).getAsString();
                         }
@@ -210,7 +213,7 @@ public abstract class JSONConnector {
                         }
                         if (object.get(ERROR) != null) {
                             String message = object.get(ERROR).getAsString();
-                            
+
                             if (message.contains(NOT_LOGGED_IN)) {
                                 if (!login && retry && login()) {
                                     return readResult(params, false, false); // Just do the same request again
@@ -220,20 +223,20 @@ public abstract class JSONConnector {
                                     return null;
                                 }
                             }
-                            
+
                             if (message.contains(API_DISABLED)) {
                                 hasLastError = true;
                                 lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
                                 return null;
                             }
-                            
+
                             // Any other error
                             hasLastError = true;
                             lastError = message;
                             return null;
                         }
                     }
-                    
+
                 } else {
                     reader.skipValue();
                 }
@@ -246,20 +249,20 @@ public abstract class JSONConnector {
             ret = ret.substring(1, ret.length());
         if (ret.endsWith("\""))
             ret = ret.substring(0, ret.length() - 1);
-        
+
         return ret;
     }
-    
+
     private JsonReader prepareReader(Map<String, String> params) throws IOException {
         return prepareReader(params, true);
     }
-    
+
     private JsonReader prepareReader(Map<String, String> params, boolean firstCall) throws IOException {
         InputStream in = doRequest(params);
         if (in == null)
             return null;
         JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-        
+
         // Check if content contains array or object, array indicates login-response or error, object is content
         try {
             reader.beginObject();
@@ -271,19 +274,19 @@ public abstract class JSONConnector {
             String name = reader.nextName();
             if (name.equals("content")) {
                 JsonToken t = reader.peek();
-                
+
                 if (t.equals(JsonToken.BEGIN_ARRAY)) {
                     return reader;
                 } else if (t.equals(JsonToken.BEGIN_OBJECT)) {
-                    
+
                     JsonObject object = new JsonObject();
                     reader.beginObject();
-                    
+
                     String nextName = reader.nextName();
                     // We have a BEGIN_OBJECT here but its just the response to call "subscribeToFeed"
                     if ("status".equals(nextName))
                         return reader;
-                    
+
                     // Handle error
                     while (reader.hasNext()) {
                         if (nextName != null) {
@@ -294,10 +297,10 @@ public abstract class JSONConnector {
                         }
                     }
                     reader.endObject();
-                    
+
                     if (object.get(ERROR) != null) {
                         String message = object.get(ERROR).toString();
-                        
+
                         if (message.contains(NOT_LOGGED_IN)) {
                             lastError = NOT_LOGGED_IN;
                             if (firstCall && login() && !hasLastError)
@@ -305,26 +308,26 @@ public abstract class JSONConnector {
                             else
                                 return null;
                         }
-                        
+
                         if (message.contains(API_DISABLED)) {
                             hasLastError = true;
                             lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
                             return null;
                         }
-                        
+
                         // Any other error
                         hasLastError = true;
                         lastError = message;
                     }
                 }
-                
+
             } else {
                 reader.skipValue();
             }
         }
         return null;
     }
-    
+
     private boolean sessionAlive() {
         // Make sure we are logged in
         if (sessionId == null || lastError.equals(NOT_LOGGED_IN))
@@ -334,24 +337,23 @@ public abstract class JSONConnector {
             return false;
         return true;
     }
-    
+
     /**
      * Does an API-Call and ignores the result.
-     * 
-     * @param params
+     *
      * @return true if the call was successful.
      */
     private boolean doRequestNoAnswer(Map<String, String> params) {
         if (!sessionAlive())
             return false;
-        
+
         try {
             String result = readResult(params, false);
-            
+
             // Reset error, this is only for an api-bug which returns an empty result for updateFeed
             if (result == null)
                 pullLastError();
-            
+
             if ("OK".equals(result))
                 return true;
             else
@@ -366,33 +368,33 @@ public abstract class JSONConnector {
                 lastError = formatException(e);
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Tries to login to the ttrss-server with the base64-encoded password.
-     * 
+     *
      * @return true on success, false otherwise
      */
     private boolean login() {
         long time = System.currentTimeMillis();
-        
+
         // Just login once, check if already logged in after acquiring the lock on mSessionId
         if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
             return true;
-        
+
         synchronized (lock) {
             try {
                 if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
                     return true; // Login done while we were waiting for the lock
-                    
+
                 Map<String, String> params = new HashMap<String, String>();
                 params.put(PARAM_OP, VALUE_LOGIN);
                 params.put(PARAM_USER, Controller.getInstance().username());
                 params.put(PARAM_PW,
                         Base64.encodeToString(Controller.getInstance().password().getBytes("UTF-8"), Base64.NO_WRAP));
-                
+
                 try {
                     sessionId = readResult(params, true, false);
                     if (sessionId != null) {
@@ -405,7 +407,7 @@ public abstract class JSONConnector {
                         lastError = formatException(e);
                     }
                 }
-                
+
                 if (!hasLastError) {
                     // Login didnt succeed, write message
                     hasLastError = true;
@@ -418,20 +420,20 @@ public abstract class JSONConnector {
             return false;
         }
     }
-    
+
     // ***************** Helper-Methods **************************************************
-    
+
     private Set<String> parseAttachments(JsonReader reader) throws IOException {
         Set<String> ret = new HashSet<String>();
         reader.beginArray();
         while (reader.hasNext()) {
-            
+
             String attId = null;
             String attUrl = null;
-            
+
             reader.beginObject();
             while (reader.hasNext()) {
-                
+
                 try {
                     String name = reader.nextName();
                     if (name.equals(CONTENT_URL)) {
@@ -446,43 +448,40 @@ public abstract class JSONConnector {
                     reader.skipValue();
                     continue;
                 }
-                
+
             }
             reader.endObject();
-            
+
             if (attId != null && attUrl != null)
                 ret.add(attUrl);
         }
         reader.endArray();
         return ret;
     }
-    
+
     /**
      * parse articles from JSON-reader
-     * 
-     * @param articles
-     *            container, where parsed articles will be stored
-     * @param reader
-     *            JSON-reader, containing articles (received from server)
-     * @param labelId
-     *            ID of label to be added to each parsed article
-     * @param skipNames
-     *            set of names (article properties), which should not be processed (may be {@code null})
-     * @param filter
-     *            filter for articles, defining which articles should be omitted while parsing (may be {@code null})
+     *
+     * @param articles  container, where parsed articles will be stored
+     * @param reader    JSON-reader, containing articles (received from server)
+     * @param labelId   ID of label to be added to each parsed article
+     * @param skipNames set of names (article properties), which should not be processed (may be {@code null})
+     * @param filter    filter for articles, defining which articles should be omitted while parsing (may be {@code
+     *                  null})
      * @return amount of processed articles
      */
-    private int parseArticleArray(final Set<Article> articles, JsonReader reader, long labelId, Set<Article.ArticleField> skipNames, IArticleOmitter filter) {
+    private int parseArticleArray(final Set<Article> articles, JsonReader reader, long labelId,
+            Set<Article.ArticleField> skipNames, IArticleOmitter filter) {
         long time = System.currentTimeMillis();
         int count = 0;
-        
+
         try {
             reader.beginArray();
             while (reader.hasNext()) {
                 Article a = new Article();
-                
+
                 boolean skipObject = false;
-                
+
                 reader.beginObject();
                 while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) {
                     if (skipObject) {
@@ -492,17 +491,17 @@ public abstract class JSONConnector {
                         reader.skipValue();
                         continue;
                     }
-                    
+
                     String name = reader.nextName();
-                    
+
                     try {
                         Article.ArticleField field = Article.ArticleField.valueOf(name);
-                        
+
                         if (skipNames != null && skipNames.contains(field)) {
                             reader.skipValue();
                             continue;
                         }
-                        
+
                         switch (field) {
                             case id:
                                 a.id = reader.nextInt();
@@ -560,7 +559,7 @@ public abstract class JSONConnector {
                                 reader.skipValue();
                                 continue;
                         }
-                        
+
                         if (filter != null)
                             skipObject = filter.omitArticle(field, a);
                     } catch (IllegalArgumentException e) {
@@ -568,14 +567,14 @@ public abstract class JSONConnector {
                         reader.skipValue();
                         continue;
                     }
-                    
+
                 }
                 reader.endObject();
-                
+
                 if (!skipObject && a.id != -1 && a.title != null) {
                     articles.add(a);
                 }
-                
+
                 count++;
             }
             reader.endArray();
@@ -586,25 +585,25 @@ public abstract class JSONConnector {
         } catch (Exception e) {
             Log.e(TAG, "Input data could not be read: " + e.getMessage() + " (" + e.getCause() + ")", e);
         }
-        
+
         Log.d(TAG, "parseArticleArray: parsing " + count + " articles took " + (System.currentTimeMillis() - time)
                 + "ms");
         return count;
     }
-    
+
     private Set<Label> parseLabels(final JsonReader reader) throws IOException {
         Set<Label> ret = new HashSet<Label>();
-        
+
         if (reader.peek().equals(JsonToken.BEGIN_ARRAY)) {
             reader.beginArray();
         } else {
             reader.skipValue();
             return ret;
         }
-        
+
         try {
             while (reader.hasNext()) {
-                
+
                 Label label = new Label();
                 reader.beginArray();
                 try {
@@ -630,15 +629,15 @@ public abstract class JSONConnector {
             } catch (Exception ee) {
             }
         }
-        
+
         return ret;
     }
-    
+
     // ***************** Retrieve-Data-Methods **************************************************
-    
+
     /**
      * Retrieves all categories.
-     * 
+     *
      * @return a list of categories.
      */
     public Set<Category> getCategories() {
@@ -646,30 +645,30 @@ public abstract class JSONConnector {
         Set<Category> ret = new LinkedHashSet<Category>();
         if (!sessionAlive())
             return ret;
-        
+
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_CATEGORIES);
-        
+
         JsonReader reader = null;
         try {
             reader = prepareReader(params);
-            
+
             if (reader == null)
                 return ret;
-            
+
             reader.beginArray();
             while (reader.hasNext()) {
-                
+
                 int id = -1;
                 String title = null;
                 int unread = 0;
-                
+
                 reader.beginObject();
                 while (reader.hasNext()) {
-                    
+
                     try {
                         String name = reader.nextName();
-                        
+
                         if (name.equals(ID)) {
                             id = reader.nextInt();
                         } else if (name.equals(TITLE)) {
@@ -684,10 +683,10 @@ public abstract class JSONConnector {
                         reader.skipValue();
                         continue;
                     }
-                    
+
                 }
                 reader.endObject();
-                
+
                 // Don't handle categories with an id below 1, we already have them in the DB from
                 // Data.updateVirtualCategories()
                 if (id > 0 && title != null)
@@ -703,18 +702,16 @@ public abstract class JSONConnector {
                 } catch (IOException e1) {
                 }
         }
-        
+
         Log.d(TAG, "getCategories: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
-    
+
     /**
      * get current feeds from server
-     * 
-     * @param tolerateWrongUnreadInformation
-     *            if set to {@code false}, then
-     *            lazy server will be updated before
-     * 
+     *
+     * @param tolerateWrongUnreadInformation if set to {@code false}, then
+     *                                       lazy server will be updated before
      * @return set of actual feeds on server
      */
     private Set<Feed> getFeeds(boolean tolerateWrongUnreadInformation) {
@@ -722,38 +719,38 @@ public abstract class JSONConnector {
         Set<Feed> ret = new LinkedHashSet<Feed>();
         if (!sessionAlive())
             return ret;
-        
+
         if (!tolerateWrongUnreadInformation) {
             makeLazyServerWork();
         }
-        
+
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_FEEDS);
         params.put(PARAM_CAT_ID, Data.VCAT_ALL + ""); // Hardcoded -4 fetches all feeds. See
-                                                      // http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
-        
+        // http://tt-rss.org/redmine/wiki/tt-rss/JsonApiReference#getFeeds
+
         JsonReader reader = null;
         try {
             reader = prepareReader(params);
-            
+
             if (reader == null)
                 return ret;
-            
+
             reader.beginArray();
             while (reader.hasNext()) {
-                
+
                 int categoryId = -1;
                 int id = 0;
                 String title = null;
                 String feedUrl = null;
                 int unread = 0;
-                
+
                 reader.beginObject();
                 while (reader.hasNext()) {
-                    
+
                     try {
                         String name = reader.nextName();
-                        
+
                         if (name.equals(ID)) {
                             id = reader.nextInt();
                         } else if (name.equals(CAT_ID)) {
@@ -772,14 +769,14 @@ public abstract class JSONConnector {
                         reader.skipValue();
                         continue;
                     }
-                    
+
                 }
                 reader.endObject();
-                
+
                 if (id != -1 || categoryId == -2) // normal feed (>0) or label (-2)
                     if (title != null) // Dont like complicated if-statements..
                         ret.add(new Feed(id, categoryId, title, feedUrl, unread));
-                
+
             }
             reader.endArray();
         } catch (IOException e) {
@@ -791,20 +788,20 @@ public abstract class JSONConnector {
                 } catch (IOException e1) {
                 }
         }
-        
+
         Log.d(TAG, "getFeeds: " + (System.currentTimeMillis() - time) + "ms");
         return ret;
     }
-    
+
     /**
      * Retrieves all feeds from server.
-     * 
+     *
      * @return a set of all feeds on server.
      */
     public Set<Feed> getFeeds() {
         return getFeeds(false);
     }
-    
+
     private boolean makeLazyServerWork(Integer feedId) {
         if (Controller.getInstance().lazyServer()) {
             Map<String, String> taskParams = new HashMap<String, String>();
@@ -814,10 +811,10 @@ public abstract class JSONConnector {
         }
         return true;
     }
-    
+
     private long noTaskUntil = 0;
     final static private long minTaskIntervall = 10 * Utils.MINUTE;
-    
+
     private boolean makeLazyServerWork() {
         boolean ret = true;
         final long time = System.currentTimeMillis();
@@ -832,45 +829,40 @@ public abstract class JSONConnector {
         }
         return ret;
     }
-    
+
     /**
      * Retrieves the specified articles.
-     * 
-     * @param articles
-     *            container for retrieved articles
-     * @param id
-     *            the id of the feed/category
-     * @param limit
-     *            the maximum number of articles to be fetched
-     * @param viewMode
-     *            indicates wether only unread articles should be included (Possible values: all_articles, unread,
-     *            adaptive, marked, updated)
-     * @param isCategory
-     *            indicates if we are dealing with a category or a feed
-     * @param sinceId
-     *            the first ArticleId which is to be retrieved.
-     * @param search
-     *            search query
-     * @param skipProperties
-     *            set of article fields, which should not be parsed (may be {@code null})
-     * @param filter
-     *            filter for articles, defining which articles should be omitted while parsing (may be {@code null})
+     *
+     * @param articles       container for retrieved articles
+     * @param id             the id of the feed/category
+     * @param limit          the maximum number of articles to be fetched
+     * @param viewMode       indicates wether only unread articles should be included (Possible values: all_articles,
+     *                       unread,
+     *                       adaptive, marked, updated)
+     * @param isCategory     indicates if we are dealing with a category or a feed
+     * @param sinceId        the first ArticleId which is to be retrieved.
+     * @param search         search query
+     * @param skipProperties set of article fields, which should not be parsed (may be {@code null})
+     * @param filter         filter for articles, defining which articles should be omitted while parsing (may be
+     *                       {@code
+     *                       null})
      */
-    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory, Integer sinceId, String search, Set<Article.ArticleField> skipProperties, IArticleOmitter filter) {
+    public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory,
+            Integer sinceId, String search, Set<Article.ArticleField> skipProperties, IArticleOmitter filter) {
         long time = System.currentTimeMillis();
         int offset = 0;
         int count = 0;
         int maxSize = articles.size() + limit;
-        
+
         if (!sessionAlive())
             return;
-        
+
         int limitParam = Math.min((apiLevel < 6) ? PARAM_LIMIT_API_5 : PARAM_LIMIT_MAX_VALUE, limit);
-        
+
         makeLazyServerWork(id);
-        
+
         while (articles.size() < maxSize) {
-            
+
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_GET_HEADLINES);
             params.put(PARAM_FEED_ID, id + "");
@@ -878,33 +870,34 @@ public abstract class JSONConnector {
             params.put(PARAM_SKIP, offset + "");
             params.put(PARAM_VIEWMODE, viewMode);
             // params.put(PARAM_ORDERBY, "feed_dates");
-            
+
             if (skipProperties == null || !skipProperties.contains(Article.ArticleField.content))
                 params.put(PARAM_SHOW_CONTENT, "1");
-            
+
             if (skipProperties == null || !skipProperties.contains(Article.ArticleField.attachments))
                 params.put(PARAM_INC_ATTACHMENTS, "1");
-            
+
             params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
-            
+
             if (sinceId > 0)
                 params.put(PARAM_SINCE_ID, sinceId + "");
-            
+
             if (search != null)
                 params.put(PARAM_SEARCH, search);
-            
+
             JsonReader reader = null;
             try {
                 reader = prepareReader(params);
-                
+
                 if (hasLastError)
                     return;
-                
+
                 if (reader == null)
                     continue;
-                
-                count = parseArticleArray(articles, reader, (!isCategory && id < -10 ? id : -1), skipProperties, filter);
-                
+
+                count = parseArticleArray(articles, reader, (!isCategory && id < -10 ? id : -1), skipProperties,
+                        filter);
+
                 if (count < limitParam)
                     break;
                 else
@@ -920,23 +913,21 @@ public abstract class JSONConnector {
                 }
             }
         }
-        
+
         Log.d(TAG, "getHeadlines: " + (System.currentTimeMillis() - time) + "ms");
     }
-    
+
     /**
      * Marks the given list of article-Ids as read/unread depending on int articleState.
-     * 
-     * @param articlesIds
-     *            a list of article-ids.
-     * @param articleState
-     *            the new state of the article (0 -> mark as read; 1 -> mark as unread).
+     *
+     * @param articlesIds  a list of article-ids.
+     * @param articleState the new state of the article (0 -> mark as read; 1 -> mark as unread).
      */
     public boolean setArticleRead(Set<Integer> articlesIds, int articleState) {
         boolean ret = true;
         if (articlesIds.isEmpty())
             return ret;
-        
+
         for (String idList : StringSupport.convertListToString(articlesIds, MAX_ID_LIST_LENGTH)) {
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
@@ -947,21 +938,19 @@ public abstract class JSONConnector {
         }
         return ret;
     }
-    
+
     /**
      * Marks the given Article as "starred"/"not starred" depending on int articleState.
-     * 
-     * @param ids
-     *            a list of article-ids.
-     * @param articleState
-     *            the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
+     *
+     * @param ids          a list of article-ids.
+     * @param articleState the new state of the article (0 -> not starred; 1 -> starred; 2 -> toggle).
      * @return true if the operation succeeded.
      */
     public boolean setArticleStarred(Set<Integer> ids, int articleState) {
         boolean ret = true;
         if (ids.size() == 0)
             return ret;
-        
+
         for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
@@ -972,21 +961,19 @@ public abstract class JSONConnector {
         }
         return ret;
     }
-    
+
     /**
      * Marks the given Articles as "published"/"not published" depending on articleState.
-     * 
-     * @param ids
-     *            a list of article-ids with corresponding notes (may be null).
-     * @param articleState
-     *            the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
+     *
+     * @param ids          a list of article-ids with corresponding notes (may be null).
+     * @param articleState the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
      * @return true if the operation succeeded.
      */
     public boolean setArticlePublished(Map<Integer, String> ids, int articleState) {
         boolean ret = true;
         if (ids.size() == 0)
             return ret;
-        
+
         for (String idList : StringSupport.convertListToString(ids.keySet(), MAX_ID_LIST_LENGTH)) {
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
@@ -994,30 +981,28 @@ public abstract class JSONConnector {
             params.put(PARAM_MODE, articleState + "");
             params.put(PARAM_FIELD, "1");
             ret = ret && doRequestNoAnswer(params);
-            
+
             // Add a note to the article(s)
-            
+
             for (Integer id : ids.keySet()) {
                 String note = ids.get(id);
                 if (note == null || note.equals(""))
                     continue;
-                
+
                 params.put(PARAM_FIELD, "3"); // Field 3 is the "Add note" field
                 params.put(PARAM_DATA, note);
                 ret = ret && doRequestNoAnswer(params);
             }
         }
-        
+
         return ret;
     }
-    
+
     /**
      * Marks a feed or a category with all its feeds as read.
-     * 
-     * @param id
-     *            the feed-id/category-id.
-     * @param isCategory
-     *            indicates whether id refers to a feed or a category.
+     *
+     * @param id         the feed-id/category-id.
+     * @param isCategory indicates whether id refers to a feed or a category.
      * @return true if the operation succeeded.
      */
     public boolean setRead(int id, boolean isCategory) {
@@ -1027,80 +1012,79 @@ public abstract class JSONConnector {
         params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
         return doRequestNoAnswer(params);
     }
-    
+
     public boolean feedUnsubscribe(int feed_id) {
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_FEED_UNSUBSCRIBE);
         params.put(PARAM_FEED_ID, feed_id + "");
         return doRequestNoAnswer(params);
     }
-    
+
     /**
      * Returns the value for the given preference-name as a string.
-     * 
-     * @param pref
-     *            the preferences name
+     *
+     * @param pref the preferences name
      * @return the value of the preference or null if it ist not set or unknown
      */
     public String getPref(String pref) {
         if (!sessionAlive())
             return null;
-        
+
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_PREF);
         params.put(PARAM_PREF, pref);
-        
+
         try {
             String ret = readResult(params, false);
             return ret;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return null;
     }
-    
+
     /**
      * Returns the version of the server-installation as integer (version-string without dots)
-     * 
+     *
      * @return the version
      */
     public int getVersion() {
         int ret = -1;
         if (!sessionAlive())
             return ret;
-        
+
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_GET_VERSION);
-        
+
         String response = "";
         JsonReader reader = null;
         try {
             reader = prepareReader(params);
             if (reader == null)
                 return ret;
-            
+
             reader.beginArray();
             while (reader.hasNext()) {
                 try {
-                    
+
                     reader.beginObject();
                     while (reader.hasNext()) {
                         String name = reader.nextName();
-                        
+
                         if (name.equals(VERSION)) {
                             response = reader.nextString();
                         } else {
                             reader.skipValue();
                         }
-                        
+
                     }
-                    
+
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 }
             }
-            
+
             // Replace dots, parse integer
             ret = Integer.parseInt(response.replace(".", ""));
         } catch (Exception e) {
@@ -1112,15 +1096,15 @@ public abstract class JSONConnector {
                 } catch (IOException e1) {
                 }
         }
-        
+
         return ret;
     }
-    
+
     public boolean setArticleLabel(Set<Integer> articleIds, int labelId, boolean assign) {
         boolean ret = true;
         if (articleIds.size() == 0)
             return ret;
-        
+
         for (String idList : StringSupport.convertListToString(articleIds, MAX_ID_LIST_LENGTH)) {
             Map<String, String> params = new HashMap<String, String>();
             params.put(PARAM_OP, VALUE_SET_LABELS);
@@ -1129,10 +1113,10 @@ public abstract class JSONConnector {
             params.put(VALUE_ASSIGN, (assign ? "1" : "0"));
             ret = ret && doRequestNoAnswer(params);
         }
-        
+
         return ret;
     }
-    
+
     public boolean shareToPublished(String title, String url, String content) {
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_SHARE_TO_PUBLISHED);
@@ -1141,22 +1125,22 @@ public abstract class JSONConnector {
         params.put(CONTENT, content);
         return doRequestNoAnswer(params);
     }
-    
+
     public class SubscriptionResponse {
         public int code = -1;
         public String message = null;
     }
-    
+
     public SubscriptionResponse feedSubscribe(String feed_url, int category_id) {
         SubscriptionResponse ret = new SubscriptionResponse();
         if (!sessionAlive())
             return ret;
-        
+
         Map<String, String> params = new HashMap<String, String>();
         params.put(PARAM_OP, VALUE_FEED_SUBSCRIBE);
         params.put(PARAM_FEED_URL, feed_url);
         params.put(PARAM_CATEGORY_ID, category_id + "");
-        
+
         String code = "";
         String message = null;
         JsonReader reader = null;
@@ -1164,11 +1148,11 @@ public abstract class JSONConnector {
             reader = prepareReader(params);
             if (reader == null)
                 return ret;
-            
+
             reader.beginObject();
             while (reader.hasNext()) {
                 String name = reader.nextName();
-                
+
                 if (name.equals("code")) {
                     code = reader.nextString();
                 } else if (name.equals("message")) {
@@ -1177,12 +1161,12 @@ public abstract class JSONConnector {
                     reader.skipValue();
                 }
             }
-            
+
             if (!code.contains(UNKNOWN_METHOD)) {
                 ret.code = Integer.parseInt(code);
                 ret.message = message;
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -1192,22 +1176,22 @@ public abstract class JSONConnector {
                 } catch (IOException e1) {
                 }
         }
-        
+
         return ret;
     }
-    
+
     /**
      * Returns true if there was an error.
-     * 
+     *
      * @return true if there was an error.
      */
     public boolean hasLastError() {
         return hasLastError;
     }
-    
+
     /**
      * Returns the last error-message and resets the error-state of the connector.
-     * 
+     *
      * @return a string with the last error-message.
      */
     public String pullLastError() {
@@ -1216,9 +1200,9 @@ public abstract class JSONConnector {
         hasLastError = false;
         return ret;
     }
-    
+
     protected static String formatException(Exception e) {
         return e.getMessage() + (e.getCause() != null ? "(" + e.getCause() + ")" : "");
     }
-    
+
 }

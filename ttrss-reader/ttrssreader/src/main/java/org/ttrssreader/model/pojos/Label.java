@@ -18,19 +18,19 @@
 package org.ttrssreader.model.pojos;
 
 public class Label implements Comparable<Label> {
-    
+
     public Integer id;
     public String caption;
     public boolean checked;
     public boolean checkedChanged = false;
     public String foregroundColor;
     public String backgroundColor;
-    
+
     @Override
     public int compareTo(Label l) {
         return id.compareTo(l.id);
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof Label) {
@@ -40,15 +40,15 @@ public class Label implements Comparable<Label> {
             return false;
         }
     }
-    
+
     @Override
     public int hashCode() {
         return id + "".hashCode();
     }
-    
+
     @Override
     public String toString() {
         return caption + ";" + foregroundColor + ";" + backgroundColor;
     }
-    
+
 }

@@ -19,13 +19,13 @@
     android:id="@+id/article_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/article_button_view"
-        android:orientation="vertical" >
+        android:orientation="vertical">
 
         <FrameLayout
             android:id="@+id/article_webView_Container"
@@ -40,7 +40,7 @@
         android:layout_alignParentBottom="true"
         android:background="@android:drawable/bottom_bar"
         android:orientation="horizontal"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <Button
             android:id="@+id/article_buttonNext"

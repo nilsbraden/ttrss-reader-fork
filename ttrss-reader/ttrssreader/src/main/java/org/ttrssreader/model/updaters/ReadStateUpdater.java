@@ -26,34 +26,34 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class ReadStateUpdater implements IUpdatable {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = ReadStateUpdater.class.getSimpleName();
-    
+
     public static enum TYPE {
         ALL_CATEGORIES, ALL_FEEDS, CATEGORY, FEED, ARTICLE
     }
-    
+
     private TYPE type = TYPE.ARTICLE;
     private int id;
-    
+
     private Collection<Category> categories = null;
     private Collection<Feed> feeds = null;
-    
+
     public ReadStateUpdater(TYPE type) {
         this(type, -1);
     }
-    
+
     private ReadStateUpdater(TYPE type, int id) {
         this.type = type;
         this.id = id;
     }
-    
+
     public ReadStateUpdater(int categoryId) {
         type = TYPE.CATEGORY;
         id = categoryId;
     }
-    
+
     public ReadStateUpdater(int feedId, int dummy) {
         if (feedId <= 0 && feedId >= -4) { // Virtual Category
             type = TYPE.CATEGORY;
@@ -63,7 +63,7 @@ public class ReadStateUpdater implements IUpdatable {
             id = feedId;
         }
     }
-    
+
     @Override
     public void update(Updater parent) {
         // Read appropriate data from the DB
@@ -89,7 +89,7 @@ public class ReadStateUpdater implements IUpdatable {
             default:
                 break;
         }
-        
+
         if (categories != null) {
             for (Category ci : categories) {
                 // VirtualCats are actually Feeds (the server handles them as such) so we have to set isCat to false
@@ -104,9 +104,9 @@ public class ReadStateUpdater implements IUpdatable {
                 Data.getInstance().setRead(fi.id, false);
             }
         }
-        
+
         Data.getInstance().calculateCounters();
         Data.getInstance().notifyListeners();
     }
-    
+
 }

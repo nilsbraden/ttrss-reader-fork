@@ -17,41 +17,41 @@
 
 package org.ttrssreader.gui.dialogs;
 
+import org.ttrssreader.R;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-import org.ttrssreader.R;
-
 public class ImageCaptionDialog extends MyDialogFragment {
-    
+
     public static final String DIALOG_CAPTION = "image_caption";
-    
+
     private String caption;
-    
+
     public static ImageCaptionDialog getInstance(String caption) {
         ImageCaptionDialog fragment = new ImageCaptionDialog();
         fragment.caption = caption;
         return fragment;
     }
-    
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setIcon(android.R.drawable.ic_dialog_info);
-        
+
         builder.setTitle(getResources().getString(R.string.Dialog_imageCaptionTitle));
         builder.setMessage(caption);
-        
+
         builder.setNeutralButton(getResources().getString(R.string.Close), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface d, final int which) {
                 d.dismiss();
             }
         });
-        
+
         return builder.create();
     }
-    
+
 }

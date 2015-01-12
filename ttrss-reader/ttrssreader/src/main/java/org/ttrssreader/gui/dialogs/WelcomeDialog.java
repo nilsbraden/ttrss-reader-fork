@@ -17,26 +17,26 @@
 
 package org.ttrssreader.gui.dialogs;
 
+import org.ttrssreader.R;
+import org.ttrssreader.gui.PreferencesActivity;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.ttrssreader.R;
-import org.ttrssreader.gui.PreferencesActivity;
-
 public class WelcomeDialog extends MyDialogFragment {
-    
+
     public static WelcomeDialog getInstance() {
         return new WelcomeDialog();
     }
-    
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setIcon(android.R.drawable.ic_dialog_info);
-        
+
         builder.setTitle(getResources().getString(R.string.Welcome_Title));
         builder.setMessage(getResources().getString(R.string.Welcome_Message));
         builder.setNeutralButton((String) getText(R.string.Preferences_Btn), new DialogInterface.OnClickListener() {
@@ -47,8 +47,8 @@ public class WelcomeDialog extends MyDialogFragment {
                 d.dismiss();
             }
         });
-        
+
         return builder.create();
     }
-    
+
 }

@@ -17,19 +17,6 @@
 
 package org.ttrssreader.gui.fragments;
 
-import android.app.Activity;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.net.Uri.Builder;
-import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -45,28 +32,41 @@ import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
 
+import android.app.Activity;
+import android.content.CursorLoader;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
+import android.net.Uri.Builder;
+import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+
 public class CategoryListFragment extends MainListFragment {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = CategoryListFragment.class.getSimpleName();
-    
+
     private static final TYPE THIS_TYPE = TYPE.CATEGORY;
     public static final String FRAGMENT = "CATEGORY_FRAGMENT";
-    
+
     private static final int MARK_GROUP = 100;
     private static final int MARK_READ = MARK_GROUP + 1;
     private static final int SELECT_ARTICLES = MARK_GROUP + 2;
     private static final int SELECT_FEEDS = MARK_GROUP + 3;
-    
+
     private Uri categoryUri;
-    
+
     public static CategoryListFragment newInstance() {
         // Create a new fragment instance
         CategoryListFragment detail = new CategoryListFragment();
         detail.setRetainInstance(true);
         return detail;
     }
-    
+
     @Override
     public void onCreate(Bundle instance) {
         if (!Controller.isTablet)
@@ -75,14 +75,14 @@ public class CategoryListFragment extends MainListFragment {
         setHasOptionsMenu(true);
         super.onCreate(instance);
     }
-    
+
     @Override
     public void onActivityCreated(Bundle instance) {
         adapter = new CategoryAdapter(getActivity());
         getLoaderManager().restartLoader(TYPE_CAT_ID, null, this);
         super.onActivityCreated(instance);
     }
-    
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -91,15 +91,15 @@ public class CategoryListFragment extends MainListFragment {
             menu.add(MARK_GROUP, SELECT_FEEDS, Menu.NONE, R.string.Commons_SelectFeeds);
         else
             menu.add(MARK_GROUP, SELECT_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
-        
+
     }
-    
+
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
         if (cmi == null)
             return false;
-        
+
         int id = adapter.getId(cmi.position);
         switch (item.getItemId()) {
             case MARK_READ:
@@ -123,7 +123,7 @@ public class CategoryListFragment extends MainListFragment {
         }
         return false;
     }
-    
+
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         if (!Controller.isTablet && selectedId != Integer.MIN_VALUE)
@@ -132,12 +132,12 @@ public class CategoryListFragment extends MainListFragment {
             menu.removeItem(R.id.Menu_MarkFeedsRead);
         super.onPrepareOptionsMenu(menu);
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (super.onOptionsItemSelected(item))
             return true;
-        
+
         switch (item.getItemId()) {
             case R.id.Menu_MarkAllRead: {
                 boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
@@ -151,7 +151,7 @@ public class CategoryListFragment extends MainListFragment {
                 if (selectedId > Integer.MIN_VALUE) {
                     boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
                     IUpdatable updateable = new ReadStateUpdater(selectedId);
-                    
+
                     YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(updateable, R.string.Dialog_Title,
                             R.string.Dialog_MarkFeedsRead, backAfterUpdate);
                     dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
@@ -161,12 +161,12 @@ public class CategoryListFragment extends MainListFragment {
                 return false;
         }
     }
-    
+
     @Override
     public TYPE getType() {
         return THIS_TYPE;
     }
-    
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == TYPE_CAT_ID) {
@@ -176,27 +176,27 @@ public class CategoryListFragment extends MainListFragment {
         }
         return null;
     }
-    
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == TYPE_CAT_ID)
             adapter.changeCursor(data);
         super.onLoadFinished(loader, data);
     }
-    
+
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         if (loader.getId() == TYPE_CAT_ID)
             adapter.changeCursor(null);
     }
-    
+
     @Override
     protected void fetchOtherData() {
         title = "TTRSS-Reader"; // Hardcoded since this does not change and we would need to be attached to an activity
-                                // here to be able to read from the ressources.
+        // here to be able to read from the ressources.
         unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
     }
-    
+
     @Override
     public void doRefresh() {
         // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
@@ -205,5 +205,5 @@ public class CategoryListFragment extends MainListFragment {
             activity.getContentResolver().notifyChange(categoryUri, null);
         super.doRefresh();
     }
-    
+
 }

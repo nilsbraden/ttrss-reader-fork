@@ -22,13 +22,13 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 
 public class StarredStateUpdater implements IUpdatable {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = StarredStateUpdater.class.getSimpleName();
-    
+
     private Article article;
     private int articleState;
-    
+
     /**
      * Sets the articles' Starred-Status according to articleState
      */
@@ -36,7 +36,7 @@ public class StarredStateUpdater implements IUpdatable {
         this.article = article;
         this.articleState = articleState;
     }
-    
+
     @Override
     public void update(Updater parent) {
         if (articleState >= 0) {
@@ -47,5 +47,5 @@ public class StarredStateUpdater implements IUpdatable {
             Data.getInstance().setArticleStarred(article.id, articleState);
         }
     }
-    
+
 }

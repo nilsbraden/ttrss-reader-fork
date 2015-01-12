@@ -20,6 +20,7 @@ import org.ttrssreader.imageCache.PluginReceiver;
 import org.ttrssreader.imageCache.bundle.BundleScrubber;
 import org.ttrssreader.imageCache.bundle.PluginBundleManager;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -35,29 +36,29 @@ import android.widget.CheckBox;
  * <li>Old plug-in instance: The Activity's Intent will contain {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE}
  * from a previously saved plug-in instance that the user is editing.</li>
  * </ul>
- * 
+ *
  * @see com.twofortyfouram.locale.Intent#ACTION_EDIT_SETTING
  * @see com.twofortyfouram.locale.Intent#EXTRA_BUNDLE
  */
 public final class EditPluginActivity extends AbstractPluginActivity {
-    
+
     @SuppressWarnings("unused")
     private static final String TAG = EditPluginActivity.class.getSimpleName();
-    
+
     protected PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
-    
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDamageReport.initialize();
-        
+
         BundleScrubber.scrub(getIntent());
-        
+
         final Bundle localeBundle = getIntent().getBundleExtra(PluginReceiver.EXTRA_BUNDLE);
         BundleScrubber.scrub(localeBundle);
-        
+
         setContentView(R.layout.localeplugin);
-        
+
         if (null == savedInstanceState) {
             if (PluginBundleManager.isBundleValid(localeBundle)) {
                 final boolean images = localeBundle.getBoolean(PluginBundleManager.BUNDLE_EXTRA_IMAGES);
@@ -67,7 +68,7 @@ public final class EditPluginActivity extends AbstractPluginActivity {
             }
         }
     }
-    
+
     @Override
     public void finish() {
         if (!isCanceled()) {
@@ -91,24 +92,25 @@ public final class EditPluginActivity extends AbstractPluginActivity {
              */
             final String blurb = generateBlurb(getApplicationContext(), images, notification);
             resultIntent.putExtra(com.twofortyfouram.locale.Intent.EXTRA_STRING_BLURB, blurb);
-            
+
             setResult(RESULT_OK, resultIntent);
         }
-        
+
         super.finish();
     }
-    
-    /* package */static String generateBlurb(final Context context, final boolean images, final boolean notification) {
+
+    /* package */
+    static String generateBlurb(final Context context, final boolean images, final boolean notification) {
         String imageText = (images ? "Caching images" : "Not caching images");
         String notificationText = (notification ? "Showing notification" : "Not showing notification");
         return imageText + ", " + notificationText;
     }
-    
+
     @Override
     protected void onDestroy() {
         mDamageReport.restoreOriginalHandler();
         mDamageReport = null;
         super.onDestroy();
     }
-    
+
 }

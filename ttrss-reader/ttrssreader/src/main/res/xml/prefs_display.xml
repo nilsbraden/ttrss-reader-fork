@@ -16,9 +16,9 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/DisplayPreferenceCategoryTitle" >
+    android:title="@string/DisplayPreferenceCategoryTitle">
 
-    <PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle" >
+    <PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle">
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="DisplayAlignFlushLeftPreference"
