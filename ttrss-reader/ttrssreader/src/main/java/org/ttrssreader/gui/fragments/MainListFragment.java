@@ -154,14 +154,13 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        int selectedIndex = position; // Set selected item
-        selectedId = adapter.getId(selectedIndex);
+        selectedId = adapter.getId(position);
 
         setChecked(selectedId);
 
         Activity activity = getActivity();
         if (activity instanceof IItemSelectedListener) {
-            ((IItemSelectedListener) activity).itemSelected(this, selectedIndex, selectedId);
+            ((IItemSelectedListener) activity).itemSelected(this, position, selectedId);
         }
     }
 
@@ -231,8 +230,6 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
                         ((IDataChangedListener) getActivity()).dataLoadingFinished();
                     updateTitleAndUnreadRunning = false;
                 }
-
-                ;
             }.execute();
         }
     }

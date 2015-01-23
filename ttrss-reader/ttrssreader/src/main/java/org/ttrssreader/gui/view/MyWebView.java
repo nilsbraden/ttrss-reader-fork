@@ -32,7 +32,10 @@ public class MyWebView extends WebView {
 
     private OnEdgeReachedListener mOnTopReachedListener = null;
     private OnEdgeReachedListener mOnBottomReachedListener = null;
+
+    @SuppressWarnings("FieldCanBeLocal")
     private int mMinTopDistance = 0;
+    @SuppressWarnings("FieldCanBeLocal")
     private int mMinBottomDistance = 0;
 
     /**
@@ -75,7 +78,7 @@ public class MyWebView extends WebView {
     }
 
     private void handleTopReached(int top) {
-        boolean reached = false;
+        boolean reached;
         if (top <= mMinTopDistance)
             reached = true;
         else if (top > (mMinTopDistance * 1.5))
@@ -94,7 +97,7 @@ public class MyWebView extends WebView {
     }
 
     private void handleBottomReached(int top) {
-        boolean reached = false;
+        boolean reached;
         if ((getContentHeight() - (top + getHeight())) <= mMinBottomDistance)
             reached = true;
         else if ((getContentHeight() - (top + getHeight())) > (mMinBottomDistance * 1.5))

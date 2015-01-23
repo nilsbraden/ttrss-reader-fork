@@ -112,7 +112,7 @@ public class ApacheJSONConnector extends JSONConnector {
             return null;
         }
 
-        HttpResponse response = null;
+        HttpResponse response;
         try {
             response = client.execute(post); // Execute the request
         } catch (ClientProtocolException e) {
@@ -179,6 +179,7 @@ public class ApacheJSONConnector extends JSONConnector {
                 try {
                     instream.close();
                 } catch (IOException e1) {
+                    // Empty!
                 }
             hasLastError = true;
             lastError = "Exception in (old) doRequest(): " + formatException(e);

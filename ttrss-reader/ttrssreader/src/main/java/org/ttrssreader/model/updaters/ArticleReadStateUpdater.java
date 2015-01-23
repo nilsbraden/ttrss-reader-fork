@@ -35,16 +35,16 @@ public class ArticleReadStateUpdater implements IUpdatable {
     private Collection<Article> articles = null;
 
     /* articleState: 0 = mark as read, 1 = mark as unread */
-    public ArticleReadStateUpdater(Article article, int pid, int articleState) {
-        articles = new ArrayList<Article>();
+    public ArticleReadStateUpdater(Article article, int articleState) {
+        articles = new ArrayList<>();
         articles.add(article);
         state = articleState;
         article.isUnread = (articleState > 0);
     }
 
     /* articleState: 0 = mark as read, 1 = mark as unread */
-    public ArticleReadStateUpdater(Collection<Article> articlesList, int pid, int articleState) {
-        articles = new ArrayList<Article>();
+    public ArticleReadStateUpdater(Collection<Article> articlesList, int articleState) {
+        articles = new ArrayList<>();
         articles.addAll(articlesList);
         state = articleState;
         for (Article article : articles) {
@@ -55,7 +55,7 @@ public class ArticleReadStateUpdater implements IUpdatable {
     @Override
     public void update(Updater parent) {
         if (articles != null) {
-            Set<Integer> ids = new HashSet<Integer>();
+            Set<Integer> ids = new HashSet<>();
             for (Article article : articles) {
                 ids.add(article.id);
                 article.isUnread = (state > 0);

@@ -17,6 +17,8 @@
 
 package org.ttrssreader.model.pojos;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Date;
 import java.util.Set;
 
@@ -75,7 +77,7 @@ public class Article implements Comparable<Article> {
     }
 
     @Override
-    public int compareTo(Article ai) {
+    public int compareTo(@NotNull Article ai) {
         return ai.updated.compareTo(this.updated);
     }
 

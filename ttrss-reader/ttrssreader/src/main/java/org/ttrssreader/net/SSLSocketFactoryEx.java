@@ -126,10 +126,6 @@ import javax.net.ssl.TrustManager;
  */
 public class SSLSocketFactoryEx extends SSLSocketFactory {
 
-    public SSLSocketFactoryEx() throws NoSuchAlgorithmException, KeyManagementException {
-        initSSLSocketFactoryEx(null, null);
-    }
-
     public SSLSocketFactoryEx(KeyManager[] km, TrustManager[] tm) throws NoSuchAlgorithmException,
             KeyManagementException {
         initSSLSocketFactoryEx(km, tm);
@@ -212,7 +208,7 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
 
     private String[] getProtocolList() {
         String[] preferredProtocols = {"TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3"};
-        String[] availableProtocols = null;
+        String[] availableProtocols;
 
         SSLSocket socket = null;
 
@@ -229,18 +225,18 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 try {
                     socket.close();
                 } catch (IOException e) {
+                    // Empty!
                 }
             }
         }
 
-        List<String> aa = new ArrayList<String>();
-        for (int i = 0; i < preferredProtocols.length; i++) {
-            int idx = Arrays.binarySearch(availableProtocols, preferredProtocols[i]);
-            if (idx >= 0)
-                aa.add(preferredProtocols[i]);
+        List<String> aa = new ArrayList<>();
+        for (String protocol : preferredProtocols) {
+            if (Arrays.binarySearch(availableProtocols, protocol) >= 0)
+                aa.add(protocol);
         }
 
-        return aa.toArray(new String[0]);
+        return aa.toArray(new String[aa.size()]);
     }
 
     private String[] getCipherList() {
@@ -318,7 +314,7 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
                 // @formatter:on
         };
 
-        String[] availableCiphers = null;
+        String[] availableCiphers;
 
         try {
             SSLSocketFactory factory = m_ctx.getSocketFactory();
@@ -340,16 +336,15 @@ public class SSLSocketFactoryEx extends SSLSocketFactory {
             };
         }
 
-        List<String> aa = new ArrayList<String>();
-        for (int i = 0; i < preferredCiphers.length; i++) {
-            int idx = Arrays.binarySearch(availableCiphers, preferredCiphers[i]);
-            if (idx >= 0)
-                aa.add(preferredCiphers[i]);
+        List<String> aa = new ArrayList<>();
+        for (String cipher : preferredCiphers) {
+            if (Arrays.binarySearch(availableCiphers, cipher) >= 0)
+                aa.add(cipher);
         }
 
         aa.add("TLS_EMPTY_RENEGOTIATION_INFO_SCSV");
 
-        return aa.toArray(new String[0]);
+        return aa.toArray(new String[aa.size()]);
     }
 
     private SSLContext m_ctx;

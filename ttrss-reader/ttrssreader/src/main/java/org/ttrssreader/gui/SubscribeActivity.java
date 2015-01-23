@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -54,7 +55,6 @@ public class SubscribeActivity extends MenuActivity {
 
     private static final String PARAM_FEEDURL = "feed_url";
 
-    private Button okButton;
     private Button feedPasteButton;
     private EditText feedUrl;
 
@@ -93,7 +93,7 @@ public class SubscribeActivity extends MenuActivity {
         SubscribeCategoryUpdater categoryUpdater = new SubscribeCategoryUpdater();
         categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-        okButton = (Button) findViewById(R.id.subscribe_ok_button);
+        Button okButton = (Button) findViewById(R.id.subscribe_ok_button);
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,7 +127,7 @@ public class SubscribeActivity extends MenuActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle out) {
+    public void onSaveInstanceState(@NotNull Bundle out) {
         super.onSaveInstanceState(out);
         EditText url = (EditText) findViewById(R.id.subscribe_url);
         out.putString(PARAM_FEEDURL, url.getText().toString());
@@ -233,7 +233,7 @@ public class SubscribeActivity extends MenuActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            catList = new ArrayList<Category>(DBHelper.getInstance().getAllCategories());
+            catList = new ArrayList<>(DBHelper.getInstance().getAllCategories());
             publishProgress(0);
             return null;
         }

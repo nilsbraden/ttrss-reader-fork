@@ -44,6 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
                     android:layout_marginRight="10dp"
+                    android:layout_marginEnd="10dp"
                     android:contentDescription="@string/Empty"
                     android:src="@drawable/icon" />
             </LinearLayout>
@@ -116,12 +117,14 @@
         </LinearLayout>
 
         <LinearLayout
+            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="horizontal">
 
             <Button
+                style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/AboutActivity.CloseBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -133,6 +136,7 @@
                 android:text="@string/AboutActivity.CloseBtn" />
 
             <Button
+                style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/AboutActivity.DonateBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

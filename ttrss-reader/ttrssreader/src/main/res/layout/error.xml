@@ -57,17 +57,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
                 android:layout_marginTop="6dp"
                 android:textSize="12.5sp" />
         </LinearLayout>
 
         <LinearLayout
+            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dip"
             android:orientation="horizontal">
 
             <Button
+                style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/Preferences.Btn"
                 android:layout_width="0dip"
                 android:layout_height="wrap_content"
@@ -76,12 +79,14 @@
         </LinearLayout>
 
         <LinearLayout
+            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dip"
             android:orientation="horizontal">
 
             <Button
+                style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/ErrorActivity.CloseBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -89,6 +94,7 @@
                 android:text="@string/ErrorActivity.CloseBtn" />
 
             <Button
+                style="?android:attr/buttonBarButtonStyle"
                 android:id="@+id/ErrorActivity.ExitBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

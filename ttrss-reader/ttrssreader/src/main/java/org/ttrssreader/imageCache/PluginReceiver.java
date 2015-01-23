@@ -42,7 +42,7 @@ public final class PluginReceiver extends BroadcastReceiver {
      * @param context {@inheritDoc}.
      * @param intent  the incoming {@link com.twofortyfouram.locale.Intent#ACTION_FIRE_SETTING} Intent. This
      *                should contain the {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE} that was saved by
-     *                {@link EditActivity} and later broadcast by Locale.
+     *                {@link org.ttrssreader.gui.EditPluginActivity} and later broadcast by Locale.
      */
     @Override
     public void onReceive(final Context context, final Intent intent) {

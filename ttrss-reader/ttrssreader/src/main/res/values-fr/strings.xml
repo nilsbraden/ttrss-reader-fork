@@ -107,7 +107,6 @@
     <string name="Utils.DownloadFinishedText">Processus terminé dans %s secondes.</string>
     <string name="Utils.DownloadRunningTitle">Téléchargement en cours…</string>
     <string name="Utils.DownloadRunningTicker">Téléchargement en cours…</string>
-    <string name="Utils.DownloadRunningText"></string>
     <string name="Utils.DownloadErrorTitle">Erreur</string>
     <string name="Utils.DownloadErrorTicker">Erreur…</string>
     <string name="Cache.service_started">Téléchargement commencé…</string>

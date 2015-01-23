@@ -51,7 +51,7 @@ public class PublishedStateUpdater implements IUpdatable {
     @Override
     public void update(Updater parent) {
         if (articleState >= 0) {
-            article.isPublished = articleState > 0 ? true : false;
+            article.isPublished = articleState > 0;
             DBHelper.getInstance().markArticle(article.id, "isPublished", articleState);
             Data.getInstance().calculateCounters();
             Data.getInstance().notifyListeners();

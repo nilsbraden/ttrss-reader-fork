@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -195,6 +196,13 @@ public class DBHelper {
         return openHelper;
     }
 
+    private final Object insertCategoryLock = new Object();
+    private final Object insertFeedLock = new Object();
+    private final Object insertArticleLock = new Object();
+    private final Object insertLabelLock = new Object();
+    private final Object insertRemoteFileLock = new Object();
+    private final Object insertRemoteFile2ArticleLock = new Object();
+
     private SQLiteStatement insertCategory;
     private SQLiteStatement insertFeed;
     private SQLiteStatement insertArticle;
@@ -217,7 +225,7 @@ public class DBHelper {
     }
 
     public synchronized void initialize(final Context context) {
-        this.contextRef = new WeakReference<Context>(context); // TODO: Remove leak of context
+        this.contextRef = new WeakReference<>(context); // TODO: Remove leak of context
         new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... params) {
 
@@ -312,13 +320,9 @@ public class DBHelper {
                     return null;
                 }
 
-                ;
-
                 protected void onPostExecute(Void result) {
                     Toast.makeText(context, "ImageCache has been cleaned up...", Toast.LENGTH_LONG).show();
                 }
-
-                ;
             }.execute();
         }
 
@@ -365,8 +369,7 @@ public class DBHelper {
             return true;
         } else {
             Log.i(TAG, "Controller not initialized, trying to do that now...");
-            initializeDBHelper();
-            return true;
+            return initializeDBHelper();
         }
     }
 
@@ -625,7 +628,7 @@ public class DBHelper {
                 didUpgrade = true;
             }
 
-            if (didUpgrade == false) {
+            if (!didUpgrade) {
                 Log.i(TAG, "Upgrading database, this will drop tables and recreate.");
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
                 db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
@@ -781,7 +784,7 @@ public class DBHelper {
         if (title == null)
             title = "";
 
-        synchronized (insertCategory) {
+        synchronized (insertCategoryLock) {
             insertCategory.bindLong(1, id);
             insertCategory.bindString(2, title);
             insertCategory.bindLong(3, unread);
@@ -816,7 +819,7 @@ public class DBHelper {
         if (url == null)
             url = "";
 
-        synchronized (insertFeed) {
+        synchronized (insertFeedLock) {
             insertFeed.bindLong(1, Integer.valueOf(id).longValue());
             insertFeed.bindLong(2, Integer.valueOf(categoryId).longValue());
             insertFeed.bindString(3, title);
@@ -859,15 +862,15 @@ public class DBHelper {
         if (a.updated == null)
             a.updated = new Date();
         if (a.attachments == null)
-            a.attachments = new LinkedHashSet<String>();
+            a.attachments = new LinkedHashSet<>();
         if (a.labels == null)
-            a.labels = new LinkedHashSet<Label>();
+            a.labels = new LinkedHashSet<>();
         if (a.author == null)
             a.author = "";
 
         // articleLabels
-        long retId = -1;
-        synchronized (insertArticle) {
+        long retId;
+        synchronized (insertArticleLock) {
             insertArticle.bindLong(1, a.id);
             insertArticle.bindLong(2, a.feedId);
             insertArticle.bindString(3, Html.fromHtml(a.title).toString());
@@ -921,7 +924,7 @@ public class DBHelper {
             return;
 
         if (label.id < -10) {
-            synchronized (insertLabel) {
+            synchronized (insertLabelLock) {
                 insertLabel.bindLong(1, articleId);
                 insertLabel.bindLong(2, label.id);
                 insertLabel.executeInsert();
@@ -968,7 +971,7 @@ public class DBHelper {
         long ret = 0;
 
         try {
-            synchronized (insertRemoteFile) {
+            synchronized (insertRemoteFileLock) {
                 insertRemoteFile.bindString(1, url);
                 // extension (reserved for future)
                 insertRemoteFile.bindString(2, "");
@@ -991,7 +994,7 @@ public class DBHelper {
      * @param aId  article ID
      */
     private void insertRemoteFile2Article(long rfId, long aId) {
-        synchronized (insertRemoteFile2Article) {
+        synchronized (insertRemoteFile2ArticleLock) {
             insertRemoteFile2Article.bindLong(1, rfId);
             // extension (reserved for future)
             insertRemoteFile2Article.bindLong(2, aId);
@@ -1014,7 +1017,7 @@ public class DBHelper {
     Collection<Integer> markRead(int id, boolean isCategory) {
         Set<Integer> ret = null;
         if (!isDBAvailable())
-            return ret;
+            return null;
 
         StringBuilder where = new StringBuilder();
         StringBuilder feedIds = new StringBuilder();
@@ -1053,7 +1056,7 @@ public class DBHelper {
 
             int count = c.getCount();
             if (count > 0) {
-                ret = new HashSet<Integer>(count);
+                ret = new HashSet<>(count);
                 while (c.moveToNext()) {
                     ret.add(c.getInt(0));
                 }
@@ -1175,7 +1178,7 @@ public class DBHelper {
 
     // Special treatment for notes since the method markUnsynchronizedStates(...) doesn't support inserting any
     // additional data.
-    void markUnsynchronizedNotes(Map<Integer, String> ids, String markPublish) {
+    void markUnsynchronizedNotes(Map<Integer, String> ids) {
         if (!isDBAvailable())
             return;
 
@@ -1200,10 +1203,7 @@ public class DBHelper {
     }
 
     /**
-     * set unread counters for feeds and categories according to real amount
-     * of unread articles
-     *
-     * @return {@code true} if counters was successfully updated, {@code false} otherwise
+     * Set unread counters for feeds and categories according to real amount of unread articles.
      */
     void calculateCounters() {
         if (!isDBAvailable())
@@ -1363,7 +1363,7 @@ public class DBHelper {
 
         Collection<RemoteFile> rfs = getRemoteFilesForArticles(whereClause, whereArgs, true);
         if (!rfs.isEmpty()) {
-            Set<Integer> rfIds = new HashSet<Integer>(rfs.size());
+            Set<Integer> rfIds = new HashSet<>(rfs.size());
             for (RemoteFile rf : rfs) {
                 rfIds.add(rf.id);
                 Controller.getInstance().getImageCache().getCacheFile(rf.url).delete();
@@ -1472,7 +1472,8 @@ public class DBHelper {
         try {
             int count = db.update(TABLE_ARTICLES, cv,
                     vcat + ">0 AND _id>" + minId + " AND _id NOT IN (" + idList + ")", null);
-            Log.d(TAG, String.format("Marked ? articles ?=0 (?ms)", count, vcat, (System.currentTimeMillis() - time)));
+            long timeDiff = (System.currentTimeMillis() - time);
+            Log.d(TAG, String.format("Marked %s articles %s=0 (%s ms)", count, vcat, timeDiff));
         } finally {
             writeLock(false);
         }
@@ -1483,7 +1484,7 @@ public class DBHelper {
     public Article getArticle(int id) {
         Article ret = null;
         if (!isDBAvailable())
-            return ret;
+            return null;
 
         SQLiteDatabase db = getOpenHelper().getReadableDatabase();
         readLock(true);
@@ -1503,7 +1504,7 @@ public class DBHelper {
 
     Set<Label> getLabelsForArticle(int articleId) {
         if (!isDBAvailable())
-            return new HashSet<Label>();
+            return new HashSet<>();
 
         // @formatter:off
         String sql = "SELECT f._id, f.title, 0 checked FROM " + TABLE_FEEDS + " f "
@@ -1520,7 +1521,7 @@ public class DBHelper {
         Cursor c = null;
         try {
             c = db.rawQuery(sql, null);
-            Set<Label> ret = new HashSet<Label>(c.getCount());
+            Set<Label> ret = new HashSet<>(c.getCount());
             while (c.moveToNext()) {
                 Label label = new Label();
                 label.id = c.getInt(0);
@@ -1596,7 +1597,7 @@ public class DBHelper {
     public Map<Integer, Long> getArticleIdUpdatedMap(String selection, String[] selectionArgs) {
         Map<Integer, Long> ret = null;
         if (!isDBAvailable())
-            return ret;
+            return null;
 
         Cursor c = null;
         SQLiteDatabase db = getOpenHelper().getReadableDatabase();
@@ -1604,7 +1605,7 @@ public class DBHelper {
         try {
             c = db.query(TABLE_ARTICLES, new String[]{"_id", "updateDate"}, selection, selectionArgs, null, null,
                     null);
-            ret = new HashMap<Integer, Long>(c.getCount());
+            ret = new HashMap<>(c.getCount());
             while (c.moveToNext()) {
                 ret.put(c.getInt(0), c.getLong(1));
             }
@@ -1625,7 +1626,7 @@ public class DBHelper {
      */
     public Set<Feed> getFeeds(int categoryId) {
         if (!isDBAvailable())
-            return new LinkedHashSet<Feed>();
+            return new LinkedHashSet<>();
 
         String where = null; // categoryId = 0
         if (categoryId >= 0)
@@ -1650,7 +1651,7 @@ public class DBHelper {
         Cursor c = null;
         try {
             c = db.query(TABLE_FEEDS, null, where, null, null, null, "UPPER(title) ASC");
-            Set<Feed> ret = new LinkedHashSet<Feed>(c.getCount());
+            Set<Feed> ret = new LinkedHashSet<>(c.getCount());
             while (c.moveToNext()) {
                 ret.add(handleFeedCursor(c));
             }
@@ -1664,14 +1665,14 @@ public class DBHelper {
 
     public Set<Category> getAllCategories() {
         if (!isDBAvailable())
-            return new LinkedHashSet<Category>();
+            return new LinkedHashSet<>();
 
         SQLiteDatabase db = getOpenHelper().getReadableDatabase();
         readLock(true);
         Cursor c = null;
         try {
             c = db.query(TABLE_CATEGORIES, null, "_id>=0", null, null, null, "title ASC");
-            Set<Category> ret = new LinkedHashSet<Category>(c.getCount());
+            Set<Category> ret = new LinkedHashSet<>(c.getCount());
             while (c.moveToNext()) {
                 ret.add(handleCategoryCursor(c));
             }
@@ -1754,7 +1755,7 @@ public class DBHelper {
     @SuppressLint("UseSparseArrays")
     Map<Integer, String> getMarked(String mark, int status) {
         if (!isDBAvailable())
-            return new HashMap<Integer, String>();
+            return new HashMap<>();
 
         SQLiteDatabase db = getOpenHelper().getReadableDatabase();
         readLock(true);
@@ -1763,7 +1764,7 @@ public class DBHelper {
             c = db.query(TABLE_MARK, new String[]{"id", MARK_NOTE}, mark + "=" + status, null, null, null, null,
                     null);
 
-            Map<Integer, String> ret = new HashMap<Integer, String>(c.getCount());
+            Map<Integer, String> ret = new HashMap<>(c.getCount());
             while (c.moveToNext()) {
                 ret.put(c.getInt(0), c.getString(1));
             }
@@ -1820,7 +1821,7 @@ public class DBHelper {
 
     private static Article handleArticleCursor(Cursor c) {
         // @formatter:off
-        Article ret = new Article(
+        return new Article(
                 c.getInt(0),                        // _id
                 c.getInt(1),                        // feedId
                 c.getString(2),                     // title
@@ -1836,34 +1837,31 @@ public class DBHelper {
                 c.getString(13)                     // Author
         );
         // @formatter:on
-        return ret;
     }
 
     private static Feed handleFeedCursor(Cursor c) {
         // @formatter:off
-        Feed ret = new Feed(
+        return new Feed(
                 c.getInt(0),            // _id
                 c.getInt(1),            // categoryId
                 c.getString(2),         // title
                 c.getString(3),         // url
                 c.getInt(4));           // unread
         // @formatter:on
-        return ret;
     }
 
     private static Category handleCategoryCursor(Cursor c) {
         // @formatter:off
-        Category ret = new Category(
+        return new Category(
                 c.getInt(0),            // _id
                 c.getString(1),         // title
                 c.getInt(2));           // unread
         // @formatter:on
-        return ret;
     }
 
     private static RemoteFile handleRemoteFileCursor(Cursor c) {
         // @formatter:off
-        RemoteFile ret = new RemoteFile(
+        return new RemoteFile(
                 c.getInt(0),            // id
                 c.getString(1),         // url
                 c.getInt(2),           // length
@@ -1871,18 +1869,14 @@ public class DBHelper {
                 (c.getInt(5) != 0)     // cached
         );
         // @formatter:on
-        return ret;
     }
 
     private static Set<String> parseAttachments(String att) {
-        Set<String> ret = new LinkedHashSet<String>();
+        Set<String> ret = new LinkedHashSet<>();
         if (att == null)
             return ret;
 
-        for (String s : att.split(";")) {
-            ret.add(s);
-        }
-
+        ret.addAll(Arrays.asList(att.split(";")));
         return ret;
     }
 
@@ -1891,7 +1885,7 @@ public class DBHelper {
      * "caption;forground;background"
      */
     private static Set<Label> parseArticleLabels(String labelStr) {
-        Set<Label> ret = new LinkedHashSet<Label>();
+        Set<Label> ret = new LinkedHashSet<>();
         if (labelStr == null)
             return ret;
 
@@ -1926,7 +1920,7 @@ public class DBHelper {
             c = db.query(TABLE_ARTICLES, new String[]{"_id", "content", "attachments"},
                     "cachedImages IS NULL AND isUnread>0", null, null, null, null, "1000");
 
-            ArrayList<Article> ret = new ArrayList<Article>(c.getCount());
+            ArrayList<Article> ret = new ArrayList<>(c.getCount());
             while (c.moveToNext()) {
                 Article a = new Article();
                 a.id = c.getInt(0);
@@ -2024,7 +2018,7 @@ public class DBHelper {
                     new String[]{String.valueOf(articleId)});
             // @formatter:on
 
-            rfs = new ArrayList<RemoteFile>(c.getCount());
+            rfs = new ArrayList<>(c.getCount());
 
             while (c.moveToNext()) {
                 rfs.add(handleRemoteFileCursor(c));
@@ -2094,13 +2088,10 @@ public class DBHelper {
             // because we are using whereClause twice in uniqRestriction, then we should also extend queryArgs,
             // which will be used in query
             if (whereArgs != null) {
-                int initialArgLength = whereArgs.length;
-                queryArgs = new String[initialArgLength * 3];
-
+                int initialLength = whereArgs.length;
+                queryArgs = new String[initialLength * 3];
                 for (int i = 0; i < 3; i++) {
-                    for (int j = 0; j < initialArgLength; j++) {
-                        queryArgs[i * initialArgLength + j] = whereArgs[j];
-                    }
+                    System.arraycopy(whereArgs, 0, queryArgs, i * initialLength, initialLength);
                 }
             }
         }
@@ -2132,7 +2123,7 @@ public class DBHelper {
             long time = System.currentTimeMillis();
             c = db.rawQuery(query.toString(), queryArgs);
 
-            rfs = new ArrayList<RemoteFile>();
+            rfs = new ArrayList<>();
 
             while (c.moveToNext()) {
                 rfs.add(handleRemoteFileCursor(c));
@@ -2239,7 +2230,7 @@ public class DBHelper {
         if (!isDBAvailable())
             return null;
 
-        ArrayList<RemoteFile> rfs = new ArrayList<RemoteFile>();
+        ArrayList<RemoteFile> rfs = new ArrayList<>();
         SQLiteDatabase db = getOpenHelper().getReadableDatabase();
         readLock(true);
         Cursor c = null;

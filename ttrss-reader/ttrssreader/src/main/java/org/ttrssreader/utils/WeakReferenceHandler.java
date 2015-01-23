@@ -39,11 +39,11 @@ import java.lang.ref.WeakReference;
  * {
  * public MsgHandler(MyFragment fragment) { super(fragment); }
  *
- * @Override public void handleMessage(MyFragment fragment, Message msg)
+ * "@Override public void handleMessage(MyFragment fragment, Message msg)
  * {
  * fragment.doStuff(msg.arg1);
  * }
- * }
+ * }"
  *
  * // ...
  * MsgHandler handler = new MsgHandler(this);
@@ -52,7 +52,7 @@ public abstract class WeakReferenceHandler<T> extends Handler {
     private WeakReference<T> mReference;
 
     public WeakReferenceHandler(T reference) {
-        mReference = new WeakReference<T>(reference);
+        mReference = new WeakReference<>(reference);
     }
 
     @Override

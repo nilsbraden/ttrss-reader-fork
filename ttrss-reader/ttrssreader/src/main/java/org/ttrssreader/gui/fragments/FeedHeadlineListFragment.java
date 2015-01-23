@@ -95,7 +95,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
     private int[] parentIdsBeforeAndAfter = new int[2];
 
     private Uri headlineUri;
-    private Uri feedUri;
 
     public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles, int articleId) {
         FeedHeadlineListFragment detail = new FeedHeadlineListFragment();
@@ -139,7 +138,9 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 return gestureDetector.onTouchEvent(event) || v.performClick();
             }
         };
-        getView().setOnTouchListener(gestureListener);
+
+        if (getView() != null)
+            getView().setOnTouchListener(gestureListener);
 
         parentAdapter = new FeedAdapter(getActivity());
         getLoaderManager().restartLoader(TYPE_FEED_ID, null, this);
@@ -198,7 +199,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 
         switch (item.getItemId()) {
             case MARK_READ:
-                new Updater(getActivity(), new ArticleReadStateUpdater(a, feedId, a.isUnread ? 0 : 1))
+                new Updater(getActivity(), new ArticleReadStateUpdater(a, a.isUnread ? 0 : 1))
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
             case MARK_STAR:
@@ -213,7 +214,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 new TextInputAlert(this, a).show(getActivity());
                 break;
             case MARK_ABOVE_READ:
-                new Updater(getActivity(), new ArticleReadStateUpdater(getUnreadAbove(cmi.position), feedId, 0))
+                new Updater(getActivity(), new ArticleReadStateUpdater(getUnreadAbove(cmi.position), 0))
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 break;
             case SHARE:
@@ -221,7 +222,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 i.setType("text/plain");
                 i.putExtra(Intent.EXTRA_TEXT, a.url);
                 i.putExtra(Intent.EXTRA_SUBJECT, a.title);
-                startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
+                startActivity(Intent.createChooser(i, getText(R.string.ArticleActivity_ShareTitle)));
                 break;
             default:
                 return false;
@@ -272,7 +273,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
      * @return a list of items above the selected item
      */
     private List<Article> getUnreadAbove(int index) {
-        List<Article> ret = new ArrayList<Article>();
+        List<Article> ret = new ArrayList<>();
         for (int i = 0; i < index; i++) {
             Article a = (Article) adapter.getItem(i);
             if (a != null && a.isUnread)
@@ -291,20 +292,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         return THIS_TYPE;
     }
 
-    public int getCategoryId() {
-        return categoryId;
-    }
-
     public int getFeedId() {
         return feedId;
-    }
-
-    public int getArticleId() {
-        return articleId;
-    }
-
-    public boolean getSelectArticlesForCategory() {
-        return selectArticlesForCategory;
     }
 
     private class HeadlineGestureDetector extends MyGestureDetector {
@@ -339,16 +328,15 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 
                 }
             } catch (Exception e) {
+                // Empty!
             }
             return false;
         }
     }
 
-    ;
-
     private void fillParentInformation() {
         if (parentIds == null) {
-            parentIds = new ArrayList<Integer>(parentAdapter.getCount() + 2);
+            parentIds = new ArrayList<>(parentAdapter.getCount() + 2);
 
             parentIds.add(Integer.MIN_VALUE);
             parentIds.addAll(parentAdapter.getIds());
@@ -361,7 +349,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         int index = -1;
         int i = 0;
         for (Integer id : parentIds) {
-            if (id.intValue() == feedId) {
+            if (id == feedId) {
                 index = i;
                 break;
             }
@@ -376,14 +364,14 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         }
     }
 
-    public int openNextFeed(int direction) {
+    public void openNextFeed(int direction) {
         if (feedId < 0)
-            return feedId;
+            return;
 
         int id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
         if (id == Integer.MIN_VALUE) {
             Utils.alert(getActivity(), true);
-            return feedId;
+            return;
         }
 
         feedId = id;
@@ -403,7 +391,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         Controller.getInstance().lastOpenedArticles.clear();
 
         getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
-        return feedId;
     }
 
     @Override
@@ -421,8 +408,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             case TYPE_FEED_ID: {
                 Builder builder = ListContentProvider.CONTENT_URI_FEED.buildUpon();
                 builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
-                feedUri = builder.build();
-                return new CursorLoader(getActivity(), feedUri, null, null, null, null);
+                return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
             }
         }
         return null;

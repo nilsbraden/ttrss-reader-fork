@@ -250,7 +250,6 @@
     <string name="Utils.DownloadFinishedText">Download in %s Sekunden abgeschlossen.</string>
     <string name="Utils.DownloadRunningTitle">Download läuft…</string>
     <string name="Utils.DownloadRunningTicker">Download läuft…</string>
-    <string name="Utils.DownloadRunningText"></string>
     <string name="Utils.DownloadErrorTitle">Fehler</string>
     <string name="Utils.DownloadErrorTicker">Ein Fehler ist aufgetreten…</string>
     <string name="SaveAttachmentTitle">Speicherort für Anhang…</string>
@@ -295,7 +294,6 @@
     <string name="NotNow">Jetzt nicht</string>
     <string name="Up">Hoch</string>
     <string name="Down">Runter</string>
-    <string name="Empty"></string>
     <string name="DarkTheme">Dunkles Theme</string>
     <string name="LightTheme">Helles Theme</string>
     <string name="BlackTheme">Schwarzes Theme</string>

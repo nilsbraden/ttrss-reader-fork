@@ -35,7 +35,8 @@
         android:layout_below="@+id/frame_main"
         android:layout_gravity="center"
         android:background="@drawable/list_divider"
-        tools:ignore="PxUsage" />
+        tools:ignore="PxUsage"
+        android:contentDescription="@string/Empty" />
 
     <FrameLayout
         android:id="@+id/frame_sub"

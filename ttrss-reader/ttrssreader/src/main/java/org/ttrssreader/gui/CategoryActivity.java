@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -99,7 +100,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
             ft.commit();
         }
 
-        if (Utils.checkIsFirstRun(this)) {
+        if (Utils.checkIsFirstRun()) {
             WelcomeDialog.getInstance().show(fm, DIALOG_WELCOME);
         } else if (Utils.checkIsNewVersion(this)) {
             ChangelogDialog.getInstance().show(fm, DIALOG_UPDATE);
@@ -135,13 +136,13 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NotNull Bundle outState) {
         outState.putInt(SELECTED, selectedCategoryId);
         super.onSaveInstanceState(outState);
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle instance) {
+    protected void onRestoreInstanceState(@NotNull Bundle instance) {
         selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
         super.onRestoreInstanceState(instance);
     }
@@ -226,7 +227,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
         protected Void doInBackground(Void... params) {
             boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
 
-            Set<Feed> labels = new LinkedHashSet<Feed>();
+            Set<Feed> labels = new LinkedHashSet<>();
             for (Feed f : DBHelper.getInstance().getFeeds(-2)) {
                 if (f.unread == 0 && onlyUnreadArticles)
                     continue;

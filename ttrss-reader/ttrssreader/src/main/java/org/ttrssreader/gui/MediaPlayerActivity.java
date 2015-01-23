@@ -22,7 +22,6 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
 import android.app.Activity;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.MediaController;
@@ -37,9 +36,6 @@ public class MediaPlayerActivity extends Activity {
 
     public static final String URL = "media_url";
 
-    private String url;
-    private MediaPlayer mp;
-
     @Override
     protected void onCreate(Bundle instance) {
         setTheme(Controller.getInstance().getTheme());
@@ -49,6 +45,7 @@ public class MediaPlayerActivity extends Activity {
         setContentView(R.layout.media);
 
         Bundle extras = getIntent().getExtras();
+        String url;
         if (extras != null) {
             url = extras.getString(URL);
         } else if (instance != null) {
@@ -67,26 +64,10 @@ public class MediaPlayerActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        if (mp != null)
-            mp.start();
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        if (mp != null)
-            mp.pause();
-        super.onPause();
-    }
-
-    @Override
     protected void onDestroy() {
         mDamageReport.restoreOriginalHandler();
         mDamageReport = null;
         super.onDestroy();
-        if (mp != null)
-            mp.release();
     }
 
 }

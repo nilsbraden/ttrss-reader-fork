@@ -32,6 +32,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingRight="10dip"
+            android:paddingLeft="10dip"
+            android:paddingEnd="10dip"
+            android:paddingStart="10dip"
             android:paddingTop="20dp"
             android:text="@string/Subscribe.Category_Label" />
 
@@ -59,6 +62,7 @@
         </EditText>
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/subscribe_paste"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -66,6 +70,7 @@
     </LinearLayout>
 
     <Button
+        style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/subscribe_ok_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

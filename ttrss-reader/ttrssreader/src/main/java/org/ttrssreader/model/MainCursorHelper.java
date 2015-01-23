@@ -34,11 +34,9 @@ abstract class MainCursorHelper {
 
     /**
      * Creates a new query
-     *
-     * @param force forces the creation of a new query
      */
     Cursor makeQuery(SQLiteDatabase db) {
-        Cursor cursor = null;
+        Cursor cursor;
         try {
             if (categoryId == 0 && (feedId == -1 || feedId == -2)) {
 
@@ -75,7 +73,7 @@ abstract class MainCursorHelper {
      * @param cursor the cursor.
      * @return true if there are unread articles in the dataset, else false.
      */
-    private static final boolean checkUnread(Cursor cursor) {
+    private static boolean checkUnread(Cursor cursor) {
         if (cursor == null || cursor.isClosed())
             return false; // Check null or closed
 

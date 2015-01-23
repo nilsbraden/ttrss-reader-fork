@@ -51,11 +51,6 @@ public class YesNoUpdaterDialog extends MyDialogFragment {
     }
 
     @Override
-    public void onCreate(Bundle instance) {
-        super.onCreate(instance);
-    }
-
-    @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setIcon(android.R.drawable.ic_dialog_info);

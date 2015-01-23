@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
@@ -87,7 +88,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NotNull Bundle outState) {
         outState.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
         outState.putInt(FeedHeadlineListFragment.FEED_ID, headlineFragment.getFeedId());
         outState.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
@@ -96,7 +97,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle instance) {
+    protected void onRestoreInstanceState(@NotNull Bundle instance) {
         categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
         feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
         selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
@@ -177,7 +178,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, @NotNull KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_N) {
                 openNextFragment(-1);
@@ -191,7 +192,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int keyCode, @NotNull KeyEvent event) {
         if (Controller.getInstance().useVolumeKeys()) {
             if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_VOLUME_UP
                     || keyCode == KeyEvent.KEYCODE_N || keyCode == KeyEvent.KEYCODE_B) {
@@ -213,10 +214,8 @@ public class FeedHeadlineActivity extends MenuActivity {
         // Open next article
         FragmentManager fm = getFragmentManager();
         articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
-        if (articleFragment instanceof ArticleFragment) {
-            selectedArticleId = ((ArticleFragment) articleFragment).openNextArticle(direction);
-            headlineFragment.setSelectedId(selectedArticleId);
-        }
+        selectedArticleId = articleFragment.openNextArticle(direction);
+        headlineFragment.setSelectedId(selectedArticleId);
     }
 
     public void openNextFeed(int direction) {
@@ -226,8 +225,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 
         FragmentManager fm = getFragmentManager();
         articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
-        if (articleFragment instanceof ArticleFragment)
-            articleFragment.resetParentInformation();
+        articleFragment.resetParentInformation();
     }
 
     /**

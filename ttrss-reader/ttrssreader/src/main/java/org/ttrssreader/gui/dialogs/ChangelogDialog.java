@@ -40,15 +40,15 @@ public class ChangelogDialog extends MyDialogFragment {
         builder.setTitle(getResources().getString(R.string.Changelog_Title));
         final String[] changes = getResources().getStringArray(R.array.updates);
         final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < changes.length; i++) {
+        for (String change : changes) {
             sb.append("\n\n");
-            sb.append(changes[i]);
+            sb.append(change);
             if (sb.length() > 4000) // Don't include all messages, nobody reads the old stuff anyway
                 break;
         }
         builder.setMessage(sb.toString().trim());
         builder.setPositiveButton(android.R.string.ok, null);
-        builder.setNeutralButton((String) getText(R.string.CategoryActivity_Donate),
+        builder.setNeutralButton(getText(R.string.CategoryActivity_Donate),
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface d, final int which) {

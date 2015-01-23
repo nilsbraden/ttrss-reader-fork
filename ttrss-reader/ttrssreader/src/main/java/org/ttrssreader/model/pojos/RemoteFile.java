@@ -17,6 +17,8 @@
 
 package org.ttrssreader.model.pojos;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Date;
 
 /**
@@ -42,18 +44,11 @@ public class RemoteFile implements Comparable<RemoteFile> {
     public volatile boolean cached;
 
     /**
-     * default constructor
-     */
-    public RemoteFile() {
-    }
-
-    /**
      * constructor with parameters
      *
      * @param id      numerical ID
      * @param url     remote file URL
      * @param length  file size
-     * @param ext     extension - some kind of additional info
      * @param updated last change date
      * @param cached  boolean flag determining if the file is locally stored
      */
@@ -66,7 +61,7 @@ public class RemoteFile implements Comparable<RemoteFile> {
     }
 
     @Override
-    public int compareTo(RemoteFile rf) {
+    public int compareTo(@NotNull RemoteFile rf) {
         return rf.updated.compareTo(this.updated);
     }
 

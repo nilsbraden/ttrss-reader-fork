@@ -26,7 +26,9 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="7dp"
         android:layout_marginLeft="7dp"
+        android:layout_marginStart="7dp"
         android:layout_marginRight="3dp"
+        android:layout_marginEnd="3dp"
         android:layout_marginTop="7dp"
         android:contentDescription="@string/Empty"
         android:gravity="center" />
@@ -50,7 +52,7 @@
             android:id="@+id/ph_summary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="left"
+            android:gravity="start"
             android:maxLines="1"
             android:textIsSelectable="false"
             android:textSize="15sp" />

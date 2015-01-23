@@ -21,9 +21,10 @@ package org.ttrssreader.utils;
 
 import com.google.common.collect.MapMaker;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collection;
@@ -37,8 +38,7 @@ import java.util.concurrent.ConcurrentMap;
  * bigger disk cache (2nd level cache). For disk caching, either the application's cache directory or the SD card can
  * be
  * used. Please note that in the case of the app cache dir, Android may at any point decide to wipe that entire
- * directory if it runs low on internal storage. The SD card cache <i>must</i> be managed by the application, e.g. by
- * calling {@link #wipe} whenever the app quits.
+ * directory if it runs low on internal storage.
  * </p>
  * <p>
  * When pulling from the cache, it will first attempt to load the data from memory. If that fails, it will try to load
@@ -64,17 +64,11 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     /**
      * Creates a new cache instance.
      *
-     * @param name                 a human readable identifier for this cache. Note that this value will be used to
-     *                             derive a directory name if the disk cache is enabled, so don't get too creative
-     *                             here (camel case names work great)
      * @param initialCapacity      the initial element size of the cache
-     * @param expirationInMinutes  time in minutes after which elements will be purged from the cache (NOTE: this
-     *                             only affects the memory cache, the disk cache does currently NOT handle element
-     *                             TTLs!)
      * @param maxConcurrentThreads how many threads you think may at once access the cache; this need not be an exact
      *                             number, but it helps in fragmenting the cache properly
      */
-    public AbstractCache(String name, int initialCapacity, int maxConcurrentThreads) {
+    public AbstractCache(int initialCapacity, int maxConcurrentThreads) {
 
         MapMaker mapMaker = new MapMaker();
         mapMaker.initialCapacity(initialCapacity);
@@ -85,7 +79,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     }
 
     /**
-     * Only meaningful if disk caching is enabled. See {@link #enableDiskCache}.
+     * Only meaningful if disk caching is enabled.
      *
      * @return the full absolute path to the directory where files are cached, if the disk cache is
      * enabled, otherwise null
@@ -95,7 +89,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     }
 
     /**
-     * Only meaningful if disk caching is enabled. See {@link #enableDiskCache}. Turns a cache key
+     * Only meaningful if disk caching is enabled. Turns a cache key
      * into the file name that will be used to persist the value to disk. Subclasses must implement
      * this.
      *
@@ -105,7 +99,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     public abstract String getFileNameForKey(KeyT key);
 
     /**
-     * Only meaningful if disk caching is enabled. See {@link #enableDiskCache}. Restores a value
+     * Only meaningful if disk caching is enabled. Restores a value
      * previously persisted to the disk cache.
      *
      * @param file the file holding the cached value
@@ -114,13 +108,13 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
     protected abstract ValT readValueFromDisk(File file) throws IOException;
 
     /**
-     * Only meaningful if disk caching is enabled. See {@link #enableDiskCache}. Persists a value to
+     * Only meaningful if disk caching is enabled. Persists a value to
      * the disk cache.
      *
      * @param ostream the file output stream (buffered).
      * @param value   the cache value to persist
      */
-    protected abstract void writeValueToDisk(BufferedOutputStream ostream, ValT value) throws IOException;
+    protected abstract void writeValueToDisk(BufferedOutputStream ostream, ValT value);
 
     private void cacheToDisk(KeyT key, ValT value) {
         File file = getFileForKey(key);
@@ -134,8 +128,6 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
 
             ostream.close();
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -232,10 +224,12 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
         return value;
     }
 
+    @NotNull
     public Set<KeyT> keySet() {
         return cache.keySet();
     }
 
+    @NotNull
     public Set<Map.Entry<KeyT, ValT>> entrySet() {
         return cache.entrySet();
     }
@@ -262,6 +256,7 @@ public abstract class AbstractCache<KeyT, ValT> implements Map<KeyT, ValT> {
         }
     }
 
+    @NotNull
     public Collection<ValT> values() {
         return cache.values();
     }

@@ -55,7 +55,7 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
      */
     public IdUpdatedArticleOmitter(String selection, String[] selectionArgs) {
         idUpdatedMap = DBHelper.getInstance().getArticleIdUpdatedMap(selection, selectionArgs);
-        omittedArticles = new HashSet<Integer>();
+        omittedArticles = new HashSet<>();
     }
 
     /**
@@ -97,29 +97,11 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
     }
 
     /**
-     * map of article IDs to it's updated date
-     *
-     * @param idUpdatedMap the idUpdatedMap to set
-     */
-    public void setIdUpdatedMap(Map<Integer, Long> idUpdatedMap) {
-        this.idUpdatedMap = idUpdatedMap;
-    }
-
-    /**
      * articles, which was skipped
      *
      * @return the omittedArticles
      */
     public Set<Integer> getOmittedArticles() {
         return omittedArticles;
-    }
-
-    /**
-     * articles, which was skipped
-     *
-     * @param omittedArticles the omittedArticles to set
-     */
-    public void setOmittedArticles(Set<Integer> omittedArticles) {
-        this.omittedArticles = omittedArticles;
     }
 }

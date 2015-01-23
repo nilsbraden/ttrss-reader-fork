@@ -39,7 +39,7 @@ public class WelcomeDialog extends MyDialogFragment {
 
         builder.setTitle(getResources().getString(R.string.Welcome_Title));
         builder.setMessage(getResources().getString(R.string.Welcome_Message));
-        builder.setNeutralButton((String) getText(R.string.Preferences_Btn), new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(getText(R.string.Preferences_Btn), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface d, final int which) {
                 Intent i = new Intent(getActivity(), PreferencesActivity.class);

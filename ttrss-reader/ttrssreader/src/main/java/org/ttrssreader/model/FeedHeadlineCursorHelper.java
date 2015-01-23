@@ -134,7 +134,8 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
         query.append(" a2l, ");
         query.append(DBHelper.TABLE_FEEDS);
         query.append(" l WHERE a._id=a2l.articleId AND a2l.labelId=l._id");
-        query.append(" AND a2l.labelId=" + feedId);
+        query.append(" AND a2l.labelId=");
+        query.append(feedId);
         query.append(displayUnread ? " AND isUnread>0" : "");
 
         if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {

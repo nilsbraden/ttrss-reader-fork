@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -167,13 +168,11 @@ public class PreferencesActivity extends PreferenceActivity {
 
     @Override
     protected boolean isValidFragment(String fragmentName) {
-        if (PreferencesFragment.class.getName().equals(fragmentName))
-            return true;
-        return false;
+        return PreferencesFragment.class.getName().equals(fragmentName);
     }
 
     @Override
-    public void switchToHeader(Header header) {
+    public void switchToHeader(@NotNull Header header) {
         if (header.fragment != null) {
             super.switchToHeader(header);
         }

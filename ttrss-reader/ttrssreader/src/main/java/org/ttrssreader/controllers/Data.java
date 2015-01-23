@@ -67,10 +67,10 @@ public class Data {
     private long time = 0;
 
     private long articlesCached;
-    private Map<Integer, Long> articlesChanged = new HashMap<Integer, Long>();
+    private Map<Integer, Long> articlesChanged = new HashMap<>();
 
     /** map of category id to last changed time */
-    private Map<Integer, Long> feedsChanged = new HashMap<Integer, Long>();
+    private Map<Integer, Long> feedsChanged = new HashMap<>();
     private long virtCategoriesChanged = 0;
     private long categoriesChanged = 0;
 
@@ -115,7 +115,7 @@ public class Data {
             return;
         }
 
-        Set<Article> articles = new HashSet<Article>();
+        Set<Article> articles = new HashSet<>();
         int sinceId = Controller.getInstance().getSinceId();
 
         IdUpdatedArticleOmitter unreadUpdatedFilter = new IdUpdatedArticleOmitter("isUnread>0", null);
@@ -165,11 +165,10 @@ public class Data {
                 feedsChanged.put(c.id, time);
             }
 
-            Set<Integer> articleUnreadIds = new HashSet<Integer>();
+            Set<Integer> articleUnreadIds = new HashSet<>();
             for (Article a : articles) {
-                if (a.isUnread) {
-                    articleUnreadIds.add(Integer.valueOf(a.id));
-                }
+                if (a.isUnread)
+                    articleUnreadIds.add(a.id);
             }
 
             articleUnreadIds.addAll(unreadUpdatedFilter.getOmittedArticles());
@@ -196,7 +195,7 @@ public class Data {
             time = feedsChanged.get(feedId);
 
         if (time == null)
-            time = Long.valueOf(0);
+            time = 0L;
 
         if (articlesCached > time && !(feedId == VCAT_PUB || feedId == VCAT_STAR))
             time = articlesCached;
@@ -223,12 +222,12 @@ public class Data {
         }
 
         // Calculate an appropriate upper limit for the number of articles
-        int limit = calculateLimit(feedId, displayOnlyUnread, isCat);
+        int limit = calculateLimit(feedId, isCat);
         if (Controller.getInstance().isLowMemory())
             limit = limit / 2;
 
         Log.d(TAG, "UPDATE limit: " + limit);
-        Set<Article> articles = new HashSet<Article>();
+        Set<Article> articles = new HashSet<>();
 
         if (!displayOnlyUnread) {
             // If not displaying only unread articles: Refresh unread articles to get them too.
@@ -260,8 +259,8 @@ public class Data {
     /**
      * Calculate an appropriate upper limit for the number of articles
      */
-    private int calculateLimit(int feedId, boolean displayOnlyUnread, boolean isCat) {
-        int limit = -1;
+    private int calculateLimit(int feedId, boolean isCat) {
+        int limit;
         switch (feedId) {
             case VCAT_STAR: // Starred
             case VCAT_PUB: // Published
@@ -287,7 +286,7 @@ public class Data {
 
         // Search min and max ids
         int minId = Integer.MAX_VALUE;
-        Set<String> idSet = new HashSet<String>();
+        Set<String> idSet = new HashSet<>();
         for (Article article : articles) {
             if (article.id < minId)
                 minId = article.id;
@@ -295,7 +294,7 @@ public class Data {
         }
 
         String idList = Utils.separateItems(idSet, ",");
-        String vcat = "";
+        String vcat;
         if (feedId == VCAT_STAR)
             vcat = "isStarred";
         else if (feedId == VCAT_PUB)
@@ -348,12 +347,12 @@ public class Data {
 
         Long time = feedsChanged.get(categoryId);
         if (time == null)
-            time = Long.valueOf(0);
+            time = 0L;
 
         if (time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
             return null;
         } else if (Utils.isConnected(cm) || (overrideOffline && Utils.checkConnected(cm))) {
-            Set<Feed> ret = new LinkedHashSet<Feed>();
+            Set<Feed> ret = new LinkedHashSet<>();
             Set<Feed> feeds = Controller.getInstance().getConnector().getFeeds();
 
             // Only delete feeds if we got new feeds...
@@ -383,11 +382,11 @@ public class Data {
         if (virtCategoriesChanged > System.currentTimeMillis() - Utils.UPDATE_TIME)
             return null;
 
-        String vCatAllArticles = "";
-        String vCatFreshArticles = "";
-        String vCatPublishedArticles = "";
-        String vCatStarredArticles = "";
-        String uncatFeeds = "";
+        String vCatAllArticles;
+        String vCatFreshArticles;
+        String vCatPublishedArticles;
+        String vCatStarredArticles;
+        String uncatFeeds;
 
         vCatAllArticles = (String) context.getText(R.string.VCategory_AllArticles);
         vCatFreshArticles = (String) context.getText(R.string.VCategory_FreshArticles);
@@ -395,7 +394,7 @@ public class Data {
         vCatStarredArticles = (String) context.getText(R.string.VCategory_StarredArticles);
         uncatFeeds = (String) context.getText(R.string.Feed_UncategorizedFeeds);
 
-        Set<Category> vCats = new LinkedHashSet<Category>();
+        Set<Category> vCats = new LinkedHashSet<>();
         vCats.add(new Category(VCAT_ALL, vCatAllArticles, DBHelper.getInstance().getUnreadCount(VCAT_ALL, true)));
         vCats.add(new Category(VCAT_FRESH, vCatFreshArticles, DBHelper.getInstance().getUnreadCount(VCAT_FRESH, true)));
         vCats.add(new Category(VCAT_PUB, vCatPublishedArticles, DBHelper.getInstance().getUnreadCount(VCAT_PUB, true)));
@@ -448,7 +447,7 @@ public class Data {
 
     public void setArticleStarred(int articleId, int articleState) {
         boolean erg = false;
-        Set<Integer> ids = new HashSet<Integer>();
+        Set<Integer> ids = new HashSet<>();
         ids.add(articleId);
 
         if (Utils.isConnected(cm))
@@ -460,7 +459,7 @@ public class Data {
 
     public void setArticlePublished(int articleId, int articleState, String note) {
         boolean erg = false;
-        Map<Integer, String> ids = new HashMap<Integer, String>();
+        Map<Integer, String> ids = new HashMap<>();
         ids.put(articleId, note);
 
         if (Utils.isConnected(cm))
@@ -469,7 +468,7 @@ public class Data {
         // Write changes to cache if calling the server failed
         if (!erg) {
             DBHelper.getInstance().markUnsynchronizedStates(ids.keySet(), DBHelper.MARK_PUBLISH, articleState);
-            DBHelper.getInstance().markUnsynchronizedNotes(ids, DBHelper.MARK_PUBLISH);
+            DBHelper.getInstance().markUnsynchronizedNotes(ids);
         }
     }
 
@@ -494,9 +493,7 @@ public class Data {
     }
 
     public boolean shareToPublished(String title, String url, String content) {
-        if (Utils.isConnected(cm))
-            return Controller.getInstance().getConnector().shareToPublished(title, url, content);
-        return false;
+        return Utils.isConnected(cm) && Controller.getInstance().getConnector().shareToPublished(title, url, content);
     }
 
     public JSONConnector.SubscriptionResponse feedSubscribe(String feed_url, int category_id) {
@@ -506,9 +503,7 @@ public class Data {
     }
 
     public boolean feedUnsubscribe(int feed_id) {
-        if (Utils.isConnected(cm))
-            return Controller.getInstance().getConnector().feedUnsubscribe(feed_id);
-        return false;
+        return Utils.isConnected(cm) && Controller.getInstance().getConnector().feedUnsubscribe(feed_id);
     }
 
     String getPref(String pref) {
@@ -517,19 +512,12 @@ public class Data {
         return null;
     }
 
-    public int getVersion() {
-        if (Utils.isConnected(cm))
-            return Controller.getInstance().getConnector().getVersion();
-        return -1;
-    }
-
     public Set<Label> getLabels(int articleId) {
-        Set<Label> ret = DBHelper.getInstance().getLabelsForArticle(articleId);
-        return ret;
+        return DBHelper.getInstance().getLabelsForArticle(articleId);
     }
 
     public boolean setLabel(Integer articleId, Label label) {
-        Set<Integer> set = new HashSet<Integer>();
+        Set<Integer> set = new HashSet<>();
         set.add(articleId);
         return setLabel(set, label);
     }

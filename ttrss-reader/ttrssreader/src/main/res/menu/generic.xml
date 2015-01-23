@@ -21,25 +21,25 @@
         android:id="@+id/Menu_Refresh"
         android:icon="@drawable/ic_menu_refresh"
         android:orderInCategory="50"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:title="@string/Main.RefreshMenu" />
     <item
         android:id="@+id/Menu_MarkAllRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
-        android:showAsAction="always|withText"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.MarkAllRead" />
     <item
         android:id="@+id/Menu_MarkFeedsRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
-        android:showAsAction="always|withText"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.MarkFeedsRead" />
     <item
         android:id="@+id/Menu_MarkFeedRead"
         android:icon="@drawable/ic_menu_mark"
         android:orderInCategory="60"
-        android:showAsAction="always|withText"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/Commons.MarkFeedRead" />
     <item
         android:id="@+id/Menu_FeedSubscribe"

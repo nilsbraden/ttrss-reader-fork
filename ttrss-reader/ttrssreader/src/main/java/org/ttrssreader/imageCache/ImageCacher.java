@@ -65,7 +65,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private long downloaded = 0;
     private int taskCount = 0;
 
-    private long start;
+    private final Object mapLock = new Object();
     private Map<Integer, DownloadImageTask> map;
 
     ImageCacher(ICacheEndListener parent, final Context context, boolean onlyArticles) {
@@ -74,11 +74,10 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
         this.cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         // Create Handler in a new Thread so all tasks are started in this new thread instead of the main UI-Thread
-        myHandler = new MyHandler();
+        Thread myHandler = new MyHandler();
         myHandler.start();
     }
 
-    private static Thread myHandler;
     private static Handler handler;
 
     private static final Object lock = new Object();
@@ -103,8 +102,6 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
         }
     }
 
-    ;
-
     // This method is allowed to be called from any thread
     private synchronized void requestStop() {
         // Wait for the handler to be fully initialized:
@@ -116,6 +113,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
                         wait = wait - 300;
                         lock.wait(300);
                     } catch (InterruptedException e) {
+                        // Empty!
                     }
                 }
             }
@@ -130,76 +128,76 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
 
-        while (true) {
-            if (!Utils.checkConnected(cm)) {
-                Log.e(TAG, "No connectivity, aborting...");
-                break;
-            }
+        doProcess();
 
-            // Update all articles
-            long timeArticles = System.currentTimeMillis();
-
-            // sync local status changes to server
-            Data.getInstance().synchronizeStatus();
-
-            // Only use progress-updates and callbacks for downloading articles, images are done in background
-            // completely
-            Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
-            taskCount = DEFAULT_TASK_COUNT + labels.size();
-
-            int progress = 0;
-            publishProgress(++progress);
-            // Data.getInstance().updateCounters(true, true);
-            publishProgress(++progress);
-            Data.getInstance().updateCategories(true);
-            publishProgress(++progress);
-            Data.getInstance().updateFeeds(Data.VCAT_ALL, true);
-
-            // Cache all articles
-            publishProgress(++progress);
-            Data.getInstance().cacheArticles(false, true);
-
-            for (Feed f : labels) {
-                if (f.unread == 0)
-                    continue;
-                publishProgress(++progress);
-                Data.getInstance().updateArticles(f.id, true, false, false, true);
-            }
-
-            Data.getInstance().calculateCounters();
-            Data.getInstance().notifyListeners();
-
-            publishProgress(++progress);
-            Log.i(TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
-
-            if (onlyArticles) // We are done here..
-                break;
-
-            // Initialize other preferences
-            this.cacheSizeMax = Controller.getInstance().cacheFolderMaxSize() * Utils.MB;
-            this.imageCache = Controller.getInstance().getImageCache();
-            if (imageCache == null)
-                break;
-
-            imageCache.fillMemoryCacheFromDisk();
-            downloadImages();
-
-            taskCount = DEFAULT_TASK_COUNT + labels.size();
-            publishProgress(++progress);
-            purgeCache();
-
-            Log.i(TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
-                    cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / Utils.SECOND));
-
-            break;
-        }
+        Log.i(TAG, String.format("Cache: %s MB (Limit: %s MB, took %s seconds)", folderSize / 1048576,
+                cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / Utils.SECOND));
 
         // Cleanup
         publishProgress(Integer.MAX_VALUE); // Call onCacheEnd()
         requestStop();
         return null;
+    }
+
+    private void doProcess() {
+        if (!Utils.checkConnected(cm)) {
+            Log.e(TAG, "No connectivity, aborting...");
+            return;
+        }
+
+        // Update all articles
+        long timeArticles = System.currentTimeMillis();
+
+        // sync local status changes to server
+        Data.getInstance().synchronizeStatus();
+
+        // Only use progress-updates and callbacks for downloading articles, images are done in background
+        // completely
+        Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
+        taskCount = DEFAULT_TASK_COUNT + labels.size();
+
+        int progress = 0;
+        publishProgress(++progress);
+        // Data.getInstance().updateCounters(true, true);
+        publishProgress(++progress);
+        Data.getInstance().updateCategories(true);
+        publishProgress(++progress);
+        Data.getInstance().updateFeeds(Data.VCAT_ALL, true);
+
+        // Cache all articles
+        publishProgress(++progress);
+        Data.getInstance().cacheArticles(false, true);
+
+        for (Feed f : labels) {
+            if (f.unread == 0)
+                continue;
+            publishProgress(++progress);
+            Data.getInstance().updateArticles(f.id, true, false, false, true);
+        }
+
+        Data.getInstance().calculateCounters();
+        Data.getInstance().notifyListeners();
+
+        publishProgress(++progress);
+        Log.i(TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
+
+        if (onlyArticles) // We are done here..
+            return;
+
+        // Initialize other preferences
+        this.cacheSizeMax = Controller.getInstance().cacheFolderMaxSize() * Utils.MB;
+        this.imageCache = Controller.getInstance().getImageCache();
+        if (imageCache == null)
+            return;
+
+        imageCache.fillMemoryCacheFromDisk();
+        downloadImages();
+
+        taskCount = DEFAULT_TASK_COUNT + labels.size();
+        publishProgress(++progress);
+        purgeCache();
     }
 
     /**
@@ -221,7 +219,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private void downloadImages() {
         long time = System.currentTimeMillis();
         // DownloadImageTask[] tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
-        map = new HashMap<Integer, ImageCacher.DownloadImageTask>();
+        map = new HashMap<>();
 
         ArrayList<Article> articles = DBHelper.getInstance().queryArticlesForImagecache();
 
@@ -234,7 +232,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
             // Log.d(TAG, "Cache images for article ID: " + articleId);
 
             // Get images included in HTML
-            Set<String> set = new HashSet<String>();
+            Set<String> set = new HashSet<>();
 
             for (String url : findAllImageUrls(article.content)) {
                 if (!imageCache.containsKey(url))
@@ -269,7 +267,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
         long timeWait = System.currentTimeMillis();
         while (!map.isEmpty()) {
-            synchronized (map) {
+            synchronized (mapLock) {
                 try {
                     // Only wait for 10 Minutes
                     if (System.currentTimeMillis() - timeWait > Utils.MINUTE * 10)
@@ -317,7 +315,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
             } catch (Throwable t) {
                 t.printStackTrace();
             } finally {
-                synchronized (map) {
+                synchronized (mapLock) {
                     if (downloaded > 0)
                         downloaded += size;
 
@@ -340,7 +338,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
             Collection<RemoteFile> rfs = DBHelper.getInstance().getUncacheFiles(folderSize - cacheSizeMax);
             Log.d(TAG, "Found " + rfs.size() + " cached files for deletion");
 
-            ArrayList<Integer> rfIds = new ArrayList<Integer>(rfs.size());
+            ArrayList<Integer> rfIds = new ArrayList<>(rfs.size());
             for (RemoteFile rf : rfs) {
                 File file = imageCache.getCacheFile(rf.url);
 
@@ -364,7 +362,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
      * @return a set of URLs in their string representation
      */
     private static Set<String> findAllImageUrls(String html) {
-        Set<String> ret = new LinkedHashSet<String>();
+        Set<String> ret = new LinkedHashSet<>();
         if (html == null || html.length() < 10)
             return ret;
 
@@ -377,10 +375,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
         while (m.find()) {
             String url = m.group(1);
-            if (url.startsWith("http")) {
+            if (url.startsWith("http"))
                 ret.add(url);
-                continue;
-            }
         }
         return ret;
     }

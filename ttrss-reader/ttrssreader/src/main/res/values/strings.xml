@@ -256,7 +256,6 @@
     <string name="Utils.DownloadFinishedText">Process finished in %s seconds.</string>
     <string name="Utils.DownloadRunningTitle">Download running…</string>
     <string name="Utils.DownloadRunningTicker">Download running…</string>
-    <string name="Utils.DownloadRunningText"></string>
     <string name="Utils.DownloadErrorTitle">Error</string>
     <string name="Utils.DownloadErrorTicker">Error…</string>
     <string name="SaveAttachmentTitle">Save attachments…</string>

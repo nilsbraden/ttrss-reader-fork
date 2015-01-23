@@ -22,10 +22,6 @@
     android:versionCode="1811"
     android:versionName="1.81">
 
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="21" />
-
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -59,7 +55,8 @@
         android:description="@string/ApplicationDescription"
         android:hardwareAccelerated="true"
         android:icon="@drawable/icon"
-        android:label="@string/ApplicationName">
+        android:label="@string/ApplicationName"
+        android:supportsRtl="true">
         <provider
             android:name=".model.ListContentProvider"
             android:authorities="org.ttrssreader"

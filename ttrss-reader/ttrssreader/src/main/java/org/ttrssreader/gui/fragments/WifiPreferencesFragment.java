@@ -29,9 +29,6 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 public class WifiPreferencesFragment extends PreferenceFragment {
 
@@ -57,11 +54,6 @@ public class WifiPreferencesFragment extends PreferenceFragment {
             addPreferencesFromResource(R.xml.prefs_ssl);
 
         initDynamicConnectionPrefs(ssid, PREFS_MAIN_TOP.equals(cat));
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     private void initDynamicConnectionPrefs(String ssid, boolean addEnableWifiPref) {

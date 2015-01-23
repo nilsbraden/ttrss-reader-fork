@@ -125,11 +125,7 @@ public class ArticleWebViewClient extends WebViewClient {
 
     private boolean externalStorageState() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        } else {
-            return false;
-        }
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 
     private class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
@@ -138,7 +134,7 @@ public class ArticleWebViewClient extends WebViewClient {
         private WeakReference<Context> contextRef;
 
         public AsyncMediaDownloader(Context context) {
-            this.contextRef = new WeakReference<Context>(context);
+            this.contextRef = new WeakReference<>(context);
         }
 
         protected Void doInBackground(URL... urls) {
@@ -163,19 +159,20 @@ public class ArticleWebViewClient extends WebViewClient {
             if (!folder.exists() && !folder.mkdirs()) {
                 // Folder could not be created, fallback to internal directory on sdcard
                 folder = new File(Constants.SAVE_ATTACHMENT_DEFAULT);
-                folder.mkdirs();
+                if (!folder.exists() && !folder.mkdirs()) {
+                    String msg = "Folder could not be created: " + folder.getAbsolutePath();
+                    Log.w(TAG, msg);
+                    Utils.showFinishedNotification(msg, 0, true, contextRef.get());
+                }
             }
 
-            if (!folder.exists())
-                folder.mkdirs();
-
-            BufferedInputStream in = null;
-            FileOutputStream fos = null;
+            BufferedInputStream in;
+            FileOutputStream fos;
             BufferedOutputStream bout = null;
 
             int size = -1;
 
-            File file = null;
+            File file;
             try {
                 URL url = urls[0];
                 HttpURLConnection c = (HttpURLConnection) url.openConnection();
@@ -195,7 +192,7 @@ public class ArticleWebViewClient extends WebViewClient {
                 bout = new BufferedOutputStream(fos, BUFFER);
 
                 byte[] data = new byte[BUFFER];
-                int count = 0;
+                int count;
                 while ((count = in.read(data, 0, BUFFER)) >= 0) {
                     bout.write(data, 0, count);
                     size += count;
@@ -206,8 +203,7 @@ public class ArticleWebViewClient extends WebViewClient {
                 // Show Intent which opens the file
                 Intent intent = new Intent();
                 intent.setAction(android.content.Intent.ACTION_VIEW);
-                if (file != null)
-                    intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
+                intent.setDataAndType(Uri.fromFile(file), FileUtils.getMimeType(file.getName()));
 
                 Log.i(TAG, "Finished. Path: " + file.getAbsolutePath() + " Time: " + time + "s Bytes: " + size);
                 Utils.showFinishedNotification(file.getAbsolutePath(), time, false, contextRef.get(), intent);
@@ -223,6 +219,7 @@ public class ArticleWebViewClient extends WebViewClient {
                     try {
                         bout.close();
                     } catch (IOException e) {
+                        // Empty!
                     }
                 }
             }

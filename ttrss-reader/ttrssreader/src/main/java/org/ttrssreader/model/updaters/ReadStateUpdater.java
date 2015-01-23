@@ -54,6 +54,7 @@ public class ReadStateUpdater implements IUpdatable {
         id = categoryId;
     }
 
+    @SuppressWarnings("unused")
     public ReadStateUpdater(int feedId, int dummy) {
         if (feedId <= 0 && feedId >= -4) { // Virtual Category
             type = TYPE.CATEGORY;
@@ -72,7 +73,7 @@ public class ReadStateUpdater implements IUpdatable {
                 categories = DBHelper.getInstance().getAllCategories();
                 break;
             case CATEGORY:
-                categories = new HashSet<Category>();
+                categories = new HashSet<>();
                 Category c = DBHelper.getInstance().getCategory(id);
                 if (c != null)
                     categories.add(c);
@@ -81,7 +82,7 @@ public class ReadStateUpdater implements IUpdatable {
                 feeds = DBHelper.getInstance().getFeeds(id);
                 break;
             case FEED:
-                feeds = new HashSet<Feed>();
+                feeds = new HashSet<>();
                 Feed f = DBHelper.getInstance().getFeed(id);
                 if (f != null)
                     feeds.add(f);

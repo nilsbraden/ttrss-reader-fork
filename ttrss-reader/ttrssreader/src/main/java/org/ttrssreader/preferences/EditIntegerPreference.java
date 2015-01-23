@@ -21,6 +21,7 @@ import android.content.Context;
 import android.preference.EditTextPreference;
 import android.util.AttributeSet;
 
+@SuppressWarnings("UnusedDeclaration")
 public class EditIntegerPreference extends EditTextPreference {
 
     public EditIntegerPreference(Context context) {
@@ -42,9 +43,7 @@ public class EditIntegerPreference extends EditTextPreference {
 
     @Override
     protected boolean persistString(String value) {
-        if (value == null || value.length() == 0)
-            return false;
-        return persistInt(Integer.valueOf(value));
+        return !(value == null || value.length() == 0) && persistInt(Integer.valueOf(value));
     }
 
 }

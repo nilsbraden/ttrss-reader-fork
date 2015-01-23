@@ -29,7 +29,7 @@
     font-weight: normal;
   }
   
-  /************ BEGIN THEMES --> ************/
+  /************ BEGIN THEMES ************/
   /*** THEME: DARK ***/
   body#darkTheme {
     background-color: #222;
@@ -89,7 +89,7 @@
   body#whiteTheme a:visited {
     color: #000 !important;
   }
-  /************ END THEMES --> ************/
+  /************ END THEMES ************/
   
   body, blockquote, img, iframe, video, div, table, tbody, tr, td, pre, code, p, em, b {
     width: auto !important;
