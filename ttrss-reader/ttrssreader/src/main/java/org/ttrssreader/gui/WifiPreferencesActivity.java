@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.fragments.WifiPreferencesFragment;
@@ -116,13 +117,11 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
 
     @Override
     protected boolean isValidFragment(String fragmentName) {
-        if (WifiPreferencesFragment.class.getName().equals(fragmentName))
-            return true;
-        return false;
+        return WifiPreferencesFragment.class.getName().equals(fragmentName);
     }
 
     @Override
-    public void switchToHeader(Header header) {
+    public void switchToHeader(@NotNull Header header) {
         if (header.fragment != null) {
             super.switchToHeader(header);
         }
@@ -134,7 +133,7 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
             return;
 
         if (key.equals(m_SSID + Constants.ENABLE_WIFI_BASED_SUFFIX)) {
-
+            // TODO: WTF?
         }
     }
 

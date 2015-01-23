@@ -90,7 +90,7 @@ public class ListContentProvider extends ContentProvider {
             selectArticlesForCategory = ("1".equals(paramSelectArticles));
 
         // Retrieve CursorHelper:
-        MainCursorHelper cursorHelper = null;
+        MainCursorHelper cursorHelper;
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
             case CATS: {

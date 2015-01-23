@@ -237,7 +237,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void fillParentInformation() {
         if (parentIds == null) {
-            parentIds = new ArrayList<Integer>(parentAdapter.getCount() + 2);
+            parentIds = new ArrayList<>(parentAdapter.getCount() + 2);
 
             parentIds.add(Integer.MIN_VALUE);
             parentIds.addAll(parentAdapter.getIds());
@@ -250,7 +250,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         int index = -1;
         int i = 0;
         for (Integer id : parentIds) {
-            if (id.intValue() == articleId) {
+            if (id == articleId) {
                 index = i;
                 break;
             }
@@ -351,7 +351,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         if (article.isUnread) {
             article.isUnread = false;
             markedRead = true;
-            new Updater(null, new ArticleReadStateUpdater(article, feedId, 0))
+            new Updater(null, new ArticleReadStateUpdater(article, 0))
                     .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
@@ -364,7 +364,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onResume() {
         super.onResume();
-        getView().setVisibility(View.VISIBLE);
+        if (getView() != null)
+            getView().setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -372,11 +373,12 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
             if (article != null && article.isUnread)
-                new Updater(null, new ArticleReadStateUpdater(article, feedId, 0))
+                new Updater(null, new ArticleReadStateUpdater(article, 0))
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         super.onStop();
-        getView().setVisibility(View.GONE);
+        if (getView() != null)
+            getView().setVisibility(View.GONE);
     }
 
     @Override
@@ -384,7 +386,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         // Check again to make sure it didnt get updated and marked as unread again in the background
         if (!markedRead) {
             if (article != null && article.isUnread)
-                new Updater(null, new ArticleReadStateUpdater(article, feedId, 0))
+                new Updater(null, new ArticleReadStateUpdater(article, 0))
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
         super.onDestroy();
@@ -490,14 +492,6 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         } catch (ActivityNotFoundException e) {
             Log.e(TAG, "Couldn't find a suitable activity for the uri: " + url);
         }
-    }
-
-    public Article getArticle() {
-        return article;
-    }
-
-    public int getArticleId() {
-        return articleId;
     }
 
     /**
@@ -633,7 +627,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         switch (item.getItemId()) {
             case R.id.Article_Menu_MarkRead: {
                 if (article != null)
-                    new Updater(getActivity(), new ArticleReadStateUpdater(article, article.feedId,
+                    new Updater(getActivity(), new ArticleReadStateUpdater(article,
                             article.isUnread ? 0 : 1)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 return true;
             }
@@ -666,7 +660,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                     i.setType("text/plain");
                     i.putExtra(Intent.EXTRA_TEXT, article.url);
                     i.putExtra(Intent.EXTRA_SUBJECT, article.title);
-                    startActivity(Intent.createChooser(i, (String) getText(R.string.ArticleActivity_ShareTitle)));
+                    startActivity(Intent.createChooser(i, getText(R.string.ArticleActivity_ShareTitle)));
                 }
                 return true;
             }
@@ -757,11 +751,9 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
-    ;
-
     @Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
-        Intent shareIntent = null;
+        Intent shareIntent;
         switch (item.getItemId()) {
             case CONTEXT_MENU_SHARE_URL:
                 if (mSelectedExtra != null) {
@@ -956,8 +948,6 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             return false;
         }
     }
-
-    ;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {

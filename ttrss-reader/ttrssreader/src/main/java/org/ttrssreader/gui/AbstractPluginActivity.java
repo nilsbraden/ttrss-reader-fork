@@ -17,6 +17,7 @@ package org.ttrssreader.gui;
 
 import com.twofortyfouram.locale.api.R;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.controllers.Controller;
 
 import android.app.Activity;
@@ -33,9 +34,10 @@ import android.view.MenuItem;
 public abstract class AbstractPluginActivity extends Activity {
 
     private static final String TAG = AbstractPluginActivity.class.getSimpleName();
+
     /**
      * Flag boolean that can only be set to true via the "Don't Save"
-     * {@link com.twofortyfouram.locale.platform.R.id#twofortyfouram_locale_menu_dontsave} menu item in
+     * twofortyfouram_locale_menu_dontsave menu item in
      * {@link #onMenuItemSelected(int, MenuItem)}.
      */
     /*
@@ -64,7 +66,8 @@ public abstract class AbstractPluginActivity extends Activity {
         super.onCreateOptionsMenu(menu);
 
         getMenuInflater().inflate(R.menu.twofortyfouram_locale_help_save_dontsave, menu);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getActionBar() != null)
+            getActionBar().setDisplayHomeAsUpEnabled(true);
         
         /*
          * Note: There is a small TOCTOU error here, in that the host could be uninstalled right after
@@ -75,7 +78,8 @@ public abstract class AbstractPluginActivity extends Activity {
          * slim.
          */
         try {
-            getActionBar().setIcon(getPackageManager().getApplicationIcon(getCallingPackage()));
+            if (getActionBar() != null)
+                getActionBar().setIcon(getPackageManager().getApplicationIcon(getCallingPackage()));
         } catch (final NameNotFoundException e) {
             Log.w(TAG, "An error occurred loading the host's icon", e); //$NON-NLS-1$
         }
@@ -83,7 +87,7 @@ public abstract class AbstractPluginActivity extends Activity {
     }
 
     @Override
-    public boolean onMenuItemSelected(final int featureId, final MenuItem item) {
+    public boolean onMenuItemSelected(final int featureId, @NotNull final MenuItem item) {
         final int id = item.getItemId();
 
         if (android.R.id.home == id) {

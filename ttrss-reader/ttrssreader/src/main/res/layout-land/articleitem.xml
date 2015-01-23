@@ -25,6 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/article_button_view"
+        android:layout_toStartOf="@+id/article_button_view"
         android:orientation="vertical">
 
         <FrameLayout
@@ -34,15 +35,18 @@
     </RelativeLayout>
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:id="@+id/article_button_view"
         android:layout_width="45dip"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:background="@android:drawable/bottom_bar"
         android:orientation="vertical"
         android:visibility="gone">
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/article_buttonNext"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -51,6 +55,7 @@
             android:text="@string/Up" />
 
         <Button
+            style="?android:attr/buttonBarButtonStyle"
             android:id="@+id/article_buttonPrev"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

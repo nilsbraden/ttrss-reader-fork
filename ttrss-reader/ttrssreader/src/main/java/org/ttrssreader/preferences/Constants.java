@@ -33,15 +33,9 @@ public class Constants {
     public static final String APPENDED_DEFAULT = "_DEFAULT";
 
     static {
-        StringBuilder sbAttachments = new StringBuilder();
-        sbAttachments.append(Environment.getExternalStorageDirectory()).append(File.separator)
-                .append(FileUtils.SDCARD_PATH_FILES);
-        SAVE_ATTACHMENT_DEFAULT = sbAttachments.toString();
-
-        StringBuilder sbCache = new StringBuilder();
-        sbCache.append(Environment.getExternalStorageDirectory()).append(File.separator)
-                .append(FileUtils.SDCARD_PATH_CACHE);
-        CACHE_FOLDER_DEFAULT = sbCache.toString();
+        SAVE_ATTACHMENT_DEFAULT = Environment.getExternalStorageDirectory() + File.separator
+                + FileUtils.SDCARD_PATH_FILES;
+        CACHE_FOLDER_DEFAULT = Environment.getExternalStorageDirectory() + File.separator + FileUtils.SDCARD_PATH_CACHE;
     }
 
     // Connection
@@ -189,42 +183,35 @@ public class Constants {
 
                 // Get the default type and store value for the specific type
                 String type = fieldDefault.getType().getSimpleName();
-                if (type.equals("String")) {
-
-                    String defaultValue = (String) fieldDefault.get(null);
-                    editor.putString(value, defaultValue);
-
-                } else if (type.equals("boolean")) {
-
-                    boolean defaultValue = fieldDefault.getBoolean(null);
-                    editor.putBoolean(value, defaultValue);
-
-                } else if (type.equals("int")) {
-
-                    int defaultValue = fieldDefault.getInt(null);
-                    editor.putInt(value, defaultValue);
-
-                } else if (type.equals("long")) {
-
-                    long defaultValue = fieldDefault.getLong(null);
-                    editor.putLong(value, defaultValue);
-
+                switch (type) {
+                    case "String": {
+                        String defaultValue = (String) fieldDefault.get(null);
+                        editor.putString(value, defaultValue);
+                    }
+                    case "boolean": {
+                        boolean defaultValue = fieldDefault.getBoolean(null);
+                        editor.putBoolean(value, defaultValue);
+                    }
+                    case "int": {
+                        int defaultValue = fieldDefault.getInt(null);
+                        editor.putInt(value, defaultValue);
+                    }
+                    case "long": {
+                        long defaultValue = fieldDefault.getLong(null);
+                        editor.putLong(value, defaultValue);
+                    }
                 }
 
-            } catch (SecurityException e) {
+            } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
             } catch (NoSuchFieldException e) {
                 // Ignore, occurrs if a search for field like EMPTY_DEFAULT is started, this isn't there and shall never
                 // be there.
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
             }
         }
 
         // Commit when finished
-        editor.commit();
+        editor.apply();
     }
 
     public static String constant2Var(String s) {

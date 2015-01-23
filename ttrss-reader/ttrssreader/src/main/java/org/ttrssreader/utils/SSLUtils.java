@@ -39,7 +39,6 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -49,11 +48,10 @@ public class SSLUtils {
     private static final String TAG = SSLUtils.class.getSimpleName();
 
     @SuppressLint("TrulyRandom")
-    public static SSLSocketFactory initSslSocketFactory(KeyManager[] km, TrustManager[] tm)
+    public static void initSslSocketFactory(KeyManager[] km, TrustManager[] tm)
             throws KeyManagementException, NoSuchAlgorithmException {
         SSLSocketFactoryEx factory = new SSLSocketFactoryEx(km, tm);
         HttpsURLConnection.setDefaultSSLSocketFactory(factory);
-        return factory;
     }
 
     public static void initPrivateKeystore(String password) throws GeneralSecurityException {
@@ -72,7 +70,7 @@ public class SSLUtils {
     }
 
     public static KeyStore loadKeystore(String keystorePassword) throws GeneralSecurityException {
-        KeyStore trusted = null;
+        KeyStore trusted;
         try {
             trusted = KeyStore.getInstance(KeyStore.getDefaultType());
 
@@ -90,6 +88,7 @@ public class SSLUtils {
                 try {
                     in.close();
                 } catch (IOException e) {
+                    // Empty!
                 }
             }
         } catch (Exception e) {

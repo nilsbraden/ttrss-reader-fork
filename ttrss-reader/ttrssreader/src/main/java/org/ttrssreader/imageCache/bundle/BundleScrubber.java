@@ -35,11 +35,7 @@ public final class BundleScrubber {
      * @return true if the Intent was scrubbed, false if the Intent was not modified.
      */
     public static boolean scrub(final Intent intent) {
-        if (null == intent) {
-            return false;
-        }
-
-        return scrub(intent.getExtras());
+        return null != intent && scrub(intent.getExtras());
     }
 
     /**

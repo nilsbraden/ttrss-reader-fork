@@ -61,7 +61,7 @@ public class CategoryAdapter extends MainAdapter {
     }
 
     public List<Category> getCategories() {
-        List<Category> ret = new ArrayList<Category>();
+        List<Category> ret = new ArrayList<>();
         Cursor cur = getCursor();
         if (cur == null)
             return ret;

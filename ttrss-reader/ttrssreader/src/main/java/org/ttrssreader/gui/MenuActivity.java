@@ -124,10 +124,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         maxSize = displaySize - (int) (displaySize * 0.05);
 
         // use tablet layout?
-        if (Controller.getInstance().allowTabletLayout())
-            Controller.isTablet = divider != null;
-        else
-            Controller.isTablet = false;
+        Controller.isTablet = (Controller.getInstance().allowTabletLayout() && divider != null);
 
         // Set frame sizes and hide divider if necessary
         if (Controller.isTablet) {
@@ -178,11 +175,11 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
     }
 
     private void handleResize() {
-        int mainFrameSize = 0;
+        int mainFrameSize;
         if (isVertical) {
-            mainFrameSize = calculateSize((int) (frameMain.getHeight() + mDeltaY));
+            mainFrameSize = calculateSize(frameMain.getHeight() + mDeltaY);
         } else {
-            mainFrameSize = calculateSize((int) (frameMain.getWidth() + mDeltaX));
+            mainFrameSize = calculateSize(frameMain.getWidth() + mDeltaX);
         }
 
         int subFrameSize = displaySize - dividerSize - mainFrameSize;
@@ -214,11 +211,13 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
         View actionbarView = inflator.inflate(R.layout.actionbar, null);
 
         ActionBar ab = getActionBar();
-        ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        ab.setDisplayHomeAsUpEnabled(true);
-        ab.setDisplayShowCustomEnabled(true);
-        ab.setDisplayShowTitleEnabled(false);
-        ab.setCustomView(actionbarView, params);
+        if (ab != null) {
+            ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            ab.setDisplayHomeAsUpEnabled(true);
+            ab.setDisplayShowCustomEnabled(true);
+            ab.setDisplayShowTitleEnabled(false);
+            ab.setCustomView(actionbarView, params);
+        }
 
         header_unread = (TextView) actionbarView.findViewById(R.id.head_unread);
         header_title = (TextView) actionbarView.findViewById(R.id.head_title);
@@ -243,7 +242,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
     /**
      * Force-display the three dots for overflow, would be disabled on devices with a menu-key.
      *
-     * @see http://stackoverflow.com/a/13098824
+     * @see "http://stackoverflow.com/a/13098824"
      */
     private void getOverflowMenu() {
         try {
@@ -254,6 +253,7 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
                 menuKeyField.setBoolean(config, false);
             }
         } catch (Exception e) {
+            // Empty!
         }
     }
 

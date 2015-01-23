@@ -155,6 +155,7 @@ public class FileUtils {
                 try {
                     fos.close();
                 } catch (IOException e) {
+                    // Empty!
                 }
             }
         }
@@ -206,7 +207,7 @@ public class FileUtils {
      * @return map, which keys are found mime-types and values are file collections of this mime-type
      */
     public static Map<String, Collection<String>> groupFilesByMimeType(Collection<String> attachments) {
-        Map<String, Collection<String>> attachmentsByMimeType = new HashMap<String, Collection<String>>();
+        Map<String, Collection<String>> attachmentsByMimeType = new HashMap<>();
         for (String url : attachments) {
             String mimeType = getMimeType(url);
 
@@ -214,7 +215,7 @@ public class FileUtils {
                 Collection<String> mimeTypeList = attachmentsByMimeType.get(mimeType);
 
                 if (mimeTypeList == null) {
-                    mimeTypeList = new ArrayList<String>();
+                    mimeTypeList = new ArrayList<>();
                     attachmentsByMimeType.put(mimeType, mimeTypeList);
                 }
 

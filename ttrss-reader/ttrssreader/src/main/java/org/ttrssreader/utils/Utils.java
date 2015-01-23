@@ -88,7 +88,7 @@ public class Utils {
     /**
      * The Pattern to match image-urls inside HTML img-tags.
      */
-    public static final Pattern findImageUrlsPattern = Pattern.compile("<img[^>]+?src=[\"']([^\\\"']*)",
+    public static final Pattern findImageUrlsPattern = Pattern.compile("<img[^>]+?src=[\"']([^\"']*)",
             Pattern.CASE_INSENSITIVE);
 
     private static final int ID_RUNNING = 4564561;
@@ -97,7 +97,7 @@ public class Utils {
     /*
      * Check if this is the first run of the app, if yes, returns false.
      */
-    public static boolean checkIsFirstRun(Context a) {
+    public static boolean checkIsFirstRun() {
         return Controller.getInstance().newInstallation();
     }
 
@@ -149,7 +149,7 @@ public class Utils {
      * @return the version-string
      */
     public static int getAppVersionCode(Context c) {
-        int result = 0;
+        int result;
         try {
             PackageManager manager = c.getPackageManager();
             PackageInfo info = manager.getPackageInfo(c.getPackageName(), 0);
@@ -168,7 +168,7 @@ public class Utils {
      * @return the version-string
      */
     public static String getAppVersionName(Context c) {
-        String result = "";
+        String result;
         try {
             PackageManager manager = c.getPackageManager();
             PackageInfo info = manager.getPackageInfo(c.getPackageName(), 0);
@@ -186,10 +186,7 @@ public class Utils {
      * are about to connect it waits for maximum one second and then returns the network state without waiting anymore.
      */
     public static boolean isConnected(ConnectivityManager cm) {
-        if (Controller.getInstance().workOffline())
-            return false;
-
-        return checkConnected(cm);
+        return !Controller.getInstance().workOffline() && checkConnected(cm);
     }
 
     /**
@@ -213,10 +210,7 @@ public class Utils {
             info = cm.getActiveNetworkInfo();
         }
 
-        if (info == null)
-            return false;
-
-        return info.isConnected();
+        return info != null && info.isConnected();
     }
 
     public static void showFinishedNotification(String content, int time, boolean error, Context context) {
@@ -282,9 +276,8 @@ public class Utils {
         int icon = R.drawable.notification_icon;
         CharSequence title = context.getText(R.string.Utils_DownloadRunningTitle);
         CharSequence ticker = context.getText(R.string.Utils_DownloadRunningTicker);
-        CharSequence text = context.getText(R.string.Utils_DownloadRunningText);
 
-        Notification notification = buildNotification(context, icon, ticker, title, text, true, intent);
+        Notification notification = buildNotification(context, icon, ticker, title, "…", true, intent);
         mNotMan.notify(ID_RUNNING, notification);
     }
 
@@ -323,6 +316,7 @@ public class Utils {
                 }
 
             } catch (Exception e) {
+                // Empty!
             }
 
             // Store version

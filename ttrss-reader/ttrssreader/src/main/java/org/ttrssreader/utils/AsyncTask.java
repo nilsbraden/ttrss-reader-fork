@@ -16,6 +16,8 @@
 
 package org.ttrssreader.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
@@ -35,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @see http://stackoverflow.com/questions/7211684/asynctask-executeonexecutor-before-api-level-11/9509184#9509184
+ * @see "http://stackoverflow.com/questions/7211684/asynctask-executeonexecutor-before-api-level-11/9509184#9509184"
  * (Source: https://raw.github.com/android/platform_frameworks_base/master/core/java/android/os/AsyncTask.java)
  */
 public abstract class AsyncTask<Params, Progress, Result> {
@@ -49,12 +51,12 @@ public abstract class AsyncTask<Params, Progress, Result> {
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
-        public Thread newThread(Runnable r) {
+        public Thread newThread(@NotNull Runnable r) {
             return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
         }
     };
 
-    private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>(128);
+    private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<>(128);
 
     /**
      * An {@link Executor} that can be used to execute tasks in parallel.
@@ -128,16 +130,6 @@ public abstract class AsyncTask<Params, Progress, Result> {
         FINISHED,
     }
 
-    /** @hide Used to force static handler to be created. */
-    public static void init() {
-        sHandler.getLooper();
-    }
-
-    /** @hide */
-    public static void setDefaultExecutor(Executor exec) {
-        sDefaultExecutor = exec;
-    }
-
     /**
      * Creates a new asynchronous task. This constructor must be invoked on the UI thread.
      */
@@ -177,7 +169,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 
     private Result postResult(Result result) {
         @SuppressWarnings("unchecked")
-        Message message = sHandler.obtainMessage(MESSAGE_POST_RESULT, new AsyncTaskResult<Result>(this, result));
+        Message message = sHandler.obtainMessage(MESSAGE_POST_RESULT, new AsyncTaskResult<>(this, result));
         message.sendToTarget();
         return result;
     }
@@ -396,9 +388,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      * one wants, because the order of their operation is not defined. For example, if these tasks are used to modify
      * any state in common (such as writing a file due to a button click), there are no guarantees on the order of the
      * modifications. Without careful work it is possible in rare cases for the newer version of the data to be
-     * over-written by an older one, leading to obscure data loss and stability issues. Such changes are best executed
-     * in serial; to guarantee such work is serialized regardless of platform version you can use this function with
-     * {@link #SERIAL_EXECUTOR}.
+     * over-written by an older one, leading to obscure data loss and stability issues.
      *
      * <p>
      * This method must be invoked on the UI thread.
@@ -462,7 +452,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
      */
     protected final void publishProgress(Progress... values) {
         if (!isCancelled()) {
-            sHandler.obtainMessage(MESSAGE_POST_PROGRESS, new AsyncTaskResult<Progress>(this, values)).sendToTarget();
+            sHandler.obtainMessage(MESSAGE_POST_PROGRESS, new AsyncTaskResult<>(this, values)).sendToTarget();
         }
     }
 

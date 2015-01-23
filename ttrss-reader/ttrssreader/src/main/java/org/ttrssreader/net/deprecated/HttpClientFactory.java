@@ -50,7 +50,7 @@ class HttpClientFactory {
         registry = new SchemeRegistry();
         registry.register(new Scheme("http", new PlainSocketFactory(), 80));
 
-        SocketFactory socketFactory = null;
+        SocketFactory socketFactory;
 
         if (useCustomKeyStore && !trustAllSslCerts) {
             String keystorePassword = Controller.getInstance().getKeystorePassword();
@@ -72,9 +72,7 @@ class HttpClientFactory {
     }
 
     DefaultHttpClient getHttpClient(HttpParams httpParams) {
-        DefaultHttpClient httpInstance = new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry),
-                httpParams);
-        return httpInstance;
+        return new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry), httpParams);
     }
 
     static HttpClientFactory getInstance() {

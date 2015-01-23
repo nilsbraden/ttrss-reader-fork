@@ -57,7 +57,7 @@ public abstract class MainAdapter extends SimpleCursorAdapter {
     }
 
     public final List<Integer> getIds() {
-        List<Integer> ret = new ArrayList<Integer>();
+        List<Integer> ret = new ArrayList<>();
         Cursor cur = getCursor();
         if (cur == null)
             return ret;
@@ -71,7 +71,7 @@ public abstract class MainAdapter extends SimpleCursorAdapter {
         return ret;
     }
 
-    protected static final CharSequence formatItemTitle(String title, int unread) {
+    protected static CharSequence formatItemTitle(String title, int unread) {
         if (unread > 0) {
             return title + " (" + unread + ")";
         } else {

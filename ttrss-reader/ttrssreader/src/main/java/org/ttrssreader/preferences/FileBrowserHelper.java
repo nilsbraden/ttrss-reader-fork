@@ -82,13 +82,13 @@ public class FileBrowserHelper {
      * tries to open known filebrowsers.
      * If no filebrowser is found and fallback textdialog is shown
      *
-     * @param c                    the context as activity
-     * @param startPath            : the default value, where the filebrowser will start.
-     *                             if startPath = null => the default path is used
-     * @param requestcode          : the int you will get as requestcode in onActivityResult
-     *                             (only used if there is a filebrowser installed)
-     * @param callbackDownloadPath : the callbackDownloadPath (only used when no filebrowser is installed.
-     *                             if a filebrowser is installed => override the onActivtyResult Method
+     * @param c           the context as activity
+     * @param startPath   : the default value, where the filebrowser will start.
+     *                    if startPath = null => the default path is used
+     * @param requestcode : the int you will get as requestcode in onActivityResult
+     *                    (only used if there is a filebrowser installed)
+     * @param callback    : the callbackDownloadPath (only used when no filebrowser is installed.
+     *                    if a filebrowser is installed => override the onActivtyResult Method
      * @return true: if a filebrowser has been found (the result will be in the onActivityResult
      * false: a fallback textinput has been shown. The Result will be sent with the callbackDownloadPath method
      */
@@ -114,7 +114,6 @@ public class FileBrowserHelper {
                 // Try the next intent in the list
                 listIndex++;
             }
-            ;
         } while (!success && (listIndex < PICK_DIRECTORY_INTENTS.length));
 
         if (listIndex == PICK_DIRECTORY_INTENTS.length) {

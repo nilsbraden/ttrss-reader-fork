@@ -42,7 +42,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     private static final String TAG = ImageCache.class.getSimpleName();
 
     public ImageCache(int initialCapacity, String cacheDir) {
-        super("ImageCache", initialCapacity, 1);
+        super(initialCapacity, 1);
         this.diskCacheDir = cacheDir;
     }
 
@@ -55,26 +55,28 @@ public class ImageCache extends AbstractCache<String, byte[]> {
             // Use configured output directory
             File folder = new File(diskCacheDir);
 
-            if (!folder.exists()) {
-                if (!folder.mkdirs()) {
-                    // Folder could not be created, fallback to internal directory on sdcard
-                    // Path: /sdcard/Android/data/org.ttrssreader/cache/
-                    diskCacheDir = Constants.CACHE_FOLDER_DEFAULT;
-                    folder = new File(diskCacheDir);
-                }
+            if (!folder.exists() && !folder.mkdirs()) {
+                // Folder could not be created, fallback to internal directory on sdcard
+                // Path: /sdcard/Android/data/org.ttrssreader/cache/
+                diskCacheDir = Constants.CACHE_FOLDER_DEFAULT;
+                folder = new File(diskCacheDir);
             }
 
-            if (!folder.exists())
-                folder.mkdirs();
-
-            isDiskCacheEnabled = folder.exists();
+            if (!folder.exists() && !folder.mkdirs()) {
+                Log.w(TAG, "Couldn't create Folder for Disk-Cache!");
+                isDiskCacheEnabled = false;
+            } else {
+                isDiskCacheEnabled = folder.exists();
+            }
 
             // Create .nomedia File in Cache-Folder so android doesn't generate thumbnails
             File nomediaFile = new File(diskCacheDir + File.separator + ".nomedia");
             if (!nomediaFile.exists()) {
                 try {
-                    nomediaFile.createNewFile();
+                    if (!nomediaFile.createNewFile())
+                        Log.w(TAG, "Couldn't create .nomedia File for Disk-Cache!");
                 } catch (IOException e) {
+                    // Empty!
                 }
             }
         }
@@ -105,7 +107,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     }
 
     boolean containsKey(String key) {
-        return cache.containsKey(getFileNameForKey(key)) || (isDiskCacheEnabled && getCacheFile((String) key).exists());
+        return cache.containsKey(getFileNameForKey(key)) || (isDiskCacheEnabled && getCacheFile(key).exists());
     }
 
     /**
@@ -125,8 +127,8 @@ public class ImageCache extends AbstractCache<String, byte[]> {
 
     public File getCacheFile(String key) {
         File f = new File(diskCacheDir);
-        if (!f.exists())
-            f.mkdirs();
+        if (!f.exists() && !f.mkdirs())
+            Log.w(TAG, "Couldn't create File: " + f.getAbsolutePath());
 
         return getFileForKey(key);
     }
@@ -137,7 +139,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
     }
 
     @Override
-    protected void writeValueToDisk(BufferedOutputStream ostream, byte[] value) throws IOException {
+    protected void writeValueToDisk(BufferedOutputStream ostream, byte[] value) {
     }
 
 }

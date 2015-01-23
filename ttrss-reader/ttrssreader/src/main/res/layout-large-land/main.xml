@@ -36,6 +36,7 @@
         android:layout_toEndOf="@+id/frame_main"
         android:layout_toRightOf="@+id/frame_main"
         android:background="@drawable/list_divider_vertical"
+        android:contentDescription="@string/Empty"
         tools:ignore="PxUsage" />
 
     <FrameLayout

@@ -50,7 +50,6 @@ public class ArticleLabelDialog extends MyDialogFragment {
     private int articleId;
     private List<Label> labels;
 
-    private View view;
     private LinearLayout labelsView;
 
     public static ArticleLabelDialog newInstance(int articleId) {
@@ -73,7 +72,7 @@ public class ArticleLabelDialog extends MyDialogFragment {
         }
 
         // Put labels into list and sort by caption:
-        labels = new ArrayList<Label>();
+        labels = new ArrayList<>();
         for (Label label : Data.getInstance().getLabels(articleId)) {
             labels.add(label);
         }
@@ -117,7 +116,7 @@ public class ArticleLabelDialog extends MyDialogFragment {
                 R.style.AboutDialog));
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        view = inflater.inflate(R.layout.articlelabeldialog, null);
+        View view = inflater.inflate(R.layout.articlelabeldialog, null);
         builder.setView(view).setPositiveButton(R.string.Utils_OkayAction, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {

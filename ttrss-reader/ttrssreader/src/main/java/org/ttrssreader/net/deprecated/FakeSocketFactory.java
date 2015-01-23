@@ -17,7 +17,6 @@
 
 package org.ttrssreader.net.deprecated;
 
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.scheme.LayeredSocketFactory;
 import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.params.HttpConnectionParams;
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -56,7 +54,7 @@ class FakeSocketFactory implements SocketFactory, LayeredSocketFactory {
 
     @Override
     public Socket connectSocket(Socket sock, String host, int port, InetAddress localAddress, int localPort,
-            HttpParams params) throws IOException, UnknownHostException, ConnectTimeoutException {
+            HttpParams params) throws IOException {
         int connTimeout = HttpConnectionParams.getConnectionTimeout(params);
         int soTimeout = HttpConnectionParams.getSoTimeout(params);
 
@@ -89,7 +87,7 @@ class FakeSocketFactory implements SocketFactory, LayeredSocketFactory {
 
     @Override
     public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
-            throws IOException, UnknownHostException {
+            throws IOException {
         return getSSLContext().getSocketFactory().createSocket(socket, host, port, autoClose);
     }
 

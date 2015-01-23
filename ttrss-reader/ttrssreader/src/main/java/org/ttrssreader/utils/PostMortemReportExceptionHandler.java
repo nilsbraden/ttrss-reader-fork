@@ -31,7 +31,6 @@ import android.os.Build;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -52,6 +51,7 @@ import java.util.Locale;
  *
  *         Source has been released to the public as is and without any warranty.
  */
+@SuppressWarnings("StringConcatenationInsideStringBufferAppend")
 public class PostMortemReportExceptionHandler implements UncaughtExceptionHandler, Runnable {
 
     private static final String TAG = PostMortemReportExceptionHandler.class.getSimpleName();
@@ -105,7 +105,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
     }
 
     /**
-     * Call this method at the end of the protected code, usually in {@link finalize()}.
+     * Call this method at the end of the protected code, usually in {@link #finalize()}.
      */
     public void restoreOriginalHandler() {
         if (Thread.getDefaultUncaughtExceptionHandler().equals(this))
@@ -191,6 +191,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             Field theMfrField = Build.class.getField("MANUFACTURER");
             s.append("Make        = " + theMfrField.get(null) + "\n");
         } catch (Exception e) {
+            // Empty!
         }
         s.append("Brand       = " + Build.BRAND + "\n");
         s.append("Device      = " + Build.DEVICE + "\n");
@@ -237,12 +238,12 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
      */
     private LinkedList<CharSequence> getActivityTrace(LinkedList<CharSequence> aTrace) {
         if (aTrace == null)
-            aTrace = new LinkedList<CharSequence>();
+            aTrace = new LinkedList<>();
         aTrace.add(mAct.getLocalClassName() + " (" + mAct.getTitle() + ")");
         if (mAct.getCallingActivity() != null)
             aTrace.add(mAct.getCallingActivity().toString() + " (" + mAct.getIntent().toString() + ")");
         else if (mAct.getCallingPackage() != null)
-            aTrace.add(mAct.getCallingPackage().toString() + " (" + mAct.getIntent().toString() + ")");
+            aTrace.add(mAct.getCallingPackage() + " (" + mAct.getIntent().toString() + ")");
         if (mDefaultUEH != null && mDefaultUEH instanceof PostMortemReportExceptionHandler)
             ((PostMortemReportExceptionHandler) mDefaultUEH).getActivityTrace(aTrace);
         return aTrace;
@@ -271,29 +272,27 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             theErrReport.append("-------------------------------------------\n\n");
         }
 
-        if (aException != null) {
-            // instruction stack trace
-            StackTraceElement[] theStackTrace = aException.getStackTrace();
-            if (theStackTrace.length > 0) {
-                theErrReport.append("--------- Instruction Stacktrace ----------\n");
-                for (int i = 0; i < theStackTrace.length; i++) {
-                    theErrReport.append("    " + theStackTrace[i].toString() + "\n");
-                }// for
-                theErrReport.append("-------------------------------------------\n\n");
+        // instruction stack trace
+        StackTraceElement[] theStackTrace = aException.getStackTrace();
+        if (theStackTrace.length > 0) {
+            theErrReport.append("--------- Instruction Stacktrace ----------\n");
+            for (StackTraceElement se : theStackTrace) {
+                theErrReport.append("    " + se.toString() + "\n");
             }
+            theErrReport.append("-------------------------------------------\n\n");
+        }
 
-            // if the exception was thrown in a background thread inside
-            // AsyncTask, then the actual exception can be found with getCause
-            Throwable theCause = aException.getCause();
-            if (theCause != null) {
-                theErrReport.append("--------- Cause ---------------------------\n");
-                theErrReport.append(theCause.toString() + "\n\n");
-                theStackTrace = theCause.getStackTrace();
-                for (int i = 0; i < theStackTrace.length; i++) {
-                    theErrReport.append("    " + theStackTrace[i].toString() + "\n");
-                }// for
-                theErrReport.append("-------------------------------------------\n\n");
-            }
+        // if the exception was thrown in a background thread inside
+        // AsyncTask, then the actual exception can be found with getCause
+        Throwable theCause = aException.getCause();
+        if (theCause != null) {
+            theErrReport.append("--------- Cause ---------------------------\n");
+            theErrReport.append(theCause.toString() + "\n\n");
+            theStackTrace = theCause.getStackTrace();
+            for (StackTraceElement se : theStackTrace) {
+                theErrReport.append("    " + se.toString() + "\n");
+            }// for
+            theErrReport.append("-------------------------------------------\n\n");
         }
 
         theErrReport.append("END REPORT.");
@@ -320,7 +319,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
      * Read in saved debug report and send to email app.
      */
     private void sendDebugReportToAuthor() {
-        String theLine = "";
+        String theLine;
         String theTrace = "";
         try {
             BufferedReader theReader = new BufferedReader(new InputStreamReader(
@@ -331,10 +330,8 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
             if (sendDebugReportToAuthor(theTrace)) {
                 mAct.deleteFile(ExceptionReportFilename);
             }
-        } catch (FileNotFoundException eFnf) {
-            // nothing to do
         } catch (IOException eIo) {
-            // not going to report
+            // Empty!
         }
     }
 

@@ -59,6 +59,7 @@ import java.util.Set;
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
  * isn't one in here but it's called like that and I don't have a better name so we stay with it.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class Controller implements OnSharedPreferenceChangeListener {
 
     private static final String TAG = Controller.class.getSimpleName();
@@ -100,9 +101,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private SharedPreferences prefs = null;
     private static boolean preferencesChanged = false;
 
-    private String url = null;
-
-    private Boolean useOfALazyServer = null;
     private Boolean openUrlEmptyArticle = null;
     private Boolean useVolumeKeys = null;
     private Boolean loadImages = null;
@@ -152,8 +150,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
     private Long lastCleanup = null;
     private Boolean lowMemory = false;
 
-    public volatile Set<Integer> lastOpenedFeeds = new HashSet<Integer>();
-    public volatile Set<Integer> lastOpenedArticles = new HashSet<Integer>();
+    public volatile Set<Integer> lastOpenedFeeds = new HashSet<>();
+    public volatile Set<Integer> lastOpenedArticles = new HashSet<>();
 
     // Article-View-Stuff
     public static String htmlTemplate = "";
@@ -181,7 +179,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
     }
 
     public void initialize(final Context context) {
-        this.contextRef = new WeakReference<Context>(context);
+        this.contextRef = new WeakReference<>(context);
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         synchronized (lockInitialize) {
@@ -319,6 +317,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
             Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class)
                     .invoke(null, httpCacheDir, httpCacheSize);
         } catch (Exception httpResponseCacheNotAvailable) {
+            // Empty!
         }
     }
 
@@ -360,6 +359,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         // Load from Wifi-Preferences:
         String key = getStringWithSSID(Constants.URL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
+        String url;
         if (prefs.contains(key))
             url = prefs.getString(key, Constants.URL_DEFAULT);
         else
@@ -400,6 +400,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         String key = getStringWithSSID(Constants.USE_OF_A_LAZY_SERVER, getCurrentSSID(wifiManager),
                 wifibasedPrefsEnabled());
 
+        boolean useOfALazyServer;
         if (prefs.contains(key))
             useOfALazyServer = prefs.getBoolean(key, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
         else
@@ -1189,7 +1190,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
                 if (!(f instanceof String))
                     continue;
 
-                if (!key.equals((String) f))
+                if (!key.equals(f))
                     continue;
 
                 // reset variable, it will be re-read on next access

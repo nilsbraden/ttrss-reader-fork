@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
@@ -44,7 +45,6 @@ public class ShareActivity extends MenuActivity {
     private static final String PARAM_URL = "url";
     private static final String PARAM_CONTENT = "content";
 
-    private Button shareButton;
     private EditText title;
     private EditText url;
     private EditText content;
@@ -80,7 +80,7 @@ public class ShareActivity extends MenuActivity {
         url.setText(urlValue);
         content.setText(contentValue);
 
-        shareButton = (Button) findViewById(R.id.share_ok_button);
+        Button shareButton = (Button) findViewById(R.id.share_ok_button);
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,7 +97,7 @@ public class ShareActivity extends MenuActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle out) {
+    public void onSaveInstanceState(@NotNull Bundle out) {
         super.onSaveInstanceState(out);
 
         EditText url = (EditText) findViewById(R.id.share_url);

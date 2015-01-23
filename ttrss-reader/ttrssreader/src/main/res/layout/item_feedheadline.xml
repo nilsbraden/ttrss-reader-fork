@@ -26,6 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"
         android:contentDescription="@string/Empty" />
 
     <LinearLayout
@@ -51,7 +52,7 @@
                 style="?attr/ListItemText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="left"
+                android:gravity="start"
                 android:textIsSelectable="false"
                 android:textSize="12sp" />
 
@@ -61,7 +62,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                android:gravity="right"
+                android:layout_marginEnd="10dp"
+                android:gravity="end"
                 android:textIsSelectable="false"
                 android:textSize="12sp" />
         </LinearLayout>

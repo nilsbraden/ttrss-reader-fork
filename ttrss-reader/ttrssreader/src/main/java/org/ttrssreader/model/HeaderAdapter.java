@@ -123,7 +123,8 @@ public class HeaderAdapter extends ArrayAdapter<Header> {
                     break;
             }
 
-            view.setTag(holder);
+            if (view != null)
+                view.setTag(holder);
         } else {
 
             view = convertView;

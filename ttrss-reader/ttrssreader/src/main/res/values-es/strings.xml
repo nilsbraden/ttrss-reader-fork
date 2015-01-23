@@ -151,7 +151,6 @@
     <string name="Utils.DownloadFinishedText">Proceso finalizado en %s segundos.</string>
     <string name="Utils.DownloadRunningTitle">Descarga en proceso…</string>
     <string name="Utils.DownloadRunningTicker">Descarga en proceso…</string>
-    <string name="Utils.DownloadRunningText"></string>
     <string name="Utils.DownloadErrorTitle">Error</string>
     <string name="Utils.DownloadErrorTicker">Error…</string>
     <string name="SaveAttachmentTitle">Guardar adjuntos…</string>
