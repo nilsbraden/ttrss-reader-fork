@@ -238,8 +238,15 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             case R.id.Menu_MarkFeedRead: {
                 boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
                 if (selectArticlesForCategory) {
-                    new Updater(getActivity(), new ReadStateUpdater(categoryId), backAfterUpdate)
-                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog
+                            .getInstance(new ReadStateUpdater(categoryId), R.string.Dialog_Title,
+                                    R.string.Dialog_MarkAllRead, backAfterUpdate);
+                    dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                } else if (feedId >= -4 && feedId < 0) { // Virtual Category
+                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog
+                            .getInstance(new ReadStateUpdater(feedId, 42), R.string.Dialog_Title,
+                                    R.string.Dialog_MarkAllRead, backAfterUpdate);
+                    dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
                 } else {
                     new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate)
                             .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
