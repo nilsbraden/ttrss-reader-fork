@@ -31,9 +31,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CategoryAdapter extends MainAdapter {
 
     @SuppressWarnings("unused")
@@ -55,25 +52,6 @@ public class CategoryAdapter extends MainAdapter {
                 ret.id = cur.getInt(0);
                 ret.title = cur.getString(1);
                 ret.unread = cur.getInt(2);
-            }
-        }
-        return ret;
-    }
-
-    public List<Category> getCategories() {
-        List<Category> ret = new ArrayList<>();
-        Cursor cur = getCursor();
-        if (cur == null)
-            return ret;
-
-        if (cur.moveToFirst()) {
-            while (!cur.isAfterLast()) {
-                Category c = new Category();
-                c.id = cur.getInt(0);
-                c.title = cur.getString(1);
-                c.unread = cur.getInt(2);
-                ret.add(c);
-                cur.move(1);
             }
         }
         return ret;
