@@ -41,6 +41,7 @@ class CategoryCursorHelper extends MainCursorHelper {
     private static final String INSERT = "REPLACE INTO " + MemoryDBOpenHelper.TABLE_NAME
             + " (_id, title, unread, sortId) VALUES (?, ?, ?, null)";
 
+    private static final Object LOCK = new Object();
     private SQLiteDatabase memoryDb;
     private SQLiteStatement insert;
 
@@ -58,48 +59,52 @@ class CategoryCursorHelper extends MainCursorHelper {
         if (overrideDisplayUnread)
             displayUnread = false;
 
-        memoryDb.delete(MemoryDBOpenHelper.TABLE_NAME, null, null);
+        Cursor cur;
+        synchronized (LOCK) {
+            memoryDb.delete(MemoryDBOpenHelper.TABLE_NAME, null, null);
 
-        StringBuilder query;
-        // Virtual Feeds
-        if (Controller.getInstance().showVirtual()) {
+            StringBuilder query;
+            // Virtual Feeds
+            if (Controller.getInstance().showVirtual()) {
+                query = new StringBuilder();
+                query.append("SELECT _id,title,unread FROM ");
+                query.append(DBHelper.TABLE_CATEGORIES);
+                query.append(" WHERE _id>=-4 AND _id<0 ORDER BY _id");
+                insertValues(db, query.toString());
+            }
+
+            // Labels
+            query = new StringBuilder();
+            query.append("SELECT _id,title,unread FROM ");
+            query.append(DBHelper.TABLE_FEEDS);
+            query.append(" WHERE _id<-10");
+            query.append(displayUnread ? " AND unread>0" : "");
+            query.append(" ORDER BY UPPER(title) ASC");
+            query.append(" LIMIT 500 ");
+            insertValues(db, query.toString());
+
+            // "Uncategorized Feeds"
             query = new StringBuilder();
             query.append("SELECT _id,title,unread FROM ");
             query.append(DBHelper.TABLE_CATEGORIES);
-            query.append(" WHERE _id>=-4 AND _id<0 ORDER BY _id");
+            query.append(" WHERE _id=0");
             insertValues(db, query.toString());
+
+            // Categories
+            query = new StringBuilder();
+            query.append("SELECT _id,title,unread FROM ");
+            query.append(DBHelper.TABLE_CATEGORIES);
+            query.append(" WHERE _id>0");
+            query.append(displayUnread ? " AND unread>0" : "");
+            query.append(" ORDER BY UPPER(title) ");
+            query.append(invertSortFeedCats ? "DESC" : "ASC");
+            query.append(" LIMIT 500 ");
+            insertValues(db, query.toString());
+
+            String[] columns = {"_id", "title", "unread"};
+            cur = memoryDb.query(MemoryDBOpenHelper.TABLE_NAME, columns, null, null, null, null, null, "600");
         }
-
-        // Labels
-        query = new StringBuilder();
-        query.append("SELECT _id,title,unread FROM ");
-        query.append(DBHelper.TABLE_FEEDS);
-        query.append(" WHERE _id<-10");
-        query.append(displayUnread ? " AND unread>0" : "");
-        query.append(" ORDER BY UPPER(title) ASC");
-        query.append(" LIMIT 500 ");
-        insertValues(db, query.toString());
-
-        // "Uncategorized Feeds"
-        query = new StringBuilder();
-        query.append("SELECT _id,title,unread FROM ");
-        query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE _id=0");
-        insertValues(db, query.toString());
-
-        // Categories
-        query = new StringBuilder();
-        query.append("SELECT _id,title,unread FROM ");
-        query.append(DBHelper.TABLE_CATEGORIES);
-        query.append(" WHERE _id>0");
-        query.append(displayUnread ? " AND unread>0" : "");
-        query.append(" ORDER BY UPPER(title) ");
-        query.append(invertSortFeedCats ? "DESC" : "ASC");
-        query.append(" LIMIT 500 ");
-        insertValues(db, query.toString());
-
-        String[] columns = {"_id", "title", "unread"};
-        return memoryDb.query(MemoryDBOpenHelper.TABLE_NAME, columns, null, null, null, null, null, "600");
+        return cur;
     }
 
     private void insertValues(SQLiteDatabase db, String query) {
