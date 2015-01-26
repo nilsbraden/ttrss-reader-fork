@@ -65,8 +65,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
     private long downloaded = 0;
     private int taskCount = 0;
 
-    private final Object mapLock = new Object();
-    private Map<Integer, DownloadImageTask> map;
+    private Map<Integer, DownloadImageTask> map = new HashMap<>();
 
     ImageCacher(ICacheEndListener parent, final Context context, boolean onlyArticles) {
         this.parent = parent;
@@ -218,11 +217,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
     @SuppressLint("UseSparseArrays")
     private void downloadImages() {
         long time = System.currentTimeMillis();
-        // DownloadImageTask[] tasks = new DownloadImageTask[DOWNLOAD_IMAGES_THREADS];
-        map = new HashMap<>();
-
         ArrayList<Article> articles = DBHelper.getInstance().queryArticlesForImagecache();
-
         taskCount = articles.size();
         Log.d(TAG, "Articles count for image caching: " + taskCount);
 
@@ -267,7 +262,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
         long timeWait = System.currentTimeMillis();
         while (!map.isEmpty()) {
-            synchronized (mapLock) {
+            synchronized (map) {
                 try {
                     // Only wait for 10 Minutes
                     if (System.currentTimeMillis() - timeWait > Utils.MINUTE * 10)
@@ -315,7 +310,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
             } catch (Throwable t) {
                 t.printStackTrace();
             } finally {
-                synchronized (mapLock) {
+                synchronized (map) {
                     if (downloaded > 0)
                         downloaded += size;
 
