@@ -42,3 +42,12 @@ If you would like to support my work and the further developement of TTRSS-reade
 For more information you may want to visit [Donations](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Donations).
 
 # Screenshots
+![Screenshot 1](http://nilsbraden.de/android/screenshots/small/device-2014-01-02-163718_1.png)
+![Screenshot 2](http://nilsbraden.de/android/screenshots/small/device-2014-01-02-163709_1.png)
+![Screenshot 3](http://nilsbraden.de/android/screenshots/small/device-2014-01-02-163755_1.png)
+![Screenshot 4](http://nilsbraden.de/android/screenshots/small/device-2014-01-02-163740_1.png)
+![Screenshot 5](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-34-03_1.png)
+![Screenshot 6](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-34-16_1.png)
+![Screenshot 7](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-34-39_1.png)
+![Screenshot 8](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-35-11_1.png)
+![Screenshot 9](http://nilsbraden.de/android/screenshots/small/Screenshot_2014-01-02-16-35-30_1.png)
