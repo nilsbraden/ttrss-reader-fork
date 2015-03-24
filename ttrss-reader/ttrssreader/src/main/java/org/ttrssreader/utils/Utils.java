@@ -294,6 +294,9 @@ public class Utils {
             if ((System.currentTimeMillis() - last) < (Utils.HOUR * 4))
                 return null;
 
+            if (Controller.getInstance().isNoCrashreports())
+                return null;
+
             // Retrieve remote version
             int remote = 0;
 
