@@ -116,6 +116,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
     private static final int CONTEXT_MENU_DISPLAY_CAPTION = 1002;
     private static final int CONTEXT_MENU_COPY_URL = 1003;
+    private static final int CONTEXT_MENU_COPY_CONTENT = 1004;
 
     private static final char TEMPLATE_DELIMITER_START = '$';
     private static final char TEMPLATE_DELIMITER_END = '$';
@@ -586,6 +587,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         }
         menu.add(ContextMenu.NONE, CONTEXT_MENU_SHARE_ARTICLE, 10,
                 getResources().getString(R.string.ArticleActivity_ShareArticle));
+        menu.add(ContextMenu.NONE, CONTEXT_MENU_COPY_CONTENT, 4,
+                getResources().getString(R.string.ArticleActivity_CopyContent));
     }
 
     public void onPrepareOptionsMenu(Menu menu) {
@@ -780,6 +783,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 shareIntent = getUrlShareIntent(article.url);
                 startActivity(Intent.createChooser(shareIntent, "Share URL"));
                 break;
+            case CONTEXT_MENU_COPY_CONTENT:
+                articleJSInterface.javaCallCopyToClipoard();
         }
         return super.onContextItemSelected(item);
     }
@@ -890,10 +895,13 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
          */
         @JavascriptInterface
         public void prev() {
-            Log.d(TAG, "JS: PREV");
+            // Add this to avoid android.view.windowmanager$badtokenexception unable to add window
+            if (activity.isFinishing())
+                return;
+
+            // loadurl on UI main thread
             activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    Log.d(TAG, "JS: PREV");
                     FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
                     activity.openNextArticle(-1);
                 }
@@ -905,15 +913,68 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
          */
         @JavascriptInterface
         public void next() {
-            Log.d(TAG, "JS: NEXT");
+            // Add this to avoid android.view.windowmanager$badtokenexception unable to add window
+            if (activity.isFinishing())
+                return;
+
             activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    Log.d(TAG, "JS: NEXT");
                     FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
                     activity.openNextArticle(1);
                 }
             });
         }
+
+        @JavascriptInterface
+        public void copyContentToClipboard(String aContent) {
+            final String contentPlain = aContent;
+            // Add this to avoid android.view.windowmanager$badtokenexception unable to add window
+            if (activity.isFinishing())
+                return;
+
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    ClipboardManager clipboard = (ClipboardManager) activity
+                            .getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData
+                            .newHtmlText("HTML Text", contentPlain, prepareHTMLContentForClipboard(content));
+                    //ClipData clip = ClipData.newPlainText("HTML Text", contentPlain);
+                    clipboard.setPrimaryClip(clip);
+                }
+            });
+        }
+
+        /**
+         * This function handles call from Java to JavaScript
+         */
+        public void javaCallCopyToClipoard() {
+            final String webUrl
+                    = "javascript:window.articleController.copyContentToClipboard(document.getElementsByTagName('body')[0].innerText);";
+
+            // Add this to avoid android.view.windowmanager$badtokenexception unable to add window
+            if (activity.isFinishing())
+                return;
+
+            // loadurl on UI main thread
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    webView.loadUrl(webUrl);
+                }
+            });
+        }
+
+    }
+
+    /**
+     * Cut out the head-Tag from the html-content.
+     */
+    private String prepareHTMLContentForClipboard(String html) {
+        int start = html.indexOf("<head");
+        int end = html.indexOf("</head>", start);
+        if (0 < start && start < end && end < html.length())
+            return html.substring(0, start) + html.substring(end, html.length());
+        return html;
     }
 
     private class ArticleGestureDetector extends MyGestureDetector {
@@ -949,6 +1010,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             }
             return false;
         }
+
     }
 
     @Override

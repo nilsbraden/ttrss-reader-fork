@@ -49,6 +49,7 @@
     <string name="ArticleActivity.ArticleLink">-> Artikel-Link</string>
     <string name="ArticleActivity.ShareURL">URL teilen</string>
     <string name="ArticleActivity.CopyURL">URL kopieren</string>
+    <string name="ArticleActivity.CopyContent">Inhalt kopieren</string>
     <string name="ArticleActivity.ShareArticle">Artikel teilen</string>
     <string name="ArticleActivity.ShowCaption">Bildbeschriftung anzeigen</string>
     <string name="SubscribeActivity.offline">Arbeite offline, Server kann nicht kontaktiert werden.</string>
