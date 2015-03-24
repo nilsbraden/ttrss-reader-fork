@@ -63,6 +63,11 @@
             android:key="HideActionbarPreference"
             android:summary="@string/HideActionbarSummary"
             android:title="@string/HideActionbarTitle" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="HideFeedReadButtons"
+            android:summary="@string/HideFeedReadButtonsSummary"
+            android:title="@string/HideFeedReadButtonsTitle" />
     </PreferenceCategory>
 
 </PreferenceScreen>

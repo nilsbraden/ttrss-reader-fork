@@ -350,6 +350,12 @@ public abstract class MenuActivity extends Activity implements IUpdateEndListene
             menu.removeItem(R.id.Menu_FeedUnsubscribe);
         }
 
+        if (Controller.getInstance().hideFeedReadButtons()) {
+            menu.removeItem(R.id.Menu_MarkFeedRead);
+            menu.removeItem(R.id.Menu_MarkFeedsRead);
+            menu.removeItem(R.id.Menu_MarkAllRead);
+        }
+
         return true;
     }
 

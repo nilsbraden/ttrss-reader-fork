@@ -22,6 +22,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.TextInputAlert;
+import org.ttrssreader.gui.dialogs.ReadStateDialog;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
@@ -33,6 +34,7 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
+import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -239,18 +241,21 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             case R.id.Menu_MarkFeedRead: {
                 boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
                 if (selectArticlesForCategory) {
-                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog
-                            .getInstance(new ReadStateUpdater(categoryId), R.string.Dialog_Title,
-                                    R.string.Dialog_MarkAllRead, backAfterUpdate);
-                    dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                    IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
+                    ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
                 } else if (feedId >= -4 && feedId < 0) { // Virtual Category
-                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog
-                            .getInstance(new ReadStateUpdater(feedId, 42), R.string.Dialog_Title,
-                                    R.string.Dialog_MarkAllRead, backAfterUpdate);
-                    dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                    IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
+                    ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
                 } else {
-                    new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate)
-                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+                    // Ask for permission also if selecting all articles from a category since this might apply the
+                    // result of this operation to a lot of feeds.
+                    if (selectArticlesForCategory) {
+                        IUpdatable updateable = new ReadStateUpdater(feedId, 42);
+                        ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
+                    } else
+                        new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate)
+                                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
 
                 return true;

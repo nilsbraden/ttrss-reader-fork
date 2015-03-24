@@ -23,14 +23,13 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.CategoryActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
+import org.ttrssreader.gui.dialogs.ReadStateDialog;
 import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
-import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.utils.AsyncTask;
 
 import android.app.Activity;
 import android.content.CursorLoader;
@@ -103,10 +102,11 @@ public class CategoryListFragment extends MainListFragment {
         int id = adapter.getId(cmi.position);
         switch (item.getItemId()) {
             case MARK_READ:
+                IUpdatable updater;
                 if (id < -10)
-                    new Updater(getActivity(), new ReadStateUpdater(id, 42))
-                            .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                new Updater(getActivity(), new ReadStateUpdater(id)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    updater = new ReadStateUpdater(id, 42);
+                updater = new ReadStateUpdater(id);
+                ReadStateDialog.getInstance(updater).show(getFragmentManager());
                 return true;
             case SELECT_ARTICLES:
                 if (id < 0)
@@ -138,23 +138,17 @@ public class CategoryListFragment extends MainListFragment {
         if (super.onOptionsItemSelected(item))
             return true;
 
+        boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
         switch (item.getItemId()) {
             case R.id.Menu_MarkAllRead: {
-                boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
-                IUpdatable updater = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
-                YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(updater, R.string.Dialog_Title,
-                        R.string.Dialog_MarkAllRead, backAfterUpdate);
-                dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
+                ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
                 return true;
             }
             case R.id.Menu_MarkFeedsRead:
                 if (selectedId > Integer.MIN_VALUE) {
-                    boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
                     IUpdatable updateable = new ReadStateUpdater(selectedId);
-
-                    YesNoUpdaterDialog dialog = YesNoUpdaterDialog.getInstance(updateable, R.string.Dialog_Title,
-                            R.string.Dialog_MarkFeedsRead, backAfterUpdate);
-                    dialog.show(getFragmentManager(), YesNoUpdaterDialog.DIALOG);
+                    ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
                 }
                 return true;
             default:
