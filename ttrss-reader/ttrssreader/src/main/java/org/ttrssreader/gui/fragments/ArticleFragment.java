@@ -404,11 +404,13 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         try {
             ProgressBarManager.getInstance().addProgress(getActivity());
 
-            if (Controller.getInstance().workOffline() || !Controller.getInstance().loadImages()) {
+            if (Controller.getInstance().workOffline() || !Controller.getInstance().loadMedia()) {
                 webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
             } else {
                 webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
             }
+            if (!Controller.getInstance().loadMedia())
+                webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
 
             // No need to reload everything
             if (webviewInitialized)

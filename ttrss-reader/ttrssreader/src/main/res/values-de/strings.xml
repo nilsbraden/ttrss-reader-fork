@@ -121,7 +121,7 @@
     <string name="DisplayVirtualPreferenceTitle">Virtuelle Feeds anzeigen</string>
     <string name="DisplayVirtualPreferenceSummary">Aktiviert die Anzeige virtueller Feeds wie \"Alle Artikel\".</string>
     <string name="DisplayLoadImagesPreferenceTitle">Bilder laden</string>
-    <string name="DisplayLoadImagesPreferenceSummary">Aktiviert Bilder von externen Ressourcen in der Webansicht.</string>
+    <string name="DisplayLoadImagesPreferenceSummary">Aktiviert Inhalte von externen Ressourcen in der Webansicht. Dies betrifft Audio-, Video- und Bild-Inhalte.</string>
     <string name="InvertBrowseArticlesPreferenceTitle">Vertauschtes Durchstöbern von Artikeln</string>
     <string name="InvertBrowseArticlesPreferenceSummary">Wenn diese Option aktiviert ist, öffnet das Auswählen einer Kategorie direkt alle enthaltenen Artikel, andernfalls werden die Feeds angezeigt.</string>
     <string name="GoBackAfterMarkAllReadPreferenceTitle">Gehe zurück, wenn alle Artikel als gelesen markiert werden</string>

@@ -355,7 +355,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         return new URL(hostname());
     }
 
-    private String hostname() {
+    public String hostname() {
         // Load from Wifi-Preferences:
         String key = getStringWithSSID(Constants.URL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
@@ -571,7 +571,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
         this.useVolumeKeys = useVolumeKeys;
     }
 
-    public boolean loadImages() {
+    public boolean loadMedia() {
         if (loadImages == null)
             loadImages = prefs.getBoolean(Constants.LOAD_IMAGES, Constants.LOAD_IMAGES_DEFAULT);
         return loadImages;

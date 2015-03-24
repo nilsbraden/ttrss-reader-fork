@@ -121,8 +121,8 @@
     <string name="DisplayPreferenceCategoryTitle">Display</string>
     <string name="DisplayVirtualPreferenceTitle">Show virtual feeds</string>
     <string name="DisplayVirtualPreferenceSummary">Uncheck to hide TTRSS virtual feeds.</string>
-    <string name="DisplayLoadImagesPreferenceTitle">Load images</string>
-    <string name="DisplayLoadImagesPreferenceSummary">Uncheck to disable image-loading from external ressources in Webview.</string>
+    <string name="DisplayLoadImagesPreferenceTitle">Load media</string>
+    <string name="DisplayLoadImagesPreferenceSummary">Uncheck to disable media-loading from external ressources in Webview. This applies to images, audio and video data.</string>
     <string name="InvertBrowseArticlesPreferenceTitle">Invert browsing articles</string>
     <string name="InvertBrowseArticlesPreferenceSummary">If checked, opening a category directly opens all articles within, else it shows the feeds.</string>
     <string name="GoBackAfterMarkAllReadPreferenceTitle">Go back after mark all items as read</string>
