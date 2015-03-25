@@ -25,6 +25,7 @@ import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.Utils;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -33,6 +34,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import java.util.List;
 
 public class FeedHeadlineActivity extends MenuActivity {
 
@@ -51,7 +54,6 @@ public class FeedHeadlineActivity extends MenuActivity {
     private int selectedArticleId = Integer.MIN_VALUE;
 
     private FeedHeadlineListFragment headlineFragment;
-    private ArticleFragment articleFragment;
 
     @Override
     protected void onCreate(Bundle instance) {
@@ -74,8 +76,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 
         FragmentManager fm = getFragmentManager();
         headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
-        articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
-
         if (headlineFragment == null) {
             headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
                     selectedArticleId);
@@ -212,20 +212,28 @@ public class FeedHeadlineActivity extends MenuActivity {
 
     public void openNextArticle(int direction) {
         // Open next article
-        FragmentManager fm = getFragmentManager();
-        articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
-        selectedArticleId = articleFragment.openNextArticle(direction);
-        headlineFragment.setSelectedId(selectedArticleId);
+        int[] ids = getNextPrevIds(headlineFragment.getArticleIds(), selectedArticleId);
+        int newId = (direction < 0) ? ids[0] : ids[1];
+
+        if (newId == Integer.MIN_VALUE) {
+            Utils.alert(this);
+            return;
+        }
+
+        displayArticle(newId, direction);
+    }
+
+    private int[] getNextPrevIds(List<Integer> list, Integer search) {
+        int index = list.indexOf(search);
+        int prev = 0 <= (index - 1) ? list.get(index - 1) : Integer.MIN_VALUE;
+        int next = list.size() > (index + 1) ? list.get(index + 1) : Integer.MIN_VALUE;
+        return new int[]{prev, next};
     }
 
     public void openNextFeed(int direction) {
         // Open next Feed
         headlineFragment.openNextFeed(direction);
         feedId = headlineFragment.getFeedId();
-
-        FragmentManager fm = getFragmentManager();
-        articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
-        articleFragment.resetParentInformation();
     }
 
     /**
@@ -263,7 +271,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) {
         switch (source.getType()) {
             case FEEDHEADLINE:
-                displayArticle(selectedId);
+                displayArticle(selectedId, ArticleFragment.ARTICLE_MOVE_DEFAULT);
                 break;
             default:
                 Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
@@ -271,49 +279,26 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
     }
 
-    private void displayArticle(int articleId) {
-        hideArticleFragment();
-
+    private void displayArticle(int articleId, int direction) {
         selectedArticleId = articleId;
         headlineFragment.setSelectedId(selectedArticleId);
 
         // Clear back stack
         getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-        if (articleFragment == null) {
-            articleFragment = ArticleFragment.newInstance(articleId, headlineFragment.getFeedId(), categoryId,
-                    selectArticlesForCategory, ArticleFragment.ARTICLE_MOVE_DEFAULT);
-
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
-
-            // Animation
-            if (Controller.isTablet)
-                ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out, android.R.anim.fade_in,
-                        R.anim.slide_out_left);
-            else
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-
-            if (!Controller.isTablet)
-                ft.addToBackStack(null);
-
-            ft.commit();
-        } else {
-            // Reuse existing ArticleFragment
-            articleFragment.openArticle(articleId, headlineFragment.getFeedId(), categoryId, selectArticlesForCategory,
-                    ArticleFragment.ARTICLE_MOVE_DEFAULT);
-        }
-    }
-
-    private void hideArticleFragment() {
-        if (articleFragment == null)
-            return;
+        ArticleFragment articleFragment = ArticleFragment.newInstance(selectedArticleId, headlineFragment.getFeedId(),
+                categoryId, selectArticlesForCategory, direction);
 
         FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.remove(articleFragment);
-        ft.commit();
+        if (direction >= 0)
+            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
+        else
+            ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
 
-        articleFragment = null;
+        if (!Controller.isTablet)
+            ft.addToBackStack(null);
+
+        ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
     }
 
     @Override

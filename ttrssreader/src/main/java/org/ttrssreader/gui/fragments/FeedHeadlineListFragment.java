@@ -247,15 +247,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                     IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
                     ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
                 } else {
-
-                    // Ask for permission also if selecting all articles from a category since this might apply the
-                    // result of this operation to a lot of feeds.
-                    if (selectArticlesForCategory) {
-                        IUpdatable updateable = new ReadStateUpdater(feedId, 42);
-                        ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
-                    } else
-                        new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate)
-                                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate).executeOnExecutor(
+                            AsyncTask.THREAD_POOL_EXECUTOR);
                 }
 
                 return true;
@@ -299,6 +292,10 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 
     public int getFeedId() {
         return feedId;
+    }
+
+    public List<Integer> getArticleIds() {
+        return adapter.getIds();
     }
 
     private class HeadlineGestureDetector extends MyGestureDetector {

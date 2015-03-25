@@ -100,7 +100,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ArticleFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, TextInputAlertCallback {
+public class ArticleFragment extends Fragment implements TextInputAlertCallback {
 
     private static final String TAG = ArticleFragment.class.getSimpleName();
 
@@ -149,10 +149,6 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
     private Button buttonNext;
     private Button buttonPrev;
 
-    private FeedHeadlineAdapter parentAdapter = null;
-    private List<Integer> parentIds = null;
-    private int[] parentIdsBeforeAndAfter = new int[2];
-
     private String mSelectedExtra;
     private String mSelectedAltText;
 
@@ -198,9 +194,6 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         super.onActivityCreated(instance);
         articleJSInterface = new ArticleJSInterface(getActivity());
 
-        parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-        getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
-
         initData();
         initUI();
         doRefresh();
@@ -228,42 +221,6 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         if (webView != null)
             webView.saveState(instance);
         super.onSaveInstanceState(instance);
-    }
-
-    public void resetParentInformation() {
-        parentIds.clear();
-        parentIdsBeforeAndAfter[0] = Integer.MIN_VALUE;
-        parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
-    }
-
-    private void fillParentInformation() {
-        if (parentIds == null) {
-            parentIds = new ArrayList<>(parentAdapter.getCount() + 2);
-
-            parentIds.add(Integer.MIN_VALUE);
-            parentIds.addAll(parentAdapter.getIds());
-            parentIds.add(Integer.MIN_VALUE);
-
-            parentAdapter.notifyDataSetInvalidated(); // Not needed anymore
-        }
-
-        // Added dummy-elements at top and bottom of list for easier access, index == 0 cannot happen.
-        int index = -1;
-        int i = 0;
-        for (Integer id : parentIds) {
-            if (id == articleId) {
-                index = i;
-                break;
-            }
-            i++;
-        }
-        if (index > 0) {
-            parentIdsBeforeAndAfter[0] = parentIds.get(index - 1); // Previous
-            parentIdsBeforeAndAfter[1] = parentIds.get(index + 1); // Next
-        } else {
-            parentIdsBeforeAndAfter[0] = Integer.MIN_VALUE;
-            parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
-        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -425,7 +382,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 return;
             }
 
-            if (article.content == null)
+            if (article == null || article.content == null)
                 return;
 
             StringBuilder labels = new StringBuilder();
@@ -470,7 +427,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             // Everything did load, we dont have to do this again.
             webviewInitialized = true;
         } catch (Exception e) {
-            Log.w(TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause() + ")");
+            Log.w(TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause() + ")", e);
         } finally {
             ProgressBarManager.getInstance().removeProgress(getActivity());
         }
@@ -828,30 +785,8 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         }
     };
 
-    public int openNextArticle(int direction) {
-        int id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
-        if (id == Integer.MIN_VALUE) {
-            Utils.alert(getActivity(), true);
-            return feedId;
-        }
-
-        articleId = id;
-        lastMove = direction;
-        fillParentInformation();
-
-        // Find next id in this direction and see if there is another next article or not
-        id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
-        if (id == Integer.MIN_VALUE)
-            Utils.alert(getActivity());
-
-        initData();
-        doRefresh();
-
-        return articleId;
-    }
-
     public void openArticle(int articleId, int feedId, int categoryId, boolean selectArticlesForCategory,
-            int lastMove) {
+            int direction) {
         if (articleId == Integer.MIN_VALUE) {
             Utils.alert(getActivity());
             return;
@@ -861,10 +796,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
         this.feedId = feedId;
         this.categoryId = categoryId;
         this.selectArticlesForCategory = selectArticlesForCategory;
-        this.lastMove = lastMove;
-
-        parentAdapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-        getLoaderManager().restartLoader(MainListFragment.TYPE_HEADLINE_ID, null, this);
+        this.lastMove = direction;
 
         initData();
         doRefresh();
@@ -1017,33 +949,6 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             return false;
         }
 
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == MainListFragment.TYPE_HEADLINE_ID) {
-            Builder builder = ListContentProvider.CONTENT_URI_HEAD.buildUpon();
-            builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
-            builder.appendQueryParameter(ListContentProvider.PARAM_FEED_ID, feedId + "");
-            builder.appendQueryParameter(ListContentProvider.PARAM_SELECT_FOR_CAT, (selectArticlesForCategory ? "1"
-                    : "0"));
-            return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
-        }
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == MainListFragment.TYPE_HEADLINE_ID) {
-            parentAdapter.changeCursor(data);
-            fillParentInformation();
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        if (loader.getId() == MainListFragment.TYPE_HEADLINE_ID)
-            parentAdapter.changeCursor(null);
     }
 
     @Override
