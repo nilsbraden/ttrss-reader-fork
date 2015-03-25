@@ -23,6 +23,7 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.fragments.ArticleFragment;
 import org.ttrssreader.gui.fragments.FeedHeadlineListFragment;
+import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
@@ -53,6 +54,7 @@ public class FeedHeadlineActivity extends MenuActivity {
     private static final String SELECTED = "SELECTED";
     private int selectedArticleId = Integer.MIN_VALUE;
 
+    private FeedListFragment feedFragment;
     private FeedHeadlineListFragment headlineFragment;
 
     @Override
@@ -75,15 +77,19 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
 
         FragmentManager fm = getFragmentManager();
+        feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
+        if (feedFragment == null) {
+            feedFragment = FeedListFragment.newInstance(categoryId);
+            fm.beginTransaction().add(R.id.frame_invisible, feedFragment, FeedListFragment.FRAGMENT).commit();
+        }
+
         headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
         if (headlineFragment == null) {
-            headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory,
-                    selectedArticleId);
+            headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
 
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            FragmentTransaction ft = fm.beginTransaction();
             ft.add(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-            ft.commit();
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
         }
     }
 
@@ -210,6 +216,19 @@ public class FeedHeadlineActivity extends MenuActivity {
         }
     }
 
+    public void openNextFeed(int direction) {
+        // Open next Feed
+        int[] ids = getNextPrevIds(feedFragment.getFeedIds(), feedId);
+        int newId = (direction < 0) ? ids[0] : ids[1];
+
+        if (newId == Integer.MIN_VALUE) {
+            Utils.alert(this);
+            return;
+        }
+
+        displayFeed(newId, direction);
+    }
+
     public void openNextArticle(int direction) {
         // Open next article
         int[] ids = getNextPrevIds(headlineFragment.getArticleIds(), selectedArticleId);
@@ -225,15 +244,12 @@ public class FeedHeadlineActivity extends MenuActivity {
 
     private int[] getNextPrevIds(List<Integer> list, Integer search) {
         int index = list.indexOf(search);
+        if (index < 0)
+            return new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE};
+
         int prev = 0 <= (index - 1) ? list.get(index - 1) : Integer.MIN_VALUE;
         int next = list.size() > (index + 1) ? list.get(index + 1) : Integer.MIN_VALUE;
         return new int[]{prev, next};
-    }
-
-    public void openNextFeed(int direction) {
-        // Open next Feed
-        headlineFragment.openNextFeed(direction);
-        feedId = headlineFragment.getFeedId();
     }
 
     /**
@@ -277,6 +293,25 @@ public class FeedHeadlineActivity extends MenuActivity {
                 Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
                 break;
         }
+    }
+
+    private void displayFeed(int feedId, int direction) {
+        this.feedId = feedId;
+        headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
+
+        // Clear back stack
+        getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        if (direction >= 0)
+            ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
+        else
+            ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
+
+        if (!Controller.isTablet)
+            ft.addToBackStack(null);
+
+        ft.replace(R.id.frame_main, headlineFragment, ArticleFragment.FRAGMENT).commit();
     }
 
     private void displayArticle(int articleId, int direction) {

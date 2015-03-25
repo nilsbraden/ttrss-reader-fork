@@ -46,4 +46,10 @@
         android:layout_toEndOf="@+id/list_divider"
         android:layout_toRightOf="@+id/list_divider" />
 
+    <FrameLayout
+        android:id="@+id/frame_invisible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
 </RelativeLayout>

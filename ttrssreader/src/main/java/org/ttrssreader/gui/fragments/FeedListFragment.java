@@ -42,6 +42,8 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
+import java.util.List;
+
 public class FeedListFragment extends MainListFragment {
 
     @SuppressWarnings("unused")
@@ -126,6 +128,10 @@ public class FeedListFragment extends MainListFragment {
 
     public int getCategoryId() {
         return categoryId;
+    }
+
+    public List<Integer> getFeedIds() {
+        return adapter.getIds();
     }
 
     @Override

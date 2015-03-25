@@ -27,7 +27,6 @@ import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
 import org.ttrssreader.gui.view.MyGestureDetector;
-import org.ttrssreader.model.FeedAdapter;
 import org.ttrssreader.model.FeedHeadlineAdapter;
 import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.pojos.Article;
@@ -41,7 +40,6 @@ import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.Utils;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -89,21 +87,15 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 
     private int categoryId = Integer.MIN_VALUE;
     private int feedId = Integer.MIN_VALUE;
-    private int articleId = Integer.MIN_VALUE;
     private boolean selectArticlesForCategory = false;
-
-    private FeedAdapter parentAdapter;
-    private List<Integer> parentIds = null;
-    private int[] parentIdsBeforeAndAfter = new int[2];
 
     private Uri headlineUri;
 
-    public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles, int articleId) {
+    public static FeedHeadlineListFragment newInstance(int id, int categoryId, boolean selectArticles) {
         FeedHeadlineListFragment detail = new FeedHeadlineListFragment();
         detail.categoryId = categoryId;
         detail.feedId = id;
         detail.selectArticlesForCategory = selectArticles;
-        detail.articleId = articleId;
         detail.setRetainInstance(true);
         return detail;
     }
@@ -114,7 +106,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             categoryId = instance.getInt(FEED_CAT_ID);
             feedId = instance.getInt(FEED_ID);
             selectArticlesForCategory = instance.getBoolean(FEED_SELECT_ARTICLES);
-            articleId = instance.getInt(ARTICLE_ID);
         }
 
         if (feedId > 0)
@@ -143,9 +134,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 
         if (getView() != null)
             getView().setOnTouchListener(gestureListener);
-
-        parentAdapter = new FeedAdapter(getActivity());
-        getLoaderManager().restartLoader(TYPE_FEED_ID, null, this);
     }
 
     @Override
@@ -153,7 +141,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         outState.putInt(FEED_CAT_ID, categoryId);
         outState.putInt(FEED_ID, feedId);
         outState.putBoolean(FEED_SELECT_ARTICLES, selectArticlesForCategory);
-        outState.putInt(ARTICLE_ID, articleId);
         super.onSaveInstanceState(outState);
     }
 
@@ -336,65 +323,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         }
     }
 
-    private void fillParentInformation() {
-        if (parentIds == null) {
-            parentIds = new ArrayList<>(parentAdapter.getCount() + 2);
-
-            parentIds.add(Integer.MIN_VALUE);
-            parentIds.addAll(parentAdapter.getIds());
-            parentIds.add(Integer.MIN_VALUE);
-
-            parentAdapter.notifyDataSetInvalidated(); // Not needed anymore
-        }
-
-        // Added dummy-elements at top and bottom of list for easier access, index == 0 cannot happen.
-        int index = -1;
-        int i = 0;
-        for (Integer id : parentIds) {
-            if (id == feedId) {
-                index = i;
-                break;
-            }
-            i++;
-        }
-        if (index > 0) {
-            parentIdsBeforeAndAfter[0] = parentIds.get(index - 1); // Previous
-            parentIdsBeforeAndAfter[1] = parentIds.get(index + 1); // Next
-        } else {
-            parentIdsBeforeAndAfter[0] = Integer.MIN_VALUE;
-            parentIdsBeforeAndAfter[1] = Integer.MIN_VALUE;
-        }
-    }
-
-    public void openNextFeed(int direction) {
-        if (feedId < 0)
-            return;
-
-        int id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
-        if (id == Integer.MIN_VALUE) {
-            Utils.alert(getActivity(), true);
-            return;
-        }
-
-        feedId = id;
-        adapter = new FeedHeadlineAdapter(getActivity(), feedId, selectArticlesForCategory);
-        setListAdapter(adapter);
-        getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
-
-        fillParentInformation();
-
-        // Find next id in this direction and see if there is another next article or not
-        id = direction < 0 ? parentIdsBeforeAndAfter[0] : parentIdsBeforeAndAfter[1];
-        if (id == Integer.MIN_VALUE)
-            Utils.alert(getActivity());
-
-        if (feedId > 0)
-            Controller.getInstance().lastOpenedFeeds.add(feedId);
-        Controller.getInstance().lastOpenedArticles.clear();
-
-        getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
-    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id) {
@@ -422,10 +350,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
             case TYPE_HEADLINE_ID:
                 adapter.changeCursor(data);
                 break;
-            case TYPE_FEED_ID:
-                parentAdapter.changeCursor(data);
-                fillParentInformation();
-                break;
         }
         super.onLoadFinished(loader, data);
     }
@@ -435,9 +359,6 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
         switch (loader.getId()) {
             case TYPE_HEADLINE_ID:
                 adapter.changeCursor(null);
-                break;
-            case TYPE_FEED_ID:
-                parentAdapter.changeCursor(null);
                 break;
         }
     }
