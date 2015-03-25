@@ -316,7 +316,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                 if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
                     return false;
                 if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
-                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                        && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
                     // right to left swipe
                     FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
@@ -324,7 +324,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
                     return true;
 
                 } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
-                        && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                        && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
                     // left to right swipe
                     FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();

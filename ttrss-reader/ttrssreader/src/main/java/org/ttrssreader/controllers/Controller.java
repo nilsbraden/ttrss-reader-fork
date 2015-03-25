@@ -160,7 +160,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
     public static int relSwipeMinDistance;
     public static int relSwipeMaxOffPath;
-    public static int relSwipteThresholdVelocity;
+    public static int relSwipeThresholdVelocity;
     public static int displayHeight;
     public static int displayWidth;
 
@@ -331,11 +331,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
         int SWIPE_MIN_DISTANCE = 120;
         int SWIPE_MAX_OFF_PATH = 250;
-        int SWIPE_THRESHOLD_VELOCITY = 200;
+        int SWIPE_THRESHOLD_VELOCITY = 220;
 
         relSwipeMinDistance = (int) (SWIPE_MIN_DISTANCE * dm.densityDpi / 160.0f);
         relSwipeMaxOffPath = (int) (SWIPE_MAX_OFF_PATH * dm.densityDpi / 160.0f);
-        relSwipteThresholdVelocity = (int) (SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
+        relSwipeThresholdVelocity = (int) (SWIPE_THRESHOLD_VELOCITY * dm.densityDpi / 160.0f);
         displayHeight = dm.heightPixels;
         displayWidth = dm.widthPixels;
     }

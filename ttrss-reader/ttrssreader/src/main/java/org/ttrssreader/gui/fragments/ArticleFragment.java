@@ -991,8 +991,14 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
             if (Math.abs(e1.getY() - e2.getY()) > Controller.relSwipeMaxOffPath)
                 return false;
 
+            float distX = Math.abs(e1.getX() - e2.getX());
+            float distY = Math.abs(e1.getY() - e2.getY());
+            // Only accept this movement as a swipe if the horizontal distance was greater then the vertical distance
+            if (distX < 1.3 * distY)
+                return false;
+
             if (e1.getX() - e2.getX() > Controller.relSwipeMinDistance
-                    && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                    && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
                 // right to left swipe
                 FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();
@@ -1000,7 +1006,7 @@ public class ArticleFragment extends Fragment implements LoaderManager.LoaderCal
                 return true;
 
             } else if (e2.getX() - e1.getX() > Controller.relSwipeMinDistance
-                    && Math.abs(velocityX) > Controller.relSwipteThresholdVelocity) {
+                    && Math.abs(velocityX) > Controller.relSwipeThresholdVelocity) {
 
                 // left to right swipe
                 FeedHeadlineActivity activity = (FeedHeadlineActivity) getActivity();

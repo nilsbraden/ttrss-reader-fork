@@ -1,0 +1,11 @@
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/gradle.xml
+/.idea/misc.xml
+/.idea/libraries/*
+.DS_Store
+/build
+.iml
+
+signingconfig.gradle
