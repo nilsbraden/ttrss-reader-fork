@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/localeapi/localeapi.iml" filepath="$PROJECT_DIR$/localeapi/localeapi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ttrss-reader.iml" filepath="$PROJECT_DIR$/ttrss-reader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ttrssreader/ttrssreader.iml" filepath="$PROJECT_DIR$/ttrssreader/ttrssreader.iml" />
+    </modules>
+  </component>
+</project>
+
