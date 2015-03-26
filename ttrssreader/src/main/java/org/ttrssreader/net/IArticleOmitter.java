@@ -26,13 +26,13 @@ import org.ttrssreader.model.pojos.Article;
  * @author igor
  */
 public interface IArticleOmitter {
-    /**
-     * this method should return {@code true} if given article should not be processed
-     *
-     * @param field current article field added to article on this iteration
-     * @param a     article to test
-     * @return {@code true} if given article should be omitted, {@code false} otherwise
-     * @throws StopJsonParsingException if parsing process should be broken
-     */
-    public boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException;
+	/**
+	 * this method should return {@code true} if given article should not be processed
+	 *
+	 * @param field current article field added to article on this iteration
+	 * @param a     article to test
+	 * @return {@code true} if given article should be omitted, {@code false} otherwise
+	 * @throws StopJsonParsingException if parsing process should be broken
+	 */
+	public boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException;
 }

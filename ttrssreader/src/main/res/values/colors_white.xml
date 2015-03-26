@@ -17,8 +17,8 @@
   -->
 <resources>
 
-    <color name="pressed_white">#CCFF9924</color>
-    <color name="background_white">#FFFFFFFF</color>
-    <color name="font_color_white">#FF000000</color>
+	<color name="pressed_white">#CCFF9924</color>
+	<color name="background_white">#FFFFFFFF</color>
+	<color name="font_color_white">#FF000000</color>
 
 </resources>

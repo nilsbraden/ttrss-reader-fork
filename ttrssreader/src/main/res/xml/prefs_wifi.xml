@@ -16,17 +16,17 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/ConnectionWifiPrefScreenTitle">
+	android:title="@string/ConnectionWifiPrefScreenTitle">
 
-    <PreferenceCategory android:title="@string/ConnectionWifiPrefScreenTitle">
-        <PreferenceScreen
-            android:fragment="org.ttrssreader.gui.fragments.PreferencesFragment"
-            android:summary="@string/ConnectionWifiPrefScreenSummary"
-            android:title="@string/ConnectionWifiPrefScreenTitle">
-            <extra
-                android:name="cat"
-                android:value="prefs_wifibased" />
-        </PreferenceScreen>
-    </PreferenceCategory>
+	<PreferenceCategory android:title="@string/ConnectionWifiPrefScreenTitle">
+		<PreferenceScreen
+			android:fragment="org.ttrssreader.gui.fragments.PreferencesFragment"
+			android:summary="@string/ConnectionWifiPrefScreenSummary"
+			android:title="@string/ConnectionWifiPrefScreenTitle">
+			<extra
+				android:name="cat"
+				android:value="prefs_wifibased" />
+		</PreferenceScreen>
+	</PreferenceCategory>
 
 </PreferenceScreen>

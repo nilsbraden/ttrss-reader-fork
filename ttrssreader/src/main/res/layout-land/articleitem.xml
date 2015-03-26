@@ -16,52 +16,52 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/article_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+	android:id="@+id/article_view"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/article_button_view"
-        android:layout_toStartOf="@+id/article_button_view"
-        android:orientation="vertical">
+	<RelativeLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toLeftOf="@+id/article_button_view"
+		android:layout_toStartOf="@+id/article_button_view"
+		android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/article_webView_Container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </RelativeLayout>
+		<FrameLayout
+			android:id="@+id/article_webView_Container"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent" />
+	</RelativeLayout>
 
-    <LinearLayout
-        style="?android:attr/buttonBarStyle"
-        android:id="@+id/article_button_view"
-        android:layout_width="45dip"
-        android:layout_height="match_parent"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:background="@android:drawable/bottom_bar"
-        android:orientation="vertical"
-        android:visibility="gone">
+	<LinearLayout
+		style="?android:attr/buttonBarStyle"
+		android:id="@+id/article_button_view"
+		android:layout_width="45dip"
+		android:layout_height="match_parent"
+		android:layout_alignParentRight="true"
+		android:layout_alignParentEnd="true"
+		android:background="@android:drawable/bottom_bar"
+		android:orientation="vertical"
+		android:visibility="gone">
 
-        <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/article_buttonNext"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1.0"
-            android:padding="4dip"
-            android:text="@string/Up" />
+		<Button
+			style="?android:attr/buttonBarButtonStyle"
+			android:id="@+id/article_buttonNext"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_weight="1.0"
+			android:padding="4dip"
+			android:text="@string/Up" />
 
-        <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/article_buttonPrev"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1.0"
-            android:padding="4dip"
-            android:text="@string/Down" />
-    </LinearLayout>
+		<Button
+			style="?android:attr/buttonBarButtonStyle"
+			android:id="@+id/article_buttonPrev"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_weight="1.0"
+			android:padding="4dip"
+			android:text="@string/Down" />
+	</LinearLayout>
 
 </RelativeLayout>

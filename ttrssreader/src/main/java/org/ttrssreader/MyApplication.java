@@ -28,40 +28,40 @@ import android.app.Application;
 
 public class MyApplication extends Application {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = MyApplication.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = MyApplication.class.getSimpleName();
 
-    public void onCreate() {
-        super.onCreate();
+	public void onCreate() {
+		super.onCreate();
 
-        PRNGFixes.apply();
-        initAsyncTask();
-        initSingletons();
+		PRNGFixes.apply();
+		initAsyncTask();
+		initSingletons();
 
-        Data.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
-    }
+		Data.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
+	}
 
-    private void initAsyncTask() {
-        // make sure AsyncTask is loaded in the Main thread
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                return null;
-            }
-        }.execute();
-    }
+	private void initAsyncTask() {
+		// make sure AsyncTask is loaded in the Main thread
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				return null;
+			}
+		}.execute();
+	}
 
-    protected void initSingletons() {
-        ProgressBarManager.getInstance();
-        Controller.getInstance().initialize(this);
-        DBHelper.getInstance().initialize(this);
-        Data.getInstance().initialize(this);
-    }
+	protected void initSingletons() {
+		ProgressBarManager.getInstance();
+		Controller.getInstance().initialize(this);
+		DBHelper.getInstance().initialize(this);
+		Data.getInstance().initialize(this);
+	}
 
-    @Override
-    public void onLowMemory() {
-        Controller.getInstance().lowMemory(true);
-        super.onLowMemory();
-    }
+	@Override
+	public void onLowMemory() {
+		Controller.getInstance().lowMemory(true);
+		super.onLowMemory();
+	}
 
 }

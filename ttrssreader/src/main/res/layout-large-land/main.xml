@@ -16,40 +16,40 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frame_all"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:baselineAligned="false"
-    android:orientation="horizontal">
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/frame_all"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:baselineAligned="false"
+	android:orientation="horizontal">
 
-    <FrameLayout
-        android:id="@+id/frame_main"
-        android:layout_width="0dp"
-        android:layout_height="match_parent" />
+	<FrameLayout
+		android:id="@+id/frame_main"
+		android:layout_width="0dp"
+		android:layout_height="match_parent" />
 
-    <ImageView
-        android:id="@+id/list_divider"
-        android:layout_width="16dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_toEndOf="@+id/frame_main"
-        android:layout_toRightOf="@+id/frame_main"
-        android:background="@drawable/list_divider_vertical"
-        android:contentDescription="@string/Empty"
-        tools:ignore="PxUsage" />
+	<ImageView
+		android:id="@+id/list_divider"
+		android:layout_width="16dp"
+		android:layout_height="match_parent"
+		android:layout_gravity="center"
+		android:layout_toEndOf="@+id/frame_main"
+		android:layout_toRightOf="@+id/frame_main"
+		android:background="@drawable/list_divider_vertical"
+		android:contentDescription="@string/Empty"
+		tools:ignore="PxUsage" />
 
-    <FrameLayout
-        android:id="@+id/frame_sub"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_toEndOf="@+id/list_divider"
-        android:layout_toRightOf="@+id/list_divider" />
+	<FrameLayout
+		android:id="@+id/frame_sub"
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_toEndOf="@+id/list_divider"
+		android:layout_toRightOf="@+id/list_divider" />
 
-    <FrameLayout
-        android:id="@+id/frame_invisible"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+	<FrameLayout
+		android:id="@+id/frame_invisible"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:visibility="gone" />
 
 </RelativeLayout>

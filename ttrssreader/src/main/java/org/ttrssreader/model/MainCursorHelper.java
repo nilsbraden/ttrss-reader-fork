@@ -24,71 +24,69 @@ import android.database.sqlite.SQLiteDatabase;
 
 abstract class MainCursorHelper {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = MainCursorHelper.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = MainCursorHelper.class.getSimpleName();
 
-    protected int categoryId = Integer.MIN_VALUE;
-    protected int feedId = Integer.MIN_VALUE;
+	protected int categoryId = Integer.MIN_VALUE;
+	protected int feedId = Integer.MIN_VALUE;
 
-    protected boolean selectArticlesForCategory;
+	protected boolean selectArticlesForCategory;
 
-    /**
-     * Creates a new query
-     */
-    Cursor makeQuery(SQLiteDatabase db) {
-        Cursor cursor;
-        try {
-            if (categoryId == 0 && (feedId == -1 || feedId == -2)) {
+	/**
+	 * Creates a new query
+	 */
+	Cursor makeQuery(SQLiteDatabase db) {
+		Cursor cursor;
+		try {
+			if (categoryId == 0 && (feedId == -1 || feedId == -2)) {
 
-                // Starred/Published
-                cursor = createCursor(db, true, false);
+				// Starred/Published
+				cursor = createCursor(db, true, false);
 
-            } else {
+			} else {
 
-                // normal query
-                cursor = createCursor(db, false, false);
+				// normal query
+				cursor = createCursor(db, false, false);
 
-                // (categoryId == -2 || feedId >= 0): Normal feeds
-                // (categoryId == 0 || feedId == Integer.MIN_VALUE): Uncategorized Feeds
-                if ((categoryId == -2 || feedId >= 0) || (categoryId == 0 || feedId == Integer.MIN_VALUE)) {
-                    if (Controller.getInstance().onlyUnread() && !checkUnread(cursor)) {
+				// (categoryId == -2 || feedId >= 0): Normal feeds
+				// (categoryId == 0 || feedId == Integer.MIN_VALUE): Uncategorized Feeds
+				if ((categoryId == -2 || feedId >= 0) || (categoryId == 0 || feedId == Integer.MIN_VALUE)) {
+					if (Controller.getInstance().onlyUnread() && !checkUnread(cursor)) {
 
-                        // Override unread if query was empty
-                        cursor = createCursor(db, true, false);
+						// Override unread if query was empty
+						cursor = createCursor(db, true, false);
 
-                    }
-                }
-            }
+					}
+				}
+			}
 
-        } catch (Exception e) {
-            // Fail-safe-query
-            cursor = createCursor(db, false, true);
-        }
-        return cursor;
-    }
+		} catch (Exception e) {
+			// Fail-safe-query
+			cursor = createCursor(db, false, true);
+		}
+		return cursor;
+	}
 
-    /**
-     * Tries to find out if the given cursor points to a dataset with unread articles in it, returns true if it does.
-     *
-     * @param cursor the cursor.
-     * @return true if there are unread articles in the dataset, else false.
-     */
-    private static boolean checkUnread(Cursor cursor) {
-        if (cursor == null || cursor.isClosed())
-            return false; // Check null or closed
+	/**
+	 * Tries to find out if the given cursor points to a dataset with unread articles in it, returns true if it does.
+	 *
+	 * @param cursor the cursor.
+	 * @return true if there are unread articles in the dataset, else false.
+	 */
+	private static boolean checkUnread(Cursor cursor) {
+		if (cursor == null || cursor.isClosed()) return false; // Check null or closed
 
-        if (!cursor.moveToFirst())
-            return false; // Check empty
+		if (!cursor.moveToFirst()) return false; // Check empty
 
-        do {
-            if (cursor.getInt(cursor.getColumnIndex("unread")) > 0)
-                return cursor.moveToFirst(); // One unread article found, move to first entry
-        } while (cursor.moveToNext());
+		do {
+			if (cursor.getInt(cursor.getColumnIndex("unread")) > 0)
+				return cursor.moveToFirst(); // One unread article found, move to first entry
+		} while (cursor.moveToNext());
 
-        cursor.moveToFirst();
-        return false;
-    }
+		cursor.moveToFirst();
+		return false;
+	}
 
-    abstract Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery);
+	abstract Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery);
 
 }

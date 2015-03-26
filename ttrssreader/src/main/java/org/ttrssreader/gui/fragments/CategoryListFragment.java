@@ -24,7 +24,6 @@ import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.CategoryActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.dialogs.ReadStateDialog;
-import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
 import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.ListContentProvider;
@@ -46,158 +45,145 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class CategoryListFragment extends MainListFragment {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = CategoryListFragment.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = CategoryListFragment.class.getSimpleName();
 
-    private static final TYPE THIS_TYPE = TYPE.CATEGORY;
-    public static final String FRAGMENT = "CATEGORY_FRAGMENT";
+	private static final TYPE THIS_TYPE = TYPE.CATEGORY;
+	public static final String FRAGMENT = "CATEGORY_FRAGMENT";
 
-    private static final int MARK_GROUP = 100;
-    private static final int MARK_READ = MARK_GROUP + 1;
-    private static final int SELECT_ARTICLES = MARK_GROUP + 2;
-    private static final int SELECT_FEEDS = MARK_GROUP + 3;
+	private static final int MARK_GROUP = 100;
+	private static final int MARK_READ = MARK_GROUP + 1;
+	private static final int SELECT_ARTICLES = MARK_GROUP + 2;
+	private static final int SELECT_FEEDS = MARK_GROUP + 3;
 
-    private Uri categoryUri;
+	private Uri categoryUri;
 
-    public static CategoryListFragment newInstance() {
-        // Create a new fragment instance
-        CategoryListFragment detail = new CategoryListFragment();
-        detail.setRetainInstance(true);
-        return detail;
-    }
+	public static CategoryListFragment newInstance() {
+		// Create a new fragment instance
+		CategoryListFragment detail = new CategoryListFragment();
+		detail.setRetainInstance(true);
+		return detail;
+	}
 
-    @Override
-    public void onCreate(Bundle instance) {
-        if (!Controller.isTablet)
-            Controller.getInstance().lastOpenedFeeds.clear();
-        Controller.getInstance().lastOpenedArticles.clear();
-        setHasOptionsMenu(true);
-        super.onCreate(instance);
-    }
+	@Override
+	public void onCreate(Bundle instance) {
+		if (!Controller.isTablet) Controller.getInstance().lastOpenedFeeds.clear();
+		Controller.getInstance().lastOpenedArticles.clear();
+		setHasOptionsMenu(true);
+		super.onCreate(instance);
+	}
 
-    @Override
-    public void onActivityCreated(Bundle instance) {
-        adapter = new CategoryAdapter(getActivity());
-        getLoaderManager().restartLoader(TYPE_CAT_ID, null, this);
-        super.onActivityCreated(instance);
-    }
+	@Override
+	public void onActivityCreated(Bundle instance) {
+		adapter = new CategoryAdapter(getActivity());
+		getLoaderManager().restartLoader(TYPE_CAT_ID, null, this);
+		super.onActivityCreated(instance);
+	}
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
-        if (Controller.getInstance().invertBrowsing())
-            menu.add(MARK_GROUP, SELECT_FEEDS, Menu.NONE, R.string.Commons_SelectFeeds);
-        else
-            menu.add(MARK_GROUP, SELECT_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		menu.add(MARK_GROUP, MARK_READ, Menu.NONE, R.string.Commons_MarkRead);
+		if (Controller.getInstance().invertBrowsing())
+			menu.add(MARK_GROUP, SELECT_FEEDS, Menu.NONE, R.string.Commons_SelectFeeds);
+		else menu.add(MARK_GROUP, SELECT_ARTICLES, Menu.NONE, R.string.Commons_SelectArticles);
 
-    }
+	}
 
-    @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
-        if (cmi == null)
-            return false;
+	@Override
+	public boolean onContextItemSelected(android.view.MenuItem item) {
+		AdapterContextMenuInfo cmi = (AdapterContextMenuInfo) item.getMenuInfo();
+		if (cmi == null) return false;
 
-        int id = adapter.getId(cmi.position);
-        switch (item.getItemId()) {
-            case MARK_READ:
-                IUpdatable updater;
-                if (id < -10)
-                    updater = new ReadStateUpdater(id, 42);
-                updater = new ReadStateUpdater(id);
-                ReadStateDialog.getInstance(updater).show(getFragmentManager());
-                return true;
-            case SELECT_ARTICLES:
-                if (id < 0)
-                    return false;
-                if (getActivity() instanceof CategoryActivity)
-                    ((CategoryActivity) getActivity()).displayHeadlines(FeedHeadlineActivity.FEED_NO_ID, id, true);
-                return true;
-            case SELECT_FEEDS:
-                if (id < 0)
-                    return false;
-                if (getActivity() instanceof CategoryActivity)
-                    ((CategoryActivity) getActivity()).displayFeed(id);
-                return true;
-        }
-        return false;
-    }
+		int id = adapter.getId(cmi.position);
+		switch (item.getItemId()) {
+			case MARK_READ:
+				IUpdatable updater;
+				if (id < -10) updater = new ReadStateUpdater(id, 42);
+				else updater = new ReadStateUpdater(id);
+				ReadStateDialog.getInstance(updater).show(getFragmentManager());
+				return true;
+			case SELECT_ARTICLES:
+				if (id < 0) return false;
+				if (getActivity() instanceof CategoryActivity)
+					((CategoryActivity) getActivity()).displayHeadlines(FeedHeadlineActivity.FEED_NO_ID, id, true);
+				return true;
+			case SELECT_FEEDS:
+				if (id < 0) return false;
+				if (getActivity() instanceof CategoryActivity) ((CategoryActivity) getActivity()).displayFeed(id);
+				return true;
+		}
+		return false;
+	}
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        if (!Controller.isTablet && selectedId != Integer.MIN_VALUE)
-            menu.removeItem(R.id.Menu_MarkAllRead);
-        if (selectedId == Integer.MIN_VALUE)
-            menu.removeItem(R.id.Menu_MarkFeedsRead);
-        super.onPrepareOptionsMenu(menu);
-    }
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		if (!Controller.isTablet && selectedId != Integer.MIN_VALUE) menu.removeItem(R.id.Menu_MarkAllRead);
+		if (selectedId == Integer.MIN_VALUE) menu.removeItem(R.id.Menu_MarkFeedsRead);
+		super.onPrepareOptionsMenu(menu);
+	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (super.onOptionsItemSelected(item))
-            return true;
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (super.onOptionsItemSelected(item)) return true;
 
-        boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
-        switch (item.getItemId()) {
-            case R.id.Menu_MarkAllRead: {
-                IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
-                ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
-                return true;
-            }
-            case R.id.Menu_MarkFeedsRead:
-                if (selectedId > Integer.MIN_VALUE) {
-                    IUpdatable updateable = new ReadStateUpdater(selectedId);
-                    ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
-                }
-                return true;
-            default:
-                return false;
-        }
-    }
+		boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
+		switch (item.getItemId()) {
+			case R.id.Menu_MarkAllRead: {
+				IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
+				ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
+				return true;
+			}
+			case R.id.Menu_MarkFeedsRead:
+				if (selectedId > Integer.MIN_VALUE) {
+					IUpdatable updateable = new ReadStateUpdater(selectedId);
+					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
+				}
+				return true;
+			default:
+				return false;
+		}
+	}
 
-    @Override
-    public TYPE getType() {
-        return THIS_TYPE;
-    }
+	@Override
+	public TYPE getType() {
+		return THIS_TYPE;
+	}
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == TYPE_CAT_ID) {
-            Builder builder = ListContentProvider.CONTENT_URI_CAT.buildUpon();
-            categoryUri = builder.build();
-            return new CursorLoader(getActivity(), categoryUri, null, null, null, null);
-        }
-        return null;
-    }
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		if (id == TYPE_CAT_ID) {
+			Builder builder = ListContentProvider.CONTENT_URI_CAT.buildUpon();
+			categoryUri = builder.build();
+			return new CursorLoader(getActivity(), categoryUri, null, null, null, null);
+		}
+		return null;
+	}
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == TYPE_CAT_ID)
-            adapter.changeCursor(data);
-        super.onLoadFinished(loader, data);
-    }
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		if (loader.getId() == TYPE_CAT_ID) adapter.changeCursor(data);
+		super.onLoadFinished(loader, data);
+	}
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        if (loader.getId() == TYPE_CAT_ID)
-            adapter.changeCursor(null);
-    }
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		if (loader.getId() == TYPE_CAT_ID) adapter.changeCursor(null);
+	}
 
-    @Override
-    protected void fetchOtherData() {
-        title = "TTRSS-Reader"; // Hardcoded since this does not change and we would need to be attached to an activity
-        // here to be able to read from the ressources.
-        unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
-    }
+	@Override
+	protected void fetchOtherData() {
+		title = "TTRSS-Reader"; // Hardcoded since this does not change and we would need to be attached to an activity
+		// here to be able to read from the ressources.
+		unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
+	}
 
-    @Override
-    public void doRefresh() {
-        // getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
-        Activity activity = getActivity();
-        if (activity != null && categoryUri != null)
-            activity.getContentResolver().notifyChange(categoryUri, null);
-        super.doRefresh();
-    }
+	@Override
+	public void doRefresh() {
+		// getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
+		Activity activity = getActivity();
+		if (activity != null && categoryUri != null) activity.getContentResolver().notifyChange(categoryUri, null);
+		super.doRefresh();
+	}
 
 }

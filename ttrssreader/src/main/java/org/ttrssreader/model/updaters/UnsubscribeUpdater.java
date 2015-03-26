@@ -21,18 +21,18 @@ import org.ttrssreader.controllers.Data;
 
 public class UnsubscribeUpdater implements IUpdatable {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = UnsubscribeUpdater.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = UnsubscribeUpdater.class.getSimpleName();
 
-    private int feed_id;
+	private int feed_id;
 
-    public UnsubscribeUpdater(int feed_id) {
-        this.feed_id = feed_id;
-    }
+	public UnsubscribeUpdater(int feed_id) {
+		this.feed_id = feed_id;
+	}
 
-    @Override
-    public void update(Updater parent) {
-        Data.getInstance().feedUnsubscribe(feed_id);
-    }
+	@Override
+	public void update(Updater parent) {
+		Data.getInstance().feedUnsubscribe(feed_id);
+	}
 
 }

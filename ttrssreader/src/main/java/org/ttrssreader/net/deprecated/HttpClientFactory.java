@@ -37,69 +37,69 @@ import java.security.KeyStore;
  */
 class HttpClientFactory {
 
-    private static final String TAG = HttpClientFactory.class.getSimpleName();
+	private static final String TAG = HttpClientFactory.class.getSimpleName();
 
-    private static HttpClientFactory instance;
-    private SchemeRegistry registry;
+	private static HttpClientFactory instance;
+	private SchemeRegistry registry;
 
-    public HttpClientFactory() {
+	public HttpClientFactory() {
 
-        boolean trustAllSslCerts = Controller.getInstance().trustAllSsl();
-        boolean useCustomKeyStore = Controller.getInstance().useKeystore();
+		boolean trustAllSslCerts = Controller.getInstance().trustAllSsl();
+		boolean useCustomKeyStore = Controller.getInstance().useKeystore();
 
-        registry = new SchemeRegistry();
-        registry.register(new Scheme("http", new PlainSocketFactory(), 80));
+		registry = new SchemeRegistry();
+		registry.register(new Scheme("http", new PlainSocketFactory(), 80));
 
-        SocketFactory socketFactory;
+		SocketFactory socketFactory;
 
-        if (useCustomKeyStore && !trustAllSslCerts) {
-            String keystorePassword = Controller.getInstance().getKeystorePassword();
+		if (useCustomKeyStore && !trustAllSslCerts) {
+			String keystorePassword = Controller.getInstance().getKeystorePassword();
 
-            socketFactory = newSslSocketFactory(keystorePassword);
-            if (socketFactory == null) {
-                socketFactory = SSLSocketFactory.getSocketFactory();
-                Log.w(TAG, "Custom key store could not be read, using default settings.");
-            }
+			socketFactory = newSslSocketFactory(keystorePassword);
+			if (socketFactory == null) {
+				socketFactory = SSLSocketFactory.getSocketFactory();
+				Log.w(TAG, "Custom key store could not be read, using default settings.");
+			}
 
-        } else if (trustAllSslCerts) {
-            socketFactory = new FakeSocketFactory();
-        } else {
-            socketFactory = SSLSocketFactory.getSocketFactory();
-        }
+		} else if (trustAllSslCerts) {
+			socketFactory = new FakeSocketFactory();
+		} else {
+			socketFactory = SSLSocketFactory.getSocketFactory();
+		}
 
-        registry.register(new Scheme("https", socketFactory, 443));
+		registry.register(new Scheme("https", socketFactory, 443));
 
-    }
+	}
 
-    DefaultHttpClient getHttpClient(HttpParams httpParams) {
-        return new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry), httpParams);
-    }
+	DefaultHttpClient getHttpClient(HttpParams httpParams) {
+		return new DefaultHttpClient(new ThreadSafeClientConnManager(httpParams, registry), httpParams);
+	}
 
-    static HttpClientFactory getInstance() {
-        synchronized (HttpClientFactory.class) {
-            if (instance == null) {
-                instance = new HttpClientFactory();
-            }
-        }
-        return instance;
-    }
+	static HttpClientFactory getInstance() {
+		synchronized (HttpClientFactory.class) {
+			if (instance == null) {
+				instance = new HttpClientFactory();
+			}
+		}
+		return instance;
+	}
 
-    /**
-     * Create a socket factory with the custom key store
-     *
-     * @param keystorePassword the password to unlock the custom keystore
-     * @return socket factory with custom key store
-     */
-    private static SSLSocketFactory newSslSocketFactory(String keystorePassword) {
-        try {
-            KeyStore keystore = SSLUtils.loadKeystore(keystorePassword);
+	/**
+	 * Create a socket factory with the custom key store
+	 *
+	 * @param keystorePassword the password to unlock the custom keystore
+	 * @return socket factory with custom key store
+	 */
+	private static SSLSocketFactory newSslSocketFactory(String keystorePassword) {
+		try {
+			KeyStore keystore = SSLUtils.loadKeystore(keystorePassword);
 
-            return new SSLSocketFactory(keystore);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+			return new SSLSocketFactory(keystore);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-        return null;
-    }
+		return null;
+	}
 
 }

@@ -27,46 +27,46 @@ import java.util.List;
 
 public class UpdateController {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = UpdateController.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = UpdateController.class.getSimpleName();
 
-    private static UpdateController instance = null;
-    private static List<IDataChangedListener> listeners = new ArrayList<>();
+	private static UpdateController instance = null;
+	private static List<IDataChangedListener> listeners = new ArrayList<>();
 
-    // Singleton
-    private UpdateController() {
-    }
+	// Singleton
+	private UpdateController() {
+	}
 
-    private static Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            for (IDataChangedListener listener : listeners) {
-                listener.dataChanged();
-            }
-        }
-    };
+	private static Handler handler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			for (IDataChangedListener listener : listeners) {
+				listener.dataChanged();
+			}
+		}
+	};
 
-    public static UpdateController getInstance() {
-        if (instance == null) {
-            synchronized (UpdateController.class) {
-                if (instance == null) {
-                    instance = new UpdateController();
-                }
-            }
-        }
-        return instance;
-    }
+	public static UpdateController getInstance() {
+		if (instance == null) {
+			synchronized (UpdateController.class) {
+				if (instance == null) {
+					instance = new UpdateController();
+				}
+			}
+		}
+		return instance;
+	}
 
-    public void registerActivity(IDataChangedListener listener) {
-        listeners.add(listener);
-    }
+	public void registerActivity(IDataChangedListener listener) {
+		listeners.add(listener);
+	}
 
-    public void unregisterActivity(IDataChangedListener listener) {
-        listeners.remove(listener);
-    }
+	public void unregisterActivity(IDataChangedListener listener) {
+		listeners.remove(listener);
+	}
 
-    void notifyListeners() {
-        handler.sendEmptyMessage(0);
-    }
+	void notifyListeners() {
+		handler.sendEmptyMessage(0);
+	}
 
 }

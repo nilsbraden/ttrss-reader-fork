@@ -21,46 +21,46 @@ import org.jetbrains.annotations.NotNull;
 
 public class Feed implements Comparable<Feed> {
 
-    public int id;
-    public int categoryId;
-    public String title;
-    public String url;
-    public int unread;
+	public int id;
+	public int categoryId;
+	public String title;
+	public String url;
+	public int unread;
 
-    public Feed() {
-        this.id = 0;
-        this.categoryId = 0;
-        this.title = "";
-        this.url = "";
-        this.unread = 0;
-    }
+	public Feed() {
+		this.id = 0;
+		this.categoryId = 0;
+		this.title = "";
+		this.url = "";
+		this.unread = 0;
+	}
 
-    public Feed(int id, int categoryId, String title, String url, int unread) {
-        this.id = id;
-        this.categoryId = categoryId;
-        this.title = title;
-        this.url = url;
-        this.unread = unread;
-    }
+	public Feed(int id, int categoryId, String title, String url, int unread) {
+		this.id = id;
+		this.categoryId = categoryId;
+		this.title = title;
+		this.url = url;
+		this.unread = unread;
+	}
 
-    @Override
-    public int compareTo(@NotNull Feed fi) {
-        return title.compareToIgnoreCase(fi.title);
-    }
+	@Override
+	public int compareTo(@NotNull Feed fi) {
+		return title.compareToIgnoreCase(fi.title);
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof Feed) {
-            Feed other = (Feed) o;
-            return (id == other.id);
-        } else {
-            return false;
-        }
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Feed) {
+			Feed other = (Feed) o;
+			return (id == other.id);
+		} else {
+			return false;
+		}
+	}
 
-    @Override
-    public int hashCode() {
-        return id + "".hashCode();
-    }
+	@Override
+	public int hashCode() {
+		return id + "".hashCode();
+	}
 
 }

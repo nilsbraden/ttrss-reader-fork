@@ -23,40 +23,40 @@ import org.ttrssreader.model.pojos.Article;
 
 public class PublishedStateUpdater implements IUpdatable {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = PublishedStateUpdater.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = PublishedStateUpdater.class.getSimpleName();
 
-    private Article article;
-    private int articleState;
-    private String note;
+	private Article article;
+	private int articleState;
+	private String note;
 
-    /**
-     * Sets the articles' Published-Status according to articleState
-     */
-    public PublishedStateUpdater(Article article, int articleState) {
-        this.article = article;
-        this.articleState = articleState;
-        this.note = null;
-    }
+	/**
+	 * Sets the articles' Published-Status according to articleState
+	 */
+	public PublishedStateUpdater(Article article, int articleState) {
+		this.article = article;
+		this.articleState = articleState;
+		this.note = null;
+	}
 
-    /**
-     * Sets the articles' Published-Status according to articleState and adds the given note to the article.
-     */
-    public PublishedStateUpdater(Article article, int articleState, String note) {
-        this.article = article;
-        this.articleState = articleState;
-        this.note = note;
-    }
+	/**
+	 * Sets the articles' Published-Status according to articleState and adds the given note to the article.
+	 */
+	public PublishedStateUpdater(Article article, int articleState, String note) {
+		this.article = article;
+		this.articleState = articleState;
+		this.note = note;
+	}
 
-    @Override
-    public void update(Updater parent) {
-        if (articleState >= 0) {
-            article.isPublished = articleState > 0;
-            DBHelper.getInstance().markArticle(article.id, "isPublished", articleState);
-            Data.getInstance().calculateCounters();
-            Data.getInstance().notifyListeners();
-            Data.getInstance().setArticlePublished(article.id, articleState, note);
-        }
-    }
+	@Override
+	public void update(Updater parent) {
+		if (articleState >= 0) {
+			article.isPublished = articleState > 0;
+			DBHelper.getInstance().markArticle(article.id, "isPublished", articleState);
+			Data.getInstance().calculateCounters();
+			Data.getInstance().notifyListeners();
+			Data.getInstance().setArticlePublished(article.id, articleState, note);
+		}
+	}
 
 }

@@ -17,8 +17,8 @@
   -->
 <resources>
 
-    <color name="pressed_light">#CCFF9924</color>
-    <color name="background_light">#FFE1E1E1</color>
-    <color name="font_color_light">#FF333333</color>
+	<color name="pressed_light">#CCFF9924</color>
+	<color name="background_light">#FFE1E1E1</color>
+	<color name="font_color_light">#FF333333</color>
 
 </resources>

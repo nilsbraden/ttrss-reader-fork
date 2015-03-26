@@ -25,12 +25,11 @@ import java.util.Comparator;
 @SuppressWarnings("serial")
 public class LabelTitleComparator implements Comparator<Label>, Serializable {
 
-    public static final Comparator<Label> LABELTITLE_COMPARATOR = new LabelTitleComparator();
+	public static final Comparator<Label> LABELTITLE_COMPARATOR = new LabelTitleComparator();
 
-    public int compare(Label obj1, Label obj2) {
-        if (obj1 == null || obj2 == null)
-            throw new NullPointerException();
-        return obj1.caption.compareTo(obj2.caption);
-    }
+	public int compare(Label obj1, Label obj2) {
+		if (obj1 == null || obj2 == null) throw new NullPointerException();
+		return obj1.caption.compareTo(obj2.caption);
+	}
 
 }

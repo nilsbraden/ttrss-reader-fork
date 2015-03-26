@@ -16,87 +16,87 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/DisplayPreferenceCategoryTitle">
+	android:title="@string/DisplayPreferenceCategoryTitle">
 
-    <PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="DisplayAlignFlushLeftPreference"
-            android:summary="@string/DisplayAlignFlushLeftSummary"
-            android:title="@string/DisplayAlignFlushLeftTitle" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:disableDependentsState="true"
-            android:key="DisplayDateTimeFormatSystemPreference"
-            android:summary="@string/DisplayDateTimeFormatSystemSummary"
-            android:title="@string/DisplayDateTimeFormatSystemTitle" />
+	<PreferenceCategory android:title="@string/DisplayPreferenceCategoryTitle">
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="DisplayAlignFlushLeftPreference"
+			android:summary="@string/DisplayAlignFlushLeftSummary"
+			android:title="@string/DisplayAlignFlushLeftTitle" />
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:disableDependentsState="true"
+			android:key="DisplayDateTimeFormatSystemPreference"
+			android:summary="@string/DisplayDateTimeFormatSystemSummary"
+			android:title="@string/DisplayDateTimeFormatSystemTitle" />
 
-        <EditTextPreference
-            android:name="@string/DisplayDateFormatTitle"
-            android:defaultValue="@string/DisplayDateFormatDefault"
-            android:dependency="DisplayDateTimeFormatSystemPreference"
-            android:inputType="textFilter"
-            android:key="DisplayDateFormatPreference"
-            android:summary="@string/DisplayDateFormatSummary"
-            android:title="@string/DisplayDateFormatTitle" />
-        <EditTextPreference
-            android:name="@string/DisplayTimeFormatTitle"
-            android:defaultValue="@string/DisplayTimeFormatDefault"
-            android:dependency="DisplayDateTimeFormatSystemPreference"
-            android:inputType="textFilter"
-            android:key="DisplayTimeFormatPreference"
-            android:summary="@string/DisplayTimeFormatSummary"
-            android:title="@string/DisplayTimeFormatTitle" />
-        <EditTextPreference
-            android:name="@string/DisplayDateTimeFormatTitle"
-            android:defaultValue="@string/DisplayDateTimeFormatDefault"
-            android:dependency="DisplayDateTimeFormatSystemPreference"
-            android:inputType="textFilter"
-            android:key="DisplayDateTimeFormatPreference"
-            android:summary="@string/DisplayDateTimeFormatSummary"
-            android:title="@string/DisplayDateTimeFormatTitle" />
+		<EditTextPreference
+			android:name="@string/DisplayDateFormatTitle"
+			android:defaultValue="@string/DisplayDateFormatDefault"
+			android:dependency="DisplayDateTimeFormatSystemPreference"
+			android:inputType="textFilter"
+			android:key="DisplayDateFormatPreference"
+			android:summary="@string/DisplayDateFormatSummary"
+			android:title="@string/DisplayDateFormatTitle" />
+		<EditTextPreference
+			android:name="@string/DisplayTimeFormatTitle"
+			android:defaultValue="@string/DisplayTimeFormatDefault"
+			android:dependency="DisplayDateTimeFormatSystemPreference"
+			android:inputType="textFilter"
+			android:key="DisplayTimeFormatPreference"
+			android:summary="@string/DisplayTimeFormatSummary"
+			android:title="@string/DisplayTimeFormatTitle" />
+		<EditTextPreference
+			android:name="@string/DisplayDateTimeFormatTitle"
+			android:defaultValue="@string/DisplayDateTimeFormatDefault"
+			android:dependency="DisplayDateTimeFormatSystemPreference"
+			android:inputType="textFilter"
+			android:key="DisplayDateTimeFormatPreference"
+			android:summary="@string/DisplayDateTimeFormatSummary"
+			android:title="@string/DisplayDateTimeFormatTitle" />
 
-        <ListPreference
-            android:entries="@array/themeEntries"
-            android:entryValues="@array/themeValues"
-            android:key="DisplayThemePreference"
-            android:summary="@string/DisplayThemeSummary"
-            android:title="@string/DisplayThemeTitle" />
+		<ListPreference
+			android:entries="@array/themeEntries"
+			android:entryValues="@array/themeValues"
+			android:key="DisplayThemePreference"
+			android:summary="@string/DisplayThemeSummary"
+			android:title="@string/DisplayThemeTitle" />
 
-        <org.ttrssreader.preferences.EditIntegerPreference
-            android:name="@string/TextZoomTitle"
-            android:defaultValue="100"
-            android:inputType="number"
-            android:key="TextZoomPreference"
-            android:maxLength="3"
-            android:summary="@string/TextZoomSummary"
-            android:title="@string/TextZoomTitle" />
+		<org.ttrssreader.preferences.EditIntegerPreference
+			android:name="@string/TextZoomTitle"
+			android:defaultValue="100"
+			android:inputType="number"
+			android:key="TextZoomPreference"
+			android:maxLength="3"
+			android:summary="@string/TextZoomSummary"
+			android:title="@string/TextZoomTitle" />
 
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="SupportZoomControlsPreference"
-            android:summary="@string/SupportZoomControlsSummary"
-            android:title="@string/SupportZoomControlsTitle" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="AllowHyphenationPreference"
-            android:summary="@string/AllowHyphenationSummary"
-            android:title="@string/AllowHyphenationTitle" />
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="SupportZoomControlsPreference"
+			android:summary="@string/SupportZoomControlsSummary"
+			android:title="@string/SupportZoomControlsTitle" />
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="AllowHyphenationPreference"
+			android:summary="@string/AllowHyphenationSummary"
+			android:title="@string/AllowHyphenationTitle" />
 
-        <ListPreference
-            android:defaultValue="en-gb"
-            android:entries="@array/HyphenationLanguageEntries"
-            android:entryValues="@array/HyphenationLanguageValues"
-            android:key="HyphenationLanguagePreference"
-            android:summary="@string/HyphenationLanguageSummary"
-            android:title="@string/HyphenationLanguageTitle" />
+		<ListPreference
+			android:defaultValue="en-gb"
+			android:entries="@array/HyphenationLanguageEntries"
+			android:entryValues="@array/HyphenationLanguageValues"
+			android:key="HyphenationLanguagePreference"
+			android:summary="@string/HyphenationLanguageSummary"
+			android:title="@string/HyphenationLanguageTitle" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:enabled="true"
-            android:key="AllowTabletLayoutPreference"
-            android:summary="@string/AllowTabletLayoutSummary"
-            android:title="@string/AllowTabletLayoutTitle" />
-    </PreferenceCategory>
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:enabled="true"
+			android:key="AllowTabletLayoutPreference"
+			android:summary="@string/AllowTabletLayoutSummary"
+			android:title="@string/AllowTabletLayoutTitle" />
+	</PreferenceCategory>
 
 </PreferenceScreen>

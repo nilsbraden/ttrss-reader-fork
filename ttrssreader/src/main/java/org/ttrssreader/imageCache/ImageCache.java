@@ -1,15 +1,15 @@
 /*
  * ttrss-reader-fork for Android
- * 
+ *
  * Copyright (C) 2010 Nils Braden
  * Copyright (c) 2009 Matthias Kaeppler
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,107 +39,103 @@ import java.io.IOException;
  */
 public class ImageCache extends AbstractCache<String, byte[]> {
 
-    private static final String TAG = ImageCache.class.getSimpleName();
+	private static final String TAG = ImageCache.class.getSimpleName();
 
-    public ImageCache(int initialCapacity, String cacheDir) {
-        super(initialCapacity, 1);
-        this.diskCacheDir = cacheDir;
-    }
+	public ImageCache(int initialCapacity, String cacheDir) {
+		super(initialCapacity, 1);
+		this.diskCacheDir = cacheDir;
+	}
 
-    /**
-     * Enable caching to the phone's SD card.
-     */
-    public boolean enableDiskCache() {
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+	/**
+	 * Enable caching to the phone's SD card.
+	 */
+	public boolean enableDiskCache() {
+		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 
-            // Use configured output directory
-            File folder = new File(diskCacheDir);
+			// Use configured output directory
+			File folder = new File(diskCacheDir);
 
-            if (!folder.exists() && !folder.mkdirs()) {
-                // Folder could not be created, fallback to internal directory on sdcard
-                // Path: /sdcard/Android/data/org.ttrssreader/cache/
-                diskCacheDir = Constants.CACHE_FOLDER_DEFAULT;
-                folder = new File(diskCacheDir);
-            }
+			if (!folder.exists() && !folder.mkdirs()) {
+				// Folder could not be created, fallback to internal directory on sdcard
+				// Path: /sdcard/Android/data/org.ttrssreader/cache/
+				diskCacheDir = Constants.CACHE_FOLDER_DEFAULT;
+				folder = new File(diskCacheDir);
+			}
 
-            if (!folder.exists() && !folder.mkdirs()) {
-                Log.w(TAG, "Couldn't create Folder for Disk-Cache!");
-                isDiskCacheEnabled = false;
-            } else {
-                isDiskCacheEnabled = folder.exists();
-            }
+			if (!folder.exists() && !folder.mkdirs()) {
+				Log.w(TAG, "Couldn't create Folder for Disk-Cache!");
+				isDiskCacheEnabled = false;
+			} else {
+				isDiskCacheEnabled = folder.exists();
+			}
 
-            // Create .nomedia File in Cache-Folder so android doesn't generate thumbnails
-            File nomediaFile = new File(diskCacheDir + File.separator + ".nomedia");
-            if (!nomediaFile.exists()) {
-                try {
-                    if (!nomediaFile.createNewFile())
-                        Log.w(TAG, "Couldn't create .nomedia File for Disk-Cache!");
-                } catch (IOException e) {
-                    // Empty!
-                }
-            }
-        }
+			// Create .nomedia File in Cache-Folder so android doesn't generate thumbnails
+			File nomediaFile = new File(diskCacheDir + File.separator + ".nomedia");
+			if (!nomediaFile.exists()) {
+				try {
+					if (!nomediaFile.createNewFile()) Log.w(TAG, "Couldn't create .nomedia File for Disk-Cache!");
+				} catch (IOException e) {
+					// Empty!
+				}
+			}
+		}
 
-        if (!isDiskCacheEnabled)
-            Log.e(TAG, "Failed creating disk cache directory " + diskCacheDir);
+		if (!isDiskCacheEnabled) Log.e(TAG, "Failed creating disk cache directory " + diskCacheDir);
 
-        return isDiskCacheEnabled;
-    }
+		return isDiskCacheEnabled;
+	}
 
-    public void fillMemoryCacheFromDisk() {
-        byte[] b = new byte[]{};
-        File folder = new File(diskCacheDir);
-        File[] files = folder.listFiles();
+	public void fillMemoryCacheFromDisk() {
+		byte[] b = new byte[] {};
+		File folder = new File(diskCacheDir);
+		File[] files = folder.listFiles();
 
-        Log.d(TAG, "Image cache before fillMemoryCacheFromDisk: " + cache.size());
-        if (files == null)
-            return;
+		Log.d(TAG, "Image cache before fillMemoryCacheFromDisk: " + cache.size());
+		if (files == null) return;
 
-        for (File file : files) {
-            try {
-                cache.put(file.getName(), b);
-            } catch (RuntimeException e) {
-                Log.e(TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
-            }
-        }
-        Log.d(TAG, "Image cache after fillMemoryCacheFromDisk: " + cache.size());
-    }
+		for (File file : files) {
+			try {
+				cache.put(file.getName(), b);
+			} catch (RuntimeException e) {
+				Log.e(TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
+			}
+		}
+		Log.d(TAG, "Image cache after fillMemoryCacheFromDisk: " + cache.size());
+	}
 
-    boolean containsKey(String key) {
-        return cache.containsKey(getFileNameForKey(key)) || (isDiskCacheEnabled && getCacheFile(key).exists());
-    }
+	boolean containsKey(String key) {
+		return cache.containsKey(getFileNameForKey(key)) || (isDiskCacheEnabled && getCacheFile(key).exists());
+	}
 
-    /**
-     * create uniq string from file url, which can be used as file name
-     *
-     * @param imageUrl URL of given image
-     * @return calculated hash
-     */
-    public static String getHashForKey(String imageUrl) {
-        return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,%?&=]+", "+");
-    }
+	/**
+	 * create uniq string from file url, which can be used as file name
+	 *
+	 * @param imageUrl URL of given image
+	 * @return calculated hash
+	 */
+	public static String getHashForKey(String imageUrl) {
+		return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,%?&=]+", "+");
+	}
 
-    @Override
-    public String getFileNameForKey(String imageUrl) {
-        return getHashForKey(imageUrl);
-    }
+	@Override
+	public String getFileNameForKey(String imageUrl) {
+		return getHashForKey(imageUrl);
+	}
 
-    public File getCacheFile(String key) {
-        File f = new File(diskCacheDir);
-        if (!f.exists() && !f.mkdirs())
-            Log.w(TAG, "Couldn't create File: " + f.getAbsolutePath());
+	public File getCacheFile(String key) {
+		File f = new File(diskCacheDir);
+		if (!f.exists() && !f.mkdirs()) Log.w(TAG, "Couldn't create File: " + f.getAbsolutePath());
 
-        return getFileForKey(key);
-    }
+		return getFileForKey(key);
+	}
 
-    @Override
-    protected byte[] readValueFromDisk(File file) throws IOException {
-        return null;
-    }
+	@Override
+	protected byte[] readValueFromDisk(File file) throws IOException {
+		return null;
+	}
 
-    @Override
-    protected void writeValueToDisk(BufferedOutputStream ostream, byte[] value) {
-    }
+	@Override
+	protected void writeValueToDisk(BufferedOutputStream ostream, byte[] value) {
+	}
 
 }

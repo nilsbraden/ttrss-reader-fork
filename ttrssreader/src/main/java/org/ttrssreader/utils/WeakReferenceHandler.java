@@ -49,18 +49,17 @@ import java.lang.ref.WeakReference;
  * MsgHandler handler = new MsgHandler(this);
  */
 public abstract class WeakReferenceHandler<T> extends Handler {
-    private WeakReference<T> mReference;
+	private WeakReference<T> mReference;
 
-    public WeakReferenceHandler(T reference) {
-        mReference = new WeakReference<>(reference);
-    }
+	public WeakReferenceHandler(T reference) {
+		mReference = new WeakReference<>(reference);
+	}
 
-    @Override
-    public void handleMessage(Message msg) {
-        if (mReference.get() == null)
-            return;
-        handleMessage(mReference.get(), msg);
-    }
+	@Override
+	public void handleMessage(Message msg) {
+		if (mReference.get() == null) return;
+		handleMessage(mReference.get(), msg);
+	}
 
-    protected abstract void handleMessage(T reference, Message msg);
+	protected abstract void handleMessage(T reference, Message msg);
 }

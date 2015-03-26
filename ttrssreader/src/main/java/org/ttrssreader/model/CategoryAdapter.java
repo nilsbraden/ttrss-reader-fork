@@ -33,84 +33,80 @@ import android.widget.TextView;
 
 public class CategoryAdapter extends MainAdapter {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = CategoryAdapter.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = CategoryAdapter.class.getSimpleName();
 
-    public CategoryAdapter(Context context) {
-        super(context);
-    }
+	public CategoryAdapter(Context context) {
+		super(context);
+	}
 
-    @Override
-    public Object getItem(int position) {
-        Category ret = new Category();
-        Cursor cur = getCursor();
-        if (cur == null)
-            return ret;
+	@Override
+	public Object getItem(int position) {
+		Category ret = new Category();
+		Cursor cur = getCursor();
+		if (cur == null) return ret;
 
-        if (cur.getCount() >= position) {
-            if (cur.moveToPosition(position)) {
-                ret.id = cur.getInt(0);
-                ret.title = cur.getString(1);
-                ret.unread = cur.getInt(2);
-            }
-        }
-        return ret;
-    }
+		if (cur.getCount() >= position) {
+			if (cur.moveToPosition(position)) {
+				ret.id = cur.getInt(0);
+				ret.title = cur.getString(1);
+				ret.unread = cur.getInt(2);
+			}
+		}
+		return ret;
+	}
 
-    private int getImage(int id, boolean unread) {
-        if (id == Data.VCAT_STAR) {
-            return R.drawable.star48;
-        } else if (id == Data.VCAT_PUB) {
-            return R.drawable.published48;
-        } else if (id == Data.VCAT_FRESH) {
-            return R.drawable.fresh48;
-        } else if (id == Data.VCAT_ALL) {
-            return R.drawable.all48;
-        } else if (id < -10) {
-            if (unread) {
-                return R.drawable.label;
-            } else {
-                return R.drawable.label_read;
-            }
-        } else {
-            if (unread) {
-                return R.drawable.categoryunread48;
-            } else {
-                return R.drawable.categoryread48;
-            }
-        }
-    }
+	private int getImage(int id, boolean unread) {
+		if (id == Data.VCAT_STAR) {
+			return R.drawable.star48;
+		} else if (id == Data.VCAT_PUB) {
+			return R.drawable.published48;
+		} else if (id == Data.VCAT_FRESH) {
+			return R.drawable.fresh48;
+		} else if (id == Data.VCAT_ALL) {
+			return R.drawable.all48;
+		} else if (id < -10) {
+			if (unread) {
+				return R.drawable.label;
+			} else {
+				return R.drawable.label_read;
+			}
+		} else {
+			if (unread) {
+				return R.drawable.categoryunread48;
+			} else {
+				return R.drawable.categoryread48;
+			}
+		}
+	}
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Context context = parent.getContext();
-        if (position >= getCount() || position < 0)
-            return new View(context);
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		Context context = parent.getContext();
+		if (position >= getCount() || position < 0) return new View(context);
 
-        Category c = (Category) getItem(position);
+		Category c = (Category) getItem(position);
 
-        final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        LinearLayout layout = null;
-        if (convertView == null) {
-            layout = (LinearLayout) inflater.inflate(R.layout.item_category, parent, false);
-        } else {
-            if (convertView instanceof LinearLayout) {
-                layout = (LinearLayout) convertView;
-            }
-        }
+		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LinearLayout layout = null;
+		if (convertView == null) {
+			layout = (LinearLayout) inflater.inflate(R.layout.item_category, parent, false);
+		} else {
+			if (convertView instanceof LinearLayout) {
+				layout = (LinearLayout) convertView;
+			}
+		}
 
-        if (layout == null)
-            return new View(context);
+		if (layout == null) return new View(context);
 
-        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
-        icon.setImageResource(getImage(c.id, c.unread > 0));
+		ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+		icon.setImageResource(getImage(c.id, c.unread > 0));
 
-        TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(formatItemTitle(c.title, c.unread));
-        if (c.unread > 0)
-            title.setTypeface(Typeface.DEFAULT_BOLD);
+		TextView title = (TextView) layout.findViewById(R.id.title);
+		title.setText(formatItemTitle(c.title, c.unread));
+		if (c.unread > 0) title.setTypeface(Typeface.DEFAULT_BOLD);
 
-        return layout;
-    }
+		return layout;
+	}
 
 }

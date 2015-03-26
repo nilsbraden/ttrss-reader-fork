@@ -28,56 +28,56 @@ import java.util.Date;
  * @author igor
  */
 public class RemoteFile implements Comparable<RemoteFile> {
-    /** numerical ID */
-    public int id;
+	/** numerical ID */
+	public int id;
 
-    /** remote file URL */
-    public String url;
+	/** remote file URL */
+	public String url;
 
-    /** file size */
-    public int length;
+	/** file size */
+	public int length;
 
-    /** last change date */
-    private Date updated;
+	/** last change date */
+	private Date updated;
 
-    /** boolean flag determining if the file is locally stored */
-    public volatile boolean cached;
+	/** boolean flag determining if the file is locally stored */
+	public volatile boolean cached;
 
-    /**
-     * constructor with parameters
-     *
-     * @param id      numerical ID
-     * @param url     remote file URL
-     * @param length  file size
-     * @param updated last change date
-     * @param cached  boolean flag determining if the file is locally stored
-     */
-    public RemoteFile(int id, String url, int length, Date updated, boolean cached) {
-        this.id = id;
-        this.url = url;
-        this.length = length;
-        this.updated = updated;
-        this.cached = cached;
-    }
+	/**
+	 * constructor with parameters
+	 *
+	 * @param id      numerical ID
+	 * @param url     remote file URL
+	 * @param length  file size
+	 * @param updated last change date
+	 * @param cached  boolean flag determining if the file is locally stored
+	 */
+	public RemoteFile(int id, String url, int length, Date updated, boolean cached) {
+		this.id = id;
+		this.url = url;
+		this.length = length;
+		this.updated = updated;
+		this.cached = cached;
+	}
 
-    @Override
-    public int compareTo(@NotNull RemoteFile rf) {
-        return rf.updated.compareTo(this.updated);
-    }
+	@Override
+	public int compareTo(@NotNull RemoteFile rf) {
+		return rf.updated.compareTo(this.updated);
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        boolean isEqual = false;
-        if (o != null && o instanceof RemoteFile) {
-            RemoteFile rf = (RemoteFile) o;
-            isEqual = (id == rf.id);
-        }
-        return isEqual;
-    }
+	@Override
+	public boolean equals(Object o) {
+		boolean isEqual = false;
+		if (o != null && o instanceof RemoteFile) {
+			RemoteFile rf = (RemoteFile) o;
+			isEqual = (id == rf.id);
+		}
+		return isEqual;
+	}
 
-    @Override
-    public int hashCode() {
-        return id;
-    }
+	@Override
+	public int hashCode() {
+		return id;
+	}
 
 }

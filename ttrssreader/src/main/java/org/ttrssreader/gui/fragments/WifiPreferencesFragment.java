@@ -32,78 +32,70 @@ import android.util.Log;
 
 public class WifiPreferencesFragment extends PreferenceFragment {
 
-    private static final String TAG = WifiPreferencesFragment.class.getSimpleName();
+	private static final String TAG = WifiPreferencesFragment.class.getSimpleName();
 
-    private static final String PREFS_MAIN_TOP = "prefs_main_top";
-    private static final String PREFS_HTTP = "prefs_http";
-    private static final String PREFS_SSL = "prefs_ssl";
+	private static final String PREFS_MAIN_TOP = "prefs_main_top";
+	private static final String PREFS_HTTP = "prefs_http";
+	private static final String PREFS_SSL = "prefs_ssl";
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 
-        String ssid = getArguments().getString(WifiPreferencesActivity.KEY_SSID);
-        String cat = getArguments().getString("cat");
+		String ssid = getArguments().getString(WifiPreferencesActivity.KEY_SSID);
+		String cat = getArguments().getString("cat");
 
-        if (PREFS_MAIN_TOP.equals(cat))
-            addPreferencesFromResource(R.xml.prefs_main_top);
-        if (PREFS_HTTP.equals(cat))
-            addPreferencesFromResource(R.xml.prefs_http);
-        if (PREFS_SSL.equals(cat))
-            addPreferencesFromResource(R.xml.prefs_ssl);
+		if (PREFS_MAIN_TOP.equals(cat)) addPreferencesFromResource(R.xml.prefs_main_top);
+		if (PREFS_HTTP.equals(cat)) addPreferencesFromResource(R.xml.prefs_http);
+		if (PREFS_SSL.equals(cat)) addPreferencesFromResource(R.xml.prefs_ssl);
 
-        initDynamicConnectionPrefs(ssid, PREFS_MAIN_TOP.equals(cat));
-    }
+		initDynamicConnectionPrefs(ssid, PREFS_MAIN_TOP.equals(cat));
+	}
 
-    private void initDynamicConnectionPrefs(String ssid, boolean addEnableWifiPref) {
-        if (getPreferenceScreen().getPreferenceCount() != 1)
-            return;
-        if (!(getPreferenceScreen().getPreference(0) instanceof PreferenceCategory))
-            return;
+	private void initDynamicConnectionPrefs(String ssid, boolean addEnableWifiPref) {
+		if (getPreferenceScreen().getPreferenceCount() != 1) return;
+		if (!(getPreferenceScreen().getPreference(0) instanceof PreferenceCategory)) return;
 
-        PreferenceCategory category = (PreferenceCategory) getPreferenceScreen().getPreference(0);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		PreferenceCategory category = (PreferenceCategory) getPreferenceScreen().getPreference(0);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
-        for (int i = 0; i < category.getPreferenceCount(); i++) {
-            Preference pref = category.getPreference(i);
+		for (int i = 0; i < category.getPreferenceCount(); i++) {
+			Preference pref = category.getPreference(i);
 
-            String oldKey = pref.getKey();
-            String newKey = ssid + oldKey;
+			String oldKey = pref.getKey();
+			String newKey = ssid + oldKey;
 
-            pref.setKey(newKey);
+			pref.setKey(newKey);
 
-            Object defaultValue = null;
-            if (prefs.getAll().containsKey(newKey))
-                defaultValue = prefs.getAll().get(newKey);
-            pref.setDefaultValue(defaultValue);
+			Object defaultValue = null;
+			if (prefs.getAll().containsKey(newKey)) defaultValue = prefs.getAll().get(newKey);
+			pref.setDefaultValue(defaultValue);
 
-            // Key of dependency has probably been renamed. Beware: This might stop working if dependencies are
-            // added in another order.
-            if (pref.getDependency() != null)
-                pref.setDependency(ssid + pref.getDependency());
+			// Key of dependency has probably been renamed. Beware: This might stop working if dependencies are
+			// added in another order.
+			if (pref.getDependency() != null) pref.setDependency(ssid + pref.getDependency());
 
-            // Remove and add again to reinitialize default values
-            category.removePreference(pref);
-            category.addPreference(pref);
-            Log.d(TAG, String.format("  oldKey: \"%s\" newKey: \"%s\"", oldKey, newKey));
-        }
+			// Remove and add again to reinitialize default values
+			category.removePreference(pref);
+			category.addPreference(pref);
+			Log.d(TAG, String.format("  oldKey: \"%s\" newKey: \"%s\"", oldKey, newKey));
+		}
 
-        if (addEnableWifiPref) {
-            // TODO
-            String key = ssid + Constants.ENABLE_WIFI_BASED_SUFFIX;
-            CheckBoxPreference enableWifiPref = new CheckBoxPreference(getActivity());
-            enableWifiPref.setKey(key);
-            enableWifiPref.setTitle(R.string.ConnectionWifiPrefEnableTitle);
-            enableWifiPref.setSummaryOn(R.string.ConnectionWifiPrefEnabledSummary);
-            enableWifiPref.setSummaryOff(R.string.ConnectionWifiPrefDisbledSummary);
+		if (addEnableWifiPref) {
+			// TODO
+			String key = ssid + Constants.ENABLE_WIFI_BASED_SUFFIX;
+			CheckBoxPreference enableWifiPref = new CheckBoxPreference(getActivity());
+			enableWifiPref.setKey(key);
+			enableWifiPref.setTitle(R.string.ConnectionWifiPrefEnableTitle);
+			enableWifiPref.setSummaryOn(R.string.ConnectionWifiPrefEnabledSummary);
+			enableWifiPref.setSummaryOff(R.string.ConnectionWifiPrefDisbledSummary);
 
-            Object defaultValue = null;
-            if (prefs.getAll().containsKey(key))
-                defaultValue = prefs.getAll().get(key);
-            enableWifiPref.setDefaultValue(defaultValue);
+			Object defaultValue = null;
+			if (prefs.getAll().containsKey(key)) defaultValue = prefs.getAll().get(key);
+			enableWifiPref.setDefaultValue(defaultValue);
 
-            category.addPreference(enableWifiPref);
-        }
-    }
+			category.addPreference(enableWifiPref);
+		}
+	}
 }

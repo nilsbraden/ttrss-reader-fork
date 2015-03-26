@@ -23,29 +23,29 @@ import org.ttrssreader.model.pojos.Article;
 
 public class StarredStateUpdater implements IUpdatable {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = StarredStateUpdater.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = StarredStateUpdater.class.getSimpleName();
 
-    private Article article;
-    private int articleState;
+	private Article article;
+	private int articleState;
 
-    /**
-     * Sets the articles' Starred-Status according to articleState
-     */
-    public StarredStateUpdater(Article article, int articleState) {
-        this.article = article;
-        this.articleState = articleState;
-    }
+	/**
+	 * Sets the articles' Starred-Status according to articleState
+	 */
+	public StarredStateUpdater(Article article, int articleState) {
+		this.article = article;
+		this.articleState = articleState;
+	}
 
-    @Override
-    public void update(Updater parent) {
-        if (articleState >= 0) {
-            article.isStarred = articleState > 0;
-            DBHelper.getInstance().markArticle(article.id, "isStarred", articleState);
-            Data.getInstance().calculateCounters();
-            Data.getInstance().notifyListeners();
-            Data.getInstance().setArticleStarred(article.id, articleState);
-        }
-    }
+	@Override
+	public void update(Updater parent) {
+		if (articleState >= 0) {
+			article.isStarred = articleState > 0;
+			DBHelper.getInstance().markArticle(article.id, "isStarred", articleState);
+			Data.getInstance().calculateCounters();
+			Data.getInstance().notifyListeners();
+			Data.getInstance().setArticleStarred(article.id, articleState);
+		}
+	}
 
 }

@@ -30,59 +30,55 @@ import java.util.List;
 
 public abstract class MainAdapter extends SimpleCursorAdapter {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = MainAdapter.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = MainAdapter.class.getSimpleName();
 
-    private static final int layout = R.layout.main;
+	private static final int layout = R.layout.main;
 
-    MainAdapter(Context context) {
-        super(context, layout, null, new String[]{}, new int[]{}, 0);
-    }
+	MainAdapter(Context context) {
+		super(context, layout, null, new String[] {}, new int[] {}, 0);
+	}
 
-    @Override
-    public final long getItemId(int position) {
-        return position;
-    }
+	@Override
+	public final long getItemId(int position) {
+		return position;
+	}
 
-    public final int getId(int position) {
-        int ret = Integer.MIN_VALUE;
-        Cursor cur = getCursor();
-        if (cur == null)
-            return ret;
+	public final int getId(int position) {
+		int ret = Integer.MIN_VALUE;
+		Cursor cur = getCursor();
+		if (cur == null) return ret;
 
-        if (cur.getCount() >= position)
-            if (cur.moveToPosition(position))
-                ret = cur.getInt(0);
-        return ret;
-    }
+		if (cur.getCount() >= position) if (cur.moveToPosition(position)) ret = cur.getInt(0);
+		return ret;
+	}
 
-    public final List<Integer> getIds() {
-        List<Integer> ret = new ArrayList<>();
-        Cursor cur = getCursor();
-        if (cur == null)
-            return ret;
+	public final List<Integer> getIds() {
+		List<Integer> ret = new ArrayList<>();
+		Cursor cur = getCursor();
+		if (cur == null) return ret;
 
-        if (cur.moveToFirst()) {
-            while (!cur.isAfterLast()) {
-                ret.add(cur.getInt(0));
-                cur.move(1);
-            }
-        }
-        return ret;
-    }
+		if (cur.moveToFirst()) {
+			while (!cur.isAfterLast()) {
+				ret.add(cur.getInt(0));
+				cur.move(1);
+			}
+		}
+		return ret;
+	}
 
-    protected static CharSequence formatItemTitle(String title, int unread) {
-        if (unread > 0) {
-            return title + " (" + unread + ")";
-        } else {
-            return title;
-        }
-    }
+	protected static CharSequence formatItemTitle(String title, int unread) {
+		if (unread > 0) {
+			return title + " (" + unread + ")";
+		} else {
+			return title;
+		}
+	}
 
-    @Override
-    public abstract Object getItem(int position);
+	@Override
+	public abstract Object getItem(int position);
 
-    @Override
-    public abstract View getView(int position, View convertView, ViewGroup parent);
+	@Override
+	public abstract View getView(int position, View convertView, ViewGroup parent);
 
 }

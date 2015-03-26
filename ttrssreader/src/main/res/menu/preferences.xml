@@ -17,14 +17,14 @@
   -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item
-        android:id="@+id/Preferences_Menu_Reset"
-        android:icon="@drawable/ic_menu_revert"
-        android:title="@string/Preferences.Reset" />
+	<item
+		android:id="@+id/Preferences_Menu_Reset"
+		android:icon="@drawable/ic_menu_revert"
+		android:title="@string/Preferences.Reset" />
 
-    <item
-        android:id="@+id/Preferences_Menu_ResetDatabase"
-        android:icon="@drawable/ic_menu_revert"
-        android:title="@string/Preferences.ResetDatabase" />
+	<item
+		android:id="@+id/Preferences_Menu_ResetDatabase"
+		android:icon="@drawable/ic_menu_revert"
+		android:title="@string/Preferences.ResetDatabase" />
 
 </menu>

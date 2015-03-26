@@ -30,77 +30,77 @@ import android.widget.TextView;
 
 public class ErrorActivity extends Activity {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = ErrorActivity.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = ErrorActivity.class.getSimpleName();
 
-    private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
-    public static final int ACTIVITY_SHOW_ERROR = 42;
-    static final int ACTIVITY_EXIT = 40;
-    public static final String ERROR_MESSAGE = "ERROR_MESSAGE";
+	public static final int ACTIVITY_SHOW_ERROR = 42;
+	static final int ACTIVITY_EXIT = 40;
+	public static final String ERROR_MESSAGE = "ERROR_MESSAGE";
 
-    private String message;
+	private String message;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        setTheme(Controller.getInstance().getTheme());
-        super.onCreate(savedInstanceState);
-        mDamageReport.initialize();
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		setTheme(Controller.getInstance().getTheme());
+		super.onCreate(savedInstanceState);
+		mDamageReport.initialize();
 
-        setContentView(R.layout.error);
+		setContentView(R.layout.error);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            message = extras.getString(ERROR_MESSAGE);
-        } else if (savedInstanceState != null) {
-            message = savedInstanceState.getString(ERROR_MESSAGE);
-        }
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			message = extras.getString(ERROR_MESSAGE);
+		} else if (savedInstanceState != null) {
+			message = savedInstanceState.getString(ERROR_MESSAGE);
+		}
 
-        TextView errorText = (TextView) this.findViewById(R.id.ErrorActivity_ErrorMessage);
-        errorText.setText(message);
+		TextView errorText = (TextView) this.findViewById(R.id.ErrorActivity_ErrorMessage);
+		errorText.setText(message);
 
-        Button prefBtn = (Button) this.findViewById(R.id.Preferences_Btn);
-        prefBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                finish();
-                openPreferences();
-            }
-        });
+		Button prefBtn = (Button) this.findViewById(R.id.Preferences_Btn);
+		prefBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				finish();
+				openPreferences();
+			}
+		});
 
-        Button exitBtn = (Button) this.findViewById(R.id.ErrorActivity_ExitBtn);
-        exitBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                exitButtonPressed();
-            }
-        });
+		Button exitBtn = (Button) this.findViewById(R.id.ErrorActivity_ExitBtn);
+		exitBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				exitButtonPressed();
+			}
+		});
 
-        Button closeBtn = (Button) this.findViewById(R.id.ErrorActivity_CloseBtn);
-        closeBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                closeButtonPressed();
-            }
-        });
-    }
+		Button closeBtn = (Button) this.findViewById(R.id.ErrorActivity_CloseBtn);
+		closeBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				closeButtonPressed();
+			}
+		});
+	}
 
-    @Override
-    protected void onDestroy() {
-        mDamageReport.restoreOriginalHandler();
-        mDamageReport = null;
-        super.onDestroy();
-    }
+	@Override
+	protected void onDestroy() {
+		mDamageReport.restoreOriginalHandler();
+		mDamageReport = null;
+		super.onDestroy();
+	}
 
-    private void exitButtonPressed() {
-        setResult(ACTIVITY_EXIT);
-        finish();
-    }
+	private void exitButtonPressed() {
+		setResult(ACTIVITY_EXIT);
+		finish();
+	}
 
-    private void closeButtonPressed() {
-        setResult(ACTIVITY_SHOW_ERROR);
-        finish();
-    }
+	private void closeButtonPressed() {
+		setResult(ACTIVITY_SHOW_ERROR);
+		finish();
+	}
 
-    private void openPreferences() {
-        startActivity(new Intent(this, PreferencesActivity.class));
-    }
+	private void openPreferences() {
+		startActivity(new Intent(this, PreferencesActivity.class));
+	}
 
 }

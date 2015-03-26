@@ -30,52 +30,52 @@ import android.os.Bundle;
 
 public class ReadStateDialog extends MyDialogFragment {
 
-    public static final String DIALOG = "yesnodialog";
+	public static final String DIALOG = "yesnodialog";
 
-    private IUpdatable updater;
-    private int titleRes;
-    private int msgRes;
-    private boolean backAfterUpdate;
+	private IUpdatable updater;
+	private int titleRes;
+	private int msgRes;
+	private boolean backAfterUpdate;
 
-    public static ReadStateDialog getInstance(IUpdatable updater) {
-        return getInstance(updater, false);
-    }
+	public static ReadStateDialog getInstance(IUpdatable updater) {
+		return getInstance(updater, false);
+	}
 
-    public static ReadStateDialog getInstance(IUpdatable updater, boolean backAfterUpdate) {
-        ReadStateDialog fragment = new ReadStateDialog();
-        fragment.updater = updater;
-        fragment.titleRes = R.string.Dialog_Title;
-        fragment.msgRes = R.string.Dialog_MarkAllRead;
-        fragment.backAfterUpdate = backAfterUpdate;
-        return fragment;
-    }
+	public static ReadStateDialog getInstance(IUpdatable updater, boolean backAfterUpdate) {
+		ReadStateDialog fragment = new ReadStateDialog();
+		fragment.updater = updater;
+		fragment.titleRes = R.string.Dialog_Title;
+		fragment.msgRes = R.string.Dialog_MarkAllRead;
+		fragment.backAfterUpdate = backAfterUpdate;
+		return fragment;
+	}
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setIcon(android.R.drawable.ic_dialog_info);
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setIcon(android.R.drawable.ic_dialog_info);
 
-        builder.setTitle(getResources().getString(titleRes));
-        builder.setMessage(getResources().getString(msgRes));
-        builder.setPositiveButton(getResources().getString(R.string.Yes), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface d, final int which) {
-                new Updater(getActivity(), updater, backAfterUpdate).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                d.dismiss();
-            }
-        });
-        builder.setNegativeButton(getResources().getString(R.string.No), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface d, final int which) {
-                d.dismiss();
-            }
-        });
+		builder.setTitle(getResources().getString(titleRes));
+		builder.setMessage(getResources().getString(msgRes));
+		builder.setPositiveButton(getResources().getString(R.string.Yes), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(final DialogInterface d, final int which) {
+				new Updater(getActivity(), updater, backAfterUpdate).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				d.dismiss();
+			}
+		});
+		builder.setNegativeButton(getResources().getString(R.string.No), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(final DialogInterface d, final int which) {
+				d.dismiss();
+			}
+		});
 
-        return builder.create();
-    }
+		return builder.create();
+	}
 
-    public void show(FragmentManager manager) {
-        super.show(manager, ReadStateDialog.DIALOG);
-    }
+	public void show(FragmentManager manager) {
+		super.show(manager, ReadStateDialog.DIALOG);
+	}
 
 }

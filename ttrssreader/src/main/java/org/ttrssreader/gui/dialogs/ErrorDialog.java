@@ -24,26 +24,26 @@ import android.os.Bundle;
 
 public class ErrorDialog extends MyDialogFragment {
 
-    private String message;
+	private String message;
 
-    public static ErrorDialog getInstance(String message) {
-        ErrorDialog dialog = new ErrorDialog();
-        dialog.message = message;
-        return dialog;
-    }
+	public static ErrorDialog getInstance(String message) {
+		ErrorDialog dialog = new ErrorDialog();
+		dialog.message = message;
+		return dialog;
+	}
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        alertDialogBuilder.setTitle("Error");
-        alertDialogBuilder.setMessage(message);
-        alertDialogBuilder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dismiss();
-            }
-        });
-        return alertDialogBuilder.create();
-    }
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+		alertDialogBuilder.setTitle("Error");
+		alertDialogBuilder.setMessage(message);
+		alertDialogBuilder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dismiss();
+			}
+		});
+		return alertDialogBuilder.create();
+	}
 
 }

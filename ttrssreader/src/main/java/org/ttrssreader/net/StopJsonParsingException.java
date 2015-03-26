@@ -24,15 +24,15 @@ package org.ttrssreader.net;
  */
 public class StopJsonParsingException extends Exception {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * constructor with detail message specification
-     *
-     * @param detailMessage detailed description of exception cause
-     */
-    public StopJsonParsingException(String detailMessage) {
-        super(detailMessage);
-    }
+	/**
+	 * constructor with detail message specification
+	 *
+	 * @param detailMessage detailed description of exception cause
+	 */
+	public StopJsonParsingException(String detailMessage) {
+		super(detailMessage);
+	}
 
 }

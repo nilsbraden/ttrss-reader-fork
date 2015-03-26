@@ -16,34 +16,34 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/ConnectionHttpPreferenceCategoryTitle">
+	android:title="@string/ConnectionHttpPreferenceCategoryTitle">
 
-    <PreferenceCategory
-        android:key="httpCategory"
-        android:title="@string/ConnectionHttpPreferenceCategoryTitle">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:disableDependentsState="false"
-            android:key="ConnectionHttpPreference"
-            android:summary="@string/ConnectionHttpPreferenceSummary"
-            android:title="@string/ConnectionHttpPreferenceTitle" />
+	<PreferenceCategory
+		android:key="httpCategory"
+		android:title="@string/ConnectionHttpPreferenceCategoryTitle">
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:disableDependentsState="false"
+			android:key="ConnectionHttpPreference"
+			android:summary="@string/ConnectionHttpPreferenceSummary"
+			android:title="@string/ConnectionHttpPreferenceTitle" />
 
-        <EditTextPreference
-            android:name="@string/ConnectionHttpUsernamePreferenceTitle"
-            android:defaultValue=""
-            android:dependency="ConnectionHttpPreference"
-            android:inputType="textFilter"
-            android:key="ConnectionHttpUsernamePreference"
-            android:summary="@string/ConnectionUsernamePreferenceSummary"
-            android:title="@string/ConnectionHttpUsernamePreferenceTitle" />
-        <EditTextPreference
-            android:name="@string/ConnectionHttpPasswordPreferenceTitle"
-            android:defaultValue=""
-            android:dependency="ConnectionHttpPreference"
-            android:inputType="textPassword"
-            android:key="ConnectionHttpPasswordPreference"
-            android:summary="@string/ConnectionHttpPasswordPreferenceSummary"
-            android:title="@string/ConnectionHttpPasswordPreferenceTitle" />
-    </PreferenceCategory>
+		<EditTextPreference
+			android:name="@string/ConnectionHttpUsernamePreferenceTitle"
+			android:defaultValue=""
+			android:dependency="ConnectionHttpPreference"
+			android:inputType="textFilter"
+			android:key="ConnectionHttpUsernamePreference"
+			android:summary="@string/ConnectionUsernamePreferenceSummary"
+			android:title="@string/ConnectionHttpUsernamePreferenceTitle" />
+		<EditTextPreference
+			android:name="@string/ConnectionHttpPasswordPreferenceTitle"
+			android:defaultValue=""
+			android:dependency="ConnectionHttpPreference"
+			android:inputType="textPassword"
+			android:key="ConnectionHttpPasswordPreference"
+			android:summary="@string/ConnectionHttpPasswordPreferenceSummary"
+			android:title="@string/ConnectionHttpPasswordPreferenceTitle" />
+	</PreferenceCategory>
 
 </PreferenceScreen>

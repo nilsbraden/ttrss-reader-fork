@@ -29,45 +29,45 @@ import android.widget.VideoView;
 
 public class MediaPlayerActivity extends Activity {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = MediaPlayerActivity.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = MediaPlayerActivity.class.getSimpleName();
 
-    private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
+	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
-    public static final String URL = "media_url";
+	public static final String URL = "media_url";
 
-    @Override
-    protected void onCreate(Bundle instance) {
-        setTheme(Controller.getInstance().getTheme());
-        super.onCreate(instance);
-        mDamageReport.initialize();
+	@Override
+	protected void onCreate(Bundle instance) {
+		setTheme(Controller.getInstance().getTheme());
+		super.onCreate(instance);
+		mDamageReport.initialize();
 
-        setContentView(R.layout.media);
+		setContentView(R.layout.media);
 
-        Bundle extras = getIntent().getExtras();
-        String url;
-        if (extras != null) {
-            url = extras.getString(URL);
-        } else if (instance != null) {
-            url = instance.getString(URL);
-        } else {
-            url = "";
-        }
+		Bundle extras = getIntent().getExtras();
+		String url;
+		if (extras != null) {
+			url = extras.getString(URL);
+		} else if (instance != null) {
+			url = instance.getString(URL);
+		} else {
+			url = "";
+		}
 
-        VideoView videoView = (VideoView) findViewById(R.id.MediaView);
-        MediaController mediaController = new MediaController(this);
-        mediaController.setAnchorView(videoView);
-        Uri video = Uri.parse(url);
-        videoView.setMediaController(mediaController);
-        videoView.setVideoURI(video);
-        videoView.start();
-    }
+		VideoView videoView = (VideoView) findViewById(R.id.MediaView);
+		MediaController mediaController = new MediaController(this);
+		mediaController.setAnchorView(videoView);
+		Uri video = Uri.parse(url);
+		videoView.setMediaController(mediaController);
+		videoView.setVideoURI(video);
+		videoView.start();
+	}
 
-    @Override
-    protected void onDestroy() {
-        mDamageReport.restoreOriginalHandler();
-        mDamageReport = null;
-        super.onDestroy();
-    }
+	@Override
+	protected void onDestroy() {
+		mDamageReport.restoreOriginalHandler();
+		mDamageReport = null;
+		super.onDestroy();
+	}
 
 }

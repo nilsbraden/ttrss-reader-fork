@@ -28,37 +28,35 @@ import android.os.Bundle;
 
 public class ChangelogDialog extends MyDialogFragment {
 
-    public static ChangelogDialog getInstance() {
-        return new ChangelogDialog();
-    }
+	public static ChangelogDialog getInstance() {
+		return new ChangelogDialog();
+	}
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setIcon(android.R.drawable.ic_dialog_info);
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setIcon(android.R.drawable.ic_dialog_info);
 
-        builder.setTitle(getResources().getString(R.string.Changelog_Title));
-        final String[] changes = getResources().getStringArray(R.array.updates);
-        final StringBuilder sb = new StringBuilder();
-        for (String change : changes) {
-            sb.append("\n\n");
-            sb.append(change);
-            if (sb.length() > 4000) // Don't include all messages, nobody reads the old stuff anyway
-                break;
-        }
-        builder.setMessage(sb.toString().trim());
-        builder.setPositiveButton(android.R.string.ok, null);
-        builder.setNeutralButton(getText(R.string.CategoryActivity_Donate),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface d, final int which) {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(
-                                R.string.DonateUrl))));
-                        d.dismiss();
-                    }
-                });
+		builder.setTitle(getResources().getString(R.string.Changelog_Title));
+		final String[] changes = getResources().getStringArray(R.array.updates);
+		final StringBuilder sb = new StringBuilder();
+		for (String change : changes) {
+			sb.append("\n\n");
+			sb.append(change);
+			if (sb.length() > 4000) // Don't include all messages, nobody reads the old stuff anyway
+				break;
+		}
+		builder.setMessage(sb.toString().trim());
+		builder.setPositiveButton(android.R.string.ok, null);
+		builder.setNeutralButton(getText(R.string.CategoryActivity_Donate), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(final DialogInterface d, final int which) {
+				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.DonateUrl))));
+				d.dismiss();
+			}
+		});
 
-        return builder.create();
-    }
+		return builder.create();
+	}
 
 }

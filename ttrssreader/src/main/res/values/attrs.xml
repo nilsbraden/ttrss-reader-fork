@@ -18,7 +18,7 @@
 
 <resources>
 
-    <attr name="ListItem" format="reference|color" />
-    <attr name="ListItemText" format="reference|color" />
+	<attr name="ListItem" format="reference|color" />
+	<attr name="ListItemText" format="reference|color" />
 
 </resources>

@@ -16,38 +16,38 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/frame_all"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:baselineAligned="false"
-    android:orientation="vertical">
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/frame_all"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:baselineAligned="false"
+	android:orientation="vertical">
 
-    <FrameLayout
-        android:id="@+id/frame_main"
-        android:layout_width="match_parent"
-        android:layout_height="0px" />
+	<FrameLayout
+		android:id="@+id/frame_main"
+		android:layout_width="match_parent"
+		android:layout_height="0px" />
 
-    <ImageView
-        android:id="@+id/list_divider"
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:layout_below="@+id/frame_main"
-        android:layout_gravity="center"
-        android:background="@drawable/list_divider"
-        tools:ignore="PxUsage"
-        android:contentDescription="@string/Empty" />
+	<ImageView
+		android:id="@+id/list_divider"
+		android:layout_width="match_parent"
+		android:layout_height="16dp"
+		android:layout_below="@+id/frame_main"
+		android:layout_gravity="center"
+		android:background="@drawable/list_divider"
+		tools:ignore="PxUsage"
+		android:contentDescription="@string/Empty" />
 
-    <FrameLayout
-        android:id="@+id/frame_sub"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_below="@+id/list_divider" />
+	<FrameLayout
+		android:id="@+id/frame_sub"
+		android:layout_width="match_parent"
+		android:layout_height="0px"
+		android:layout_below="@+id/list_divider" />
 
-    <FrameLayout
-        android:id="@+id/frame_invisible"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+	<FrameLayout
+		android:id="@+id/frame_invisible"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:visibility="gone" />
 
 </RelativeLayout>

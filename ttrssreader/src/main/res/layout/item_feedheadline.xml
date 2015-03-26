@@ -16,57 +16,57 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="?attr/ListItem"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal">
+	style="?attr/ListItem"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginRight="10dp"
-        android:layout_marginEnd="10dp"
-        android:contentDescription="@string/Empty" />
+	<ImageView
+		android:id="@+id/icon"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
+		android:layout_marginRight="10dp"
+		android:layout_marginEnd="10dp"
+		android:contentDescription="@string/Empty" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:gravity="center_vertical"
+		android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/title"
-            style="?attr/ListItemText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textIsSelectable="false" />
+		<TextView
+			android:id="@+id/title"
+			style="?attr/ListItemText"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textIsSelectable="false" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/updateDate"
-                style="?attr/ListItemText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:textIsSelectable="false"
-                android:textSize="12sp" />
+			<TextView
+				android:id="@+id/updateDate"
+				style="?attr/ListItemText"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:gravity="start"
+				android:textIsSelectable="false"
+				android:textSize="12sp" />
 
-            <TextView
-                android:id="@+id/dataSource"
-                style="?attr/ListItemText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:layout_marginEnd="10dp"
-                android:gravity="end"
-                android:textIsSelectable="false"
-                android:textSize="12sp" />
-        </LinearLayout>
-    </LinearLayout>
+			<TextView
+				android:id="@+id/dataSource"
+				style="?attr/ListItemText"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginRight="10dp"
+				android:layout_marginEnd="10dp"
+				android:gravity="end"
+				android:textIsSelectable="false"
+				android:textSize="12sp" />
+		</LinearLayout>
+	</LinearLayout>
 
 </LinearLayout>

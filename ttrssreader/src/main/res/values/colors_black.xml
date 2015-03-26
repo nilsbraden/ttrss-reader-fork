@@ -17,8 +17,8 @@
   -->
 <resources>
 
-    <color name="pressed_black">#CCEE8813</color>
-    <color name="background_black">#FF000000</color>
-    <color name="font_color_black">#FFFFFFFF</color>
+	<color name="pressed_black">#CCEE8813</color>
+	<color name="background_black">#FF000000</color>
+	<color name="font_color_black">#FFFFFFFF</color>
 
 </resources>

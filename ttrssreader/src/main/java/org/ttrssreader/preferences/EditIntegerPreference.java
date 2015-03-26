@@ -24,26 +24,26 @@ import android.util.AttributeSet;
 @SuppressWarnings("UnusedDeclaration")
 public class EditIntegerPreference extends EditTextPreference {
 
-    public EditIntegerPreference(Context context) {
-        super(context);
-    }
+	public EditIntegerPreference(Context context) {
+		super(context);
+	}
 
-    public EditIntegerPreference(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
+	public EditIntegerPreference(Context context, AttributeSet attrs) {
+		super(context, attrs);
+	}
 
-    public EditIntegerPreference(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
+	public EditIntegerPreference(Context context, AttributeSet attrs, int defStyle) {
+		super(context, attrs, defStyle);
+	}
 
-    @Override
-    protected String getPersistedString(String defaultReturnValue) {
-        return String.valueOf(getPersistedInt(-1));
-    }
+	@Override
+	protected String getPersistedString(String defaultReturnValue) {
+		return String.valueOf(getPersistedInt(-1));
+	}
 
-    @Override
-    protected boolean persistString(String value) {
-        return !(value == null || value.length() == 0) && persistInt(Integer.valueOf(value));
-    }
+	@Override
+	protected boolean persistString(String value) {
+		return !(value == null || value.length() == 0) && persistInt(Integer.valueOf(value));
+	}
 
 }

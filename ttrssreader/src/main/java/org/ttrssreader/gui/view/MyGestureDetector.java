@@ -25,41 +25,37 @@ import android.view.MotionEvent;
 
 public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = MyGestureDetector.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = MyGestureDetector.class.getSimpleName();
 
-    private ActionBar actionBar;
-    private boolean hideActionbar;
-    private long lastShow = -1;
+	private ActionBar actionBar;
+	private boolean hideActionbar;
+	private long lastShow = -1;
 
-    public MyGestureDetector(ActionBar actionBar, boolean hideActionbar) {
-        this.actionBar = actionBar;
-        this.hideActionbar = hideActionbar;
-    }
+	public MyGestureDetector(ActionBar actionBar, boolean hideActionbar) {
+		this.actionBar = actionBar;
+		this.hideActionbar = hideActionbar;
+	}
 
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        if (!hideActionbar)
-            return false;
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+		if (!hideActionbar) return false;
 
-        if (Controller.isTablet)
-            return false;
+		if (Controller.isTablet) return false;
 
-        if (System.currentTimeMillis() - lastShow < 700)
-            return false;
+		if (System.currentTimeMillis() - lastShow < 700) return false;
 
-        if (Math.abs(distanceX) > Math.abs(distanceY))
-            return false;
+		if (Math.abs(distanceX) > Math.abs(distanceY)) return false;
 
-        if (distanceY < -10) {
-            actionBar.show();
-            lastShow = System.currentTimeMillis();
-        } else if (distanceY > 10) {
-            actionBar.hide();
-            lastShow = System.currentTimeMillis();
-        }
+		if (distanceY < -10) {
+			actionBar.show();
+			lastShow = System.currentTimeMillis();
+		} else if (distanceY > 10) {
+			actionBar.hide();
+			lastShow = System.currentTimeMillis();
+		}
 
-        return false;
-    }
+		return false;
+	}
 
 }

@@ -26,32 +26,32 @@ import android.os.Bundle;
 
 public class ImageCaptionDialog extends MyDialogFragment {
 
-    public static final String DIALOG_CAPTION = "image_caption";
+	public static final String DIALOG_CAPTION = "image_caption";
 
-    private String caption;
+	private String caption;
 
-    public static ImageCaptionDialog getInstance(String caption) {
-        ImageCaptionDialog fragment = new ImageCaptionDialog();
-        fragment.caption = caption;
-        return fragment;
-    }
+	public static ImageCaptionDialog getInstance(String caption) {
+		ImageCaptionDialog fragment = new ImageCaptionDialog();
+		fragment.caption = caption;
+		return fragment;
+	}
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setIcon(android.R.drawable.ic_dialog_info);
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setIcon(android.R.drawable.ic_dialog_info);
 
-        builder.setTitle(getResources().getString(R.string.Dialog_imageCaptionTitle));
-        builder.setMessage(caption);
+		builder.setTitle(getResources().getString(R.string.Dialog_imageCaptionTitle));
+		builder.setMessage(caption);
 
-        builder.setNeutralButton(getResources().getString(R.string.Close), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface d, final int which) {
-                d.dismiss();
-            }
-        });
+		builder.setNeutralButton(getResources().getString(R.string.Close), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(final DialogInterface d, final int which) {
+				d.dismiss();
+			}
+		});
 
-        return builder.create();
-    }
+		return builder.create();
+	}
 
 }

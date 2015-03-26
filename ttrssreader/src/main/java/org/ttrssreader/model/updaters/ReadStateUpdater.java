@@ -27,87 +27,85 @@ import java.util.HashSet;
 
 public class ReadStateUpdater implements IUpdatable {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = ReadStateUpdater.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = ReadStateUpdater.class.getSimpleName();
 
-    public static enum TYPE {
-        ALL_CATEGORIES, ALL_FEEDS, CATEGORY, FEED, ARTICLE
-    }
+	public static enum TYPE {
+		ALL_CATEGORIES, ALL_FEEDS, CATEGORY, FEED, ARTICLE
+	}
 
-    private TYPE type = TYPE.ARTICLE;
-    private int id;
+	private TYPE type = TYPE.ARTICLE;
+	private int id;
 
-    private Collection<Category> categories = null;
-    private Collection<Feed> feeds = null;
+	private Collection<Category> categories = null;
+	private Collection<Feed> feeds = null;
 
-    public ReadStateUpdater(TYPE type) {
-        this(type, -1);
-    }
+	public ReadStateUpdater(TYPE type) {
+		this(type, -1);
+	}
 
-    private ReadStateUpdater(TYPE type, int id) {
-        this.type = type;
-        this.id = id;
-    }
+	private ReadStateUpdater(TYPE type, int id) {
+		this.type = type;
+		this.id = id;
+	}
 
-    public ReadStateUpdater(int categoryId) {
-        type = TYPE.CATEGORY;
-        id = categoryId;
-    }
+	public ReadStateUpdater(int categoryId) {
+		type = TYPE.CATEGORY;
+		id = categoryId;
+	}
 
-    @SuppressWarnings("unused")
-    public ReadStateUpdater(int feedId, int dummy) {
-        if (feedId <= 0 && feedId >= -4) { // Virtual Category
-            type = TYPE.CATEGORY;
-            id = feedId;
-        } else {
-            type = TYPE.FEED;
-            id = feedId;
-        }
-    }
+	@SuppressWarnings("unused")
+	public ReadStateUpdater(int feedId, int dummy) {
+		if (feedId <= 0 && feedId >= -4) { // Virtual Category
+			type = TYPE.CATEGORY;
+			id = feedId;
+		} else {
+			type = TYPE.FEED;
+			id = feedId;
+		}
+	}
 
-    @Override
-    public void update(Updater parent) {
-        // Read appropriate data from the DB
-        switch (type) {
-            case ALL_CATEGORIES:
-                categories = DBHelper.getInstance().getAllCategories();
-                break;
-            case CATEGORY:
-                categories = new HashSet<>();
-                Category c = DBHelper.getInstance().getCategory(id);
-                if (c != null)
-                    categories.add(c);
-                break;
-            case ALL_FEEDS:
-                feeds = DBHelper.getInstance().getFeeds(id);
-                break;
-            case FEED:
-                feeds = new HashSet<>();
-                Feed f = DBHelper.getInstance().getFeed(id);
-                if (f != null)
-                    feeds.add(f);
-                break;
-            default:
-                break;
-        }
+	@Override
+	public void update(Updater parent) {
+		// Read appropriate data from the DB
+		switch (type) {
+			case ALL_CATEGORIES:
+				categories = DBHelper.getInstance().getAllCategories();
+				break;
+			case CATEGORY:
+				categories = new HashSet<>();
+				Category c = DBHelper.getInstance().getCategory(id);
+				if (c != null) categories.add(c);
+				break;
+			case ALL_FEEDS:
+				feeds = DBHelper.getInstance().getFeeds(id);
+				break;
+			case FEED:
+				feeds = new HashSet<>();
+				Feed f = DBHelper.getInstance().getFeed(id);
+				if (f != null) feeds.add(f);
+				break;
+			default:
+				break;
+		}
 
-        if (categories != null) {
-            for (Category ci : categories) {
-                // VirtualCats are actually Feeds (the server handles them as such) so we have to set isCat to false
-                if (ci.id >= 0) {
-                    Data.getInstance().setRead(ci.id, true);
-                } else {
-                    Data.getInstance().setRead(ci.id, false);
-                }
-            }
-        } else if (feeds != null) {
-            for (Feed fi : feeds) {
-                Data.getInstance().setRead(fi.id, false);
-            }
-        }
+		if (categories != null) {
+			for (Category ci : categories) {
+				// VirtualCats are actually Feeds (the server handles them as such) so we have to set isCat to false
+				if (ci.id >= 0) {
+					Data.getInstance().setRead(ci.id, true);
+				} else {
+					Data.getInstance().setRead(ci.id, false);
+				}
+			}
+		} else if (feeds != null) {
+			for (Feed fi : feeds) {
+				Data.getInstance().setRead(fi.id, false);
+			}
+		}
 
-        Data.getInstance().calculateCounters();
-        Data.getInstance().notifyListeners();
-    }
+		Data.getInstance().calculateCounters();
+		Data.getInstance().notifyListeners();
+	}
 
 }

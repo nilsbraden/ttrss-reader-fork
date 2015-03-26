@@ -28,27 +28,27 @@ import android.os.Bundle;
 
 public class WelcomeDialog extends MyDialogFragment {
 
-    public static WelcomeDialog getInstance() {
-        return new WelcomeDialog();
-    }
+	public static WelcomeDialog getInstance() {
+		return new WelcomeDialog();
+	}
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setIcon(android.R.drawable.ic_dialog_info);
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setIcon(android.R.drawable.ic_dialog_info);
 
-        builder.setTitle(getResources().getString(R.string.Welcome_Title));
-        builder.setMessage(getResources().getString(R.string.Welcome_Message));
-        builder.setNeutralButton(getText(R.string.Preferences_Btn), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(final DialogInterface d, final int which) {
-                Intent i = new Intent(getActivity(), PreferencesActivity.class);
-                startActivity(i);
-                d.dismiss();
-            }
-        });
+		builder.setTitle(getResources().getString(R.string.Welcome_Title));
+		builder.setMessage(getResources().getString(R.string.Welcome_Message));
+		builder.setNeutralButton(getText(R.string.Preferences_Btn), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(final DialogInterface d, final int which) {
+				Intent i = new Intent(getActivity(), PreferencesActivity.class);
+				startActivity(i);
+				d.dismiss();
+			}
+		});
 
-        return builder.create();
-    }
+		return builder.create();
+	}
 
 }

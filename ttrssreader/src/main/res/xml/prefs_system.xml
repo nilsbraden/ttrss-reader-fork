@@ -16,78 +16,78 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/SystemPreferenceCategoryTitle">
+	android:title="@string/SystemPreferenceCategoryTitle">
 
-    <PreferenceCategory android:title="@string/SystemPreferenceCategoryTitle">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:disableDependentsState="false"
-            android:key="CacheImagesOnStartupPreference"
-            android:summary="@string/CacheImagesOnStartupSummary"
-            android:title="@string/CacheImagesOnStartupTitle" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:dependency="CacheImagesOnStartupPreference"
-            android:key="CacheImagesOnlyWifiPreference"
-            android:summary="@string/CacheImagesOnlyWifiSummary"
-            android:title="@string/CacheImagesOnlyWifiTitle" />
+	<PreferenceCategory android:title="@string/SystemPreferenceCategoryTitle">
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:disableDependentsState="false"
+			android:key="CacheImagesOnStartupPreference"
+			android:summary="@string/CacheImagesOnStartupSummary"
+			android:title="@string/CacheImagesOnStartupTitle" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:dependency="CacheImagesOnStartupPreference"
+			android:key="CacheImagesOnlyWifiPreference"
+			android:summary="@string/CacheImagesOnlyWifiSummary"
+			android:title="@string/CacheImagesOnlyWifiTitle" />
 
-        <Preference
-            android:key="SaveAttachmentPreference"
-            android:persistent="false"
-            android:summary="- PATH - set by activity -"
-            android:title="@string/SaveAttachmentTitle" />
-        <Preference
-            android:key="CacheFolderPreference"
-            android:persistent="false"
-            android:summary="- PATH - set by activity -"
-            android:title="@string/CacheFolderTitle" />
+		<Preference
+			android:key="SaveAttachmentPreference"
+			android:persistent="false"
+			android:summary="- PATH - set by activity -"
+			android:title="@string/SaveAttachmentTitle" />
+		<Preference
+			android:key="CacheFolderPreference"
+			android:persistent="false"
+			android:summary="- PATH - set by activity -"
+			android:title="@string/CacheFolderTitle" />
 
-        <org.ttrssreader.preferences.EditIntegerPreference
-            android:name="@string/CacheFolderMaxSizeTitle"
-            android:defaultValue="80"
-            android:inputType="number"
-            android:key="CacheFolderMaxSizePreference"
-            android:maxLength="4"
-            android:summary="@string/CacheFolderMaxSizeSummary"
-            android:title="@string/CacheFolderMaxSizeTitle" />
-        <org.ttrssreader.preferences.EditIntegerPreference
-            android:name="@string/CacheImageMaxSizeTitle"
-            android:defaultValue="6000"
-            android:inputType="number"
-            android:key="CacheImageMaxSizePreference"
-            android:maxLength="5"
-            android:summary="@string/CacheImageMaxSizeSummary"
-            android:title="@string/CacheImageMaxSizeTitle" />
-        <org.ttrssreader.preferences.EditIntegerPreference
-            android:name="@string/CacheImageMinSizeTitle"
-            android:defaultValue="32"
-            android:inputType="number"
-            android:key="CacheImageMinSizePreference"
-            android:maxLength="4"
-            android:summary="@string/CacheImageMinSizeSummary"
-            android:title="@string/CacheImageMinSizeTitle" />
+		<org.ttrssreader.preferences.EditIntegerPreference
+			android:name="@string/CacheFolderMaxSizeTitle"
+			android:defaultValue="80"
+			android:inputType="number"
+			android:key="CacheFolderMaxSizePreference"
+			android:maxLength="4"
+			android:summary="@string/CacheFolderMaxSizeSummary"
+			android:title="@string/CacheFolderMaxSizeTitle" />
+		<org.ttrssreader.preferences.EditIntegerPreference
+			android:name="@string/CacheImageMaxSizeTitle"
+			android:defaultValue="6000"
+			android:inputType="number"
+			android:key="CacheImageMaxSizePreference"
+			android:maxLength="5"
+			android:summary="@string/CacheImageMaxSizeSummary"
+			android:title="@string/CacheImageMaxSizeTitle" />
+		<org.ttrssreader.preferences.EditIntegerPreference
+			android:name="@string/CacheImageMinSizeTitle"
+			android:defaultValue="32"
+			android:inputType="number"
+			android:key="CacheImageMinSizePreference"
+			android:maxLength="4"
+			android:summary="@string/CacheImageMinSizeSummary"
+			android:title="@string/CacheImageMinSizeTitle" />
 
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="DeleteDBScheduledPreference"
-            android:summary="@string/DeleteDBOnNextStartupSummary"
-            android:title="@string/DeleteDBOnNextStartupTitle" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="OnlyUseWifiPreference"
-            android:summary="@string/OnlyUseWifiSummary"
-            android:title="@string/OnlyUseWifiTitle" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="NoCrashreportsPreference"
-            android:summary="@string/NoCrashreportsSummary"
-            android:title="@string/NoCrashreportsTitle" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="NoCrashreportsUntilUpdatePreference"
-            android:summary="@string/NoCrashreportsUntilUpdateSummary"
-            android:title="@string/NoCrashreportsUntilUpdateTitle" />
-    </PreferenceCategory>
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="DeleteDBScheduledPreference"
+			android:summary="@string/DeleteDBOnNextStartupSummary"
+			android:title="@string/DeleteDBOnNextStartupTitle" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="OnlyUseWifiPreference"
+			android:summary="@string/OnlyUseWifiSummary"
+			android:title="@string/OnlyUseWifiTitle" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="NoCrashreportsPreference"
+			android:summary="@string/NoCrashreportsSummary"
+			android:title="@string/NoCrashreportsTitle" />
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:key="NoCrashreportsUntilUpdatePreference"
+			android:summary="@string/NoCrashreportsUntilUpdateSummary"
+			android:title="@string/NoCrashreportsUntilUpdateTitle" />
+	</PreferenceCategory>
 
 </PreferenceScreen>

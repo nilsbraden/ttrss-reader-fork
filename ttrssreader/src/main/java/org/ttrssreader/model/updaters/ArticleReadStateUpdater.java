@@ -28,46 +28,46 @@ import java.util.Set;
 
 public class ArticleReadStateUpdater implements IUpdatable {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = ArticleReadStateUpdater.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = ArticleReadStateUpdater.class.getSimpleName();
 
-    private int state;
-    private Collection<Article> articles = null;
+	private int state;
+	private Collection<Article> articles = null;
 
-    /* articleState: 0 = mark as read, 1 = mark as unread */
-    public ArticleReadStateUpdater(Article article, int articleState) {
-        articles = new ArrayList<>();
-        articles.add(article);
-        state = articleState;
-        article.isUnread = (articleState > 0);
-    }
+	/* articleState: 0 = mark as read, 1 = mark as unread */
+	public ArticleReadStateUpdater(Article article, int articleState) {
+		articles = new ArrayList<>();
+		articles.add(article);
+		state = articleState;
+		article.isUnread = (articleState > 0);
+	}
 
-    /* articleState: 0 = mark as read, 1 = mark as unread */
-    public ArticleReadStateUpdater(Collection<Article> articlesList, int articleState) {
-        articles = new ArrayList<>();
-        articles.addAll(articlesList);
-        state = articleState;
-        for (Article article : articles) {
-            article.isUnread = (articleState > 0);
-        }
-    }
+	/* articleState: 0 = mark as read, 1 = mark as unread */
+	public ArticleReadStateUpdater(Collection<Article> articlesList, int articleState) {
+		articles = new ArrayList<>();
+		articles.addAll(articlesList);
+		state = articleState;
+		for (Article article : articles) {
+			article.isUnread = (articleState > 0);
+		}
+	}
 
-    @Override
-    public void update(Updater parent) {
-        if (articles != null) {
-            Set<Integer> ids = new HashSet<>();
-            for (Article article : articles) {
-                ids.add(article.id);
-                article.isUnread = (state > 0);
-            }
+	@Override
+	public void update(Updater parent) {
+		if (articles != null) {
+			Set<Integer> ids = new HashSet<>();
+			for (Article article : articles) {
+				ids.add(article.id);
+				article.isUnread = (state > 0);
+			}
 
-            if (!ids.isEmpty()) {
-                DBHelper.getInstance().markArticles(ids, "isUnread", state);
-                Data.getInstance().calculateCounters();
-                Data.getInstance().notifyListeners();
-                Data.getInstance().setArticleRead(ids, state);
-            }
-        }
-    }
+			if (!ids.isEmpty()) {
+				DBHelper.getInstance().markArticles(ids, "isUnread", state);
+				Data.getInstance().calculateCounters();
+				Data.getInstance().notifyListeners();
+				Data.getInstance().setArticleRead(ids, state);
+			}
+		}
+	}
 
 }

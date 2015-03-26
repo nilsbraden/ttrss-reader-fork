@@ -45,92 +45,91 @@ import javax.net.ssl.X509TrustManager;
 
 public class SSLUtils {
 
-    private static final String TAG = SSLUtils.class.getSimpleName();
+	private static final String TAG = SSLUtils.class.getSimpleName();
 
-    @SuppressLint("TrulyRandom")
-    public static void initSslSocketFactory(KeyManager[] km, TrustManager[] tm)
-            throws KeyManagementException, NoSuchAlgorithmException {
-        SSLSocketFactoryEx factory = new SSLSocketFactoryEx(km, tm);
-        HttpsURLConnection.setDefaultSSLSocketFactory(factory);
-    }
+	@SuppressLint("TrulyRandom")
+	public static void initSslSocketFactory(KeyManager[] km, TrustManager[] tm)
+			throws KeyManagementException, NoSuchAlgorithmException {
+		SSLSocketFactoryEx factory = new SSLSocketFactoryEx(km, tm);
+		HttpsURLConnection.setDefaultSSLSocketFactory(factory);
+	}
 
-    public static void initPrivateKeystore(String password) throws GeneralSecurityException {
-        Log.i(TAG, "Enabling SSLUtils to trust certificates from private keystore.");
-        KeyStore keystore = SSLUtils.loadKeystore(password);
-        if (keystore == null)
-            return;
+	public static void initPrivateKeystore(String password) throws GeneralSecurityException {
+		Log.i(TAG, "Enabling SSLUtils to trust certificates from private keystore.");
+		KeyStore keystore = SSLUtils.loadKeystore(password);
+		if (keystore == null) return;
 
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(keystore);
+		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+		tmf.init(keystore);
 
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(keystore, password.toCharArray());
+		KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		kmf.init(keystore, password.toCharArray());
 
-        initSslSocketFactory(kmf.getKeyManagers(), tmf.getTrustManagers());
-    }
+		initSslSocketFactory(kmf.getKeyManagers(), tmf.getTrustManagers());
+	}
 
-    public static KeyStore loadKeystore(String keystorePassword) throws GeneralSecurityException {
-        KeyStore trusted;
-        try {
-            trusted = KeyStore.getInstance(KeyStore.getDefaultType());
+	public static KeyStore loadKeystore(String keystorePassword) throws GeneralSecurityException {
+		KeyStore trusted;
+		try {
+			trusted = KeyStore.getInstance(KeyStore.getDefaultType());
 
-            File file = new File(Environment.getExternalStorageDirectory() + File.separator
-                    + FileUtils.SDCARD_PATH_FILES + "store.bks");
+			File file = new File(
+					Environment.getExternalStorageDirectory() + File.separator + FileUtils.SDCARD_PATH_FILES
+							+ "store.bks");
 
-            if (!file.exists())
-                return null;
+			if (!file.exists()) return null;
 
-            InputStream in = new FileInputStream(file);
+			InputStream in = new FileInputStream(file);
 
-            try {
-                trusted.load(in, keystorePassword.toCharArray());
-            } finally {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // Empty!
-                }
-            }
-        } catch (Exception e) {
-            throw new GeneralSecurityException("Couldn't load keystore.", e);
-        }
-        return trusted;
-    }
+			try {
+				trusted.load(in, keystorePassword.toCharArray());
+			} finally {
+				try {
+					in.close();
+				} catch (IOException e) {
+					// Empty!
+				}
+			}
+		} catch (Exception e) {
+			throw new GeneralSecurityException("Couldn't load keystore.", e);
+		}
+		return trusted;
+	}
 
-    public static void trustAllCert() throws KeyManagementException, NoSuchAlgorithmException {
-        Log.i(TAG, "Enabling SSLUtils to trust all CERTIFICATES.");
-        X509TrustManager easyTrustManager = new X509TrustManager() {
-            @Override
-            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            }
+	public static void trustAllCert() throws KeyManagementException, NoSuchAlgorithmException {
+		Log.i(TAG, "Enabling SSLUtils to trust all CERTIFICATES.");
+		X509TrustManager easyTrustManager = new X509TrustManager() {
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
 
-            @Override
-            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-            }
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+			}
 
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[]{};
-            }
+			@Override
+			public X509Certificate[] getAcceptedIssuers() {
+				return new X509Certificate[] {};
+			}
 
-        };
+		};
 
-        // Create a trust manager that does not validate certificate chains
-        initSslSocketFactory(null, new TrustManager[]{easyTrustManager});
-    }
+		// Create a trust manager that does not validate certificate chains
+		initSslSocketFactory(null, new TrustManager[] {easyTrustManager});
+	}
 
-    public static void trustAllHost() {
-        Log.i(TAG, "Enabling SSLUtils to trust all HOSTS.");
-        try {
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
-        } catch (Exception e) {
-            // Empty, HostnameVerifier cannot be null.
-        }
-    }
+	public static void trustAllHost() {
+		Log.i(TAG, "Enabling SSLUtils to trust all HOSTS.");
+		try {
+			HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+				@Override
+				public boolean verify(String hostname, SSLSession session) {
+					return true;
+				}
+			});
+		} catch (Exception e) {
+			// Empty, HostnameVerifier cannot be null.
+		}
+	}
 
 }

@@ -38,110 +38,106 @@ import java.util.Date;
 
 public class FeedHeadlineAdapter extends MainAdapter {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = FeedHeadlineAdapter.class.getSimpleName();
+	@SuppressWarnings("unused")
+	private static final String TAG = FeedHeadlineAdapter.class.getSimpleName();
 
-    private int feedId;
-    private boolean selectArticlesForCategory;
+	private int feedId;
+	private boolean selectArticlesForCategory;
 
-    public FeedHeadlineAdapter(Context context, int feedId, boolean selectArticlesForCategory) {
-        super(context);
-        this.feedId = feedId;
-        this.selectArticlesForCategory = selectArticlesForCategory;
-    }
+	public FeedHeadlineAdapter(Context context, int feedId, boolean selectArticlesForCategory) {
+		super(context);
+		this.feedId = feedId;
+		this.selectArticlesForCategory = selectArticlesForCategory;
+	}
 
-    @Override
-    public Object getItem(int position) {
-        Article ret = new Article();
-        Cursor cur = getCursor();
-        if (cur == null)
-            return ret;
+	@Override
+	public Object getItem(int position) {
+		Article ret = new Article();
+		Cursor cur = getCursor();
+		if (cur == null) return ret;
 
-        if (cur.getCount() >= position) {
-            if (cur.moveToPosition(position)) {
-                ret.id = cur.getInt(0);
-                ret.feedId = cur.getInt(1);
-                ret.title = cur.getString(2);
-                ret.isUnread = cur.getInt(3) != 0;
-                ret.updated = new Date(cur.getLong(4));
-                ret.isStarred = cur.getInt(5) != 0;
-                ret.isPublished = cur.getInt(6) != 0;
-            }
-        }
-        return ret;
-    }
+		if (cur.getCount() >= position) {
+			if (cur.moveToPosition(position)) {
+				ret.id = cur.getInt(0);
+				ret.feedId = cur.getInt(1);
+				ret.title = cur.getString(2);
+				ret.isUnread = cur.getInt(3) != 0;
+				ret.updated = new Date(cur.getLong(4));
+				ret.isStarred = cur.getInt(5) != 0;
+				ret.isPublished = cur.getInt(6) != 0;
+			}
+		}
+		return ret;
+	}
 
-    @SuppressWarnings("deprecation")
-    private void getImage(ImageView icon, Article a) {
-        if (a.isUnread) {
-            icon.setBackgroundResource(R.drawable.articleunread48);
-        } else {
-            icon.setBackgroundResource(R.drawable.articleread48);
-        }
+	@SuppressWarnings("deprecation")
+	private void getImage(ImageView icon, Article a) {
+		if (a.isUnread) {
+			icon.setBackgroundResource(R.drawable.articleunread48);
+		} else {
+			icon.setBackgroundResource(R.drawable.articleread48);
+		}
 
-        if (a.isStarred && a.isPublished) {
-            icon.setImageResource(R.drawable.published_and_starred48);
-        } else if (a.isStarred) {
-            icon.setImageResource(R.drawable.star_yellow48);
-        } else if (a.isPublished) {
-            icon.setImageResource(R.drawable.published_blue48);
-        } else {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                icon.setBackgroundDrawable(null);
-            } else {
-                icon.setBackground(null);
-            }
-            if (a.isUnread) {
-                icon.setImageResource(R.drawable.articleunread48);
-            } else {
-                icon.setImageResource(R.drawable.articleread48);
-            }
-        }
-    }
+		if (a.isStarred && a.isPublished) {
+			icon.setImageResource(R.drawable.published_and_starred48);
+		} else if (a.isStarred) {
+			icon.setImageResource(R.drawable.star_yellow48);
+		} else if (a.isPublished) {
+			icon.setImageResource(R.drawable.published_blue48);
+		} else {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+				icon.setBackgroundDrawable(null);
+			} else {
+				icon.setBackground(null);
+			}
+			if (a.isUnread) {
+				icon.setImageResource(R.drawable.articleunread48);
+			} else {
+				icon.setImageResource(R.drawable.articleread48);
+			}
+		}
+	}
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Context context = parent.getContext();
-        if (position >= getCount() || position < 0)
-            return new View(context);
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		Context context = parent.getContext();
+		if (position >= getCount() || position < 0) return new View(context);
 
-        Article a = (Article) getItem(position);
+		Article a = (Article) getItem(position);
 
-        final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        LinearLayout layout = null;
-        if (convertView == null) {
-            layout = (LinearLayout) inflater.inflate(R.layout.item_feedheadline, parent, false);
-        } else {
-            if (convertView instanceof LinearLayout) {
-                layout = (LinearLayout) convertView;
-            }
-        }
+		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LinearLayout layout = null;
+		if (convertView == null) {
+			layout = (LinearLayout) inflater.inflate(R.layout.item_feedheadline, parent, false);
+		} else {
+			if (convertView instanceof LinearLayout) {
+				layout = (LinearLayout) convertView;
+			}
+		}
 
-        if (layout == null)
-            return new View(context);
+		if (layout == null) return new View(context);
 
-        ImageView icon = (ImageView) layout.findViewById(R.id.icon);
-        getImage(icon, a);
+		ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+		getImage(icon, a);
 
-        TextView title = (TextView) layout.findViewById(R.id.title);
-        title.setText(a.title);
-        if (a.isUnread)
-            title.setTypeface(Typeface.DEFAULT_BOLD);
+		TextView title = (TextView) layout.findViewById(R.id.title);
+		title.setText(a.title);
+		if (a.isUnread) title.setTypeface(Typeface.DEFAULT_BOLD);
 
-        TextView updateDate = (TextView) layout.findViewById(R.id.updateDate);
-        String date = DateUtils.getDateTime(context, a.updated);
-        updateDate.setText(date.length() > 0 ? "(" + date + ")" : "");
+		TextView updateDate = (TextView) layout.findViewById(R.id.updateDate);
+		String date = DateUtils.getDateTime(context, a.updated);
+		updateDate.setText(date.length() > 0 ? "(" + date + ")" : "");
 
-        TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
-        // Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category
-        if ((feedId < 0 && feedId >= -4) || (selectArticlesForCategory)) {
-            Feed f = DBHelper.getInstance().getFeed(a.feedId);
-            if (f != null) {
-                dataSource.setText(f.title);
-            }
-        }
+		TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
+		// Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category
+		if ((feedId < 0 && feedId >= -4) || (selectArticlesForCategory)) {
+			Feed f = DBHelper.getInstance().getFeed(a.feedId);
+			if (f != null) {
+				dataSource.setText(f.title);
+			}
+		}
 
-        return layout;
-    }
+		return layout;
+	}
 
 }

@@ -32,76 +32,76 @@ import java.util.Set;
  */
 public class IdUpdatedArticleOmitter implements IArticleOmitter {
 
-    /**
-     * map of article IDs to it's updated date
-     */
-    private Map<Integer, Long> idUpdatedMap;
+	/**
+	 * map of article IDs to it's updated date
+	 */
+	private Map<Integer, Long> idUpdatedMap;
 
-    /**
-     * articles, which was skipped
-     */
-    private Set<Integer> omittedArticles;
+	/**
+	 * articles, which was skipped
+	 */
+	private Set<Integer> omittedArticles;
 
-    /**
-     * construct the object according to selection parameters
-     *
-     * @param selection     A filter declaring which rows to return, formatted as an SQL WHERE clause (excluding the
-     *                      WHERE
-     *                      itself). Passing null will return all rows.
-     * @param selectionArgs You may include ?s in selection, which will be replaced by the values from selectionArgs,
-     *                      in
-     *                      order
-     *                      that they appear in the selection. The values will be bound as Strings.
-     */
-    public IdUpdatedArticleOmitter(String selection, String[] selectionArgs) {
-        idUpdatedMap = DBHelper.getInstance().getArticleIdUpdatedMap(selection, selectionArgs);
-        omittedArticles = new HashSet<>();
-    }
+	/**
+	 * construct the object according to selection parameters
+	 *
+	 * @param selection     A filter declaring which rows to return, formatted as an SQL WHERE clause (excluding the
+	 *                      WHERE
+	 *                      itself). Passing null will return all rows.
+	 * @param selectionArgs You may include ?s in selection, which will be replaced by the values from selectionArgs,
+	 *                      in
+	 *                      order
+	 *                      that they appear in the selection. The values will be bound as Strings.
+	 */
+	public IdUpdatedArticleOmitter(String selection, String[] selectionArgs) {
+		idUpdatedMap = DBHelper.getInstance().getArticleIdUpdatedMap(selection, selectionArgs);
+		omittedArticles = new HashSet<>();
+	}
 
-    /**
-     * article should be omitted if it's ID already exist in DB and updated date is not after date, which is stored in
-     * DB
-     *
-     * @param field current article field added to article on this iteration
-     * @param a     article to test
-     * @return {@code true} if given article should be omitted, {@code false} otherwise
-     * @throws StopJsonParsingException if parsing process make no sense (anymore) and should be broken
-     */
-    public boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException {
-        boolean skip = false;
+	/**
+	 * article should be omitted if it's ID already exist in DB and updated date is not after date, which is stored in
+	 * DB
+	 *
+	 * @param field current article field added to article on this iteration
+	 * @param a     article to test
+	 * @return {@code true} if given article should be omitted, {@code false} otherwise
+	 * @throws StopJsonParsingException if parsing process make no sense (anymore) and should be broken
+	 */
+	public boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException {
+		boolean skip = false;
 
-        switch (field) {
-            case id:
-            case updated:
-                if (a.id > 0 && a.updated != null) {
-                    Long updated = idUpdatedMap.get(a.id);
-                    if (updated != null && a.updated.getTime() <= updated) {
-                        skip = true;
-                        omittedArticles.add(a.id);
-                    }
-                }
-            default:
-                break;
-        }
+		switch (field) {
+			case id:
+			case updated:
+				if (a.id > 0 && a.updated != null) {
+					Long updated = idUpdatedMap.get(a.id);
+					if (updated != null && a.updated.getTime() <= updated) {
+						skip = true;
+						omittedArticles.add(a.id);
+					}
+				}
+			default:
+				break;
+		}
 
-        return skip;
-    }
+		return skip;
+	}
 
-    /**
-     * map of article IDs to it's updated date
-     *
-     * @return the idUpdatedMap
-     */
-    public Map<Integer, Long> getIdUpdatedMap() {
-        return idUpdatedMap;
-    }
+	/**
+	 * map of article IDs to it's updated date
+	 *
+	 * @return the idUpdatedMap
+	 */
+	public Map<Integer, Long> getIdUpdatedMap() {
+		return idUpdatedMap;
+	}
 
-    /**
-     * articles, which was skipped
-     *
-     * @return the omittedArticles
-     */
-    public Set<Integer> getOmittedArticles() {
-        return omittedArticles;
-    }
+	/**
+	 * articles, which was skipped
+	 *
+	 * @return the omittedArticles
+	 */
+	public Set<Integer> getOmittedArticles() {
+		return omittedArticles;
+	}
 }
