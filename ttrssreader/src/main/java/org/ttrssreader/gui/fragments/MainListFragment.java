@@ -26,6 +26,8 @@ import org.ttrssreader.gui.view.MyGestureDetector;
 import org.ttrssreader.model.MainAdapter;
 import org.ttrssreader.utils.AsyncTask;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ListFragment;
@@ -38,8 +40,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 
 public abstract class MainListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -51,8 +55,6 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	protected static final int TYPE_FEED_ID = 2;
 	protected static final int TYPE_HEADLINE_ID = 3;
 
-	private static final String SELECTED_INDEX = "selectedIndex";
-	private static final int SELECTED_INDEX_DEFAULT = Integer.MIN_VALUE;
 	private static final String SELECTED_ID = "selectedId";
 	private static final int SELECTED_ID_DEFAULT = Integer.MIN_VALUE;
 
@@ -72,6 +74,11 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 
 		// Async update of title und unread data:
 		updateTitleAndUnread();
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.item_list, container, false);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -118,11 +125,6 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 
 		// Read the selected list item after orientation changes and similar
 		getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		if (instance != null) {
-			int selectedIndex = instance.getInt(SELECTED_INDEX, SELECTED_INDEX_DEFAULT);
-			selectedId = adapter.getId(selectedIndex);
-			setChecked(selectedId);
-		}
 	}
 
 	@Override
@@ -231,5 +233,20 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	protected abstract void fetchOtherData();
+
+	@Override
+	public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
+		if (Controller.sFragmentAnimationDirection != 0) {
+			Animator a;
+			if (Controller.sFragmentAnimationDirection > 0)
+				a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_left);
+			else a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_right);
+
+			// Reset:
+			Controller.sFragmentAnimationDirection = 0;
+			return a;
+		}
+		return super.onCreateAnimator(transit, enter, nextAnim);
+	}
 
 }

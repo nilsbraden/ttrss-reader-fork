@@ -183,9 +183,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			}
 		}
 
-		if ((!isCacherRunning() && !cacherStarted) || forceUpdate) {
-			categoryUpdater = new CategoryUpdater(forceUpdate);
-			categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		if (Data.getInstance().isConnected()) {
+			if ((!isCacherRunning() && !cacherStarted) || forceUpdate) {
+				categoryUpdater = new CategoryUpdater(forceUpdate);
+				categoryUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			}
 		}
 	}
 
@@ -260,7 +262,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			// Silently try to synchronize any ids left in TABLE_MARK:
 			Data.getInstance().synchronizeStatus();
 
-			// Silently remove articles which belongs to feeds which do not exist on the server anymore:
+			// Silently remove articles which belong to feeds which do not exist on the server anymore:
 			Data.getInstance().purgeOrphanedArticles();
 
 			return null;
@@ -321,7 +323,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		// Animation
 		if (Controller.isTablet)
 			ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out, android.R.anim.fade_in,
-					R.anim.slide_out_left);
+					R.animator.slide_out_left);
 		else ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 
 		if (!Controller.isTablet) ft.addToBackStack(null);

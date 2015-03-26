@@ -166,6 +166,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
 	public static boolean isTablet = false;
 	private boolean scheduledRestart = false;
+	public static int sFragmentAnimationDirection = 0;
 
 	// Singleton (see http://stackoverflow.com/a/11165926)
 	private Controller() {

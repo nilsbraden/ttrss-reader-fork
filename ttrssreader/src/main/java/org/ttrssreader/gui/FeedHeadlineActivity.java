@@ -34,7 +34,6 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -51,8 +50,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	private FeedHeadlineUpdater headlineUpdater = null;
 
-	private static final String SELECTED = "SELECTED";
-	private int selectedArticleId = Integer.MIN_VALUE;
+	private int articleId = Integer.MIN_VALUE;
 
 	private FeedListFragment feedFragment;
 	private FeedHeadlineListFragment headlineFragment;
@@ -68,12 +66,12 @@ public class FeedHeadlineActivity extends MenuActivity {
 			categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
 			feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
 			selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
-			selectedArticleId = instance.getInt(SELECTED, Integer.MIN_VALUE);
+			articleId = instance.getInt(FeedHeadlineListFragment.ARTICLE_ID, Integer.MIN_VALUE);
 		} else if (extras != null) {
 			categoryId = extras.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
 			feedId = extras.getInt(FeedHeadlineListFragment.FEED_ID);
 			selectArticlesForCategory = extras.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
-			selectedArticleId = extras.getInt(SELECTED, Integer.MIN_VALUE);
+			articleId = extras.getInt(FeedHeadlineListFragment.ARTICLE_ID, Integer.MIN_VALUE);
 		}
 
 		FragmentManager fm = getFragmentManager();
@@ -85,20 +83,16 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 		headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		if (headlineFragment == null) {
-			headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
-
-			FragmentTransaction ft = fm.beginTransaction();
-			ft.add(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT);
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+			displayFeed(feedId, 0);
 		}
 	}
 
 	@Override
 	public void onSaveInstanceState(@NotNull Bundle outState) {
 		outState.putInt(FeedHeadlineListFragment.FEED_CAT_ID, categoryId);
-		outState.putInt(FeedHeadlineListFragment.FEED_ID, headlineFragment.getFeedId());
+		outState.putInt(FeedHeadlineListFragment.FEED_ID, feedId);
 		outState.putBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES, selectArticlesForCategory);
-		outState.putInt(SELECTED, selectedArticleId);
+		outState.putInt(FeedHeadlineListFragment.ARTICLE_ID, articleId);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -107,7 +101,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 		categoryId = instance.getInt(FeedHeadlineListFragment.FEED_CAT_ID);
 		feedId = instance.getInt(FeedHeadlineListFragment.FEED_ID);
 		selectArticlesForCategory = instance.getBoolean(FeedHeadlineListFragment.FEED_SELECT_ARTICLES);
-		selectedArticleId = instance.getInt(SELECTED, Integer.MIN_VALUE);
+		articleId = instance.getInt(FeedHeadlineListFragment.ARTICLE_ID, Integer.MIN_VALUE);
 		super.onRestoreInstanceState(instance);
 	}
 
@@ -143,15 +137,17 @@ public class FeedHeadlineActivity extends MenuActivity {
 			}
 		}
 
-		if (!isCacherRunning()) {
-			headlineUpdater = new FeedHeadlineUpdater(forceUpdate);
-			headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+		if (Data.getInstance().isConnected()) {
+			if (!isCacherRunning()) {
+				headlineUpdater = new FeedHeadlineUpdater(forceUpdate);
+				headlineUpdater.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			}
 		}
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if (selectedArticleId != Integer.MIN_VALUE) {
+		if (articleId != Integer.MIN_VALUE) {
 			getMenuInflater().inflate(R.menu.article, menu);
 			if (Controller.isTablet) super.onCreateOptionsMenu(menu);
 		} else {
@@ -207,7 +203,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	private void openNextFragment(int direction) {
-		if (selectedArticleId != Integer.MIN_VALUE) {
+		if (articleId != Integer.MIN_VALUE) {
 			openNextArticle(direction);
 		} else {
 			openNextFeed(direction);
@@ -229,7 +225,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	public void openNextArticle(int direction) {
 		// Open next article
-		int[] ids = getNextPrevIds(headlineFragment.getArticleIds(), selectedArticleId);
+		int[] ids = getNextPrevIds(headlineFragment.getArticleIds(), articleId);
 		int newId = (direction < 0) ? ids[0] : ids[1];
 
 		if (newId == Integer.MIN_VALUE) {
@@ -270,8 +266,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 			if (selectArticlesForCategory) {
 				Data.getInstance().updateArticles(categoryId, displayUnread, true, false, forceUpdate);
 			} else {
-				Data.getInstance()
-						.updateArticles(headlineFragment.getFeedId(), displayUnread, false, false, forceUpdate);
+				Data.getInstance().updateArticles(feedId, displayUnread, false, false, forceUpdate);
 			}
 			Data.getInstance().calculateCounters();
 			Data.getInstance().notifyListeners();
@@ -284,53 +279,50 @@ public class FeedHeadlineActivity extends MenuActivity {
 	public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) {
 		switch (source.getType()) {
 			case FEEDHEADLINE:
-				displayArticle(selectedId, ArticleFragment.ARTICLE_MOVE_DEFAULT);
-				break;
-			default:
-				Toast.makeText(this, "Invalid request!", Toast.LENGTH_SHORT).show();
+				displayArticle(selectedId, 0);
 				break;
 		}
 	}
 
-	private void displayFeed(int feedId, int direction) {
-		this.feedId = feedId;
+	private void displayFeed(int newFeedId, int direction) {
+		feedId = newFeedId;
 		headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
+		FragmentManager fm = getFragmentManager();
 
-		// Clear back stack
-		getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		if (direction >= 0) ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
-		else ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
-
-		if (!Controller.isTablet) ft.addToBackStack(null);
-
-		ft.replace(R.id.frame_main, headlineFragment, ArticleFragment.FRAGMENT).commit();
+		FragmentTransaction ft = fm.beginTransaction();
+		setAnimationForDirection(ft, direction);
+		if (direction == 0) ft.add(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT).commit();
+		else ft.replace(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT).commit();
 	}
 
-	private void displayArticle(int articleId, int direction) {
-		selectedArticleId = articleId;
-		headlineFragment.setSelectedId(selectedArticleId);
+	private void displayArticle(int newArticleId, int direction) {
+		articleId = newArticleId;
+		headlineFragment.setSelectedId(articleId);
+		FragmentManager fm = getFragmentManager();
 
 		// Clear back stack
-		getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+		Controller.sFragmentAnimationDirection = direction;
+		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 		ArticleFragment articleFragment = ArticleFragment
-				.newInstance(selectedArticleId, headlineFragment.getFeedId(), categoryId, selectArticlesForCategory,
-						direction);
+				.newInstance(articleId, feedId, categoryId, selectArticlesForCategory, direction);
 
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		if (direction >= 0) ft.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left);
-		else ft.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right);
-
+		FragmentTransaction ft = fm.beginTransaction();
 		if (!Controller.isTablet) ft.addToBackStack(null);
+		setAnimationForDirection(ft, direction);
+		if (direction == 0) ft.add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
+		else ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
+	}
 
-		ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
+	private static FragmentTransaction setAnimationForDirection(final FragmentTransaction ft, final int direction) {
+		if (direction >= 0) ft.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+		else ft.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
+		return ft;
 	}
 
 	@Override
 	public void onBackPressed() {
-		selectedArticleId = Integer.MIN_VALUE;
+		articleId = Integer.MIN_VALUE;
 		super.onBackPressed();
 	}
 

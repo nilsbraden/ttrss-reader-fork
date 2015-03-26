@@ -181,8 +181,8 @@ public class Utils {
 
 	/**
 	 * Checks if the option to work offline is set or if the data-connection isn't established, else returns true. If
-	 * we
-	 * are about to connect it waits for maximum one second and then returns the network state without waiting anymore.
+	 * we are about to connect it waits for maximum one second and then returns the network state without waiting
+	 * anymore.
 	 */
 	public static boolean isConnected(ConnectivityManager cm) {
 		return !Controller.getInstance().workOffline() && checkConnected(cm);

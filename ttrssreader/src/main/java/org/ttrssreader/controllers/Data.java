@@ -584,4 +584,8 @@ public class Data {
 		if (!Controller.getInstance().isHeadless()) UpdateController.getInstance().notifyListeners();
 	}
 
+	public boolean isConnected() {
+		return Utils.isConnected(cm);
+	}
+
 }

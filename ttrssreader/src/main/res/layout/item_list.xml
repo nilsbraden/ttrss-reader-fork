@@ -15,10 +15,17 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
-	android:interpolator="@android:anim/accelerate_decelerate_interpolator"
-	android:fromXDelta="0%"
-	android:toXDelta="100%"
-	android:fromAlpha="1.0"
-	android:toAlpha="0.0"
-	android:duration="@android:integer/config_mediumAnimTime" />
+
+<org.ttrssreader.gui.view.CustomFrameLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:gravity="top"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<ListView
+		android:id="@id/android:list"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:drawSelectorOnTop="false" />
+</org.ttrssreader.gui.view.CustomFrameLayout>

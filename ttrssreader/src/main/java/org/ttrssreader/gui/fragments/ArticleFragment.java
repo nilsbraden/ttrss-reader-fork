@@ -49,6 +49,8 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.DateUtils;
 import org.ttrssreader.utils.FileUtils;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -100,8 +102,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	private static final String ARTICLE_FEED_ID = "ARTICLE_FEED_ID";
 
 	private static final String ARTICLE_MOVE = "ARTICLE_MOVE";
-	private static final int ARTICLE_MOVE_NONE = 0;
-	public static final int ARTICLE_MOVE_DEFAULT = ARTICLE_MOVE_NONE;
 	private static final int CONTEXT_MENU_SHARE_URL = 1000;
 	private static final int CONTEXT_MENU_SHARE_ARTICLE = 1001;
 	private static final int CONTEXT_MENU_DISPLAY_CAPTION = 1002;
@@ -125,7 +125,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	private int feedId = -1;
 	private int categoryId = Integer.MIN_VALUE;
 	private boolean selectArticlesForCategory = false;
-	private int lastMove = ARTICLE_MOVE_DEFAULT;
+	private int lastMove = 0;
 
 	private Article article = null;
 	private Feed feed = null;
@@ -388,6 +388,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			contentTemplate.add(MARKER_ATTACHMENTS, getAttachmentsMarkup(getActivity(), article.attachments));
 
 			webView.getSettings().setJavaScriptEnabled(true);
+			// TODO: Do we need to do this?
+			//			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
 			webView.addJavascriptInterface(articleJSInterface, "articleController");
 			content = contentTemplate.render();
 			webView.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
@@ -901,6 +903,21 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	public void onPublishNoteResult(Article a, String note) {
 		new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note))
 				.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	}
+
+	@Override
+	public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
+		if (Controller.sFragmentAnimationDirection != 0) {
+			Animator a;
+			if (Controller.sFragmentAnimationDirection > 0)
+				a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_left);
+			else a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_right);
+
+			// Reset:
+			Controller.sFragmentAnimationDirection = 0;
+			return a;
+		}
+		return super.onCreateAnimator(transit, enter, nextAnim);
 	}
 
 }
