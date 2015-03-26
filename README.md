@@ -5,10 +5,11 @@ TTRSS-Reader (or ttrss-reader-fork) is a fork of the original Project from [ttrs
 It is a client application for the RSS-Reader [Tiny Tiny RSS](http://tt-rss.org/), a PHP-based online feedreader which runs on your own webspace. It is accessible with any browser and even supports keyboard shortcuts through javascript.
 Download
 
-Since google announced that the downloads from google-code will not be available after January 14th, 2014 I started to move all downloads to google-drive. The commentary with the current changelog will be removed in the process but the full changelog can be viewed in the Wiki. For all downloads visit [Google Drive](https://drive.google.com/folderview?id=0B2I5LDZK1kOEcGRJVkw5MGUwdlk&usp=sharing).
+Since google announced that the downloads from google-code will not be available after January 14th, 2014 I started to move all downloads to google-drive. The commentary with the current changelog will be removed in the process but the full changelog can be viewed in the Wiki.
 
 Current Version: **1.80**<br>
-Compatibility Version: **1.39**
+Compatibility Version: **1.39**<br>
+All downloads: [Google Drive](https://drive.google.com/folderview?id=0B2I5LDZK1kOEcGRJVkw5MGUwdlk&usp=sharing)
 
 # Features
 
@@ -36,7 +37,8 @@ Please feel free to contact me via E-Mail (ttrss /at/ nilsbraden.de) or via the 
 
 # Donations
 
-If you would like to support my work and the further developement of TTRSS-reader you may submit a donation via Paypal of flattr me here:
+If you would like to support my work and the further developement of TTRSS-reader you may submit a donation via Paypal or flattr me here:
+ * [paypal.com](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SD4AN4APNW6B4)
  * [Direct Link to the flattr-Thing](http://web.archive.org/web/20141226123321/)
 
 For more information you may want to visit [Donations](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Donations).
