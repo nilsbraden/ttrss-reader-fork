@@ -30,7 +30,7 @@ All downloads: [Google Drive](https://drive.google.com/folderview?id=0B2I5LDZK1k
 
 # Note regarding support and F-Droid
 
-Since ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.ttrssreader) is often several months late with the build I have to make this clear: I won't provide support for versions which are not exactly or at least near to the version which is stated above on this site ("Current Version"). Please provide the full version information from the About-box within the app when reporting an issue!
+Since [F-Droid](https://f-droid.org/repository/browse/?fdid=org.ttrssreader) is often several months late with the build I have to make this clear: I won't provide support for versions which are not exactly or at least near to the version which is stated above on this site ("Current Version"). Please provide the full version information from the About-box within the app when reporting an issue!
 
 # Contact
 Please feel free to contact me via E-Mail (ttrss /at/ nilsbraden.de) or via the Bugtracker (Issues). If you have questions specifically about Tiny Tiny RSS you may ask me or visit the [Tiny-Tiny-RSS-Forum](http://tt-rss.org/forum/) or #tt-rss at irc.tt-rss.org. If I don't answer fast enough or am not willing to implement your suggestion please keep in mind that this is only a hobby for me and I'm unwilling to implement every little feature just beacuse you suggested I do so. You may implement it and send me pull-requests so I can include the features but I can't guarantee I will do this for every thing you want to have.
