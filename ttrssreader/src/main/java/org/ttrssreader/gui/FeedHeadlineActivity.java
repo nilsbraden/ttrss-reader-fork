@@ -315,8 +315,10 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	private static FragmentTransaction setAnimationForDirection(final FragmentTransaction ft, final int direction) {
-		if (direction >= 0) ft.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-		else ft.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
+		if (Controller.getInstance().animations()) {
+			if (direction >= 0) ft.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+			else ft.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
+		}
 		return ft;
 	}
 

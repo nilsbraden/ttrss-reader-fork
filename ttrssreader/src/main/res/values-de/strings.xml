@@ -209,6 +209,8 @@
 	<string name="DisplayDarkBackgroundTitle">Dunklen Hintergrund verwenden?</string>
 	<string name="DisplayThemeTitle">App-Theme auswählen</string>
 	<string name="DisplayThemeSummary">Schwarz/Weiß verwendet schwarze Schrift auf weißem Hintergrund (oder umgekehrt), um das Lesen auf E-Book-Readern zu ermöglichen.</string>
+	<string name="DisplayAnimationsTitle">Nutze Animationen</string>
+	<string name="DisplayAnimationsSummary">Aktiviert Animationen beim Anzeigen von Feeds und Artikeln.</string>
 	<string name="SystemPreferenceCategoryTitle">System</string>
 	<string name="LogSensitiveDataTitle">Persönliche Informationen loggen?</string>
 	<string name="LogSensitiveDataSummary">Wenn dies aktiviert wird, kann die Log-Ausgabe der Anwendung persönliche Daten wie Passwörter oder Sitzungs-IDs im Klartext enthalten. Nur bei Bedarf aktivieren. Nur für Debugging-Zwecke.</string>

@@ -111,6 +111,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	private Boolean allowTabletLayout = null;
 	private Boolean hideFeedReadButtons = null;
 
+	private Boolean animations = null;
 	private Integer textZoom = null;
 	private Boolean supportZoomControls = null;
 	private Boolean allowHyphenation = null;
@@ -623,6 +624,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	}
 
 	// ******* DISPLAY-Options ****************************
+
+	public boolean animations() {
+		if (animations == null) animations = prefs.getBoolean(Constants.ANIMATIONS, Constants.ANIMATIONS_DEFAULT);
+		return animations;
+	}
+
+	public void setAnimations(boolean animations) {
+		put(Constants.ANIMATIONS, animations);
+		this.animations = animations;
+	}
 
 	public int textZoom() {
 		if (textZoom == null) textZoom = prefs.getInt(Constants.TEXT_ZOOM, Constants.TEXT_ZOOM_DEFAULT);

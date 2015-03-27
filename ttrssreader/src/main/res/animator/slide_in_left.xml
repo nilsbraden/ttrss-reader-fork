@@ -21,4 +21,4 @@
 	android:valueTo="0.0"
 	android:propertyName="xFraction"
 	android:valueType="floatType"
-	android:duration="@android:integer/config_mediumAnimTime" />
+	android:duration="@android:integer/config_shortAnimTime" />

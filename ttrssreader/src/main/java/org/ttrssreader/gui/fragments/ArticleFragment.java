@@ -907,7 +907,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 	@Override
 	public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
-		if (Controller.sFragmentAnimationDirection != 0) {
+		if (Controller.sFragmentAnimationDirection != 0 && Controller.getInstance().animations()) {
 			Animator a;
 			if (Controller.sFragmentAnimationDirection > 0)
 				a = AnimatorInflater.loadAnimator(getActivity(), R.animator.slide_out_left);

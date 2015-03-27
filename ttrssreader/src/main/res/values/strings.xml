@@ -213,6 +213,8 @@
 	<string name="DisplayDarkBackgroundSummary">Enable this to display the articles with a dark background for easier reading at night.</string>
 	<string name="DisplayThemeTitle">Select App-Theme</string>
 	<string name="DisplayThemeSummary">Black/White are completely black font, white background (or inversed) so allow reading on EBook-Readers.</string>
+	<string name="DisplayAnimationsTitle">Enable Animations</string>
+	<string name="DisplayAnimationsSummary">Enables transition animations when switching articles and feeds.</string>
 	<string name="SystemPreferenceCategoryTitle">System</string>
 	<string name="LogSensitiveDataTitle">Log sensitive data?</string>
 	<string name="LogSensitiveDataSummary">If enabled the log-output of this application may contain sensitive information such as passwords or session-ids from your configuration. Only enable if necessary, should be for debugging purposes only.</string>

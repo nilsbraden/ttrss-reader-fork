@@ -83,6 +83,8 @@ public class Constants {
 	public static final boolean HIDE_FEED_READ_BUTTONS_DEFAULT = false;
 
 	// Display
+	public static final String THEME = "DisplayThemePreference";
+	public static final String ANIMATIONS = "DisplayAnimationsPreference";
 	public static final String TEXT_ZOOM = "TextZoomPreference";
 	public static final String SUPPORT_ZOOM_CONTROLS = "SupportZoomControlsPreference";
 	public static final String ALLOW_HYPHENATION = "AllowHyphenationPreference";
@@ -98,8 +100,9 @@ public class Constants {
 	public static final String DATE_STRING = "DisplayDateFormatPreference";
 	public static final String TIME_STRING = "DisplayTimeFormatPreference";
 	public static final String DATE_TIME_STRING = "DisplayDateTimeFormatPreference";
-	public static final String THEME = "DisplayThemePreference";
 	// Display Default Values
+	public static final String THEME_DEFAULT = "1";
+	public static final boolean ANIMATIONS_DEFAULT = true;
 	public static final int TEXT_ZOOM_DEFAULT = 100;
 	public static final boolean SUPPORT_ZOOM_CONTROLS_DEFAULT = true;
 	public static final boolean ALLOW_HYPHENATION_DEFAULT = false;
@@ -117,7 +120,6 @@ public class Constants {
 	public static final String DATE_STRING_DEFAULT = "dd.MM.yyyy";
 	public static final String TIME_STRING_DEFAULT = "kk:mm";
 	public static final String DATE_TIME_STRING_DEFAULT = "dd.MM.yyyy kk:mm";
-	public static final String THEME_DEFAULT = "1";
 
 	// System
 	public static final String SAVE_ATTACHMENT = "SaveAttachmentPreference";
