@@ -18,6 +18,23 @@
 <resources>
 
 	<string-array name="updates">
+		<item>Version 1.82
+			\n * Read ALT-Text from tags of type IMAGE_ANCHOR too (Read TITLE-Tag first, if empty read ALT-Tag)
+			\n * Slight layout changes, buttons now appear a bit more Lollipop-Styled
+			\n * Fixed synchronisation issues with virtual categories when rotating device
+			\n * Slightly changed the visible items in the actionbar
+			\n * Fixed internal problem with imageCache leading to FCs
+			\n * Fixed Issue #268: disable media loading
+			\n * Fixed issue #269: Server-local cached images cannot be downloaded when HTTP Authentication is in use
+			\n * Ask for confirmation before marking virtual categories and feed-collections as read.
+			\n * Fixed Issue #270: Option to disable "All Read", "Feed Read", "Feeds Read" buttons
+			\n * Added YesNoDialog to marking a feed as read if the current feed is a union of all feeds of a category.
+			\n * Fixed Issue #272: ttrss-reader calls home without asking for permission. If the user disables chrasreports, the minSupportedVersion.txt is not updated anymore. I also included a hint in the preference regarding this issue.
+			\n * Fixes Issue #248: Copy feed text. Added copy content method by long press within an article.
+			\n * Tweaked swiping mechanism: Only accept movement as a swipe if the horizontal distance was greater then the vertical distance
+			\n * Added animations for slide left/right
+			\n * Reduced database operations while beeing offline
+			\n</item>
 		<item>Version 1.81
 			\n * Attempt to build with PRNGFixes again (fixes Issue #264)
 			\n * Fixed  Issue #253: \"Adding a new feed will put it in a random category\"
