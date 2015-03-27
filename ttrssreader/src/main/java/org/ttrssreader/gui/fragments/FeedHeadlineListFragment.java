@@ -276,7 +276,19 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		return feedId;
 	}
 
+	List<Integer> currentSelectedList = null;
+
+	@Override
+	public void setSelectedId(int selectedId) {
+		// Cache the current list of articleIds. This is necessary to allow jumping between articles to stop at the
+		// end of the unread articles. The list in this fragments adapter is reloaded when there are no more unread
+		// articles but we still want to stop reading when the last unread has been reached.
+		currentSelectedList = adapter.getIds();
+		super.setSelectedId(selectedId);
+	}
+
 	public List<Integer> getArticleIds() {
+		if (currentSelectedList != null) return currentSelectedList;
 		return adapter.getIds();
 	}
 
