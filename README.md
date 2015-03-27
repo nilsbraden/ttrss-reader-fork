@@ -7,7 +7,7 @@ Download
 
 Since google announced that the downloads from google-code will not be available after January 14th, 2014 I started to move all downloads to google-drive. The commentary with the current changelog will be removed in the process but the full changelog can be viewed in the Wiki.
 
-Current Version: **1.80**<br>
+Current Version: **1.82**<br>
 Compatibility Version: **1.39**<br>
 All downloads: [Google Drive](https://drive.google.com/folderview?id=0B2I5LDZK1kOEcGRJVkw5MGUwdlk&usp=sharing)
 
