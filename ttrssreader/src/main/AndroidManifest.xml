@@ -19,10 +19,10 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	package="org.ttrssreader"
 	android:installLocation="internalOnly"
-	android:versionCode="1811"
-	android:versionName="1.81">
+	android:versionCode="1820"
+	android:versionName="1.82">
 
-	<!-- Check connectivity -->
+<!-- Check connectivity -->
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 	<!-- Define special preferences for a Wifi-Network -->
