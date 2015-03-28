@@ -223,10 +223,10 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 			case R.id.Menu_MarkFeedRead: {
 				boolean backAfterUpdate = Controller.getInstance().goBackAfterMarkAllRead();
 				if (selectArticlesForCategory) {
-					IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
+					IUpdatable updateable = new ReadStateUpdater(categoryId);
 					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
 				} else if (feedId >= -4 && feedId < 0) { // Virtual Category
-					IUpdatable updateable = new ReadStateUpdater(ReadStateUpdater.TYPE.ALL_CATEGORIES);
+					IUpdatable updateable = new ReadStateUpdater(feedId, 42);
 					ReadStateDialog.getInstance(updateable, backAfterUpdate).show(getFragmentManager());
 				} else {
 					new Updater(getActivity(), new ReadStateUpdater(feedId, 42), backAfterUpdate)
