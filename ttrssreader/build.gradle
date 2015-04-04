@@ -43,8 +43,8 @@ android {
         apply from: "../signingconfig.gradle";
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -54,7 +54,7 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.5'
     compile 'org.antlr:ST4:4.0.8'
-    compile files('libs/google-utils.jar')
+    compile 'com.google.guava:guava:18.0'
     // For @Nullable/@NonNull
     compile 'com.intellij:annotations:+@jar'
 }
