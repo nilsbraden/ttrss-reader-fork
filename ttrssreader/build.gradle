@@ -39,12 +39,13 @@ android {
         exclude 'META-INF/LICENSE.txt'
     }
 
-    if (new File("../signingconfig.gradle").exists()) {
-        apply from: "../signingconfig.gradle";
+    if (file("../signingconfig.gradle").exists()) {
+        apply from: "../signingconfig.gradle"
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
