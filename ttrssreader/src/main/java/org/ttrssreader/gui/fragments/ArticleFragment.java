@@ -396,7 +396,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 			contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
 			contentTemplate.add(TEMPLATE_FEED_VAR, feed);
-			contentTemplate.add(MARKER_CACHED_IMAGES, cachedImages); // TODO: Cache these in background.
+			contentTemplate.add(MARKER_CACHED_IMAGES, cachedImages);
 			contentTemplate.add(MARKER_LABELS, labels.toString());
 			contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getActivity(), article.updated));
 			contentTemplate.add(MARKER_CONTENT, article.content);
