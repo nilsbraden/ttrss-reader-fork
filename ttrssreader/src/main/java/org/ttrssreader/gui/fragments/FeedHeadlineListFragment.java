@@ -331,42 +331,27 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		switch (id) {
-			case TYPE_HEADLINE_ID: {
-				Builder builder = ListContentProvider.CONTENT_URI_HEAD.buildUpon();
-				builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
-				builder.appendQueryParameter(ListContentProvider.PARAM_FEED_ID, feedId + "");
-				builder.appendQueryParameter(ListContentProvider.PARAM_SELECT_FOR_CAT,
-						(selectArticlesForCategory ? "1" : "0"));
-				headlineUri = builder.build();
-				return new CursorLoader(getActivity(), headlineUri, null, null, null, null);
-			}
-			case TYPE_FEED_ID: {
-				Builder builder = ListContentProvider.CONTENT_URI_FEED.buildUpon();
-				builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
-				return new CursorLoader(getActivity(), builder.build(), null, null, null, null);
-			}
+		if (id == TYPE_HEADLINE_ID) {
+			Builder builder = ListContentProvider.CONTENT_URI_HEAD.buildUpon();
+			builder.appendQueryParameter(ListContentProvider.PARAM_CAT_ID, categoryId + "");
+			builder.appendQueryParameter(ListContentProvider.PARAM_FEED_ID, feedId + "");
+			builder.appendQueryParameter(ListContentProvider.PARAM_SELECT_FOR_CAT,
+					(selectArticlesForCategory ? "1" : "0"));
+			headlineUri = builder.build();
+			return new CursorLoader(getActivity(), headlineUri, null, null, null, null);
 		}
 		return null;
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		switch (loader.getId()) {
-			case TYPE_HEADLINE_ID:
-				adapter.changeCursor(data);
-				break;
-		}
+		if (loader.getId() == TYPE_HEADLINE_ID) adapter.swapCursor(data);
 		super.onLoadFinished(loader, data);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		switch (loader.getId()) {
-			case TYPE_HEADLINE_ID:
-				adapter.changeCursor(null);
-				break;
-		}
+		if (loader.getId() == TYPE_HEADLINE_ID) adapter.swapCursor(null);
 	}
 
 	@Override

@@ -18,6 +18,7 @@
 package org.ttrssreader.controllers;
 
 import org.stringtemplate.v4.ST;
+import org.ttrssreader.MyApplication;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.CategoryActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
@@ -34,6 +35,7 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
@@ -44,7 +46,6 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -84,7 +85,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	private static final int THEME_BLACK = 3;
 	private static final int THEME_WHITE = 4;
 
-	private WeakReference<Context> contextRef;
 	private WifiManager wifiManager;
 
 	private JSONConnector ttrssConnector;
@@ -182,7 +182,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	}
 
 	public void initialize(final Context context) {
-		this.contextRef = new WeakReference<>(context);
 		this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
 		synchronized (lockInitialize) {
@@ -251,7 +250,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 					// Loads all article and webview related resources
 					reloadTheme();
 
-					enableHttpResponseCache(context);
+					enableHttpResponseCache(context.getCacheDir());
 
 					return null;
 				}
@@ -262,26 +261,24 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	}
 
 	private void reloadTheme() {
-		Context context = contextRef.get();
-		if (context == null) return;
+		final Resources res = MyApplication.context().getResources();
 
 		// Article-Prefetch-Stuff from Raw-Ressources and System
-		ST htmlTmpl = new ST(context.getResources().getString(R.string.HTML_TEMPLATE), TEMPLATE_DELIMITER_START,
-				TEMPLATE_DELIMITER_END);
+		ST htmlTmpl = new ST(res.getString(R.string.HTML_TEMPLATE), TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
 
 		// Replace alignment-marker with the requested layout, align:left or justified
 		String replaceAlign;
 		if (alignFlushLeft()) {
-			replaceAlign = context.getResources().getString(R.string.ALIGN_LEFT);
+			replaceAlign = res.getString(R.string.ALIGN_LEFT);
 		} else {
-			replaceAlign = context.getResources().getString(R.string.ALIGN_JUSTIFY);
+			replaceAlign = res.getString(R.string.ALIGN_JUSTIFY);
 		}
 
 		String javascript = "";
 		String lang = "";
 		if (allowHyphenation()) {
-			ST javascriptST = new ST(context.getResources().getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE),
-					TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
+			ST javascriptST = new ST(res.getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE), TEMPLATE_DELIMITER_START,
+					TEMPLATE_DELIMITER_END);
 			lang = hyphenationLanguage();
 			javascriptST.add(MARKER_LANG, lang);
 			javascript = javascriptST.render();
@@ -289,16 +286,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
 		String buttons = "";
 		if (showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML)
-			buttons = context.getResources().getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
+			buttons = res.getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
 
 		htmlTmpl.add(MARKER_ALIGN, replaceAlign);
-		htmlTmpl.add(MARKER_THEME, context.getResources().getString(getThemeHTML()));
+		htmlTmpl.add(MARKER_THEME, MyApplication.context().getResources().getString(getThemeHTML()));
 		htmlTmpl.add(MARKER_CACHE_DIR, cacheFolder());
-		htmlTmpl.add(MARKER_CACHED_IMAGES, context.getResources().getString(R.string.CACHED_IMAGES_TEMPLATE));
+		htmlTmpl.add(MARKER_CACHED_IMAGES, res.getString(R.string.CACHED_IMAGES_TEMPLATE));
 		htmlTmpl.add(MARKER_JS, javascript);
 		htmlTmpl.add(MARKER_LANG, lang);
-		htmlTmpl.add(MARKER_TOP_NAV, context.getResources().getString(R.string.TOP_NAVIGATION_TEMPLATE));
-		htmlTmpl.add(MARKER_CONTENT, context.getResources().getString(R.string.CONTENT_TEMPLATE));
+		htmlTmpl.add(MARKER_TOP_NAV, res.getString(R.string.TOP_NAVIGATION_TEMPLATE));
+		htmlTmpl.add(MARKER_CONTENT, res.getString(R.string.CONTENT_TEMPLATE));
 		htmlTmpl.add(MARKER_BOTTOM_NAV, buttons);
 
 		// This is only needed once an article is displayed
@@ -311,10 +308,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	 * Enables HTTP response caching on devices that support it, see
 	 * http://android-developers.blogspot.de/2011/09/androids-http-clients.html
 	 */
-	private void enableHttpResponseCache(Context context) {
+	private void enableHttpResponseCache(final File cacheDir) {
 		try {
 			long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
-			File httpCacheDir = new File(context.getCacheDir(), "http");
+			File httpCacheDir = new File(cacheDir, "http");
 			Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class)
 					.invoke(null, httpCacheDir, httpCacheSize);
 		} catch (Exception httpResponseCacheNotAvailable) {
@@ -397,8 +394,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
 		boolean useOfALazyServer;
 		if (prefs.contains(key)) useOfALazyServer = prefs.getBoolean(key, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
 		else
-			useOfALazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER,
-					Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
+			useOfALazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants
+					.USE_OF_A_LAZY_SERVER_DEFAULT);
 
 		return useOfALazyServer;
 	}
@@ -445,8 +442,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
 	private boolean trustAllHosts() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.TRUST_ALL_HOSTS, getCurrentSSID(wifiManager),
-				wifibasedPrefsEnabled());
+		String key = getStringWithSSID(Constants.TRUST_ALL_HOSTS, getCurrentSSID(wifiManager), wifibasedPrefsEnabled
+				());
 
 		if (prefs.contains(key)) return prefs.getBoolean(key, Constants.TRUST_ALL_HOSTS_DEFAULT);
 		else return prefs.getBoolean(Constants.TRUST_ALL_HOSTS, Constants.TRUST_ALL_HOSTS_DEFAULT);
@@ -568,8 +565,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	}
 
 	public boolean workOffline() {
-		if (workOffline == null) workOffline = prefs.getBoolean(Constants.WORK_OFFLINE,
-				Constants.WORK_OFFLINE_DEFAULT);
+		if (workOffline == null) workOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants
+				.WORK_OFFLINE_DEFAULT);
 		return workOffline;
 	}
 
@@ -679,8 +676,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	}
 
 	public boolean showVirtual() {
-		if (showVirtual == null) showVirtual = prefs.getBoolean(Constants.SHOW_VIRTUAL,
-				Constants.SHOW_VIRTUAL_DEFAULT);
+		if (showVirtual == null) showVirtual = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants
+				.SHOW_VIRTUAL_DEFAULT);
 		return showVirtual;
 	}
 
@@ -896,8 +893,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
 	public Integer cacheFolderMaxSize() {
 		if (cacheFolderMaxSize == null)
-			cacheFolderMaxSize = prefs.getInt(Constants.CACHE_FOLDER_MAX_SIZE,
-					Constants.CACHE_FOLDER_MAX_SIZE_DEFAULT);
+			cacheFolderMaxSize = prefs.getInt(Constants.CACHE_FOLDER_MAX_SIZE, Constants
+					.CACHE_FOLDER_MAX_SIZE_DEFAULT);
 		return cacheFolderMaxSize;
 	}
 

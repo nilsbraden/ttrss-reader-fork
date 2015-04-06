@@ -145,7 +145,6 @@
           <option name="ARRAY_INITIALIZER_WRAP" value="1" />
           <option name="ASSIGNMENT_WRAP" value="1" />
           <option name="PLACE_ASSIGNMENT_SIGN_ON_NEXT_LINE" value="true" />
-          <option name="WRAP_COMMENTS" value="true" />
           <option name="DOWHILE_BRACE_FORCE" value="3" />
           <option name="WHILE_BRACE_FORCE" value="3" />
           <option name="FOR_BRACE_FORCE" value="3" />
@@ -154,6 +153,10 @@
           <indentOptions>
             <option name="USE_TAB_CHARACTER" value="true" />
           </indentOptions>
+        </codeStyleSettings>
+        <codeStyleSettings language="JSON">
+          <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
+          <option name="PARENT_SETTINGS_INSTALLED" value="true" />
         </codeStyleSettings>
         <codeStyleSettings language="XML">
           <indentOptions>
@@ -166,4 +169,3 @@
     <option name="USE_PER_PROJECT_SETTINGS" value="true" />
   </component>
 </project>
-

@@ -25,14 +25,19 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PRNGFixes;
 
 import android.app.Application;
+import android.content.Context;
 
 public class MyApplication extends Application {
+
+	private static MyApplication instance;
 
 	@SuppressWarnings("unused")
 	private static final String TAG = MyApplication.class.getSimpleName();
 
 	public void onCreate() {
 		super.onCreate();
+
+		instance = this;
 
 		PRNGFixes.apply();
 		initAsyncTask();
@@ -62,6 +67,10 @@ public class MyApplication extends Application {
 	public void onLowMemory() {
 		Controller.getInstance().lowMemory(true);
 		super.onLowMemory();
+	}
+
+	public static Context context() {
+		return instance.getApplicationContext();
 	}
 
 }

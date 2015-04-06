@@ -36,7 +36,7 @@ abstract class MainCursorHelper {
 	 * Creates a new query
 	 */
 	Cursor makeQuery(SQLiteDatabase db) {
-		Cursor cursor;
+		Cursor cursor = null;
 		try {
 			if (categoryId == 0 && (feedId == -1 || feedId == -2)) {
 
@@ -53,6 +53,9 @@ abstract class MainCursorHelper {
 				if ((categoryId == -2 || feedId >= 0) || (categoryId == 0 || feedId == Integer.MIN_VALUE)) {
 					if (Controller.getInstance().onlyUnread() && !checkUnread(cursor)) {
 
+						// Close old cursor safely
+						if (cursor != null && !cursor.isClosed()) cursor.close();
+
 						// Override unread if query was empty
 						cursor = createCursor(db, true, false);
 
@@ -61,6 +64,8 @@ abstract class MainCursorHelper {
 			}
 
 		} catch (Exception e) {
+			// Close old cursor safely
+			if (cursor != null && !cursor.isClosed()) cursor.close();
 			// Fail-safe-query
 			cursor = createCursor(db, false, true);
 		}

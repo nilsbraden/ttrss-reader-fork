@@ -18,6 +18,7 @@
 package org.ttrssreader.controllers;
 
 import org.apache.commons.io.FileUtils;
+import org.ttrssreader.MyApplication;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.model.pojos.Article;
@@ -44,7 +45,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -170,7 +170,6 @@ public class DBHelper {
 					+ " VALUES (?, ?)";
 	// @formatter:on
 
-	WeakReference<Context> contextRef;
 	private volatile boolean initialized = false;
 
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
@@ -222,13 +221,13 @@ public class DBHelper {
 	}
 
 	public synchronized void initialize(final Context context) {
-		this.contextRef = new WeakReference<>(context); // TODO: Remove leak of context
 		new AsyncTask<Void, Void, Void>() {
 			protected Void doInBackground(Void... params) {
 
 				// Check if deleteDB is scheduled or if DeleteOnStartup is set
 				if (Controller.getInstance().isDeleteDBScheduled()) {
-					if (deleteDB(context)) {
+					final File dbFile = context.getDatabasePath(DATABASE_NAME);
+					if (deleteDB(dbFile)) {
 						Controller.getInstance().setDeleteDBScheduled(false);
 						initializeDBHelper();
 						return null; // Don't need to check if DB is corrupted, it is NEW!
@@ -258,7 +257,7 @@ public class DBHelper {
 					} catch (Exception e) {
 						Log.e(TAG, "Database was corrupted, creating a new one...", e);
 						closeDB();
-						File dbFile = context.getDatabasePath(DATABASE_NAME);
+						final File dbFile = context.getDatabasePath(DATABASE_NAME);
 						if (dbFile.delete()) initializeDBHelper();
 						ErrorDialog.getInstance(
 								"The Database was corrupted and had to be recreated. If this happened more "
@@ -276,11 +275,7 @@ public class DBHelper {
 
 	@SuppressWarnings("deprecation")
 	private synchronized boolean initializeDBHelper() {
-		final Context context = contextRef.get();
-		if (context == null) {
-			Log.e(TAG, "Can't handle internal DB without Context-Object.");
-			return false;
-		}
+		final Context context = MyApplication.context();
 
 		if (getOpenHelper() != null) closeDB();
 
@@ -331,16 +326,15 @@ public class DBHelper {
 		return true;
 	}
 
-	private synchronized boolean deleteDB(final Context context) {
-		if (context == null) return false;
+	private synchronized boolean deleteDB(final File dbFile) {
+		if (dbFile == null) return false;
 
 		Log.i(TAG, "Deleting Database as requested by preferences.");
-		File f = context.getDatabasePath(DATABASE_NAME);
-		if (f.exists()) {
+		if (dbFile.exists()) {
 			if (getOpenHelper() != null) {
 				closeDB();
 			}
-			return f.delete();
+			return dbFile.delete();
 		}
 
 		return false;
@@ -357,12 +351,8 @@ public class DBHelper {
 	}
 
 	private synchronized boolean isDBAvailable() {
-		if (getOpenHelper() != null) {
-			return true;
-		} else {
-			Log.i(TAG, "Controller not initialized, trying to do that now...");
-			return initializeDBHelper();
-		}
+		if (getOpenHelper() != null) return true;
+		return false;
 	}
 
 	public static class OpenHelper extends SQLiteOpenHelper {
@@ -1417,7 +1407,7 @@ public class DBHelper {
 		writeLock(true);
 		try {
 			int count = db.update(TABLE_ARTICLES, cv, vcat + ">0 AND _id>" + minId + " AND _id NOT IN (" + idList +
-							")", null);
+					")", null);
 			long timeDiff = (System.currentTimeMillis() - time);
 			Log.d(TAG, String.format("Marked %s articles %s=0 (%s ms)", count, vcat, timeDiff));
 		} finally {
@@ -1755,7 +1745,8 @@ public class DBHelper {
 				(c.getInt(9) != 0),				 // isStarred
 				(c.getInt(10) != 0),				// isPublished
 				parseArticleLabels(c.getString(12)),// Labels
-				c.getString(13)					 // Author
+				c.getString(13),					 // Author
+				null // feedTitle is left empty
 		);
 		// @formatter:on
 	}
@@ -1956,8 +1947,8 @@ public class DBHelper {
 	 *                    referenced also by some other articles)
 	 * @return collection of remote file objects from DB or {@code null}
 	 */
-	private Collection<RemoteFile> getRemoteFilesForArticles(String whereClause, String[] whereArgs,
-			boolean uniqOnly) {
+	private Collection<RemoteFile> getRemoteFilesForArticles(String whereClause, String[] whereArgs, boolean
+			uniqOnly) {
 		if (!isDBAvailable()) return null;
 
 		ArrayList<RemoteFile> rfs = null;

@@ -132,6 +132,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	private String content;
 	private boolean linkAutoOpened;
 	private boolean markedRead = false;
+	private String cachedImages = null;
 
 	private FrameLayout webContainer = null;
 	private MyWebView webView;
@@ -185,7 +186,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		initData();
 		initUI();
-		doRefresh();
 	}
 
 	@Override
@@ -283,27 +283,43 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		if (feedId > 0) Controller.getInstance().lastOpenedFeeds.add(feedId);
 		Controller.getInstance().lastOpenedArticles.add(articleId);
 
-		// Get article from DB
-		article = DBHelper.getInstance().getArticle(articleId);
-		if (article == null) {
-			getActivity().finish();
-			return;
-		}
-		feed = DBHelper.getInstance().getFeed(article.feedId);
+		/* Move database access to background:
+		 */
+		new AsyncTask<Void, Void, Void>() {
+			protected Void doInBackground(Void... params) {
+				// Get article from DB
+				article = DBHelper.getInstance().getArticle(articleId);
+				if (article == null) {
+					getActivity().finish();
+					return null;
+				}
+				feed = DBHelper.getInstance().getFeed(article.feedId);
 
-		// Mark as read if necessary, do it here because in doRefresh() it will be done several times even if you set
-		// it to "unread" in the meantime.
-		if (article.isUnread) {
-			article.isUnread = false;
-			markedRead = true;
-			new Updater(null, new ArticleReadStateUpdater(article, 0))
-					.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
+				// Mark as read if necessary, do it here because in doRefresh() it will be done several times even if
+				// you set it to "unread" in the meantime.
+				if (article.isUnread) {
+					article.isUnread = false;
+					markedRead = true;
+					new Updater(null, new ArticleReadStateUpdater(article, 0))
+							.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				}
 
-		getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
+				cachedImages = getCachedImagesJS(article.id);
 
-		// Reload content on next doRefresh()
-		webviewInitialized = false;
+				getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
+
+				// Reload content on next doRefresh()
+				webviewInitialized = false;
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Void aVoid) {
+				super.onPostExecute(aVoid);
+				// Has to be called from UI thread
+				doRefresh();
+			}
+		}.execute();
 	}
 
 	@Override
@@ -380,7 +396,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 			contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
 			contentTemplate.add(TEMPLATE_FEED_VAR, feed);
-			contentTemplate.add(MARKER_CACHED_IMAGES, getCachedImagesJS(article.id));
+			contentTemplate.add(MARKER_CACHED_IMAGES, cachedImages); // TODO: Cache these in background.
 			contentTemplate.add(MARKER_LABELS, labels.toString());
 			contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getActivity(), article.updated));
 			contentTemplate.add(MARKER_CONTENT, article.content);
@@ -443,11 +459,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		for (int i = 0; i < v.getChildCount(); i++) { // View at index 0 seems to be this view itself.
 			View vChild = v.getChildAt(i);
-
 			if (vChild == null) continue;
-
 			if (vChild instanceof TextView) ((TextView) vChild).setTextColor(font);
-
 			if (vChild instanceof ViewGroup) setBackground(((ViewGroup) vChild), background, font);
 		}
 	}
@@ -462,26 +475,24 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		StringBuilder content = new StringBuilder();
 		Map<String, Collection<String>> attachmentsByMimeType = FileUtils.groupFilesByMimeType(attachments);
 
-		if (!attachmentsByMimeType.isEmpty()) {
-			for (String mimeType : attachmentsByMimeType.keySet()) {
-				Collection<String> mimeTypeUrls = attachmentsByMimeType.get(mimeType);
-				if (!mimeTypeUrls.isEmpty()) {
-					if (mimeType.equals(FileUtils.IMAGE_MIME)) {
-						ST st = new ST(context.getResources().getString(R.string.ATTACHMENT_IMAGES_TEMPLATE));
-						st.add("items", mimeTypeUrls);
-						content.append(st.render());
-					} else {
-						ST st = new ST(context.getResources().getString(R.string.ATTACHMENT_MEDIA_TEMPLATE));
-						st.add("items", mimeTypeUrls);
-						CharSequence linkText =
-								mimeType.equals(FileUtils.AUDIO_MIME) || mimeType.equals(FileUtils.VIDEO_MIME) ?
-								context
-										.getText(R.string.ArticleActivity_MediaPlay) : context
-										.getText(R.string.ArticleActivity_MediaDisplayLink);
-						st.add("linkText", linkText);
-						content.append(st.render());
-					}
-				}
+		if (attachmentsByMimeType.isEmpty()) return "";
+
+		for (String mimeType : attachmentsByMimeType.keySet()) {
+			Collection<String> mimeTypeUrls = attachmentsByMimeType.get(mimeType);
+			if (mimeTypeUrls.isEmpty()) return "";
+
+			if (mimeType.equals(FileUtils.IMAGE_MIME)) {
+				ST st = new ST(context.getResources().getString(R.string.ATTACHMENT_IMAGES_TEMPLATE));
+				st.add("items", mimeTypeUrls);
+				content.append(st.render());
+			} else {
+				ST st = new ST(context.getResources().getString(R.string.ATTACHMENT_MEDIA_TEMPLATE));
+				st.add("items", mimeTypeUrls);
+				CharSequence linkText = mimeType.equals(FileUtils.AUDIO_MIME) || mimeType.equals(FileUtils.VIDEO_MIME)
+										? context.getText(R.string.ArticleActivity_MediaPlay)
+										: context.getText(R.string.ArticleActivity_MediaDisplayLink);
+				st.add("linkText", linkText);
+				content.append(st.render());
 			}
 		}
 
@@ -629,12 +640,12 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	 * RemoteFiles which are "cached" are added to this array so if an image is not available locally it is left as it
 	 * is.
 	 *
-	 * @param id article ID
+	 * @param articleId article ID
 	 * @return javascript associative array content as text
 	 */
-	private String getCachedImagesJS(int id) {
+	private String getCachedImagesJS(int articleId) {
 		StringBuilder hashes = new StringBuilder("");
-		Collection<RemoteFile> rfs = DBHelper.getInstance().getRemoteFiles(id);
+		Collection<RemoteFile> rfs = DBHelper.getInstance().getRemoteFiles(articleId);
 
 		if (rfs != null && !rfs.isEmpty()) {
 			for (RemoteFile rf : rfs) {

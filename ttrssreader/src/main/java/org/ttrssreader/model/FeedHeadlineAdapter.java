@@ -18,9 +18,7 @@
 package org.ttrssreader.model;
 
 import org.ttrssreader.R;
-import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
 
 import android.content.Context;
@@ -65,6 +63,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
 				ret.updated = new Date(cur.getLong(4));
 				ret.isStarred = cur.getInt(5) != 0;
 				ret.isPublished = cur.getInt(6) != 0;
+				ret.feedTitle = cur.getString(7);
 			}
 		}
 		return ret;
@@ -131,10 +130,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		TextView dataSource = (TextView) layout.findViewById(R.id.dataSource);
 		// Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category
 		if ((feedId < 0 && feedId >= -4) || (selectArticlesForCategory)) {
-			Feed f = DBHelper.getInstance().getFeed(a.feedId);
-			if (f != null) {
-				dataSource.setText(f.title);
-			}
+			dataSource.setText(a.feedTitle);
 		}
 
 		return layout;

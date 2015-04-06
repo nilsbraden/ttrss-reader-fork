@@ -145,13 +145,13 @@ public class FeedListFragment extends MainListFragment {
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		if (loader.getId() == TYPE_FEED_ID) adapter.changeCursor(data);
+		if (loader.getId() == TYPE_FEED_ID) adapter.swapCursor(data);
 		super.onLoadFinished(loader, data);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		if (loader.getId() == TYPE_FEED_ID) adapter.changeCursor(null);
+		if (loader.getId() == TYPE_FEED_ID) adapter.swapCursor(null);
 	}
 
 	@Override

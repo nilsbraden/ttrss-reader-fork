@@ -90,11 +90,10 @@ public class ListContentProvider extends ContentProvider {
 		MainCursorHelper cursorHelper;
 		int uriType = sURIMatcher.match(uri);
 		switch (uriType) {
-			case CATS: {
+			case CATS:
 				SQLiteDatabase memoryDb = memoryDbOpenHelper.getWritableDatabase();
 				cursorHelper = new CategoryCursorHelper(memoryDb);
 				break;
-			}
 			case FEEDS:
 				cursorHelper = new FeedCursorHelper(categoryId);
 				break;
