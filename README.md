@@ -10,7 +10,6 @@ Since google announced that the downloads from google-code will not be available
 [![QR-Code for play.google.com][5]][4]
 
 Current Version: **1.82**<br>
-Compatibility Version: **1.39**<br>
 All downloads: [Google Drive](https://drive.google.com/folderview?id=0B2I5LDZK1kOEcGRJVkw5MGUwdlk&usp=sharing)
 
 # Features
