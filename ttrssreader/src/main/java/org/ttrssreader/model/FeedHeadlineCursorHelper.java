@@ -56,13 +56,14 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		if (overrideDisplayUnread) displayUnread = false;
 
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT a._id AS _id, a.feedId AS feedId, a.title AS title, a.isUnread AS unread, "
-				+ "a.updateDate AS updateDate, a.isStarred AS isStarred, "
-				+ "a.isPublished AS isPublished, b.title AS feedTitle FROM ");
+		query.append(" SELECT ");
+		query.append(" a._id AS _id, a.feedId, a.title, a.isUnread AS unread, a.updateDate, ");
+		query.append(" a.isStarred, a.isPublished, f.title AS feedTitle ");
+		query.append(" FROM ");
 		query.append(DBHelper.TABLE_ARTICLES);
 		query.append(" a, ");
 		query.append(DBHelper.TABLE_FEEDS);
-		query.append(" b WHERE a.feedId=b._id");
+		query.append(" f WHERE a.feedId=f._id ");
 
 		switch (feedId) {
 			case Data.VCAT_STAR:
@@ -80,14 +81,17 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 				break;
 
 			case Data.VCAT_ALL:
-				query.append(displayUnread ? " AND a.isUnread>0" : "");
+				query.append(displayUnread ? " AND a.isUnread>0 " : "");
 				break;
 
 			default:
 				// User selected to display all articles of a category directly
-				query.append(
-						selectArticlesForCategory ? (" AND b.categoryId=" + categoryId) : (" AND a.feedId=" + feedId));
-				query.append(displayUnread ? " AND a.isUnread>0" : "");
+				query.append(displayUnread ? " AND a.isUnread>0 " : " ");
+				if (selectArticlesForCategory) {
+					query.append(" AND f.categoryId=" + categoryId);
+				} else {
+					query.append(" AND a.feedId=" + feedId);
+				}
 				if (displayCachedImages) {
 					query.append(" AND 0 < (SELECT SUM(r.cached) FROM ");
 					query.append(DBHelper.TABLE_REMOTEFILE2ARTICLE);
@@ -98,15 +102,16 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		}
 
 		if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
-			query.append(" UNION SELECT c._id AS _id, c.feedId AS feedId, c.title AS title, c.isUnread AS unread, "
-					+ "c.updateDate AS updateDate, c.isStarred AS isStarred, "
-					+ "c.isPublished AS isPublished, d.title AS feedTitle FROM ");
+			query.append(" UNION SELECT ");
+			query.append(" c._id AS _id, c.feedId, c.title, c.isUnread AS unread, c.updateDate, ");
+			query.append(" c.isStarred, c.isPublished, d.title AS feedTitle ");
+			query.append(" FROM ");
 			query.append(DBHelper.TABLE_ARTICLES);
 			query.append(" c, ");
 			query.append(DBHelper.TABLE_FEEDS);
 			query.append(" d WHERE c.feedId=d._id AND c._id IN (");
 			query.append(lastOpenedArticlesList);
-			query.append(" )");
+			query.append(" ) ");
 		}
 
 		query.append(" ORDER BY a.updateDate ");
@@ -124,9 +129,10 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		if (overrideDisplayUnread) displayUnread = false;
 
 		StringBuilder query = new StringBuilder();
-		query.append("SELECT a._id AS _id, a.feedId AS feedId, a.title AS title, a.isUnread AS unread, "
-				+ "a.updateDate AS updateDate, a.isStarred AS isStarred, "
-				+ "a.isPublished AS isPublished, f.title AS feedTitle FROM ");
+		query.append("SELECT ");
+		query.append(" a._id AS _id, a.feedId, a.title, a.isUnread AS unread, a.updateDate, ");
+		query.append(" a.isStarred, a.isPublished, f.title AS feedTitle ");
+		query.append(" FROM ");
 		query.append(DBHelper.TABLE_FEEDS);
 		query.append(" f, ");
 		query.append(DBHelper.TABLE_ARTICLES);
@@ -140,9 +146,10 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		query.append(displayUnread ? " AND isUnread>0" : "");
 
 		if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
-			query.append(" UNION SELECT b._id AS _id, b.feedId AS feedId, b.title AS title, b.isUnread AS unread, "
-					+ "b.updateDate AS updateDate, b.isStarred AS isStarred, "
-					+ "b.isPublished AS isPublished , f.title AS feedTitle FROM ");
+			query.append(" UNION SELECT ");
+			query.append(" b._id AS _id, b.feedId, b.title, b.isUnread AS unread, b.updateDate, ");
+			query.append(" b.isStarred, b.isPublished, f.title AS feedTitle ");
+			query.append(" FROM ");
 			query.append(DBHelper.TABLE_FEEDS);
 			query.append(" f, ");
 			query.append(DBHelper.TABLE_ARTICLES);

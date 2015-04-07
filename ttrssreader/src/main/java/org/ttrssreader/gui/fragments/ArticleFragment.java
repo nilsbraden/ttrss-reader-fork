@@ -449,8 +449,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 	/**
 	 * Recursively walks all viewGroups and their Views inside the given ViewGroup and sets the background to black
-	 * and,
-	 * in case a TextView is found, the Text-Color to white.
+	 * and, in case a TextView is found, the Text-Color to white.
 	 *
 	 * @param v the ViewGroup to walk through
 	 */

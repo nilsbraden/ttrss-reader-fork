@@ -198,7 +198,7 @@ public abstract class JSONConnector {
 						if (object.get(STATUS) != null) {
 							ret = object.get(STATUS).getAsString();
 						}
-						if (object.get(API_LEVEL) != null) {
+						if (this.apiLevel == -1 && object.get(API_LEVEL) != null) {
 							this.apiLevel = object.get(API_LEVEL).getAsInt();
 						}
 						if (object.get(VALUE) != null) {
