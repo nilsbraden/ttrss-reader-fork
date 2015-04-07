@@ -66,6 +66,9 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	private int taskCount = 0;
 
 	private Map<Integer, DownloadImageTask> map = new HashMap<>();
+	// Cache values and insert them later:
+	Map<Integer, String[]> articleFiles = new HashMap<>();
+	Map<String, Long> remoteFiles = new HashMap<>();
 
 	ImageCacher(ICacheEndListener parent, final Context context, boolean onlyArticles) {
 		this.parent = parent;
@@ -271,6 +274,19 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			}
 		}
 
+		// Insert cached values:
+		for (Integer articleId : articleFiles.keySet()) {
+			DBHelper.getInstance().insertArticleFiles(articleId, articleFiles.get(articleId));
+		}
+		for (String url : remoteFiles.keySet()) {
+			Long size = remoteFiles.get(url);
+			if (size <= 0) {
+				DBHelper.getInstance().markRemoteFileCached(url, false, -size);
+			} else {
+				DBHelper.getInstance().markRemoteFileCached(url, true, size);
+			}
+		}
+
 		Log.i(TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
 	}
 
@@ -281,6 +297,9 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		private ImageCache imageCache;
 		private int articleId;
 		private String[] fileUrls;
+		// Thread-Local cache:
+		Map<Integer, String[]> articleFilesLocal = new HashMap<>();
+		Map<String, Long> remoteFilesLocal = new HashMap<>();
 
 		private DownloadImageTask(ImageCache cache, int articleId, String... params) {
 			this.imageCache = cache;
@@ -293,21 +312,19 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			long size = 0;
 			try {
 				Log.d(TAG, "maxFileSize = " + maxFileSize + " and minFileSize = " + minFileSize);
-				DBHelper.getInstance().insertArticleFiles(articleId, fileUrls);
+				articleFilesLocal.put(articleId, fileUrls);
 				for (String url : fileUrls) {
 					size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
-
-					if (size <= 0) {
-						DBHelper.getInstance().markRemoteFileCached(url, false, -size);
-					} else {
-						DBHelper.getInstance().markRemoteFileCached(url, true, size);
-					}
+					remoteFilesLocal.put(url, size);
 				}
 			} catch (Throwable t) {
 				t.printStackTrace();
 			} finally {
 				synchronized (map) {
 					if (downloaded > 0) downloaded += size;
+
+					remoteFiles.putAll(remoteFilesLocal);
+					remoteFiles.putAll(remoteFilesLocal);
 
 					map.remove(articleId);
 					publishProgress(++progressImageDownload);
