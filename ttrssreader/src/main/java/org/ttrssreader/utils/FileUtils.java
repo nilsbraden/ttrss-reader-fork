@@ -176,7 +176,7 @@ public class FileUtils {
 
 		if (error)
 			Log.e(TAG, String.format("Stopped download from url '%s'. Downloaded %d bytes", downloadUrl, byteWritten));
-		else Log.e(TAG, String.format("Download from '%s' finished. Downloaded %d bytes", downloadUrl, byteWritten));
+		else Log.i(TAG, String.format("Download from '%s' finished. Downloaded %d bytes", downloadUrl, byteWritten));
 
 		if (error && file.exists()) file.delete();
 
