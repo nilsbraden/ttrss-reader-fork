@@ -2165,4 +2165,29 @@ public class DBHelper {
 		}
 		return deletedCount;
 	}
+
+	/**
+	 * delete all remote files
+	 *
+	 * @return the number of deleted rows
+	 */
+	public int deleteAllRemoteFiles() {
+		if (!isDBAvailable()) return 0;
+
+		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		writeLock(true);
+		try {
+			db.delete(TABLE_REMOTEFILE2ARTICLE, null, null);
+			int count = db.delete(TABLE_REMOTEFILES, null, null);
+
+			ContentValues cv = new ContentValues();
+			cv.putNull("cachedImages");
+			db.update(TABLE_ARTICLES, cv, "cachedImages IS NOT NULL", null);
+
+			return count;
+		} finally {
+			writeLock(false);
+		}
+	}
+
 }

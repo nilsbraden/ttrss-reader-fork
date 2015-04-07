@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.gui.fragments.PreferencesFragment;
 import org.ttrssreader.model.HeaderAdapter;
 import org.ttrssreader.preferences.Constants;
@@ -158,6 +159,12 @@ public class PreferencesActivity extends PreferenceActivity {
 				return true;
 			case R.id.Preferences_Menu_ResetDatabase:
 				Controller.getInstance().setDeleteDBScheduled(true);
+				DBHelper.getInstance().initialize(this);
+				this.finish();
+				startActivity(new Intent().setComponent(comp));
+				return true;
+			case R.id.Preferences_Menu_ResetCache:
+				Data.getInstance().deleteAllRemoteFiles();
 				DBHelper.getInstance().initialize(this);
 				this.finish();
 				startActivity(new Intent().setComponent(comp));

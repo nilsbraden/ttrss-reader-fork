@@ -334,7 +334,6 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 				if (file.exists() && !file.delete())
 					Log.w(TAG, "File " + file.getAbsolutePath() + " was not " + "deleted!");
-				else Log.w(TAG, "WTF.");
 
 				rfIds.add(rf.id);
 			}

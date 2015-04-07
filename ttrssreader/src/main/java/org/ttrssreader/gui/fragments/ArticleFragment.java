@@ -132,7 +132,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	private String content;
 	private boolean linkAutoOpened;
 	private boolean markedRead = false;
-	private String cachedImages = null;
+	private String cachedImages = "";
 
 	private FrameLayout webContainer = null;
 	private MyWebView webView;
@@ -289,10 +289,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			protected Void doInBackground(Void... params) {
 				// Get article from DB
 				article = DBHelper.getInstance().getArticle(articleId);
-				if (article == null) {
-					getActivity().finish();
-					return null;
-				}
+				if (article == null) return null;
+
 				feed = DBHelper.getInstance().getFeed(article.feedId);
 
 				// Mark as read if necessary, do it here because in doRefresh() it will be done several times even if
@@ -306,8 +304,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 				cachedImages = getCachedImagesJS(article.id);
 
-				getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
-
 				// Reload content on next doRefresh()
 				webviewInitialized = false;
 				return null;
@@ -316,8 +312,13 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			@Override
 			protected void onPostExecute(Void aVoid) {
 				super.onPostExecute(aVoid);
+				if (article == null) {
+					getActivity().finish(); // Don't call finish() from background thread
+					return;
+				}
 				// Has to be called from UI thread
 				doRefresh();
+				getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
 			}
 		}.execute();
 	}

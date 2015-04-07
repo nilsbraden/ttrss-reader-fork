@@ -234,4 +234,20 @@ public class FileUtils {
 		return attachmentsByMimeType;
 	}
 
+	/**
+	 * From http://stackoverflow.com/a/4943771
+	 *
+	 * @return false if delete() failed on any of the files
+	 */
+	public static boolean deleteFolderRcursive(final File dir) {
+		boolean ret = true;
+		if (dir.isDirectory()) {
+			String[] children = dir.list();
+			for (int i = 0; i < children.length; i++) {
+				ret &= new File(dir, children[i]).delete();
+			}
+		}
+		return ret;
+	}
+
 }

@@ -21,6 +21,7 @@ package org.ttrssreader.imageCache;
 
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AbstractCache;
+import org.ttrssreader.utils.FileUtils;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
@@ -136,6 +137,11 @@ public class ImageCache extends AbstractCache<String, byte[]> {
 
 	@Override
 	protected void writeValueToDisk(BufferedOutputStream ostream, byte[] value) {
+	}
+
+	public boolean deleteAllCachedFiles() {
+		File f = new File(diskCacheDir);
+		return FileUtils.deleteFolderRcursive(f);
 	}
 
 }

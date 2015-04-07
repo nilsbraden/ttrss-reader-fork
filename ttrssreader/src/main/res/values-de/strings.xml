@@ -26,6 +26,7 @@
 	<string name="Main.ImageCache">Bilder herunterladen</string>
 	<string name="Preferences.Reset">Einstellungen zurücksetzen</string>
 	<string name="Preferences.ResetDatabase">Datenbank zurücksetzen</string>
+	<string name="Preferences.ResetCache">ImageCache zurücksetzen</string>
 	<string name="Preferences.Btn">Einstellungen</string>
 	<string name="Changelog.Title">Changelog</string>
 	<string name="DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>

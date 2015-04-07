@@ -18,6 +18,7 @@
 package org.ttrssreader.controllers;
 
 import org.ttrssreader.R;
+import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
@@ -586,6 +587,17 @@ public class Data {
 
 	public boolean isConnected() {
 		return Utils.isConnected(cm);
+	}
+
+	/**
+	 * Deletes all database references on remotefiles and clears the cache folder.
+	 */
+	public void deleteAllRemoteFiles() {
+		int count = DBHelper.getInstance().deleteAllRemoteFiles();
+		Log.w(TAG, String.format("Deleted %s Remotefiles from database.", count));
+		ImageCache cache = Controller.getInstance().getImageCache();
+		if (cache.deleteAllCachedFiles()) Log.d(TAG, "Deleting cached files was successful.");
+		else Log.e(TAG, "Deleting cached files failed at least partially, there were errors!");
 	}
 
 }
