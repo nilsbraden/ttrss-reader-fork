@@ -632,7 +632,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		MyTagNodeVisitor tnv = new MyTagNodeVisitor(extra);
 		node.traverse(tnv);
 
-		return tnv.alt;
+		return Html.fromHtml(tnv.alt).toString();
 	}
 
 	/**
