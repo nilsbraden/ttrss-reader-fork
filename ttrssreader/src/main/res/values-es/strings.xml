@@ -25,7 +25,6 @@
 	<string name="Preferences.ResetDatabase">Reiniciar base de datos</string>
 	<string name="Preferences.Btn">Preferencias</string>
 	<string name="Changelog.Title">Cambios</string>
-	<string name="DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>
 	<string name="Welcome.Title">Bienvenido</string>
 	<string name="Welcome.Message">Bienvenido a TTRSS-Reader!\n\nSepa que este lector solo funciona con servidores \"Tiny Tiny RSS\" .\n\nSi esta es la primera vez que ha iniciado TTRSS-Reader debería configurar el servidor y las credenciales. Pulse "Preferencias" para proceder.</string>
 	<string name="Check.Crash">Un reporte de error ha sido salvado, ¿Quiere mandarlo al desarrollador por mail?</string>
@@ -33,7 +32,6 @@
 	<string name="AboutActivity.CloseBtn">Cerrar</string>
 	<string name="AboutActivity.DonateBtn">¿Quiere donar?</string>
 	<string name="AboutActivity.VersionText">Versión:</string>
-	<string name="AboutActivity.UrlTextValue">https://ttrss-reader-fork.googlecode.com/</string>
 	<string name="AboutActivity.LicenseText">Licencia:</string>
 	<string name="AboutActivity.LicenseTextValue">GPL v3</string>
 	<string name="ArticleActivity.OpenLink">Artículo</string>

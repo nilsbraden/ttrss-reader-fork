@@ -29,7 +29,7 @@
 	<string name="Preferences.ResetCache">Reset ImageCache</string>
 	<string name="Preferences.Btn">Preferences</string>
 	<string name="Changelog.Title">Changelog</string>
-	<string name="DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>
+	<string name="DonateUrl">https://github.com/nilsbraden/ttrss-reader-fork/wiki/Donations</string>
 	<string name="Welcome.Title">Welcome</string>
 	<string name="Welcome.Message">Welcome to TTRSS-Reader!\n\nPlease note that this Reader only works with a \"Tiny Tiny RSS\" Server.\n\nIf this is the first time you started TTRSS-Reader you should set your Serverlocation and User-Settings. Press "Preferences" to proceed.</string>
 	<string name="Check.Crash">A crashreport was saved, do you want to send it to the developer by mail?</string>
@@ -38,7 +38,7 @@
 	<string name="AboutActivity.DonateBtn">Want to Donate?</string>
 	<string name="AboutActivity.VersionText">Version:</string>
 	<string name="AboutActivity.VersionCodeText">Version-Code:</string>
-	<string name="AboutActivity.UrlTextValue">https://ttrss-reader-fork.googlecode.com/</string>
+	<string name="AboutActivity.UrlTextValue">https://github.com/nilsbraden/ttrss-reader-fork</string>
 	<string name="AboutActivity.LicenseText">License:</string>
 	<string name="AboutActivity.LicenseTextValue">GPL v3</string>
 	<string name="AboutActivity.LastSyncText">Last sync:</string>

@@ -29,7 +29,6 @@
 	<string name="Preferences.ResetCache">ImageCache zurücksetzen</string>
 	<string name="Preferences.Btn">Einstellungen</string>
 	<string name="Changelog.Title">Changelog</string>
-	<string name="DonateUrl">https://code.google.com/p/ttrss-reader-fork/wiki/Donations</string>
 	<string name="Welcome.Title">Willkommen</string>
 	<string name="Welcome.Message">Willkommen zum TTRSS-Reader!\n\nBitte beachten Sie, dass dieser Reader nur mit einem \"Tiny Tiny RSS\"-Server arbeiten kann.\n\nWenn dies der erste Start dieser Anwendung ist, sollten Sie Ihre Server- und Benutzer-Einstellungen setzen. Drücken Sie \"Einstellungen\", um fortzufahren.</string>
 	<string name="Check.Crash">Es wurde ein Fehlerbericht gespeichert. Soll dieser per E-Mail an den Entwickler der Anwendung gesendet werden?</string>
@@ -38,7 +37,6 @@
 	<string name="AboutActivity.DonateBtn">Möchten Sie spenden?</string>
 	<string name="AboutActivity.VersionText">Version:</string>
 	<string name="AboutActivity.VersionCodeText">Versions-Code:</string>
-	<string name="AboutActivity.UrlTextValue">https://ttrss-reader-fork.googlecode.com/</string>
 	<string name="AboutActivity.LicenseText">Lizenz:</string>
 	<string name="AboutActivity.LicenseTextValue">GPL v3</string>
 	<string name="AboutActivity.LastSyncText">Letzter Abgleich:</string>
