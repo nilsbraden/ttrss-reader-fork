@@ -77,8 +77,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		// .detectLeakedClosableObjects().penaltyLog().build());
 
 		super.onCreate(instance);
-		setContentView(R.layout.main);
-		super.initTabletLayout();
 
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -133,6 +131,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 				doCache(false); // images
 			}
 		}
+	}
+
+	@Override
+	protected int getLayoutResource() {
+		return R.layout.main;
 	}
 
 	@Override

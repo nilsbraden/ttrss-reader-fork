@@ -36,15 +36,16 @@ import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -62,7 +63,7 @@ import java.lang.reflect.Field;
 /**
  * This class provides common functionality for Activities.
  */
-public abstract class MenuActivity extends Activity
+public abstract class MenuActivity extends ActionBarActivity
 		implements IUpdateEndListener, ICacheEndListener, IItemSelectedListener, IDataChangedListener {
 
 	@SuppressWarnings("unused")
@@ -79,6 +80,7 @@ public abstract class MenuActivity extends Activity
 	private int dividerSize;
 	private int displaySize;
 
+	private Toolbar toolbar;
 	private View frameMain = null;
 	private View divider = null;
 	private View frameSub = null;
@@ -92,13 +94,19 @@ public abstract class MenuActivity extends Activity
 		mDamageReport.initialize();
 
 		activity = this;
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		requestWindowFeature(Window.FEATURE_PROGRESS);
+		supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+		supportRequestWindowFeature(Window.FEATURE_PROGRESS);
 
 		Controller.getInstance().setHeadless(false);
-		initActionbar();
 		getOverflowMenu();
+
+		setContentView(getLayoutResource());
+
+		initActionbar();
+		initTabletLayout();
 	}
+
+	protected abstract int getLayoutResource();
 
 	protected void initTabletLayout() {
 		frameMain = findViewById(R.id.frame_main);
@@ -144,7 +152,6 @@ public abstract class MenuActivity extends Activity
 				// Create LayoutParams for all three views
 				lpMain.height = mainFrameSize;
 				lpSub.height = subFrameSize - dividerSize;
-				lpSub.addRule(RelativeLayout.BELOW, divider.getId());
 			} else {
 				// calculate width of divider
 				int padding = divider.getPaddingLeft() + divider.getPaddingRight();
@@ -154,7 +161,6 @@ public abstract class MenuActivity extends Activity
 				// Create LayoutParams for all three views
 				lpMain.width = mainFrameSize;
 				lpSub.width = subFrameSize - dividerSize;
-				lpSub.addRule(RelativeLayout.RIGHT_OF, divider.getId());
 			}
 
 			// Set all params and visibility
@@ -200,26 +206,22 @@ public abstract class MenuActivity extends Activity
 
 	@SuppressLint("InflateParams")
 	private void initActionbar() {
-		// Go to the CategoryActivity and clean the return-stack
-		// getSupportActionBar().setHomeButtonEnabled(true);
+		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		if (toolbar != null) {
+			setSupportActionBar(toolbar);
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-		ActionBar.LayoutParams params = new ActionBar.LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT);
-		LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View actionbarView = inflator.inflate(R.layout.actionbar, null);
+			ActionBar ab = getSupportActionBar();
+			if (ab != null) {
+				//ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+				ab.setDisplayHomeAsUpEnabled(true);
+				ab.setDisplayShowTitleEnabled(false);
+			}
 
-		ActionBar ab = getActionBar();
-		if (ab != null) {
-			ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-			ab.setDisplayHomeAsUpEnabled(true);
-			ab.setDisplayShowCustomEnabled(true);
-			ab.setDisplayShowTitleEnabled(false);
-			ab.setCustomView(actionbarView, params);
+			header_unread = (TextView) findViewById(R.id.head_unread);
+			header_title = (TextView) findViewById(R.id.head_title);
+			header_title.setText(getString(R.string.ApplicationName));
 		}
-
-		header_unread = (TextView) actionbarView.findViewById(R.id.head_unread);
-		header_title = (TextView) actionbarView.findViewById(R.id.head_title);
-		header_title.setText(getString(R.string.ApplicationName));
 	}
 
 	@Override
@@ -442,12 +444,12 @@ public abstract class MenuActivity extends Activity
 		this.startService(intent);
 
 		ProgressBarManager.getInstance().addProgress(this);
-		setProgressBarVisibility(true);
+		setSupportProgressBarVisibility(true);
 	}
 
 	@Override
 	public void onCacheEnd() {
-		setProgressBarVisibility(false);
+		setSupportProgressBarVisibility(false);
 		ProgressBarManager.getInstance().removeProgress(this);
 	}
 
@@ -468,7 +470,7 @@ public abstract class MenuActivity extends Activity
 			updater.cancel(true);
 			updater = null;
 		}
-		setProgressBarVisibility(false);
+		setSupportProgressBarVisibility(false);
 		ProgressBarManager.getInstance().resetProgress(this);
 		Intent i = new Intent(this, ErrorActivity.class);
 		i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);

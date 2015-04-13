@@ -15,10 +15,9 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
+
 <resources>
 
-	<color name="pressed_black">#CCEE8813</color>
-	<color name="background_black">#FF000000</color>
-	<color name="font_color_black">#FFFFFFFF</color>
+  <style name="Theme" parent="Theme.Light" />
 
 </resources>

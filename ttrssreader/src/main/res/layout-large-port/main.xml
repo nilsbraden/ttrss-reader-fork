@@ -16,27 +16,34 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/frame_all"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:baselineAligned="false"
 	android:orientation="vertical">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/toolbar" />
 
 	<FrameLayout
 		android:id="@+id/frame_main"
+		android:layout_below="@id/toolbar"
 		android:layout_width="match_parent"
-		android:layout_height="0px" />
+		android:layout_height="0px"
+		android:layout_alignParentTop="true" />
 
-	<ImageView
+	<FrameLayout
 		android:id="@+id/list_divider"
 		android:layout_width="match_parent"
-		android:layout_height="16dp"
-		android:layout_below="@+id/frame_main"
-		android:layout_gravity="center"
-		android:background="@drawable/list_divider"
-		tools:ignore="PxUsage"
-		android:contentDescription="@string/Empty" />
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/frame_main">
+
+		<ImageView
+			android:layout_width="match_parent"
+			android:layout_height="16dp"
+			android:layout_gravity="center"
+			android:background="@drawable/list_divider"
+			android:contentDescription="@string/Empty" />
+	</FrameLayout>
 
 	<FrameLayout
 		android:id="@+id/frame_sub"

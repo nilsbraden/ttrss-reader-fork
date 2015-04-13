@@ -19,6 +19,7 @@ package org.ttrssreader.gui.fragments;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
@@ -28,7 +29,6 @@ import org.ttrssreader.utils.AsyncTask;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ListFragment;
 import android.app.LoaderManager;
@@ -39,6 +39,7 @@ import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -109,10 +110,9 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 			}
 		});
 
-		getListView().setSelector(R.drawable.list_item_background);
 		registerForContextMenu(getListView());
 
-		ActionBar actionBar = getActivity().getActionBar();
+		ActionBar actionBar = ((MenuActivity) getActivity()).getSupportActionBar();
 
 		gestureDetector = new GestureDetector(getActivity(),
 				new MyGestureDetector(actionBar, Controller.getInstance().hideActionbar()), null);

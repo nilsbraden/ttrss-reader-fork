@@ -20,6 +20,10 @@
 	android:layout_height="match_parent"
 	android:orientation="horizontal">
 
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/toolbar" />
+
 	<TextView
 		android:id="@+id/space_left"
 		android:layout_width="0px"
@@ -31,8 +35,7 @@
 		android:layout_width="0px"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:orientation="vertical"
-		android:padding="10dp">
+		android:orientation="vertical">
 
 		<TextView
 			android:id="@+id/labelTitle"

@@ -16,35 +16,44 @@
   not, see http://www.gnu.org/licenses/.
   -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/frame_all"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:baselineAligned="false"
-	android:orientation="horizontal">
+	android:layout_height="match_parent">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/toolbar" />
 
 	<FrameLayout
 		android:id="@+id/frame_main"
+		android:layout_below="@id/toolbar"
 		android:layout_width="0dp"
-		android:layout_height="match_parent" />
-
-	<ImageView
-		android:id="@+id/list_divider"
-		android:layout_width="16dp"
 		android:layout_height="match_parent"
-		android:layout_gravity="center"
-		android:layout_toEndOf="@+id/frame_main"
+		android:layout_alignParentStart="true"
+		android:layout_alignParentLeft="true" />
+
+	<FrameLayout
+		android:id="@+id/list_divider"
+		android:layout_below="@id/toolbar"
+		android:layout_width="wrap_content"
+		android:layout_height="match_parent"
 		android:layout_toRightOf="@+id/frame_main"
-		android:background="@drawable/list_divider_vertical"
-		android:contentDescription="@string/Empty"
-		tools:ignore="PxUsage" />
+		android:layout_toEndOf="@+id/frame_main">
+
+		<ImageView
+			android:layout_width="16dp"
+			android:layout_height="match_parent"
+			android:layout_gravity="center"
+			android:background="@drawable/list_divider_vertical"
+			android:contentDescription="@string/Empty" />
+	</FrameLayout>
 
 	<FrameLayout
 		android:id="@+id/frame_sub"
+		android:layout_below="@id/toolbar"
 		android:layout_width="0dp"
 		android:layout_height="match_parent"
-		android:layout_toEndOf="@+id/list_divider"
-		android:layout_toRightOf="@+id/list_divider" />
+		android:layout_toRightOf="@+id/list_divider"
+		android:layout_toEndOf="@+id/list_divider" />
 
 	<FrameLayout
 		android:id="@+id/frame_invisible"

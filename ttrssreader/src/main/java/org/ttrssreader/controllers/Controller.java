@@ -817,34 +817,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
 		put(Constants.THEME, theme + "");
 	}
 
-	public int getThemeBackground() {
-		switch (getThemeInternal()) {
-			case THEME_LIGHT:
-				return R.color.background_light;
-			case THEME_BLACK:
-				return R.color.background_black;
-			case THEME_WHITE:
-				return R.color.background_white;
-			case THEME_DARK:
-			default:
-				return R.color.background_dark;
-		}
-	}
-
-	public int getThemeFont() {
-		switch (getThemeInternal()) {
-			case THEME_LIGHT:
-				return R.color.font_color_light;
-			case THEME_BLACK:
-				return R.color.font_color_black;
-			case THEME_WHITE:
-				return R.color.font_color_white;
-			case THEME_DARK:
-			default:
-				return R.color.font_color_dark;
-		}
-	}
-
 	public int getThemeHTML() {
 		switch (getThemeInternal()) {
 			case THEME_LIGHT:

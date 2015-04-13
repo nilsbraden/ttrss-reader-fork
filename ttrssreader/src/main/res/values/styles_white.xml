@@ -20,63 +20,34 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<style name="Theme.White" parent="@android:style/Theme.Light">
-		<item name="android:popupMenuStyle">@style/PopupMenu.White</item>
-		<item name="android:dropDownListViewStyle">@style/DropDownListView.White</item>
-		<item name="android:actionBarTabStyle">@style/ActionBarTabStyle.White</item>
-		<item name="android:actionDropDownStyle">@style/DropDownNav.White</item>
-		<item name="android:actionBarStyle">@style/ActionBar.Solid.White</item>
-		<item name="android:actionModeBackground">@drawable/cab_background_top_light</item>
-		<item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_light</item>
-		<item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.White</item>
-		<!-- Text and Background -->
-		<item name="android:textColor">@color/font_color_white</item>
-		<item name="android:windowBackground">@color/background_white</item>
-		<!-- ListItems -->
-		<item name="ListItemText">@style/ListItemText.White</item>
-	</style>
+	<style name="Theme.White" parent="Theme.AppCompat">
 
-	<style name="ActionBar.Solid.White" parent="@android:style/Widget.ActionBar">
-		<item name="android:background">@drawable/ab_solid_light</item>
-		<item name="android:backgroundStacked">@drawable/ab_stacked_solid_light</item>
-		<item name="android:backgroundSplit">@drawable/ab_bottom_solid_light</item>
-		<item name="android:progressBarStyle">@style/ProgressBar.White</item>
-	</style>
+		<item name="colorPrimary">#FFFFFFFF</item>
+		<item name="colorPrimaryDark">#FFFFFFFF</item>
+		<item name="colorAccent">#FF3D00</item>
+		<item name="android:textColorPrimary">#D1000000</item>
+		<item name="android:textColor">#D9111111</item>
 
-	<style name="PopupMenu.White" parent="@android:style/Widget.ListPopupWindow">
-		<item name="android:popupBackground">@drawable/menu_dropdown_panel_light</item>
-	</style>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
 
-	<style name="DropDownListView.White" parent="@android:style/Widget.ListView.DropDown">
-		<item name="android:listSelector">@drawable/selectable_background_light</item>
-	</style>
+		<!--&lt;!&ndash; Colors for the theme &ndash;&gt;-->
+		<!--<item name="pressed_color">#CCFF9924</item>-->
+		<!--<item name="background_color">#FFFFFFFF</item>-->
+		<!--<item name="background_actionbar_color">#FFE4E4E4</item>-->
+		<!--<item name="font_color">#FF000000</item>-->
+		<!--<item name="html_header_background">#FFDBDBDB</item>-->
+		<!--<item name="html_font_color">#FF000000</item>-->
 
-	<style name="ActionBarTabStyle.White" parent="@android:style/Widget.ActionBar.TabView">
-		<item name="android:background">@drawable/tab_indicator_ab_light</item>
-	</style>
+		<!--&lt;!&ndash; Text and Background &ndash;&gt;-->
+		<!--<item name="android:textColor">?font_color</item>-->
+		<!--<item name="android:windowBackground">?background_color</item>-->
 
-	<style name="DropDownNav.White" parent="@android:style/Widget.Spinner.DropDown">
-		<item name="android:background">@drawable/spinner_background_ab_light</item>
-		<item name="android:popupBackground">@drawable/menu_dropdown_panel_light</item>
-		<item name="android:dropDownSelector">@drawable/selectable_background_light</item>
-	</style>
+		<!-- Background for Button-Navigation -->
+		<item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
 
-	<style name="ProgressBar.White" parent="@android:style/Widget.ProgressBar.Horizontal">
-		<item name="android:progressDrawable">@drawable/progress_horizontal_light</item>
-	</style>
-
-	<style name="ActionButton.CloseMode.White" parent="@android:style/Widget.ActionButton.CloseMode">
-		<item name="android:background">@drawable/btn_cab_done_light</item>
-	</style>
-
-	<!-- this style is only referenced in a Light.DarkActionBar based theme -->
-	<style name="Theme.White.Widget" parent="@android:style/Theme">
-		<item name="android:popupMenuStyle">@style/PopupMenu.White</item>
-		<item name="android:dropDownListViewStyle">@style/DropDownListView.White</item>
-	</style>
-
-	<style name="ListItemText.White" parent="@android:style/TextAppearance.Small">
-		<item name="android:textColor">@color/font_color_white</item>
+		<!--&lt;!&ndash; Background for ActionBar (defined in styles_dark.xml) &ndash;&gt;-->
+		<!--<item name="android:actionBarStyle">@style/CustomActionBarTheme</item>-->
 	</style>
 
 </resources>

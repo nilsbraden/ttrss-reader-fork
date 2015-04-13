@@ -71,10 +71,9 @@ public class SubscribeActivity extends MenuActivity {
 
 		final Context context = this;
 
-		setContentView(R.layout.feedsubscribe);
 		setTitle(R.string.IntentSubscribe);
 		ProgressBarManager.getInstance().addProgress(activity);
-		setProgressBarVisibility(true);
+		setSupportProgressBarVisibility(true);
 
 		String urlValue = getIntent().getStringExtra(Intent.EXTRA_TEXT);
 
@@ -86,7 +85,7 @@ public class SubscribeActivity extends MenuActivity {
 		feedUrl.setText(urlValue);
 
 		categoriesAdapter = new SimpleCategoryAdapter(getApplicationContext());
-		categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		categoriesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
 		categorieSpinner = (Spinner) findViewById(R.id.subscribe_categories);
 		categorieSpinner.setAdapter(categoriesAdapter);
 
@@ -116,6 +115,11 @@ public class SubscribeActivity extends MenuActivity {
 				feedUrl.setSelection(end);
 			}
 		});
+	}
+
+	@Override
+	protected int getLayoutResource() {
+		return R.layout.feedsubscribe;
 	}
 
 	@Override

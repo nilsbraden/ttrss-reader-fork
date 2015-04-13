@@ -28,6 +28,7 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.gui.ErrorActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
+import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.gui.TextInputAlert;
 import org.ttrssreader.gui.dialogs.ArticleLabelDialog;
 import org.ttrssreader.gui.dialogs.ImageCaptionDialog;
@@ -52,7 +53,6 @@ import org.ttrssreader.utils.FileUtils;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -64,6 +64,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.Html;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -87,7 +88,6 @@ import android.webkit.WebView;
 import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import java.util.Collection;
 import java.util.Map;
@@ -239,7 +239,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
 			if (gestureDetector == null || gestureListener == null) {
-				ActionBar actionBar = getActivity().getActionBar();
+				ActionBar actionBar = ((MenuActivity) getActivity()).getSupportActionBar();
 
 				// Detect touch gestures like swipe and scroll down:
 				gestureDetector = new GestureDetector(getActivity(),
@@ -260,22 +260,16 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			webView.setOnTouchListener(gestureListener);
 		}
 
-		// TODO: Is this still necessary?
-		int backgroundColor = Controller.getInstance().getThemeBackground();
-		int fontColor = Controller.getInstance().getThemeFont();
-		webView.setBackgroundColor(backgroundColor);
-		if (getActivity().findViewById(R.id.article_view) instanceof ViewGroup)
-			setBackground((ViewGroup) getActivity().findViewById(R.id.article_view), backgroundColor, fontColor);
-
 		registerForContextMenu(webView);
-		// Attach the WebView to its placeholder
-		if (webView.getParent() != null && webView.getParent() instanceof FrameLayout)
-			((FrameLayout) webView.getParent()).removeAllViews();
-		webContainer.addView(webView);
 
 		getActivity().findViewById(R.id.article_button_view).setVisibility(
 				Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_ALLWAYS ? View.VISIBLE
 																								  : View.GONE);
+
+		// Attach the WebView to its placeholder
+		if (webView.getParent() != null && webView.getParent() instanceof FrameLayout)
+			((FrameLayout) webView.getParent()).removeAllViews();
+		webContainer.addView(webView);
 
 		setHasOptionsMenu(true);
 	}
@@ -446,23 +440,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			startActivity(i);
 		} catch (ActivityNotFoundException e) {
 			Log.e(TAG, "Couldn't find a suitable activity for the uri: " + url);
-		}
-	}
-
-	/**
-	 * Recursively walks all viewGroups and their Views inside the given ViewGroup and sets the background to black
-	 * and, in case a TextView is found, the Text-Color to white.
-	 *
-	 * @param v the ViewGroup to walk through
-	 */
-	private void setBackground(ViewGroup v, int background, int font) {
-		v.setBackgroundColor(getResources().getColor(background));
-
-		for (int i = 0; i < v.getChildCount(); i++) { // View at index 0 seems to be this view itself.
-			View vChild = v.getChildAt(i);
-			if (vChild == null) continue;
-			if (vChild instanceof TextView) ((TextView) vChild).setTextColor(font);
-			if (vChild instanceof ViewGroup) setBackground(((ViewGroup) vChild), background, font);
 		}
 	}
 

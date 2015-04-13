@@ -56,6 +56,8 @@ dependencies {
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.5'
     compile 'org.antlr:ST4:4.0.8'
     compile 'com.google.guava:guava:18.0'
+    // Use Material Design everywhere
+    compile 'com.android.support:appcompat-v7:22.+'
     // For @Nullable/@NonNull
     compile 'com.intellij:annotations:+@jar'
 }

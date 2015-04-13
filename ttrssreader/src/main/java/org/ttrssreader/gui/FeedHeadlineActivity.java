@@ -58,8 +58,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 	@Override
 	protected void onCreate(Bundle instance) {
 		super.onCreate(instance);
-		setContentView(R.layout.main);
-		super.initTabletLayout();
 
 		Bundle extras = getIntent().getExtras();
 		if (instance != null) {
@@ -85,6 +83,11 @@ public class FeedHeadlineActivity extends MenuActivity {
 		if (headlineFragment == null) {
 			displayFeed(feedId, 0);
 		}
+	}
+
+	@Override
+	protected int getLayoutResource() {
+		return R.layout.main;
 	}
 
 	@Override

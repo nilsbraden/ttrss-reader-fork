@@ -59,7 +59,6 @@ public class ShareActivity extends MenuActivity {
 
 		final Context context = this;
 
-		setContentView(R.layout.sharetopublished);
 		setTitle(R.string.IntentPublish);
 
 		String titleValue = getIntent().getStringExtra(Intent.EXTRA_SUBJECT);
@@ -88,6 +87,11 @@ public class ShareActivity extends MenuActivity {
 				new MyPublisherTask().execute();
 			}
 		});
+	}
+
+	@Override
+	protected int getLayoutResource() {
+		return R.layout.sharetopublished;
 	}
 
 	@Override

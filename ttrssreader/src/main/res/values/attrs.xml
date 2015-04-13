@@ -18,7 +18,11 @@
 
 <resources>
 
-	<attr name="ListItem" format="reference|color" />
-	<attr name="ListItemText" format="reference|color" />
+  <!--<attr name="pressed_color" format="reference|color" />-->
+  <!--<attr name="background_color" format="reference|color" />-->
+  <!--<attr name="background_actionbar_color" format="reference|color" />-->
+  <!--<attr name="font_color" format="reference|color" />-->
+  <attr name="html_header_background" format="reference|color" />
+  <!--<attr name="html_font_color" format="reference|color" />-->
 
 </resources>

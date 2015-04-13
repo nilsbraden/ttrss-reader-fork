@@ -19,18 +19,21 @@
 	android:id="@+id/frame_all"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:baselineAligned="false"
 	android:orientation="horizontal">
+
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/toolbar" />
 
 	<FrameLayout
 		android:id="@+id/frame_main"
+		android:layout_below="@id/toolbar"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent" />
 
-	<!-- android:background="?android:attr/windowBackground" -->
-
 	<FrameLayout
 		android:id="@+id/frame_sub"
+		android:layout_below="@id/toolbar"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent" />
 

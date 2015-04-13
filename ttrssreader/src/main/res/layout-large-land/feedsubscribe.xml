@@ -19,76 +19,87 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="horizontal">
+	android:orientation="vertical">
 
-	<TextView
-		android:id="@+id/space_left"
-		android:layout_width="0px"
+	<include
+		android:id="@+id/toolbar"
+		layout="@layout/toolbar" />
+
+	<LinearLayout
+		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_weight=".4"
-		android:visibility="invisible" />
-
-	<RelativeLayout
-		android:layout_width="0px"
-		android:layout_height="wrap_content"
-		android:layout_weight="1"
-		android:padding="10dp">
-
-		<EditText
-			android:id="@+id/subscribe_url"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/Subscribe.url"
-			android:inputType="textUri"
-			android:singleLine="true">
-
-			<requestFocus />
-		</EditText>
-
-		<Button
-			style="?android:attr/buttonBarButtonStyle"
-			android:id="@+id/subscribe_paste"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignRight="@+id/subscribe_url"
-			android:layout_alignEnd="@+id/subscribe_url"
-			android:layout_below="@+id/subscribe_url"
-			android:text="@string/Subscribe.Paste" />
+		android:orientation="horizontal">
 
 		<TextView
-			android:id="@+id/subscribe_cat_label"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/subscribe_paste"
-			android:paddingTop="20dp"
-			android:text="@string/Subscribe.Category_Label" />
+			android:id="@+id/space_left"
+			android:layout_width="0px"
+			android:layout_height="match_parent"
+			android:layout_weight=".4"
+			android:visibility="invisible" />
 
-		<Spinner
-			android:id="@+id/subscribe_categories"
-			android:layout_width="match_parent"
+		<RelativeLayout
+			android:layout_width="0px"
 			android:layout_height="wrap_content"
-			android:layout_below="@+id/subscribe_cat_label" />
+			android:layout_weight="1"
+			android:padding="10dp">
 
-		<Button
-			style="?android:attr/buttonBarButtonStyle"
-			android:id="@+id/subscribe_ok_button"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentStart="true"
-			android:layout_alignRight="@+id/subscribe_categories"
-			android:layout_alignEnd="@+id/subscribe_categories"
-			android:layout_below="@+id/subscribe_categories"
-			android:layout_margin="20dp"
-			android:text="@string/Subscribe.ok_button"
-			tools:ignore="ButtonOrder" />
-	</RelativeLayout>
+			<EditText
+				android:id="@+id/subscribe_url"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/Subscribe.url"
+				android:inputType="textUri"
+				android:singleLine="true">
 
-	<TextView
-		android:id="@+id/space_right"
-		android:layout_width="0px"
-		android:layout_height="match_parent"
-		android:layout_weight=".4"
-		android:visibility="invisible" />
+				<requestFocus />
+			</EditText>
+
+			<Button
+				style="?android:attr/buttonBarButtonStyle"
+				android:id="@+id/subscribe_paste"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignRight="@+id/subscribe_url"
+				android:layout_alignEnd="@+id/subscribe_url"
+				android:layout_below="@+id/subscribe_url"
+				android:text="@string/Subscribe.Paste" />
+
+			<TextView
+				android:id="@+id/subscribe_cat_label"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/subscribe_paste"
+				android:paddingTop="20dp"
+				android:text="@string/Subscribe.Category_Label" />
+
+			<Spinner
+				android:id="@+id/subscribe_categories"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_below="@+id/subscribe_cat_label" />
+
+			<Button
+				style="?android:attr/buttonBarButtonStyle"
+				android:id="@+id/subscribe_ok_button"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentStart="true"
+				android:layout_alignRight="@+id/subscribe_categories"
+				android:layout_alignEnd="@+id/subscribe_categories"
+				android:layout_below="@+id/subscribe_categories"
+				android:layout_margin="20dp"
+				android:text="@string/Subscribe.ok_button"
+				tools:ignore="ButtonOrder" />
+		</RelativeLayout>
+
+		<TextView
+			android:id="@+id/space_right"
+			android:layout_width="0px"
+			android:layout_height="match_parent"
+			android:layout_weight=".4"
+			android:visibility="invisible" />
+
+	</LinearLayout>
 
 </LinearLayout>
