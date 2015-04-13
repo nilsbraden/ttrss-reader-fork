@@ -1,53 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-	File created by the Android Action Bar Style Generator
+  Copyright (c) 2015, Nils Braden
 
-	Copyright (C) 2010 Nils Braden
-	Copyright (C) 2011 The Android Open Source Project
-	Copyright (C) 2012 readyState Software Ltd
+  This file is part of ttrss-reader-fork. This program is free software; you
+  can redistribute it and/or modify it under the terms of the GNU
+  General Public License as published by the Free Software Foundation;
+  either version 3 of the License, or (at your option) any later
+  version.
 
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
-
-		http://www.apache.org/licenses/LICENSE-2.0
-
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
--->
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details. You should have received a
+  copy of the GNU General Public License along with this program; If
+  not, see http://www.gnu.org/licenses/.
+  -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<style name="Theme.Dark" parent="Theme.AppCompat">
 
-		<item name="colorPrimary">#FF5722</item>
-		<item name="colorPrimaryDark">#FF181818</item>
-		<item name="colorAccent">#FF3D00</item>
-		<item name="android:textColorPrimary">#D9FFFFFF</item>
-		<item name="android:textColor">#D9EEEEEE</item>
+		<item name="colorPrimary">#222222</item>
+		<item name="colorPrimaryDark">#2D2D2D</item>
+		<item name="colorAccent">#5d4037</item>
+		<item name="android:textColorPrimary">#ff3aff00</item>
+		<item name="android:textColor">#DDDDDD</item>
 
 		<item name="android:windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
 
-		<!--&lt;!&ndash; Colors for the theme &ndash;&gt;-->
-		<!--<item name="pressed_color">#CCEE8813</item>-->
+		<item name="android:windowBackground">?colorPrimary</item>
+
+		<!-- Colors for the theme -->
 		<!--<item name="background_color">#FF222222</item>-->
 		<!--<item name="background_actionbar_color">#FF2D2D2D</item>-->
-		<!--<item name="font_color">#FFEEEEEE</item>-->
-		<!--<item name="html_header_background">#FF454545</item>-->
-		<!--<item name="html_font_color">#FFDDDDDD</item>-->
-
-		<!--&lt;!&ndash; Text and Background &ndash;&gt;-->
-		<!--<item name="android:textColor">?font_color</item>-->
-		<!--<item name="android:windowBackground">?background_color</item>-->
 
 		<!-- Background for Button-Navigation -->
 		<item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
-
-		<!--&lt;!&ndash; Background for ActionBar (defined in styles_dark.xml) &ndash;&gt;-->
-		<!--<item name="android:actionBarStyle">@style/CustomActionBarTheme</item>-->
+		<!-- Color for Navigation-Buttons in ArticleView -->
+		<item name="html_header_background">#454545</item>
 	</style>
 
 </resources>

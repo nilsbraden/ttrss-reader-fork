@@ -1,5 +1,8 @@
 <component name="CopyrightManager">
   <settings default="ttrss">
+    <module2copyright>
+      <element module="Project Files" copyright="ttrss" />
+    </module2copyright>
     <LanguageOptions name="JAVA">
       <option name="fileTypeOverride" value="3" />
     </LanguageOptions>

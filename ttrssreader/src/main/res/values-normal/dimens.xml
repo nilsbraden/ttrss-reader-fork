@@ -15,17 +15,10 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <!-- Background for Button-Navigation -->
-  <style name="CustomButtonBarStyle" parent="@android:style/ButtonBar">
-    <item name="android:background">?html_header_background</item>
-	</style>
+<resources>
 
-  <style name="listitem">
-    <item name="android:layout_width">@dimen/listitem_icon_dimens</item>
-    <item name="android:layout_height">@dimen/listitem_icon_dimens</item>
-    <item name="android:layout_margin">@dimen/listitem_icon_margin</item>
-  </style>
+	<dimen name="listitem_icon_dimens">48dp</dimen>
+	<dimen name="listitem_icon_margin">4dp</dimen>
 
 </resources>

@@ -21,11 +21,8 @@
 	android:orientation="horizontal">
 
 	<ImageView
+		style="@style/listitem"
 		android:id="@+id/icon"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:layout_marginRight="10dp"
-		android:layout_marginEnd="10dp"
 		android:contentDescription="@string/Empty" />
 
 	<LinearLayout

@@ -15,10 +15,10 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
+
 <resources>
 
-	<color name="transparent">#00000000</color>
-	<color name="black">#000000</color>
-	<color name="white">#FFFFFF</color>
+	<dimen name="listitem_icon_dimens">32dp</dimen>
+	<dimen name="listitem_icon_margin">4dp</dimen>
 
 </resources>

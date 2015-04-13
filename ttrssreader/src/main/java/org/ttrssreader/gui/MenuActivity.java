@@ -102,7 +102,7 @@ public abstract class MenuActivity extends ActionBarActivity
 
 		setContentView(getLayoutResource());
 
-		initActionbar();
+		initToolbar();
 		initTabletLayout();
 	}
 
@@ -205,7 +205,7 @@ public abstract class MenuActivity extends ActionBarActivity
 	}
 
 	@SuppressLint("InflateParams")
-	private void initActionbar() {
+	private void initToolbar() {
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
