@@ -19,16 +19,17 @@
 
 	<style name="Theme.Dark" parent="Theme.AppCompat">
 
-		<item name="colorPrimary">#222222</item>
-		<item name="colorPrimaryDark">#2D2D2D</item>
-		<item name="colorAccent">#5d4037</item>
-		<item name="android:textColorPrimary">#ff3aff00</item>
-		<item name="android:textColor">#DDDDDD</item>
+		<item name="colorPrimary">#FF858585</item>
+		<item name="colorPrimaryDark">#FF282828</item>
+		<item name="colorAccent">#FFF57C00</item>
+		<item name="colorBackground">#222222</item>
+		<item name="android:textColorPrimary">#D2FFFFFF</item>
+		<item name="android:textColor">#FFFFFFFF</item>
 
 		<item name="android:windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
 
-		<item name="android:windowBackground">?colorPrimary</item>
+		<item name="android:windowBackground">?colorBackground</item>
 
 		<!-- Colors for the theme -->
 		<!--<item name="background_color">#FF222222</item>-->

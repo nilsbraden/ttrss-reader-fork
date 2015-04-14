@@ -58,6 +58,7 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     // Use Material Design everywhere
     compile 'com.android.support:appcompat-v7:22.+'
+    compile 'com.android.support:recyclerview-v7:22.+'
     // For @Nullable/@NonNull
     compile 'com.intellij:annotations:+@jar'
 }

@@ -27,14 +27,8 @@
 		android:layout_height="match_parent"
 		android:orientation="vertical">
 
-		<include
-			android:id="@+id/toolbar"
-			layout="@layout/toolbar" />
-
 		<FrameLayout
 			android:id="@+id/article_webView_Container"
-			android:layout_above="@+id/article_button_view"
-			android:layout_below="@id/toolbar"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent" />
 
@@ -44,6 +38,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="45dip"
 			android:layout_alignParentBottom="true"
+			android:layout_below="@id/article_webView_Container"
 			android:background="@android:drawable/bottom_bar"
 			android:orientation="horizontal"
 			android:visibility="gone">

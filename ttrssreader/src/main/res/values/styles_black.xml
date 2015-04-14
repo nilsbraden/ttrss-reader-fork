@@ -15,29 +15,13 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources>
 
-	<style name="Theme.Black" parent="Theme.AppCompat">
+  <style name="Theme.Black" parent="Theme.Dark">
 
-		<item name="colorPrimary">#000000</item>
-		<item name="colorPrimaryDark">#2D2D2D</item>
 		<item name="colorAccent">#FF3D00</item>
-		<item name="android:textColorPrimary">#ff3aff00</item>
-		<item name="android:textColor">#FFFFFF</item>
+    <item name="colorBackground">#000000</item>
 
-		<item name="android:windowNoTitle">true</item>
-		<item name="windowActionBar">false</item>
-
-		<item name="android:windowBackground">?colorPrimary</item>
-
-		<!-- Colors for the theme -->
-		<!--<item name="background_color">#FF000000</item>-->
-		<!--<item name="background_actionbar_color">#FF2D2D2D</item>-->
-
-		<!-- Background for Button-Navigation -->
-		<item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
-		<!-- Color for Navigation-Buttons in ArticleView -->
-		<item name="html_header_background">#454545</item>
 	</style>
 
 </resources>

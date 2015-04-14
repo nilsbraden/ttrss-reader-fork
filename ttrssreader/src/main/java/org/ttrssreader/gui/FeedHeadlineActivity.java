@@ -83,6 +83,15 @@ public class FeedHeadlineActivity extends MenuActivity {
 		if (headlineFragment == null) {
 			displayFeed(feedId, 0);
 		}
+
+		if (Controller.isTablet) {
+			ArticleFragment articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
+			if (articleFragment == null) {
+				articleFragment = ArticleFragment
+						.newInstance(Integer.MIN_VALUE, feedId, categoryId, selectArticlesForCategory, 0);
+				fm.beginTransaction().add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
+			}
+		}
 	}
 
 	@Override

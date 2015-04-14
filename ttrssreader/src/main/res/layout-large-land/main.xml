@@ -37,7 +37,8 @@
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
 		android:layout_toRightOf="@+id/frame_main"
-		android:layout_toEndOf="@+id/frame_main">
+		android:layout_toEndOf="@+id/frame_main"
+		android:background="?colorBackground">
 
 		<ImageView
 			android:layout_width="16dp"
@@ -57,8 +58,8 @@
 
 	<FrameLayout
 		android:id="@+id/frame_invisible"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:visibility="gone" />
 
 </RelativeLayout>

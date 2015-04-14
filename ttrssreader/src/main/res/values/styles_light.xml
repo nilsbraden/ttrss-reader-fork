@@ -20,10 +20,11 @@
 	<style name="Theme.Light" parent="Theme.AppCompat.Light">
 
 		<item name="colorPrimary">#FFE1E1E1</item>
-		<item name="colorPrimaryDark">#FFB8B3B3</item>
+		<item name="colorPrimaryDark">#FFB7B7B7</item>
 		<item name="colorAccent">#FFF57C00</item>
-		<item name="android:textColorPrimary">#ff3aff00</item>
-		<item name="android:textColor">#FF333333</item>
+		<item name="colorBackground">#FFE1E1E1</item>
+		<item name="android:textColorPrimary">#D2000000</item>
+		<item name="android:textColor">#FF000000</item>
 
 		<item name="android:windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
