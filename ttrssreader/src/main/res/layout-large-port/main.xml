@@ -29,8 +29,7 @@
 		android:id="@+id/frame_main"
 		android:layout_below="@id/toolbar"
 		android:layout_width="match_parent"
-		android:layout_height="0px"
-		android:layout_alignParentTop="true" />
+		android:layout_height="0px" />
 
 	<FrameLayout
 		android:id="@+id/list_divider"
