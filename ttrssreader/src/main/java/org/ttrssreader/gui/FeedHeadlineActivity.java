@@ -84,6 +84,8 @@ public class FeedHeadlineActivity extends MenuActivity {
 			displayFeed(feedId, 0);
 		}
 
+		// TEMPORARY_SOLUTION_MARKER
+		// Put empty articleFragment into the layout so the space doesn't get cluttered with graphic artifacts.
 		if (Controller.isTablet) {
 			ArticleFragment articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
 			if (articleFragment == null) {

@@ -22,7 +22,7 @@
 		<item name="colorPrimary">#FF858585</item>
 		<item name="colorPrimaryDark">#FF282828</item>
 		<item name="colorAccent">#FFF57C00</item>
-		<item name="colorBackground">#222222</item>
+		<item name="colorBackground">#FF222222</item>
 		<item name="android:textColorPrimary">#D2FFFFFF</item>
 		<item name="android:textColor">#FFFFFFFF</item>
 
@@ -38,7 +38,7 @@
 		<!-- Background for Button-Navigation -->
 		<item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
 		<!-- Color for Navigation-Buttons in ArticleView -->
-		<item name="html_header_background">#454545</item>
+		<item name="html_header_background">#FF454545</item>
 	</style>
 
 </resources>

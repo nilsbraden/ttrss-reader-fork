@@ -17,10 +17,10 @@
   -->
 <resources>
 
-  <style name="Theme.Black" parent="Theme.Dark">
+	<style name="Theme.Black" parent="Theme.Dark">
 
-		<item name="colorAccent">#FF3D00</item>
-    <item name="colorBackground">#000000</item>
+		<item name="colorAccent">#FFFF3D00</item>
+		<item name="colorBackground">#FF000000</item>
 
 	</style>
 

@@ -19,8 +19,8 @@
 
 	<style name="Theme.White" parent="Theme.Light">
 
-		<item name="colorAccent">#FF3D00</item>
-		<item name="colorBackground">#FFFFFF</item>
+      <item name="colorAccent">#FFFF3D00</item>
+      <item name="colorBackground">#FFFFFFFF</item>
 
 	</style>
 

@@ -212,7 +212,6 @@ public abstract class MenuActivity extends ActionBarActivity
 
 			ActionBar ab = getSupportActionBar();
 			if (ab != null) {
-				//ab.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
 				ab.setDisplayHomeAsUpEnabled(true);
 				ab.setDisplayShowTitleEnabled(false);
 			}

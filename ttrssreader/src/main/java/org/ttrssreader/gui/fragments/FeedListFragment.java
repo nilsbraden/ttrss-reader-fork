@@ -169,4 +169,9 @@ public class FeedListFragment extends MainListFragment {
 		super.doRefresh();
 	}
 
+	@Override
+	public boolean isEmptyPlaceholder() {
+		return categoryId == Integer.MIN_VALUE;
+	}
+
 }

@@ -109,17 +109,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	private static final int CONTEXT_MENU_COPY_URL = 1003;
 	private static final int CONTEXT_MENU_COPY_CONTENT = 1004;
 
-	private static final char TEMPLATE_DELIMITER_START = '$';
-	private static final char TEMPLATE_DELIMITER_END = '$';
 	private static final String LABEL_COLOR_STRING = "<span style=\"color: %s; background-color: %s\">%s</span>";
-
-	private static final String TEMPLATE_ARTICLE_VAR = "article";
-	private static final String TEMPLATE_FEED_VAR = "feed";
-	private static final String MARKER_CACHED_IMAGES = "CACHED_IMAGES";
-	private static final String MARKER_UPDATED = "UPDATED";
-	private static final String MARKER_LABELS = "LABELS";
-	private static final String MARKER_CONTENT = "CONTENT";
-	private static final String MARKER_ATTACHMENTS = "ATTACHMENTS";
 
 	// Extras
 	private int articleId = -1;
@@ -307,10 +297,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			@Override
 			protected void onPostExecute(Void aVoid) {
 				super.onPostExecute(aVoid);
-				if (article == null) {
-					getActivity().finish(); // Don't call finish() from background thread
-					return;
-				}
+
 				// Has to be called from UI thread
 				doRefresh();
 				getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
@@ -373,7 +360,16 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				return;
 			}
 
-			if (article == null || article.content == null) return;
+			if (article == null || article.content == null) {
+				// TEMPORARY_SOLUTION_MARKER
+				// Load empty html page with background
+				ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE_EMPTY), '$', '$');
+				htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
+				content = htmlTmpl.render();
+				webView.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
+				webviewInitialized = true;
+				return;
+			}
 
 			StringBuilder labels = new StringBuilder();
 			for (Label label : article.labels) {
@@ -387,23 +383,52 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				}
 			}
 
-			// Load html from Controller and insert content
-			ST contentTemplate = new ST(Controller.htmlTemplate, TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
+			long time = System.currentTimeMillis();
+			// Load html from Controller and insert content// Article-Prefetch-Stuff from Raw-Ressources and System
+			ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE), '$', '$');
 
-			contentTemplate.add(TEMPLATE_ARTICLE_VAR, article);
-			contentTemplate.add(TEMPLATE_FEED_VAR, feed);
-			contentTemplate.add(MARKER_CACHED_IMAGES, cachedImages);
-			contentTemplate.add(MARKER_LABELS, labels.toString());
-			contentTemplate.add(MARKER_UPDATED, DateUtils.getDateTimeCustom(getActivity(), article.updated));
-			contentTemplate.add(MARKER_CONTENT, article.content);
-			// Inject the specific code for attachments, <img> for images, http-link for Videos
-			contentTemplate.add(MARKER_ATTACHMENTS, getAttachmentsMarkup(getActivity(), article.attachments));
+			// Replace alignment-marker with the requested layout, align:left or justified
+			String replaceAlign;
+			if (Controller.getInstance().alignFlushLeft()) {
+				replaceAlign = getString(R.string.ALIGN_LEFT);
+			} else {
+				replaceAlign = getString(R.string.ALIGN_JUSTIFY);
+			}
+
+			String javascriptHyphenation = "";
+			if (Controller.getInstance().allowHyphenation()) {
+				ST javascriptST = new ST(getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE), '$', '$');
+				javascriptST.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
+				javascriptHyphenation = javascriptST.render();
+			}
+
+			String buttons = "";
+			if (Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML)
+				buttons = getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
+
+			// General values
+			htmlTmpl.add("TEXT_ALIGN", replaceAlign);
+			htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
+			htmlTmpl.add("CACHE_DIR", Controller.getInstance().cacheFolder());
+			htmlTmpl.add("HYPHENATION", javascriptHyphenation);
+			htmlTmpl.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
+			htmlTmpl.add("NAVIGATION", buttons);
+
+			// Special values for this article
+			htmlTmpl.add("article", article);
+			htmlTmpl.add("feed", feed);
+			htmlTmpl.add("CACHED_IMAGES", cachedImages);
+			htmlTmpl.add("LABELS", labels.toString());
+			htmlTmpl.add("UPDATED", DateUtils.getDateTimeCustom(getActivity(), article.updated));
+			htmlTmpl.add("ATTACHMENTS", getAttachmentsMarkup(getActivity(), article.attachments));
+
+			content = htmlTmpl.render();
+			Log.w(TAG, "== Template rendering took " + (System.currentTimeMillis() - time) + "ms");
 
 			webView.getSettings().setJavaScriptEnabled(true);
 			// TODO: Do we need to do this?
 			//			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
 			webView.addJavascriptInterface(articleJSInterface, "articleController");
-			content = contentTemplate.render();
 			webView.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
 
 			if (!linkAutoOpened && article.content.length() < 3) {

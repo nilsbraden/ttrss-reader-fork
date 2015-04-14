@@ -18,7 +18,6 @@
 package org.ttrssreader.controllers;
 
 import org.stringtemplate.v4.ST;
-import org.ttrssreader.MyApplication;
 import org.ttrssreader.R;
 import org.ttrssreader.gui.CategoryActivity;
 import org.ttrssreader.gui.FeedHeadlineActivity;
@@ -35,7 +34,7 @@ import org.ttrssreader.utils.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
+import android.net.http.HttpResponseCache;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
@@ -46,6 +45,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -69,16 +69,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
 	private final static char TEMPLATE_DELIMITER_START = '$';
 	private final static char TEMPLATE_DELIMITER_END = '$';
-
-	private static final String MARKER_ALIGN = "TEXT_ALIGN_MARKER";
-	private static final String MARKER_CACHE_DIR = "CACHE_DIR_MARKER";
-	private static final String MARKER_CACHED_IMAGES = "CACHED_IMAGES_MARKER";
-	private static final String MARKER_JS = "JS_MARKER";
-	private static final String MARKER_THEME = "THEME_MARKER";
-	private static final String MARKER_LANG = "LANG_MARKER";
-	private static final String MARKER_TOP_NAV = "TOP_NAVIGATION_MARKER";
-	private static final String MARKER_CONTENT = "CONTENT_MARKER";
-	private static final String MARKER_BOTTOM_NAV = "BOTTOM_NAVIGATION_MARKER";
 
 	private static final int THEME_DARK = 1;
 	private static final int THEME_LIGHT = 2;
@@ -156,7 +146,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	public volatile Set<Integer> lastOpenedArticles = new HashSet<>();
 
 	// Article-View-Stuff
-	public static String htmlTemplate = "";
+	public static ST htmlTemplate;
 	private static final Object lockHtmlTemplate = new Object();
 
 	public static int relSwipeMinDistance;
@@ -247,9 +237,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
 							.getDefaultDisplay();
 					refreshDisplayMetrics(display);
 
-					// Loads all article and webview related resources
-					reloadTheme();
-
 					enableHttpResponseCache(context.getCacheDir());
 
 					return null;
@@ -260,62 +247,16 @@ public class Controller implements OnSharedPreferenceChangeListener {
 		}
 	}
 
-	private void reloadTheme() {
-		final Resources res = MyApplication.context().getResources();
-
-		// Article-Prefetch-Stuff from Raw-Ressources and System
-		ST htmlTmpl = new ST(res.getString(R.string.HTML_TEMPLATE), TEMPLATE_DELIMITER_START, TEMPLATE_DELIMITER_END);
-
-		// Replace alignment-marker with the requested layout, align:left or justified
-		String replaceAlign;
-		if (alignFlushLeft()) {
-			replaceAlign = res.getString(R.string.ALIGN_LEFT);
-		} else {
-			replaceAlign = res.getString(R.string.ALIGN_JUSTIFY);
-		}
-
-		String javascript = "";
-		String lang = "";
-		if (allowHyphenation()) {
-			ST javascriptST = new ST(res.getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE), TEMPLATE_DELIMITER_START,
-					TEMPLATE_DELIMITER_END);
-			lang = hyphenationLanguage();
-			javascriptST.add(MARKER_LANG, lang);
-			javascript = javascriptST.render();
-		}
-
-		String buttons = "";
-		if (showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML)
-			buttons = res.getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
-
-		htmlTmpl.add(MARKER_ALIGN, replaceAlign);
-		htmlTmpl.add(MARKER_THEME, MyApplication.context().getResources().getString(getThemeHTML()));
-		htmlTmpl.add(MARKER_CACHE_DIR, cacheFolder());
-		htmlTmpl.add(MARKER_CACHED_IMAGES, res.getString(R.string.CACHED_IMAGES_TEMPLATE));
-		htmlTmpl.add(MARKER_JS, javascript);
-		htmlTmpl.add(MARKER_LANG, lang);
-		htmlTmpl.add(MARKER_TOP_NAV, res.getString(R.string.TOP_NAVIGATION_TEMPLATE));
-		htmlTmpl.add(MARKER_CONTENT, res.getString(R.string.CONTENT_TEMPLATE));
-		htmlTmpl.add(MARKER_BOTTOM_NAV, buttons);
-
-		// This is only needed once an article is displayed
-		synchronized (lockHtmlTemplate) {
-			htmlTemplate = htmlTmpl.render();
-		}
-	}
-
 	/**
-	 * Enables HTTP response caching on devices that support it, see
-	 * http://android-developers.blogspot.de/2011/09/androids-http-clients.html
+	 * Enables HTTP response caching, see http://android-developers.blogspot.de/2011/09/androids-http-clients.html
 	 */
 	private void enableHttpResponseCache(final File cacheDir) {
+		long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+		File httpCacheDir = new File(cacheDir, "http");
 		try {
-			long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
-			File httpCacheDir = new File(cacheDir, "http");
-			Class.forName("android.net.http.HttpResponseCache").getMethod("install", File.class, long.class)
-					.invoke(null, httpCacheDir, httpCacheSize);
-		} catch (Exception httpResponseCacheNotAvailable) {
-			// Empty!
+			HttpResponseCache.install(httpCacheDir, httpCacheSize);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -653,7 +594,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 		this.supportZoomControls = supportZoomControls;
 	}
 
-	private boolean allowHyphenation() {
+	public boolean allowHyphenation() {
 		if (allowHyphenation == null)
 			allowHyphenation = prefs.getBoolean(Constants.ALLOW_HYPHENATION, Constants.ALLOW_HYPHENATION_DEFAULT);
 		return allowHyphenation;
@@ -664,7 +605,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 		this.allowHyphenation = allowHyphenation;
 	}
 
-	private String hyphenationLanguage() {
+	public String hyphenationLanguage() {
 		if (hyphenationLanguage == null) hyphenationLanguage = prefs
 				.getString(Constants.HYPHENATION_LANGUAGE, Constants.HYPHENATION_LANGUAGE_DEFAULT);
 		return hyphenationLanguage;
@@ -740,7 +681,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 		this.invertSortFeedscats = invertSortFeedsCats;
 	}
 
-	private boolean alignFlushLeft() {
+	public boolean alignFlushLeft() {
 		if (alignFlushLeft == null)
 			alignFlushLeft = prefs.getBoolean(Constants.ALIGN_FLUSH_LEFT, Constants.ALIGN_FLUSH_LEFT_DEFAULT);
 		return alignFlushLeft;
@@ -1112,7 +1053,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
 			int newTheme = Integer.parseInt(prefs.getString(key, Constants.THEME_DEFAULT));
 			if (newTheme != getThemeInternal()) {
 				setTheme(newTheme);
-				reloadTheme();
 				scheduledRestart = true;
 			}
 		}

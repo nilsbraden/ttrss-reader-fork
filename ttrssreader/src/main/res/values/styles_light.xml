@@ -38,7 +38,7 @@
 		<!-- Background for Button-Navigation -->
 		<item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
 		<!-- Color for Navigation-Buttons in ArticleView -->
-		<item name="html_header_background">#B8B3B3</item>
+		<item name="html_header_background">#FFB8B3B3</item>
 	</style>
 
 </resources>

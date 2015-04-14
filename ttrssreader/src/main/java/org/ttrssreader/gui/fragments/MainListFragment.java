@@ -186,8 +186,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	public String getTitle() {
-		if (title != null) return title;
-		return "";
+		return title != null ? title : "";
 	}
 
 	public int getUnread() {
@@ -247,6 +246,14 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 			return a;
 		}
 		return super.onCreateAnimator(transit, enter, nextAnim);
+	}
+
+	/**
+	 * Needed to determine if we need to read the title from this fragment or use the generic title from the
+	 * CategoryFragment instead.
+	 */
+	public boolean isEmptyPlaceholder() {
+		return false;
 	}
 
 }

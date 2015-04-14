@@ -95,6 +95,8 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 				categoryFragment = CategoryListFragment.newInstance();
 				ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
 			}
+			// TEMPORARY_SOLUTION_MARKER
+			// Put empty articleFragment into the layout so the space doesn't get cluttered with graphic artifacts.
 			if (feedFragment == null && Controller.isTablet) {
 				feedFragment = FeedListFragment.newInstance(Integer.MIN_VALUE);
 				ft.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
@@ -171,7 +173,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 	private void setTitleAndUnread() {
 		// Title and unread information:
-		if (feedFragment != null) {
+		if (feedFragment != null && !feedFragment.isEmptyPlaceholder()) {
 			setTitle(feedFragment.getTitle());
 			setUnread(feedFragment.getUnread());
 		} else if (categoryFragment != null) {
