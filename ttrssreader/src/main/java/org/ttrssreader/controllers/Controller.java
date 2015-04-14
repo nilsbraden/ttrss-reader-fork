@@ -184,6 +184,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	public void initialize(final Context context) {
 		this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
+		// Check for new installation
+		if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
+			newInstallation = true;
+		}
+
 		synchronized (lockInitialize) {
 
 			if (initialized) return;
@@ -197,11 +202,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
 					// Initially read absolutely necessary preferences:
 					sizeVerticalCategory = prefs.getInt(SIZE_VERTICAL_CATEGORY, -1);
 					sizeHorizontalCategory = prefs.getInt(SIZE_HORIZONTAL_CATEGORY, -1);
-
-					// Check for new installation
-					if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
-						newInstallation = true;
-					}
 
 					if (Controller.getInstance().useKeystore()) {
 						try {
@@ -807,7 +807,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 		}
 	}
 
-	public int getThemeInternal() {
+	private int getThemeInternal() {
 		if (theme == null) theme = Integer.parseInt(prefs.getString(Constants.THEME, Constants.THEME_DEFAULT));
 		return theme;
 	}
