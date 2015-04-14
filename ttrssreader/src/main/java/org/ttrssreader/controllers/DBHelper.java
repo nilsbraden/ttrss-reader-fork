@@ -1842,22 +1842,29 @@ public class DBHelper {
 		}
 	}
 
+	private void insertArticleFiles(int articleId, String[] fileUrls) {
+		if (!isDBAvailable()) return;
+
+		for (String url : fileUrls) {
+			long remotefileId = insertRemoteFile(url);
+			if (remotefileId != 0) insertRemoteFile2Article(remotefileId, articleId);
+		}
+	}
+
 	/**
 	 * insert given remote files into DB and link them with given article
 	 *
-	 * @param articleId "parent" article
-	 * @param fileUrls  array of remote file URLs
+	 * @param map A map of arrays of remote file URLs mapped to ids of "parent" articles
 	 */
-	public void insertArticleFiles(int articleId, String[] fileUrls) {
+	public void insertArticleFiles(Map<Integer, String[]> map) {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		writeLock(true);
 		db.beginTransaction();
 		try {
-			for (String url : fileUrls) {
-				long remotefileId = insertRemoteFile(url);
-				if (remotefileId != 0) insertRemoteFile2Article(remotefileId, articleId);
+			for (Integer articleId : map.keySet()) {
+				insertArticleFiles(articleId, map.get(articleId));
 			}
 			db.setTransactionSuccessful();
 		} finally {
@@ -2042,23 +2049,29 @@ public class DBHelper {
 	/**
 	 * mark given remote file as cached/uncached and optionally specify it's file size
 	 *
-	 * @param url    remote file URL
-	 * @param cached the cached flag
-	 * @param size   file size may be {@code null}, if so, then it will not be updated in DB
+	 * @param remoteFiles A map of file sizes mapped to their remote file URL
 	 */
-	public void markRemoteFileCached(String url, boolean cached, Long size) {
+	public void markRemoteFilesCached(Map<String, Long> remoteFiles) {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		writeLock(true);
 		db.beginTransaction();
 		try {
-			ContentValues cv = new ContentValues(2);
-			cv.put("cached", cached);
-			if (size != null) {
-				cv.put("length", size);
+
+			for (String url : remoteFiles.keySet()) {
+				ContentValues cv = new ContentValues(2);
+				Long size = remoteFiles.get(url);
+				if (size <= 0) {
+					cv.put("cached", false);
+					cv.put("length", -size);
+				} else {
+					cv.put("cached", true);
+					cv.put("length", size);
+				}
+				db.update(TABLE_REMOTEFILES, cv, "url=?", new String[] {url});
 			}
-			db.update(TABLE_REMOTEFILES, cv, "url=?", new String[] {url});
+
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();

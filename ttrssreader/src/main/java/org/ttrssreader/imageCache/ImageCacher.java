@@ -275,17 +275,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		}
 
 		// Insert cached values:
-		for (Integer articleId : articleFiles.keySet()) {
-			DBHelper.getInstance().insertArticleFiles(articleId, articleFiles.get(articleId));
-		}
-		for (String url : remoteFiles.keySet()) {
-			Long size = remoteFiles.get(url);
-			if (size <= 0) {
-				DBHelper.getInstance().markRemoteFileCached(url, false, -size);
-			} else {
-				DBHelper.getInstance().markRemoteFileCached(url, true, size);
-			}
-		}
+		DBHelper.getInstance().insertArticleFiles(articleFiles);
+		DBHelper.getInstance().markRemoteFilesCached(remoteFiles);
 
 		Log.i(TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
 	}
@@ -323,7 +314,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 				synchronized (map) {
 					if (downloaded > 0) downloaded += size;
 
-					remoteFiles.putAll(remoteFilesLocal);
+					articleFiles.putAll(articleFilesLocal);
 					remoteFiles.putAll(remoteFilesLocal);
 
 					map.remove(articleId);
