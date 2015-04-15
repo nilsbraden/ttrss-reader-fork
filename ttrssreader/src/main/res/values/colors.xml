@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (c) 2015, Nils Braden
+
+  This file is part of ttrss-reader-fork. This program is free software; you
+  can redistribute it and/or modify it under the terms of the GNU
+  General Public License as published by the Free Software Foundation;
+  either version 3 of the License, or (at your option) any later
+  version.
+
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details. You should have received a
+  copy of the GNU General Public License along with this program; If
+  not, see http://www.gnu.org/licenses/.
+  -->
+
+<resources>
+
+	<!-- Colors for light theme -->
+	<color name="themeLightPrimary">#FFE1E1E1</color>
+	<color name="themeLightPrimaryDark">#FFB7B7B7</color>
+	<color name="themeLightAccent">#FFF57C00</color>
+	<color name="themeLightAccentDark">#ffc76602</color>
+	<color name="themeLightBackground">#FFE1E1E1</color>
+	<color name="themeLightTextColorPrimary">#D2000000</color>
+	<color name="themeLightTextColor">#FF000000</color>
+	<color name="themeLightHtmlHeaderBackgound">#FFB8B3B3</color>
+
+	<!-- Colors for dark theme -->
+	<color name="themeDarkPrimary">#FF858585</color>
+	<color name="themeDarkPrimaryDark">#FF282828</color>
+	<color name="themeDarkAccent">#FFF57C00</color>
+	<color name="themeDarkAccentDark">#ffc76602</color>
+	<color name="themeDarkBackground">#FF222222</color>
+	<color name="themeDarkTextColorPrimary">#D2FFFFFF</color>
+	<color name="themeDarkTextColor">#FFFFFFFF</color>
+	<color name="themeDarkHtmlHeaderBackgound">#FF454545</color>
+
+	<!-- Colors for white theme -->
+	<color name="themeWhiteAccent">#FF454545</color>
+	<color name="themeWhiteBackground">#FF454545</color>
+
+	<!-- Colors for black theme -->
+	<color name="themeBlackAccent">#FFFF3D00</color>
+	<color name="themeBlackBackground">#FF000000</color>
+	#FFFF3D00
+
+</resources>

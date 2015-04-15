@@ -19,27 +19,23 @@
 
 	<style name="Theme.Light" parent="Theme.AppCompat.Light">
 
-		<item name="colorPrimary">#FFE1E1E1</item>
-		<item name="colorPrimaryDark">#FFB7B7B7</item>
-		<item name="colorAccent">#FFF57C00</item>
-		<item name="colorAccentDark">#ffc76602</item>
-		<item name="colorBackground">#FFE1E1E1</item>
-		<item name="android:textColorPrimary">#D2000000</item>
-		<item name="android:textColor">#FF000000</item>
+		<item name="colorPrimary">@color/themeLightPrimary</item>
+		<item name="colorPrimaryDark">@color/themeLightPrimaryDark</item>
+		<item name="colorAccent">@color/themeLightAccent</item>
+		<item name="colorAccentDark">@color/themeLightAccentDark</item>
+		<item name="colorBackground">@color/themeLightBackground</item>
+		<item name="android:textColorPrimary">@color/themeLightTextColorPrimary</item>
+		<item name="android:textColor">@color/themeLightTextColor</item>
 
 		<item name="android:windowNoTitle">true</item>
 		<item name="windowActionBar">false</item>
 
 		<item name="android:windowBackground">?colorPrimary</item>
 
-		<!-- Colors for the theme -->
-		<!--<item name="background_color">#FFE1E1E1</item>-->
-		<!--<item name="background_actionbar_color">#FFB8B3B3</item>-->
-
 		<!-- Background for Button-Navigation -->
 		<item name="android:buttonBarStyle">@style/CustomButtonBarStyle</item>
 		<!-- Color for Navigation-Buttons in ArticleView -->
-		<item name="html_header_background">#FFB8B3B3</item>
+		<item name="htmlHeaderBackgound">@color/themeLightHtmlHeaderBackgound</item>
 	</style>
 
 </resources>

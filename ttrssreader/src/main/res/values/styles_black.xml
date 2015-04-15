@@ -19,8 +19,8 @@
 
 	<style name="Theme.Black" parent="Theme.Dark">
 
-		<item name="colorAccent">#FFFF3D00</item>
-		<item name="colorBackground">#FF000000</item>
+      <item name="colorAccent">@color/themeBlackAccent</item>
+      <item name="colorBackground">@color/themeBlackBackground</item>
 
 	</style>
 

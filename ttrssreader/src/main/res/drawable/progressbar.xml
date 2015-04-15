@@ -19,17 +19,17 @@
 	<item android:id="@android:id/background">
 		<shape>
 			<solid
-				android:color="?colorPrimaryDark" />
+				android:color="@color/themeLightPrimaryDark" />
 		</shape>
 	</item>
 	<item android:id="@android:id/progress">
 		<clip>
 			<shape>
 				<gradient
-					android:startColor="?colorAccent"
-					android:centerColor="?colorAccent"
+					android:startColor="@color/themeLightAccent"
+					android:centerColor="@color/themeLightAccent"
 					android:centerY="1.0"
-					android:endColor="?colorAccentDark"
+					android:endColor="@color/themeLightAccentDark"
 					android:angle="270"
 					/>
 			</shape>
