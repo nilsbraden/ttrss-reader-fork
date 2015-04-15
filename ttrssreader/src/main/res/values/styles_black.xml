@@ -17,10 +17,13 @@
   -->
 <resources>
 
-	<style name="Theme.Black" parent="Theme.Dark">
+  <!-- Base application theme. -->
+  <style name="TTRSS.Black" parent="TTRSS.Base.Black" />
 
-      <item name="colorAccent">@color/themeBlackAccent</item>
-      <item name="colorBackground">@color/themeBlackBackground</item>
+  <style name="TTRSS.Base.Black" parent="TTRSS.Dark">
+
+    <item name="colorAccent">@color/themeBlackAccent</item>
+    <item name="colorBackground">@color/themeBlackBackground</item>
 
 	</style>
 

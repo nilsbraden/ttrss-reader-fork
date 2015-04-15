@@ -35,7 +35,6 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -195,7 +194,6 @@ public abstract class MenuActivity extends ActionBarActivity
 		getWindow().getDecorView().getRootView().invalidate();
 	}
 
-	@SuppressLint("InflateParams")
 	private void initToolbar() {
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		if (toolbar != null) {

@@ -15,14 +15,15 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-
-	<style name="Theme" parent="Theme.AppCompat">
-		<item name="android:windowContentTransitions">true</item>
-		<item name="android:windowAllowEnterTransitionOverlap">true</item>
-		<item name="android:windowAllowReturnTransitionOverlap">true</item>
-		<item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
-		<item name="android:windowSharedElementExitTransition">@android:transition/move</item>
-	</style>
-
-</resources>
+<android.support.v7.widget.Toolbar
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/toolbar"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:minHeight="?attr/actionBarSize"
+	app:navigationContentDescription="@string/abc_action_bar_up_description"
+	android:background="?attr/colorPrimaryDark"
+	app:navigationIcon="?attr/homeAsUpIndicator"
+	app:title="@string/Preferences.Btn" />
+	<!--app:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->

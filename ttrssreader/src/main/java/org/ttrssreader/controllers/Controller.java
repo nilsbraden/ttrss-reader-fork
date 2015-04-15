@@ -737,14 +737,14 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	public int getTheme() {
 		switch (getThemeInternal()) {
 			case THEME_LIGHT:
-				return R.style.Theme_Light;
+				return R.style.TTRSS_Light;
 			case THEME_BLACK:
-				return R.style.Theme_Black;
+				return R.style.TTRSS_Black;
 			case THEME_WHITE:
-				return R.style.Theme_White;
+				return R.style.TTRSS_White;
 			case THEME_DARK:
 			default:
-				return R.style.Theme_Dark;
+				return R.style.TTRSS_Dark;
 		}
 	}
 

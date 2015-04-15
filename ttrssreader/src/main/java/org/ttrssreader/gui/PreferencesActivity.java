@@ -31,14 +31,26 @@ import org.ttrssreader.utils.Utils;
 
 import android.app.backup.BackupManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.support.v7.internal.widget.TintCheckBox;
+import android.support.v7.internal.widget.TintCheckedTextView;
+import android.support.v7.internal.widget.TintEditText;
+import android.support.v7.internal.widget.TintRadioButton;
+import android.support.v7.internal.widget.TintSpinner;
+import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 
 import java.util.List;
@@ -54,11 +66,27 @@ public class PreferencesActivity extends PreferenceActivity {
 	private static List<Header> _headers;
 	private boolean needResource = false;
 
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+
+		LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
+		Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_preferences, root, false);
+		root.addView(bar, 0); // insert at top
+		bar.setNavigationOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
+	}
+
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setTheme(Controller.getInstance().getTheme());
 		super.onCreate(savedInstanceState); // IMPORTANT!
+
 		mDamageReport.initialize();
 		setResult(Constants.ACTIVITY_SHOW_PREFERENCES);
 
@@ -183,6 +211,37 @@ public class PreferencesActivity extends PreferenceActivity {
 		if (header.fragment != null) {
 			super.switchToHeader(header);
 		}
+	}
+
+	/**
+	 * Try to add tinting for devices below lollipop (source: http://stackoverflow.com/a/27455363)
+	 */
+	@Override
+	public View onCreateView(String name, Context context, AttributeSet attrs) {
+		// Allow super to try and create a view first
+		final View result = super.onCreateView(name, context, attrs);
+		if (result != null) {
+			return result;
+		}
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+			// If we're running pre-L, we need to 'inject' our tint aware Views in place of the
+			// standard framework versions
+			switch (name) {
+				case "EditText":
+					return new TintEditText(this, attrs);
+				case "Spinner":
+					return new TintSpinner(this, attrs);
+				case "CheckBox":
+					return new TintCheckBox(this, attrs);
+				case "RadioButton":
+					return new TintRadioButton(this, attrs);
+				case "CheckedTextView":
+					return new TintCheckedTextView(this, attrs);
+			}
+		}
+
+		return null;
 	}
 
 }

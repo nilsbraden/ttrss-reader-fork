@@ -66,7 +66,7 @@
 		<activity
 			android:name=".gui.CategoryActivity"
 			android:label="@string/ApplicationName"
-			android:theme="@style/Theme.Light">
+			android:theme="@style/TTRSS.Light">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 
