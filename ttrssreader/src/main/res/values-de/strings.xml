@@ -243,8 +243,6 @@
 	<string name="About.project_hint">Informationen zur Entwicklung, Changelog etc.</string>
 	<string name="About.twitter">Twitter</string>
 	<string name="About.twitter_hint">Kontaktieren Sie mich auf Twitter.</string>
-	<string name="About.twitter_acc">http://twitter.com/nilsbraden</string>
-	<string name="About.mail">ttrss@nilsbraden.de</string>
 	<string name="About.feedback">Feedback</string>
 	<string name="About.feedback_hint">Berichte Fehler, Anfragen für neue Funktionen…</string>
 	<string name="Utils.DownloadFinishedTitle">Download</string>
