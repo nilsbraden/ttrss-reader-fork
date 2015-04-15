@@ -343,7 +343,13 @@ public class FeedHeadlineActivity extends MenuActivity {
 	@Override
 	public void onBackPressed() {
 		articleId = Integer.MIN_VALUE;
-		super.onBackPressed();
+		/* Back button automatically finishes the activity since Lollipop so we have to work around by checking the
+		backstack before */
+		if (getFragmentManager().getBackStackEntryCount() > 0) {
+			getFragmentManager().popBackStack();
+		} else {
+			super.onBackPressed();
+		}
 	}
 
 	public int getCategoryId() {
