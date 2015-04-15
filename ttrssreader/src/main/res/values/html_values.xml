@@ -195,7 +195,7 @@
 		<div id=\"labels\">$LABELS$</div>
 	</div>
 	<div id=\"zierleiste\"></div>
-	<div id=\"content\">$article.content$</div>
+	<div id=\"content\">$CONTENT$</div>
 	<div id=\"attachments\">$ATTACHMENTS$</div>
 	$NAVIGATION$
 </body>

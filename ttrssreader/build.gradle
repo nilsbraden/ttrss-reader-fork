@@ -61,4 +61,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.+'
     // For @Nullable/@NonNull
     compile 'com.intellij:annotations:+@jar'
+    // Remove any potentially harmful script-tags from incoming content
+    compile 'org.jsoup:jsoup:1.8.1'
 }

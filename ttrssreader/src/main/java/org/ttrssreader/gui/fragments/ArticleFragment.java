@@ -21,6 +21,8 @@ import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.HtmlNode;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.TagNodeVisitor;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.stringtemplate.v4.ST;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -63,6 +65,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.text.Html;
@@ -244,9 +247,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 					}
 				};
 			}
-			// TODO: Lint-Error
-			// "Custom view org/ttrssreader/gui/view/MyWebView has setOnTouchListener called on it but does not
-			// override performClick"
+			/* TODO: Lint-Error: "Custom view org/ttrssreader/gui/view/MyWebView has setOnTouchListener called on it
+			but does not override performClick" */
 			webView.setOnTouchListener(gestureListener);
 		}
 
@@ -334,7 +336,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		if (webView != null) webView.destroy();
 	}
 
-	@SuppressLint("SetJavaScriptEnabled")
+	@SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
 	private void doRefresh() {
 		if (webView == null) return;
 
@@ -373,6 +375,11 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			}
 
 			long time = System.currentTimeMillis();
+			// Remove all html tags and content that doesn't meet this set of allowed stuff
+			final String contentClean;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) contentClean = article.content;
+			else contentClean = Jsoup.clean(article.content, Whitelist.relaxed());
+
 			// Load html from Controller and insert content// Article-Prefetch-Stuff from Raw-Ressources and System
 			ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE), '$', '$');
 
@@ -410,13 +417,13 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			htmlTmpl.add("LABELS", labels.toString());
 			htmlTmpl.add("UPDATED", DateUtils.getDateTimeCustom(getActivity(), article.updated));
 			htmlTmpl.add("ATTACHMENTS", getAttachmentsMarkup(getActivity(), article.attachments));
+			htmlTmpl.add("CONTENT", contentClean);
 
 			content = htmlTmpl.render();
 			Log.w(TAG, "== Template rendering took " + (System.currentTimeMillis() - time) + "ms");
 
+			/* JavaScript should be safe since we use JSoup to remove all unwanted stuff from article.conent */
 			webView.getSettings().setJavaScriptEnabled(true);
-			// TODO: Do we need to do this?
-			//			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
 			webView.addJavascriptInterface(articleJSInterface, "articleController");
 			webView.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
 

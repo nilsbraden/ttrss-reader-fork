@@ -83,7 +83,6 @@ public class WifiPreferencesFragment extends PreferenceFragment {
 		}
 
 		if (addEnableWifiPref) {
-			// TODO
 			String key = ssid + Constants.ENABLE_WIFI_BASED_SUFFIX;
 			CheckBoxPreference enableWifiPref = new CheckBoxPreference(getActivity());
 			enableWifiPref.setKey(key);

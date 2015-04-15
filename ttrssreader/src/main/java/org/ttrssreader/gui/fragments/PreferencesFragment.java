@@ -151,7 +151,7 @@ public class PreferencesFragment extends PreferenceFragment {
 			pref.setTitle(ssid);
 
 			Intent intent = new Intent(getActivity(), WifiPreferencesActivity.class);
-			intent.putExtra(WifiPreferencesActivity.KEY_SSID, ssid); // TODO: ssid == null?
+			intent.putExtra(WifiPreferencesActivity.KEY_SSID, ssid);
 			pref.setIntent(intent);
 			if (WifiConfiguration.Status.CURRENT == wifi.status)
 				pref.setSummary(getResources().getString(R.string.ConnectionWifiConnected));

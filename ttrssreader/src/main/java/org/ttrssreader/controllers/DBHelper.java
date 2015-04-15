@@ -1024,7 +1024,6 @@ public class DBHelper {
 		}
 
 		if (ret != null && !ret.isEmpty()) {
-			// TODO Check access
 			markArticles(ret, "isUnread", 0);
 		}
 
@@ -1330,7 +1329,6 @@ public class DBHelper {
 			// first, delete article referencies from linking table to preserve foreign key constraint on the next step
 			db.delete(TABLE_REMOTEFILE2ARTICLE, query.toString(), whereArgs);
 
-			// TODO Foreign-key constraint failed from purgeOrphanedArticles() and safelyDeleteArticles()
 			deletedCount = db.delete(TABLE_ARTICLES, whereClause, whereArgs);
 			purgeLabels();
 			db.setTransactionSuccessful();

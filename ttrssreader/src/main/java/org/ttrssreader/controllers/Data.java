@@ -546,7 +546,6 @@ public class Data {
 				if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0))
 					DBHelper.getInstance().setMarked(idsUnmark, mark);
 			}
-			// TODO: Add synchronization of labels
 		}
 
 		/*
