@@ -246,7 +246,6 @@ public class SubscribeActivity extends MenuActivity {
 			if (catList != null && !catList.isEmpty()) categoriesAdapter.addAll(catList);
 
 			ProgressBarManager.getInstance().removeProgress(activity);
-			setProgressBarVisibility(false);
 		}
 	}
 

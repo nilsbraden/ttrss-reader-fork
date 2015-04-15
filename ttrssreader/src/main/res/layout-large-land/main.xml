@@ -15,53 +15,56 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/frame_all"
-	android:baselineAligned="false"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:orientation="vertical">
 
 	<include
-		android:id="@+id/toolbar"
 		layout="@layout/toolbar" />
 
-	<FrameLayout
-		android:id="@+id/frame_main"
-		android:layout_below="@id/toolbar"
-		android:layout_width="0dp"
-		android:layout_height="match_parent"
-		android:layout_alignParentStart="true"
-		android:layout_alignParentLeft="true" />
+	<RelativeLayout
+		android:baselineAligned="false"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
 
-	<FrameLayout
-		android:id="@+id/list_divider"
-		android:layout_below="@id/toolbar"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:layout_toRightOf="@+id/frame_main"
-		android:layout_toEndOf="@+id/frame_main"
-		android:background="?colorBackground">
-
-		<ImageView
-			android:layout_width="16dp"
+		<FrameLayout
+			android:id="@+id/frame_main"
+			android:layout_width="0dp"
 			android:layout_height="match_parent"
-			android:layout_gravity="center"
-			android:background="@drawable/list_divider_vertical"
-			android:contentDescription="@string/Empty" />
-	</FrameLayout>
+			android:layout_below="@id/toolbar" />
 
-	<FrameLayout
-		android:id="@+id/frame_sub"
-		android:layout_below="@id/toolbar"
-		android:layout_width="0dp"
-		android:layout_height="match_parent"
-		android:layout_toRightOf="@+id/list_divider"
-		android:layout_toEndOf="@+id/list_divider" />
+		<FrameLayout
+			android:id="@+id/list_divider"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:layout_toRightOf="@+id/frame_main"
+			android:layout_toEndOf="@+id/frame_main"
+			android:background="?colorBackground"
+			android:layout_below="@id/toolbar">
 
-	<FrameLayout
-		android:id="@+id/frame_invisible"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:visibility="gone" />
+			<ImageView
+				android:layout_width="16dp"
+				android:layout_height="match_parent"
+				android:layout_gravity="center"
+				android:background="@drawable/list_divider_vertical"
+				android:contentDescription="@string/Empty" />
+		</FrameLayout>
 
-</RelativeLayout>
+		<FrameLayout
+			android:id="@+id/frame_sub"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_toRightOf="@+id/list_divider"
+			android:layout_toEndOf="@+id/list_divider"
+			android:layout_below="@id/toolbar" />
+
+		<FrameLayout
+			android:id="@+id/frame_invisible"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:visibility="gone" />
+
+	</RelativeLayout>
+</LinearLayout>

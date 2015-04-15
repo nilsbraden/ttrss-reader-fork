@@ -15,44 +15,74 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<android.support.v7.widget.Toolbar
+<merge
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:id="@+id/toolbar"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:background="?attr/colorPrimaryDark"
-	app:contentInsetEnd="0dp"
-	app:contentInsetStart="0dp">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<LinearLayout
-		android:layout_width="wrap_content"
+	<android.support.v7.widget.Toolbar
+		android:id="@+id/toolbar"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:enabled="false"
-		android:orientation="vertical"
-		android:paddingEnd="4dp"
-		android:paddingStart="4dp">
+		android:background="?attr/colorPrimaryDark"
+		app:contentInsetEnd="0dp"
+		app:contentInsetStart="0dp">
 
-		<TextView
-			android:id="@+id/head_title"
+		<LinearLayout
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:ellipsize="end"
-			android:maxLines="1"
-			android:textIsSelectable="false"
-			android:textScaleX=".9"
-			android:textSize="19sp"
-			android:textStyle="bold" />
+			android:orientation="vertical">
 
-		<TextView
-			android:id="@+id/head_unread"
+			<TextView
+				android:id="@+id/head_title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:maxLines="1"
+				android:textIsSelectable="false"
+				android:textScaleX=".9"
+				android:textSize="19sp"
+				android:textStyle="bold" />
+
+			<TextView
+				android:id="@+id/head_unread"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:ellipsize="end"
+				android:textIsSelectable="false"
+				android:textSize="16sp"
+				android:visible="false" />
+
+		</LinearLayout>
+
+		<ProgressBar
+			style="@android:style/Widget.ProgressBar.Small"
+			android:id="@+id/progressspinner"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:ellipsize="end"
-			android:textIsSelectable="false"
-			android:textSize="16sp"
-			android:visible="false" />
+			android:layout_gravity="end"
+			android:indeterminate="true"
+			android:visibility="gone" />
 
+	</android.support.v7.widget.Toolbar>
+
+	<!--
+		Parent layout necessary to allow using visibility:gone (this makes sure the progressbar is redrawn) and
+		still not having the whole layout below move upwards when it is hidden.
+	-->
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="2dp"
+		android:layout_below="@id/toolbar"
+		android:background="?colorPrimaryDark">
+
+		<ProgressBar
+			style="@android:style/Widget.Holo.ProgressBar.Horizontal"
+			android:id="@+id/progressbar"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:max="10000"
+			android:indeterminate="false"
+			android:visibility="gone" />
 	</LinearLayout>
 
-</android.support.v7.widget.Toolbar>
+</merge>

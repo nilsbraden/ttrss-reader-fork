@@ -226,7 +226,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	 * This does a full update including all labels, feeds, categories and all articles.
 	 */
 	private class CategoryUpdater extends ActivityUpdater {
-		private static final int DEFAULT_TASK_COUNT = 4;
+		private static final int DEFAULT_TASK_COUNT = 6;
 
 		private CategoryUpdater(boolean forceUpdate) {
 			super(forceUpdate);
@@ -242,9 +242,13 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 				labels.add(f);
 			}
 
-			taskCount = DEFAULT_TASK_COUNT + labels.size(); // 1 for the caching of all articles
+			taskCount = DEFAULT_TASK_COUNT + labels.size();
 			int progress = 0;
 			publishProgress(progress);
+
+			// Try to synchronize any ids left in TABLE_MARK:
+			Data.getInstance().synchronizeStatus();
+			publishProgress(++progress);
 
 			// Cache articles for all categories
 			Data.getInstance().cacheArticles(false, forceUpdate);
@@ -265,16 +269,15 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			publishProgress(++progress);
 
 			Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
+			publishProgress(++progress);
+
 			Data.getInstance().calculateCounters();
 			Data.getInstance().notifyListeners();
-			publishProgress(taskCount); // Move progress forward to 100%
-
-			// Silently try to synchronize any ids left in TABLE_MARK:
-			Data.getInstance().synchronizeStatus();
+			publishProgress(++progress);
 
 			// Silently remove articles which belong to feeds which do not exist on the server anymore:
 			Data.getInstance().purgeOrphanedArticles();
-
+			publishProgress(Integer.MAX_VALUE); // Move progress forward to 100%
 			return null;
 		}
 	}

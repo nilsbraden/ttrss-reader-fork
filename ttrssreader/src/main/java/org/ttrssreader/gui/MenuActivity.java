@@ -36,7 +36,6 @@ import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -50,13 +49,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import java.lang.reflect.Field;
 
 /**
  * This class provides common functionality for Activities.
@@ -69,7 +65,7 @@ public abstract class MenuActivity extends ActionBarActivity
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
-	protected Activity activity;
+	protected MenuActivity activity;
 
 	private Updater updater;
 	private boolean isVertical;
@@ -78,28 +74,24 @@ public abstract class MenuActivity extends ActionBarActivity
 	private int dividerSize;
 	private int displaySize;
 
-	private Toolbar toolbar;
 	private View frameMain = null;
 	private View divider = null;
 	private View frameSub = null;
 	private TextView header_title;
 	private TextView header_unread;
 
+	private ProgressBar progressbar;
+	private ProgressBar progressspinner;
+
 	@Override
 	protected void onCreate(Bundle instance) {
 		setTheme(Controller.getInstance().getTheme());
 		super.onCreate(instance);
 		mDamageReport.initialize();
-
 		activity = this;
-		supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		supportRequestWindowFeature(Window.FEATURE_PROGRESS);
 
 		Controller.getInstance().setHeadless(false);
-		getOverflowMenu();
-
 		setContentView(getLayoutResource());
-
 		initToolbar();
 		initTabletLayout();
 	}
@@ -205,7 +197,7 @@ public abstract class MenuActivity extends ActionBarActivity
 
 	@SuppressLint("InflateParams")
 	private void initToolbar() {
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -219,6 +211,9 @@ public abstract class MenuActivity extends ActionBarActivity
 			header_unread = (TextView) findViewById(R.id.head_unread);
 			header_title = (TextView) findViewById(R.id.head_title);
 			header_title.setText(getString(R.string.ApplicationName));
+
+			progressbar = (ProgressBar) findViewById(R.id.progressbar);
+			progressspinner = (ProgressBar) findViewById(R.id.progressspinner);
 		}
 	}
 
@@ -229,30 +224,8 @@ public abstract class MenuActivity extends ActionBarActivity
 	}
 
 	public void setUnread(int unread) {
-		if (unread > 0) {
-			header_unread.setVisibility(View.VISIBLE);
-		} else {
-			header_unread.setVisibility(View.GONE);
-		}
+		header_unread.setVisibility(unread > 0 ? View.VISIBLE : View.GONE);
 		header_unread.setText("( " + unread + " )");
-	}
-
-	/**
-	 * Force-display the three dots for overflow, would be disabled on devices with a menu-key.
-	 *
-	 * @see "http://stackoverflow.com/a/13098824"
-	 */
-	private void getOverflowMenu() {
-		try {
-			ViewConfiguration config = ViewConfiguration.get(this);
-			Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-			if (menuKeyField != null) {
-				menuKeyField.setAccessible(true);
-				menuKeyField.setBoolean(config, false);
-			}
-		} catch (Exception e) {
-			// Empty!
-		}
 	}
 
 	@Override
@@ -442,19 +415,17 @@ public abstract class MenuActivity extends ActionBarActivity
 		this.startService(intent);
 
 		ProgressBarManager.getInstance().addProgress(this);
-		setSupportProgressBarVisibility(true);
 	}
 
 	@Override
 	public void onCacheEnd() {
-		setSupportProgressBarVisibility(false);
 		ProgressBarManager.getInstance().removeProgress(this);
 	}
 
 	@Override
 	public void onCacheProgress(int taskCount, int progress) {
-		if (taskCount == 0) setProgress(0);
-		else setProgress((10000 / taskCount) * progress);
+		if (taskCount == 0) setSupportProgress(0);
+		else setSupportProgress((10000 / taskCount) * progress);
 	}
 
 	protected boolean isCacherRunning() {
@@ -468,7 +439,6 @@ public abstract class MenuActivity extends ActionBarActivity
 			updater.cancel(true);
 			updater = null;
 		}
-		setSupportProgressBarVisibility(false);
 		ProgressBarManager.getInstance().resetProgress(this);
 		Intent i = new Intent(this, ErrorActivity.class);
 		i.putExtra(ErrorActivity.ERROR_MESSAGE, errorMessage);
@@ -516,17 +486,16 @@ public abstract class MenuActivity extends ActionBarActivity
 		ActivityUpdater(boolean forceUpdate) {
 			this.forceUpdate = forceUpdate;
 			ProgressBarManager.getInstance().addProgress(activity);
-			setProgressBarVisibility(true);
 		}
 
 		@Override
 		protected void onProgressUpdate(Integer... values) {
-			if (values[0] == taskCount) {
-				setProgressBarVisibility(false);
+			if (values[0] == Integer.MAX_VALUE) {
 				if (!isCacherRunning()) ProgressBarManager.getInstance().removeProgress(activity);
 				return;
 			}
-			setProgress((10000 / (taskCount + 1)) * values[0]);
+			// Add 500 to make sure we are still within 10000 but never show an empty progressbar at 0
+			setSupportProgress((10000 / (taskCount + 1)) * values[0] + 500);
 		}
 	}
 
@@ -634,6 +603,25 @@ public abstract class MenuActivity extends ActionBarActivity
 				return null;
 			}
 		}
+	}
+
+	@Override
+	public void setSupportProgress(int progress) {
+		setSupportProgressBarVisibility(progress > 1 && progress < 9999);
+		progressbar.setProgress(progress);
+		super.setSupportProgress(progress);
+	}
+
+	@Override
+	public void setSupportProgressBarVisibility(boolean visible) {
+		progressbar.setVisibility(visible ? View.VISIBLE : View.GONE);
+		super.setSupportProgressBarVisibility(visible);
+	}
+
+	@Override
+	public void setSupportProgressBarIndeterminateVisibility(boolean visible) {
+		progressspinner.setVisibility(visible ? View.VISIBLE : View.GONE);
+		super.setSupportProgressBarIndeterminateVisibility(visible);
 	}
 
 }

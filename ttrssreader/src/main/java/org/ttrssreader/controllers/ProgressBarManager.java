@@ -17,14 +17,14 @@
 
 package org.ttrssreader.controllers;
 
-import android.app.Activity;
+import org.ttrssreader.gui.MenuActivity;
 
 public class ProgressBarManager {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = ProgressBarManager.class.getSimpleName();
 
-	private int progressIndeterminateCount = 0;
+	private volatile int progressIndeterminateCount = 0;
 
 	// Singleton (see http://stackoverflow.com/a/11165926)
 	private ProgressBarManager() {
@@ -34,33 +34,32 @@ public class ProgressBarManager {
 		private static final ProgressBarManager instance = new ProgressBarManager();
 	}
 
-	public static ProgressBarManager getInstance() {
+	public static synchronized ProgressBarManager getInstance() {
 		return InstanceHolder.instance;
 	}
 
-	public void addProgress(Activity activity) {
+	public void addProgress(MenuActivity activity) {
 		progressIndeterminateCount++;
 		setIndeterminateVisibility(activity);
 	}
 
-	public void removeProgress(Activity activity) {
+	public void removeProgress(MenuActivity activity) {
 		progressIndeterminateCount--;
 		if (progressIndeterminateCount <= 0) progressIndeterminateCount = 0;
 		setIndeterminateVisibility(activity);
 	}
 
-	public void resetProgress(Activity activity) {
+	public void resetProgress(MenuActivity activity) {
 		progressIndeterminateCount = 0;
 		setIndeterminateVisibility(activity);
 	}
 
-	public void setIndeterminateVisibility(Activity activity) {
+	public void setIndeterminateVisibility(MenuActivity activity) {
 		boolean visible = (progressIndeterminateCount > 0);
-		activity.setProgressBarIndeterminateVisibility(visible);
-		if (!visible) {
-			activity.setProgress(0);
-			activity.setProgressBarVisibility(false);
-		}
+		activity.setSupportProgressBarIndeterminateVisibility(visible);
+		activity.setSupportProgressBarVisibility(!visible);
+
+		if (!visible) activity.setSupportProgress(0);
 	}
 
 }

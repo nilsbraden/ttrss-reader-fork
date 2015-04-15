@@ -263,7 +263,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	 * Updates all articles from the selected feed.
 	 */
 	private class FeedHeadlineUpdater extends ActivityUpdater {
-		private static final int DEFAULT_TASK_COUNT = 2;
+		private static final int DEFAULT_TASK_COUNT = 1;
 
 		private FeedHeadlineUpdater(boolean forceUpdate) {
 			super(forceUpdate);
@@ -273,18 +273,20 @@ public class FeedHeadlineActivity extends MenuActivity {
 		protected Void doInBackground(Void... params) {
 			taskCount = DEFAULT_TASK_COUNT;
 
-			int progress = 0;
 			boolean displayUnread = Controller.getInstance().onlyUnread();
+			int progress = 0;
+			publishProgress(progress);
 
-			publishProgress(++progress); // Move progress forward
 			if (selectArticlesForCategory) {
 				Data.getInstance().updateArticles(categoryId, displayUnread, true, false, forceUpdate);
 			} else {
 				Data.getInstance().updateArticles(feedId, displayUnread, false, false, forceUpdate);
 			}
+			publishProgress(++progress);
+
 			Data.getInstance().calculateCounters();
 			Data.getInstance().notifyListeners();
-			publishProgress(taskCount); // Move progress forward to 100%
+			publishProgress(Integer.MAX_VALUE); // Move progress forward to 100%
 			return null;
 		}
 	}

@@ -179,6 +179,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
 			newInstallation = true;
 		}
 
+		// Initially read absolutely necessary preferences:
+		sizeVerticalCategory = prefs.getInt(SIZE_VERTICAL_CATEGORY, -1);
+		sizeHorizontalCategory = prefs.getInt(SIZE_HORIZONTAL_CATEGORY, -1);
+
 		synchronized (lockInitialize) {
 
 			if (initialized) return;
@@ -188,10 +192,6 @@ public class Controller implements OnSharedPreferenceChangeListener {
 			new AsyncTask<Void, Void, Void>() {
 				protected Void doInBackground(Void... params) {
 					wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-
-					// Initially read absolutely necessary preferences:
-					sizeVerticalCategory = prefs.getInt(SIZE_VERTICAL_CATEGORY, -1);
-					sizeHorizontalCategory = prefs.getInt(SIZE_HORIZONTAL_CATEGORY, -1);
 
 					if (Controller.getInstance().useKeystore()) {
 						try {

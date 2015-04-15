@@ -339,7 +339,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		if (webView == null) return;
 
 		try {
-			ProgressBarManager.getInstance().addProgress(getActivity());
+			ProgressBarManager.getInstance().addProgress((MenuActivity) getActivity());
 
 			if (Controller.getInstance().workOffline() || !Controller.getInstance().loadMedia()) {
 				webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
@@ -445,7 +445,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			Log.w(TAG, e.getClass().getSimpleName() + " in doRefresh(): " + e.getMessage() + " (" + e.getCause() + ")",
 					e);
 		} finally {
-			ProgressBarManager.getInstance().removeProgress(getActivity());
+			ProgressBarManager.getInstance().removeProgress((MenuActivity) getActivity());
 		}
 	}
 
