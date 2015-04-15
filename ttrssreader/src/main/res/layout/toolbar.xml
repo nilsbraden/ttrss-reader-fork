@@ -77,6 +77,7 @@
 
 		<ProgressBar
 			style="@android:style/Widget.Holo.ProgressBar.Horizontal"
+			android:progressDrawable="@drawable/progressbar"
 			android:id="@+id/progressbar"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"

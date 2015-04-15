@@ -19,5 +19,6 @@
 
 	<attr name="html_header_background" format="reference|color" />
 	<attr name="colorBackground" format="reference|color" />
+	<attr name="colorAccentDark" format="reference|color" />
 
 </resources>

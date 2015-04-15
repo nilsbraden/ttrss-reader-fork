@@ -22,6 +22,7 @@
 		<item name="colorPrimary">#FFE1E1E1</item>
 		<item name="colorPrimaryDark">#FFB7B7B7</item>
 		<item name="colorAccent">#FFF57C00</item>
+		<item name="colorAccentDark">#ffc76602</item>
 		<item name="colorBackground">#FFE1E1E1</item>
 		<item name="android:textColorPrimary">#D2000000</item>
 		<item name="android:textColor">#FF000000</item>
