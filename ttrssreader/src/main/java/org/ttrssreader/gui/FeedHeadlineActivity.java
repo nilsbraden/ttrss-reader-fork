@@ -83,21 +83,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 		if (headlineFragment == null) {
 			displayFeed(feedId, 0);
 		}
-
-		// TEMPORARY_SOLUTION_MARKER
-		// Put empty articleFragment into the layout so the space doesn't get cluttered with graphic artifacts.
-		if (Controller.isTablet) {
-			ArticleFragment articleFragment = (ArticleFragment) fm.findFragmentByTag(ArticleFragment.FRAGMENT);
-			if (articleFragment == null) {
-				articleFragment = ArticleFragment
-						.newInstance(Integer.MIN_VALUE, feedId, categoryId, selectArticlesForCategory, 0);
-				FragmentTransaction ft = fm.beginTransaction();
-				if (!Controller.isTablet) ft.addToBackStack(null);
-				ft.add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT);
-				ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-				ft.commit();
-			}
-		}
 	}
 
 	@Override
@@ -317,7 +302,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 		if (direction != 0) {
 			if (findNext(feedFragment.getFeedIds(), feedId, direction) == Integer.MIN_VALUE) {
 				Utils.alert(this);
-				return;
 			}
 		}
 	}
@@ -344,7 +328,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 		if (direction != 0) {
 			if (findNext(headlineFragment.getArticleIds(), articleId, direction) == Integer.MIN_VALUE) {
 				Utils.alert(this);
-				return;
 			}
 		}
 	}

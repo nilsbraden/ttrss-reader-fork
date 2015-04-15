@@ -90,20 +90,9 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
 
 		if (categoryFragment == null) {
-			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			FragmentTransaction ft = fm.beginTransaction();
 			categoryFragment = CategoryListFragment.newInstance();
 			ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
-		}
-
-		// TEMPORARY_SOLUTION_MARKER
-		// Put empty articleFragment into the layout so the space doesn't get cluttered with graphic artifacts.
-		if (feedFragment == null && Controller.isTablet) {
-			feedFragment = FeedListFragment.newInstance(Integer.MIN_VALUE);
-			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			if (!Controller.isTablet) ft.addToBackStack(null);
-			ft.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
 			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 			ft.commit();
 		}
@@ -325,15 +314,15 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	public void displayFeed(int categoryId) {
-		hideFeedFragment();
-
 		selectedCategoryId = categoryId;
 		feedFragment = FeedListFragment.newInstance(categoryId);
+		FragmentManager fm = getFragmentManager();
 
 		// Clear back stack
-		getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
+		FragmentTransaction ft = fm.beginTransaction();
+		if (!Controller.isTablet) ft.addToBackStack(null);
 		ft.replace(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
 
 		// Animation
@@ -342,18 +331,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 					R.animator.slide_out_left);
 		else ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 
-		if (!Controller.isTablet) ft.addToBackStack(null);
 		ft.commit();
-	}
-
-	private void hideFeedFragment() {
-		if (feedFragment == null) return;
-
-		FragmentTransaction ft = getFragmentManager().beginTransaction();
-		ft.remove(feedFragment);
-		ft.commit();
-
-		feedFragment = null;
 	}
 
 	private static int decideCategorySelection(int selectedId) {

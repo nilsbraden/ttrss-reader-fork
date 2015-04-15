@@ -360,17 +360,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				return;
 			}
 
-			if (article == null || article.content == null) {
-				// TEMPORARY_SOLUTION_MARKER
-				// Load empty html page with background
-				ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE_EMPTY), '$', '$');
-				htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
-				content = htmlTmpl.render();
-				webView.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
-				webviewInitialized = true;
-				return;
-			}
-
 			StringBuilder labels = new StringBuilder();
 			for (Label label : article.labels) {
 				if (label.checked) {
