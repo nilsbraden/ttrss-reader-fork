@@ -251,9 +251,6 @@
 	<string name="About.about_hint">About this app</string>
 	<string name="About.project">Project-Page</string>
 	<string name="About.project_hint">Information on Development, Changelog etc.</string>
-	<string name="About.twitter">Twitter</string>
-	<string name="About.twitter_hint">Contact me on twitter.</string>
-	<string name="About.twitter_acc" translatable="false">http://twitter.com/nilsbraden</string>
 	<string name="About.mail" translatable="false">ttrss@nilsbraden.de</string>
 	<string name="About.feedback">Feedback</string>
 	<string name="About.feedback_hint">Report bugs, request features …</string>

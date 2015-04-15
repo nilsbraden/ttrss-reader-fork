@@ -98,8 +98,6 @@
 	<string name="About.about_hint">A propos de cette application</string>
 	<string name="About.project">Page du projet</string>
 	<string name="About.project_hint">Information sur le développement, Changelog etc…</string>
-	<string name="About.twitter">Twitter</string>
-	<string name="About.twitter_hint">Me contacter via twitter.</string>
 	<string name="About.feedback">Commentaires</string>
 	<string name="About.feedback_hint">Rapporter un bug, demandes de fonctionnalités …</string>
 	<string name="Utils.DownloadFinishedTitle">Téléchargement</string>
