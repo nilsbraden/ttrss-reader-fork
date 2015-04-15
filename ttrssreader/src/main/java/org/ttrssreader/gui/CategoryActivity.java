@@ -89,18 +89,21 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		categoryFragment = (CategoryListFragment) fm.findFragmentByTag(CategoryListFragment.FRAGMENT);
 		feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
 
-		if (categoryFragment == null || feedFragment == null) {
+		if (categoryFragment == null) {
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
-			if (categoryFragment == null) {
-				categoryFragment = CategoryListFragment.newInstance();
-				ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
-			}
-			// TEMPORARY_SOLUTION_MARKER
-			// Put empty articleFragment into the layout so the space doesn't get cluttered with graphic artifacts.
-			if (feedFragment == null && Controller.isTablet) {
-				feedFragment = FeedListFragment.newInstance(Integer.MIN_VALUE);
-				ft.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
-			}
+			categoryFragment = CategoryListFragment.newInstance();
+			ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
+			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+			ft.commit();
+		}
+
+		// TEMPORARY_SOLUTION_MARKER
+		// Put empty articleFragment into the layout so the space doesn't get cluttered with graphic artifacts.
+		if (feedFragment == null && Controller.isTablet) {
+			feedFragment = FeedListFragment.newInstance(Integer.MIN_VALUE);
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			if (!Controller.isTablet) ft.addToBackStack(null);
+			ft.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
 			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 			ft.commit();
 		}
