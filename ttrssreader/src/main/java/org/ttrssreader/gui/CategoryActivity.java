@@ -95,14 +95,19 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 				categoryFragment = CategoryListFragment.newInstance();
 				ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
 			}
-			// TEMPORARY_SOLUTION_MARKER
-			// Put empty articleFragment into the layout so the space doesn't get cluttered with graphic artifacts.
-			if (feedFragment == null && Controller.isTablet) {
-				feedFragment = FeedListFragment.newInstance(Integer.MIN_VALUE);
-				ft.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
-			}
 			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 			ft.commit();
+
+			// TEMPORARY_SOLUTION_MARKER
+			// Put empty articleFragment into the layout so the space doesn't get cluttered with graphic artifacts.
+			FragmentTransaction ft2 = getFragmentManager().beginTransaction();
+			if (feedFragment == null && Controller.isTablet) {
+				feedFragment = FeedListFragment.newInstance(Integer.MIN_VALUE);
+				ft2.add(R.id.frame_sub, feedFragment, FeedListFragment.FRAGMENT);
+				if (!Controller.isTablet) ft2.addToBackStack(null);
+			}
+			ft2.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+			ft2.commit();
 		}
 
 		if (Utils.checkIsFirstRun()) {
