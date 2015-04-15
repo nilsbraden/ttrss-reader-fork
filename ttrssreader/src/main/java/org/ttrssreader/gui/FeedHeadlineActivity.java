@@ -228,12 +228,9 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	public void openNextFeed(int direction) {
-		// Open next Feed
-		int[] ids = getNextPrevIds(feedFragment.getFeedIds(), feedId);
-		int newId = (direction < 0) ? ids[0] : ids[1];
-
+		int newId = findNext(feedFragment.getFeedIds(), feedId, direction);
 		if (newId == Integer.MIN_VALUE) {
-			Utils.alert(this);
+			Utils.alert(this, true);
 			return;
 		}
 
@@ -241,19 +238,21 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	public void openNextArticle(int direction) {
-		// Open next article
-		int[] ids = getNextPrevIds(headlineFragment.getArticleIds(), articleId);
-		int newId = (direction < 0) ? ids[0] : ids[1];
-
+		int newId = findNext(headlineFragment.getArticleIds(), articleId, direction);
 		if (newId == Integer.MIN_VALUE) {
-			Utils.alert(this);
+			Utils.alert(this, true);
 			return;
 		}
 
 		displayArticle(newId, direction);
 	}
 
-	private int[] getNextPrevIds(List<Integer> list, Integer search) {
+	protected static int findNext(List<Integer> list, int current, int direction) {
+		int[] ids = getNextPrevIds(list, current);
+		return (direction < 0) ? ids[0] : ids[1];
+	}
+
+	protected static int[] getNextPrevIds(List<Integer> list, Integer search) {
 		int index = list.indexOf(search);
 		if (index < 0) return new int[] {Integer.MIN_VALUE, Integer.MIN_VALUE};
 
@@ -312,6 +311,14 @@ public class FeedHeadlineActivity extends MenuActivity {
 		setAnimationForDirection(ft, direction);
 		if (direction == 0) ft.add(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT).commit();
 		else ft.replace(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT).commit();
+
+		// Check if a next feed in this direction exists
+		if (direction != 0) {
+			if (findNext(feedFragment.getFeedIds(), feedId, direction) == Integer.MIN_VALUE) {
+				Utils.alert(this);
+				return;
+			}
+		}
 	}
 
 	private void displayArticle(int newArticleId, int direction) {
@@ -331,6 +338,14 @@ public class FeedHeadlineActivity extends MenuActivity {
 		setAnimationForDirection(ft, direction);
 		if (direction == 0) ft.add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
 		else ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
+
+		// Check if a next feed in this direction exists
+		if (direction != 0) {
+			if (findNext(headlineFragment.getArticleIds(), articleId, direction) == Integer.MIN_VALUE) {
+				Utils.alert(this);
+				return;
+			}
+		}
 	}
 
 	private static FragmentTransaction setAnimationForDirection(final FragmentTransaction ft, final int direction) {
