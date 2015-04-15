@@ -45,9 +45,8 @@ import android.support.v7.internal.widget.TintRadioButton;
 import android.support.v7.internal.widget.TintSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -55,7 +54,7 @@ import android.widget.ListAdapter;
 
 import java.util.List;
 
-public class PreferencesActivity extends PreferenceActivity {
+public class PreferencesActivity extends PreferenceActivity implements Toolbar.OnMenuItemClickListener {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = PreferencesActivity.class.getSimpleName();
@@ -72,6 +71,9 @@ public class PreferencesActivity extends PreferenceActivity {
 
 		LinearLayout root = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
 		Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.toolbar_preferences, root, false);
+		bar.inflateMenu(R.menu.preferences);
+		bar.setOnMenuItemClickListener(this);
+		//		bar.setMenu();
 		root.addView(bar, 0); // insert at top
 		bar.setNavigationOnClickListener(new View.OnClickListener() {
 			@Override
@@ -168,40 +170,6 @@ public class PreferencesActivity extends PreferenceActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		MenuInflater inflater = this.getMenuInflater();
-		inflater.inflate(R.menu.preferences, menu);
-		return true;
-	}
-
-	@Override
-	public final boolean onOptionsItemSelected(final MenuItem item) {
-		ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
-		switch (item.getItemId()) {
-			case R.id.Preferences_Menu_Reset:
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-				Constants.resetPreferences(prefs);
-				this.finish();
-				startActivity(new Intent().setComponent(comp));
-				return true;
-			case R.id.Preferences_Menu_ResetDatabase:
-				Controller.getInstance().setDeleteDBScheduled(true);
-				DBHelper.getInstance().initialize(this);
-				this.finish();
-				startActivity(new Intent().setComponent(comp));
-				return true;
-			case R.id.Preferences_Menu_ResetCache:
-				Data.getInstance().deleteAllRemoteFiles();
-				DBHelper.getInstance().initialize(this);
-				this.finish();
-				startActivity(new Intent().setComponent(comp));
-				return true;
-		}
-		return false;
-	}
-
-	@Override
 	protected boolean isValidFragment(String fragmentName) {
 		return PreferencesFragment.class.getName().equals(fragmentName);
 	}
@@ -242,6 +210,33 @@ public class PreferencesActivity extends PreferenceActivity {
 		}
 
 		return null;
+	}
+
+	@Override
+	public boolean onMenuItemClick(MenuItem menuItem) {
+		Log.w(TAG, "== MenuItem clicked: " + menuItem.getItemId());
+		ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
+		switch (menuItem.getItemId()) {
+			case R.id.Preferences_Menu_Reset:
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+				Constants.resetPreferences(prefs);
+				this.finish();
+				startActivity(new Intent().setComponent(comp));
+				return true;
+			case R.id.Preferences_Menu_ResetDatabase:
+				Controller.getInstance().setDeleteDBScheduled(true);
+				DBHelper.getInstance().initialize(this);
+				this.finish();
+				startActivity(new Intent().setComponent(comp));
+				return true;
+			case R.id.Preferences_Menu_ResetCache:
+				Data.getInstance().deleteAllRemoteFiles();
+				DBHelper.getInstance().initialize(this);
+				this.finish();
+				startActivity(new Intent().setComponent(comp));
+				return true;
+		}
+		return false;
 	}
 
 }
