@@ -18,6 +18,14 @@
 <resources>
 
 	<string-array name="updates">
+		<item>Version 1.83
+			\n * Modified theme, reduced complexity, introduced first Material theme stuff (slightly changed the layout and the spacing of items, changed some colors and so on)
+			\n * Allow resetting the ImageCache from the preferences menu
+			\n * Reduce impact on the UI when running the ImageCache, fixed bugs interfering with the ImageCache
+			\n * Fix HTML entities appearing in image captions
+			\n * Implemented new Toolbar as replacement for ActionBar which was removed with Lollipop for some reason
+			\n * Added content filtering for API levels below 17 to avoid vulnerability for scripting attacks
+			\n\n If anyone else here is annoyed by the low-res icons of the app and is good with image processing: This app could do with a new icon set and I can\'t do it. :)\n</item>
 		<item>Version 1.82
 			\n * Read ALT-Text from tags of type IMAGE_ANCHOR too (Read TITLE-Tag first, if empty read ALT-Tag)
 			\n * Slight layout changes, buttons now appear a bit more Lollipop-Styled
