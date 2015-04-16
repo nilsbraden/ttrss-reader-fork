@@ -27,9 +27,9 @@
 		android:icon="@drawable/ic_menu_revert"
 		android:title="@string/Preferences.ResetDatabase" />
 
-  <item
-      android:id="@+id/Preferences_Menu_ResetCache"
-      android:icon="@drawable/ic_menu_revert"
-      android:title="@string/Preferences.ResetCache" />
+	<item
+		android:id="@+id/Preferences_Menu_ResetCache"
+		android:icon="@drawable/ic_menu_revert"
+		android:title="@string/Preferences.ResetCache" />
 
 </menu>
