@@ -17,7 +17,9 @@
 
 package org.ttrssreader.gui.dialogs;
 
+import org.stringtemplate.v4.ST;
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -25,6 +27,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.webkit.WebView;
 
 public class ChangelogDialog extends MyDialogFragment {
 
@@ -34,27 +39,44 @@ public class ChangelogDialog extends MyDialogFragment {
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setIcon(android.R.drawable.ic_dialog_info);
 
-		builder.setTitle(getResources().getString(R.string.Changelog_Title));
-		final String[] changes = getResources().getStringArray(R.array.updates);
-		final StringBuilder sb = new StringBuilder();
-		for (String change : changes) {
-			sb.append("\n\n");
-			sb.append(change);
-			if (sb.length() > 4000) // Don't include all messages, nobody reads the old stuff anyway
-				break;
-		}
-		builder.setMessage(sb.toString().trim());
+		LayoutInflater inflater = getActivity().getLayoutInflater();
+		View view = inflater.inflate(R.layout.changelog, null);
+		WebView webView = (WebView) view.findViewById(R.id.changelog);
+		webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setView(view);
 		builder.setPositiveButton(android.R.string.ok, null);
-		builder.setNeutralButton(getText(R.string.CategoryActivity_Donate), new DialogInterface.OnClickListener() {
+		builder.setNeutralButton(getString(R.string.CategoryActivity_Donate), new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(final DialogInterface d, final int which) {
 				startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.DonateUrl))));
 				d.dismiss();
 			}
 		});
+
+		final String[] changes = getResources().getStringArray(R.array.updates);
+		final String changelogUrl = getResources().getString(R.string.ChangelogUrl);
+		final StringBuilder htmlBuf = new StringBuilder();
+
+		htmlBuf.append(getString(R.string.Changelog_Prefix, changelogUrl));
+		for (String change : changes) {
+			htmlBuf.append("<div><h2>");
+			change = change.replaceFirst(" \\* ", "</h2><ul><li>");
+			change = change.replaceAll(" \\* ", "</li><li>");
+			htmlBuf.append(change);
+			htmlBuf.append("</li></ul></div>");
+		}
+		htmlBuf.append(getString(R.string.Changelog_Suffix, changelogUrl));
+
+		final ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE_CHANGELOG), '$', '$');
+		htmlTmpl.add("STYLE", getResources().getString(R.string.STYLE_TEMPLATE));
+		htmlTmpl.add("TEXT_ALIGN", getString(R.string.ALIGN_JUSTIFY));
+		htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
+		htmlTmpl.add("TITLE", getResources().getString(R.string.Changelog_Title));
+		htmlTmpl.add("CONTENT", htmlBuf.toString());
+		webView.loadDataWithBaseURL("file:///android_asset/", htmlTmpl.render(), "text/html", "utf-8", null);
 
 		return builder.create();
 	}

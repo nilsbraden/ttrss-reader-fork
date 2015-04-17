@@ -71,7 +71,6 @@
 	<string name="ConnectionLazyServerPreferenceTitle">Servidor \"Lazy\"</string>
 	<string name="ConnectionLazyServerPreferenceSummary">Configura el servidor para actualizar las fuentes antes que las cojamos.</string>
 	<string name="ConnectionSslPreferenceCategoryTitle">Ajustes SSL</string>
-	<string name="ConnectionSslPreferenceTitle">SSL</string>
 	<string name="ConnectionSslPreferenceSummary">Aceptar todos los certificados SSL.</string>
 	<string name="ConnectionTrustHostsPreferenceTitle">Confiar en todos los Hosts</string>
 	<string name="ConnectionTrustHostsPreferenceSummary">Aceptar certificados desde todos los hosts</string>
@@ -114,10 +113,8 @@
 	<string name="DisplayDateTimeFormatSystemSummary">Activar para usar el el formato de fecha y hora del sistema. Desactivar para un formato personalizado.</string>
 	<string name="DisplayDateFormatTitle">Formato de fecha personalizadoCustom date format</string>
 	<string name="DisplayDateFormatSummary">Especifique el formato de de fecha (ver Wiki). Por defecto es \"dd.MM.yyyy\". Valores inválidos serán ignorados y usados los predeterminados.</string>
-	<string name="DisplayDateFormatDefault">dd.MM.yyyy</string>
 	<string name="DisplayTimeFormatTitle">Formato de hora personalizado</string>
 	<string name="DisplayTimeFormatSummary">Espeficique un formato de hora (ver Wiki). Por defecto es \"kk:mm\". Valores inválidos serán ignorados y usados los predeterminados.</string>
-	<string name="DisplayTimeFormatDefault">kk:mm</string>
 	<string name="DisplayDarkBackgroundTitle">¿Usar fondo oscuro?</string>
 	<string name="DisplayDarkBackgroundSummary">Activar para mostrar los artículos con fondo oscuro para lectura por la noche.</string>
 	<string name="SystemPreferenceCategoryTitle">Sistema</string>
@@ -155,8 +152,6 @@
 	<string name="Utils.CancelAction">Cancelar</string>
 	<string name="Cache.service_started">Descarga comenzada…</string>
 	<string name="Cache.service_text">Descarga en proceso…</string>
-	<string name="Cache.service_imagecache">Cache de Imágenes</string>
-	<string name="Cache.service_articlecache">Cache de los artículos</string>
 	<string name="Share.title">Título</string>
 	<string name="Share.url">URL</string>
 	<string name="Share.content">Contenido</string>
@@ -164,7 +159,6 @@
 	<string name="Subscribe.url">URL</string>
 	<string name="Subscribe.Paste">Pegar URL</string>
 	<string name="Subscribe.Category_Label">Categoría:</string>
-	<string name="Subscribe.ok_button">OK</string>
 	<string name="Subscribe.unsubscribe">Desuscribir fuente</string>
 	<string name="Labels.NoLabels">No hay etiquetas disponibles.</string>
 	<string name="Locale.Load_images">Cargar imágenes</string>

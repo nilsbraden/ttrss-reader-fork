@@ -17,7 +17,6 @@
   -->
 <resources>
 
-	<string name="ApplicationName">TTRSS-Reader</string>
 	<string name="IntentPublish">Inhalt veröffentlichen</string>
 	<string name="IntentSubscribe">Feed abonnieren</string>
 	<string name="ApplicationDescription">Tiny Tiny RSS Reader ist eine Anwendung, um RSS-Feeds aus einer \"Tiny Tiny RSS\"-Installation zu lesen.</string>
@@ -29,6 +28,8 @@
 	<string name="Preferences.ResetCache">ImageCache zurücksetzen</string>
 	<string name="Preferences.Btn">Einstellungen</string>
 	<string name="Changelog.Title">Changelog</string>
+	<string name="Changelog.Prefix"><![CDATA[Das komplette Changelog kann auf der Projektseite auf <a href="%s">github.com</a> eingesehen werden.]]></string>
+	<string name="Changelog.Suffix"><![CDATA[Alle weiteren Einträge sind hier nicht aufgeführt. Das komplette Changelog finden Sie auf der Projektseite unter <a href="%s">github.com</a>.]]></string>
 	<string name="Welcome.Title">Willkommen</string>
 	<string name="Welcome.Message">Willkommen zum TTRSS-Reader!\n\nBitte beachten Sie, dass dieser Reader nur mit einem \"Tiny Tiny RSS\"-Server arbeiten kann.\n\nWenn dies der erste Start dieser Anwendung ist, sollten Sie Ihre Server- und Benutzer-Einstellungen setzen. Drücken Sie \"Einstellungen\", um fortzufahren.</string>
 	<string name="Check.Crash">Es wurde ein Fehlerbericht gespeichert. Soll dieser per E-Mail an den Entwickler der Anwendung gesendet werden?</string>
@@ -93,7 +94,6 @@
 	<string name="ConnectionLazyServerPreferenceTitle">Fauler Server</string>
 	<string name="ConnectionLazyServerPreferenceSummary">Feedaktualisierung im Server anstoßen.</string>
 	<string name="ConnectionSslPreferenceCategoryTitle">SSL-Einstellungen</string>
-	<string name="ConnectionSslPreferenceTitle">SSL</string>
 	<string name="ConnectionSslPreferenceSummary">Alle SSL-Zertifikate akzeptieren.</string>
 	<string name="ConnectionTrustHostsPreferenceTitle">Vertraue allen Servern</string>
 	<string name="ConnectionTrustHostsPreferenceSummary">Akzeptiere Zertifikate von allen Servern</string>
@@ -143,7 +143,7 @@
 	<string name="SupportZoomControlsSummary">ACHTUNG: Hierdurch wird Gestensteuerung in der Artikelansicht wegen eines Bugs deaktiviert! Zoom-Steuerelemente anzeigen in Artikel-Ansicht.</string>
 	<string name="AllowHyphenationTitle">Erlaube Silbentrennung</string>
 	<string name="AllowHyphenationSummary">Aktiviere Silbentrennung in Artikeln.</string>
-	<string name="HyphenationLanguageTitle">Silbentrennung Sprache&#8230;</string>
+	<string name="HyphenationLanguageTitle">Silbentrennung Sprache</string>
 	<string name="HyphenationLanguageSummary">Verwendete Sprache für die Silbentrennung wählen.</string>
 	<string name="HyphenationLanguage_be">Weißrussisch</string>
 	<string name="HyphenationLanguage_bn">Bengali</string>
@@ -198,13 +198,10 @@
 	<string name="DisplayDateTimeFormatSystemSummary">Aktivieren, um den Systemstandard zur Anzeige von Datums- und Zeitangaben zu verwenden.</string>
 	<string name="DisplayDateFormatTitle">Eigenes Datumsformat</string>
 	<string name="DisplayDateFormatSummary">Anleitung zur Formatierung findet sich im Wiki des Projekts. Standard ist \"dd.MM.yyyy\".</string>
-	<string name="DisplayDateFormatDefault">dd.MM.yyyy</string>
 	<string name="DisplayTimeFormatTitle">Eigenes Zeitformat</string>
 	<string name="DisplayTimeFormatSummary">Anleitung zur Formatierung findet sich im Wiki des Projekts. Standard ist \"kk:mm\".</string>
-	<string name="DisplayTimeFormatDefault">kk:mm</string>
 	<string name="DisplayDateTimeFormatTitle">Eigenes Datums- und Zeitformat</string>
 	<string name="DisplayDateTimeFormatSummary">Gibt ein eigenes Format für Datum mit Zeit an (siehe Wiki). Standard ist \"dd.MM.yyyy kk:mm\". Ungültige Werte werden stillschweigend ignoriert und die Standardwerte gesetzt.</string>
-	<string name="DisplayDateTimeFormatDefault">dd.MM.yyyy kk:mm</string>
 	<string name="DisplayDarkBackgroundTitle">Dunklen Hintergrund verwenden?</string>
 	<string name="DisplayThemeTitle">App-Theme auswählen</string>
 	<string name="DisplayThemeSummary">Schwarz/Weiß verwendet schwarze Schrift auf weißem Hintergrund (oder umgekehrt), um das Lesen auf E-Book-Readern zu ermöglichen.</string>
@@ -259,12 +256,9 @@
 	<string name="CacheImageMinSizeTitle">Minimale Größe von zwischengespeicherten Bildern</string>
 	<string name="Utils.FileSaveTitle">Anhang speichern</string>
 	<string name="Utils.FileSaveMessage">Kein Dateimanager gefunden. Wo möchten Sie diesen Anhang speichern?</string>
-	<string name="Utils.OkayAction">OK</string>
 	<string name="Utils.CancelAction">Abbrechen</string>
 	<string name="Cache.service_started">Download gestartet…</string>
 	<string name="Cache.service_text">Download läuft…</string>
-	<string name="Cache.service_imagecache">Bilder-Cache</string>
-	<string name="Cache.service_articlecache">Artikel-Cache</string>
 	<string name="Share.title">Titel</string>
 	<string name="Share.url">URL</string>
 	<string name="Share.content">Inhalt</string>
@@ -272,7 +266,6 @@
 	<string name="Subscribe.url">URL</string>
 	<string name="Subscribe.Paste">URL einfügen</string>
 	<string name="Subscribe.Category_Label">Kategorie:</string>
-	<string name="Subscribe.ok_button">OK</string>
 	<string name="Subscribe.unsubscribe">Feed abbestellen</string>
 	<string name="Labels.NoLabels">Keine Labels vorhanden.</string>
 	<string name="Locale.Load_images">Bilder laden</string>
@@ -287,7 +280,6 @@
 	<string name="Dialog.MarkFeedsRead">Diese Kategorie als gelesen markieren?</string>
 	<string name="Yes">Yes</string>
 	<string name="No">No</string>
-	<string name="Ok">OK</string>
 	<string name="Close">Schließen</string>
 	<string name="NotNow">Jetzt nicht</string>
 	<string name="Up">Hoch</string>

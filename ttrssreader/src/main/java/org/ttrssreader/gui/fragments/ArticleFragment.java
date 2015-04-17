@@ -403,6 +403,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				buttons = getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
 
 			// General values
+			htmlTmpl.add("STYLE", getResources().getString(R.string.STYLE_TEMPLATE));
 			htmlTmpl.add("TEXT_ALIGN", replaceAlign);
 			htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
 			htmlTmpl.add("CACHE_DIR", Controller.getInstance().cacheFolder());

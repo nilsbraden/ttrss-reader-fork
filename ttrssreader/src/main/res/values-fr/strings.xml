@@ -64,7 +64,6 @@
 	<string name="ConnectionPasswordPreferenceTitle">Mot de passe</string>
 	<string name="ConnectionPasswordPreferenceSummary">Le mot de passe de votre compte Tiny Tiny RSS.</string>
 	<string name="ConnectionSslPreferenceCategoryTitle">Paramètres SSL</string>
-	<string name="ConnectionSslPreferenceTitle">SSL</string>
 	<string name="ConnectionSslPreferenceSummary">Accepté tous les certificats SSL.</string>
 	<string name="ConnectionKeystorePasswordPreferenceTitle">Mot de passe du certificat personnel</string>
 	<string name="ConnectionKeystorePasswordPreferenceSummary">Mot de passe pour dévérouiller le certificat personnel</string>
@@ -109,7 +108,5 @@
 	<string name="Utils.DownloadErrorTicker">Erreur…</string>
 	<string name="Cache.service_started">Téléchargement commencé…</string>
 	<string name="Cache.service_text">Téléchargement en cours…</string>
-	<string name="Cache.service_imagecache">ImageCache</string>
-	<string name="Cache.service_articlecache">ArticleCache</string>
 
 </resources>

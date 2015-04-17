@@ -63,7 +63,7 @@ public class AboutActivity extends Activity {
 				.getString(R.string.AboutActivity_LicenseTextValue));
 
 		TextView urlText = (TextView) this.findViewById(R.id.AboutActivity_UrlText);
-		urlText.setText(this.getString(R.string.AboutActivity_UrlTextValue));
+		urlText.setText(this.getString(R.string.ProjectUrl));
 
 		TextView lastSyncText = (TextView) this.findViewById(R.id.AboutActivity_LastSyncText);
 		lastSyncText.setText(this.getString(R.string.AboutActivity_LastSyncText) + " " + new Date(

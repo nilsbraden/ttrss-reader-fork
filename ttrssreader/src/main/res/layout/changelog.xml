@@ -15,15 +15,17 @@
   copy of the GNU General Public License along with this program; If
   not, see http://www.gnu.org/licenses/.
   -->
-<resources>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/dialog_layout_root"
+	android:orientation="vertical"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
 
-  <style name="TTRSS.Black" parent="TTRSS.Base.Black" />
+	<WebView
+		android:id="@+id/changelog"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:scrollbars="vertical"
+		android:scrollbarAlwaysDrawVerticalTrack="true" />
 
-  <style name="TTRSS.Base.Black" parent="TTRSS.Dark">
-
-    <item name="colorAccent">@color/themeBlackAccent</item>
-    <item name="colorBackground">@color/themeBlackBackground</item>
-
-	</style>
-
-</resources>
+</LinearLayout>

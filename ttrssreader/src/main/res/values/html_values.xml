@@ -23,137 +23,7 @@
 <!DOCTYPE html>
 <head>
 	<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
-	<style type=\"text/css\">
-		body {
-			font-size: 16px;
-			font-weight: normal;
-		}
-
-		/************ BEGIN THEMES ************/
-		/*** THEME: DARK ***/
-		body#darkTheme {
-			background-color: #222;
-			color: #DDD;
-		}
-		body#darkTheme #header {
-			background-color: #454545;
-		}
-		body#darkTheme a:link, a:active, a:hover {
-			color: #E1E1E1 !important;
-		}
-		body#darkTheme a:visited {
-			color: #FFF !important;
-		}
-
-		/*** THEME: LIGHT ***/
-		body#lightTheme {
-			background-color: #E1E1E1;
-			color: #333;
-		}
-		body#lightTheme #header {
-			background-color: #B8B3B3;
-		}
-		body#lightTheme a:link, a:active, a:hover {
-			color: #555 !important;
-		}
-		body#lightTheme a:visited {
-			color: #000 !important;
-		}
-
-		/*** THEME: BLACK ***/
-		body#blackTheme {
-			background-color: #000;
-			color: #FFF;
-		}
-		body#blackTheme #header {
-			background-color: #454545;
-		}
-		body#blackTheme a:link, a:active, a:hover {
-			color: #E1E1E1 !important;
-		}
-		body#blackTheme a:visited {
-			color: #FFF !important;
-		}
-
-		/*** THEME: WHITE ***/
-		body#whiteTheme {
-			background-color: #FFF;
-			color: #000;
-		}
-		body#whiteTheme #header {
-			background-color: #DBDBDB;
-		}
-		body#whiteTheme a:link, a:active, a:hover {
-			color: #555 !important;
-		}
-		body#whiteTheme a:visited {
-			color: #000 !important;
-		}
-		/************ END THEMES ************/
-
-		body, blockquote, img, iframe, video, div, table, tbody, tr, td, pre, code, p, em, b {
-			width: auto !important;
-			height: auto !important;
-			max-width: 100% !important;
-		}
-		pre, code, blockquote, p, em, b {
-			white-space: -moz-pre-wrap !important;
-			white-space: -pre-wrap !important;
-			white-space: -o-pre-wrap !important;
-			/* used to be pre-wrap but I dont know why and it breaks align_justify */
-			white-space: normal !important;
-		}
-		pre, code, blockquote {
-			white-space: pre-wrap !important;
-		}
-		blockquote {
-			margin: 1em 3em;
-			border-left: 2px solid #999;
-			padding-left: 1em;
-		}
-		#header {
-			padding: 2px;
-			margin-bottom: .3em;
-			font-size: 18px;
-			font-weight: bold;
-		}
-		#header a:link, a:active, a:hover, a:visited {
-			color: #FF0000 !important;
-			text-decoration: none !important;
-		}
-		#header_small_text {
-			overflow: auto;
-		}
-		#subscription, #datetime, #author, #labels {
-			font-size: 11px;
-		}
-		#subscription {
-			float: left;
-		}
-		#datetime {
-			float: right;
-		}
-		#author, #labels {
-			margin: 0 auto;
-		}
-		#zierleiste {
-			margin-top: 2px !important;
-			height: 1px !important;
-		}
-		#content {
-			margin-top: .4em;
-			text-align: $TEXT_ALIGN$;
-		}
-		#content table {
-			width: 100% !important;
-			table-layout: fixed;
-		}
-		#attachments {
-			font-size: 11px;
-			text-align: right;
-			color: #04B404;
-		}
-	</style>
+	$STYLE$
 	<script type=\"text/javascript\">
 	var cacheDir = \"file://$CACHE_DIR$\";
 	function replaceCachedImages() {
@@ -202,40 +72,159 @@
 </html>]]>
 	</string>
 
-	<!-- TEMPORARY_SOLUTION_MARKER -->
-	<string name="HTML_TEMPLATE_EMPTY" formatted="false">
+	<!-- Template for displaying changelog at startup -->
+	<string name="HTML_TEMPLATE_CHANGELOG" formatted="false">
 <![CDATA[
 <!DOCTYPE html>
 <head>
 	<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
-	<style type=\"text/css\">
-		/************ BEGIN THEMES ************/
-		/*** THEME: DARK ***/
-		body#darkTheme {
-			background-color: #222;
-			color: #DDD;
-		}
-		/*** THEME: LIGHT ***/
-		body#lightTheme {
-			background-color: #E1E1E1;
-			color: #333;
-		}
-		/*** THEME: BLACK ***/
-		body#blackTheme {
-			background-color: #000;
-			color: #FFF;
-		}
-		/*** THEME: WHITE ***/
-		body#whiteTheme {
-			background-color: #FFF;
-			color: #000;
-		}
-		/************ END THEMES ************/
-	</style>
+	$STYLE$
 </head>
 <body id=\"$THEME$\"></body>
+	<div id=\"content\">
+		<h1>$TITLE$</h1>
+		$CONTENT$
+	</div>
 </html>]]>
 	</string>
+
+
+	<!-- HYPHENATION -->
+	<string name="STYLE_TEMPLATE" formatted="false">
+<![CDATA[
+<style type=\"text/css\">
+	body {
+		font-size: 16px;
+		font-weight: normal;
+	}
+
+	/************ BEGIN THEMES ************/
+	/*** THEME: DARK ***/
+	body#darkTheme {
+		background-color: #222;
+		color: #DDD;
+	}
+	body#darkTheme #header {
+		background-color: #454545;
+	}
+	body#darkTheme a:link, a:active, a:hover {
+		color: #E1E1E1 !important;
+	}
+	body#darkTheme a:visited {
+		color: #FFF !important;
+	}
+
+	/*** THEME: LIGHT ***/
+	body#lightTheme {
+		background-color: #E1E1E1;
+		color: #333;
+	}
+	body#lightTheme #header {
+		background-color: #B8B3B3;
+	}
+	body#lightTheme a:link, a:active, a:hover {
+		color: #555 !important;
+	}
+	body#lightTheme a:visited {
+		color: #000 !important;
+	}
+
+	/*** THEME: BLACK ***/
+	body#blackTheme {
+		background-color: #000;
+		color: #FFF;
+	}
+	body#blackTheme #header {
+		background-color: #454545;
+	}
+	body#blackTheme a:link, a:active, a:hover {
+		color: #E1E1E1 !important;
+	}
+	body#blackTheme a:visited {
+		color: #FFF !important;
+	}
+
+	/*** THEME: WHITE ***/
+	body#whiteTheme {
+		background-color: #FFF;
+		color: #000;
+	}
+	body#whiteTheme #header {
+		background-color: #DBDBDB;
+	}
+	body#whiteTheme a:link, a:active, a:hover {
+		color: #555 !important;
+	}
+	body#whiteTheme a:visited {
+		color: #000 !important;
+	}
+	/************ END THEMES ************/
+
+	body, blockquote, img, iframe, video, div, table, tbody, tr, td, pre, code, p, em, b {
+		width: auto !important;
+		height: auto !important;
+		max-width: 100% !important;
+	}
+	pre, code, blockquote, p, em, b {
+		white-space: -moz-pre-wrap !important;
+		white-space: -pre-wrap !important;
+		white-space: -o-pre-wrap !important;
+		/* used to be pre-wrap but I dont know why and it breaks align_justify */
+		white-space: normal !important;
+	}
+	pre, code, blockquote {
+		white-space: pre-wrap !important;
+	}
+	blockquote {
+		margin: 1em 3em;
+		border-left: 2px solid #999;
+		padding-left: 1em;
+	}
+	#header {
+		padding: 2px;
+		margin-bottom: .3em;
+		font-size: 18px;
+		font-weight: bold;
+	}
+	#header a:link, a:active, a:hover, a:visited {
+		color: #FF0000 !important;
+		text-decoration: none !important;
+	}
+	#header_small_text {
+		overflow: auto;
+	}
+	#subscription, #datetime, #author, #labels {
+		font-size: 11px;
+	}
+	#subscription {
+		float: left;
+	}
+	#datetime {
+		float: right;
+	}
+	#author, #labels {
+		margin: 0 auto;
+	}
+	#zierleiste {
+		margin-top: 2px !important;
+		height: 1px !important;
+	}
+	#content {
+		margin-top: .4em;
+		text-align: $TEXT_ALIGN$;
+	}
+	#content table {
+		width: 100% !important;
+		table-layout: fixed;
+	}
+	#attachments {
+		font-size: 11px;
+		text-align: right;
+		color: #04B404;
+	}
+</style>]]>
+	</string>
+
 
 	<!-- HYPHENATION -->
 	<string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">
