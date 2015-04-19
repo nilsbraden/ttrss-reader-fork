@@ -27,12 +27,18 @@
 		android:layout_height="match_parent"
 		android:orientation="vertical">
 
-		<FrameLayout
-			android:id="@+id/article_webView_Container"
+		<RelativeLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
 			android:layout_toLeftOf="@+id/article_button_view"
 			android:layout_toStartOf="@+id/article_button_view"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent" />
+			android:orientation="vertical">
+
+			<FrameLayout
+				android:id="@+id/article_webView_Container"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent" />
+		</RelativeLayout>
 
 		<LinearLayout
 			style="?android:attr/buttonBarStyle"
