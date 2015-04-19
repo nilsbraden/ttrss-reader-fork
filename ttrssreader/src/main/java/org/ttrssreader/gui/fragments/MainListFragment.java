@@ -175,10 +175,10 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 					return;
 				}
 			}
-		}
-		if (getListView() != null) {
-			// Nothing found, uncheck everything:
-			getListView().setItemChecked(getListView().getCheckedItemPosition(), false);
+			if (getListView() != null) {
+				// Nothing found, uncheck everything:
+				getListView().setItemChecked(getListView().getCheckedItemPosition(), false);
+			}
 		}
 	}
 
