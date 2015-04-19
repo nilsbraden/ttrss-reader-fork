@@ -183,6 +183,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	public void doRefresh() {
+		if (adapter != null) adapter.notifyDataSetChanged();
 	}
 
 	public String getTitle() {
@@ -207,8 +208,8 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	 */
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		updateTitleAndUnread();
 		adapter.notifyDataSetChanged();
+		updateTitleAndUnread();
 	}
 
 	private volatile Boolean updateTitleAndUnreadRunning = false;

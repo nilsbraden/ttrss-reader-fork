@@ -162,13 +162,13 @@ public class CategoryListFragment extends MainListFragment {
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		if (loader.getId() == TYPE_CAT_ID) adapter.swapCursor(data);
+		if (loader.getId() == TYPE_CAT_ID) adapter.changeCursor(data);
 		super.onLoadFinished(loader, data);
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		if (loader.getId() == TYPE_CAT_ID) adapter.swapCursor(null);
+		if (loader.getId() == TYPE_CAT_ID) adapter.changeCursor(null);
 	}
 
 	@Override
@@ -180,7 +180,6 @@ public class CategoryListFragment extends MainListFragment {
 
 	@Override
 	public void doRefresh() {
-		// getLoaderManager().restartLoader(TYPE_HEADLINE_ID, null, this);
 		Activity activity = getActivity();
 		if (activity != null && categoryUri != null) activity.getContentResolver().notifyChange(categoryUri, null);
 		super.doRefresh();

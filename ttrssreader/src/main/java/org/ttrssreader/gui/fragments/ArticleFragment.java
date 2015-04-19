@@ -421,7 +421,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			htmlTmpl.add("CONTENT", contentClean);
 
 			content = htmlTmpl.render();
-			Log.w(TAG, "== Template rendering took " + (System.currentTimeMillis() - time) + "ms");
 
 			/* JavaScript should be safe since we use JSoup to remove all unwanted stuff from article.conent */
 			webView.getSettings().setJavaScriptEnabled(true);
