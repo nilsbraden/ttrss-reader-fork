@@ -9,8 +9,7 @@ Since google announced that the downloads from google-code will not be available
 [![play.google.com][3]][4]<br>
 [![QR-Code for play.google.com][5]][4]
 
-Current Version: **1.82**<br>
-All downloads: [Google Drive](https://drive.google.com/folderview?id=0B2I5LDZK1kOEcGRJVkw5MGUwdlk&usp=sharing)
+Current Version: [**1.84**](https://github.com/nilsbraden/ttrss-reader-fork/releases) ([Changelog](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Changelog))
 
 # Features
  * Use Swipe for Next/Previous Article
@@ -26,7 +25,7 @@ All downloads: [Google Drive](https://drive.google.com/folderview?id=0B2I5LDZK1k
  * Scheduled updates via Tasker/Locale
  * Fast JSON-Parsing with stream-based parser GSON 
 
-(see [Changelog](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Changelog) for detailed information)
+See [Changelog](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Changelog) for detailed information.
 
 # Note regarding support and F-Droid
 Since [F-Droid](https://f-droid.org/repository/browse/?fdid=org.ttrssreader) is often several months late with the build I have to make this clear: I won't provide support for versions which are not exactly or at least near to the version which is stated above on this site ("Current Version"). Please provide the full version information from the About-box within the app when reporting an issue!
@@ -39,7 +38,7 @@ Please feel free to contact me via E-Mail (ttrss /at/ nilsbraden.de) or via the 
 
 # Donations
 If you would like to support my work and the further developement of TTRSS-reader you may submit a donation via Paypal or flattr me here:
- * Paypal: [![paypal.com][1]][2]
+ * Paypal: [![paypal.com][1]][2]<br><br>
  * Flattr: [![flattr.com][6]][7]
 
 For more information you may want to visit [Donations](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Donations).
