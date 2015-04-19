@@ -348,8 +348,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			} else {
 				webView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
 			}
-			if (!Controller.getInstance().loadMedia()) webView.getSettings().setMediaPlaybackRequiresUserGesture
-					(false);
+			if (!Controller.getInstance().loadMedia() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+				webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
 
 			// No need to reload everything
 			if (webviewInitialized) return;
