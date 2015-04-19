@@ -51,6 +51,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**
@@ -129,8 +130,8 @@ public abstract class MenuActivity extends ActionBarActivity
 			int mainFrameSize = Controller.getInstance().getMainFrameSize(this, isVertical, minSize, maxSize);
 			int subFrameSize = displaySize - mainFrameSize;
 
-			ViewGroup.LayoutParams lpMain = frameMain.getLayoutParams();
-			ViewGroup.LayoutParams lpSub = frameSub.getLayoutParams();
+			RelativeLayout.LayoutParams lpMain = (RelativeLayout.LayoutParams) frameMain.getLayoutParams();
+			RelativeLayout.LayoutParams lpSub = (RelativeLayout.LayoutParams) frameSub.getLayoutParams();
 
 			if (isVertical) {
 				// calculate height of divider
@@ -160,9 +161,9 @@ public abstract class MenuActivity extends ActionBarActivity
 
 		} else {
 
-			int match_parent = ViewGroup.LayoutParams.MATCH_PARENT;
-			frameMain.setLayoutParams(new ViewGroup.LayoutParams(match_parent, match_parent));
-			frameSub.setLayoutParams(new ViewGroup.LayoutParams(match_parent, match_parent));
+			int match_parent = RelativeLayout.LayoutParams.MATCH_PARENT;
+			frameMain.setLayoutParams(new RelativeLayout.LayoutParams(match_parent, match_parent));
+			frameSub.setLayoutParams(new RelativeLayout.LayoutParams(match_parent, match_parent));
 			if (divider != null) divider.setVisibility(View.GONE);
 
 		}
@@ -177,8 +178,8 @@ public abstract class MenuActivity extends ActionBarActivity
 		}
 
 		int subFrameSize = displaySize - dividerSize - mainFrameSize;
-		ViewGroup.LayoutParams lpMain = frameMain.getLayoutParams();
-		ViewGroup.LayoutParams lpSub = frameSub.getLayoutParams();
+		RelativeLayout.LayoutParams lpMain = (RelativeLayout.LayoutParams) frameMain.getLayoutParams();
+		RelativeLayout.LayoutParams lpSub = (RelativeLayout.LayoutParams) frameSub.getLayoutParams();
 
 		if (isVertical) {
 			lpMain.height = mainFrameSize;
