@@ -18,6 +18,10 @@
 <resources>
 
 	<string-array name="updates">
+		<item>Version 1.84
+			 * Fixed a lot of bugs introduced by release v1.83
+			 * Implemented new dialog for the changelog
+			 * Slightly adjusted colors</item>
 		<item>Version 1.83
 			 * Modified theme, reduced complexity, introduced first Material theme stuff (slightly changed the layout and the spacing of items, changed some colors and so on)
 			 * Allow resetting the ImageCache from the preferences menu

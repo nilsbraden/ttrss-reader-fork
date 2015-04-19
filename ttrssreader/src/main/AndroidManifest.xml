@@ -19,8 +19,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	package="org.ttrssreader"
 	android:installLocation="internalOnly"
-	android:versionCode="1830"
-	android:versionName="1.83">
+	android:versionCode="1840"
+	android:versionName="1.84">
 
 	<!-- Check connectivity -->
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
