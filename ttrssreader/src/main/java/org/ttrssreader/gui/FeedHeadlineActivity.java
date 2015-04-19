@@ -295,6 +295,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 		FragmentTransaction ft = fm.beginTransaction();
 		setAnimationForDirection(ft, direction);
+		ft.setTransition(FragmentTransaction.TRANSIT_NONE);
 		if (direction == 0) ft.add(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT).commit();
 		else ft.replace(R.id.frame_main, headlineFragment, FeedHeadlineListFragment.FRAGMENT).commit();
 
@@ -321,6 +322,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 		FragmentTransaction ft = fm.beginTransaction();
 		if (!Controller.isTablet) ft.addToBackStack(null);
 		setAnimationForDirection(ft, direction);
+		ft.setTransition(FragmentTransaction.TRANSIT_NONE);
 		if (direction == 0) ft.add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
 		else ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
 
