@@ -65,9 +65,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	private static final String SELECTED = "SELECTED";
 	private int selectedCategoryId = Integer.MIN_VALUE;
 
-	private CategoryListFragment categoryFragment;
-	private FeedListFragment feedFragment;
-
 	@Override
 	protected void onCreate(Bundle instance) {
 		// Only needed to debug ANRs:
@@ -86,8 +83,8 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		}
 
 		FragmentManager fm = getFragmentManager();
-		categoryFragment = (CategoryListFragment) fm.findFragmentByTag(CategoryListFragment.FRAGMENT);
-		feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
+		CategoryListFragment categoryFragment = (CategoryListFragment) fm
+				.findFragmentByTag(CategoryListFragment.FRAGMENT);
 
 		if (categoryFragment == null) {
 			FragmentTransaction ft = fm.beginTransaction();
@@ -157,7 +154,13 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	@Override
 	protected void doRefresh() {
 		super.doRefresh();
+
+		CategoryListFragment categoryFragment = (CategoryListFragment) getFragmentManager()
+				.findFragmentByTag(CategoryListFragment.FRAGMENT);
 		if (categoryFragment != null) categoryFragment.doRefresh();
+
+		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager()
+				.findFragmentByTag(FeedListFragment.FRAGMENT);
 		if (feedFragment != null) feedFragment.doRefresh();
 
 		setTitleAndUnread();
@@ -165,6 +168,12 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 	private void setTitleAndUnread() {
 		// Title and unread information:
+
+		CategoryListFragment categoryFragment = (CategoryListFragment) getFragmentManager()
+				.findFragmentByTag(CategoryListFragment.FRAGMENT);
+		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager()
+				.findFragmentByTag(FeedListFragment.FRAGMENT);
+
 		if (feedFragment != null && !feedFragment.isEmptyPlaceholder()) {
 			setTitle(feedFragment.getTitle());
 			setUnread(feedFragment.getUnread());
@@ -315,7 +324,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 	public void displayFeed(int categoryId) {
 		selectedCategoryId = categoryId;
-		feedFragment = FeedListFragment.newInstance(categoryId);
+		FeedListFragment feedFragment = FeedListFragment.newInstance(categoryId);
 		FragmentManager fm = getFragmentManager();
 
 		// Clear back stack

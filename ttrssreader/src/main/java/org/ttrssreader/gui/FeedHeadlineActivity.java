@@ -52,9 +52,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	private int articleId = Integer.MIN_VALUE;
 
-	private FeedListFragment feedFragment;
-	private FeedHeadlineListFragment headlineFragment;
-
 	@Override
 	protected void onCreate(Bundle instance) {
 		super.onCreate(instance);
@@ -73,13 +70,14 @@ public class FeedHeadlineActivity extends MenuActivity {
 		}
 
 		FragmentManager fm = getFragmentManager();
-		feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
+		FeedListFragment feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
 		if (feedFragment == null) {
 			feedFragment = FeedListFragment.newInstance(categoryId);
 			fm.beginTransaction().add(R.id.frame_invisible, feedFragment, FeedListFragment.FRAGMENT).commit();
 		}
 
-		headlineFragment = (FeedHeadlineListFragment) fm.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
+		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) fm
+				.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		if (headlineFragment == null) {
 			displayFeed(feedId, 0);
 		}
@@ -116,17 +114,20 @@ public class FeedHeadlineActivity extends MenuActivity {
 	@Override
 	protected void doRefresh() {
 		super.doRefresh();
-		headlineFragment.doRefresh();
+
+		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager()
+				.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
+		if (headlineFragment != null) headlineFragment.doRefresh();
 
 		setTitleAndUnread();
 	}
 
 	private void setTitleAndUnread() {
 		// Title and unread information:
-		if (headlineFragment != null) {
-			setTitle(headlineFragment.getTitle());
-			setUnread(headlineFragment.getUnread());
-		}
+		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager()
+				.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
+		setTitle(headlineFragment.getTitle());
+		setUnread(headlineFragment.getUnread());
 	}
 
 	@Override
@@ -214,6 +215,8 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	public void openNextFeed(int direction) {
+		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager()
+				.findFragmentByTag(FeedListFragment.FRAGMENT);
 		int newId = findNext(feedFragment.getFeedIds(), feedId, direction);
 		if (newId == Integer.MIN_VALUE) {
 			Utils.alert(this, true);
@@ -224,6 +227,8 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	public void openNextArticle(int direction) {
+		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager()
+				.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		int newId = findNext(headlineFragment.getArticleIds(), articleId, direction);
 		if (newId == Integer.MIN_VALUE) {
 			Utils.alert(this, true);
@@ -290,7 +295,8 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	private void displayFeed(int newFeedId, int direction) {
 		feedId = newFeedId;
-		headlineFragment = FeedHeadlineListFragment.newInstance(feedId, categoryId, selectArticlesForCategory);
+		FeedHeadlineListFragment headlineFragment = FeedHeadlineListFragment
+				.newInstance(feedId, categoryId, selectArticlesForCategory);
 		FragmentManager fm = getFragmentManager();
 
 		FragmentTransaction ft = fm.beginTransaction();
@@ -301,6 +307,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 		// Check if a next feed in this direction exists
 		if (direction != 0) {
+			FeedListFragment feedFragment = (FeedListFragment) fm.findFragmentByTag(FeedListFragment.FRAGMENT);
 			if (findNext(feedFragment.getFeedIds(), feedId, direction) == Integer.MIN_VALUE) {
 				Utils.alert(this);
 			}
@@ -309,6 +316,8 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	private void displayArticle(int newArticleId, int direction) {
 		articleId = newArticleId;
+		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager()
+				.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
 		headlineFragment.setSelectedId(articleId);
 		FragmentManager fm = getFragmentManager();
 
