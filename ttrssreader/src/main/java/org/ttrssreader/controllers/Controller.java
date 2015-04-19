@@ -61,7 +61,7 @@ import java.util.Set;
  * isn't one in here but it's called like that and I don't have a better name so we stay with it.
  */
 @SuppressWarnings("UnusedDeclaration")
-public class Controller implements OnSharedPreferenceChangeListener {
+public class Controller extends Constants implements OnSharedPreferenceChangeListener {
 
 	private static final String TAG = Controller.class.getSimpleName();
 
@@ -175,7 +175,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 		this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
 		// Check for new installation
-		if (!prefs.contains(Constants.URL) && !prefs.contains(Constants.LAST_VERSION_RUN)) {
+		if (!prefs.contains(URL) && !prefs.contains(LAST_VERSION_RUN)) {
 			newInstallation = true;
 		}
 
@@ -281,7 +281,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
 	private boolean wifibasedPrefsEnabled() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.ENABLE_WIFI_BASED_SUFFIX, getCurrentSSID(wifiManager), true);
+		String key = getStringWithSSID(ENABLE_WIFI_BASED_SUFFIX, getCurrentSSID(wifiManager), true);
 		return prefs.getBoolean(key, false);
 	}
 
@@ -295,11 +295,11 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
 	public String hostname() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.URL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+		String key = getStringWithSSID(URL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
 		String url;
-		if (prefs.contains(key)) url = prefs.getString(key, Constants.URL_DEFAULT);
-		else url = prefs.getString(Constants.URL, Constants.URL_DEFAULT);
+		if (prefs.contains(key)) url = prefs.getString(key, URL_DEFAULT);
+		else url = prefs.getString(URL, URL_DEFAULT);
 
 		if (!url.endsWith(JSON_END_URL)) {
 			if (!url.endsWith("/")) {
@@ -313,99 +313,93 @@ public class Controller implements OnSharedPreferenceChangeListener {
 
 	public String username() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.USERNAME, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+		String key = getStringWithSSID(USERNAME, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, Constants.EMPTY);
-		else return prefs.getString(Constants.USERNAME, Constants.EMPTY);
+		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
+		else return prefs.getString(USERNAME, EMPTY);
 	}
 
 	public String password() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+		String key = getStringWithSSID(PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, Constants.EMPTY);
-		else return prefs.getString(Constants.PASSWORD, Constants.EMPTY);
+		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
+		else return prefs.getString(PASSWORD, EMPTY);
 	}
 
 	public boolean lazyServer() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.USE_OF_A_LAZY_SERVER, getCurrentSSID(wifiManager),
-				wifibasedPrefsEnabled());
+		String key = getStringWithSSID(USE_OF_A_LAZY_SERVER, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
 		boolean useOfALazyServer;
-		if (prefs.contains(key)) useOfALazyServer = prefs.getBoolean(key, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
-		else
-			useOfALazyServer = prefs.getBoolean(Constants.USE_OF_A_LAZY_SERVER, Constants
-					.USE_OF_A_LAZY_SERVER_DEFAULT);
+		if (prefs.contains(key)) useOfALazyServer = prefs.getBoolean(key, USE_OF_A_LAZY_SERVER_DEFAULT);
+		else useOfALazyServer = prefs.getBoolean(USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
 
 		return useOfALazyServer;
 	}
 
 	public boolean useHttpAuth() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.USE_HTTP_AUTH, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+		String key = getStringWithSSID(USE_HTTP_AUTH, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, Constants.USE_HTTP_AUTH_DEFAULT);
-		else return prefs.getBoolean(Constants.USE_HTTP_AUTH, Constants.USE_HTTP_AUTH_DEFAULT);
+		if (prefs.contains(key)) return prefs.getBoolean(key, USE_HTTP_AUTH_DEFAULT);
+		else return prefs.getBoolean(USE_HTTP_AUTH, USE_HTTP_AUTH_DEFAULT);
 	}
 
 	public String httpUsername() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.HTTP_USERNAME, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+		String key = getStringWithSSID(HTTP_USERNAME, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, Constants.EMPTY);
-		else return prefs.getString(Constants.HTTP_USERNAME, Constants.EMPTY);
+		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
+		else return prefs.getString(HTTP_USERNAME, EMPTY);
 	}
 
 	public String httpPassword() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.HTTP_PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+		String key = getStringWithSSID(HTTP_PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, Constants.EMPTY);
-		else return prefs.getString(Constants.HTTP_PASSWORD, Constants.EMPTY);
+		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
+		else return prefs.getString(HTTP_PASSWORD, EMPTY);
 	}
 
 	public boolean useKeystore() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.USE_KEYSTORE, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+		String key = getStringWithSSID(USE_KEYSTORE, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, Constants.USE_KEYSTORE_DEFAULT);
-		else return prefs.getBoolean(Constants.USE_KEYSTORE, Constants.USE_KEYSTORE_DEFAULT);
+		if (prefs.contains(key)) return prefs.getBoolean(key, USE_KEYSTORE_DEFAULT);
+		else return prefs.getBoolean(USE_KEYSTORE, USE_KEYSTORE_DEFAULT);
 	}
 
 	public boolean trustAllSsl() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.TRUST_ALL_SSL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+		String key = getStringWithSSID(TRUST_ALL_SSL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, Constants.TRUST_ALL_SSL_DEFAULT);
-		else return prefs.getBoolean(Constants.TRUST_ALL_SSL, Constants.TRUST_ALL_SSL_DEFAULT);
+		if (prefs.contains(key)) return prefs.getBoolean(key, TRUST_ALL_SSL_DEFAULT);
+		else return prefs.getBoolean(TRUST_ALL_SSL, TRUST_ALL_SSL_DEFAULT);
 	}
 
 	private boolean trustAllHosts() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.TRUST_ALL_HOSTS, getCurrentSSID(wifiManager), wifibasedPrefsEnabled
-				());
+		String key = getStringWithSSID(TRUST_ALL_HOSTS, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, Constants.TRUST_ALL_HOSTS_DEFAULT);
-		else return prefs.getBoolean(Constants.TRUST_ALL_HOSTS, Constants.TRUST_ALL_HOSTS_DEFAULT);
+		if (prefs.contains(key)) return prefs.getBoolean(key, TRUST_ALL_HOSTS_DEFAULT);
+		else return prefs.getBoolean(TRUST_ALL_HOSTS, TRUST_ALL_HOSTS_DEFAULT);
 	}
 
 	private boolean useOldConnector() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.USE_OLD_CONNECTOR, getCurrentSSID(wifiManager),
-				wifibasedPrefsEnabled());
+		String key = getStringWithSSID(USE_OLD_CONNECTOR, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getBoolean(key, Constants.USE_OLD_CONNECTOR_DEFAULT);
-		else return prefs.getBoolean(Constants.USE_OLD_CONNECTOR, Constants.USE_OLD_CONNECTOR_DEFAULT);
+		if (prefs.contains(key)) return prefs.getBoolean(key, USE_OLD_CONNECTOR_DEFAULT);
+		else return prefs.getBoolean(USE_OLD_CONNECTOR, USE_OLD_CONNECTOR_DEFAULT);
 	}
 
 	public String getKeystorePassword() {
 		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(Constants.KEYSTORE_PASSWORD, getCurrentSSID(wifiManager),
-				wifibasedPrefsEnabled());
+		String key = getStringWithSSID(KEYSTORE_PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
-		if (prefs.contains(key)) return prefs.getString(key, Constants.EMPTY);
-		else return prefs.getString(Constants.KEYSTORE_PASSWORD, Constants.EMPTY);
+		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
+		else return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
 	}
 
 	public JSONConnector getConnector() {
@@ -463,100 +457,97 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	// ******* USAGE-Options ****************************
 
 	public boolean openUrlEmptyArticle() {
-		if (openUrlEmptyArticle == null) openUrlEmptyArticle = prefs
-				.getBoolean(Constants.OPEN_URL_EMPTY_ARTICLE, Constants.OPEN_URL_EMPTY_ARTICLE_DEFAULT);
+		if (openUrlEmptyArticle == null)
+			openUrlEmptyArticle = prefs.getBoolean(OPEN_URL_EMPTY_ARTICLE, OPEN_URL_EMPTY_ARTICLE_DEFAULT);
 		return openUrlEmptyArticle;
 	}
 
 	public void setOpenUrlEmptyArticle(boolean openUrlEmptyArticle) {
-		put(Constants.OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
+		put(OPEN_URL_EMPTY_ARTICLE, openUrlEmptyArticle);
 		this.openUrlEmptyArticle = openUrlEmptyArticle;
 	}
 
 	public boolean useVolumeKeys() {
-		if (useVolumeKeys == null)
-			useVolumeKeys = prefs.getBoolean(Constants.USE_VOLUME_KEYS, Constants.USE_VOLUME_KEYS_DEFAULT);
+		if (useVolumeKeys == null) useVolumeKeys = prefs.getBoolean(USE_VOLUME_KEYS, USE_VOLUME_KEYS_DEFAULT);
 		return useVolumeKeys;
 	}
 
 	public void setUseVolumeKeys(boolean useVolumeKeys) {
-		put(Constants.USE_VOLUME_KEYS, useVolumeKeys);
+		put(USE_VOLUME_KEYS, useVolumeKeys);
 		this.useVolumeKeys = useVolumeKeys;
 	}
 
 	public boolean loadMedia() {
-		if (loadImages == null) loadImages = prefs.getBoolean(Constants.LOAD_IMAGES, Constants.LOAD_IMAGES_DEFAULT);
+		if (loadImages == null) loadImages = prefs.getBoolean(LOAD_IMAGES, LOAD_IMAGES_DEFAULT);
 		return loadImages;
 	}
 
 	public void setLoadImages(boolean loadImages) {
-		put(Constants.LOAD_IMAGES, loadImages);
+		put(LOAD_IMAGES, loadImages);
 		this.loadImages = loadImages;
 	}
 
 	public boolean invertBrowsing() {
-		if (invertBrowsing == null)
-			invertBrowsing = prefs.getBoolean(Constants.INVERT_BROWSING, Constants.INVERT_BROWSING_DEFAULT);
+		if (invertBrowsing == null) invertBrowsing = prefs.getBoolean(INVERT_BROWSING, INVERT_BROWSING_DEFAULT);
 		return invertBrowsing;
 	}
 
 	public void setInvertBrowsing(boolean invertBrowsing) {
-		put(Constants.INVERT_BROWSING, invertBrowsing);
+		put(INVERT_BROWSING, invertBrowsing);
 		this.invertBrowsing = invertBrowsing;
 	}
 
 	public boolean workOffline() {
-		if (workOffline == null) workOffline = prefs.getBoolean(Constants.WORK_OFFLINE, Constants
-				.WORK_OFFLINE_DEFAULT);
+		if (workOffline == null) workOffline = prefs.getBoolean(WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
 		return workOffline;
 	}
 
 	public void setWorkOffline(boolean workOffline) {
-		put(Constants.WORK_OFFLINE, workOffline);
+		put(WORK_OFFLINE, workOffline);
 		this.workOffline = workOffline;
 	}
 
 	public boolean goBackAfterMarkAllRead() {
-		if (goBackAfterMarkAllRead == null) goBackAfterMarkAllRead = prefs
-				.getBoolean(Constants.GO_BACK_AFTER_MARK_ALL_READ, Constants.GO_BACK_AFTER_MARK_ALL_READ_DEFAULT);
+		if (goBackAfterMarkAllRead == null)
+			goBackAfterMarkAllRead = prefs.getBoolean(GO_BACK_AFTER_MARK_ALL_READ,
+					GO_BACK_AFTER_MARK_ALL_READ_DEFAULT);
 		return goBackAfterMarkAllRead;
 	}
 
 	public void setGoBackAfterMarkAllRead(boolean goBackAfterMarkAllRead) {
-		put(Constants.GO_BACK_AFTER_MARK_ALL_READ, goBackAfterMarkAllRead);
+		put(GO_BACK_AFTER_MARK_ALL_READ, goBackAfterMarkAllRead);
 		this.goBackAfterMarkAllRead = goBackAfterMarkAllRead;
 	}
 
 	public boolean hideActionbar() {
-		if (hideActionbar == null)
-			hideActionbar = prefs.getBoolean(Constants.HIDE_ACTIONBAR, Constants.HIDE_ACTIONBAR_DEFAULT);
+		if (hideActionbar == null) hideActionbar = prefs.getBoolean(HIDE_ACTIONBAR, HIDE_ACTIONBAR_DEFAULT);
 		return hideActionbar;
 	}
 
 	public void setHideActionbar(boolean hideActionbar) {
-		put(Constants.HIDE_ACTIONBAR, hideActionbar);
+		put(HIDE_ACTIONBAR, hideActionbar);
 		this.hideActionbar = hideActionbar;
 	}
 
 	public boolean allowTabletLayout() {
 		if (allowTabletLayout == null)
-			allowTabletLayout = prefs.getBoolean(Constants.ALLOW_TABLET_LAYOUT, Constants.ALLOW_TABLET_LAYOUT_DEFAULT);
+			allowTabletLayout = prefs.getBoolean(ALLOW_TABLET_LAYOUT, ALLOW_TABLET_LAYOUT_DEFAULT);
 		return allowTabletLayout;
 	}
 
 	public void setAllowTabletLayout(boolean allowTabletLayout) {
-		put(Constants.ALLOW_TABLET_LAYOUT, allowTabletLayout);
+		put(ALLOW_TABLET_LAYOUT, allowTabletLayout);
 		this.allowTabletLayout = allowTabletLayout;
 	}
 
 	public void setHideFeedReadButtons(boolean hideFeedReadButtons) {
-		put(Constants.HIDE_FEED_READ_BUTTONS, hideFeedReadButtons);
+		put(HIDE_FEED_READ_BUTTONS, hideFeedReadButtons);
 		this.hideFeedReadButtons = hideFeedReadButtons;
 	}
 
 	public boolean hideFeedReadButtons() {
-		if (hideFeedReadButtons == null) hideFeedReadButtons = prefs
-				.getBoolean(Constants.HIDE_FEED_READ_BUTTONS, Constants.HIDE_FEED_READ_BUTTONS_DEFAULT);
+		if (hideFeedReadButtons == null)
+			hideFeedReadButtons = prefs.getBoolean(HIDE_FEED_READ_BUTTONS, HIDE_FEED_READ_BUTTONS_DEFAULT);
 
 		return hideFeedReadButtons;
 	}
@@ -564,173 +555,169 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	// ******* DISPLAY-Options ****************************
 
 	public boolean animations() {
-		if (animations == null) animations = prefs.getBoolean(Constants.ANIMATIONS, Constants.ANIMATIONS_DEFAULT);
+		if (animations == null) animations = prefs.getBoolean(ANIMATIONS, ANIMATIONS_DEFAULT);
 		return animations;
 	}
 
 	public void setAnimations(boolean animations) {
-		put(Constants.ANIMATIONS, animations);
+		put(ANIMATIONS, animations);
 		this.animations = animations;
 	}
 
 	public int textZoom() {
-		if (textZoom == null) textZoom = prefs.getInt(Constants.TEXT_ZOOM, Constants.TEXT_ZOOM_DEFAULT);
+		if (textZoom == null) textZoom = prefs.getInt(TEXT_ZOOM, TEXT_ZOOM_DEFAULT);
 		return textZoom;
 	}
 
 	public void setTextZoom(int textZoom) {
-		put(Constants.TEXT_ZOOM, textZoom);
+		put(TEXT_ZOOM, textZoom);
 		this.textZoom = textZoom;
 	}
 
 	public boolean supportZoomControls() {
-		if (supportZoomControls == null) supportZoomControls = prefs
-				.getBoolean(Constants.SUPPORT_ZOOM_CONTROLS, Constants.SUPPORT_ZOOM_CONTROLS_DEFAULT);
+		if (supportZoomControls == null)
+			supportZoomControls = prefs.getBoolean(SUPPORT_ZOOM_CONTROLS, SUPPORT_ZOOM_CONTROLS_DEFAULT);
 		return supportZoomControls;
 	}
 
 	public void setSupportZoomControls(boolean supportZoomControls) {
-		put(Constants.SUPPORT_ZOOM_CONTROLS, supportZoomControls);
+		put(SUPPORT_ZOOM_CONTROLS, supportZoomControls);
 		this.supportZoomControls = supportZoomControls;
 	}
 
 	public boolean allowHyphenation() {
-		if (allowHyphenation == null)
-			allowHyphenation = prefs.getBoolean(Constants.ALLOW_HYPHENATION, Constants.ALLOW_HYPHENATION_DEFAULT);
+		if (allowHyphenation == null) allowHyphenation = prefs.getBoolean(ALLOW_HYPHENATION,
+				ALLOW_HYPHENATION_DEFAULT);
 		return allowHyphenation;
 	}
 
 	public void setAllowHyphenation(boolean allowHyphenation) {
-		put(Constants.ALLOW_HYPHENATION, allowHyphenation);
+		put(ALLOW_HYPHENATION, allowHyphenation);
 		this.allowHyphenation = allowHyphenation;
 	}
 
 	public String hyphenationLanguage() {
-		if (hyphenationLanguage == null) hyphenationLanguage = prefs
-				.getString(Constants.HYPHENATION_LANGUAGE, Constants.HYPHENATION_LANGUAGE_DEFAULT);
+		if (hyphenationLanguage == null)
+			hyphenationLanguage = prefs.getString(HYPHENATION_LANGUAGE, HYPHENATION_LANGUAGE_DEFAULT);
 		return hyphenationLanguage;
 	}
 
 	public void setHyphenationLanguage(String hyphenationLanguage) {
-		put(Constants.HYPHENATION_LANGUAGE, hyphenationLanguage);
+		put(HYPHENATION_LANGUAGE, hyphenationLanguage);
 		this.hyphenationLanguage = hyphenationLanguage;
 	}
 
 	public boolean showVirtual() {
-		if (showVirtual == null) showVirtual = prefs.getBoolean(Constants.SHOW_VIRTUAL, Constants
-				.SHOW_VIRTUAL_DEFAULT);
+		if (showVirtual == null) showVirtual = prefs.getBoolean(SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
 		return showVirtual;
 	}
 
 	public void setDisplayVirtuals(boolean displayVirtuals) {
-		put(Constants.SHOW_VIRTUAL, displayVirtuals);
+		put(SHOW_VIRTUAL, displayVirtuals);
 		this.showVirtual = displayVirtuals;
 	}
 
 	public Integer showButtonsMode() {
-		if (showButtonsMode == null) showButtonsMode = Integer
-				.parseInt(prefs.getString(Constants.SHOW_BUTTONS_MODE, Constants.SHOW_BUTTONS_MODE_DEFAULT));
+		if (showButtonsMode == null)
+			showButtonsMode = Integer.parseInt(prefs.getString(SHOW_BUTTONS_MODE, SHOW_BUTTONS_MODE_DEFAULT));
 		return showButtonsMode;
 	}
 
 	public void setShowButtonsMode(Integer showButtonsMode) {
-		put(Constants.SHOW_BUTTONS_MODE, showButtonsMode);
+		put(SHOW_BUTTONS_MODE, showButtonsMode);
 		this.showButtonsMode = showButtonsMode;
 	}
 
 	public boolean onlyUnread() {
-		if (onlyUnread == null) onlyUnread = prefs.getBoolean(Constants.ONLY_UNREAD, Constants.ONLY_UNREAD_DEFAULT);
+		if (onlyUnread == null) onlyUnread = prefs.getBoolean(ONLY_UNREAD, ONLY_UNREAD_DEFAULT);
 		return onlyUnread;
 	}
 
 	public void setDisplayOnlyUnread(boolean displayOnlyUnread) {
-		put(Constants.ONLY_UNREAD, displayOnlyUnread);
+		put(ONLY_UNREAD, displayOnlyUnread);
 		this.onlyUnread = displayOnlyUnread;
 	}
 
 	public boolean onlyDisplayCachedImages() {
-		if (onlyDisplayCachedImages == null) onlyDisplayCachedImages = prefs
-				.getBoolean(Constants.ONLY_CACHED_IMAGES, Constants.ONLY_CACHED_IMAGES_DEFAULT);
+		if (onlyDisplayCachedImages == null)
+			onlyDisplayCachedImages = prefs.getBoolean(ONLY_CACHED_IMAGES, ONLY_CACHED_IMAGES_DEFAULT);
 		return onlyDisplayCachedImages;
 	}
 
 	public void setDisplayCachedImages(boolean onlyDisplayCachedImages) {
-		put(Constants.ONLY_CACHED_IMAGES, onlyDisplayCachedImages);
+		put(ONLY_CACHED_IMAGES, onlyDisplayCachedImages);
 		this.onlyDisplayCachedImages = onlyDisplayCachedImages;
 	}
 
 	public boolean invertSortArticlelist() {
-		if (invertSortArticlelist == null) invertSortArticlelist = prefs
-				.getBoolean(Constants.INVERT_SORT_ARTICLELIST, Constants.INVERT_SORT_ARTICLELIST_DEFAULT);
+		if (invertSortArticlelist == null)
+			invertSortArticlelist = prefs.getBoolean(INVERT_SORT_ARTICLELIST, INVERT_SORT_ARTICLELIST_DEFAULT);
 		return invertSortArticlelist;
 	}
 
 	public void setInvertSortArticleList(boolean invertSortArticleList) {
-		put(Constants.INVERT_SORT_ARTICLELIST, invertSortArticleList);
+		put(INVERT_SORT_ARTICLELIST, invertSortArticleList);
 		this.invertSortArticlelist = invertSortArticleList;
 	}
 
 	public boolean invertSortFeedscats() {
-		if (invertSortFeedscats == null) invertSortFeedscats = prefs
-				.getBoolean(Constants.INVERT_SORT_FEEDSCATS, Constants.INVERT_SORT_FEEDSCATS_DEFAULT);
+		if (invertSortFeedscats == null)
+			invertSortFeedscats = prefs.getBoolean(INVERT_SORT_FEEDSCATS, INVERT_SORT_FEEDSCATS_DEFAULT);
 		return invertSortFeedscats;
 	}
 
 	public void setInvertSortFeedsCats(boolean invertSortFeedsCats) {
-		put(Constants.INVERT_SORT_FEEDSCATS, invertSortFeedsCats);
+		put(INVERT_SORT_FEEDSCATS, invertSortFeedsCats);
 		this.invertSortFeedscats = invertSortFeedsCats;
 	}
 
 	public boolean alignFlushLeft() {
-		if (alignFlushLeft == null)
-			alignFlushLeft = prefs.getBoolean(Constants.ALIGN_FLUSH_LEFT, Constants.ALIGN_FLUSH_LEFT_DEFAULT);
+		if (alignFlushLeft == null) alignFlushLeft = prefs.getBoolean(ALIGN_FLUSH_LEFT, ALIGN_FLUSH_LEFT_DEFAULT);
 		return alignFlushLeft;
 	}
 
 	public void setAlignFlushLeft(boolean alignFlushLeft) {
-		put(Constants.ALIGN_FLUSH_LEFT, alignFlushLeft);
+		put(ALIGN_FLUSH_LEFT, alignFlushLeft);
 		this.alignFlushLeft = alignFlushLeft;
 	}
 
 	public boolean dateTimeSystem() {
-		if (dateTimeSystem == null)
-			dateTimeSystem = prefs.getBoolean(Constants.DATE_TIME_SYSTEM, Constants.DATE_TIME_SYSTEM_DEFAULT);
+		if (dateTimeSystem == null) dateTimeSystem = prefs.getBoolean(DATE_TIME_SYSTEM, DATE_TIME_SYSTEM_DEFAULT);
 		return dateTimeSystem;
 	}
 
 	public void setDateTimeSystem(boolean dateTimeSystem) {
-		put(Constants.DATE_TIME_SYSTEM, dateTimeSystem);
+		put(DATE_TIME_SYSTEM, dateTimeSystem);
 		this.dateTimeSystem = dateTimeSystem;
 	}
 
 	public String dateString() {
-		if (dateString == null) dateString = prefs.getString(Constants.DATE_STRING, Constants.DATE_STRING_DEFAULT);
+		if (dateString == null) dateString = prefs.getString(DATE_STRING, DATE_STRING_DEFAULT);
 		return dateString;
 	}
 
 	public void setDateString(String dateString) {
-		put(Constants.DATE_STRING, dateString);
+		put(DATE_STRING, dateString);
 		this.dateString = dateString;
 	}
 
 	public String timeString() {
-		if (timeString == null) timeString = prefs.getString(Constants.TIME_STRING, Constants.TIME_STRING_DEFAULT);
+		if (timeString == null) timeString = prefs.getString(TIME_STRING, TIME_STRING_DEFAULT);
 		return timeString;
 	}
 
 	public void setTimeString(String timeString) {
-		put(Constants.TIME_STRING, timeString);
+		put(TIME_STRING, timeString);
 		this.timeString = timeString;
 	}
 
 	public String dateTimeString() {
-		if (dateTimeString == null)
-			dateTimeString = prefs.getString(Constants.DATE_TIME_STRING, Constants.DATE_TIME_STRING_DEFAULT);
+		if (dateTimeString == null) dateTimeString = prefs.getString(DATE_TIME_STRING, DATE_TIME_STRING_DEFAULT);
 		return dateTimeString;
 	}
 
 	public void setDateTimeString(String dateTimeString) {
-		put(Constants.DATE_TIME_STRING, dateTimeString);
+		put(DATE_TIME_STRING, dateTimeString);
 		this.dateTimeString = dateTimeString;
 	}
 
@@ -749,13 +736,13 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	}
 
 	private int getThemeInternal() {
-		if (theme == null) theme = Integer.parseInt(prefs.getString(Constants.THEME, Constants.THEME_DEFAULT));
+		if (theme == null) theme = Integer.parseInt(prefs.getString(THEME, THEME_DEFAULT));
 		return theme;
 	}
 
 	public void setTheme(int theme) {
 		this.theme = theme;
-		put(Constants.THEME, theme + "");
+		put(THEME, theme + "");
 	}
 
 	public int getThemeHTML() {
@@ -783,158 +770,157 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	// SYSTEM
 
 	public String saveAttachmentPath() {
-		if (saveAttachment == null)
-			saveAttachment = prefs.getString(Constants.SAVE_ATTACHMENT, Constants.SAVE_ATTACHMENT_DEFAULT);
+		if (saveAttachment == null) saveAttachment = prefs.getString(SAVE_ATTACHMENT, SAVE_ATTACHMENT_DEFAULT);
 		return saveAttachment;
 	}
 
 	public void setSaveAttachmentPath(String saveAttachment) {
-		put(Constants.SAVE_ATTACHMENT, saveAttachment);
+		put(SAVE_ATTACHMENT, saveAttachment);
 		this.saveAttachment = saveAttachment;
 	}
 
 	public String cacheFolder() {
-		if (cacheFolder == null) cacheFolder = prefs.getString(Constants.CACHE_FOLDER, Constants.CACHE_FOLDER_DEFAULT);
+		if (cacheFolder == null) cacheFolder = prefs.getString(CACHE_FOLDER, CACHE_FOLDER_DEFAULT);
 		if (!cacheFolder.endsWith("/")) setCacheFolder(cacheFolder + "/");
 		return cacheFolder;
 	}
 
 	public void setCacheFolder(String cacheFolder) {
-		put(Constants.CACHE_FOLDER, cacheFolder);
+		put(CACHE_FOLDER, cacheFolder);
 		this.cacheFolder = cacheFolder;
 	}
 
 	public Integer cacheFolderMaxSize() {
 		if (cacheFolderMaxSize == null)
-			cacheFolderMaxSize = prefs.getInt(Constants.CACHE_FOLDER_MAX_SIZE, Constants
-					.CACHE_FOLDER_MAX_SIZE_DEFAULT);
+			cacheFolderMaxSize = prefs.getInt(CACHE_FOLDER_MAX_SIZE, Constants.CACHE_FOLDER_MAX_SIZE_DEFAULT);
 		return cacheFolderMaxSize;
 	}
 
 	public void setCacheFolderMaxSize(Integer cacheFolderMaxSize) {
-		put(Constants.CACHE_FOLDER_MAX_SIZE, cacheFolderMaxSize);
+		put(CACHE_FOLDER_MAX_SIZE, cacheFolderMaxSize);
 		this.cacheFolderMaxSize = cacheFolderMaxSize;
 	}
 
 	public Integer cacheImageMaxSize() {
 		if (cacheImageMaxSize == null)
-			cacheImageMaxSize = prefs.getInt(Constants.CACHE_IMAGE_MAX_SIZE, Constants.CACHE_IMAGE_MAX_SIZE_DEFAULT);
+			cacheImageMaxSize = prefs.getInt(CACHE_IMAGE_MAX_SIZE, CACHE_IMAGE_MAX_SIZE_DEFAULT);
 		return cacheImageMaxSize;
 	}
 
 	public void setCacheImageMaxSize(Integer cacheImageMaxSize) {
-		put(Constants.CACHE_IMAGE_MAX_SIZE, cacheImageMaxSize);
+		put(CACHE_IMAGE_MAX_SIZE, cacheImageMaxSize);
 		this.cacheImageMaxSize = cacheImageMaxSize;
 	}
 
 	public Integer cacheImageMinSize() {
 		if (cacheImageMinSize == null)
-			cacheImageMinSize = prefs.getInt(Constants.CACHE_IMAGE_MIN_SIZE, Constants.CACHE_IMAGE_MIN_SIZE_DEFAULT);
+			cacheImageMinSize = prefs.getInt(CACHE_IMAGE_MIN_SIZE, CACHE_IMAGE_MIN_SIZE_DEFAULT);
 		return cacheImageMinSize;
 	}
 
 	public void setCacheImageMinSize(Integer cacheImageMinSize) {
-		put(Constants.CACHE_IMAGE_MIN_SIZE, cacheImageMinSize);
+		put(CACHE_IMAGE_MIN_SIZE, cacheImageMinSize);
 		this.cacheImageMinSize = cacheImageMinSize;
 	}
 
 	public boolean isDeleteDBScheduled() {
 		if (deleteDbScheduled == null)
-			deleteDbScheduled = prefs.getBoolean(Constants.DELETE_DB_SCHEDULED, Constants.DELETE_DB_SCHEDULED_DEFAULT);
+			deleteDbScheduled = prefs.getBoolean(DELETE_DB_SCHEDULED, DELETE_DB_SCHEDULED_DEFAULT);
 		return deleteDbScheduled;
 	}
 
 	public void setDeleteDBScheduled(boolean isDeleteDBScheduled) {
-		put(Constants.DELETE_DB_SCHEDULED, isDeleteDBScheduled);
+		put(DELETE_DB_SCHEDULED, isDeleteDBScheduled);
 		this.deleteDbScheduled = isDeleteDBScheduled;
 	}
 
 	public boolean cacheImagesOnStartup() {
-		if (cacheImagesOnStartup == null) cacheImagesOnStartup = prefs
-				.getBoolean(Constants.CACHE_IMAGES_ON_STARTUP, Constants.CACHE_IMAGES_ON_STARTUP_DEFAULT);
+		if (cacheImagesOnStartup == null)
+			cacheImagesOnStartup = prefs.getBoolean(CACHE_IMAGES_ON_STARTUP, CACHE_IMAGES_ON_STARTUP_DEFAULT);
 		return cacheImagesOnStartup;
 	}
 
 	public void setCacheImagesOnStartup(boolean cacheImagesOnStartup) {
-		put(Constants.CACHE_IMAGES_ON_STARTUP, cacheImagesOnStartup);
+		put(CACHE_IMAGES_ON_STARTUP, cacheImagesOnStartup);
 		this.cacheImagesOnStartup = cacheImagesOnStartup;
 	}
 
 	public boolean cacheImagesOnlyWifi() {
-		if (cacheImagesOnlyWifi == null) cacheImagesOnlyWifi = prefs
-				.getBoolean(Constants.CACHE_IMAGES_ONLY_WIFI, Constants.CACHE_IMAGES_ONLY_WIFI_DEFAULT);
+		if (cacheImagesOnlyWifi == null)
+			cacheImagesOnlyWifi = prefs.getBoolean(CACHE_IMAGES_ONLY_WIFI, CACHE_IMAGES_ONLY_WIFI_DEFAULT);
 		return cacheImagesOnlyWifi;
 	}
 
 	public void setCacheImagesOnlyWifi(boolean cacheImagesOnlyWifi) {
-		put(Constants.CACHE_IMAGES_ONLY_WIFI, cacheImagesOnlyWifi);
+		put(CACHE_IMAGES_ONLY_WIFI, cacheImagesOnlyWifi);
 		this.cacheImagesOnlyWifi = cacheImagesOnlyWifi;
 	}
 
 	public boolean onlyUseWifi() {
-		if (onlyUseWifi == null)
-			onlyUseWifi = prefs.getBoolean(Constants.ONLY_USE_WIFI, Constants.ONLY_USE_WIFI_DEFAULT);
+		if (onlyUseWifi == null) onlyUseWifi = prefs.getBoolean(ONLY_USE_WIFI, ONLY_USE_WIFI_DEFAULT);
 		return onlyUseWifi;
 	}
 
 	public void setOnlyUseWifi(boolean onlyUseWifi) {
-		put(Constants.ONLY_USE_WIFI, onlyUseWifi);
+		put(ONLY_USE_WIFI, onlyUseWifi);
 		this.onlyUseWifi = onlyUseWifi;
 	}
 
 	// Returns true if noCrashreports OR noCrashreportsUntilUpdate is true.
 	public boolean isNoCrashreports() {
-		if (noCrashreports == null)
-			noCrashreports = prefs.getBoolean(Constants.NO_CRASHREPORTS, Constants.NO_CRASHREPORTS_DEFAULT);
+		if (noCrashreports == null) noCrashreports = prefs.getBoolean(NO_CRASHREPORTS, NO_CRASHREPORTS_DEFAULT);
 		if (noCrashreportsUntilUpdate == null) noCrashreportsUntilUpdate = prefs
-				.getBoolean(Constants.NO_CRASHREPORTS_UNTIL_UPDATE, Constants.NO_CRASHREPORTS_UNTIL_UPDATE_DEFAULT);
+				.getBoolean(NO_CRASHREPORTS_UNTIL_UPDATE, NO_CRASHREPORTS_UNTIL_UPDATE_DEFAULT);
 		return noCrashreports || noCrashreportsUntilUpdate;
 	}
 
 	public void setNoCrashreports(boolean noCrashreports) {
-		put(Constants.NO_CRASHREPORTS, noCrashreports);
+		put(NO_CRASHREPORTS, noCrashreports);
 		this.noCrashreports = noCrashreports;
 	}
 
 	public void setNoCrashreportsUntilUpdate(boolean noCrashreportsUntilUpdate) {
-		put(Constants.NO_CRASHREPORTS_UNTIL_UPDATE, noCrashreportsUntilUpdate);
+		put(NO_CRASHREPORTS_UNTIL_UPDATE, noCrashreportsUntilUpdate);
 		this.noCrashreportsUntilUpdate = noCrashreportsUntilUpdate;
 	}
 
 	// ******* INTERNAL Data ****************************
 
 	public long appVersionCheckTime() {
-		if (appVersionCheckTime == null) appVersionCheckTime = prefs
-				.getLong(Constants.APP_VERSION_CHECK_TIME, Constants.APP_VERSION_CHECK_TIME_DEFAULT);
+		if (appVersionCheckTime == null)
+			appVersionCheckTime = prefs.getLong(APP_VERSION_CHECK_TIME, APP_VERSION_CHECK_TIME_DEFAULT);
 		return appVersionCheckTime;
 	}
 
 	private void setAppVersionCheckTime(long appVersionCheckTime) {
-		put(Constants.APP_VERSION_CHECK_TIME, appVersionCheckTime);
+		put(APP_VERSION_CHECK_TIME, appVersionCheckTime);
 		this.appVersionCheckTime = appVersionCheckTime;
 	}
 
 	public int appLatestVersion() {
-		if (appLatestVersion == null)
-			appLatestVersion = prefs.getInt(Constants.APP_LATEST_VERSION, Constants.APP_LATEST_VERSION_DEFAULT);
+		if (appLatestVersion == null) try {
+			appLatestVersion = prefs.getInt(APP_LATEST_VERSION, APP_LATEST_VERSION_DEFAULT);
+		} catch (ClassCastException e) {
+			/* For some users this returns a Long, don't know why and can't really fix it, so just reset the value. */
+			setAppLatestVersion(APP_LATEST_VERSION_DEFAULT);
+		}
 		return appLatestVersion;
 	}
 
 	public void setAppLatestVersion(int appLatestVersion) {
-		put(Constants.APP_LATEST_VERSION, appLatestVersion);
+		put(APP_LATEST_VERSION, appLatestVersion);
 		this.appLatestVersion = appLatestVersion;
 		setAppVersionCheckTime(System.currentTimeMillis());
 		// Set current time, this only changes when it has been fetched from the server
 	}
 
 	public String getLastVersionRun() {
-		if (lastVersionRun == null)
-			lastVersionRun = prefs.getString(Constants.LAST_VERSION_RUN, Constants.LAST_VERSION_RUN_DEFAULT);
+		if (lastVersionRun == null) lastVersionRun = prefs.getString(LAST_VERSION_RUN, LAST_VERSION_RUN_DEFAULT);
 		return lastVersionRun;
 	}
 
 	public void setLastVersionRun(String lastVersionRun) {
-		put(Constants.LAST_VERSION_RUN, lastVersionRun);
+		put(LAST_VERSION_RUN, lastVersionRun);
 		this.lastVersionRun = lastVersionRun;
 	}
 
@@ -944,22 +930,22 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	}
 
 	public void setSinceId(int sinceId) {
-		put(Constants.SINCE_ID, sinceId);
+		put(SINCE_ID, sinceId);
 		this.sinceId = sinceId;
 	}
 
 	public int getSinceId() {
-		if (sinceId == null) sinceId = prefs.getInt(Constants.SINCE_ID, Constants.SINCE_ID_DEFAULT);
+		if (sinceId == null) sinceId = prefs.getInt(SINCE_ID, SINCE_ID_DEFAULT);
 		return sinceId;
 	}
 
 	public void setLastSync(long lastSync) {
-		put(Constants.LAST_SYNC, lastSync);
+		put(LAST_SYNC, lastSync);
 		this.lastSync = lastSync;
 	}
 
 	public long getLastSync() {
-		if (lastSync == null) lastSync = prefs.getLong(Constants.LAST_SYNC, Constants.LAST_SYNC_DEFAULT);
+		if (lastSync == null) lastSync = prefs.getLong(LAST_SYNC, LAST_SYNC_DEFAULT);
 		return lastSync;
 	}
 
@@ -974,23 +960,23 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	}
 
 	public void setLastCleanup(long lastCleanup) {
-		put(Constants.LAST_CLEANUP, lastCleanup);
+		put(LAST_CLEANUP, lastCleanup);
 		this.lastCleanup = lastSync;
 	}
 
 	public long getLastCleanup() {
-		if (lastCleanup == null) lastCleanup = prefs.getLong(Constants.LAST_CLEANUP, Constants.LAST_CLEANUP_DEFAULT);
+		if (lastCleanup == null) lastCleanup = prefs.getLong(LAST_CLEANUP, LAST_CLEANUP_DEFAULT);
 		return lastCleanup;
 	}
 
 	private AsyncTask<Void, Void, Void> refreshPrefTask;
 
 	public long getFreshArticleMaxAge() {
-		if (freshArticleMaxAge == null) freshArticleMaxAge = prefs
-				.getLong(Constants.FRESH_ARTICLE_MAX_AGE, Constants.FRESH_ARTICLE_MAX_AGE_DEFAULT);
+		if (freshArticleMaxAge == null)
+			freshArticleMaxAge = prefs.getLong(FRESH_ARTICLE_MAX_AGE, FRESH_ARTICLE_MAX_AGE_DEFAULT);
 
-		if (freshArticleMaxAgeDate == null) freshArticleMaxAgeDate = prefs
-				.getLong(Constants.FRESH_ARTICLE_MAX_AGE_DATE, Constants.FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT);
+		if (freshArticleMaxAgeDate == null)
+			freshArticleMaxAgeDate = prefs.getLong(FRESH_ARTICLE_MAX_AGE_DATE, FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT);
 
 		if (freshArticleMaxAgeDate < System.currentTimeMillis() - (Utils.DAY * 2)) {
 
@@ -1004,10 +990,10 @@ public class Controller implements OnSharedPreferenceChangeListener {
 							s = Data.getInstance().getPref("FRESH_ARTICLE_MAX_AGE");
 
 							freshArticleMaxAge = Long.parseLong(s) * Utils.HOUR;
-							put(Constants.FRESH_ARTICLE_MAX_AGE, freshArticleMaxAge);
+							put(FRESH_ARTICLE_MAX_AGE, freshArticleMaxAge);
 
 							freshArticleMaxAgeDate = System.currentTimeMillis();
-							put(Constants.FRESH_ARTICLE_MAX_AGE_DATE, freshArticleMaxAgeDate);
+							put(FRESH_ARTICLE_MAX_AGE_DATE, freshArticleMaxAgeDate);
 						} catch (Exception e) {
 							Log.d(TAG, "Pref \"FRESH_ARTICLE_MAX_AGE\" could not be fetched from server: " + s);
 						}
@@ -1040,7 +1026,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	}
 
 	/**
-	 * If provided "key" resembles a setting as declared in Constants.java the corresponding variable in this class
+	 * If provided "key" resembles a setting as declared in java the corresponding variable in this class
 	 * will
 	 * be reset to null. Variable-Name ist built from the name of the field in Contants.java which holds the value from
 	 * "key" which was changed lately.
@@ -1049,8 +1035,8 @@ public class Controller implements OnSharedPreferenceChangeListener {
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
 		// Indicate Restart of App is necessary if Theme-Pref is changed and value differs from old value:
-		if (key.equals(Constants.THEME)) {
-			int newTheme = Integer.parseInt(prefs.getString(key, Constants.THEME_DEFAULT));
+		if (key.equals(THEME)) {
+			int newTheme = Integer.parseInt(prefs.getString(key, THEME_DEFAULT));
 			if (newTheme != getThemeInternal()) {
 				setTheme(newTheme);
 				scheduledRestart = true;
@@ -1060,7 +1046,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 		for (Field field : Constants.class.getDeclaredFields()) {
 
 			// No default-values
-			if (field.getName().endsWith(Constants.APPENDED_DEFAULT)) continue;
+			if (field.getName().endsWith(APPENDED_DEFAULT)) continue;
 
 			// Only use public static fields
 			if (!Modifier.isStatic(field.getModifiers()) || !Modifier.isPublic(field.getModifiers())) continue;
@@ -1073,7 +1059,7 @@ public class Controller implements OnSharedPreferenceChangeListener {
 				if (!key.equals(f)) continue;
 
 				// reset variable, it will be re-read on next access
-				fieldName = Constants.constant2Var(field.getName());
+				fieldName = constant2Var(field.getName());
 				Controller.class.getDeclaredField(fieldName).set(this, null); // "Declared" so also private
 				setPreferencesChanged(true);
 
