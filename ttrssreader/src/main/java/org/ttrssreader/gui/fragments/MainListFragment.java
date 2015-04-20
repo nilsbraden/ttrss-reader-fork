@@ -17,6 +17,7 @@
 
 package org.ttrssreader.gui.fragments;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.MenuActivity;
@@ -78,7 +79,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.item_list, container, false);
 	}
 
@@ -160,7 +161,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 
 		Activity activity = getActivity();
 		if (activity instanceof IItemSelectedListener) {
-			((IItemSelectedListener) activity).itemSelected(this, position, selectedId);
+			((IItemSelectedListener) activity).itemSelected(this, selectedId);
 		}
 	}
 
@@ -175,7 +176,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 					return;
 				}
 			}
-			if (getListView() != null) {
+			if (getView() != null && getListView() != null) {
 				// Nothing found, uncheck everything:
 				getListView().setItemChecked(getListView().getCheckedItemPosition(), false);
 			}

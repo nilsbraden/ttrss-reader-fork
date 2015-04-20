@@ -88,6 +88,7 @@ public final class PRNGFixes {
 	 *
 	 * @throws SecurityException if the fix is needed but could not be applied.
 	 */
+	@SuppressWarnings("PrimitiveArrayArgumentToVariableArgMethod")
 	private static void applyOpenSSLFix() throws SecurityException {
 		if ((Build.VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) || (Build.VERSION.SDK_INT
 				> VERSION_CODES.JELLY_BEAN_MR2)) {

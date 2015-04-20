@@ -92,6 +92,7 @@ import android.webkit.WebView.HitTestResult;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -247,8 +248,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 					}
 				};
 			}
-			/* TODO: Lint-Error: "Custom view org/ttrssreader/gui/view/MyWebView has setOnTouchListener called on it
-			but does not override performClick" */
 			webView.setOnTouchListener(gestureListener);
 		}
 
@@ -374,7 +373,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				}
 			}
 
-			long time = System.currentTimeMillis();
 			// Remove all html tags and content that doesn't meet this set of allowed stuff
 			final String contentClean;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) contentClean = article.content;
@@ -772,9 +770,9 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	private class ArticleJSInterface {
 
 		/**
-		 * current article activity
+		 * current article activity, all methods fail silently if this doesn't contain an activity anmore
 		 */
-		private Activity activity;
+		private WeakReference<Activity> activityRef;
 
 		/**
 		 * public constructor, which saves calling activity as member variable
@@ -782,14 +780,14 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		 * @param aa current article activity
 		 */
 		private ArticleJSInterface(Activity aa) {
-			activity = aa;
+			activityRef = new WeakReference<>(aa);
 		}
 
-		/**
-		 * go to previous article
-		 */
 		@JavascriptInterface
 		public void prev() {
+			final Activity activity = activityRef.get();
+			if (activity == null) return;
+
 			// Add this to avoid android.view.windowmanager$badtokenexception unable to add window
 			if (activity.isFinishing()) return;
 
@@ -802,11 +800,11 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			});
 		}
 
-		/**
-		 * go to next article
-		 */
 		@JavascriptInterface
 		public void next() {
+			final Activity activity = activityRef.get();
+			if (activity == null) return;
+
 			// Add this to avoid android.view.windowmanager$badtokenexception unable to add window
 			if (activity.isFinishing()) return;
 
@@ -820,6 +818,9 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 		@JavascriptInterface
 		public void copyContentToClipboard(String aContent) {
+			final Activity activity = activityRef.get();
+			if (activity == null) return;
+
 			final String contentPlain = aContent;
 			// Add this to avoid android.view.windowmanager$badtokenexception unable to add window
 			if (activity.isFinishing()) return;
@@ -840,6 +841,9 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		 * This function handles call from Java to JavaScript
 		 */
 		public void javaCallCopyToClipoard() {
+			final Activity activity = activityRef.get();
+			if (activity == null) return;
+
 			final String webUrl =
 					"javascript:window.articleController.copyContentToClipboard(document.getElementsByTagName"
 							+ "('body')[0].innerText);";

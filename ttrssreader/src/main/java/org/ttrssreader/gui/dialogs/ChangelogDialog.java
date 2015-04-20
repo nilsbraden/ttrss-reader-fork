@@ -27,7 +27,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.WebView;
 
@@ -40,8 +39,7 @@ public class ChangelogDialog extends MyDialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-		LayoutInflater inflater = getActivity().getLayoutInflater();
-		View view = inflater.inflate(R.layout.changelog, null);
+		View view = View.inflate(getActivity(), R.layout.changelog, null);
 		WebView webView = (WebView) view.findViewById(R.id.changelog);
 		webView.getSettings().setTextZoom(Controller.getInstance().textZoom());
 

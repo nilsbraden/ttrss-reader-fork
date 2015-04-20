@@ -251,7 +251,7 @@ public class SubscribeActivity extends MenuActivity {
 
 	// @formatter:off // Not needed here:
 	@Override
-	public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) {
+	public void itemSelected(MainListFragment source,  int selectedId) {
 	}
 
 	@Override

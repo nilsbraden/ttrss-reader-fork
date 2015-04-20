@@ -1,50 +1,58 @@
 /*
- * ttrss-reader-fork for Android
+ * Copyright (c) 2015, Nils Braden
  *
- * Copyright (C) 2010 Nils Braden
- * Copyright (c) 2009 Matthias Kaeppler
+ * This file is part of ttrss-reader-fork. This program is free software; you
+ * can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation;
+ * either version 3 of the License, or (at your option) any later
+ * version.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details. You should have received a
+ * copy of the GNU General Public License along with this program; If
+ * not, see http://www.gnu.org/licenses/.
  */
 
 package org.ttrssreader.imageCache;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+
 import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AbstractCache;
 import org.ttrssreader.utils.FileUtils;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 
 /**
  * Implements a cache capable of caching image files. It exposes helper methods to immediately
  * access binary image data as {@link Bitmap} objects.
- *
- * @author Matthias Kaeppler
- * @author Nils Braden (modified some stuff)
  */
-public class ImageCache extends AbstractCache<String, byte[]> {
+public class ImageCache {
 
 	private static final String TAG = ImageCache.class.getSimpleName();
 
+	protected boolean isDiskCacheEnabled;
+	protected String diskCacheDir;
+	protected Cache<String, Byte[]> cache;
+
 	public ImageCache(int initialCapacity, String cacheDir) {
-		super(initialCapacity, 1);
 		this.diskCacheDir = cacheDir;
+		this.cache = CacheBuilder.newBuilder().initialCapacity(initialCapacity).concurrencyLevel(1).softValues()
+				.build(new CacheLoader<String, Byte[]>() {
+					@Override
+					public Byte[] load(String key) throws Exception {
+
+						return null;
+					}
+				});
 	}
 
 	/**
@@ -87,7 +95,6 @@ public class ImageCache extends AbstractCache<String, byte[]> {
 	}
 
 	public void fillMemoryCacheFromDisk() {
-		byte[] b = new byte[] {};
 		File folder = new File(diskCacheDir);
 		File[] files = folder.listFiles();
 
@@ -96,7 +103,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
 
 		for (File file : files) {
 			try {
-				cache.put(file.getName(), b);
+				cache.put(file.getName(), null);
 			} catch (RuntimeException e) {
 				Log.e(TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
 			}
@@ -105,7 +112,7 @@ public class ImageCache extends AbstractCache<String, byte[]> {
 	}
 
 	boolean containsKey(String key) {
-		return cache.containsKey(getFileNameForKey(key)) || (isDiskCacheEnabled && getCacheFile(key).exists());
+		return cache.getIfPresent(getFileNameForKey(key)) != null || isDiskCacheEnabled && getCacheFile(key).exists();
 	}
 
 	/**
@@ -115,12 +122,15 @@ public class ImageCache extends AbstractCache<String, byte[]> {
 	 * @return calculated hash
 	 */
 	public static String getHashForKey(String imageUrl) {
-		return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,%?&=]+", "+");
+		return imageUrl.replaceAll("[:;#~%$\"!<>|+*\\()^/,?&=]+", "+");
 	}
 
-	@Override
-	public String getFileNameForKey(String imageUrl) {
+	private String getFileNameForKey(String imageUrl) {
 		return getHashForKey(imageUrl);
+	}
+
+	private File getFileForKey(String key) {
+		return new File(diskCacheDir + "/" + getFileNameForKey(key));
 	}
 
 	public File getCacheFile(String key) {
@@ -130,18 +140,33 @@ public class ImageCache extends AbstractCache<String, byte[]> {
 		return getFileForKey(key);
 	}
 
-	@Override
-	protected byte[] readValueFromDisk(File file) throws IOException {
-		return null;
-	}
-
-	@Override
-	protected void writeValueToDisk(BufferedOutputStream ostream, byte[] value) {
+	/**
+	 * Only meaningful if disk caching is enabled.
+	 *
+	 * @return the full absolute path to the directory where files are cached, if the disk cache is
+	 * enabled, otherwise null
+	 */
+	public String getDiskCacheDirectory() {
+		return diskCacheDir;
 	}
 
 	public boolean deleteAllCachedFiles() {
 		File f = new File(diskCacheDir);
 		return FileUtils.deleteFolderRcursive(f);
+	}
+
+	public synchronized void clear() {
+		cache.invalidateAll();
+
+		if (isDiskCacheEnabled) {
+			File[] cachedFiles = new File(diskCacheDir).listFiles();
+			if (cachedFiles == null) {
+				return;
+			}
+			for (File f : cachedFiles) {
+				if (!f.delete()) Log.e(TAG, "File couldn't be deleted: " + f.getAbsolutePath());
+			}
+		}
 	}
 
 }

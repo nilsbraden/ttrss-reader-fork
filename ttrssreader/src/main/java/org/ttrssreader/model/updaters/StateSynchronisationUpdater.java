@@ -25,7 +25,7 @@ public class StateSynchronisationUpdater implements IUpdatable {
 	private static final String TAG = StateSynchronisationUpdater.class.getSimpleName();
 
 	@Override
-	public void update(Updater parent) {
+	public void update() {
 		Data.getInstance().synchronizeStatus();
 	}
 

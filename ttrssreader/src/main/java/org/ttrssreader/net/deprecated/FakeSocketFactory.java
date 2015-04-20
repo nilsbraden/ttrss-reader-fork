@@ -31,6 +31,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 
+@Deprecated
 class FakeSocketFactory implements SocketFactory, LayeredSocketFactory {
 
 	private SSLContext sslcontext = null;

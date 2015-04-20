@@ -19,8 +19,8 @@ package org.ttrssreader.gui.interfaces;
 
 public interface ICacheEndListener {
 
-	public void onCacheEnd();
+	void onCacheEnd();
 
-	public void onCacheProgress(int taskCount, int progress);
+	void onCacheProgress(int taskCount, int progress);
 
 }

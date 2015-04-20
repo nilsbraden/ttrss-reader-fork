@@ -284,7 +284,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	@Override
-	public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) {
+	public void itemSelected(MainListFragment source, int selectedId) {
 		switch (source.getType()) {
 			case CATEGORY:
 				switch (decideCategorySelection(selectedId)) {

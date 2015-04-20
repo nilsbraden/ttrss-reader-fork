@@ -34,5 +34,5 @@ public interface IArticleOmitter {
 	 * @return {@code true} if given article should be omitted, {@code false} otherwise
 	 * @throws StopJsonParsingException if parsing process should be broken
 	 */
-	public boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException;
+	boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException;
 }

@@ -17,11 +17,6 @@
 
 package org.ttrssreader.utils;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
@@ -48,8 +43,13 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -290,33 +290,26 @@ public class Utils {
 
 			if (Controller.getInstance().isNoCrashreports()) return null;
 
-			// Retrieve remote version
-			int remote = 0;
-
 			try {
-				DefaultHttpClient httpClient = new DefaultHttpClient();
-				HttpPost httpPost = new HttpPost("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
+				URL url = new URL("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
+				HttpURLConnection con = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+				con.connect();
+				int code = con.getResponseCode();
 
-				HttpResponse httpResponse = httpClient.execute(httpPost);
-				HttpEntity httpEntity = httpResponse.getEntity();
+				if (code < 400 || code >= 600) {
 
-				if (httpEntity.getContentLength() < 0 || httpEntity.getContentLength() > 100)
-					throw new Exception("Content too long or empty.");
+					BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+					String content = br.readLine(); // Just read one line!
 
-				String content = EntityUtils.toString(httpEntity);
-
-				// Only ever read the integer if it matches the regex and is not too long
-				if (content.matches("[0-9]*[\\r\\n]*")) {
-					content = content.replaceAll("[^0-9]*", "");
-					remote = Integer.parseInt(content);
+					// Only ever read the integer if it matches the regex and is not too long
+					if (content.matches("[0-9]*[\\r\\n]*")) {
+						content = content.replaceAll("[^0-9]*", "");
+						Controller.getInstance().setAppLatestVersion(Integer.parseInt(content));
+					}
 				}
-
 			} catch (Exception e) {
 				// Empty!
 			}
-
-			// Store version
-			if (remote > 0) Controller.getInstance().setAppLatestVersion(remote);
 
 			return null;
 		}

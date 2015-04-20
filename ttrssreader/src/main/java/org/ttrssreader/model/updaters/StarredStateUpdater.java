@@ -38,7 +38,7 @@ public class StarredStateUpdater implements IUpdatable {
 	}
 
 	@Override
-	public void update(Updater parent) {
+	public void update() {
 		if (articleState >= 0) {
 			article.isStarred = articleState > 0;
 			DBHelper.getInstance().markArticle(article.id, "isStarred", articleState);

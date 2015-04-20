@@ -53,7 +53,7 @@ public class ArticleReadStateUpdater implements IUpdatable {
 	}
 
 	@Override
-	public void update(Updater parent) {
+	public void update() {
 		if (articles != null) {
 			Set<Integer> ids = new HashSet<>();
 			for (Article article : articles) {

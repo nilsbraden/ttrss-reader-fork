@@ -117,7 +117,7 @@ public class Data {
 		Set<Article> articles = new HashSet<>();
 		int sinceId = Controller.getInstance().getSinceId();
 
-		IdUpdatedArticleOmitter unreadUpdatedFilter = new IdUpdatedArticleOmitter("isUnread>0", null);
+		IdUpdatedArticleOmitter unreadUpdatedFilter = new IdUpdatedArticleOmitter("isUnread>0");
 		Controller.getInstance().getConnector()
 				.getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true, 0, null, null,
 						unreadUpdatedFilter.getIdUpdatedMap().isEmpty() ? null : unreadUpdatedFilter);
@@ -206,11 +206,11 @@ public class Data {
 			// Display all articles for Starred/Published:
 			displayOnlyUnread = false;
 			// Don't omit any articles, isPublished should never be < 0:
-			filter = new IdUpdatedArticleOmitter("isPublished<0", null);
+			filter = new IdUpdatedArticleOmitter("isPublished<0");
 		} else {
 			sinceId = Controller.getInstance().getSinceId();
 			// TODO: passing null adds all(!) articles to the map, this can take a second or two on slow devices...
-			filter = new IdUpdatedArticleOmitter(null, null);
+			filter = new IdUpdatedArticleOmitter(null);
 		}
 
 		// Calculate an appropriate upper limit for the number of articles

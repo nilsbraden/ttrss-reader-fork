@@ -49,6 +49,7 @@ import java.util.zip.GZIPInputStream;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
+@Deprecated
 public class ApacheJSONConnector extends JSONConnector {
 
 	private static final String TAG = ApacheJSONConnector.class.getSimpleName();

@@ -30,31 +30,28 @@ public class UpdateController {
 	@SuppressWarnings("unused")
 	private static final String TAG = UpdateController.class.getSimpleName();
 
-	private static UpdateController instance = null;
 	private static List<IDataChangedListener> listeners = new ArrayList<>();
+	private static Handler handler = new UpdateControllerHandler();
 
-	// Singleton
+	// Singleton (see http://stackoverflow.com/a/11165926)
 	private UpdateController() {
 	}
 
-	private static Handler handler = new Handler() {
+	private static class InstanceHolder {
+		private static final UpdateController instance = new UpdateController();
+	}
+
+	public static UpdateController getInstance() {
+		return InstanceHolder.instance;
+	}
+
+	private static class UpdateControllerHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
-			for (IDataChangedListener listener : listeners) {
+			for (IDataChangedListener listener : UpdateController.listeners) {
 				listener.dataChanged();
 			}
 		}
-	};
-
-	public static UpdateController getInstance() {
-		if (instance == null) {
-			synchronized (UpdateController.class) {
-				if (instance == null) {
-					instance = new UpdateController();
-				}
-			}
-		}
-		return instance;
 	}
 
 	public void registerActivity(IDataChangedListener listener) {

@@ -136,7 +136,7 @@ public class ArticleLabelDialog extends MyDialogFragment {
 
 	private class ArticleLabelUpdater implements IUpdatable {
 		@Override
-		public void update(Updater parent) {
+		public void update() {
 			for (Label label : labels) {
 				if (label.checkedChanged) {
 					Data.getInstance().setLabel(articleId, label);

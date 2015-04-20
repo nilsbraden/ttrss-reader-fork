@@ -243,8 +243,8 @@ public class FileUtils {
 		boolean ret = true;
 		if (dir.isDirectory()) {
 			String[] children = dir.list();
-			for (int i = 0; i < children.length; i++) {
-				ret &= new File(dir, children[i]).delete();
+			for (String aChildren : children) {
+				ret &= new File(dir, aChildren).delete();
 			}
 		}
 		return ret;

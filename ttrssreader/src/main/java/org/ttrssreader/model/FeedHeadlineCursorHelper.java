@@ -60,10 +60,9 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		query.append(" a._id AS _id, a.feedId, a.title, a.isUnread AS unread, a.updateDate, ");
 		query.append(" a.isStarred, a.isPublished, f.title AS feedTitle ");
 		query.append(" FROM ");
-		query.append(DBHelper.TABLE_ARTICLES);
-		query.append(" a, ");
-		query.append(DBHelper.TABLE_FEEDS);
-		query.append(" f WHERE a.feedId=f._id ");
+		query.append(DBHelper.TABLE_ARTICLES).append(" a, ");
+		query.append(DBHelper.TABLE_FEEDS).append(" f ");
+		query.append("WHERE a.feedId=f._id ");
 
 		switch (feedId) {
 			case Data.VCAT_STAR:
@@ -75,8 +74,8 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 				break;
 
 			case Data.VCAT_FRESH:
-				query.append(" AND a.updateDate>");
-				query.append(System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge());
+				long max = System.currentTimeMillis() - Controller.getInstance().getFreshArticleMaxAge();
+				query.append(" AND a.updateDate>").append(max);
 				query.append(" AND a.isUnread>0");
 				break;
 
@@ -88,16 +87,15 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 				// User selected to display all articles of a category directly
 				query.append(displayUnread ? " AND a.isUnread>0 " : " ");
 				if (selectArticlesForCategory) {
-					query.append(" AND f.categoryId=" + categoryId);
+					query.append(" AND f.categoryId=").append(categoryId);
 				} else {
-					query.append(" AND a.feedId=" + feedId);
+					query.append(" AND a.feedId=").append(feedId);
 				}
 				if (displayCachedImages) {
 					query.append(" AND 0 < (SELECT SUM(r.cached) FROM ");
-					query.append(DBHelper.TABLE_REMOTEFILE2ARTICLE);
-					query.append(" r2a, ");
-					query.append(DBHelper.TABLE_REMOTEFILES);
-					query.append(" r WHERE a._id=r2a.articleId and r2a.remotefileId=r.id) ");
+					query.append(DBHelper.TABLE_REMOTEFILE2ARTICLE).append(" r2a, ");
+					query.append(DBHelper.TABLE_REMOTEFILES).append(" r ");
+					query.append("WHERE a._id=r2a.articleId and r2a.remotefileId=r.id) ");
 				}
 		}
 
@@ -106,12 +104,9 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 			query.append(" c._id AS _id, c.feedId, c.title, c.isUnread AS unread, c.updateDate, ");
 			query.append(" c.isStarred, c.isPublished, d.title AS feedTitle ");
 			query.append(" FROM ");
-			query.append(DBHelper.TABLE_ARTICLES);
-			query.append(" c, ");
-			query.append(DBHelper.TABLE_FEEDS);
-			query.append(" d WHERE c.feedId=d._id AND c._id IN (");
-			query.append(lastOpenedArticlesList);
-			query.append(" ) ");
+			query.append(DBHelper.TABLE_ARTICLES).append(" c, ");
+			query.append(DBHelper.TABLE_FEEDS).append(" d ");
+			query.append("WHERE c.feedId=d._id AND c._id IN (").append(lastOpenedArticlesList).append(" ) ");
 		}
 
 		query.append(" ORDER BY a.updateDate ");
@@ -133,16 +128,12 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		query.append(" a._id AS _id, a.feedId, a.title, a.isUnread AS unread, a.updateDate, ");
 		query.append(" a.isStarred, a.isPublished, f.title AS feedTitle ");
 		query.append(" FROM ");
-		query.append(DBHelper.TABLE_FEEDS);
-		query.append(" f, ");
-		query.append(DBHelper.TABLE_ARTICLES);
-		query.append(" a, ");
-		query.append(DBHelper.TABLE_ARTICLES2LABELS);
-		query.append(" a2l, ");
-		query.append(DBHelper.TABLE_FEEDS);
-		query.append(" l WHERE f._id=a.feedId AND a._id=a2l.articleId AND a2l.labelId=l._id");
-		query.append(" AND a2l.labelId=");
-		query.append(feedId);
+		query.append(DBHelper.TABLE_FEEDS).append(" f, ");
+		query.append(DBHelper.TABLE_ARTICLES).append(" a, ");
+		query.append(DBHelper.TABLE_ARTICLES2LABELS).append(" a2l, ");
+		query.append(DBHelper.TABLE_FEEDS).append(" l ");
+		query.append("WHERE f._id=a.feedId AND a._id=a2l.articleId AND a2l.labelId=l._id");
+		query.append(" AND a2l.labelId=").append(feedId);
 		query.append(displayUnread ? " AND isUnread>0" : "");
 
 		if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
@@ -150,17 +141,12 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 			query.append(" b._id AS _id, b.feedId, b.title, b.isUnread AS unread, b.updateDate, ");
 			query.append(" b.isStarred, b.isPublished, f.title AS feedTitle ");
 			query.append(" FROM ");
-			query.append(DBHelper.TABLE_FEEDS);
-			query.append(" f, ");
-			query.append(DBHelper.TABLE_ARTICLES);
-			query.append(" b, ");
-			query.append(DBHelper.TABLE_ARTICLES2LABELS);
-			query.append(" b2m, ");
-			query.append(DBHelper.TABLE_FEEDS);
-			query.append(" m WHERE f._id=a.feedId AND b2m.labelId=m._id AND b2m.articleId=b._id");
-			query.append(" AND b._id IN (");
-			query.append(lastOpenedArticlesList);
-			query.append(" )");
+			query.append(DBHelper.TABLE_FEEDS).append(" f, ");
+			query.append(DBHelper.TABLE_ARTICLES).append(" b, ");
+			query.append(DBHelper.TABLE_ARTICLES2LABELS).append(" b2m, ");
+			query.append(DBHelper.TABLE_FEEDS).append(" m ");
+			query.append("WHERE f._id=a.feedId AND b2m.labelId=m._id AND b2m.articleId=b._id");
+			query.append(" AND b._id IN (").append(lastOpenedArticlesList).append(" )");
 		}
 
 		query.append(" ORDER BY updateDate ");

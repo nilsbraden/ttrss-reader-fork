@@ -31,7 +31,7 @@ public class UnsubscribeUpdater implements IUpdatable {
 	}
 
 	@Override
-	public void update(Updater parent) {
+	public void update() {
 		Data.getInstance().feedUnsubscribe(feed_id);
 	}
 

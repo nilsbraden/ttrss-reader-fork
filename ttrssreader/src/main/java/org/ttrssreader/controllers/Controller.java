@@ -301,6 +301,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		if (prefs.contains(key)) url = prefs.getString(key, URL_DEFAULT);
 		else url = prefs.getString(URL, URL_DEFAULT);
 
+		if (url == null) return null;
+
 		if (!url.endsWith(JSON_END_URL)) {
 			if (!url.endsWith("/")) {
 				url += "/";
@@ -402,6 +404,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		else return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
 	}
 
+	@SuppressWarnings("deprecation")
 	public JSONConnector getConnector() {
 		// Check if connector needs to be reinitialized because of per-wifi-settings:
 		boolean useOldConnector = useOldConnector();
@@ -781,7 +784,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	public String cacheFolder() {
 		if (cacheFolder == null) cacheFolder = prefs.getString(CACHE_FOLDER, CACHE_FOLDER_DEFAULT);
-		if (!cacheFolder.endsWith("/")) setCacheFolder(cacheFolder + "/");
+		if (cacheFolder != null && !cacheFolder.endsWith("/")) setCacheFolder(cacheFolder + "/");
 		return cacheFolder;
 	}
 

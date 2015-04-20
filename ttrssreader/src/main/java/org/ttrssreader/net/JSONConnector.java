@@ -315,10 +315,10 @@ public abstract class JSONConnector {
 		return null;
 	}
 
-	private boolean sessionAlive() {
+	private boolean sessionNotAlive() {
 		// Make sure we are logged in
-		if (sessionId == null || lastError.equals(NOT_LOGGED_IN)) if (!login()) return false;
-		return !hasLastError;
+		if (sessionId == null || lastError.equals(NOT_LOGGED_IN)) if (!login()) return true;
+		return hasLastError;
 	}
 
 	/**
@@ -327,7 +327,7 @@ public abstract class JSONConnector {
 	 * @return true if the call was successful.
 	 */
 	private boolean doRequestNoAnswer(Map<String, String> params) {
-		if (!sessionAlive()) return false;
+		if (sessionNotAlive()) return false;
 
 		try {
 			String result = readResult(params, false);
@@ -616,7 +616,7 @@ public abstract class JSONConnector {
 	public Set<Category> getCategories() {
 		long time = System.currentTimeMillis();
 		Set<Category> ret = new LinkedHashSet<>();
-		if (!sessionAlive()) return ret;
+		if (sessionNotAlive()) return ret;
 
 		Map<String, String> params = new HashMap<>();
 		params.put(PARAM_OP, VALUE_GET_CATEGORIES);
@@ -689,7 +689,7 @@ public abstract class JSONConnector {
 	private Set<Feed> getFeeds(boolean tolerateWrongUnreadInformation) {
 		long time = System.currentTimeMillis();
 		Set<Feed> ret = new LinkedHashSet<>();
-		if (!sessionAlive()) return ret;
+		if (sessionNotAlive()) return ret;
 
 		if (!tolerateWrongUnreadInformation) {
 			makeLazyServerWork();
@@ -823,7 +823,7 @@ public abstract class JSONConnector {
 		int count;
 		int maxSize = articles.size() + limit;
 
-		if (!sessionAlive()) return;
+		if (sessionNotAlive()) return;
 
 		int limitParam = Math.min((apiLevel < 6) ? PARAM_LIMIT_API_5 : PARAM_LIMIT_MAX_VALUE, limit);
 
@@ -985,7 +985,7 @@ public abstract class JSONConnector {
 	 * @return the value of the preference or null if it ist not set or unknown
 	 */
 	public String getPref(String pref) {
-		if (!sessionAlive()) return null;
+		if (sessionNotAlive()) return null;
 
 		Map<String, String> params = new HashMap<>();
 		params.put(PARAM_OP, VALUE_GET_PREF);
@@ -1032,7 +1032,7 @@ public abstract class JSONConnector {
 
 	public SubscriptionResponse feedSubscribe(String feed_url, int category_id) {
 		SubscriptionResponse ret = new SubscriptionResponse();
-		if (!sessionAlive()) return ret;
+		if (sessionNotAlive()) return ret;
 
 		Map<String, String> params = new HashMap<>();
 		params.put(PARAM_OP, VALUE_FEED_SUBSCRIBE);

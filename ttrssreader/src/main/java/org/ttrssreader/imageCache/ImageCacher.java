@@ -65,7 +65,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	private long downloaded = 0;
 	private int taskCount = 0;
 
-	private Map<Integer, DownloadImageTask> map = new HashMap<>();
+	private final Map<Integer, DownloadImageTask> map = new HashMap<>();
 	// Cache values and insert them later:
 	Map<Integer, String[]> articleFiles = new HashMap<>();
 	Map<String, Long> remoteFiles = new HashMap<>();

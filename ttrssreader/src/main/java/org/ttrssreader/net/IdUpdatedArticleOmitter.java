@@ -45,14 +45,11 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
 	/**
 	 * construct the object according to selection parameters
 	 *
-	 * @param selection     A filter declaring which rows to return, formatted as an SQL WHERE clause (excluding the
-	 *                      WHERE itself). Passing null will return all rows.
-	 * @param selectionArgs You may include ?s in selection, which will be replaced by the values from
-	 *                      selectionArgs, in order that they appear in the selection. The values will be bound as
-	 *                      Strings.
+	 * @param selection A filter declaring which rows to return, formatted as an SQL WHERE clause (excluding the
+	 *                  WHERE itself). Passing null will return all rows.
 	 */
-	public IdUpdatedArticleOmitter(String selection, String[] selectionArgs) {
-		idUpdatedMap = DBHelper.getInstance().getArticleIdUpdatedMap(selection, selectionArgs);
+	public IdUpdatedArticleOmitter(String selection) {
+		idUpdatedMap = DBHelper.getInstance().getArticleIdUpdatedMap(selection);
 		omittedArticles = new HashSet<>();
 	}
 

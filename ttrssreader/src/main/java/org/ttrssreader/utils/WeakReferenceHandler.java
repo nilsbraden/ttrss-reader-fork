@@ -58,8 +58,8 @@ public abstract class WeakReferenceHandler<T> extends Handler {
 	@Override
 	public void handleMessage(Message msg) {
 		if (mReference.get() == null) return;
-		handleMessage(mReference.get(), msg);
+		handleMessage(mReference.get());
 	}
 
-	protected abstract void handleMessage(T reference, Message msg);
+	protected abstract void handleMessage(T reference);
 }

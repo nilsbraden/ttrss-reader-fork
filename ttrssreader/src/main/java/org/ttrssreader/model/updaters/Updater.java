@@ -22,7 +22,6 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.WeakReferenceHandler;
 
 import android.app.Activity;
-import android.os.Message;
 
 public class Updater extends AsyncTask<Void, Void, Void> {
 
@@ -48,7 +47,7 @@ public class Updater extends AsyncTask<Void, Void, Void> {
 		}
 
 		@Override
-		public void handleMessage(IUpdateEndListener parent, Message msg) {
+		public void handleMessage(IUpdateEndListener parent) {
 			parent.onUpdateEnd(goBackAfterUpdate);
 		}
 	}
@@ -57,7 +56,7 @@ public class Updater extends AsyncTask<Void, Void, Void> {
 
 	@Override
 	protected Void doInBackground(Void... params) {
-		updatable.update(this);
+		updatable.update();
 		if (handler != null) handler.sendEmptyMessage(0);
 		return null;
 	}

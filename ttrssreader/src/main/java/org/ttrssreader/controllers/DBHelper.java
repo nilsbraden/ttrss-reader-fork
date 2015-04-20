@@ -351,8 +351,7 @@ public class DBHelper {
 	}
 
 	private synchronized boolean isDBAvailable() {
-		if (getOpenHelper() != null) return true;
-		return false;
+		return getOpenHelper() != null;
 	}
 
 	public static class OpenHelper extends SQLiteOpenHelper {
@@ -399,111 +398,6 @@ public class DBHelper {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			boolean didUpgrade = false;
-
-			if (oldVersion < 40) {
-				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isStarred INTEGER";
-
-				Log.i(TAG, String.format("Upgrading database from %s to 40.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
-
-				db.execSQL(sql);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 42) {
-				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN isPublished INTEGER";
-
-				Log.i(TAG, String.format("Upgrading database from %s to 42.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
-
-				db.execSQL(sql);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 45) {
-				// @formatter:off
-				String sql = "CREATE TABLE IF NOT EXISTS "
-						+ TABLE_MARK
-						+ " (id INTEGER,"
-						+ " type INTEGER,"
-						+ " " + MARK_READ + " INTEGER,"
-						+ " " + MARK_STAR + " INTEGER,"
-						+ " " + MARK_PUBLISH + " INTEGER,"
-						+ " PRIMARY KEY(id, type))";
-				// @formatter:on
-
-				Log.i(TAG, String.format("Upgrading database from %s to 45.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
-
-				db.execSQL(sql);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 46) {
-
-				// @formatter:off
-				String sql = "DROP TABLE IF EXISTS "
-						+ TABLE_MARK;
-				String sql2 = "CREATE TABLE IF NOT EXISTS "
-						+ TABLE_MARK
-						+ " (id INTEGER PRIMARY KEY,"
-						+ " " + MARK_READ + " INTEGER,"
-						+ " " + MARK_STAR + " INTEGER,"
-						+ " " + MARK_PUBLISH + " INTEGER)";
-				// @formatter:on
-
-				Log.i(TAG, String.format("Upgrading database from %s to 46.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
-				Log.i(TAG, String.format(" (Executing: %s", sql2));
-
-				db.execSQL(sql);
-				db.execSQL(sql2);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 47) {
-				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN cachedImages INTEGER DEFAULT 0";
-
-				Log.i(TAG, String.format("Upgrading database from %s to 47.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
-
-				db.execSQL(sql);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 48) {
-				// @formatter:off
-				String sql = "CREATE TABLE IF NOT EXISTS "
-						+ TABLE_MARK
-						+ " (id INTEGER,"
-						+ " type INTEGER,"
-						+ " " + MARK_READ + " INTEGER,"
-						+ " " + MARK_STAR + " INTEGER,"
-						+ " " + MARK_PUBLISH + " INTEGER,"
-						+ " PRIMARY KEY(id, type))";
-				// @formatter:on
-
-				Log.i(TAG, String.format("Upgrading database from %s to 48.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
-
-				db.execSQL(sql);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 49) {
-				// @formatter:off
-				String sql = "CREATE TABLE "
-						+ TABLE_ARTICLES2LABELS
-						+ " (articleId INTEGER,"
-						+ " labelId INTEGER, PRIMARY KEY(articleId, labelId))";
-				// @formatter:on
-
-				Log.i(TAG, String.format("Upgrading database from %s to 49.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
-
-				db.execSQL(sql);
-				didUpgrade = true;
-			}
 
 			if (oldVersion < 50) {
 				Log.i(TAG, String.format("Upgrading database from %s to 50.", oldVersion));
@@ -604,7 +498,7 @@ public class DBHelper {
 
 			if (oldVersion < 60) {
 				Log.i(TAG, String.format("Upgrading database from %s to 59.", oldVersion));
-				Log.i(TAG, String.format(" (Re-Creating View: remotefiles_sequence )"));
+				Log.i(TAG, " (Re-Creating View: remotefiles_sequence )");
 
 				createRemotefilesView(db);
 				didUpgrade = true;
@@ -939,7 +833,8 @@ public class DBHelper {
 			}
 		} catch (SQLException e) {
 			// if this remote file already in DB, get its ID
-			ret = getRemoteFile(url).id;
+			RemoteFile rf = getRemoteFile(url);
+			if (rf != null) ret = rf.id;
 		}
 
 		return ret;
@@ -1301,11 +1196,13 @@ public class DBHelper {
 		int deletedCount = 0;
 
 		Collection<RemoteFile> rfs = getRemoteFilesForArticles(whereClause, whereArgs, true);
-		if (!rfs.isEmpty()) {
+		if (rfs != null && !rfs.isEmpty()) {
 			Set<Integer> rfIds = new HashSet<>(rfs.size());
 			for (RemoteFile rf : rfs) {
 				rfIds.add(rf.id);
-				Controller.getInstance().getImageCache().getCacheFile(rf.url).delete();
+				File file = Controller.getInstance().getImageCache().getCacheFile(rf.url);
+				boolean deleted = file.delete();
+				if (!deleted) Log.e(TAG, "Couldn't delete file: " + file.getAbsolutePath());
 			}
 			deleteRemoteFiles(rfIds);
 		}
@@ -1506,18 +1403,12 @@ public class DBHelper {
 	/**
 	 * get the map of article IDs to its update date from DB
 	 *
-	 * @param selection     A filter declaring which articles should be considered, formatted as an SQL WHERE clause
-	 *                      (excluding
-	 *                      the WHERE
-	 *                      itself). Passing null will return all rows.
-	 * @param selectionArgs You may include ?s in selection, which will be replaced by the values from selectionArgs,
-	 *                      in
-	 *                      order
-	 *                      that they appear in the selection. The values will be bound as Strings.
+	 * @param selection A filter declaring which articles should be considered, formatted as an SQL WHERE clause
+	 *                  (excluding the WHERE itself). Passing null will return all rows.
 	 * @return map of unread article IDs to its update date (may be {@code null})
 	 */
 	@SuppressLint("UseSparseArrays")
-	public Map<Integer, Long> getArticleIdUpdatedMap(String selection, String[] selectionArgs) {
+	public Map<Integer, Long> getArticleIdUpdatedMap(String selection) {
 		Map<Integer, Long> ret = null;
 		if (!isDBAvailable()) return null;
 
@@ -1525,8 +1416,7 @@ public class DBHelper {
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		readLock(true);
 		try {
-			c = db.query(TABLE_ARTICLES, new String[] {"_id", "updateDate"}, selection, selectionArgs, null, null,
-					null);
+			c = db.query(TABLE_ARTICLES, new String[] {"_id", "updateDate"}, selection, null, null, null, null);
 			ret = new HashMap<>(c.getCount());
 			while (c.moveToNext()) {
 				ret.put(c.getInt(0), c.getLong(1));

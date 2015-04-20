@@ -35,6 +35,7 @@ import java.security.KeyStore;
 /**
  * Create a HttpClient object based on the user preferences.
  */
+@Deprecated
 class HttpClientFactory {
 
 	private static final String TAG = HttpClientFactory.class.getSimpleName();

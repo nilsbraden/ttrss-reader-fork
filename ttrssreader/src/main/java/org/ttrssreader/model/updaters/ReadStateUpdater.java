@@ -30,7 +30,7 @@ public class ReadStateUpdater implements IUpdatable {
 	@SuppressWarnings("unused")
 	private static final String TAG = ReadStateUpdater.class.getSimpleName();
 
-	public static enum TYPE {
+	public enum TYPE {
 		ALL_CATEGORIES, ALL_FEEDS, CATEGORY, FEED, ARTICLE
 	}
 
@@ -66,7 +66,7 @@ public class ReadStateUpdater implements IUpdatable {
 	}
 
 	@Override
-	public void update(Updater parent) {
+	public void update() {
 		// Read appropriate data from the DB
 		switch (type) {
 			case ALL_CATEGORIES:

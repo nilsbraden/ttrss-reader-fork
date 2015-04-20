@@ -126,8 +126,10 @@ public class FeedHeadlineActivity extends MenuActivity {
 		// Title and unread information:
 		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager()
 				.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);
-		setTitle(headlineFragment.getTitle());
-		setUnread(headlineFragment.getUnread());
+		if (headlineFragment != null) {
+			setTitle(headlineFragment.getTitle());
+			setUnread(headlineFragment.getUnread());
+		}
 	}
 
 	@Override
@@ -285,7 +287,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	@Override
-	public void itemSelected(MainListFragment source, int selectedIndex, int selectedId) {
+	public void itemSelected(MainListFragment source, int selectedId) {
 		switch (source.getType()) {
 			case FEEDHEADLINE:
 				displayArticle(selectedId, 0);
