@@ -3,3 +3,10 @@
 # see https://code.google.com/p/android/issues/detail?id=78377
 # or http://stackoverflow.com/a/26641388
 -keep class !android.support.v7.internal.view.menu.**,** {*;}
+
+-dontwarn android.support.**
+-dontwarn com.google.**
+-dontwarn org.htmlcleaner.**
+-dontwarn org.antlr.**
+-dontwarn org.stringtemplate.v4.**
+-dontwarn org.jdom2.**
