@@ -300,8 +300,10 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				super.onPostExecute(aVoid);
 
 				// Has to be called from UI thread
-				doRefresh();
-				getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
+				if (getActivity() != null) {
+					doRefresh();
+					getActivity().invalidateOptionsMenu(); // Force redraw of menu items in actionbar
+				}
 			}
 		}.execute();
 	}
