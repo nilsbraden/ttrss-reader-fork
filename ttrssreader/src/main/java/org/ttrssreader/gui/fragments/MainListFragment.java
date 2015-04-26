@@ -166,21 +166,20 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	private void setChecked(int id) {
+		// Return if data hasn't been retrieved or content view has not been created yet
+		if (adapter == null || getView() == null || getListView() == null) return;
+
 		int pos = -1;
-		if (adapter != null) {
-			for (int item : adapter.getIds()) {
-				pos++;
-				if (item == id) {
-					getListView().setItemChecked(pos, true);
-					getListView().smoothScrollToPosition(pos);
-					return;
-				}
-			}
-			if (getView() != null && getListView() != null) {
-				// Nothing found, uncheck everything:
-				getListView().setItemChecked(getListView().getCheckedItemPosition(), false);
+		for (int item : adapter.getIds()) {
+			pos++;
+			if (item == id) {
+				getListView().setItemChecked(pos, true);
+				getListView().smoothScrollToPosition(pos);
+				return;
 			}
 		}
+		// Nothing found, uncheck everything:
+		getListView().setItemChecked(getListView().getCheckedItemPosition(), false);
 	}
 
 	public void doRefresh() {
