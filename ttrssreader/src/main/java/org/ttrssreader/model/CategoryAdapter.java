@@ -17,6 +17,7 @@
 
 package org.ttrssreader.model;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Category;
@@ -24,11 +25,9 @@ import org.ttrssreader.model.pojos.Category;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class CategoryAdapter extends MainAdapter {
@@ -48,9 +47,7 @@ public class CategoryAdapter extends MainAdapter {
 
 		if (cur.getCount() >= position) {
 			if (cur.moveToPosition(position)) {
-				ret.id = cur.getInt(0);
-				ret.title = cur.getString(1);
-				ret.unread = cur.getInt(2);
+				return getCategory(cur);
 			}
 		}
 		return ret;
@@ -81,32 +78,29 @@ public class CategoryAdapter extends MainAdapter {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		Context context = parent.getContext();
-		if (position >= getCount() || position < 0) return new View(context);
+	public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		return View.inflate(context, R.layout.item_category, null);
+	}
 
-		Category c = (Category) getItem(position);
+	@Override
+	public void bindView(@NotNull View view, Context context, @NotNull Cursor cursor) {
+		super.bindView(view, context, cursor);
 
-		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout layout = null;
-		if (convertView == null) {
-			layout = (LinearLayout) inflater.inflate(R.layout.item_category, parent, false);
-		} else {
-			if (convertView instanceof LinearLayout) {
-				layout = (LinearLayout) convertView;
-			}
-		}
-
-		if (layout == null) return new View(context);
-
-		ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+		Category c = getCategory(cursor);
+		ImageView icon = (ImageView) view.findViewById(R.id.icon);
 		icon.setImageResource(getImage(c.id, c.unread > 0));
 
-		TextView title = (TextView) layout.findViewById(R.id.title);
+		TextView title = (TextView) view.findViewById(R.id.title);
 		title.setText(formatItemTitle(c.title, c.unread));
 		if (c.unread > 0) title.setTypeface(Typeface.DEFAULT_BOLD);
+	}
 
-		return layout;
+	private Category getCategory(Cursor cur) {
+		Category ret = new Category();
+		ret.id = cur.getInt(0);
+		ret.title = cur.getString(1);
+		ret.unread = cur.getInt(2);
+		return ret;
 	}
 
 }

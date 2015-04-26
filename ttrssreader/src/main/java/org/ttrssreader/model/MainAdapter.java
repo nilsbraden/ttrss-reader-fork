@@ -21,8 +21,6 @@ import org.ttrssreader.R;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
@@ -74,11 +72,5 @@ public abstract class MainAdapter extends SimpleCursorAdapter {
 			return title;
 		}
 	}
-
-	@Override
-	public abstract Object getItem(int position);
-
-	@Override
-	public abstract View getView(int position, View convertView, ViewGroup parent);
 
 }

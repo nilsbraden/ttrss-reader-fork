@@ -17,17 +17,16 @@
 
 package org.ttrssreader.model;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.model.pojos.Feed;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class FeedAdapter extends MainAdapter {
@@ -47,9 +46,7 @@ public class FeedAdapter extends MainAdapter {
 
 		if (cur.getCount() >= position) {
 			if (cur.moveToPosition(position)) {
-				ret.id = cur.getInt(0);
-				ret.title = cur.getString(1);
-				ret.unread = cur.getInt(2);
+				return getFeed(cur);
 			}
 		}
 		return ret;
@@ -64,32 +61,29 @@ public class FeedAdapter extends MainAdapter {
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		Context context = parent.getContext();
-		if (position >= getCount() || position < 0) return new View(context);
+	public View newView(Context context, Cursor cursor, ViewGroup parent) {
+		return View.inflate(context, R.layout.item_feed, null);
+	}
 
-		Feed f = (Feed) getItem(position);
+	@Override
+	public void bindView(@NotNull View view, Context context, @NotNull Cursor cursor) {
+		super.bindView(view, context, cursor);
 
-		final LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		LinearLayout layout = null;
-		if (convertView == null) {
-			layout = (LinearLayout) inflater.inflate(R.layout.item_feed, parent, false);
-		} else {
-			if (convertView instanceof LinearLayout) {
-				layout = (LinearLayout) convertView;
-			}
-		}
-
-		if (layout == null) return new View(context);
-
-		ImageView icon = (ImageView) layout.findViewById(R.id.icon);
+		Feed f = getFeed(cursor);
+		ImageView icon = (ImageView) view.findViewById(R.id.icon);
 		icon.setImageResource(getImage(f.unread > 0));
 
-		TextView title = (TextView) layout.findViewById(R.id.title);
+		TextView title = (TextView) view.findViewById(R.id.title);
 		title.setText(formatItemTitle(f.title, f.unread));
 		if (f.unread > 0) title.setTypeface(Typeface.DEFAULT_BOLD);
+	}
 
-		return layout;
+	private static Feed getFeed(Cursor cur) {
+		Feed ret = new Feed();
+		ret.id = cur.getInt(0);
+		ret.title = cur.getString(1);
+		ret.unread = cur.getInt(2);
+		return ret;
 	}
 
 }
