@@ -533,38 +533,38 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	}
 
 	public void onPrepareOptionsMenu(Menu menu) {
-		if (article != null) {
-			MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
-			if (read != null) {
-				if (article.isUnread) {
-					read.setTitle(getString(R.string.Commons_MarkRead));
-					read.setIcon(R.drawable.ic_menu_mark);
-				} else {
-					read.setTitle(getString(R.string.Commons_MarkUnread));
-					read.setIcon(R.drawable.ic_menu_clear_playlist);
-				}
-			}
+		if (getActivity() == null || article == null) return;
 
-			MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
-			if (publish != null) {
-				if (article.isPublished) {
-					publish.setTitle(getString(R.string.Commons_MarkUnpublish));
-					publish.setIcon(R.drawable.menu_published);
-				} else {
-					publish.setTitle(getString(R.string.Commons_MarkPublish));
-					publish.setIcon(R.drawable.menu_publish);
-				}
+		MenuItem read = menu.findItem(R.id.Article_Menu_MarkRead);
+		if (read != null) {
+			if (article.isUnread) {
+				read.setTitle(getString(R.string.Commons_MarkRead));
+				read.setIcon(R.drawable.ic_menu_mark);
+			} else {
+				read.setTitle(getString(R.string.Commons_MarkUnread));
+				read.setIcon(R.drawable.ic_menu_clear_playlist);
 			}
+		}
 
-			MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
-			if (star != null) {
-				if (article.isStarred) {
-					star.setTitle(getString(R.string.Commons_MarkUnstar));
-					star.setIcon(R.drawable.menu_starred);
-				} else {
-					star.setTitle(getString(R.string.Commons_MarkStar));
-					star.setIcon(R.drawable.ic_menu_star);
-				}
+		MenuItem publish = menu.findItem(R.id.Article_Menu_MarkPublish);
+		if (publish != null) {
+			if (article.isPublished) {
+				publish.setTitle(getString(R.string.Commons_MarkUnpublish));
+				publish.setIcon(R.drawable.menu_published);
+			} else {
+				publish.setTitle(getString(R.string.Commons_MarkPublish));
+				publish.setIcon(R.drawable.menu_publish);
+			}
+		}
+
+		MenuItem star = menu.findItem(R.id.Article_Menu_MarkStar);
+		if (star != null) {
+			if (article.isStarred) {
+				star.setTitle(getString(R.string.Commons_MarkUnstar));
+				star.setIcon(R.drawable.menu_starred);
+			} else {
+				star.setTitle(getString(R.string.Commons_MarkStar));
+				star.setIcon(R.drawable.ic_menu_star);
 			}
 		}
 	}
