@@ -35,6 +35,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
@@ -852,7 +853,15 @@ public class DBHelper {
 			// extension (reserved for future)
 			insertRemoteFile2Article.bindLong(2, aId);
 
-			if (isDBAvailable()) insertRemoteFile2Article.executeInsert();
+			if (isDBAvailable()) {
+				try {
+					insertRemoteFile2Article.executeInsert();
+				} catch (SQLiteConstraintException e) {
+					Log.w(TAG, "Article with id " + aId
+							+ " was removed before we added the corresponding remote-files. This warning can safely be"
+							+ " ignored.");
+				}
+			}
 		}
 	}
 
