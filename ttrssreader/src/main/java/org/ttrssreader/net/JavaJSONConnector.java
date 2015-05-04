@@ -65,9 +65,8 @@ public class JavaJSONConnector extends JSONConnector {
 			con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
 
 			// Timeouts
-			int timeoutSocket = (int) ((Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE : 10 * Utils
-					.SECOND);
-			con.setReadTimeout(timeoutSocket);
+			long timeoutSocket = (Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE : 10 * Utils.SECOND;
+			con.setReadTimeout((int) timeoutSocket);
 			con.setConnectTimeout((int) (8 * Utils.SECOND));
 
 			// HTTP-Basic Authentication

@@ -56,7 +56,7 @@ public class SSLUtils {
 
 	public static void initPrivateKeystore(String password) throws GeneralSecurityException {
 		Log.i(TAG, "Enabling SSLUtils to trust certificates from private keystore.");
-		KeyStore keystore = SSLUtils.loadKeystore(password);
+		KeyStore keystore = loadKeystore(password);
 		if (keystore == null) return;
 
 		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());

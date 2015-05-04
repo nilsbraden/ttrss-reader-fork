@@ -280,6 +280,7 @@
 	<string name="Cache.service_text">Download is running…</string>
 	<string name="Cache.service_imagecache" translatable="false">ImageCache</string>
 	<string name="Cache.service_articlecache" translatable="false">ArticleCache</string>
+	<string name="Cache.ImageCacheCancelled">Caching of images has been cancelled after %s minutes…</string>
 	<string name="Share.title">Title</string>
 	<string name="Share.url">URL</string>
 	<string name="Share.content">Content</string>
@@ -313,7 +314,10 @@
 	<string name="BlackTheme">Black Theme</string>
 	<string name="WhiteTheme">White Theme</string>
 	<string name="Error.SSL.Keystore">Couldn\'t load private keystore.</string>
-	<string name="Error.SSL.TrustAllHosts">Couldn\'t configure SSL to trust all hosts.</string>
 	<string name="Error.SSL.SocketFactory">Couldn\'t create SSLSocketFactory, SSL-Connections cannot be established.</string>
+	<string name="Error.NotLoggedIn">Couldn\'t login to your account, please check your credentials.</string>
+	<string name="Error.EncodePassword">Couldn\'t login to your account, your password could not be encoded properly.</string>
+	<string name="Error.ApiDisabled">Please enable API for the user \"%s\" in the preferences of this user on the Server.</string>
+
 
 </resources>

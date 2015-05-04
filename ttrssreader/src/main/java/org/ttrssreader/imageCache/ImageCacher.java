@@ -17,6 +17,8 @@
 
 package org.ttrssreader.imageCache;
 
+import org.ttrssreader.MyApplication;
+import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
@@ -35,6 +37,7 @@ import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -264,8 +267,15 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		while (!map.isEmpty()) {
 			synchronized (map) {
 				try {
-					// Only wait for 10 Minutes
-					if (System.currentTimeMillis() - timeWait > Utils.MINUTE * 10) break;
+					// Only wait for 30 Minutes, then stop all running tasks and show a toast
+					int minutes = (int) ((System.currentTimeMillis() - timeWait) / Utils.MINUTE);
+					if (minutes > 30) {
+						for (DownloadImageTask task : map.values()) {
+							task.cancel();
+						}
+						showCancelledNotification(minutes);
+						break;
+					}
 					map.wait(Utils.SECOND);
 					map.notifyAll();
 				} catch (InterruptedException e) {
@@ -274,11 +284,19 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			}
 		}
 
-		// Insert cached values:
-		DBHelper.getInstance().insertArticleFiles(articleFiles);
-		DBHelper.getInstance().markRemoteFilesCached(remoteFiles);
+		/* Insert cached values, clone map before to avoid ConcurrentModificationException if threads have not
+		cancelled yet. Ignore still running threads. */
+		Map<Integer, String[]> articleFilesCopy = new HashMap<>(articleFiles);
+		Map<String, Long> remoteFilesCopy = new HashMap<>(remoteFiles);
+		DBHelper.getInstance().insertArticleFiles(articleFilesCopy);
+		DBHelper.getInstance().markRemoteFilesCached(remoteFilesCopy);
 
 		Log.i(TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
+	}
+
+	private void showCancelledNotification(int minutes) {
+		String msg = MyApplication.context().getString(R.string.Cache_ImageCacheCancelled, minutes);
+		Toast.makeText(MyApplication.context(), msg, Toast.LENGTH_LONG).show();
 	}
 
 	private class DownloadImageTask implements Runnable {
@@ -291,6 +309,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		// Thread-Local cache:
 		Map<Integer, String[]> articleFilesLocal = new HashMap<>();
 		Map<String, Long> remoteFilesLocal = new HashMap<>();
+
+		private volatile boolean isCancelled = false;
 
 		private DownloadImageTask(ImageCache cache, int articleId, String... params) {
 			this.imageCache = cache;
@@ -307,6 +327,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 				for (String url : fileUrls) {
 					size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
 					remoteFilesLocal.put(url, size);
+					if (isCancelled) break;
 				}
 			} catch (Throwable t) {
 				t.printStackTrace();
@@ -322,6 +343,10 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 					map.notifyAll();
 				}
 			}
+		}
+
+		public void cancel() {
+			this.isCancelled = true;
 		}
 	}
 

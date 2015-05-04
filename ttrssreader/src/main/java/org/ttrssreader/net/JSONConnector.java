@@ -24,6 +24,8 @@ import com.google.gson.stream.MalformedJsonException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.ttrssreader.MyApplication;
+import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
@@ -66,16 +68,16 @@ public abstract class JSONConnector {
 	private static final int PARAM_LIMIT_API_5 = 60;
 	private static final String PARAM_VIEWMODE = "view_mode";
 	private static final String PARAM_SHOW_CONTENT = "show_content";
-	private static final String PARAM_INC_ATTACHMENTS = "include_attachments"; // include_attachments available since
-	// 1.5.3 but is ignored on older
-	// versions
+	// include_attachments available since 1.5.3 but is ignored on older versions
+	private static final String PARAM_INC_ATTACHMENTS = "include_attachments";
 	private static final String PARAM_SINCE_ID = "since_id";
 	private static final String PARAM_SEARCH = "search";
 	private static final String PARAM_SKIP = "skip";
 	private static final String PARAM_MODE = "mode";
-	private static final String PARAM_FIELD = "field"; // 0-starred, 1-published, 2-unread, 3-article note (since api
-	// level 1)
-	private static final String PARAM_DATA = "data"; // optional data parameter when setting note field
+	// 0-starred, 1-published, 2-unread, 3-article note (since api level 1)
+	private static final String PARAM_FIELD = "field";
+	// optional data parameter when setting note field
+	private static final String PARAM_DATA = "data";
 	private static final String PARAM_IS_CAT = "is_cat";
 	private static final String PARAM_PREF = "pref_name";
 
@@ -98,17 +100,12 @@ public abstract class JSONConnector {
 	private static final String ERROR = "error";
 	private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
 	private static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
-	private static final String NOT_LOGGED_IN_MESSAGE
-			= "Couldn't login to your account, please check your credentials.";
-	private static final String ENCODE_PASSWORD
-			= "Couldn't login to your account, your password could not be encoded properly.";
 	private static final String API_DISABLED = "API_DISABLED";
-	private static final String API_DISABLED_MESSAGE
-			= "Please enable API for the user \"%s\" in the preferences of this user on the Server.";
 	private static final String STATUS = "status";
 	private static final String API_LEVEL = "api_level";
 
-	private static final String SESSION_ID = "session_id"; // session id as an OUT parameter
+	// session id as an OUT parameter
+	private static final String SESSION_ID = "session_id";
 	private static final String ID = "id";
 
 	private static final String TITLE = "title";
@@ -127,7 +124,8 @@ public abstract class JSONConnector {
 
 	private static final int MAX_ID_LIST_LENGTH = 100;
 
-	protected static final String SID = "sid"; // session id as an IN parameter
+	// session id as an IN parameter
+	protected static final String SID = "sid";
 
 	protected boolean httpAuth = false;
 	protected String httpUsername;
@@ -219,7 +217,8 @@ public abstract class JSONConnector {
 
 							if (message.contains(API_DISABLED)) {
 								hasLastError = true;
-								lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
+								lastError = MyApplication.context()
+										.getString(R.string.Error_ApiDisabled, Controller.getInstance().username());
 								return null;
 							}
 
@@ -298,7 +297,8 @@ public abstract class JSONConnector {
 
 						if (message.contains(API_DISABLED)) {
 							hasLastError = true;
-							lastError = String.format(API_DISABLED_MESSAGE, Controller.getInstance().username());
+							lastError = MyApplication.context()
+									.getString(R.string.Error_ApiDisabled, Controller.getInstance().username());
 							return null;
 						}
 
@@ -388,11 +388,11 @@ public abstract class JSONConnector {
 				if (!hasLastError) {
 					// Login didnt succeed, write message
 					hasLastError = true;
-					lastError = NOT_LOGGED_IN_MESSAGE;
+					lastError = MyApplication.context().getString(R.string.Error_NotLoggedIn);
 				}
 			} catch (UnsupportedEncodingException e) {
 				hasLastError = true;
-				lastError = ENCODE_PASSWORD;
+				lastError = MyApplication.context().getString(R.string.Error_EncodePassword);
 			}
 			return false;
 		}

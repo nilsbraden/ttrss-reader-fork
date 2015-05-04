@@ -20,7 +20,7 @@
 	<!-- Base application theme. -->
 	<style name="TTRSS.Light" parent="TTRSS.Base.Light" />
 
-	<style name="TTRSS.Base.Light" parent="Theme.AppCompat.Light">
+	<style name="TTRSS.Base.Light" parent="Theme.AppCompat.Light.NoActionBar">
 
 		<item name="colorPrimary">@color/themeLightPrimary</item>
 		<item name="colorPrimaryDark">@color/themeLightPrimaryDark</item>

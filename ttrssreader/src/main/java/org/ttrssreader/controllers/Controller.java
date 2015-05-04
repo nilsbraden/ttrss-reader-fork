@@ -187,8 +187,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 			if (initialized) return;
 
-			// Attempt to initialize some stuff in a background-thread to reduce loading time. Start a login-request
-			// separately because this takes some time. Also initialize SSL-Stuff since the login needs this.
+			/* Attempt to initialize some stuff in a background-thread to reduce loading time. Start a login-request
+			separately because this takes some time. Also initialize SSL-Stuff since the login needs this. */
 			new AsyncTask<Void, Void, Void>() {
 				protected Void doInBackground(Void... params) {
 					wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -227,9 +227,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 						SSLUtils.trustAllHost();
 					}
 
-					// This will be accessed when displaying an article or starting the imageCache. When caching it
-					// is done
-					// anyway so we can just do it in background and the ImageCache starts once it is done.
+					/* This will be accessed when displaying an article or starting the imageCache. When caching it
+					 is done anyway so we can just do it in background and the ImageCache starts once it is done. */
 					getImageCache();
 
 					// Only need once we are displaying the feed-list or an article...
@@ -1028,8 +1027,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		editor.apply();
 	}
 
-	/**
-	 * If provided "key" resembles a setting as declared in java the corresponding variable in this class
+	/** If provided "key" resembles a setting as declared in java the corresponding variable in this class
 	 * will
 	 * be reset to null. Variable-Name ist built from the name of the field in Contants.java which holds the value from
 	 * "key" which was changed lately.

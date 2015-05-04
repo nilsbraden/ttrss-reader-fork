@@ -259,6 +259,7 @@
 	<string name="Utils.CancelAction">Abbrechen</string>
 	<string name="Cache.service_started">Download gestartet…</string>
 	<string name="Cache.service_text">Download läuft…</string>
+	<string name="Cache.ImageCacheCancelled">Download der Bilder wurde nach %s Minuten abgebrochen…</string>
 	<string name="Share.title">Titel</string>
 	<string name="Share.url">URL</string>
 	<string name="Share.content">Inhalt</string>
@@ -288,5 +289,11 @@
 	<string name="LightTheme">Helles Theme</string>
 	<string name="BlackTheme">Schwarzes Theme</string>
 	<string name="WhiteTheme">Weißes Theme</string>
+	<string name="Error.SSL.Keystore">Keystore konnte nicht geladen werden.</string>
+	<string name="Error.SSL.TrustAllHosts">SSL-Konfiguration konnte nicht geändert werden, allen Hostnamen vertrauen nicht möglich.</string>
+	<string name="Error.SSL.SocketFactory">Die SSLSocketFactory konnte nicht erzeugt werden, SSL-Verbindungen sind nicht möglich.</string>
+	<string name="Error.NotLoggedIn">Der Login ist fehlgeschlagen, bitte Benutzername/Passwort prüfen.</string>
+	<string name="Error.EncodePassword">Der Login ist fehlgeschlagen, das Password konnte nicht richtig enkodiert werden.</string>
+	<string name="Error.ApiDisabled">Der API-Zugriff muss im Tiny Tiny RSS Server \"%s\" in den Einstellungen des Benutzers aktiviert werden.</string>
 
 </resources>
