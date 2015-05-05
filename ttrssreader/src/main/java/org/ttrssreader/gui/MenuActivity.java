@@ -20,6 +20,7 @@ package org.ttrssreader.gui;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.security.ProviderInstaller;
 
+import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -46,7 +47,7 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
@@ -63,7 +64,7 @@ import android.widget.TextView;
 /**
  * This class provides common functionality for Activities.
  */
-public abstract class MenuActivity extends ActionBarActivity
+public abstract class MenuActivity extends AppCompatActivity
 		implements IUpdateEndListener, ICacheEndListener, IItemSelectedListener, IDataChangedListener,
 		ProviderInstaller.ProviderInstallListener {
 
@@ -73,6 +74,7 @@ public abstract class MenuActivity extends ActionBarActivity
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
 	protected MenuActivity activity;
+	protected boolean mOnSaveInstanceStateCalled = false;
 
 	private Updater updater;
 	private boolean isVertical;
@@ -272,6 +274,12 @@ public abstract class MenuActivity extends ActionBarActivity
 	}
 
 	@Override
+	public void onSaveInstanceState(@NotNull Bundle outState) {
+		mOnSaveInstanceStateCalled = true;
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == ErrorActivity.ACTIVITY_SHOW_ERROR) {
 			refreshAndUpdate();
@@ -300,6 +308,9 @@ public abstract class MenuActivity extends ActionBarActivity
 			ProviderInstaller.installIfNeededAsync(this, this);
 		}
 		mRetryProviderInstall = false;
+
+		// Reset the boolean flag back to false for next time.
+		mOnSaveInstanceStateCalled = false;
 	}
 
 	@Override

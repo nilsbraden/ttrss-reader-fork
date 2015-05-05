@@ -323,6 +323,11 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	public void displayFeed(int categoryId) {
+		if (mOnSaveInstanceStateCalled) {
+			Log.w(TAG, "displayFeed() has been called after onSaveInstanceState(), this call has been supressed!");
+			return;
+		}
+
 		selectedCategoryId = categoryId;
 		FeedListFragment feedFragment = FeedListFragment.newInstance(categoryId);
 		FragmentManager fm = getFragmentManager();

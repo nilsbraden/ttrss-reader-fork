@@ -31,6 +31,7 @@ import org.ttrssreader.utils.Utils;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -296,6 +297,11 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	private void displayFeed(int newFeedId, int direction) {
+		if (mOnSaveInstanceStateCalled) {
+			Log.w(TAG, "displayFeed() has been called after onSaveInstanceState(), this call has been supressed!");
+			return;
+		}
+
 		feedId = newFeedId;
 		FeedHeadlineListFragment headlineFragment = FeedHeadlineListFragment
 				.newInstance(feedId, categoryId, selectArticlesForCategory);
@@ -317,6 +323,11 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	private void displayArticle(int newArticleId, int direction) {
+		if (mOnSaveInstanceStateCalled) {
+			Log.w(TAG, "displayArticle() has been called after onSaveInstanceState(), this call has been supressed!");
+			return;
+		}
+
 		articleId = newArticleId;
 		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager()
 				.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);

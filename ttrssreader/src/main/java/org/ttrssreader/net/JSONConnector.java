@@ -462,104 +462,18 @@ public abstract class JSONConnector {
 		try {
 			reader.beginArray();
 			while (reader.hasNext()) {
-				Article a = new Article();
-
+				Article article = new Article();
 				boolean skipObject = false;
 
 				reader.beginObject();
-				while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) {
-					if (skipObject) {
-						// field name
-						reader.skipValue();
-						// field value
-						reader.skipValue();
-						continue;
-					}
-
-					String name = reader.nextName();
-
-					try {
-						Article.ArticleField field = Article.ArticleField.valueOf(name);
-
-						if (skipNames != null && skipNames.contains(field)) {
-							reader.skipValue();
-							continue;
-						}
-
-						switch (field) {
-							case id:
-								a.id = reader.nextInt();
-								break;
-							case title:
-								a.title = reader.nextString();
-								break;
-							case unread:
-								a.isUnread = reader.nextBoolean();
-								break;
-							case updated:
-								a.updated = new Date(reader.nextLong() * 1000);
-								break;
-							case feed_id:
-								if (reader.peek() == JsonToken.NULL) reader.nextNull();
-								else a.feedId = reader.nextInt();
-								break;
-							case content:
-								a.content = reader.nextString();
-								break;
-							case link:
-								a.url = reader.nextString();
-								break;
-							case comments:
-								a.commentUrl = reader.nextString();
-								break;
-							case attachments:
-								a.attachments = parseAttachments(reader);
-								break;
-							case marked:
-								a.isStarred = reader.nextBoolean();
-								break;
-							case published:
-								a.isPublished = reader.nextBoolean();
-								break;
-							case labels:
-								a.labels = parseLabels(reader);
-								break;
-							case author:
-								a.author = reader.nextString();
-								break;
-							// valid, but currently unused
-							// TODO: incorporate into Article object?
-							case is_updated:
-							case tags:
-							case feed_title:
-							case comments_count:
-							case comments_link:
-							case always_display_attachments:
-							case score:
-							case note:
-							case lang:
-								reader.skipValue();
-								continue;
-						}
-
-						if (filter != null) skipObject = filter.omitArticle(field, a);
-					} catch (IllegalArgumentException e) {
-						Log.w(TAG, "Result contained illegal value for entry \"" + name + "\".");
-						reader.skipValue();
-					}
-
-				}
+				skipObject = parseArticle(article, reader, skipNames, filter);
 				reader.endObject();
 
-				if (!skipObject && a.id != -1 && a.title != null) {
-					articles.add(a);
-				}
+				if (!skipObject && article.id != -1 && article.title != null) articles.add(article);
 
 				count++;
 			}
 			reader.endArray();
-		} catch (StopJsonParsingException e) {
-			Log.i(TAG, "Parsing of aricle array was broken after " + count + " articles");
 		} catch (OutOfMemoryError e) {
 			Controller.getInstance().lowMemory(true); // Low memory detected
 		} catch (Exception e) {
@@ -569,6 +483,85 @@ public abstract class JSONConnector {
 		Log.d(TAG, String.format("parseArticleArray: parsing %s articles took %s ms", count,
 				(System.currentTimeMillis() - time)));
 		return count;
+	}
+
+	private boolean parseArticle(final Article a, final JsonReader reader, final Set<Article.ArticleField> skipNames,
+			final IArticleOmitter filter) throws IOException {
+
+		boolean skipObject = false;
+		while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) {
+			if (skipObject) {
+				// field name
+				reader.skipValue();
+				// field value
+				reader.skipValue();
+				continue;
+			}
+
+			String name = reader.nextName();
+			Article.ArticleField field = Article.ArticleField.valueOf(name);
+
+			try {
+
+				if (skipNames != null && skipNames.contains(field)) {
+					reader.skipValue();
+					continue;
+				}
+
+				switch (field) {
+					case id:
+						a.id = reader.nextInt();
+						break;
+					case title:
+						a.title = reader.nextString();
+						break;
+					case unread:
+						a.isUnread = reader.nextBoolean();
+						break;
+					case updated:
+						a.updated = new Date(reader.nextLong() * 1000);
+						break;
+					case feed_id:
+						if (reader.peek() == JsonToken.NULL) reader.nextNull();
+						else a.feedId = reader.nextInt();
+						break;
+					case content:
+						a.content = reader.nextString();
+						break;
+					case link:
+						a.url = reader.nextString();
+						break;
+					case comments:
+						a.commentUrl = reader.nextString();
+						break;
+					case attachments:
+						a.attachments = parseAttachments(reader);
+						break;
+					case marked:
+						a.isStarred = reader.nextBoolean();
+						break;
+					case published:
+						a.isPublished = reader.nextBoolean();
+						break;
+					case labels:
+						a.labels = parseLabels(reader);
+						break;
+					case author:
+						a.author = reader.nextString();
+						break;
+					default:
+						reader.skipValue();
+						continue;
+				}
+
+				if (filter != null) skipObject = filter.omitArticle(field, a);
+
+			} catch (IllegalArgumentException | StopJsonParsingException | IOException e) {
+				Log.w(TAG, "Result contained illegal value for entry \"" + field + "\".");
+				reader.skipValue();
+			}
+		}
+		return skipObject;
 	}
 
 	private Set<Label> parseLabels(final JsonReader reader) throws IOException {
@@ -844,18 +837,12 @@ public abstract class JSONConnector {
 			params.put(PARAM_LIMIT, limitParam + "");
 			params.put(PARAM_SKIP, offset + "");
 			params.put(PARAM_VIEWMODE, viewMode);
-			// params.put(PARAM_ORDERBY, "feed_dates");
-
+			params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
 			if (skipProperties == null || !skipProperties.contains(Article.ArticleField.content))
 				params.put(PARAM_SHOW_CONTENT, "1");
-
 			if (skipProperties == null || !skipProperties.contains(Article.ArticleField.attachments))
 				params.put(PARAM_INC_ATTACHMENTS, "1");
-
-			params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
-
 			if (sinceId > 0) params.put(PARAM_SINCE_ID, sinceId + "");
-
 			if (search != null) params.put(PARAM_SEARCH, search);
 
 			JsonReader reader = null;
@@ -863,20 +850,20 @@ public abstract class JSONConnector {
 				reader = prepareReader(params);
 
 				if (hasLastError) return;
-
 				if (reader == null) continue;
 
 				count = parseArticleArray(articles, reader, skipProperties, filter);
 
 				if (count < limitParam) break;
 				else offset += count;
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
 				if (reader != null) {
 					try {
 						reader.close();
-					} catch (IOException e1) {
+					} catch (IOException ignored) {
 						// Empty!
 					}
 				}
