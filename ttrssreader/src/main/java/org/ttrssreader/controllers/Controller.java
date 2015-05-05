@@ -91,6 +91,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private SharedPreferences prefs = null;
 	private static boolean preferencesChanged = false;
 
+	private Boolean ignoreUnsafeConnectionError = false;
 	private Boolean openUrlEmptyArticle = null;
 	private Boolean useVolumeKeys = null;
 	private Boolean loadImages = null;
@@ -454,6 +455,17 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	public void setHeadless(boolean isHeadless) {
 		this.isHeadless = isHeadless;
+	}
+
+	public boolean ignoreUnsafeConnectionError() {
+		if (ignoreUnsafeConnectionError == null) ignoreUnsafeConnectionError = prefs
+				.getBoolean(IGNORE_UNSAFE_CONNECTION_ERROR, IGNORE_UNSAFE_CONNECTION_ERROR_DEFAULT);
+		return ignoreUnsafeConnectionError;
+	}
+
+	public void setIgnoreUnsafeConnectionError(boolean ignoreUnsafeConnectionError) {
+		put(IGNORE_UNSAFE_CONNECTION_ERROR, true);
+		this.ignoreUnsafeConnectionError = ignoreUnsafeConnectionError;
 	}
 
 	// ******* USAGE-Options ****************************
@@ -1027,10 +1039,11 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		editor.apply();
 	}
 
-	/** If provided "key" resembles a setting as declared in java the corresponding variable in this class
+	/*	 * If provided "key" resembles a setting as declared in java the corresponding variable in this class
 	 * will
 	 * be reset to null. Variable-Name ist built from the name of the field in Contants.java which holds the value from
 	 * "key" which was changed lately.
+
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

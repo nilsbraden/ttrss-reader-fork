@@ -17,12 +17,14 @@
   -->
 <resources>
 
-	<style name="TTRSS.Black" parent="TTRSS.Base.Black" />
+	<!-- Base application theme. -->
+	<style name="TTRSS.Black" parent="TTRSS.Base.Black">
 
-	<style name="TTRSS.Base.Black" parent="TTRSS.Dark">
-
-		<item name="colorAccent">@color/themeBlackAccent</item>
-		<item name="colorBackground">@color/themeBlackBackground</item>
+		<item name="android:windowContentTransitions">true</item>
+		<item name="android:windowAllowEnterTransitionOverlap">true</item>
+		<item name="android:windowAllowReturnTransitionOverlap">true</item>
+		<item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+		<item name="android:windowSharedElementExitTransition">@android:transition/move</item>
 
 	</style>
 

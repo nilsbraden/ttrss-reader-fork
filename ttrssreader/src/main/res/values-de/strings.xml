@@ -281,6 +281,7 @@
 	<string name="Dialog.MarkFeedsRead">Diese Kategorie als gelesen markieren?</string>
 	<string name="Yes">Yes</string>
 	<string name="No">No</string>
+	<string name="Ignore">Ignorieren</string>
 	<string name="Close">Schließen</string>
 	<string name="NotNow">Jetzt nicht</string>
 	<string name="Up">Hoch</string>
@@ -295,5 +296,10 @@
 	<string name="Error.NotLoggedIn">Der Login ist fehlgeschlagen, bitte Benutzername/Passwort prüfen.</string>
 	<string name="Error.EncodePassword">Der Login ist fehlgeschlagen, das Password konnte nicht richtig enkodiert werden.</string>
 	<string name="Error.ApiDisabled">Der API-Zugriff muss im Tiny Tiny RSS Server \"%s\" in den Einstellungen des Benutzers aktiviert werden.</string>
+	<string name="Error.UnsafeConnection">Der Security-Provider konnte nicht durch die Google Play services aktualisiert werden. Die Verbindung zum Server ist möglicherweise nicht sicher.</string>
+	<string name="Error.LoginFailed">Benutzername oder Passwort falsch</string>
+	<string name="Error.ApiIncorrectUsage">Fehlerhafter API-Aufruf</string>
+	<string name="Error.ApiUnknownMethod">Unbekannte API-Methode aufgerufen</string>
+	<string name="Error.ApiUnknownError">Unbekannter API-Fehler (siehe Log)</string>
 
 </resources>

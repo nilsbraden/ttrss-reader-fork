@@ -21,11 +21,11 @@ import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
-import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PRNGFixes;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 
 public class MyApplication extends Application {
 
@@ -35,25 +35,21 @@ public class MyApplication extends Application {
 	private static final String TAG = MyApplication.class.getSimpleName();
 
 	public void onCreate() {
-		super.onCreate();
 
-		instance = this;
-
-		PRNGFixes.apply();
-		initAsyncTask();
-		initSingletons();
-
-		Data.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
-	}
-
-	private void initAsyncTask() {
-		// make sure AsyncTask is loaded in the Main thread
-		new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... params) {
-				return null;
+		// workaround for https://code.google.com/p/android/issues/detail?id=20915
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
+			try {
+				Class.forName("android.os.AsyncTask");
+			} catch (ClassNotFoundException ignored) {
+				// Empty
 			}
-		}.execute();
+		}
+
+		super.onCreate();
+		instance = this;
+		PRNGFixes.apply();
+		initSingletons();
+		Data.getInstance().notifyListeners(); // Notify once to make sure the handler is initialized
 	}
 
 	protected void initSingletons() {

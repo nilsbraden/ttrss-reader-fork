@@ -17,12 +17,16 @@
 
 package org.ttrssreader.gui;
 
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.security.ProviderInstaller;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
+import org.ttrssreader.gui.dialogs.IgnorableErrorDialog;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
@@ -36,6 +40,7 @@ import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
@@ -43,6 +48,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,7 +64,8 @@ import android.widget.TextView;
  * This class provides common functionality for Activities.
  */
 public abstract class MenuActivity extends ActionBarActivity
-		implements IUpdateEndListener, ICacheEndListener, IItemSelectedListener, IDataChangedListener {
+		implements IUpdateEndListener, ICacheEndListener, IItemSelectedListener, IDataChangedListener,
+		ProviderInstaller.ProviderInstallListener {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = MenuActivity.class.getSimpleName();
@@ -83,6 +90,9 @@ public abstract class MenuActivity extends ActionBarActivity
 	private ProgressBar progressbar;
 	private ProgressBar progressspinner;
 
+	private static final int ERROR_DIALOG_REQUEST_CODE = 1;
+	private boolean mRetryProviderInstall;
+
 	@Override
 	protected void onCreate(Bundle instance) {
 		setTheme(Controller.getInstance().getTheme());
@@ -90,6 +100,7 @@ public abstract class MenuActivity extends ActionBarActivity
 		mDamageReport.initialize();
 		activity = this;
 
+		ProviderInstaller.installIfNeededAsync(this, this);
 		Controller.getInstance().setHeadless(false);
 		setContentView(getLayoutResource());
 		initToolbar();
@@ -199,7 +210,7 @@ public abstract class MenuActivity extends ActionBarActivity
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 			ActionBar ab = getSupportActionBar();
 			if (ab != null) {
@@ -268,7 +279,27 @@ public abstract class MenuActivity extends ActionBarActivity
 			refreshAndUpdate();
 		} else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
 			finish();
+		} else if (requestCode == ERROR_DIALOG_REQUEST_CODE) {
+			// Adding a fragment via GooglePlayServicesUtil.showErrorDialogFragment
+			// before the instance state is restored throws an error. So instead,
+			// set a flag here, which will cause the fragment to delay until
+			// onPostResume.
+			mRetryProviderInstall = true;
 		}
+	}
+
+	/**
+	 * On resume, check to see if we flagged that we need to reinstall the
+	 * provider.
+	 */
+	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		if (mRetryProviderInstall) {
+			// We can now safely retry installation.
+			ProviderInstaller.installIfNeededAsync(this, this);
+		}
+		mRetryProviderInstall = false;
 	}
 
 	@Override
@@ -621,6 +652,40 @@ public abstract class MenuActivity extends ActionBarActivity
 	public void setSupportProgressBarIndeterminateVisibility(boolean visible) {
 		progressspinner.setVisibility(visible ? View.VISIBLE : View.GONE);
 		super.setSupportProgressBarIndeterminateVisibility(visible);
+	}
+
+	@Override
+	public void onProviderInstalled() {
+		// Provider is up-to-date, app can make secure network calls. Call cann be ignored.
+	}
+
+	@Override
+	public void onProviderInstallFailed(int errorCode, Intent recoveryIntent) {
+		if (GooglePlayServicesUtil.isUserRecoverableError(errorCode)) {
+			// Recoverable error. Show a dialog prompting the user to install/update/enable Google Play services.
+			GooglePlayServicesUtil.showErrorDialogFragment(errorCode, activity, ERROR_DIALOG_REQUEST_CODE,
+					new DialogInterface.OnCancelListener() {
+						@Override
+						public void onCancel(DialogInterface dialog) {
+							// The user chose not to take the recovery action
+							onProviderInstallerNotAvailable();
+						}
+					});
+		} else {
+			// Google Play services is not available.
+			onProviderInstallerNotAvailable();
+		}
+	}
+
+	private void onProviderInstallerNotAvailable() {
+		/* This is reached if the provider cannot be updated for some reason. App should consider all HTTP
+		communication to be vulnerable, and take appropriate action. */
+		if (Controller.getInstance().ignoreUnsafeConnectionError()) {
+			Log.w(TAG, getString(R.string.Error_UnsafeConnection));
+		} else {
+			IgnorableErrorDialog.getInstance(getString(R.string.Error_UnsafeConnection))
+					.show(getFragmentManager(), "error");
+		}
 	}
 
 }

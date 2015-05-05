@@ -35,6 +35,7 @@ import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 
+import android.content.Context;
 import android.util.Base64;
 import android.util.Log;
 
@@ -98,9 +99,12 @@ public abstract class JSONConnector {
 	private static final String VALUE_ASSIGN = "assign";
 
 	private static final String ERROR = "error";
+	private static final String LOGIN_ERROR = "LOGIN_ERROR";
 	private static final String NOT_LOGGED_IN = "NOT_LOGGED_IN";
 	private static final String UNKNOWN_METHOD = "UNKNOWN_METHOD";
 	private static final String API_DISABLED = "API_DISABLED";
+	private static final String INCORRECT_USAGE = "INCORRECT_USAGE";
+
 	private static final String STATUS = "status";
 	private static final String API_LEVEL = "api_level";
 
@@ -178,60 +182,63 @@ public abstract class JSONConnector {
 			reader.beginObject();
 			while (reader.hasNext()) {
 				String name = reader.nextName();
-				if (name.equals("content")) {
-					JsonToken t = reader.peek();
+				if (!name.equals("content")) {
+					reader.skipValue();
+					continue;
+				}
 
-					if (t.equals(JsonToken.BEGIN_OBJECT)) {
+				JsonToken t = reader.peek();
+				if (!t.equals(JsonToken.BEGIN_OBJECT)) continue;
 
-						JsonObject object = new JsonObject();
-						reader.beginObject();
-						while (reader.hasNext()) {
-							object.addProperty(reader.nextName(), reader.nextString());
-						}
-						reader.endObject();
+				JsonObject object = new JsonObject();
+				reader.beginObject();
+				while (reader.hasNext()) {
+					object.addProperty(reader.nextName(), reader.nextString());
+				}
+				reader.endObject();
 
-						if (object.get(SESSION_ID) != null) {
-							ret = object.get(SESSION_ID).getAsString();
-						}
-						if (object.get(STATUS) != null) {
-							ret = object.get(STATUS).getAsString();
-						}
-						if (this.apiLevel == -1 && object.get(API_LEVEL) != null) {
-							this.apiLevel = object.get(API_LEVEL).getAsInt();
-						}
-						if (object.get(VALUE) != null) {
-							ret = object.get(VALUE).getAsString();
-						}
-						if (object.get(ERROR) != null) {
-							String message = object.get(ERROR).getAsString();
+				if (object.get(SESSION_ID) != null) {
+					ret = object.get(SESSION_ID).getAsString();
+				}
+				if (object.get(STATUS) != null) {
+					ret = object.get(STATUS).getAsString();
+				}
+				if (this.apiLevel == -1 && object.get(API_LEVEL) != null) {
+					this.apiLevel = object.get(API_LEVEL).getAsInt();
+				}
+				if (object.get(VALUE) != null) {
+					ret = object.get(VALUE).getAsString();
+				}
+				if (object.get(ERROR) != null) {
+					String message = object.get(ERROR).getAsString();
+					Context ctx = MyApplication.context();
 
-							if (message.contains(NOT_LOGGED_IN)) {
-								if (!login && retry && login()) {
-									return readResult(params, false, false); // Just do the same request again
-								} else {
-									hasLastError = true;
-									lastError = message;
-									return null;
-								}
-							}
-
-							if (message.contains(API_DISABLED)) {
-								hasLastError = true;
-								lastError = MyApplication.context()
-										.getString(R.string.Error_ApiDisabled, Controller.getInstance().username());
-								return null;
-							}
-
-							// Any other error
-							hasLastError = true;
-							lastError = message;
-							return null;
-						}
+					switch (message) {
+						case API_DISABLED:
+							lastError = ctx.getString(R.string.Error_ApiDisabled, Controller.getInstance().username());
+							break;
+						case NOT_LOGGED_IN:
+						case LOGIN_ERROR:
+							if (!login && retry && login())
+								return readResult(params, false, false); // Just do the same request again
+							else lastError = ctx.getString(R.string.Error_LoginFailed);
+							break;
+						case INCORRECT_USAGE:
+							lastError = ctx.getString(R.string.Error_ApiIncorrectUsage);
+							break;
+						case UNKNOWN_METHOD:
+							lastError = ctx.getString(R.string.Error_ApiUnknownMethod);
+							break;
+						default:
+							lastError = ctx.getString(R.string.Error_ApiUnknownError);
+							break;
 					}
 
-				} else {
-					reader.skipValue();
+					hasLastError = true;
+					Log.e(TAG, message);
+					return null;
 				}
+
 			}
 		} finally {
 			if (reader != null) reader.close();

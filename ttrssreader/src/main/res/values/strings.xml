@@ -303,6 +303,7 @@
 	<string name="Dialog.MarkFeedsRead">Mark this category as read?</string>
 	<string name="Yes">Yes</string>
 	<string name="No">No</string>
+	<string name="Ignore">Ignore</string>
 	<string name="Ok">OK</string>
 	<string name="Close">Close</string>
 	<string name="NotNow">Not now</string>
@@ -314,10 +315,15 @@
 	<string name="BlackTheme">Black Theme</string>
 	<string name="WhiteTheme">White Theme</string>
 	<string name="Error.SSL.Keystore">Couldn\'t load private keystore.</string>
+	<string name="Error.SSL.TrustAllHosts">Couldn\'t configure SSL to trust all hosts.</string>
 	<string name="Error.SSL.SocketFactory">Couldn\'t create SSLSocketFactory, SSL-Connections cannot be established.</string>
 	<string name="Error.NotLoggedIn">Couldn\'t login to your account, please check your credentials.</string>
 	<string name="Error.EncodePassword">Couldn\'t login to your account, your password could not be encoded properly.</string>
 	<string name="Error.ApiDisabled">Please enable API for the user \"%s\" in the preferences of this user on the Server.</string>
-
+	<string name="Error.UnsafeConnection">Automatic update of the security provider with the Google Play services failed. Be warned: Your connection might be unsafe.</string>
+	<string name="Error.LoginFailed">Username or password incorrect</string>
+	<string name="Error.ApiIncorrectUsage">Incorrect API usage</string>
+	<string name="Error.ApiUnknownMethod">Unknown API method</string>
+	<string name="Error.ApiUnknownError">Unknown API error (see log)</string>
 
 </resources>
