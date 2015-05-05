@@ -18,6 +18,16 @@
 <resources>
 
 	<string-array name="updates">
+		<item>Version 1.85
+			 * Fix FC when asynchronously adding remote files
+			 * Fixed FC when articleFragment was not attached to Activity anymore
+			 * Fixed FC \"IllegalStateException: Content view not yet created\"
+			 * Improved DB-Adapters to avoid FC when accessing closed cursors
+			 * Fixed FC when ImageCache runs extremely long
+			 * Fixed FC \"IllegalStateException: Can not perform this action after onSaveInstanceState\"
+			 * Added some more translated strings and more precise error messages
+			 * Integrated updating of security provider with Google Play services
+			 * Fixed Issue #284: invisible background of dialogs</item>
 		<item>Version 1.84
 			 * Fixed a lot of bugs introduced by release v1.83
 			 * Implemented new dialog for the changelog
