@@ -9,7 +9,7 @@ Since google announced that the downloads from google-code will not be available
 [![play.google.com][3]][4]<br>
 [![QR-Code for play.google.com][5]][4]
 
-Current Version: [**1.84**](https://github.com/nilsbraden/ttrss-reader-fork/releases) ([Changelog](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Changelog))
+Current Version: [**1.85.0**](https://github.com/nilsbraden/ttrss-reader-fork/releases) ([Changelog](https://github.com/nilsbraden/ttrss-reader-fork/wiki/Changelog))
 
 # Features
  * Use Swipe for Next/Previous Article
