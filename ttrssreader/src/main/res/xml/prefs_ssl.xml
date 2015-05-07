@@ -22,6 +22,11 @@
 		android:key="sslCategory"
 		android:title="@string/ConnectionSslPreferenceCategoryTitle">
 		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="ConnectionProviderInstall"
+			android:summary="@string/ConnectionProviderInstallSummary"
+			android:title="@string/ConnectionProviderInstallTitle" />
+		<CheckBoxPreference
 			android:defaultValue="false"
 			android:disableDependentsState="true"
 			android:key="ConnectionSSLPreference"

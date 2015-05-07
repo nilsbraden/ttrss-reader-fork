@@ -372,6 +372,14 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		else return prefs.getBoolean(USE_KEYSTORE, USE_KEYSTORE_DEFAULT);
 	}
 
+	public boolean useProviderInstaller() {
+		// Load from Wifi-Preferences:
+		String key = getStringWithSSID(USE_PROVIDER_INSTALLER, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+
+		if (prefs.contains(key)) return prefs.getBoolean(key, USE_PROVIDER_INSTALLER_DEFAULT);
+		else return prefs.getBoolean(USE_PROVIDER_INSTALLER, USE_PROVIDER_INSTALLER_DEFAULT);
+	}
+
 	public boolean trustAllSsl() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(TRUST_ALL_SSL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());

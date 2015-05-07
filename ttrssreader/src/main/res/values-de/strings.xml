@@ -301,5 +301,7 @@
 	<string name="Error.ApiIncorrectUsage">Fehlerhafter API-Aufruf</string>
 	<string name="Error.ApiUnknownMethod">Unbekannte API-Methode aufgerufen</string>
 	<string name="Error.ApiUnknownError">Unbekannter API-Fehler (siehe Log)</string>
+	<string name="ConnectionProviderInstallSummary">Aktiviert das automatische Update des Security-Provider durch die Google Play services. Bei Problemen mit selbst-signierten Zertifikaten deaktivieren. Diese Option verbessert möglicherweise die Sicherheit der Verbindung und sollte aktiviert bleiben.</string>
+	<string name="ConnectionProviderInstallTitle">Use Google Play services: Provider-Installer</string>
 
 </resources>

@@ -102,7 +102,8 @@ public abstract class MenuActivity extends AppCompatActivity
 		mDamageReport.initialize();
 		activity = this;
 
-		ProviderInstaller.installIfNeededAsync(this, this);
+		if (Controller.getInstance().useProviderInstaller()) ProviderInstaller.installIfNeededAsync(this, this);
+
 		Controller.getInstance().setHeadless(false);
 		setContentView(getLayoutResource());
 		initToolbar();
@@ -303,7 +304,7 @@ public abstract class MenuActivity extends AppCompatActivity
 	@Override
 	protected void onPostResume() {
 		super.onPostResume();
-		if (mRetryProviderInstall) {
+		if (mRetryProviderInstall && Controller.getInstance().useProviderInstaller()) {
 			// We can now safely retry installation.
 			ProviderInstaller.installIfNeededAsync(this, this);
 		}

@@ -46,6 +46,7 @@ public class Constants {
 	public static final String USE_HTTP_AUTH = "ConnectionHttpPreference";
 	public static final String HTTP_USERNAME = "ConnectionHttpUsernamePreference";
 	public static final String HTTP_PASSWORD = "ConnectionHttpPasswordPreference";
+	public static final String USE_PROVIDER_INSTALLER = "ConnectionProviderInstall";
 	public static final String TRUST_ALL_SSL = "ConnectionSSLPreference";
 	public static final String TRUST_ALL_HOSTS = "ConnectionTrustHostsPreference";
 	public static final String USE_OLD_CONNECTOR = "ConnectionUseOldConnector";
@@ -54,8 +55,9 @@ public class Constants {
 	public static final String USE_OF_A_LAZY_SERVER = "ConnectionLazyServerPreference";
 	public static final String IGNORE_UNSAFE_CONNECTION_ERROR = "IgnoreUnsafeConnectionError";
 	// Connection Default Values
-	public static final String URL_DEFAULT = "http://localhost/";
+	public static final String URL_DEFAULT = "https://localhost/";
 	public static final boolean USE_HTTP_AUTH_DEFAULT = false;
+	public static final boolean USE_PROVIDER_INSTALLER_DEFAULT = true;
 	public static final boolean TRUST_ALL_SSL_DEFAULT = false;
 	public static final boolean TRUST_ALL_HOSTS_DEFAULT = false;
 	public static final boolean USE_OLD_CONNECTOR_DEFAULT = false;
