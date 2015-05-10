@@ -38,6 +38,7 @@ import android.net.http.HttpResponseCache;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -46,12 +47,14 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.Set;
@@ -410,6 +413,35 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
 		else return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
+	}
+
+	public boolean UrlNeedsAuthentication(URL url) {
+		if (!this.useHttpAuth())
+			return false;
+
+		try {
+			return url.getHost().equalsIgnoreCase(this.url().getHost());
+		} catch (MalformedURLException e) {
+			Log.e(TAG, "Malformed URL: " + e.toString());
+		}
+
+		return false;
+	}
+
+	public URLConnection openConnection(URL url) throws IOException {
+		URLConnection c = url.openConnection();
+
+		if (this.UrlNeedsAuthentication(url)) {
+			String auth = this.httpUsername() + ":" + this.httpPassword();
+			try {
+				String encoded = Base64.encodeToString(auth.getBytes("UTF-8"), Base64.NO_WRAP);
+				c.setRequestProperty("Authorization", "Basic " + encoded);
+			} catch (UnsupportedEncodingException e) {
+				Log.e(TAG, "Encoding failed in Base64 for Basic Auth: " + e.toString());
+			}
+		}
+
+		return c;
 	}
 
 	@SuppressWarnings("deprecation")

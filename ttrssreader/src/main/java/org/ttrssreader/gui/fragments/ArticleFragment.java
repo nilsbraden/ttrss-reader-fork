@@ -422,7 +422,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 			content = htmlTmpl.render();
 
-			/* JavaScript should be safe since we use JSoup to remove all unwanted stuff from article.conent */
+			/* JavaScript should be safe since we use JSoup to remove all unwanted stuff from article.content */
 			webView.getSettings().setJavaScriptEnabled(true);
 			webView.addJavascriptInterface(articleJSInterface, "articleController");
 			webView.loadDataWithBaseURL("file:///android_asset/", content, "text/html", "utf-8", null);
