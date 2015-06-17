@@ -631,6 +631,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 		MyTagNodeVisitor tnv = new MyTagNodeVisitor(extra);
 		node.traverse(tnv);
 
+		if (tnv.alt == null) return null;
 		return Html.fromHtml(tnv.alt).toString();
 	}
 
