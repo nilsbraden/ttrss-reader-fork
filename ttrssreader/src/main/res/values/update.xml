@@ -18,7 +18,9 @@
 <resources>
 
 	<string-array name="updates">
-		<item>Version 1.85
+		<item>Version 1.85.2
+			 * Fixed several FCs</item>
+		<item>Version 1.85.1
 			 * Fixed Issue #287: SSL broken with self-signed certificates, added SSL-Preference to disable update of security provide via Google Play services.</item>
 		<item>Version 1.85
 			 * Fix FC when asynchronously adding remote files
