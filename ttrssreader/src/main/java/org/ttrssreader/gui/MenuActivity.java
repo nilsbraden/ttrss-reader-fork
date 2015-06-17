@@ -700,4 +700,11 @@ public abstract class MenuActivity extends AppCompatActivity
 		}
 	}
 
+	@Override
+	public void onBackPressed() {
+		if (!mOnSaveInstanceStateCalled) {
+			super.onBackPressed();
+		}
+	}
+
 }
