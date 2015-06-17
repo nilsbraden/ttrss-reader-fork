@@ -957,7 +957,14 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public int getSinceId() {
-		if (sinceId == null) sinceId = prefs.getInt(SINCE_ID, SINCE_ID_DEFAULT);
+		if (sinceId == null) {
+			try {
+				sinceId = prefs.getInt(SINCE_ID, SINCE_ID_DEFAULT);
+			} catch (ClassCastException e) {
+				// Catch silently and ignore. Somehow people manage to get a long in here.
+				sinceId = 0;
+			}
+		}
 		return sinceId;
 	}
 
