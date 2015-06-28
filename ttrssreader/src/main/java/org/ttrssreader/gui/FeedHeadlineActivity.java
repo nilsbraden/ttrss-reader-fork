@@ -345,8 +345,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 		if (!Controller.isTablet) ft.addToBackStack(null);
 		setAnimationForDirection(ft, direction);
 		ft.setTransition(FragmentTransaction.TRANSIT_NONE);
-		if (direction == 0) ft.add(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
-		else ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
+		ft.replace(R.id.frame_sub, articleFragment, ArticleFragment.FRAGMENT).commit();
 
 		// Check if a next feed in this direction exists
 		if (direction != 0) {
