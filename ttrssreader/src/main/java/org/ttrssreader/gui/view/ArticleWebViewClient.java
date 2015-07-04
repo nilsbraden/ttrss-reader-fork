@@ -33,6 +33,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.webkit.URLUtil;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -45,6 +47,7 @@ import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Locale;
 
 public class ArticleWebViewClient extends WebViewClient {
@@ -175,7 +178,7 @@ public class ArticleWebViewClient extends WebViewClient {
 			File file;
 			try {
 				URL url = urls[0];
-				HttpURLConnection c = (HttpURLConnection) url.openConnection();
+				HttpURLConnection c = (HttpURLConnection) Controller.getInstance().openConnection(url);
 
 				file = new File(folder, URLUtil.guessFileName(url.toString(), null, ".mp3"));
 				if (file.exists()) {
@@ -225,6 +228,37 @@ public class ArticleWebViewClient extends WebViewClient {
 			}
 			return null;
 		}
+	}
+
+	/*
+	 * WebKit does not call onReceivedHttpAuthRequest (or onReceivedError for that matter) when
+	 * processing resources within a rendered document. As a result, it is not possible to
+	 * inject authentication information without intercepting the resource loading itself.
+	 */
+	@Override
+	public WebResourceResponse shouldInterceptRequest (WebView view, WebResourceRequest request) {
+		Controller controller = Controller.getInstance();
+
+		/* Short-circuit ahead of UrlNeedsAuthentication to avoid needless URL building. */
+		if (!controller.useHttpAuth())
+			return null;
+
+		try {
+			URL url = new URL(request.getUrl().toString());
+
+			if (!controller.UrlNeedsAuthentication(url))
+				return null;
+
+			URLConnection c = controller.openConnection(url);
+
+			return new WebResourceResponse(c.getContentType(),
+										   c.getContentEncoding(),
+										   c.getInputStream());
+		} catch (IOException e) {
+			Log.e(TAG, "Failed to fetch " + request.getUrl().toString());
+		}
+
+		return null;
 	}
 
 }

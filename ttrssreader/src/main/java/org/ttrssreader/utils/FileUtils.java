@@ -19,7 +19,6 @@ package org.ttrssreader.utils;
 
 import org.ttrssreader.controllers.Controller;
 
-import android.util.Base64;
 import android.util.Log;
 
 import java.io.File;
@@ -93,19 +92,7 @@ public class FileUtils {
 				byteWritten = file.length();
 			} else {
 				URL url = new URL(downloadUrl);
-				URLConnection connection = url.openConnection();
-				Controller controller = Controller.getInstance();
-
-				if (downloadUrl.startsWith(Controller.getInstance().hostname()) && Controller.getInstance()
-						.useHttpAuth()) {
-
-					String httpUsername = controller.httpUsername();
-					String httpPassword = controller.httpPassword();
-
-					String auth = Base64
-							.encodeToString((httpUsername + ":" + httpPassword).getBytes("UTF-8"), Base64.NO_WRAP);
-					connection.setRequestProperty("Authorization", "Basic " + auth);
-				}
+				URLConnection connection = Controller.getInstance().openConnection(url);
 
 				connection.setConnectTimeout((int) (Utils.SECOND * 2));
 				connection.setReadTimeout((int) Utils.SECOND);
