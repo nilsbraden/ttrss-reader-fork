@@ -31,12 +31,18 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.SSLUtils;
 import org.ttrssreader.utils.Utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.net.http.HttpResponseCache;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -56,6 +62,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -67,6 +74,8 @@ import java.util.Set;
 public class Controller extends Constants implements OnSharedPreferenceChangeListener {
 
 	private static final String TAG = Controller.class.getSimpleName();
+	private static final String SIGNATURE = "zu16x7lDmO/+vP+t1svSWI1lJFQ=";
+	private static final String PLAY_STORE_APP_ID = "com.android.vending";
 
 	public final static String JSON_END_URL = "api/index.php";
 
@@ -135,6 +144,9 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private Boolean noCrashreports = null;
 	private Boolean noCrashreportsUntilUpdate = null;
 
+	// Set to true per default to avoid never getting reports for bugs during startup
+	private Boolean validInstallation = true;
+
 	private Long appVersionCheckTime = null;
 	private Integer appLatestVersion = null;
 	private String lastVersionRun = null;
@@ -186,6 +198,15 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		// Initially read absolutely necessary preferences:
 		sizeVerticalCategory = prefs.getInt(SIZE_VERTICAL_CATEGORY, -1);
 		sizeHorizontalCategory = prefs.getInt(SIZE_HORIZONTAL_CATEGORY, -1);
+
+		/* Check signature, if we were installed from google play, if we are running in an emulator and if
+		debuggable=true */
+		boolean valid = true;
+		valid &= checkRightAppSignature(context);
+		valid &= checkRightInstaller(context);
+		valid &= checkNoEmulator();
+		valid &= checkDebuggableDisabled(context);
+		setValidInstallation(valid);
 
 		synchronized (lockInitialize) {
 
@@ -248,6 +269,40 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 			initialized = true;
 		}
+	}
+
+	@SuppressLint("PackageManagerGetSignatures")
+	public static boolean checkRightAppSignature(Context context) {
+		try {
+			PackageInfo packageInfo = context.getPackageManager()
+					.getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+			for (Signature signature : packageInfo.signatures) {
+				MessageDigest md = MessageDigest.getInstance("SHA");
+				md.update(signature.toByteArray());
+				final String currentSignature = Base64.encodeToString(md.digest(), Base64.NO_WRAP).replace("\r", "")
+						.replace("\n", "");
+				if (SIGNATURE.equals(currentSignature)) return true;
+			}
+		} catch (Exception e) {
+			Log.w(TAG, "Signing key could not be determined, assuming wrong key.");
+		}
+		return false;
+	}
+
+	public static boolean checkRightInstaller(final Context context) {
+		final String installer = context.getPackageManager().getInstallerPackageName(context.getPackageName());
+		return installer != null && installer.startsWith(PLAY_STORE_APP_ID);
+	}
+
+	public static boolean checkNoEmulator() {
+		if ("google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT)
+				|| "vbox86p".equals(Build.PRODUCT)) return false;
+		return true;
+	}
+
+	public static boolean checkDebuggableDisabled(final Context context) {
+		if ((context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) return false;
+		return true;
 	}
 
 	/**
@@ -416,8 +471,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean UrlNeedsAuthentication(URL url) {
-		if (!this.useHttpAuth())
-			return false;
+		if (!this.useHttpAuth()) return false;
 
 		try {
 			return url.getHost().equalsIgnoreCase(this.url().getHost());
@@ -939,6 +993,14 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	// ******* INTERNAL Data ****************************
+
+	public boolean isValidInstallation() {
+		return validInstallation;
+	}
+
+	public void setValidInstallation(boolean validInstallation) {
+		this.validInstallation = validInstallation;
+	}
 
 	public long appVersionCheckTime() {
 		if (appVersionCheckTime == null)

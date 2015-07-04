@@ -22,7 +22,6 @@ import org.ttrssreader.controllers.Controller;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -80,9 +79,19 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	public void initialize() {
 		if (mAct == null) throw new NullPointerException();
 
+		// Ignore reports if
+		// - app is not signed with the key of Nils Braden
+		// - app is not installed from play store
+		// - app is running in an emulator
+		// - app is running with debuggable=true
+		if (!Controller.getInstance().isValidInstallation()) {
+			Log.i(TAG, "Error reporting disabled, invalid installation.");
+			return;
+		}
+
 		// Ignore crashreport if user has chosen to ignore it
 		if (Controller.getInstance().isNoCrashreports()) {
-			Log.w(TAG, "User has disabled error reporting.");
+			Log.i(TAG, "User has disabled error reporting.");
 			return;
 		}
 
@@ -90,12 +99,7 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		int latest = Controller.getInstance().appLatestVersion();
 		int current = Utils.getAppVersionCode(mAct);
 		if (latest > current) {
-			Log.w(TAG, "App is not updated, error reports are disabled.");
-			return;
-		}
-
-		if ((mAct.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-			Log.w(TAG, "Application runs with DEBUGGABLE=true, error reports are disabled.");
+			Log.i(TAG, "App is not updated, error reports are disabled.");
 			return;
 		}
 
