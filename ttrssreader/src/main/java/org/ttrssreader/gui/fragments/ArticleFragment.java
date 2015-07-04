@@ -283,10 +283,11 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				// you set it to "unread" in the meantime.
 				if (article.isUnread) {
 					article.isUnread = false;
-					markedRead = true;
 					new Updater(null, new ArticleReadStateUpdater(article, 0))
 							.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
+				// Regardless of whether we did it, the article has been marked read.
+				markedRead = true;
 
 				cachedImages = getCachedImagesJS(article.id);
 
