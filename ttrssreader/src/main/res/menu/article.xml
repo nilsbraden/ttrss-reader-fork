@@ -21,25 +21,25 @@
 	<item
 		android:id="@+id/Article_Menu_MarkStar"
 		android:icon="@drawable/ic_menu_star"
-		android:orderInCategory="10"
-		app:showAsAction="ifRoom"
+		android:orderInCategory="52"
+		app:showAsAction="always"
 		android:title="@string/Commons.MarkStar" />
 	<item
 		android:id="@+id/Article_Menu_MarkPublish"
 		android:icon="@drawable/menu_publish"
-		android:orderInCategory="20"
-		app:showAsAction="ifRoom"
+		android:orderInCategory="54"
+		app:showAsAction="always"
 		android:title="@string/Commons.MarkPublish" />
 	<item
 		android:id="@+id/Article_Menu_ShareLink"
 		android:icon="@drawable/ic_menu_share"
-		android:orderInCategory="30"
-		app:showAsAction="ifRoom"
+		android:orderInCategory="56"
+		app:showAsAction="always"
 		android:title="@string/ArticleActivity.ShareLink" />
 	<item
 		android:id="@+id/Article_Menu_MarkRead"
 		android:icon="@drawable/ic_menu_mark"
-		android:orderInCategory="40"
+		android:orderInCategory="62"
 		app:showAsAction="ifRoom|withText"
 		android:title="@string/Commons.MarkRead" />
 	<item
