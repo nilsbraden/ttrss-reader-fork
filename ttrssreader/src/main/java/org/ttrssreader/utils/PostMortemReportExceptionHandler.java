@@ -30,6 +30,7 @@ import android.os.Build;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -54,7 +55,8 @@ import java.util.Locale;
 public class PostMortemReportExceptionHandler implements UncaughtExceptionHandler, Runnable {
 
 	private static final String TAG = PostMortemReportExceptionHandler.class.getSimpleName();
-	private static final String ExceptionReportFilename = "postmortem.trace";
+	private static final String EXCEPTION_REPORT_FILENAME = "postmortem.trace";
+	private static final String EXCEPTION_REPORT_EXCLUDE_PREFIX = "postmortem.exclude.";
 
 	// "app label + this tag" = email subject
 	private static final String MSG_SUBJECT_TAG = "Exception Report";
@@ -182,34 +184,34 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy_HH.mm.ss_zzz", Locale.ENGLISH);
 		StringBuilder s = new StringBuilder();
 
-		s.append("--------- Application ---------------------\n");
-		s.append("Version	 = " + Controller.getInstance().getLastVersionRun() + "\n");
+		s.append("--- Application ---------------------\n");
+		s.append("Version     = " + Controller.getInstance().getLastVersionRun() + "\n");
 		s.append("VersionCode = " + (pi != null ? pi.versionCode : "null") + "\n");
-		s.append("-------------------------------------------\n\n");
+		s.append("-------------------------------------\n\n");
 
-		s.append("--------- Environment ---------------------\n");
-		s.append("Time		= " + sdf.format(theDate) + "\n");
+		s.append("--- Environment ---------------------\n");
+		s.append("Time        = " + sdf.format(theDate) + "\n");
 		try {
 			Field theMfrField = Build.class.getField("MANUFACTURER");
-			s.append("Make		= " + theMfrField.get(null) + "\n");
+			s.append("Make    = " + theMfrField.get(null) + "\n");
 		} catch (Exception e) {
 			// Empty!
 		}
-		s.append("Brand	   = " + Build.BRAND + "\n");
-		s.append("Device	  = " + Build.DEVICE + "\n");
-		s.append("Model	   = " + Build.MODEL + "\n");
-		s.append("Id		  = " + Build.ID + "\n");
+		s.append("Brand       = " + Build.BRAND + "\n");
+		s.append("Device      = " + Build.DEVICE + "\n");
+		s.append("Model       = " + Build.MODEL + "\n");
+		s.append("Id          = " + Build.ID + "\n");
 		s.append("Fingerprint = " + Build.FINGERPRINT + "\n");
-		s.append("Product	 = " + Build.PRODUCT + "\n");
-		s.append("Locale	  = " + mAct.getResources().getConfiguration().locale.getDisplayName() + "\n");
-		s.append("Res		 = " + mAct.getResources().getDisplayMetrics().toString() + "\n");
-		s.append("-------------------------------------------\n\n");
+		s.append("Product     = " + Build.PRODUCT + "\n");
+		s.append("Locale      = " + mAct.getResources().getConfiguration().locale.getDisplayName() + "\n");
+		s.append("Res         = " + mAct.getResources().getDisplayMetrics().toString() + "\n");
+		s.append("-------------------------------------\n\n");
 
-		s.append("--------- Firmware -----------------------\n");
-		s.append("SDK		 = " + Build.VERSION.SDK_INT + "\n");
-		s.append("Release	 = " + Build.VERSION.RELEASE + "\n");
-		s.append("Inc		 = " + Build.VERSION.INCREMENTAL + "\n");
-		s.append("-------------------------------------------\n\n");
+		s.append("--- Firmware -----------------------\n");
+		s.append("SDK         = " + Build.VERSION.SDK_INT + "\n");
+		s.append("Release     = " + Build.VERSION.RELEASE + "\n");
+		s.append("Inc         = " + Build.VERSION.INCREMENTAL + "\n");
+		s.append("-------------------------------------\n\n");
 
 		return s.toString();
 	}
@@ -256,48 +258,49 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	 * @param aException - exception to report on
 	 * @return Returns a string with a lot of debug information.
 	 */
-	private String getDebugReport(Throwable aException) {
+	private String[] getDebugReport(Throwable aException) {
 		StringBuilder theErrReport = new StringBuilder();
 
 		theErrReport.append(getDeviceEnvironment());
 		theErrReport.append(getAppName() + " generated the following exception:\n");
 		theErrReport.append(aException.toString() + "\n\n");
+		String exceptionHash = String.valueOf(aException.toString().hashCode());
 
 		// activity stack trace
 		List<CharSequence> theActivityTrace = getActivityTrace(null);
 		if (theActivityTrace != null && theActivityTrace.size() > 0) {
-			theErrReport.append("--------- Activity Stacktrace -------------\n");
+			theErrReport.append("--- Activity Stacktrace -------------\n");
 			for (int i = 0; i < theActivityTrace.size(); i++) {
-				theErrReport.append("	" + theActivityTrace.get(i) + "\n");
-			}// for
-			theErrReport.append("-------------------------------------------\n\n");
+				theErrReport.append("  " + theActivityTrace.get(i) + "\n");
+			}
+			theErrReport.append("-------------------------------------\n\n");
 		}
 
 		// instruction stack trace
 		StackTraceElement[] theStackTrace = aException.getStackTrace();
 		if (theStackTrace.length > 0) {
-			theErrReport.append("--------- Instruction Stacktrace ----------\n");
+			theErrReport.append("--- Instruction Stacktrace ----------\n");
 			for (StackTraceElement se : theStackTrace) {
-				theErrReport.append("	" + se.toString() + "\n");
+				theErrReport.append("  " + se.toString() + "\n");
 			}
-			theErrReport.append("-------------------------------------------\n\n");
+			theErrReport.append("-------------------------------------\n\n");
 		}
 
 		// if the exception was thrown in a background thread inside
 		// AsyncTask, then the actual exception can be found with getCause
 		Throwable theCause = aException.getCause();
 		if (theCause != null) {
-			theErrReport.append("--------- Cause ---------------------------\n");
+			theErrReport.append("--- Cause ---------------------------\n");
 			theErrReport.append(theCause.toString() + "\n\n");
 			theStackTrace = theCause.getStackTrace();
 			for (StackTraceElement se : theStackTrace) {
-				theErrReport.append("	" + se.toString() + "\n");
-			}// for
-			theErrReport.append("-------------------------------------------\n\n");
+				theErrReport.append("  " + se.toString() + "\n");
+			}
+			theErrReport.append("-------------------------------------\n\n");
 		}
 
 		theErrReport.append("END REPORT.");
-		return theErrReport.toString();
+		return new String[] {theErrReport.toString(), exceptionHash};
 	}
 
 	/**
@@ -305,12 +308,13 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	 *
 	 * @param aReport - the debug report
 	 */
-	private void saveDebugReport(String aReport) {
+	private void saveDebugReport(String[] aReport) {
 		// save report to file
 		try {
-			FileOutputStream theFile = mAct.openFileOutput(ExceptionReportFilename, Context.MODE_PRIVATE);
-			theFile.write(aReport.getBytes());
+			FileOutputStream theFile = mAct.openFileOutput(EXCEPTION_REPORT_FILENAME, Context.MODE_PRIVATE);
+			theFile.write(aReport[0].getBytes());
 			theFile.close();
+			setReportHasBeenSent(aReport[1]);
 		} catch (IOException ioe) {
 			// error during error report needs to be ignored, do not wish to start infinite loop
 		}
@@ -324,12 +328,12 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 		String theTrace = "";
 		try {
 			BufferedReader theReader = new BufferedReader(
-					new InputStreamReader(mAct.openFileInput(ExceptionReportFilename)));
+					new InputStreamReader(mAct.openFileInput(EXCEPTION_REPORT_FILENAME)));
 			while ((theLine = theReader.readLine()) != null) {
 				theTrace += theLine + "\n";
 			}
 			if (sendDebugReportToAuthor(theTrace)) {
-				mAct.deleteFile(ExceptionReportFilename);
+				mAct.deleteFile(EXCEPTION_REPORT_FILENAME);
 			}
 		} catch (IOException eIo) {
 			// Empty!
@@ -374,9 +378,29 @@ public class PostMortemReportExceptionHandler implements UncaughtExceptionHandle
 	 * @param e - the exception
 	 */
 	private void submit(Throwable e) {
-		String theErrReport = getDebugReport(e);
-		saveDebugReport(theErrReport);
-		// try to send file contents via email (need to do so via the UI thread)
-		mAct.runOnUiThread(this);
+		String[] report = getDebugReport(e);
+		if (!hasReportBeenSent(report[1])) {
+			saveDebugReport(report);
+			// try to send file contents via email (need to do so via the UI thread)
+			mAct.runOnUiThread(this);
+		}
 	}
+
+	private boolean hasReportBeenSent(String hash) {
+		File file = new File(mAct.getFilesDir(), EXCEPTION_REPORT_EXCLUDE_PREFIX + hash);
+		return file.exists();
+	}
+
+	private void setReportHasBeenSent(String hash) {
+		try {
+			// Store file with name postmortem.exclude.xyz to indicate that this report has been sent already
+			FileOutputStream sentReport = mAct
+					.openFileOutput(EXCEPTION_REPORT_EXCLUDE_PREFIX + hash, Context.MODE_PRIVATE);
+			sentReport.write("1".getBytes());
+			sentReport.close();
+		} catch (IOException e) {
+			// Empty
+		}
+	}
+
 }
