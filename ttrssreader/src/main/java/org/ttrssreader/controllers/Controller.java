@@ -673,7 +673,14 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public int textZoom() {
-		if (textZoom == null) textZoom = prefs.getInt(TEXT_ZOOM, TEXT_ZOOM_DEFAULT);
+		if (textZoom == null) {
+			try {
+				textZoom = prefs.getInt(TEXT_ZOOM, TEXT_ZOOM_DEFAULT);
+			} catch (ClassCastException e) {
+				/* For some users this returns a Long, can't really fix it so just reset the prefs */
+				resetPreferences(prefs);
+			}
+		}
 		return textZoom;
 	}
 
@@ -1014,11 +1021,13 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public int appLatestVersion() {
-		if (appLatestVersion == null) try {
-			appLatestVersion = prefs.getInt(APP_LATEST_VERSION, APP_LATEST_VERSION_DEFAULT);
-		} catch (ClassCastException e) {
-			/* For some users this returns a Long, don't know why and can't really fix it, so just reset the value. */
-			setAppLatestVersion(APP_LATEST_VERSION_DEFAULT);
+		if (appLatestVersion == null) {
+			try {
+				appLatestVersion = prefs.getInt(APP_LATEST_VERSION, APP_LATEST_VERSION_DEFAULT);
+			} catch (ClassCastException e) {
+				/* For some users this returns a Long, can't really fix it so just reset the value */
+				resetPreferences(prefs);
+			}
 		}
 		return appLatestVersion;
 	}
