@@ -64,7 +64,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -221,7 +220,18 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			webView = new MyWebView(getActivity());
 			webView.setWebViewClient(new ArticleWebViewClient());
 			webView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-			webView.setBackgroundColor(Color.TRANSPARENT);
+
+			// Set theme background color. Should be possible via xml also.
+			switch (Controller.getInstance().getTheme()) {
+				case R.style.TTRSS_Light:
+					webView.setBackgroundColor(getResources().getColor(R.color.themeLightBackground));
+				case R.style.TTRSS_White:
+					webView.setBackgroundColor(getResources().getColor(R.color.themeWhiteBackground));
+				case R.style.TTRSS_Dark:
+					webView.setBackgroundColor(getResources().getColor(R.color.themeDarkBackground));
+				case R.style.TTRSS_Black:
+					webView.setBackgroundColor(getResources().getColor(R.color.themeBlackBackground));
+			}
 
 			boolean supportZoom = Controller.getInstance().supportZoomControls();
 			webView.getSettings().setSupportZoom(supportZoom);
