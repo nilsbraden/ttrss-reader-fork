@@ -64,6 +64,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -220,6 +221,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			webView = new MyWebView(getActivity());
 			webView.setWebViewClient(new ArticleWebViewClient());
 			webView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			webView.setBackgroundColor(Color.TRANSPARENT);
 
 			boolean supportZoom = Controller.getInstance().supportZoomControls();
 			webView.getSettings().setSupportZoom(supportZoom);
