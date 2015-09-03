@@ -14,18 +14,16 @@
  * copy of the GNU General Public License along with this program; If
  * not, see http://www.gnu.org/licenses/.
  */
-
-
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.0"
 
     defaultConfig {
         applicationId "org.ttrssreader"
         minSdkVersion 14
-        targetSdkVersion 22
+        targetSdkVersion 23
     }
 
     buildTypes {
@@ -57,8 +55,8 @@ dependencies {
     compile 'org.antlr:ST4:4.0.8'
     compile 'com.google.guava:guava:18.0'
     // Use Material Design everywhere
-    compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.android.support:recyclerview-v7:22.1.1'
+    compile 'com.android.support:appcompat-v7:23.0.0'
+    compile 'com.android.support:recyclerview-v7:23.0.0'
     // For @Nullable/@NonNull
     compile 'com.intellij:annotations:12.0'
     // Remove any potentially harmful script-tags from incoming content
@@ -66,5 +64,5 @@ dependencies {
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
     //compile 'com.google.android.gms:play-services:7.3.0'
-    compile 'com.google.android.gms:play-services-base:7.3.0'
+    compile 'com.google.android.gms:play-services-base:7.8.0'
 }

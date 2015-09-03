@@ -35,6 +35,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -299,6 +300,9 @@ public class FeedHeadlineActivity extends MenuActivity {
 	private void displayFeed(int newFeedId, int direction) {
 		if (mOnSaveInstanceStateCalled) {
 			Log.w(TAG, "displayFeed() has been called after onSaveInstanceState(), this call has been supressed!");
+			Toast.makeText(this,
+					"displayFeed() has been called after onSaveInstanceState(), this call has been supressed!",
+					Toast.LENGTH_SHORT).show();
 			return;
 		}
 
@@ -325,6 +329,9 @@ public class FeedHeadlineActivity extends MenuActivity {
 	private void displayArticle(int newArticleId, int direction) {
 		if (mOnSaveInstanceStateCalled) {
 			Log.w(TAG, "displayArticle() has been called after onSaveInstanceState(), this call has been supressed!");
+			Toast.makeText(this,
+					"displayArticle() has been called after onSaveInstanceState(), this call has been supressed!",
+					Toast.LENGTH_SHORT).show();
 			return;
 		}
 

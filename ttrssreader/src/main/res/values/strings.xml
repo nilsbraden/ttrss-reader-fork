@@ -25,8 +25,11 @@
 	<string name="Main.RefreshMenu">Refresh</string>
 	<string name="Main.ImageCache">Cache images</string>
 	<string name="Preferences.Reset">Reset Preferences</string>
+	<string name="Preferences.Reset.Done">Preferences have been reset.</string>
 	<string name="Preferences.ResetDatabase">Reset Database</string>
+	<string name="Preferences.ResetDatabase.Done">Database has been reset.</string>
 	<string name="Preferences.ResetCache">Reset ImageCache</string>
+	<string name="Preferences.ResetCache.Done">ImageCache has been reset.</string>
 	<string name="Preferences.Btn">Preferences</string>
 	<string name="Changelog.Title">Changelog</string>
 	<string name="Changelog.Prefix"><![CDATA[For the full Changelog please visit the project page on <a href="%s">github.com</a>.]]></string>

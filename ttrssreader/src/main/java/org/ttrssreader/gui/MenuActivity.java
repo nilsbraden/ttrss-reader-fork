@@ -74,7 +74,7 @@ public abstract class MenuActivity extends AppCompatActivity
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
 	protected MenuActivity activity;
-	protected boolean mOnSaveInstanceStateCalled = false;
+	protected volatile boolean mOnSaveInstanceStateCalled = false;
 
 	private Updater updater;
 	private boolean isVertical;
@@ -700,11 +700,11 @@ public abstract class MenuActivity extends AppCompatActivity
 		}
 	}
 
-	@Override
-	public void onBackPressed() {
-		if (!mOnSaveInstanceStateCalled) {
-			super.onBackPressed();
-		}
-	}
+	//	@Override
+	//	public void onBackPressed() {
+	//		if (!mOnSaveInstanceStateCalled) {
+	//		super.onBackPressed();
+	//		}
+	//	}
 
 }

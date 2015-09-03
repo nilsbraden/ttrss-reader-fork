@@ -24,8 +24,11 @@
 	<string name="Main.RefreshMenu">Aktualisieren</string>
 	<string name="Main.ImageCache">Bilder herunterladen</string>
 	<string name="Preferences.Reset">Einstellungen zurücksetzen</string>
+	<string name="Preferences.Reset.Done">Einstellungen wurden zurückgesetzt.</string>
 	<string name="Preferences.ResetDatabase">Datenbank zurücksetzen</string>
+	<string name="Preferences.ResetDatabase.Done">Datenbank wurde zurückgesetzt.</string>
 	<string name="Preferences.ResetCache">ImageCache zurücksetzen</string>
+	<string name="Preferences.ResetCache.Done">ImageCache wurde zurückgesetzt.</string>
 	<string name="Preferences.Btn">Einstellungen</string>
 	<string name="Changelog.Title">Changelog</string>
 	<string name="Changelog.Prefix"><![CDATA[Das komplette Changelog kann auf der Projektseite auf <a href="%s">github.com</a> eingesehen werden.]]></string>

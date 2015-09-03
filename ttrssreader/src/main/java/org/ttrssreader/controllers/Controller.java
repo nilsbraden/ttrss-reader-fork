@@ -25,7 +25,6 @@ import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.net.JavaJSONConnector;
-import org.ttrssreader.net.deprecated.ApacheJSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.SSLUtils;
@@ -454,14 +453,6 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		else return prefs.getBoolean(TRUST_ALL_HOSTS, TRUST_ALL_HOSTS_DEFAULT);
 	}
 
-	private boolean useOldConnector() {
-		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(USE_OLD_CONNECTOR, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
-
-		if (prefs.contains(key)) return prefs.getBoolean(key, USE_OLD_CONNECTOR_DEFAULT);
-		else return prefs.getBoolean(USE_OLD_CONNECTOR, USE_OLD_CONNECTOR_DEFAULT);
-	}
-
 	public String getKeystorePassword() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(KEYSTORE_PASSWORD, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
@@ -501,21 +492,13 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	@SuppressWarnings("deprecation")
 	public JSONConnector getConnector() {
 		// Check if connector needs to be reinitialized because of per-wifi-settings:
-		boolean useOldConnector = useOldConnector();
-		if (useOldConnector && ttrssConnector instanceof JavaJSONConnector) ttrssConnector = null;
-		if (!useOldConnector && ttrssConnector instanceof ApacheJSONConnector) ttrssConnector = null;
-
 		// Initialized inside initializeController();
 		if (ttrssConnector != null) {
 			return ttrssConnector;
 		} else {
 			synchronized (lockConnector) {
 				if (ttrssConnector == null) {
-					if (useOldConnector) {
-						ttrssConnector = new ApacheJSONConnector();
-					} else {
-						ttrssConnector = new JavaJSONConnector();
-					}
+					ttrssConnector = new JavaJSONConnector();
 				}
 			}
 			if (ttrssConnector != null) {

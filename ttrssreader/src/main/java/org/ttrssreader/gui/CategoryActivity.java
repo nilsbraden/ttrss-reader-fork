@@ -325,6 +325,9 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	public void displayFeed(int categoryId) {
 		if (mOnSaveInstanceStateCalled) {
 			Log.w(TAG, "displayFeed() has been called after onSaveInstanceState(), this call has been supressed!");
+			Toast.makeText(this,
+					"displayFeed() has been called after onSaveInstanceState(), this call has been supressed!",
+					Toast.LENGTH_SHORT).show();
 			return;
 		}
 

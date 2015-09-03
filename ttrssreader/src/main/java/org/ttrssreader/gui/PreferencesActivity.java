@@ -45,12 +45,12 @@ import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -211,29 +211,62 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 
 	@Override
 	public boolean onMenuItemClick(MenuItem menuItem) {
-		Log.w(TAG, "== MenuItem clicked: " + menuItem.getItemId());
-		ComponentName comp = new ComponentName(this.getPackageName(), getClass().getName());
-		switch (menuItem.getItemId()) {
-			case R.id.Preferences_Menu_Reset:
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-				Constants.resetPreferences(prefs);
-				this.finish();
-				startActivity(new Intent().setComponent(comp));
-				return true;
-			case R.id.Preferences_Menu_ResetDatabase:
-				Controller.getInstance().setDeleteDBScheduled(true);
-				DBHelper.getInstance().initialize(this);
-				this.finish();
-				startActivity(new Intent().setComponent(comp));
-				return true;
-			case R.id.Preferences_Menu_ResetCache:
-				Data.getInstance().deleteAllRemoteFiles();
-				DBHelper.getInstance().initialize(this);
-				this.finish();
-				startActivity(new Intent().setComponent(comp));
-				return true;
+		int id = menuItem.getItemId();
+
+		boolean doReset;
+		doReset = (id == R.id.Preferences_Menu_Reset);
+		doReset |= (id == R.id.Preferences_Menu_ResetCache);
+		doReset |= (id == R.id.Preferences_Menu_ResetDatabase);
+
+		ComponentName comp = new ComponentName(getPackageName(), getClass().getName());
+		if (doReset) new ResetTask(this, comp).execute(menuItem.getItemId());
+
+		return doReset;
+	}
+
+	/**
+	 * All Reset-Operations should be done from Background.
+	 */
+	private class ResetTask extends AsyncTask<Integer, Void, Void> {
+
+		private final Context context;
+		private final ComponentName comp;
+		private int textResource;
+
+		public ResetTask(Context context, ComponentName comp) {
+			this.context = context;
+			this.comp = comp;
 		}
-		return false;
+
+		@Override
+		protected Void doInBackground(Integer... params) {
+			switch (params[0]) {
+				case R.id.Preferences_Menu_Reset:
+					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+					Constants.resetPreferences(prefs);
+					textResource = R.string.Preferences_Reset_Done;
+					break;
+				case R.id.Preferences_Menu_ResetDatabase:
+					Controller.getInstance().setDeleteDBScheduled(true);
+					DBHelper.getInstance().initialize(context);
+					textResource = R.string.Preferences_ResetDatabase_Done;
+					break;
+				case R.id.Preferences_Menu_ResetCache:
+					Data.getInstance().deleteAllRemoteFiles();
+					DBHelper.getInstance().initialize(context);
+					textResource = R.string.Preferences_ResetCache_Done;
+					break;
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void aVoid) {
+			Toast.makeText(context, textResource, Toast.LENGTH_SHORT).show();
+			finish();
+			startActivity(new Intent().setComponent(comp));
+			super.onPostExecute(aVoid);
+		}
 	}
 
 }
