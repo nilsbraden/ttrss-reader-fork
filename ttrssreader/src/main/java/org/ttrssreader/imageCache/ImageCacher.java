@@ -126,7 +126,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				Looper.myLooper().quit();
+				if (Looper.myLooper() != null) Looper.myLooper().quitSafely();
 			}
 		});
 	}

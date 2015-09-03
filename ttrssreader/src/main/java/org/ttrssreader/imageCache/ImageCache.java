@@ -17,10 +17,6 @@
 
 package org.ttrssreader.imageCache;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.FileUtils;
 
@@ -30,10 +26,13 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Implements a cache capable of caching image files. It exposes helper methods to immediately
  * access binary image data as {@link Bitmap} objects.
+ * Simplified it so much it now is just a Set of Strings which represent the files in the cache folder.
  */
 public class ImageCache {
 
@@ -41,18 +40,11 @@ public class ImageCache {
 
 	protected boolean isDiskCacheEnabled;
 	protected String diskCacheDir;
-	protected Cache<String, Byte[]> cache;
+	protected Set<String> cache;
 
 	public ImageCache(int initialCapacity, String cacheDir) {
 		this.diskCacheDir = cacheDir;
-		this.cache = CacheBuilder.newBuilder().initialCapacity(initialCapacity).concurrencyLevel(1).softValues()
-				.build(new CacheLoader<String, Byte[]>() {
-					@Override
-					public Byte[] load(String key) throws Exception {
-
-						return null;
-					}
-				});
+		this.cache = new HashSet<>(initialCapacity);
 	}
 
 	/**
@@ -103,7 +95,7 @@ public class ImageCache {
 
 		for (File file : files) {
 			try {
-				cache.put(file.getName(), null);
+				cache.add(file.getName());
 			} catch (RuntimeException e) {
 				Log.e(TAG, "Runtime Exception while doing fillMemoryCacheFromDisk: " + e.getMessage());
 			}
@@ -112,7 +104,7 @@ public class ImageCache {
 	}
 
 	boolean containsKey(String key) {
-		return cache.getIfPresent(getFileNameForKey(key)) != null || isDiskCacheEnabled && getCacheFile(key).exists();
+		return cache.contains(getFileNameForKey(key)) || isDiskCacheEnabled && getCacheFile(key).exists();
 	}
 
 	/**
@@ -156,7 +148,7 @@ public class ImageCache {
 	}
 
 	public synchronized void clear() {
-		cache.invalidateAll();
+		cache.clear();
 
 		if (isDiskCacheEnabled) {
 			File[] cachedFiles = new File(diskCacheDir).listFiles();

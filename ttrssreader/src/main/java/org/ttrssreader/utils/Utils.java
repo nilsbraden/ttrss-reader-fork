@@ -198,17 +198,17 @@ public class Utils {
 	/**
 	 * Only checks the connectivity without regard to the preferences
 	 */
-	private static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi) {
+	public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi) {
 		if (cm == null) return false;
 
-		NetworkInfo info;
-		if (onlyWifi) {
-			info = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-		} else {
-			info = cm.getActiveNetworkInfo();
+		NetworkInfo info = cm.getActiveNetworkInfo();
+		if (info.isConnected()) {
+			if (onlyWifi && info.getType() != ConnectivityManager.TYPE_WIFI) {
+				return false;
+			}
+			return true;
 		}
-
-		return info != null && info.isConnected();
+		return false;
 	}
 
 	public static void showFinishedNotification(String content, int time, boolean error, Context context) {

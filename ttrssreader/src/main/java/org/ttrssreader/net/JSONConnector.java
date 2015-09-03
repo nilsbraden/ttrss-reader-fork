@@ -463,10 +463,9 @@ public abstract class JSONConnector {
 			reader.beginArray();
 			while (reader.hasNext()) {
 				Article article = new Article();
-				boolean skipObject = false;
 
 				reader.beginObject();
-				skipObject = parseArticle(article, reader, skipNames, filter);
+				boolean skipObject = parseArticle(article, reader, skipNames, filter);
 				reader.endObject();
 
 				if (!skipObject && article.id != -1 && article.title != null) articles.add(article);

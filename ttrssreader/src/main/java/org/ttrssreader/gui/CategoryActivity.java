@@ -38,7 +38,6 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -110,9 +109,8 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			if (Controller.getInstance().cacheImagesOnlyWifi()) {
 				// Check if Wifi is connected, if not don't start the ImageCache
 				ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-				NetworkInfo mWifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-				if (!mWifi.isConnected()) {
+				if (!Utils.checkConnected(cm, true)) {
 					Log.i(TAG, "Preference Start ImageCache only on WIFI set, doing nothing...");
 					startCache = false;
 				}

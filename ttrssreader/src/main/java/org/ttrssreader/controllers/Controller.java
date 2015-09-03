@@ -294,14 +294,12 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public static boolean checkNoEmulator() {
-		if ("google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT)
-				|| "vbox86p".equals(Build.PRODUCT)) return false;
-		return true;
+		return !("google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) || "sdk_x86".equals(Build.PRODUCT)
+				|| "vbox86p".equals(Build.PRODUCT));
 	}
 
 	public static boolean checkDebuggableDisabled(final Context context) {
-		if ((context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0) return false;
-		return true;
+		return (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0;
 	}
 
 	/**
@@ -357,8 +355,6 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		String url;
 		if (prefs.contains(key)) url = prefs.getString(key, URL_DEFAULT);
 		else url = prefs.getString(URL, URL_DEFAULT);
-
-		if (url == null) return null;
 
 		if (!url.endsWith(JSON_END_URL)) {
 			if (!url.endsWith("/")) {

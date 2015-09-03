@@ -52,6 +52,7 @@
 		android:name="org.ttrssreader.MyApplication"
 		android:allowBackup="true"
 		android:backupAgent=".preferences.MyPrefsBackupAgent"
+		android:fullBackupContent="@xml/backup_files"
 		android:description="@string/ApplicationDescription"
 		android:hardwareAccelerated="true"
 		android:icon="@drawable/icon"
