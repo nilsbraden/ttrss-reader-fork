@@ -202,7 +202,7 @@ public class Utils {
 		if (cm == null) return false;
 
 		NetworkInfo info = cm.getActiveNetworkInfo();
-		if (info.isConnected()) {
+		if (info != null && info.isConnected()) {
 			if (onlyWifi && info.getType() != ConnectivityManager.TYPE_WIFI) {
 				return false;
 			}
