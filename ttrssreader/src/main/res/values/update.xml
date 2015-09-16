@@ -18,6 +18,8 @@
 <resources>
 
 	<string-array name="updates">
+		<item>Version 1.86.1
+			 * Fixed FC</item>
 		<item>Version 1.86
 			 * Display server-side-cached-images behind http auth
 			 * Slightly adjusted order of menu items
