@@ -213,17 +213,17 @@ public class SubscribeActivity extends MenuActivity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			return initView(position, convertView);
+			return initView(position, convertView, parent);
 		}
 
 		@Override
 		public View getDropDownView(int position, View convertView, ViewGroup parent) {
-			return initView(position, convertView);
+			return initView(position, convertView, parent);
 		}
 
-		private View initView(int position, View convertView) {
+		private View initView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null)
-				convertView = View.inflate(getContext(), android.R.layout.simple_list_item_1, null);
+				convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_1, parent, false);
 			TextView tvText1 = (TextView) convertView.findViewById(android.R.id.text1);
 			tvText1.setText(getItem(position).title);
 			return convertView;
