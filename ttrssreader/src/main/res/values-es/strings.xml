@@ -74,8 +74,6 @@
 	<string name="ConnectionSslPreferenceSummary">Aceptar todos los certificados SSL.</string>
 	<string name="ConnectionTrustHostsPreferenceTitle">Confiar en todos los Hosts</string>
 	<string name="ConnectionTrustHostsPreferenceSummary">Aceptar certificados desde todos los hosts</string>
-	<string name="ConnectionUseOldConnectorTitle">Usar conector antiguo (Digest)</string>
-	<string name="ConnectionUseOldConnectorSummary">El conector antiguo permite autenticación digest pero no puede conectar con servidores que usen SNI. NOT SUPPORTED ANYMORE!</string>
 	<string name="ConnectionKeystorePasswordPreferenceTitle">Custom Keystore Password</string>
 	<string name="ConnectionKeystorePasswordPreferenceSummary">Password to unlock custom keystore</string>
 	<string name="ConnectionUseKeystorePreferenceTitle">Custom Keystore</string>

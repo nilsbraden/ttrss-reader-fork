@@ -54,13 +54,6 @@
 			android:key="ConnectionKeystorePasswordPreference"
 			android:summary="@string/ConnectionKeystorePasswordPreferenceSummary"
 			android:title="@string/ConnectionKeystorePasswordPreferenceTitle" />
-
-		<CheckBoxPreference
-			android:defaultValue="false"
-			android:disableDependentsState="true"
-			android:key="ConnectionUseOldConnector"
-			android:summary="@string/ConnectionUseOldConnectorSummary"
-			android:title="@string/ConnectionUseOldConnectorTitle" />
 	</PreferenceCategory>
 
 </PreferenceScreen>
