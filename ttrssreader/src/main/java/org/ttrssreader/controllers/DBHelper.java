@@ -77,6 +77,7 @@ public class DBHelper {
 	static final String MARK_STAR = "isStarred";
 	static final String MARK_PUBLISH = "isPublished";
 	static final String MARK_NOTE = "note";
+	static final String COL_UNREAD = "unread";
 
 	// @formatter:off
 	private static final String CREATE_TABLE_CATEGORIES =
@@ -671,7 +672,7 @@ public class DBHelper {
 	}
 
 	void insertCategories(Set<Category> set) {
-		if (!isDBAvailable() || set == null) return;
+		if (!isDBAvailable() || set == null || set.isEmpty()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		writeLock(true);
@@ -704,7 +705,7 @@ public class DBHelper {
 	}
 
 	void insertFeeds(Set<Feed> set) {
-		if (!isDBAvailable() || set == null) return;
+		if (!isDBAvailable() || set == null || set.isEmpty()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		writeLock(true);
@@ -1000,9 +1001,12 @@ public class DBHelper {
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		writeLock(true);
 		try {
+			db.beginTransaction();
 			ret = db.update(TABLE_ARTICLES, cv, "_id IN (" + idList + ") AND ? != ?",
 					new String[] {mark, String.valueOf(state)});
+			db.setTransactionSuccessful();
 		} finally {
+			db.endTransaction();
 			writeLock(false);
 		}
 
@@ -1055,85 +1059,128 @@ public class DBHelper {
 	}
 
 	/**
-	 * Set unread counters for feeds and categories according to real amount of unread articles.
+	 * Set unread counters for feeds and categories according to real amount of unread articles. Split up the tasks in
+	 * single transactions so we can do other work in between.
 	 */
 	void calculateCounters() {
 		if (!isDBAvailable()) return;
 
 		long time = System.currentTimeMillis();
 		int total = 0;
-		Cursor c = null;
 
-		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		writeLock(true);
-		db.beginTransaction();
 		try {
-			ContentValues cv = new ContentValues(1);
-
-			// First of all, reset all feeds and all categories to unread=0
-			cv.put("unread", 0);
-			db.update(TABLE_FEEDS, cv, null, null);
-			db.update(TABLE_CATEGORIES, cv, null, null);
-
-			// Count all feeds where unread articles exist
-			try {
-				// select feedId, count(*) from articles where isUnread>0 group by feedId
-				c = db.query(TABLE_ARTICLES, new String[] {"feedId", "count(*)"}, "isUnread>0", null, "feedId", null,
-						null, null);
-
-				// update feeds
-				while (c.moveToNext()) {
-					int feedId = c.getInt(0);
-					int unreadCount = c.getInt(1);
-
-					total += unreadCount;
-
-					cv.put("unread", unreadCount);
-					db.update(TABLE_FEEDS, cv, "_id=" + feedId, null);
-				}
-			} finally {
-				if (c != null && !c.isClosed()) c.close();
-			}
-
-			// Count all categories where feeds with unread articles exist
-			try {
-				// select categoryId, sum(unread) from feeds where categoryId >= 0 group by categoryId
-				c = db.query(TABLE_FEEDS, new String[] {"categoryId", "sum(unread)"}, "categoryId>=0", null,
-						"categoryId", null, null, null);
-
-				// update real categories
-				while (c.moveToNext()) {
-					int categoryId = c.getInt(0);
-					int unreadCount = c.getInt(1);
-
-					cv.put("unread", unreadCount);
-					db.update(TABLE_CATEGORIES, cv, "_id=" + categoryId, null);
-				}
-			} finally {
-				if (c != null && !c.isClosed()) c.close();
-			}
-
-			// Count special categories
-			cv.put("unread", total);
-			db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_ALL, null);
-
-			cv.put("unread", getUnreadCount(Data.VCAT_FRESH, true));
-			db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_FRESH, null);
-
-			cv.put("unread", getUnreadCount(Data.VCAT_PUB, true));
-			db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_PUB, null);
-
-			cv.put("unread", getUnreadCount(Data.VCAT_STAR, true));
-			db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_STAR, null);
-
-			db.setTransactionSuccessful();
+			countResetFeedsAndCategories();
+			total += countFeedsWithUnread();
+			countCategoriesWithUnread();
+			countSpecialCategories(total);
 		} finally {
-			db.endTransaction();
 			writeLock(false);
 		}
 
-		Log.i(TAG, String.format("Fixed counters, total unread: %s (took %sms)", total,
+		Log.i(TAG, String.format("Recalculated counters, total unread: %s (took %sms)", total,
 				(System.currentTimeMillis() - time)));
+	}
+
+	/**
+	 * First of all, reset all feeds and all categories to unread=0.
+	 */
+	private void countResetFeedsAndCategories() {
+		final SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		db.beginTransaction();
+		try {
+			final ContentValues cv = new ContentValues(1);
+			cv.put(COL_UNREAD, 0);
+			db.update(TABLE_FEEDS, cv, null, null);
+			db.update(TABLE_CATEGORIES, cv, null, null);
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+		}
+	}
+
+	/**
+	 * Count all feeds where unread articles exist.
+	 *
+	 * @return the number of overall unread articles
+	 */
+	private int countFeedsWithUnread() {
+		int total = 0;
+		Cursor c = null;
+		final SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		db.beginTransaction();
+		try {
+			final ContentValues cv = new ContentValues(1);
+			c = db.query(TABLE_ARTICLES, new String[] {"feedId", "count(*)"}, "isUnread>0", null, "feedId", null, null,
+					null);
+
+			// update feeds
+			while (c.moveToNext()) {
+				int feedId = c.getInt(0);
+				int unreadCount = c.getInt(1);
+				total += unreadCount;
+
+				cv.put(COL_UNREAD, unreadCount);
+				db.update(TABLE_FEEDS, cv, "_id=" + feedId, null);
+			}
+			db.setTransactionSuccessful();
+		} finally {
+			if (c != null && !c.isClosed()) c.close();
+			db.endTransaction();
+		}
+		return total;
+	}
+
+	/**
+	 * Count all categories where feeds with unread articles exist.
+	 */
+	private void countCategoriesWithUnread() {
+		Cursor c = null;
+		final SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		db.beginTransaction();
+		try {
+			final ContentValues cv = new ContentValues(1);
+			c = db.query(TABLE_FEEDS, new String[] {"categoryId", "sum(unread)"}, "categoryId>=0", null, "categoryId",
+					null, null, null);
+
+			// update real categories
+			while (c.moveToNext()) {
+				int categoryId = c.getInt(0);
+				int unreadCount = c.getInt(1);
+
+				cv.put(COL_UNREAD, unreadCount);
+				db.update(TABLE_CATEGORIES, cv, "_id=" + categoryId, null);
+			}
+			db.setTransactionSuccessful();
+		} finally {
+			if (c != null && !c.isClosed()) c.close();
+			db.endTransaction();
+		}
+	}
+
+	/**
+	 * Count special categories.
+	 */
+	private void countSpecialCategories(final int total) {
+		final SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		db.beginTransaction();
+		try {
+			final ContentValues cv = new ContentValues(1);
+			cv.put(COL_UNREAD, total);
+			db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_ALL, null);
+
+			cv.put(COL_UNREAD, getUnreadCount(Data.VCAT_FRESH, true));
+			db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_FRESH, null);
+
+			cv.put(COL_UNREAD, getUnreadCount(Data.VCAT_PUB, true));
+			db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_PUB, null);
+
+			cv.put(COL_UNREAD, getUnreadCount(Data.VCAT_STAR, true));
+			db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_STAR, null);
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+		}
 	}
 
 	/**
@@ -1605,8 +1652,8 @@ public class DBHelper {
 			for (String idList : StringSupport.convertListToString(ids.keySet(), 1000)) {
 				cv.putNull(mark);
 				db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
-				db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
 			}
+			db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
 
 			// Insert notes afterwards and only if given note is not null
 			cv = new ContentValues(1);
