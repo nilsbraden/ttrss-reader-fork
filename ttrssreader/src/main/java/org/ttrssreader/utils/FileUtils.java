@@ -90,6 +90,10 @@ public class FileUtils {
 		InputStream is = null;
 
 		try (FileOutputStream fos = new FileOutputStream(file)) {
+			// In case where http and https is supported we might get just // as URL prefix, so we use a secure default...
+			if(downloadUrl.startsWith("//"))
+				downloadUrl = "https:" + downloadUrl;
+
 			URL url = new URL(downloadUrl);
 			URLConnection connection = Controller.getInstance().openConnection(url);
 
