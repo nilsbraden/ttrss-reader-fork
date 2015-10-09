@@ -394,7 +394,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		while (m.find()) {
 			String url = m.group(1);
-			if (url.startsWith("http")) ret.add(url);
+
+			if (url.startsWith("http") || url.startsWith("ftp://")) ret.add(url);
 		}
 		return ret;
 	}
