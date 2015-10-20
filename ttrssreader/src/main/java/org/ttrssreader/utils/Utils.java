@@ -95,10 +95,17 @@ public class Utils {
 	private static final int ID_FINISHED = 7897891;
 
 	/*
-	 * Check if this is the first run of the app, if yes, returns false.
+	 * Check if this is the first run of the app.
 	 */
 	public static boolean checkIsFirstRun() {
-		return Controller.getInstance().newInstallation();
+		if (Controller.getInstance().isFirstRun()) {
+			// Set first run to false anyway.
+			Controller.getInstance().setFirstRun(false);
+			// Compatibility for already installed apps that don't have this pref yet:
+			return Constants.LAST_VERSION_RUN_DEFAULT.equals(Controller.getInstance().getLastVersionRun());
+		} else {
+			return false;
+		}
 	}
 
 	/*
