@@ -17,8 +17,6 @@
 
 package org.ttrssreader.imageCache;
 
-import org.ttrssreader.MyApplication;
-import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
@@ -37,7 +35,6 @@ import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -126,7 +123,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				if (Looper.myLooper() != null) Looper.myLooper().quitSafely();
+				Looper looper = Looper.myLooper();
+				if (looper != null) looper.quitSafely();
 			}
 		});
 	}
@@ -273,7 +271,6 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 						for (DownloadImageTask task : map.values()) {
 							task.cancel();
 						}
-						showCancelledNotification(minutes);
 						break;
 					}
 					map.wait(Utils.SECOND);
@@ -292,11 +289,6 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		DBHelper.getInstance().markRemoteFilesCached(remoteFilesCopy);
 
 		Log.i(TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
-	}
-
-	private void showCancelledNotification(int minutes) {
-		String msg = MyApplication.context().getString(R.string.Cache_ImageCacheCancelled, minutes);
-		Toast.makeText(MyApplication.context(), msg, Toast.LENGTH_LONG).show();
 	}
 
 	private class DownloadImageTask implements Runnable {

@@ -281,7 +281,6 @@
 	<string name="Cache.service_text">Download is running…</string>
 	<string name="Cache.service_imagecache" translatable="false">ImageCache</string>
 	<string name="Cache.service_articlecache" translatable="false">ArticleCache</string>
-	<string name="Cache.ImageCacheCancelled">Caching of images has been cancelled after %s minutes…</string>
 	<string name="Share.title">Title</string>
 	<string name="Share.url">URL</string>
 	<string name="Share.content">Content</string>
