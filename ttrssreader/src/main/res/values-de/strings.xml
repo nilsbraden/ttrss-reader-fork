@@ -235,6 +235,7 @@
 	<string name="ErrorActivity.ExitBtn">Beenden</string>
 	<string name="WebViewClientActivity.Download">Download</string>
 	<string name="WebViewClientActivity.Display">Im Mediaplayer anzeigen</string>
+	<string name="WebViewClientActivity.ChooseApp">Player auswählen</string>
 	<string name="About.about">Über</string>
 	<string name="About.about_hint">Über diese App</string>
 	<string name="About.project">Projekt-Webseite</string>

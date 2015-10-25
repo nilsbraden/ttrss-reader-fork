@@ -59,26 +59,31 @@ public class ArticleWebViewClient extends WebViewClient {
 
 		final Context context = view.getContext();
 
-		boolean audioOrVideo = false;
+		boolean audio = false;
+		boolean video = false;
+
 		for (String s : FileUtils.AUDIO_EXTENSIONS) {
 			if (url.toLowerCase(Locale.getDefault()).contains("." + s)) {
-				audioOrVideo = true;
+				audio = true;
 				break;
 			}
 		}
 
 		for (String s : FileUtils.VIDEO_EXTENSIONS) {
 			if (url.toLowerCase(Locale.getDefault()).contains("." + s)) {
-				audioOrVideo = true;
+				video = true;
 				break;
 			}
 		}
 
-		if (audioOrVideo) {
+		final String contentType = audio ? "audio/*" : "video/*";
+
+		if (audio || video) {
 			// @formatter:off
 			final CharSequence[] items = {
 					(String) context.getText(R.string.WebViewClientActivity_Display),
-					(String) context.getText(R.string.WebViewClientActivity_Download)};
+					(String) context.getText(R.string.WebViewClientActivity_Download),
+					(String) context.getText(R.string.WebViewClientActivity_ChooseApp)};
 			// @formatter:on
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -102,6 +107,12 @@ public class ArticleWebViewClient extends WebViewClient {
 							} catch (MalformedURLException e) {
 								e.printStackTrace();
 							}
+							break;
+						case 2:
+							Intent intent = new Intent();
+							intent.setAction(android.content.Intent.ACTION_VIEW);
+							intent.setDataAndType(Uri.parse(url), contentType);
+							context.startActivity(intent);
 							break;
 						default:
 							Log.e(TAG, "Doing nothing, but why is that?? Item: " + item);
@@ -236,24 +247,20 @@ public class ArticleWebViewClient extends WebViewClient {
 	 * inject authentication information without intercepting the resource loading itself.
 	 */
 	@Override
-	public WebResourceResponse shouldInterceptRequest (WebView view, WebResourceRequest request) {
+	public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
 		Controller controller = Controller.getInstance();
 
 		/* Short-circuit ahead of UrlNeedsAuthentication to avoid needless URL building. */
-		if (!controller.useHttpAuth())
-			return null;
+		if (!controller.useHttpAuth()) return null;
 
 		try {
 			URL url = new URL(request.getUrl().toString());
 
-			if (!controller.UrlNeedsAuthentication(url))
-				return null;
+			if (!controller.UrlNeedsAuthentication(url)) return null;
 
 			URLConnection c = controller.openConnection(url);
 
-			return new WebResourceResponse(c.getContentType(),
-										   c.getContentEncoding(),
-										   c.getInputStream());
+			return new WebResourceResponse(c.getContentType(), c.getContentEncoding(), c.getInputStream());
 		} catch (IOException e) {
 			Log.e(TAG, "Failed to fetch " + request.getUrl().toString());
 		}
