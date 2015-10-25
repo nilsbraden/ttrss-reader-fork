@@ -24,8 +24,8 @@
 	<color name="themeLightAccent">#FFF57C00</color>
 	<color name="themeLightAccentDark">#FFC76602</color>
 	<color name="themeLightBackground">#FFE1E1E1</color>
-	<color name="themeLightTextColorPrimary">#D2000000</color>
-	<color name="themeLightTextColor">#FF000000</color>
+	<color name="themeLightTextColorPrimary">#D23A3931</color>
+	<color name="themeLightTextColor">#FF3A3931</color>
 	<color name="themeLightHtmlHeaderBackgound">#FFB8B3B3</color>
 
 	<!-- Colors for dark theme -->
@@ -34,8 +34,8 @@
 	<color name="themeDarkAccent">#FFF57C00</color>
 	<color name="themeDarkAccentDark">#FFC76602</color>
 	<color name="themeDarkBackground">#FF222222</color>
-	<color name="themeDarkTextColorPrimary">#D2FFFFFF</color>
-	<color name="themeDarkTextColor">#FFFFFFFF</color>
+	<color name="themeDarkTextColorPrimary">#D2CCCCCC</color>
+	<color name="themeDarkTextColor">#FFCCCCCC</color>
 	<color name="themeDarkHtmlHeaderBackgound">#FF454545</color>
 
 	<!-- Colors for white theme -->
@@ -45,6 +45,5 @@
 	<!-- Colors for black theme -->
 	<color name="themeBlackAccent">#FFFF3D00</color>
 	<color name="themeBlackBackground">#FF000000</color>
-	#FFFF3D00
 
 </resources>

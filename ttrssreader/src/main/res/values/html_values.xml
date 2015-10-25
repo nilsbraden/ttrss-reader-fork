@@ -101,8 +101,8 @@
 	/************ BEGIN THEMES ************/
 	/*** THEME: DARK ***/
 	body#darkTheme {
-		background-color: #282828;
-		color: #DDD;
+		background-color: #383838;
+		color: #CCC;
 	}
 	body#darkTheme #header {
 		background-color: #858585;
@@ -116,8 +116,8 @@
 
 	/*** THEME: LIGHT ***/
 	body#lightTheme {
-		background-color: #E1E1E1;
-		color: #333;
+		background-color: #DED9D2;
+		color: #3A3931;
 	}
 	body#lightTheme #header {
 		background-color: #B7B7B7;
@@ -132,7 +132,7 @@
 	/*** THEME: BLACK ***/
 	body#blackTheme {
 		background-color: #000;
-		color: #FFF;
+		color: #CCC;
 	}
 	body#blackTheme #header {
 		background-color: #858585;
@@ -147,7 +147,7 @@
 	/*** THEME: WHITE ***/
 	body#whiteTheme {
 		background-color: #FFF;
-		color: #000;
+		color: #3A3931;
 	}
 	body#whiteTheme #header {
 		background-color: #B7B7B7;
