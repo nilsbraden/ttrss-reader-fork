@@ -18,6 +18,17 @@
 <resources>
 
 	<string-array name="updates">
+		<item>Version 1.87
+			 * Fixed NPE when subscribing to a new feed and selecting a category
+			 * Removed remaining references to the preference \"Use old connector\"
+			 * Modified some DB operations
+			 * Modify handling of all urls with a prefix/scheme of just \"//\"
+			 * Added product flavor for Play Services-free builds
+			 * Allow ftp downloads and handle urls in image/video tags
+			 * Fixed some FCs
+			 * Fix Issue #308: How to stream a media file
+			 * Fixed Issue #305: Problem when serves doesn\'t use credentials
+			 * Adjusted text-colors and article background for better readablity</item>
 		<item>Version 1.86.1
 			 * Fixed FC</item>
 		<item>Version 1.86
