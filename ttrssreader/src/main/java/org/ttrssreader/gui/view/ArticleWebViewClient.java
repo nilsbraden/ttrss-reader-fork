@@ -44,7 +44,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -189,17 +188,15 @@ public class ArticleWebViewClient extends WebViewClient {
 			File file;
 			try {
 				URL url = urls[0];
-				HttpURLConnection c = (HttpURLConnection) Controller.getInstance().openConnection(url);
+				URLConnection c;
+
+				c = Controller.getInstance().openConnection(url);
 
 				file = new File(folder, URLUtil.guessFileName(url.toString(), null, ".mp3"));
 				if (file.exists()) {
 					size = (int) file.length();
 					c.setRequestProperty("Range", "bytes=" + size + "-"); // try to resume downloads
 				}
-
-				c.setRequestMethod("GET");
-				c.setDoInput(true);
-				c.setDoOutput(true);
 
 				in = new BufferedInputStream(c.getInputStream());
 				fos = (size == 0) ? new FileOutputStream(file) : new FileOutputStream(file, true);

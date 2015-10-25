@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
 
+import org.intellij.lang.annotations.RegExp;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ttrssreader.MyApplication;
@@ -49,6 +50,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public abstract class JSONConnector {
 
@@ -422,6 +424,8 @@ public abstract class JSONConnector {
 					switch (reader.nextName()) {
 						case CONTENT_URL:
 							attUrl = reader.nextString();
+							// Some URLs may start with // to indicate that both, http and https can be used
+							if (attUrl.startsWith("//")) attUrl = "https:" + attUrl;
 							break;
 						case ID:
 							attId = reader.nextString();
@@ -525,13 +529,17 @@ public abstract class JSONConnector {
 						else a.feedId = reader.nextInt();
 						break;
 					case content:
-						a.content = reader.nextString();
+						a.content = reader.nextString().replaceAll("(<(?:img|video)[^>]+?src=[\"'])//([^\"']*)", "$1https://$2");
 						break;
 					case link:
 						a.url = reader.nextString();
+						// Some URLs may start with // to indicate that both, http and https can be used
+						if (a.url.startsWith("//")) a.url = "https:" + a.url;
 						break;
 					case comments:
 						a.commentUrl = reader.nextString();
+						// Some URLs may start with // to indicate that both, http and https can be used
+						if (a.commentUrl.startsWith("//")) a.commentUrl = "https:" + a.commentUrl;
 						break;
 					case attachments:
 						a.attachments = parseAttachments(reader);
