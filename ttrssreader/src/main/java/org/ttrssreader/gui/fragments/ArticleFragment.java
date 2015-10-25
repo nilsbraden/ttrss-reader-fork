@@ -126,7 +126,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	private Feed feed = null;
 	private String content;
 	private boolean linkAutoOpened;
-	private boolean markedRead = false;
 	private String cachedImages = "";
 
 	private FrameLayout webContainer = null;
@@ -298,9 +297,6 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 					new Updater(null, new ArticleReadStateUpdater(article, 0))
 							.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				}
-				// Regardless of whether we did it, the article has been marked read.
-				markedRead = true;
-
 				cachedImages = getCachedImagesJS(article.id);
 
 				// Reload content on next doRefresh()
@@ -329,22 +325,12 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 
 	@Override
 	public void onStop() {
-		// Check again to make sure it didnt get updated and marked as unread again in the background
-		if (!markedRead) {
-			if (article != null && article.isUnread) new Updater(null, new ArticleReadStateUpdater(article, 0))
-					.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
 		super.onStop();
 		if (getView() != null) getView().setVisibility(View.GONE);
 	}
 
 	@Override
 	public void onDestroy() {
-		// Check again to make sure it didnt get updated and marked as unread again in the background
-		if (!markedRead) {
-			if (article != null && article.isUnread) new Updater(null, new ArticleReadStateUpdater(article, 0))
-					.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		}
 		super.onDestroy();
 		if (webContainer != null) webContainer.removeAllViews();
 		if (webView != null) webView.destroy();
@@ -583,23 +569,22 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {
+		if (article == null) return false; // No article object -> no action!
+
 		switch (item.getItemId()) {
 			case R.id.Article_Menu_MarkRead: {
-				if (article != null)
-					new Updater(getActivity(), new ArticleReadStateUpdater(article, article.isUnread ? 0 : 1))
-							.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				new Updater(getActivity(), new ArticleReadStateUpdater(article, article.isUnread ? 0 : 1))
+						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				return true;
 			}
 			case R.id.Article_Menu_MarkStar: {
-				if (article != null)
-					new Updater(getActivity(), new StarredStateUpdater(article, article.isStarred ? 0 : 1))
-							.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				new Updater(getActivity(), new StarredStateUpdater(article, article.isStarred ? 0 : 1))
+						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				return true;
 			}
 			case R.id.Article_Menu_MarkPublish: {
-				if (article != null)
-					new Updater(getActivity(), new PublishedStateUpdater(article, article.isPublished ? 0 : 1))
-							.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+				new Updater(getActivity(), new PublishedStateUpdater(article, article.isPublished ? 0 : 1))
+						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				return true;
 			}
 			case R.id.Article_Menu_MarkPublishNote: {
@@ -607,20 +592,16 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 				return true;
 			}
 			case R.id.Article_Menu_AddArticleLabel: {
-				if (article != null) {
-					DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
-					dialog.show(getFragmentManager(), "Edit Labels");
-				}
+				DialogFragment dialog = ArticleLabelDialog.newInstance(article.id);
+				dialog.show(getFragmentManager(), "Edit Labels");
 				return true;
 			}
 			case R.id.Article_Menu_ShareLink: {
-				if (article != null) {
-					Intent i = new Intent(Intent.ACTION_SEND);
-					i.setType("text/plain");
-					i.putExtra(Intent.EXTRA_TEXT, article.url);
-					i.putExtra(Intent.EXTRA_SUBJECT, article.title);
-					startActivity(Intent.createChooser(i, getText(R.string.ArticleActivity_ShareTitle)));
-				}
+				Intent i = new Intent(Intent.ACTION_SEND);
+				i.setType("text/plain");
+				i.putExtra(Intent.EXTRA_TEXT, article.url);
+				i.putExtra(Intent.EXTRA_SUBJECT, article.title);
+				startActivity(Intent.createChooser(i, getText(R.string.ArticleActivity_ShareTitle)));
 				return true;
 			}
 			default:
