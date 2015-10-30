@@ -235,7 +235,7 @@
 	<string name="DeleteDBOnStartupSummary">If set to true the internal Database will be deleted on EVERY start of the application.</string>
 	<string name="ConnectionWifiPrefEnableTitle">Enable settings for this network?</string>
 	<string name="ConnectionWifiPrefEnabledSummary">Preferences for this Wifi network are enabled.</string>
-	<string name="ConnectionWifiPrefDisbledSummary">Preferences for this Wifi network are disbled.</string>
+	<string name="ConnectionWifiPrefDisbledSummary">Preferences for this Wifi network are disabled.</string>
 	<string name="ConnectionWifiPrefScreenTitle">Wifi (per network) connectivity settings</string>
 	<string name="ConnectionWifiPrefScreenSummary">Special configuration for the connected network</string>
 	<string name="ConnectionWifiPrefSelectionTitle">Wifi: \"%s\"</string>
