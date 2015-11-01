@@ -44,6 +44,7 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.pojos.RemoteFile;
 import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
+import org.ttrssreader.model.updaters.NoteUpdater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -587,7 +588,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				return true;
 			}
-			case R.id.Article_Menu_MarkPublishNote: {
+			case R.id.Article_Menu_MarkNote: {
 				new TextInputAlert(this, article).show(getActivity());
 				return true;
 			}
@@ -911,9 +912,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	}
 
 	@Override
-	public void onPublishNoteResult(Article a, String note) {
-		new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note))
-				.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	public void onAddNoteResult(Article a, String note) {
+		new Updater(getActivity(), new NoteUpdater(a, note)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	@Override

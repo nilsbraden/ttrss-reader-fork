@@ -423,7 +423,6 @@ public class Data {
 	public void setArticleRead(Set<Integer> ids, int articleState) {
 		boolean erg = false;
 		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleRead(ids, articleState);
-
 		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, articleState);
 	}
 
@@ -433,23 +432,26 @@ public class Data {
 		ids.add(articleId);
 
 		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
-
 		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, articleState);
 	}
 
-	public void setArticlePublished(int articleId, int articleState, String note) {
+	public void setArticlePublished(int articleId, int articleState) {
+		boolean erg = false;
+		Set<Integer> ids = new HashSet<>();
+		ids.add(articleId);
+
+		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticlePublished(ids,
+				articleState);
+		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_PUBLISH, articleState);
+	}
+
+	public void setArticleNote(int articleId, String note) {
 		boolean erg = false;
 		Map<Integer, String> ids = new HashMap<>();
 		ids.put(articleId, note);
 
-		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticlePublished(ids,
-				articleState);
-
-		// Write changes to cache if calling the server failed
-		if (!erg) {
-			DBHelper.getInstance().markUnsynchronizedStates(ids.keySet(), DBHelper.MARK_PUBLISH, articleState);
-			DBHelper.getInstance().markUnsynchronizedNotes(ids);
-		}
+		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleNote(ids);
+		if (!erg) DBHelper.getInstance().markUnsynchronizedNotes(ids);
 	}
 
 	/**
@@ -519,24 +521,23 @@ public class Data {
 
 		long time = System.currentTimeMillis();
 
-		String[] marks = new String[] {DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH,
-				DBHelper.MARK_NOTE};
+		String[] marks = new String[] {DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH};
 		for (String mark : marks) {
-			Map<Integer, String> idsMark = DBHelper.getInstance().getMarked(mark, 1);
-			Map<Integer, String> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
+			Set<Integer> idsMark = DBHelper.getInstance().getMarked(mark, 1);
+			Set<Integer> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
 
 			if (DBHelper.MARK_READ.equals(mark)) {
-				if (Controller.getInstance().getConnector().setArticleRead(idsMark.keySet(), 1))
+				if (Controller.getInstance().getConnector().setArticleRead(idsMark, 1))
 					DBHelper.getInstance().setMarked(idsMark, mark);
 
-				if (Controller.getInstance().getConnector().setArticleRead(idsUnmark.keySet(), 0))
+				if (Controller.getInstance().getConnector().setArticleRead(idsUnmark, 0))
 					DBHelper.getInstance().setMarked(idsUnmark, mark);
 			}
 			if (DBHelper.MARK_STAR.equals(mark)) {
-				if (Controller.getInstance().getConnector().setArticleStarred(idsMark.keySet(), 1))
+				if (Controller.getInstance().getConnector().setArticleStarred(idsMark, 1))
 					DBHelper.getInstance().setMarked(idsMark, mark);
 
-				if (Controller.getInstance().getConnector().setArticleStarred(idsUnmark.keySet(), 0))
+				if (Controller.getInstance().getConnector().setArticleStarred(idsUnmark, 0))
 					DBHelper.getInstance().setMarked(idsUnmark, mark);
 			}
 			if (DBHelper.MARK_PUBLISH.equals(mark)) {
@@ -546,6 +547,12 @@ public class Data {
 				if (Controller.getInstance().getConnector().setArticlePublished(idsUnmark, 0))
 					DBHelper.getInstance().setMarked(idsUnmark, mark);
 			}
+		}
+
+		Map<Integer, String> notesMarked = DBHelper.getInstance().getMarkedNotes();
+		if (notesMarked.size() > 0) {
+			if (Controller.getInstance().getConnector().setArticleNote(notesMarked))
+				DBHelper.getInstance().setMarked(notesMarked, DBHelper.MARK_NOTE);
 		}
 
 		/*

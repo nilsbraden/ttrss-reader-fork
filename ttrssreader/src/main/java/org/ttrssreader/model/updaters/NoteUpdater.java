@@ -15,10 +15,32 @@
  * not, see http://www.gnu.org/licenses/.
  */
 
-package org.ttrssreader.gui.interfaces;
+package org.ttrssreader.model.updaters;
 
+import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 
-public interface TextInputAlertCallback {
-	void onAddNoteResult(Article a, String note);
+public class NoteUpdater implements IUpdatable {
+
+	@SuppressWarnings("unused")
+	private static final String TAG = NoteUpdater.class.getSimpleName();
+
+	private Article article;
+	private String note;
+
+	/**
+	 * Adds the given note to the article.
+	 */
+	public NoteUpdater(Article article, String note) {
+		this.article = article;
+		this.note = note;
+	}
+
+	@Override
+	public void update() {
+		if (note != null) {
+			Data.getInstance().setArticleNote(article.id, note);
+		}
+	}
+
 }

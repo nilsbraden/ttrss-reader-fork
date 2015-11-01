@@ -63,7 +63,7 @@ public class DBHelper {
 	private static final String TAG = DBHelper.class.getSimpleName();
 
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 60;
+	private static final int DATABASE_VERSION = 61;
 
 	public static final String TABLE_CATEGORIES = "categories";
 	public static final String TABLE_FEEDS = "feeds";
@@ -77,6 +77,8 @@ public class DBHelper {
 	static final String MARK_STAR = "isStarred";
 	static final String MARK_PUBLISH = "isPublished";
 	static final String MARK_NOTE = "note";
+	static final String MARK_TYPE_COL = "type";
+	static final int MARK_TYPE_NOTE = 1;
 	static final String COL_UNREAD = "unread";
 
 	// @formatter:off
@@ -112,7 +114,8 @@ public class DBHelper {
 					+ " isPublished INTEGER,"
 					+ " cachedImages INTEGER DEFAULT 0,"
 					+ " articleLabels TEXT,"
-					+ " author TEXT)";
+					+ " author TEXT,"
+					+ " note TEXT)";
 
 	private static final String CREATE_TABLE_ARTICLES2LABELS =
 			"CREATE TABLE "
@@ -124,7 +127,7 @@ public class DBHelper {
 			"CREATE TABLE "
 					+ TABLE_MARK
 					+ " (id INTEGER,"
-					+ " type INTEGER,"
+					+ " " + MARK_TYPE_COL + " INTEGER,"
 					+ " " + MARK_READ + " INTEGER,"
 					+ " " + MARK_STAR + " INTEGER,"
 					+ " " + MARK_PUBLISH + " INTEGER,"
@@ -147,9 +150,9 @@ public class DBHelper {
 			"INSERT OR REPLACE INTO "
 					+ TABLE_ARTICLES
 					+ " (_id, feedId, title, isUnread, articleUrl, articleCommentUrl, updateDate, content,"
-					+ " attachments, isStarred, isPublished, cachedImages, articleLabels, author)"
+					+ " attachments, isStarred, isPublished, cachedImages, articleLabels, author, note)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, coalesce((SELECT cachedImages FROM " + TABLE_ARTICLES
-					+ " WHERE _id=?), NULL), ?, ?)";
+					+ " WHERE _id=?), NULL), ?, ?, ?)";
 	// This should insert new values or replace existing values but should always keep an already inserted value for
 	// "cachedImages". When inserting it is set to the default value which is 0 (not "NULL").
 
@@ -416,7 +419,7 @@ public class DBHelper {
 				String sql2 = "CREATE TABLE "
 						+ TABLE_MARK
 						+ " (id INTEGER,"
-						+ " type INTEGER,"
+						+ " " + MARK_TYPE_COL + " INTEGER,"
 						+ " " + MARK_READ + " INTEGER,"
 						+ " " + MARK_STAR + " INTEGER,"
 						+ " " + MARK_PUBLISH + " INTEGER,"
@@ -499,10 +502,22 @@ public class DBHelper {
 			}
 
 			if (oldVersion < 60) {
-				Log.i(TAG, String.format("Upgrading database from %s to 59.", oldVersion));
+				Log.i(TAG, String.format("Upgrading database from %s to 60.", oldVersion));
 				Log.i(TAG, " (Re-Creating View: remotefiles_sequence )");
 
 				createRemotefilesView(db);
+				didUpgrade = true;
+			}
+
+			if (oldVersion < 61) {
+				// @formatter:off
+				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN note TEXT";
+				// @formatter:on
+
+				Log.i(TAG, String.format("Upgrading database from %s to 61.", oldVersion));
+				Log.i(TAG, String.format(" (Executing: %s", sql));
+
+				db.execSQL(sql);
 				didUpgrade = true;
 			}
 
@@ -748,6 +763,7 @@ public class DBHelper {
 			insertArticle.bindLong(12, a.id); // ID again for the where-clause
 			insertArticle.bindString(13, Utils.separateItems(a.labels, "---"));
 			insertArticle.bindString(14, a.author);
+			insertArticle.bindString(15, a.note);
 
 			if (!isDBAvailable()) return;
 			retId = insertArticle.executeInsert();
@@ -1045,11 +1061,13 @@ public class DBHelper {
 		try {
 			for (Integer id : ids.keySet()) {
 				String note = ids.get(id);
-				if (note == null || note.equals("")) continue;
+				if (note == null) continue;
 
-				ContentValues cv = new ContentValues(1);
+				ContentValues cv = new ContentValues(2);
+				cv.put("id", id);
+				cv.put(MARK_TYPE_COL, MARK_TYPE_NOTE);
 				cv.put(MARK_NOTE, note);
-				db.update(TABLE_MARK, cv, "id=" + id, null);
+				db.insert(TABLE_MARK, null, cv);
 			}
 			db.setTransactionSuccessful();
 		} finally {
@@ -1612,15 +1630,36 @@ public class DBHelper {
 	}
 
 	@SuppressLint("UseSparseArrays")
-	Map<Integer, String> getMarked(String mark, int status) {
+	Set<Integer> getMarked(String mark, int status) {
+		if (!isDBAvailable()) return new LinkedHashSet<>();
+
+		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
+		readLock(true);
+		Cursor c = null;
+		try {
+			c = db.query(TABLE_MARK, new String[] {"id"}, mark + "=" + status, null, null, null, null, null);
+
+			Set<Integer> ret = new LinkedHashSet<>(c.getCount());
+			while (c.moveToNext()) {
+				ret.add(c.getInt(0));
+			}
+			return ret;
+
+		} finally {
+			if (c != null && !c.isClosed()) c.close();
+			readLock(false);
+		}
+	}
+
+	Map<Integer, String> getMarkedNotes() {
 		if (!isDBAvailable()) return new HashMap<>();
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_MARK, new String[] {"id", MARK_NOTE}, mark + "=" + status, null, null, null, null,
-					null);
+			c = db.query(TABLE_MARK, new String[] {"id", MARK_NOTE}, MARK_TYPE_COL + "=" + MARK_TYPE_NOTE, null, null,
+					null, null, null);
 
 			Map<Integer, String> ret = new HashMap<>(c.getCount());
 			while (c.moveToNext()) {
@@ -1631,6 +1670,29 @@ public class DBHelper {
 		} finally {
 			if (c != null && !c.isClosed()) c.close();
 			readLock(false);
+		}
+	}
+
+	void setMarked(Set<Integer> ids, String mark) {
+		if (!isDBAvailable()) return;
+
+		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		writeLock(true);
+		db.beginTransaction();
+		try {
+			ContentValues cv = new ContentValues(1);
+			for (String idList : StringSupport.convertListToString(ids, 1000)) {
+				cv.putNull(mark);
+				db.update(TABLE_MARK, cv, "id IN(" + idList + ") AND " + MARK_TYPE_COL + "!=" + MARK_TYPE_NOTE, null);
+			}
+			db.delete(TABLE_MARK,
+					"isUnread IS null AND isStarred IS null AND isPublished IS null AND " + MARK_TYPE_COL +
+							" IS null", null);
+
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+			writeLock(false);
 		}
 	}
 
@@ -1651,19 +1713,13 @@ public class DBHelper {
 			ContentValues cv = new ContentValues(1);
 			for (String idList : StringSupport.convertListToString(ids.keySet(), 1000)) {
 				cv.putNull(mark);
-				db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
+				db.update(TABLE_MARK, cv, "id IN(" + idList + ") AND " + MARK_TYPE_COL + "=" + MARK_TYPE_NOTE, null);
 			}
-			db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
+			db.delete(TABLE_MARK,
+					"isUnread IS null AND isStarred IS null AND isPublished IS null AND " + MARK_TYPE_COL +
+							" IS null", null);
 
-			// Insert notes afterwards and only if given note is not null
-			cv = new ContentValues(1);
-			for (Integer id : ids.keySet()) {
-				String note = ids.get(id);
-				if (note == null || note.equals("")) continue;
-
-				cv.put(MARK_NOTE, note);
-				db.update(TABLE_MARK, cv, "id=" + id, null);
-			}
+			setMarkedNotes(ids);
 
 			db.setTransactionSuccessful();
 		} finally {
@@ -1672,27 +1728,41 @@ public class DBHelper {
 		}
 	}
 
+	void setMarkedNotes(Map<Integer, String> ids) {
+		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		// Make sure we are allowed to write to the db:
+		if (db.inTransaction()) {
+			// Insert notes afterwards and only if given note is not null
+			ContentValues cv = new ContentValues(1);
+			for (Integer id : ids.keySet()) {
+				String note = ids.get(id);
+				if (note == null) continue;
+
+				cv.put(MARK_NOTE, note);
+				db.update(TABLE_MARK, cv, "id=" + id + " AND " + MARK_TYPE_COL + "=" + MARK_TYPE_NOTE, null);
+			}
+		}
+	}
+
 	// *******************************************
 
 	private static Article handleArticleCursor(Cursor c) {
-		// @formatter:off
-		return new Article(
-				c.getInt(0),						// _id
-				c.getInt(1),						// feedId
-				c.getString(2),					 // title
-				(c.getInt(3) != 0),				 // isUnread
-				c.getString(4),					 // articleUrl
-				c.getString(5),					 // articleCommentUrl
-				new Date(c.getLong(6)),			 // updateDate
-				c.getString(7),					 // content
-				parseAttachments(c.getString(8)),   // attachments
-				(c.getInt(9) != 0),				 // isStarred
-				(c.getInt(10) != 0),				// isPublished
-				parseArticleLabels(c.getString(12)),// Labels
-				c.getString(13),					 // Author
-				null // feedTitle is left empty
-		);
-		// @formatter:on
+		Article a = new Article();
+		a.id = c.getInt(0);
+		a.feedId = c.getInt(1);
+		a.title = c.getString(2);
+		a.isUnread = (c.getInt(3) != 0);
+		a.url = c.getString(4);
+		a.commentUrl = c.getString(5);
+		a.updated = new Date(c.getLong(6));
+		a.content = c.getString(7);
+		a.attachments = parseAttachments(c.getString(8));
+		a.isStarred = (c.getInt(9) != 0);
+		a.isPublished = (c.getInt(10) != 0);
+		a.labels = parseArticleLabels(c.getString(12));
+		a.author = c.getString(13);
+		a.note = c.getString(14);
+		return a;
 	}
 
 	private static Feed handleFeedCursor(Cursor c) {

@@ -35,6 +35,7 @@ import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
 import org.ttrssreader.model.updaters.IUpdatable;
+import org.ttrssreader.model.updaters.NoteUpdater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
@@ -82,7 +83,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 	private static final int MARK_READ = MARK_GROUP + 1;
 	private static final int MARK_STAR = MARK_GROUP + 2;
 	private static final int MARK_PUBLISH = MARK_GROUP + 3;
-	private static final int MARK_PUBLISH_NOTE = MARK_GROUP + 4;
+	private static final int MARK_NOTE = MARK_GROUP + 4;
 	private static final int MARK_ABOVE_READ = MARK_GROUP + 5;
 	private static final int SHARE = MARK_GROUP + 6;
 
@@ -169,7 +170,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 			menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkUnpublish);
 		} else {
 			menu.add(MARK_GROUP, MARK_PUBLISH, Menu.NONE, R.string.Commons_MarkPublish);
-			menu.add(MARK_GROUP, MARK_PUBLISH_NOTE, Menu.NONE, R.string.Commons_MarkPublishNote);
+			menu.add(MARK_GROUP, MARK_NOTE, Menu.NONE, R.string.Commons_MarkNote);
 		}
 
 		menu.add(MARK_GROUP, SHARE, Menu.NONE, R.string.ArticleActivity_ShareLink);
@@ -196,7 +197,7 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 				new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1))
 						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				break;
-			case MARK_PUBLISH_NOTE:
+			case MARK_NOTE:
 				new TextInputAlert(this, a).show(getActivity());
 				break;
 			case MARK_ABOVE_READ:
@@ -263,9 +264,8 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 		return ret;
 	}
 
-	public void onPublishNoteResult(Article a, String note) {
-		new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note))
-				.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	public void onAddNoteResult(Article a, String note) {
+		new Updater(getActivity(), new NoteUpdater(a, note)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	@Override

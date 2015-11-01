@@ -80,7 +80,7 @@
 	<string name="Commons.MarkStar">Star</string>
 	<string name="Commons.MarkUnstar">Starred</string>
 	<string name="Commons.MarkPublish">Publish</string>
-	<string name="Commons.MarkPublishNote">Publish with a note</string>
+	<string name="Commons.MarkNote">Add a note</string>
 	<string name="Commons.AddArticleLabel">Add label(s)</string>
 	<string name="Commons.MarkUnpublish">Published</string>
 	<string name="Commons.MarkAboveRead">Mark articles above read</string>

@@ -44,7 +44,7 @@ public class TextInputAlert {
 	public void show(Context context) {
 		AlertDialog.Builder alert = new AlertDialog.Builder(context);
 
-		alert.setTitle(context.getString(R.string.Commons_MarkPublishNote));
+		alert.setTitle(context.getString(R.string.Commons_MarkNote));
 
 		final EditText input = new EditText(context);
 		input.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -55,7 +55,7 @@ public class TextInputAlert {
 		alert.setPositiveButton(context.getString(R.string.Utils_OkayAction), new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				String value = input.getText().toString();
-				callback.onPublishNoteResult(article, value);
+				callback.onAddNoteResult(article, value);
 			}
 		});
 

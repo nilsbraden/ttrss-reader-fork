@@ -38,6 +38,7 @@ public class Article implements Comparable<Article> {
 	public Set<Label> labels;
 	public String author;
 	public String feedTitle;
+	public String note;
 
 	public Article() {
 		id = -1;
@@ -54,29 +55,7 @@ public class Article implements Comparable<Article> {
 		isPublished = false;
 		author = null;
 		feedTitle = null;
-	}
-
-	public Article(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
-			Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished,
-			Set<Label> labels, String author, String feedTitle) {
-		this.id = id;
-		this.title = title;
-		this.feedId = feedId;
-		this.isUnread = isUnread;
-		this.updated = updateDate;
-		this.url = articleUrl.trim();
-		this.commentUrl = articleCommentUrl;
-		if (content == null || content.equals("null")) {
-			this.content = null;
-		} else {
-			this.content = content;
-		}
-		this.attachments = attachments;
-		this.isStarred = isStarred;
-		this.isPublished = isPublished;
-		this.labels = labels;
-		this.author = author;
-		this.feedTitle = feedTitle;
+		note = null;
 	}
 
 	@Override

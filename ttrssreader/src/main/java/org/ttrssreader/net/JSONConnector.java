@@ -22,7 +22,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
 
-import org.intellij.lang.annotations.RegExp;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ttrssreader.MyApplication;
@@ -50,7 +49,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 public abstract class JSONConnector {
 
@@ -529,7 +527,8 @@ public abstract class JSONConnector {
 						else a.feedId = reader.nextInt();
 						break;
 					case content:
-						a.content = reader.nextString().replaceAll("(<(?:img|video)[^>]+?src=[\"'])//([^\"']*)", "$1https://$2");
+						a.content = reader.nextString()
+								.replaceAll("(<(?:img|video)[^>]+?src=[\"'])//([^\"']*)", "$1https://$2");
 						break;
 					case link:
 						a.url = reader.nextString();
@@ -555,6 +554,9 @@ public abstract class JSONConnector {
 						break;
 					case author:
 						a.author = reader.nextString();
+						break;
+					case note:
+						a.note = reader.nextString();
 						break;
 					default:
 						reader.skipValue();
@@ -924,40 +926,6 @@ public abstract class JSONConnector {
 	}
 
 	/**
-	 * Marks the given Articles as "published"/"not published" depending on articleState.
-	 *
-	 * @param ids          a list of article-ids with corresponding notes (may be null).
-	 * @param articleState the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
-	 * @return true if the operation succeeded.
-	 */
-	public boolean setArticlePublished(Map<Integer, String> ids, int articleState) {
-		boolean ret = true;
-		if (ids.size() == 0) return true;
-
-		for (String idList : StringSupport.convertListToString(ids.keySet(), MAX_ID_LIST_LENGTH)) {
-			Map<String, String> params = new HashMap<>();
-			params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
-			params.put(PARAM_ARTICLE_IDS, idList);
-			params.put(PARAM_MODE, articleState + "");
-			params.put(PARAM_FIELD, "1");
-			ret = ret && doRequestNoAnswer(params);
-
-			// Add a note to the article(s)
-
-			for (Integer id : ids.keySet()) {
-				String note = ids.get(id);
-				if (note == null || note.equals("")) continue;
-
-				params.put(PARAM_FIELD, "3"); // Field 3 is the "Add note" field
-				params.put(PARAM_DATA, note);
-				ret = ret && doRequestNoAnswer(params);
-			}
-		}
-
-		return ret;
-	}
-
-	/**
 	 * Marks a feed or a category with all its feeds as read.
 	 *
 	 * @param id         the feed-id/category-id.
@@ -970,6 +938,50 @@ public abstract class JSONConnector {
 		params.put(PARAM_FEED_ID, id + "");
 		params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
 		return doRequestNoAnswer(params);
+	}
+
+	/**
+	 * Marks the given Articles as "published"/"not published" depending on articleState.
+	 *
+	 * @param ids          a list of article-ids.
+	 * @param articleState the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
+	 * @return true if the operation succeeded.
+	 */
+	public boolean setArticlePublished(Set<Integer> ids, int articleState) {
+		if (ids.size() == 0) return true;
+		boolean ret = true;
+		for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
+			Map<String, String> params = new HashMap<>();
+			params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+			params.put(PARAM_ARTICLE_IDS, idList);
+			params.put(PARAM_MODE, articleState + "");
+			params.put(PARAM_FIELD, "1");
+			ret = ret && doRequestNoAnswer(params);
+		}
+		return ret;
+	}
+
+	/**
+	 * Adds a note to the given articles
+	 *
+	 * @param ids a list of article-ids with corresponding notes (may be null).
+	 * @return true if the operation succeeded.
+	 */
+	public boolean setArticleNote(Map<Integer, String> ids) {
+		if (ids.size() == 0) return true;
+		boolean ret = true;
+		for (Integer id : ids.keySet()) {
+			String note = ids.get(id);
+			if (note == null) continue;
+
+			Map<String, String> params = new HashMap<>();
+			params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+			params.put(PARAM_ARTICLE_IDS, id + "");
+			params.put(PARAM_FIELD, "3"); // Field 3 is the "Add note" field
+			params.put(PARAM_DATA, note);
+			ret = ret && doRequestNoAnswer(params);
+		}
+		return ret;
 	}
 
 	public boolean feedUnsubscribe(int feed_id) {

@@ -127,7 +127,7 @@
 	<string name="CacheImageMinSizeTitle">Taille minimale des images à mettre en cache</string>
 	<string name="CacheImagesOnlyWifiTitle">Seulement en WiFi ? </string>
 	<string name="Close">Fermer</string>
-	<string name="Commons.MarkPublishNote">Publier avec une note</string>
+	<string name="Commons.MarkNote">Ajoute une note</string>
 	<string name="Commons.SelectFeeds">Afficher tous les flux</string>
 	<string name="ConnectionLazyServerPreferenceSummary">Demander au serveur de mettre à jour les flux avant de les récupérer. </string>
 	<string name="ConnectionLazyServerPreferenceTitle">Serveur paresseux</string>
