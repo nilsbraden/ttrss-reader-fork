@@ -383,33 +383,37 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			// Load html from Controller and insert content// Article-Prefetch-Stuff from Raw-Ressources and System
 			ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE), '$', '$');
 
-			// Replace alignment-marker with the requested layout, align:left or justified
-			String replaceAlign;
+			// Replace alignment-marker: align:left or align:justified
 			if (Controller.getInstance().alignFlushLeft()) {
-				replaceAlign = getString(R.string.ALIGN_LEFT);
+				htmlTmpl.add("TEXT_ALIGN", getString(R.string.ALIGN_LEFT));
 			} else {
-				replaceAlign = getString(R.string.ALIGN_JUSTIFY);
+				htmlTmpl.add("TEXT_ALIGN", getString(R.string.ALIGN_JUSTIFY));
 			}
 
-			String javascriptHyphenation = "";
+			// Hyphenation Javascript
 			if (Controller.getInstance().allowHyphenation()) {
 				ST javascriptST = new ST(getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE), '$', '$');
 				javascriptST.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
-				javascriptHyphenation = javascriptST.render();
+				htmlTmpl.add("HYPHENATION", javascriptST.render());
 			}
 
-			String buttons = "";
-			if (Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML)
-				buttons = getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
+			// Navigation buttons
+			if (Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML) {
+				htmlTmpl.add("NAVIGATION", getString(R.string.BOTTOM_NAVIGATION_TEMPLATE));
+			}
+
+			// Note of the article
+			if (article.note != null) {
+				ST noteST = new ST(getResources().getString(R.string.NOTE_TEMPLATE), '$', '$');
+				noteST.add("NOTE", getResources().getString(R.string.Commons_HtmlPrefixNote) + " " + article.note);
+				htmlTmpl.add("NOTE_TEMPLATE", noteST.render());
+			}
 
 			// General values
 			htmlTmpl.add("STYLE", getResources().getString(R.string.STYLE_TEMPLATE));
-			htmlTmpl.add("TEXT_ALIGN", replaceAlign);
 			htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
 			htmlTmpl.add("CACHE_DIR", Controller.getInstance().cacheFolder());
-			htmlTmpl.add("HYPHENATION", javascriptHyphenation);
 			htmlTmpl.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
-			htmlTmpl.add("NAVIGATION", buttons);
 
 			// Special values for this article
 			htmlTmpl.add("article", article);
@@ -417,10 +421,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			htmlTmpl.add("CACHED_IMAGES", cachedImages);
 			htmlTmpl.add("LABELS", labels.toString());
 			htmlTmpl.add("UPDATED", DateUtils.getDateTimeCustom(getActivity(), article.updated));
-			htmlTmpl.add("ATTACHMENTS", getAttachmentsMarkup(getActivity(), article.attachments));
+			htmlTmpl.add("ATTACHMENTS", getAttachmentsMarkup(article.attachments));
 			htmlTmpl.add("CONTENT", contentClean);
-			if (article.note != null)
-				htmlTmpl.add("NOTE", getResources().getString(R.string.Commons_HtmlPrefixNote) + " " + article.note);
 
 			content = htmlTmpl.render();
 
@@ -469,10 +471,9 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	/**
 	 * generate HTML code for attachments to be shown inside article
 	 *
-	 * @param context     current context
 	 * @param attachments collection of attachment URLs
 	 */
-	private static String getAttachmentsMarkup(Context context, Set<String> attachments) {
+	private String getAttachmentsMarkup(Set<String> attachments) {
 		StringBuilder content = new StringBuilder();
 		Map<String, Collection<String>> attachmentsByMimeType = FileUtils.groupFilesByMimeType(attachments);
 
@@ -483,15 +484,15 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			if (mimeTypeUrls.isEmpty()) return "";
 
 			if (mimeType.equals(FileUtils.IMAGE_MIME)) {
-				ST st = new ST(context.getResources().getString(R.string.ATTACHMENT_IMAGES_TEMPLATE));
+				ST st = new ST(getResources().getString(R.string.ATTACHMENT_IMAGES_TEMPLATE));
 				st.add("items", mimeTypeUrls);
 				content.append(st.render());
 			} else {
-				ST st = new ST(context.getResources().getString(R.string.ATTACHMENT_MEDIA_TEMPLATE));
+				ST st = new ST(getResources().getString(R.string.ATTACHMENT_MEDIA_TEMPLATE));
 				st.add("items", mimeTypeUrls);
 				CharSequence linkText = mimeType.equals(FileUtils.AUDIO_MIME) || mimeType.equals(FileUtils.VIDEO_MIME)
-										? context.getText(R.string.ArticleActivity_MediaPlay)
-										: context.getText(R.string.ArticleActivity_MediaDisplayLink);
+										? getText(R.string.ArticleActivity_MediaPlay)
+										: getText(R.string.ArticleActivity_MediaDisplayLink);
 				st.add("linkText", linkText);
 				content.append(st.render());
 			}
