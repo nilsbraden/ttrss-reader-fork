@@ -1766,35 +1766,31 @@ public class DBHelper {
 	}
 
 	private static Feed handleFeedCursor(Cursor c) {
-		// @formatter:off
-		return new Feed(
-				c.getInt(0),			// _id
-				c.getInt(1),			// categoryId
-				c.getString(2),		 // title
-				c.getString(3),		 // url
-				c.getInt(4));		   // unread
-		// @formatter:on
+		Feed f = new Feed();
+		f.id = c.getInt(0);
+		f.categoryId = c.getInt(1);
+		f.title = c.getString(2);
+		f.url = c.getString(3);
+		f.unread = c.getInt(4);
+		return f;
 	}
 
 	private static Category handleCategoryCursor(Cursor c) {
-		// @formatter:off
-		return new Category(
-				c.getInt(0),			// _id
-				c.getString(1),		 // title
-				c.getInt(2));		   // unread
-		// @formatter:on
+		Category cat = new Category();
+		cat.id = c.getInt(0);
+		cat.title = c.getString(1);
+		cat.unread = c.getInt(2);
+		return cat;
 	}
 
 	private static RemoteFile handleRemoteFileCursor(Cursor c) {
-		// @formatter:off
-		return new RemoteFile(
-				c.getInt(0),			// id
-				c.getString(1),		 // url
-				c.getInt(2),		   // length
-				new Date(c.getLong(4)), // updateDate
-				(c.getInt(5) != 0)	 // cached
-		);
-		// @formatter:on
+		RemoteFile rf = new RemoteFile();
+		rf.id = c.getInt(0);
+		rf.url = c.getString(1);
+		rf.length = c.getInt(2);
+		rf.updated = new Date(c.getLong(4));
+		rf.cached = c.getInt(5) != 0;
+		return rf;
 	}
 
 	private static Set<String> parseAttachments(String att) {

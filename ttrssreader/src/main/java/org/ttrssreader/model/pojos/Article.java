@@ -40,24 +40,6 @@ public class Article implements Comparable<Article> {
 	public String feedTitle;
 	public String note;
 
-	public Article() {
-		id = -1;
-		title = null;
-		isUnread = false;
-		updated = null;
-		feedId = 0;
-		content = null;
-		url = null;
-		commentUrl = null;
-		attachments = null;
-		labels = null;
-		isStarred = false;
-		isPublished = false;
-		author = null;
-		feedTitle = null;
-		note = null;
-	}
-
 	@Override
 	public int compareTo(@NotNull Article ai) {
 		return ai.updated.compareTo(this.updated);

@@ -47,19 +47,10 @@ public class Data {
 
 	private static final String TAG = Data.class.getSimpleName();
 
-	/** uncategorized */
 	private static final int VCAT_UNCAT = 0;
-
-	/** starred */
 	public static final int VCAT_STAR = -1;
-
-	/** published */
 	public static final int VCAT_PUB = -2;
-
-	/** fresh */
 	public static final int VCAT_FRESH = -3;
-
-	/** all articles */
 	public static final int VCAT_ALL = -4;
 
 	private static final String VIEW_ALL = "all_articles";
@@ -99,8 +90,7 @@ public class Data {
 	 * cache all articles
 	 *
 	 * @param overrideOffline do not check connected state
-	 * @param overrideDelay   if set to {@code true} enforces the update,
-	 *                        otherwise the time from last update will be
+	 * @param overrideDelay   if set to {@code true} enforces the update, otherwise the time from last update will be
 	 *                        considered
 	 */
 	public void cacheArticles(boolean overrideOffline, boolean overrideDelay) {
@@ -176,8 +166,7 @@ public class Data {
 	 * update articles for specified feed/category
 	 *
 	 * @param feedId            feed/category to be updated
-	 * @param displayOnlyUnread flag, that indicates, that only unread
-	 *                          articles should be shown
+	 * @param displayOnlyUnread flag, that indicates, that only unread articles should be shown
 	 * @param isCat             if set to {@code true}, then {@code feedId} is actually the category ID
 	 * @param overrideOffline   should the "work offline" state be ignored?
 	 * @param overrideDelay     should the last update time be ignored?
@@ -298,7 +287,6 @@ public class Data {
 	 */
 	private void handleInsertArticles(final Collection<Article> articles, boolean isCaching) {
 		if (!articles.isEmpty()) {
-
 			// Search min and max ids
 			int minId = Integer.MAX_VALUE;
 			int maxId = Integer.MIN_VALUE;
@@ -363,33 +351,28 @@ public class Data {
 	public Set<Category> updateVirtualCategories(final Context context) {
 		if (virtCategoriesChanged > System.currentTimeMillis() - Utils.UPDATE_TIME) return null;
 
-		String vCatAllArticles;
-		String vCatFreshArticles;
-		String vCatPublishedArticles;
-		String vCatStarredArticles;
+		String vCatAll;
+		String vCatFresh;
+		String vCatPublished;
+		String vCatStarred;
 		String uncatFeeds;
 
-		vCatAllArticles = (String) context.getText(R.string.VCategory_AllArticles);
-		vCatFreshArticles = (String) context.getText(R.string.VCategory_FreshArticles);
-		vCatPublishedArticles = (String) context.getText(R.string.VCategory_PublishedArticles);
-		vCatStarredArticles = (String) context.getText(R.string.VCategory_StarredArticles);
+		vCatAll = (String) context.getText(R.string.VCategory_AllArticles);
+		vCatFresh = (String) context.getText(R.string.VCategory_FreshArticles);
+		vCatPublished = (String) context.getText(R.string.VCategory_PublishedArticles);
+		vCatStarred = (String) context.getText(R.string.VCategory_StarredArticles);
 		uncatFeeds = (String) context.getText(R.string.Feed_UncategorizedFeeds);
 
 		Set<Category> vCats = new LinkedHashSet<>();
-		vCats.add(new Category(VCAT_ALL, vCatAllArticles, DBHelper.getInstance().getUnreadCount(VCAT_ALL, true)));
-		vCats.add(new Category(VCAT_FRESH, vCatFreshArticles, DBHelper.getInstance().getUnreadCount(VCAT_FRESH,
-				true)));
-		vCats.add(new Category(VCAT_PUB, vCatPublishedArticles, DBHelper.getInstance().getUnreadCount(VCAT_PUB,
-				true)));
-		vCats.add(new Category(VCAT_STAR, vCatStarredArticles, DBHelper.getInstance().getUnreadCount(VCAT_STAR,
-				true)));
+		vCats.add(new Category(VCAT_ALL, vCatAll, DBHelper.getInstance().getUnreadCount(VCAT_ALL, true)));
+		vCats.add(new Category(VCAT_FRESH, vCatFresh, DBHelper.getInstance().getUnreadCount(VCAT_FRESH, true)));
+		vCats.add(new Category(VCAT_PUB, vCatPublished, DBHelper.getInstance().getUnreadCount(VCAT_PUB, true)));
+		vCats.add(new Category(VCAT_STAR, vCatStarred, DBHelper.getInstance().getUnreadCount(VCAT_STAR, true)));
 		vCats.add(new Category(VCAT_UNCAT, uncatFeeds, DBHelper.getInstance().getUnreadCount(VCAT_UNCAT, true)));
 
 		DBHelper.getInstance().insertCategories(vCats);
 		notifyListeners();
-
 		virtCategoriesChanged = System.currentTimeMillis();
-
 		return vCats;
 	}
 
@@ -420,29 +403,28 @@ public class Data {
 
 	// *** STATUS *******************************************************************
 
-	public void setArticleRead(Set<Integer> ids, int articleState) {
+	public void setArticleRead(Set<Integer> ids, int status) {
 		boolean erg = false;
-		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleRead(ids, articleState);
-		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, articleState);
+		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleRead(ids, status);
+		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, status);
 	}
 
-	public void setArticleStarred(int articleId, int articleState) {
+	public void setArticleStarred(int articleId, int status) {
 		boolean erg = false;
 		Set<Integer> ids = new HashSet<>();
 		ids.add(articleId);
 
-		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleStarred(ids, articleState);
-		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, articleState);
+		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleStarred(ids, status);
+		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, status);
 	}
 
-	public void setArticlePublished(int articleId, int articleState) {
+	public void setArticlePublished(int articleId, int status) {
 		boolean erg = false;
 		Set<Integer> ids = new HashSet<>();
 		ids.add(articleId);
 
-		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticlePublished(ids,
-				articleState);
-		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_PUBLISH, articleState);
+		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticlePublished(ids, status);
+		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_PUBLISH, status);
 	}
 
 	public void setArticleNote(int articleId, String note) {
@@ -466,7 +448,6 @@ public class Data {
 		if (markedArticleIds != null) {
 			boolean isSync = false;
 			if (Utils.isConnected(cm)) isSync = Controller.getInstance().getConnector().setRead(id, isCategory);
-
 			if (!isSync) DBHelper.getInstance().markUnsynchronizedStates(markedArticleIds, DBHelper.MARK_READ, 0);
 		}
 
@@ -554,24 +535,6 @@ public class Data {
 			if (Controller.getInstance().getConnector().setArticleNote(notesMarked))
 				DBHelper.getInstance().setMarked(notesMarked, DBHelper.MARK_NOTE);
 		}
-
-		/*
-		 * Server doesn't seem to support ID -6 for "read articles" so I'll stick with the already fetched articles. In
-		 * the case that we had a cache-run before we can just mark everything as read,
-		 * then mark all cached articles as
-		 * unread and we're done.
-		 */
-
-		// get read articles from server
-		// articles = new HashSet<Article>();
-		// int minUnread = DBHelper.getInstance().getMinUnreadId();
-		// Set<String> skipProperties = new HashSet<String>(Arrays.asList(new String[] { JSONConnector.TITLE,
-		// JSONConnector.UNREAD, JSONConnector.UPDATED, JSONConnector.FEED_ID, JSONConnector.CONTENT,
-		// JSONConnector.URL, JSONConnector.COMMENT_URL, JSONConnector.ATTACHMENTS, JSONConnector.STARRED,
-		// JSONConnector.PUBLISHED }));
-		//
-		// Controller.getInstance().getConnector()
-		// .getHeadlines(articles, VCAT_ALL, 400, VIEW_ALL, true, minUnread, null, skipProperties);
 
 		Log.d(TAG, String.format("Syncing Status took %sms", (System.currentTimeMillis() - time)));
 	}

@@ -756,9 +756,17 @@ public abstract class JSONConnector {
 				}
 				reader.endObject();
 
-				if (id != -1 || categoryId == -2) // normal feed (>0) or label (-2)
-					if (title != null) // Dont like complicated if-statements..
-						ret.add(new Feed(id, categoryId, title, feedUrl, unread));
+				if (id != -1 || categoryId == -2) { // normal feed (>0) or label (-2)
+					if (title != null) {
+						Feed f = new Feed();
+						f.id = id;
+						f.categoryId = categoryId;
+						f.title = title;
+						f.url = feedUrl;
+						f.unread = unread;
+						ret.add(f);
+					}
+				}
 
 			}
 			reader.endArray();
