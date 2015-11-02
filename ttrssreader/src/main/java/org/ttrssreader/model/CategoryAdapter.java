@@ -93,6 +93,7 @@ public class CategoryAdapter extends MainAdapter {
 		TextView title = (TextView) view.findViewById(R.id.title);
 		title.setText(formatItemTitle(c.title, c.unread));
 		if (c.unread > 0) title.setTypeface(Typeface.DEFAULT_BOLD);
+		else title.setTypeface(Typeface.DEFAULT);
 	}
 
 	private Category getCategory(Cursor cur) {
