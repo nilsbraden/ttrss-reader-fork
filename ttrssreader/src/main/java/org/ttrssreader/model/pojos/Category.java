@@ -25,6 +25,9 @@ public class Category implements Comparable<Category> {
 	public String title;
 	public int unread;
 
+	public Category() {
+	}
+
 	public Category(int id, String title, int unread) {
 		this.id = id;
 		this.title = title;
