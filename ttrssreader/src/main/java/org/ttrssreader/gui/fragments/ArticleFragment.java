@@ -418,8 +418,9 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			htmlTmpl.add("LABELS", labels.toString());
 			htmlTmpl.add("UPDATED", DateUtils.getDateTimeCustom(getActivity(), article.updated));
 			htmlTmpl.add("ATTACHMENTS", getAttachmentsMarkup(getActivity(), article.attachments));
-			htmlTmpl.add("NOTE", getResources().getString(R.string.Commons_HtmlPrefixNote) + " " + article.note);
 			htmlTmpl.add("CONTENT", contentClean);
+			if (article.note != null)
+				htmlTmpl.add("NOTE", getResources().getString(R.string.Commons_HtmlPrefixNote) + " " + article.note);
 
 			content = htmlTmpl.render();
 
