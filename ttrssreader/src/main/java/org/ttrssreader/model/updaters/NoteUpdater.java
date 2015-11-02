@@ -17,6 +17,7 @@
 
 package org.ttrssreader.model.updaters;
 
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Article;
 
@@ -39,6 +40,7 @@ public class NoteUpdater implements IUpdatable {
 	@Override
 	public void update() {
 		if (note != null) {
+			DBHelper.getInstance().addArticleNote(article.id, note);
 			Data.getInstance().setArticleNote(article.id, note);
 		}
 	}

@@ -63,22 +63,21 @@ public class DBHelper {
 	private static final String TAG = DBHelper.class.getSimpleName();
 
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 61;
+	private static final int DATABASE_VERSION = 64;
 
 	public static final String TABLE_CATEGORIES = "categories";
 	public static final String TABLE_FEEDS = "feeds";
 	public static final String TABLE_ARTICLES = "articles";
 	public static final String TABLE_ARTICLES2LABELS = "articles2labels";
 	private static final String TABLE_MARK = "marked";
+	private static final String TABLE_NOTES = "notes";
 	public static final String TABLE_REMOTEFILES = "remotefiles";
 	public static final String TABLE_REMOTEFILE2ARTICLE = "remotefile2article";
 
 	static final String MARK_READ = "isUnread";
 	static final String MARK_STAR = "isStarred";
 	static final String MARK_PUBLISH = "isPublished";
-	static final String MARK_NOTE = "note";
-	static final String MARK_TYPE_COL = "type";
-	static final int MARK_TYPE_NOTE = 1;
+	static final String COL_NOTE = "note";
 	static final String COL_UNREAD = "unread";
 
 	// @formatter:off
@@ -126,13 +125,16 @@ public class DBHelper {
 	private static final String CREATE_TABLE_MARK =
 			"CREATE TABLE "
 					+ TABLE_MARK
-					+ " (id INTEGER,"
-					+ " " + MARK_TYPE_COL + " INTEGER,"
+					+ " (id INTEGER PRIMARY KEY,"
 					+ " " + MARK_READ + " INTEGER,"
 					+ " " + MARK_STAR + " INTEGER,"
-					+ " " + MARK_PUBLISH + " INTEGER,"
-					+ " " + MARK_NOTE + " TEXT,"
-					+ " PRIMARY KEY(id, type))";
+					+ " " + MARK_PUBLISH + " INTEGER)";
+
+	private static final String CREATE_TABLE_NOTES =
+			"CREATE TABLE "
+					+ TABLE_NOTES
+					+ " (_id INTEGER PRIMARY KEY,"
+					+ " " + COL_NOTE + " TEXT)";
 
 	private static final String INSERT_CATEGORY =
 			"REPLACE INTO "
@@ -389,6 +391,7 @@ public class DBHelper {
 			db.execSQL(CREATE_TABLE_ARTICLES);
 			db.execSQL(CREATE_TABLE_ARTICLES2LABELS);
 			db.execSQL(CREATE_TABLE_MARK);
+			db.execSQL(CREATE_TABLE_NOTES);
 			createRemoteFilesSupportDBObjects(db);
 		}
 
@@ -419,17 +422,17 @@ public class DBHelper {
 				String sql2 = "CREATE TABLE "
 						+ TABLE_MARK
 						+ " (id INTEGER,"
-						+ " " + MARK_TYPE_COL + " INTEGER,"
+						+ " type INTEGER,"
 						+ " " + MARK_READ + " INTEGER,"
 						+ " " + MARK_STAR + " INTEGER,"
 						+ " " + MARK_PUBLISH + " INTEGER,"
-						+ " " + MARK_NOTE + " TEXT,"
+						+ " note TEXT,"
 						+ " PRIMARY KEY(id, type))";
 				// @formatter:on
 
 				Log.i(TAG, String.format("Upgrading database from %s to 51.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
-				Log.i(TAG, String.format(" (Executing: %s", sql2));
+				Log.i(TAG, String.format(" (Executing: %s)", sql));
+				Log.i(TAG, String.format(" (Executing: %s)", sql2));
 
 				db.execSQL(sql);
 				db.execSQL(sql2);
@@ -442,7 +445,7 @@ public class DBHelper {
 				// @formatter:on
 
 				Log.i(TAG, String.format("Upgrading database from %s to 52.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
+				Log.i(TAG, String.format(" (Executing: %s)", sql));
 
 				db.execSQL(sql);
 				didUpgrade = true;
@@ -495,7 +498,7 @@ public class DBHelper {
 				// @formatter:on
 
 				Log.i(TAG, String.format("Upgrading database from %s to 59.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
+				Log.i(TAG, String.format(" (Executing: %s)", sql));
 
 				db.execSQL(sql);
 				didUpgrade = true;
@@ -515,9 +518,27 @@ public class DBHelper {
 				// @formatter:on
 
 				Log.i(TAG, String.format("Upgrading database from %s to 61.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s", sql));
+				Log.i(TAG, String.format(" (Executing: %s)", sql));
 
 				db.execSQL(sql);
+				didUpgrade = true;
+			}
+
+			if (oldVersion < 64) {
+				Log.i(TAG, String.format("Upgrading database from %s to 64.", oldVersion));
+
+				db.beginTransaction();
+				try {
+					db.execSQL("PRAGMA writable_schema=1;");
+					String sql = "UPDATE SQLITE_MASTER SET SQL = '%s' WHERE NAME = '%s';";
+					db.execSQL(String.format(sql, CREATE_TABLE_MARK, TABLE_MARK));
+					db.execSQL("PRAGMA writable_schema=0;");
+					db.execSQL(CREATE_TABLE_NOTES);
+					db.setTransactionSuccessful();
+				} finally {
+					db.endTransaction();
+				}
+
 				didUpgrade = true;
 			}
 
@@ -967,7 +988,7 @@ public class DBHelper {
 			db.beginTransaction();
 			try {
 				for (String ids : StringSupport.convertListToString(idList, 400)) {
-					markArticles(ids, mark, state);
+					markArticles(ids, mark, "" + state);
 				}
 				db.setTransactionSuccessful();
 			} finally {
@@ -991,7 +1012,28 @@ public class DBHelper {
 		writeLock(true);
 		db.beginTransaction();
 		try {
-			markArticles("" + id, mark, state);
+			markArticles("" + id, mark, "" + state);
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+			writeLock(false);
+		}
+	}
+
+	/**
+	 * mark given property of given article with given state
+	 *
+	 * @param id   set of article IDs, which should be processed
+	 * @param note the note to be set
+	 */
+	public void addArticleNote(int id, String note) {
+		if (!isDBAvailable()) return;
+
+		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		writeLock(true);
+		db.beginTransaction();
+		try {
+			markArticles("" + id, "note", note);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
@@ -1007,7 +1049,7 @@ public class DBHelper {
 	 * @param state  value for the mark
 	 * @return the number of rows affected
 	 */
-	private int markArticles(String idList, String mark, int state) {
+	private int markArticles(String idList, String mark, String state) {
 		int ret = 0;
 		if (!isDBAvailable()) return ret;
 
@@ -1064,10 +1106,9 @@ public class DBHelper {
 				if (note == null) continue;
 
 				ContentValues cv = new ContentValues(2);
-				cv.put("id", id);
-				cv.put(MARK_TYPE_COL, MARK_TYPE_NOTE);
-				cv.put(MARK_NOTE, note);
-				db.insert(TABLE_MARK, null, cv);
+				cv.put("_id", id);
+				cv.put(COL_NOTE, note);
+				db.insert(TABLE_NOTES, null, cv);
 			}
 			db.setTransactionSuccessful();
 		} finally {
@@ -1638,13 +1679,11 @@ public class DBHelper {
 		Cursor c = null;
 		try {
 			c = db.query(TABLE_MARK, new String[] {"id"}, mark + "=" + status, null, null, null, null, null);
-
 			Set<Integer> ret = new LinkedHashSet<>(c.getCount());
 			while (c.moveToNext()) {
 				ret.add(c.getInt(0));
 			}
 			return ret;
-
 		} finally {
 			if (c != null && !c.isClosed()) c.close();
 			readLock(false);
@@ -1658,15 +1697,12 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_MARK, new String[] {"id", MARK_NOTE}, MARK_TYPE_COL + "=" + MARK_TYPE_NOTE, null, null,
-					null, null, null);
-
+			c = db.query(TABLE_NOTES, new String[] {"_id", COL_NOTE}, null, null, null, null, null, null);
 			Map<Integer, String> ret = new HashMap<>(c.getCount());
 			while (c.moveToNext()) {
 				ret.put(c.getInt(0), c.getString(1));
 			}
 			return ret;
-
 		} finally {
 			if (c != null && !c.isClosed()) c.close();
 			readLock(false);
@@ -1683,12 +1719,9 @@ public class DBHelper {
 			ContentValues cv = new ContentValues(1);
 			for (String idList : StringSupport.convertListToString(ids, 1000)) {
 				cv.putNull(mark);
-				db.update(TABLE_MARK, cv, "id IN(" + idList + ") AND " + MARK_TYPE_COL + "!=" + MARK_TYPE_NOTE, null);
+				db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
 			}
-			db.delete(TABLE_MARK,
-					"isUnread IS null AND isStarred IS null AND isPublished IS null AND " + MARK_TYPE_COL +
-							" IS null", null);
-
+			db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
@@ -1700,10 +1733,9 @@ public class DBHelper {
 	 * remove specified mark in the temporary mark table for specified
 	 * articles and then cleanup this table
 	 *
-	 * @param ids  article IDs, which mark should be reseted
-	 * @param mark article mark to be reseted
+	 * @param ids article IDs of which the notes should be reset
 	 */
-	void setMarked(Map<Integer, String> ids, String mark) {
+	void setMarkedNotes(Map<Integer, String> ids) {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
@@ -1712,35 +1744,14 @@ public class DBHelper {
 		try {
 			ContentValues cv = new ContentValues(1);
 			for (String idList : StringSupport.convertListToString(ids.keySet(), 1000)) {
-				cv.putNull(mark);
-				db.update(TABLE_MARK, cv, "id IN(" + idList + ") AND " + MARK_TYPE_COL + "=" + MARK_TYPE_NOTE, null);
+				cv.putNull(COL_NOTE);
+				db.update(TABLE_NOTES, cv, "_id IN(" + idList + ")", null);
 			}
-			db.delete(TABLE_MARK,
-					"isUnread IS null AND isStarred IS null AND isPublished IS null AND " + MARK_TYPE_COL +
-							" IS null", null);
-
-			setMarkedNotes(ids);
-
+			db.delete(TABLE_NOTES, COL_NOTE + " IS null", null);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
 			writeLock(false);
-		}
-	}
-
-	void setMarkedNotes(Map<Integer, String> ids) {
-		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		// Make sure we are allowed to write to the db:
-		if (db.inTransaction()) {
-			// Insert notes afterwards and only if given note is not null
-			ContentValues cv = new ContentValues(1);
-			for (Integer id : ids.keySet()) {
-				String note = ids.get(id);
-				if (note == null) continue;
-
-				cv.put(MARK_NOTE, note);
-				db.update(TABLE_MARK, cv, "id=" + id + " AND " + MARK_TYPE_COL + "=" + MARK_TYPE_NOTE, null);
-			}
 		}
 	}
 

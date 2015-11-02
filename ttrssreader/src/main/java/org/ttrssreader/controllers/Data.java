@@ -499,9 +499,9 @@ public class Data {
 	 */
 	public void synchronizeStatus() {
 		if (!Utils.isConnected(cm)) return;
-
 		long time = System.currentTimeMillis();
 
+		// Try to send all marked articles to the server, every synced status is removed from the DB afterwards
 		String[] marks = new String[] {DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH};
 		for (String mark : marks) {
 			Set<Integer> idsMark = DBHelper.getInstance().getMarked(mark, 1);
@@ -530,10 +530,11 @@ public class Data {
 			}
 		}
 
+		// Try to send all article notes to the server, on success they are deleted from the DB
 		Map<Integer, String> notesMarked = DBHelper.getInstance().getMarkedNotes();
 		if (notesMarked.size() > 0) {
 			if (Controller.getInstance().getConnector().setArticleNote(notesMarked))
-				DBHelper.getInstance().setMarked(notesMarked, DBHelper.MARK_NOTE);
+				DBHelper.getInstance().setMarkedNotes(notesMarked);
 		}
 
 		Log.d(TAG, String.format("Syncing Status took %sms", (System.currentTimeMillis() - time)));
