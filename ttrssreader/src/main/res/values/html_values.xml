@@ -74,7 +74,7 @@
 </html>]]>
 	</string>
 
-	<!-- Template for displaying changelog at startup -->
+	<!-- CHANGELOG TEMPLATE -->
 	<string name="HTML_TEMPLATE_CHANGELOG" formatted="false">
 <![CDATA[
 <!DOCTYPE html>
@@ -91,7 +91,7 @@
 	</string>
 
 
-	<!-- HYPHENATION -->
+	<!-- CSS -->
 	<string name="STYLE_TEMPLATE" formatted="false">
 <![CDATA[
 <style type=\"text/css\">
@@ -110,10 +110,10 @@
 		background-color: #858585;
 	}
 	body#darkTheme a:link, a:active, a:hover {
-		color: #E1E1E1 !important;
+		color: #E1E1E1;
 	}
 	body#darkTheme a:visited {
-		color: #FFF !important;
+		color: #FFF;
 	}
 
 	/*** THEME: LIGHT ***/
@@ -125,10 +125,10 @@
 		background-color: #B7B7B7;
 	}
 	body#lightTheme a:link, a:active, a:hover {
-		color: #555 !important;
+		color: #555;
 	}
 	body#lightTheme a:visited {
-		color: #000 !important;
+		color: #000;
 	}
 
 	/*** THEME: BLACK ***/
@@ -140,10 +140,10 @@
 		background-color: #858585;
 	}
 	body#blackTheme a:link, a:active, a:hover {
-		color: #E1E1E1 !important;
+		color: #E1E1E1;
 	}
 	body#blackTheme a:visited {
-		color: #FFF !important;
+		color: #FFF;
 	}
 
 	/*** THEME: WHITE ***/
@@ -155,27 +155,27 @@
 		background-color: #B7B7B7;
 	}
 	body#whiteTheme a:link, a:active, a:hover {
-		color: #555 !important;
+		color: #555;
 	}
 	body#whiteTheme a:visited {
-		color: #000 !important;
+		color: #000;
 	}
 	/************ END THEMES ************/
 
 	body, blockquote, img, iframe, video, div, table, tbody, tr, td, pre, code, p, em, b {
-		width: auto !important;
-		height: auto !important;
-		max-width: 100% !important;
+		width: auto;
+		height: auto;
+		max-width: 100%;
 	}
 	pre, code, blockquote, p, em, b {
-		white-space: -moz-pre-wrap !important;
-		white-space: -pre-wrap !important;
-		white-space: -o-pre-wrap !important;
+		white-space: -moz-pre-wrap;
+		white-space: -pre-wrap;
+		white-space: -o-pre-wrap;
 		/* used to be pre-wrap but I dont know why and it breaks align_justify */
-		white-space: normal !important;
+		white-space: normal;
 	}
 	pre, code, blockquote {
-		white-space: pre-wrap !important;
+		white-space: pre-wrap;
 	}
 	blockquote {
 		margin: 1em 3em;
@@ -189,8 +189,8 @@
 		font-weight: bold;
 	}
 	#header a:link, a:active, a:hover, a:visited {
-		color: #FF0000 !important;
-		text-decoration: none !important;
+		color: #FF0000;
+		text-decoration: none;
 	}
 	#header_small_text {
 		overflow: auto;
@@ -212,15 +212,15 @@
 		margin: 0 auto;
 	}
 	#zierleiste {
-		margin-top: 2px !important;
-		height: 1px !important;
+		margin-top: 2px;
+		height: 1px;
 	}
 	#content {
 		margin-top: .4em;
 		text-align: $TEXT_ALIGN$;
 	}
 	#content table {
-		width: 100% !important;
+		width: 100%;
 		table-layout: fixed;
 	}
 	#attachments {
@@ -230,7 +230,6 @@
 	}
 </style>]]>
 	</string>
-
 
 	<!-- HYPHENATION -->
 	<string name="JAVASCRIPT_HYPHENATION_TEMPLATE" formatted="false">

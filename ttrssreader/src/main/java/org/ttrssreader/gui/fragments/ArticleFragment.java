@@ -383,12 +383,35 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			// Load html from Controller and insert content// Article-Prefetch-Stuff from Raw-Ressources and System
 			ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE), '$', '$');
 
-			// Replace alignment-marker: align:left or align:justified
-			if (Controller.getInstance().alignFlushLeft()) {
-				htmlTmpl.add("TEXT_ALIGN", getString(R.string.ALIGN_LEFT));
-			} else {
-				htmlTmpl.add("TEXT_ALIGN", getString(R.string.ALIGN_JUSTIFY));
+			// Styles
+			if (Controller.getInstance().allowHyphenation()) {
+				ST javascriptST = new ST(getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE), '$', '$');
+				javascriptST.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
+				htmlTmpl.add("HYPHENATION", javascriptST.render());
 			}
+
+			// Replace alignment-marker: align:left or align:justify
+			ST stylesST = new ST(getString(R.string.STYLE_TEMPLATE), '$', '$');
+			if (Controller.getInstance().alignFlushLeft()) {
+				stylesST.add("TEXT_ALIGN", getString(R.string.ALIGN_LEFT));
+			} else {
+				stylesST.add("TEXT_ALIGN", getString(R.string.ALIGN_JUSTIFY));
+			}
+			htmlTmpl.add("STYLE", stylesST.render());
+
+			// General values
+			htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
+			htmlTmpl.add("CACHE_DIR", Controller.getInstance().cacheFolder());
+			htmlTmpl.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
+
+			// Special values for this article
+			htmlTmpl.add("article", article);
+			htmlTmpl.add("feed", feed);
+			htmlTmpl.add("CACHED_IMAGES", cachedImages);
+			htmlTmpl.add("LABELS", labels.toString());
+			htmlTmpl.add("UPDATED", DateUtils.getDateTimeCustom(getActivity(), article.updated));
+			htmlTmpl.add("ATTACHMENTS", getAttachmentsMarkup(article.attachments));
+			htmlTmpl.add("CONTENT", contentClean);
 
 			// Hyphenation Javascript
 			if (Controller.getInstance().allowHyphenation()) {
@@ -403,26 +426,11 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			}
 
 			// Note of the article
-			if (article.note != null) {
+			if (article.note != null && article.note.length() > 0) {
 				ST noteST = new ST(getResources().getString(R.string.NOTE_TEMPLATE), '$', '$');
 				noteST.add("NOTE", getResources().getString(R.string.Commons_HtmlPrefixNote) + " " + article.note);
 				htmlTmpl.add("NOTE_TEMPLATE", noteST.render());
 			}
-
-			// General values
-			htmlTmpl.add("STYLE", getResources().getString(R.string.STYLE_TEMPLATE));
-			htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
-			htmlTmpl.add("CACHE_DIR", Controller.getInstance().cacheFolder());
-			htmlTmpl.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
-
-			// Special values for this article
-			htmlTmpl.add("article", article);
-			htmlTmpl.add("feed", feed);
-			htmlTmpl.add("CACHED_IMAGES", cachedImages);
-			htmlTmpl.add("LABELS", labels.toString());
-			htmlTmpl.add("UPDATED", DateUtils.getDateTimeCustom(getActivity(), article.updated));
-			htmlTmpl.add("ATTACHMENTS", getAttachmentsMarkup(article.attachments));
-			htmlTmpl.add("CONTENT", contentClean);
 
 			content = htmlTmpl.render();
 
