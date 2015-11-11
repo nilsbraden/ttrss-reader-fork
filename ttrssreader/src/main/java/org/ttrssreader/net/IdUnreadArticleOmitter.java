@@ -17,12 +17,9 @@
 
 package org.ttrssreader.net;
 
-import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Article;
 
-import android.util.Log;
-
-import java.util.Map;
+import java.util.Date;
 
 /**
  * the instance of this class will be used for filtering out already cached articles, which was not updated while
@@ -30,35 +27,18 @@ import java.util.Map;
  *
  * @author igor
  */
-public class IdUpdatedArticleOmitter implements IArticleOmitter {
+public class IdUnreadArticleOmitter implements IArticleOmitter {
 
 	/**
 	 * map of article IDs to it's updated date
 	 */
-	public Map<Integer, Long> idUpdatedMap;
+	private Date lastUpdated;
 
-	public IdUpdatedArticleOmitter() {
-
-	}
-
-	public IdUpdatedArticleOmitter(final long sinceId) {
-		String selectSince = "_id >= " + sinceId;
-		init(selectSince);
-	}
-
-	public IdUpdatedArticleOmitter(final String selection) {
-		init(selection);
-	}
-
-	public IdUpdatedArticleOmitter(final String selection, final long sinceId) {
-		String selectSince = "_id >= " + sinceId;
-		if (selection != null) selectSince = selectSince + " AND " + selection;
-		init(selectSince);
-	}
-
-	private void init(String selectSince) {
-		idUpdatedMap = DBHelper.getInstance().getArticleIdUpdatedMap(selectSince);
-		Log.d("Data", "Filter-Size: " + idUpdatedMap.size() + " Selection: " + selectSince);
+	/**
+	 * construct the object according to selection parameters
+	 */
+	public IdUnreadArticleOmitter(Date lastUpdated) {
+		this.lastUpdated = lastUpdated;
 	}
 
 	/**
@@ -72,11 +52,12 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
 	public boolean omitArticle(Article.ArticleField field, Article a) {
 		boolean ret = false;
 		switch (field) {
-			case id:
+			case unread:
+				if (a.isUnread) ret = true;
+				break;
 			case updated:
-				if (a.id > 0 && a.updated != null) {
-					Long updated = idUpdatedMap.get(a.id);
-					if (updated != null && a.updated.getTime() <= updated) {
+				if (a.updated != null) {
+					if (lastUpdated.compareTo(a.updated) >= 0) {
 						ret = true;
 					}
 				}
@@ -85,4 +66,5 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
 		}
 		return ret;
 	}
+
 }

@@ -24,7 +24,6 @@ import org.ttrssreader.gui.FeedHeadlineActivity;
 import org.ttrssreader.gui.MenuActivity;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.net.JSONConnector;
-import org.ttrssreader.net.JavaJSONConnector;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.SSLUtils;
@@ -489,7 +488,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		} else {
 			synchronized (lockConnector) {
 				if (ttrssConnector == null) {
-					ttrssConnector = new JavaJSONConnector();
+					ttrssConnector = new JSONConnector();
 				}
 			}
 			if (ttrssConnector != null) {

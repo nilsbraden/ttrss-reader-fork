@@ -32,7 +32,6 @@ public interface IArticleOmitter {
 	 * @param field current article field added to article on this iteration
 	 * @param a     article to test
 	 * @return {@code true} if given article should be omitted, {@code false} otherwise
-	 * @throws StopJsonParsingException if parsing process should be broken
 	 */
-	boolean omitArticle(Article.ArticleField field, Article a) throws StopJsonParsingException;
+	boolean omitArticle(Article.ArticleField field, Article a);
 }

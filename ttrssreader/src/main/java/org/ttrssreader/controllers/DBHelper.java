@@ -766,6 +766,7 @@ public class DBHelper {
 		if (a.attachments == null) a.attachments = new LinkedHashSet<>();
 		if (a.labels == null) a.labels = new LinkedHashSet<>();
 		if (a.author == null) a.author = "";
+		if (a.note == null) a.note = "";
 
 		// articleLabels
 		long retId;
