@@ -112,7 +112,8 @@ public class Data {
 				.getHeadlines(articles, VCAT_ALL, limit, VIEW_UNREAD, true, 0, null, filter);
 
 		final Article newestCachedArticle = DBHelper.getInstance().getArticle(sinceId);
-		IArticleOmitter updatedFilter = new IdUnreadArticleOmitter(newestCachedArticle.updated);
+		IArticleOmitter updatedFilter = null;
+		if (newestCachedArticle != null) updatedFilter = new IdUnreadArticleOmitter(newestCachedArticle.updated);
 
 		Controller.getInstance().getConnector()
 				.getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId, null, updatedFilter);
