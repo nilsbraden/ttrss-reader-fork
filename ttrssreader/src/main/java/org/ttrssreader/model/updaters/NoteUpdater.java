@@ -39,10 +39,10 @@ public class NoteUpdater implements IUpdatable {
 
 	@Override
 	public void update() {
-		if (note != null) {
-			DBHelper.getInstance().addArticleNote(article.id, note);
-			Data.getInstance().setArticleNote(article.id, note);
-		}
+		article.note = note;
+		DBHelper.getInstance().addArticleNote(article.id, note);
+		Data.getInstance().notifyListeners();
+		Data.getInstance().setArticleNote(article.id, note);
 	}
 
 }

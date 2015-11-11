@@ -50,6 +50,7 @@ public class TextInputAlert {
 		input.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		input.setMinLines(3);
 		input.setMaxLines(10);
+		input.setText(article.note);
 		alert.setView(input);
 
 		alert.setPositiveButton(context.getString(R.string.Utils_OkayAction), new DialogInterface.OnClickListener() {

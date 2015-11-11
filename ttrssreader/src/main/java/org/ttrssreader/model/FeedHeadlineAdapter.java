@@ -127,7 +127,8 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		ret.updated = new Date(cur.getLong(4));
 		ret.isStarred = cur.getInt(5) != 0;
 		ret.isPublished = cur.getInt(6) != 0;
-		ret.feedTitle = cur.getString(7);
+		ret.note = cur.getString(7);
+		ret.feedTitle = cur.getString(8);
 		return ret;
 	}
 
