@@ -94,6 +94,14 @@ public class Utils {
 	private static final int ID_RUNNING = 4564561;
 	private static final int ID_FINISHED = 7897891;
 
+	/**
+	 * Different network states
+	 */
+	public static final int NETWORK_NONE = 0;
+	public static final int NETWORK_MOBILE = 1;
+	public static final int NETWORK_METERED = 2;
+	public static final int NETWORK_WIFI = 3;
+
 	/*
 	 * Check if this is the first run of the app.
 	 */
@@ -219,6 +227,20 @@ public class Utils {
 			return true;
 		}
 		return false;
+	}
+
+	public static int getNetworkType(final ConnectivityManager cm) {
+		if (cm == null) return NETWORK_NONE;
+		final NetworkInfo info = cm.getActiveNetworkInfo();
+		if (!info.isConnected()) {
+			return NETWORK_NONE;
+		} else if (info.getType() != ConnectivityManager.TYPE_WIFI) {
+			return NETWORK_MOBILE;
+		} else if (cm.isActiveNetworkMetered()) {
+			return NETWORK_METERED;
+		} else {
+			return NETWORK_WIFI;
+		}
 	}
 
 	public static void showFinishedNotification(String content, int time, boolean error, Context context) {

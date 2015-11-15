@@ -64,6 +64,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	ConnectivityManager cm;
 
 	private boolean onlyArticles;
+	private int networkType;
+
 	private long cacheSizeMax;
 	private ImageCache imageCache;
 	private long folderSize;
@@ -75,9 +77,10 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	Map<Integer, String[]> articleFiles = new HashMap<>();
 	Map<String, Long> remoteFiles = new HashMap<>();
 
-	ImageCacher(ICacheEndListener parent, final Context context, boolean onlyArticles) {
+	ImageCacher(ICacheEndListener parent, final Context context, boolean onlyArticles, int networkType) {
 		this.parent = parent;
 		this.onlyArticles = onlyArticles;
+		this.networkType = networkType;
 		this.cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		// Create Handler in a new Thread so all tasks are started in this new thread instead of the main UI-Thread
@@ -198,7 +201,9 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		this.imageCache = Controller.getInstance().getImageCache();
 		if (imageCache == null) return;
 
-		imageCache.fillMemoryCacheFromDisk();
+		// This actually isn't necessary if we handle the internal status of attached files correctly:
+		//imageCache.fillMemoryCacheFromDisk();
+
 		downloadImages();
 
 		taskCount = DEFAULT_TASK_COUNT + labels.size();
@@ -207,18 +212,27 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	}
 
 	/**
-	 * Calls the parent method to update the progress-bar in the UI while articles are refreshed. This is not called
-	 * anymore from the moment on when the image-downloading starts.
+	 * Calls the parent method to update the progress-bar in the UI while articles are refreshed.
 	 */
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		if (parent != null) {
 			if (values[0] == Integer.MAX_VALUE) {
 				parent.onCacheEnd();
+			} else if (values[0] == Integer.MIN_VALUE) {
+				parent.onCacheInterrupted();
 			} else {
 				parent.onCacheProgress(taskCount, values[0]);
 			}
 		}
+	}
+
+	private boolean checkConnectionChanged() {
+		if (Utils.getNetworkType(cm) < networkType) {
+			publishProgress(Integer.MIN_VALUE);
+			return true;
+		}
+		return false;
 	}
 
 	@SuppressLint("UseSparseArrays")
@@ -228,18 +242,16 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		taskCount = articles.size();
 		Log.d(TAG, "Articles count for image caching: " + taskCount);
 
+		int count = 0;
 		for (Article article : articles) {
+			if (count++ % 20 == 0 && checkConnectionChanged()) break;
+
 			int articleId = article.id;
-
-			// Log.d(TAG, "Cache images for article ID: " + articleId);
-
-			// Get images included in HTML
 			Set<String> set = new HashSet<>();
 
 			for (String url : findAllImageUrls(article.content)) {
 				if (!imageCache.containsKey(url)) set.add(url);
 			}
-			// Log.d(TAG, "Amount of uncached images for article ID " + articleId + ":" + set.size());
 
 			// Get images from attachments separately
 			for (String url : article.attachments) {
@@ -250,10 +262,9 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 					}
 				}
 			}
-			// Log.d(TAG, "Total amount of uncached images for article ID " + articleId + ":" + set.size());
 
 			if (!set.isEmpty()) {
-				DownloadImageTask task = new DownloadImageTask(imageCache, articleId, StringSupport.setToArray(set));
+				DownloadImageTask task = new DownloadImageTask(articleId, StringSupport.setToArray(set));
 				handler.post(task);
 				map.put(articleId, task);
 			} else {
@@ -268,9 +279,10 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		long timeWait = System.currentTimeMillis();
 		while (!map.isEmpty()) {
+			if (count++ % 5 == 0 && checkConnectionChanged()) break;
 			synchronized (map) {
 				try {
-					// Only wait for 30 Minutes, then stop all running tasks and show a toast
+					// Only wait for 30 Minutes, then stop all running tasks
 					int minutes = (int) ((System.currentTimeMillis() - timeWait) / Utils.MINUTE);
 					if (minutes > 30) {
 						for (DownloadImageTask task : map.values()) {
@@ -300,7 +312,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		// Max size for one image
 		private final long maxFileSize = Controller.getInstance().cacheImageMaxSize() * Utils.KB;
 		private final long minFileSize = Controller.getInstance().cacheImageMinSize() * Utils.KB;
-		private ImageCache imageCache;
+
 		private int articleId;
 		private String[] fileUrls;
 		// Thread-Local cache:
@@ -309,14 +321,15 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		private volatile boolean isCancelled = false;
 
-		private DownloadImageTask(ImageCache cache, int articleId, String... params) {
-			this.imageCache = cache;
+		private DownloadImageTask(int articleId, String... params) {
 			this.articleId = articleId;
 			this.fileUrls = params;
 		}
 
 		@Override
 		public void run() {
+			if (checkConnectionChanged()) return;
+
 			long size = 0;
 			try {
 				Log.d(TAG, "maxFileSize = " + maxFileSize + " and minFileSize = " + minFileSize);
@@ -368,6 +381,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		InputStream is = null;
 
 		try (FileOutputStream fos = new FileOutputStream(file)) {
+			if (checkConnectionChanged()) return byteWritten;
+
 			URL url = new URL(downloadUrl);
 			URLConnection connection = Controller.getInstance().openConnection(url);
 
@@ -399,6 +414,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			}
 
 			if (byteWritten == 0) {
+
 				if (!file.exists() && !file.createNewFile())
 					Log.i(TAG, "File could not be created: " + file.getAbsolutePath());
 
@@ -408,7 +424,10 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 				byte[] buf = new byte[size];
 				int byteRead;
 
+				int count = 0;
 				while (((byteRead = is.read(buf)) != -1)) {
+					if (count++ % 20 == 0 && checkConnectionChanged()) break;
+
 					fos.write(buf, 0, byteRead);
 					byteWritten += byteRead;
 

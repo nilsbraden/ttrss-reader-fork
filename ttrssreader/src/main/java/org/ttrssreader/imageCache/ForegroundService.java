@@ -35,9 +35,11 @@ public class ForegroundService extends Service implements ICacheEndListener {
 
 	private static final String TAG = ForegroundService.class.getSimpleName();
 
+	public static final String PARAM_SHOW_NOTIFICATION = "show_notification";
+	public static final String PARAM_NETWORK = "network";
+
 	public static final String ACTION_LOAD_IMAGES = "load_images";
 	public static final String ACTION_LOAD_ARTICLES = "load_articles";
-	static final String PARAM_SHOW_NOTIFICATION = "show_notification";
 
 	private static volatile ForegroundService instance = null;
 	private static ICacheEndListener parent;
@@ -72,6 +74,12 @@ public class ForegroundService extends Service implements ICacheEndListener {
 		WakeLocker.release();
 		finishService();
 		this.stopSelf();
+		if (parent != null) parent.onCacheEnd();
+	}
+
+	@Override
+	public void onCacheInterrupted() {
+		if (parent != null) parent.onCacheInterrupted();
 	}
 
 	@Override
@@ -88,16 +96,18 @@ public class ForegroundService extends Service implements ICacheEndListener {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null && intent.getAction() != null) {
 
+			int networkType = intent.getIntExtra(PARAM_NETWORK, Utils.NETWORK_NONE);
+
 			CharSequence title = "";
 			ImageCacher imageCacher;
 			if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
 				title = getText(R.string.Cache_service_imagecache);
-				imageCacher = new ImageCacher(this, this, false);
+				imageCacher = new ImageCacher(this, this, false, networkType);
 				imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				Log.i(TAG, "Caching images started");
 			} else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
 				title = getText(R.string.Cache_service_articlecache);
-				imageCacher = new ImageCacher(this, this, true);
+				imageCacher = new ImageCacher(this, this, true, networkType);
 				imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				Log.i(TAG, "Caching (articles only) started");
 			}

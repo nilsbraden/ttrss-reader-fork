@@ -49,7 +49,6 @@ public final class PluginReceiver extends BroadcastReceiver {
 		/*
 		 * Always be strict on input parameters! A malicious third-party app could send a malformed Intent.
 		 */
-
 		if (!ACTION_FIRE_SETTING.equals(intent.getAction())) {
 			Log.e(TAG, "Received unexpected Intent action " + intent.getAction());
 			return;

@@ -21,6 +21,8 @@ public interface ICacheEndListener {
 
 	void onCacheEnd();
 
+	void onCacheInterrupted();
+
 	void onCacheProgress(int taskCount, int progress);
 
 }

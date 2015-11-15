@@ -122,7 +122,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 			if (startCache) {
 				Log.i(TAG, "Starting ImageCache...");
-				doCache();
+				doStartImageCache();
 			}
 		}
 	}

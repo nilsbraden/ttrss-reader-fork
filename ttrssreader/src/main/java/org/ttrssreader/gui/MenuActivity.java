@@ -24,11 +24,13 @@ import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
+import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
+import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.preferences.Constants;
@@ -36,10 +38,12 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -53,6 +57,7 @@ import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This class provides common functionality for Activities.
@@ -390,7 +395,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 				startActivity(new Intent(this, AboutActivity.class));
 				return true;
 			case R.id.Category_Menu_ImageCache:
-				doCache();
+				doStartImageCache();
 				return true;
 			case R.id.Menu_FeedSubscribe:
 				startActivity(new Intent(this, SubscribeActivity.class));
@@ -407,8 +412,41 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		if (goBackAfterUpdate && !isFinishing()) onBackPressed();
 	}
 
+	protected void doStartImageCache() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		final int title = R.string.Main_ImageCache_YesNoTitle;
+		final FragmentManager fm = getFragmentManager();
+
+		switch (Utils.getNetworkType(cm)) {
+			case Utils.NETWORK_MOBILE:
+				YesNoUpdaterDialog.getInstance(new ImageCacheUpdater(Utils.NETWORK_MOBILE), title,
+						R.string.Main_ImageCache_NetworkMobile).show(fm, "imagecache");
+				break;
+			case Utils.NETWORK_METERED:
+				YesNoUpdaterDialog.getInstance(new ImageCacheUpdater(Utils.NETWORK_METERED), title,
+						R.string.Main_ImageCache_NetworkMetered).show(fm, "imagecache");
+				break;
+			case Utils.NETWORK_WIFI:
+				doCache(Utils.NETWORK_WIFI);
+				break;
+		}
+	}
+
+	private class ImageCacheUpdater implements IUpdatable {
+		int networkState;
+
+		public ImageCacheUpdater(int networkState) {
+			this.networkState = networkState;
+		}
+
+		@Override
+		public void update() {
+			doCache(networkState);
+		}
+	}
+
 	/* ############# BEGIN: Cache */
-	protected void doCache() {
+	private void doCache(final int networkState) {
 		// Register for progress-updates
 		ForegroundService.registerCallback(this);
 
@@ -416,6 +454,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 		// Start new cacher
 		Intent intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
+		intent.putExtra(ForegroundService.PARAM_NETWORK, networkState);
 		intent.setClass(this.getApplicationContext(), ForegroundService.class);
 
 		this.startService(intent);
@@ -426,6 +465,12 @@ public abstract class MenuActivity extends MenuFlavorActivity
 	@Override
 	public void onCacheEnd() {
 		ProgressBarManager.getInstance().removeProgress(this);
+	}
+
+	@Override
+	public void onCacheInterrupted() {
+		ProgressBarManager.getInstance().removeProgress(this);
+		Toast.makeText(this, R.string.Main_ImageCache_ConnectivityLost, Toast.LENGTH_SHORT).show();
 	}
 
 	@Override

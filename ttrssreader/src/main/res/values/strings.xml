@@ -24,6 +24,10 @@
 	<string name="Main.ShowPreferencesMenu">Preferences</string>
 	<string name="Main.RefreshMenu">Refresh</string>
 	<string name="Main.ImageCache">Cache images</string>
+	<string name="Main.ImageCache.NetworkMetered">You are on a metered network and this function may use a considerable amount of data. Are you sure?</string>
+	<string name="Main.ImageCache.NetworkMobile">You are on a mobile network and this function may use a considerable amount of data. Are you sure?</string>
+	<string name="Main.ImageCache.YesNoTitle">Start ImageCache?</string>
+	<string name="Main.ImageCache.ConnectivityLost">The connection has been lost. To avoid wasting traffic the download has been stopped.</string>
 	<string name="Preferences.Reset">Reset Preferences</string>
 	<string name="Preferences.Reset.Done">Preferences have been reset.</string>
 	<string name="Preferences.ResetDatabase">Reset Database</string>
