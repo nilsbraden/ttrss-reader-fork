@@ -37,6 +37,11 @@ import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -317,7 +322,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 				Log.d(TAG, "maxFileSize = " + maxFileSize + " and minFileSize = " + minFileSize);
 				articleFilesLocal.put(articleId, fileUrls);
 				for (String url : fileUrls) {
-					size = FileUtils.downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
+					size = downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
 					remoteFilesLocal.put(url, size);
 					if (isCancelled) break;
 				}
@@ -340,6 +345,105 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		public void cancel() {
 			this.isCancelled = true;
 		}
+	}
+
+	/**
+	 * Downloads a given URL directly to a file, when maxSize bytes are reached the download is stopped and the file is
+	 * deleted.
+	 *
+	 * @param downloadUrl the URL of the file
+	 * @param file        the destination file
+	 * @param maxSize     the size in bytes after which to abort the download
+	 * @param minSize     the minimum size in bytes after which to start the download
+	 * @return length of downloaded file or negated file length if it exceeds {@code maxSize} or downloaded with
+	 * errors.
+	 * So, if returned value less or equals to 0, then the file was not cached.
+	 */
+	private long downloadToFile(String downloadUrl, File file, long maxSize, long minSize) {
+		if (file.exists() && file.length() > 0) return file.length();
+		if (!Utils.checkConnected(cm, true, true)) return 0;
+
+		long byteWritten = 0;
+		boolean error = false;
+		InputStream is = null;
+
+		try (FileOutputStream fos = new FileOutputStream(file)) {
+			URL url = new URL(downloadUrl);
+			URLConnection connection = Controller.getInstance().openConnection(url);
+
+			connection.setConnectTimeout((int) (Utils.SECOND * 2));
+			connection.setReadTimeout((int) Utils.SECOND);
+
+			// Check filesize if available from header
+			try {
+				long length = Long.parseLong(connection.getHeaderField("Content-Length"));
+
+				if (length <= 0) {
+					byteWritten = length;
+					Log.w(TAG, "Content-Length equals 0 or is negative: " + length);
+				} else if (length < minSize) {
+					error = true;
+					byteWritten = -length;
+					Log.i(TAG, String.format(
+							"Not starting download of %s, the size (%s bytes) is less then the minimum "
+									+ "filesize of %s bytes.", downloadUrl, length, minSize));
+				} else if (length > maxSize) {
+					error = true;
+					byteWritten = -length;
+					Log.i(TAG, String.format(
+							"Not starting download of %s, the size (%s bytes) exceeds the " + "maximum "
+									+ "filesize of %s bytes.", downloadUrl, length, maxSize));
+				}
+			} catch (Exception e) {
+				Log.w(TAG, "Couldn't read Content-Length from url: " + downloadUrl);
+			}
+
+			if (byteWritten == 0) {
+				if (!file.exists() && !file.createNewFile())
+					Log.i(TAG, "File could not be created: " + file.getAbsolutePath());
+
+				is = connection.getInputStream();
+
+				int size = (int) Utils.KB * 8;
+				byte[] buf = new byte[size];
+				int byteRead;
+
+				while (((byteRead = is.read(buf)) != -1)) {
+					fos.write(buf, 0, byteRead);
+					byteWritten += byteRead;
+
+					if (byteWritten > maxSize) {
+						Log.w(TAG, String.format(
+								"Download interrupted, the size of %s bytes exceeds maximum " + "filesize.",
+								byteWritten));
+						// file length should be negated if file size exceeds {@code maxSize}
+						error = true;
+						byteWritten = -byteWritten;
+						break;
+					}
+				}
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Download not finished properly. Exception: " + e.getMessage(), e);
+			error = true;
+			byteWritten = -file.length();
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException ignored) {
+				}
+			}
+		}
+
+		if (error)
+			Log.w(TAG, String.format("Stopped download from url '%s'. Downloaded %d bytes", downloadUrl, byteWritten));
+		else Log.i(TAG, String.format("Download from '%s' finished. Downloaded %d bytes", downloadUrl, byteWritten));
+
+		if (error && file.exists())
+			if (!file.delete()) Log.w(TAG, "File could not be deleted: " + file.getAbsolutePath());
+
+		return byteWritten;
 	}
 
 	/**

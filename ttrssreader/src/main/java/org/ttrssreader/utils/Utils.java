@@ -199,19 +199,22 @@ public class Utils {
 	 * Wrapper for Method checkConnected(ConnectivityManager cm, boolean onlyWifi)
 	 */
 	public static boolean checkConnected(ConnectivityManager cm) {
-		return checkConnected(cm, Controller.getInstance().onlyUseWifi());
+		return checkConnected(cm, Controller.getInstance().onlyUseWifi(), false);
 	}
 
 	/**
 	 * Only checks the connectivity without regard to the preferences
 	 */
-	public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi) {
+	public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
 		if (cm == null) return false;
 
 		NetworkInfo info = cm.getActiveNetworkInfo();
 		if (info != null && info.isConnected()) {
 			if (onlyWifi && info.getType() != ConnectivityManager.TYPE_WIFI) {
 				return false;
+			}
+			if (onlyUnmeteredNetwork) {
+				return cm.isActiveNetworkMetered();
 			}
 			return true;
 		}

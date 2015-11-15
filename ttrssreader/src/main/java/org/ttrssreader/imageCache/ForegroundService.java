@@ -39,18 +39,11 @@ public class ForegroundService extends Service implements ICacheEndListener {
 	public static final String ACTION_LOAD_ARTICLES = "load_articles";
 	static final String PARAM_SHOW_NOTIFICATION = "show_notification";
 
-	private ImageCacher imageCacher;
 	private static volatile ForegroundService instance = null;
 	private static ICacheEndListener parent;
 
 	public static boolean isInstanceCreated() {
 		return instance != null;
-	}
-
-	private boolean imageCache = false;
-
-	public static void loadImagesToo() {
-		if (instance != null) instance.imageCache = true;
 	}
 
 	public static void registerCallback(ICacheEndListener parentGUI) {
@@ -77,16 +70,8 @@ public class ForegroundService extends Service implements ICacheEndListener {
 	@Override
 	public void onCacheEnd() {
 		WakeLocker.release();
-
-		// Start a new cacher if images have been requested
-		if (imageCache) {
-			imageCache = false;
-			imageCacher = new ImageCacher(this, this, false);
-			imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-		} else {
-			finishService();
-			this.stopSelf();
-		}
+		finishService();
+		this.stopSelf();
 	}
 
 	@Override
@@ -104,6 +89,7 @@ public class ForegroundService extends Service implements ICacheEndListener {
 		if (intent != null && intent.getAction() != null) {
 
 			CharSequence title = "";
+			ImageCacher imageCacher;
 			if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
 				title = getText(R.string.Cache_service_imagecache);
 				imageCacher = new ImageCacher(this, this, false);

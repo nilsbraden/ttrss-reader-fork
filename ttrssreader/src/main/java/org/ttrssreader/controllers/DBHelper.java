@@ -234,6 +234,7 @@ public class DBHelper {
 				// Check if deleteDB is scheduled or if DeleteOnStartup is set
 				if (Controller.getInstance().isDeleteDBScheduled()) {
 					final File dbFile = context.getDatabasePath(DATABASE_NAME);
+					if (getOpenHelper() != null) closeDB();
 					if (deleteDB(dbFile)) {
 						Controller.getInstance().setDeleteDBScheduled(false);
 						initializeDBHelper();

@@ -275,6 +275,9 @@ public abstract class MenuActivity extends MenuFlavorActivity
 			refreshAndUpdate();
 		} else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
 			finish();
+		} else if (resultCode == PreferencesActivity.ACTIVITY_RELOAD) {
+			finish();
+			startActivity(getIntent());
 		}
 	}
 
@@ -387,7 +390,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 				startActivity(new Intent(this, AboutActivity.class));
 				return true;
 			case R.id.Category_Menu_ImageCache:
-				doCache(false);
+				doCache();
 				return true;
 			case R.id.Menu_FeedSubscribe:
 				startActivity(new Intent(this, SubscribeActivity.class));
@@ -405,25 +408,14 @@ public abstract class MenuActivity extends MenuFlavorActivity
 	}
 
 	/* ############# BEGIN: Cache */
-	protected void doCache(boolean onlyArticles) {
+	protected void doCache() {
 		// Register for progress-updates
 		ForegroundService.registerCallback(this);
 
-		if (isCacherRunning()) {
-			if (!onlyArticles) // Tell cacher to do images too
-				ForegroundService.loadImagesToo();
-			else
-				// Running and already caching images, no need to do anything
-				return;
-		}
+		if (isCacherRunning()) return;
 
 		// Start new cacher
-		Intent intent;
-		if (onlyArticles) {
-			intent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);
-		} else {
-			intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
-		}
+		Intent intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
 		intent.setClass(this.getApplicationContext(), ForegroundService.class);
 
 		this.startService(intent);

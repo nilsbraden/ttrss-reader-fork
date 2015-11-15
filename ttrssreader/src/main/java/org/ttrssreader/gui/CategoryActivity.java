@@ -110,7 +110,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 				// Check if Wifi is connected, if not don't start the ImageCache
 				ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-				if (!Utils.checkConnected(cm, true)) {
+				if (!Utils.checkConnected(cm, true, true)) {
 					Log.i(TAG, "Preference Start ImageCache only on WIFI set, doing nothing...");
 					startCache = false;
 				}
@@ -122,7 +122,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 			if (startCache) {
 				Log.i(TAG, "Starting ImageCache...");
-				doCache(false); // images
+				doCache();
 			}
 		}
 	}

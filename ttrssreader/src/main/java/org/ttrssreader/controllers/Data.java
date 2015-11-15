@@ -55,20 +55,29 @@ public class Data {
 	private static final String VIEW_ALL = "all_articles";
 	private static final String VIEW_UNREAD = "unread";
 
-	private long time = 0;
-
+	private long time;
 	private long articlesCached;
-	private Map<Integer, Long> articlesChanged = new HashMap<>();
+	private Map<Integer, Long> articlesChanged;
 
 	/** map of category id to last changed time */
-	private Map<Integer, Long> feedsChanged = new HashMap<>();
-	private long virtCategoriesChanged = 0;
-	private long categoriesChanged = 0;
+	private Map<Integer, Long> feedsChanged;
+	private long virtCategoriesChanged;
+	private long categoriesChanged;
 
 	private ConnectivityManager cm;
 
 	// Singleton (see http://stackoverflow.com/a/11165926)
 	private Data() {
+		initTimers();
+	}
+
+	public void initTimers() {
+		time = 0;
+		articlesCached = 0;
+		articlesChanged = new HashMap<>();
+		feedsChanged = new HashMap<>();
+		virtCategoriesChanged = 0;
+		categoriesChanged = 0;
 	}
 
 	private static class InstanceHolder {
