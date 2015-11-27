@@ -20,6 +20,8 @@ package org.ttrssreader.net;
 import org.ttrssreader.model.pojos.Article;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * the instance of this class will be used for filtering out already cached articles, which was not updated while
@@ -33,6 +35,11 @@ public class IdUnreadArticleOmitter implements IArticleOmitter {
 	 * map of article IDs to it's updated date
 	 */
 	private Date lastUpdated;
+
+	/**
+	 * articles, that were skipped
+	 */
+	private Set<Integer> omittedArticles = new HashSet<>();
 
 	/**
 	 * construct the object according to selection parameters
@@ -58,6 +65,7 @@ public class IdUnreadArticleOmitter implements IArticleOmitter {
 			case updated:
 				if (a.updated != null) {
 					if (lastUpdated.compareTo(a.updated) >= 0) {
+						omittedArticles.add(a.id);
 						ret = true;
 					}
 				}
@@ -65,6 +73,11 @@ public class IdUnreadArticleOmitter implements IArticleOmitter {
 				break;
 		}
 		return ret;
+	}
+
+	@Override
+	public Set<Integer> getOmittedArticles() {
+		return omittedArticles;
 	}
 
 }

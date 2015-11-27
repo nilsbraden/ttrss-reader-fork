@@ -138,8 +138,9 @@ public class Data {
 			feedsChanged.put(c.id, time);
 		}
 
-		if (!articles.isEmpty()) {
+		if (!articles.isEmpty() || !filter.getOmittedArticles().isEmpty()) {
 			Set<Integer> articleUnreadIds = new HashSet<>();
+			articleUnreadIds.addAll(filter.getOmittedArticles());
 			for (Article a : articles) {
 				if (a.isUnread) articleUnreadIds.add(a.id);
 			}
@@ -180,7 +181,7 @@ public class Data {
 		int sinceId = 0;
 
 		long timeStart = System.currentTimeMillis();
-		IArticleOmitter filter = null;
+		IArticleOmitter filter;
 		if (isVcat) {
 			displayOnlyUnread = false;
 			filter = new IdUpdatedArticleOmitter("(isPublished>0 OR isStarred>0)");

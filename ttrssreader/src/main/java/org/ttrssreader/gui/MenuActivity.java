@@ -17,7 +17,6 @@
 
 package org.ttrssreader.gui;
 
-import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -109,7 +108,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		divider = findViewById(R.id.list_divider);
 		frameSub = findViewById(R.id.frame_sub);
 
-		if (frameMain == null || frameSub == null || divider == null) return; // Do nothing, the views do not exist...
+		if (frameMain == null || frameSub == null || divider == null)
+			return; // Do nothing, the views do not exist...
 
 		// Initialize values for layout changes:
 		Controller
@@ -205,7 +205,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
-			if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			if (getSupportActionBar() != null)
+				getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 			ActionBar ab = getSupportActionBar();
 			if (ab != null) {
@@ -267,7 +268,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 	}
 
 	@Override
-	public void onSaveInstanceState(@NotNull Bundle outState) {
+	public void onSaveInstanceState(Bundle outState) {
 		mOnSaveInstanceStateCalled = true;
 		super.onSaveInstanceState(outState);
 	}
@@ -347,6 +348,15 @@ public abstract class MenuActivity extends MenuFlavorActivity
 			menu.removeItem(R.id.Menu_MarkAllRead);
 		}
 
+		MenuItem cache = menu.findItem(R.id.Category_Menu_ImageCache);
+		if (cache != null) {
+			if (isCacherRunning()) {
+				cache.setTitle(getString(R.string.Main_ImageCacheCancel));
+			} else {
+				cache.setTitle(getString(R.string.Main_ImageCache));
+			}
+		}
+
 		return true;
 	}
 
@@ -395,7 +405,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 				startActivity(new Intent(this, AboutActivity.class));
 				return true;
 			case R.id.Category_Menu_ImageCache:
-				doStartImageCache();
+				if (isCacherRunning()) doStopImageCache();
+				else doStartImageCache();
 				return true;
 			case R.id.Menu_FeedSubscribe:
 				startActivity(new Intent(this, SubscribeActivity.class));
@@ -410,6 +421,11 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		updater = null;
 		doRefresh();
 		if (goBackAfterUpdate && !isFinishing()) onBackPressed();
+	}
+
+	protected void doStopImageCache() {
+		ForegroundService.cancel();
+		invalidateOptionsMenu();
 	}
 
 	protected void doStartImageCache() {
@@ -451,6 +467,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		ForegroundService.registerCallback(this);
 
 		if (isCacherRunning()) return;
+
+		invalidateOptionsMenu();
 
 		// Start new cacher
 		Intent intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);

@@ -17,12 +17,14 @@
 
 package org.ttrssreader.net;
 
+import android.util.Log;
+
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Article;
 
-import android.util.Log;
-
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * the instance of this class will be used for filtering out already cached articles, which was not updated while
@@ -36,10 +38,10 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
 	 * map of article IDs to it's updated date
 	 */
 	public Map<Integer, Long> idUpdatedMap;
-
-	public IdUpdatedArticleOmitter() {
-
-	}
+	/**
+	 * articles, that were skipped
+	 */
+	private Set<Integer> omittedArticles = new HashSet<>();
 
 	public IdUpdatedArticleOmitter(final long sinceId) {
 		String selectSince = "_id >= " + sinceId;
@@ -77,6 +79,7 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
 				if (a.id > 0 && a.updated != null) {
 					Long updated = idUpdatedMap.get(a.id);
 					if (updated != null && a.updated.getTime() <= updated) {
+						omittedArticles.add(a.id);
 						ret = true;
 					}
 				}
@@ -84,5 +87,10 @@ public class IdUpdatedArticleOmitter implements IArticleOmitter {
 				break;
 		}
 		return ret;
+	}
+
+	@Override
+	public Set<Integer> getOmittedArticles() {
+		return omittedArticles;
 	}
 }

@@ -23,6 +23,7 @@
 	<string name="Main.ShowPreferencesMenu">Einstellungen</string>
 	<string name="Main.RefreshMenu">Aktualisieren</string>
 	<string name="Main.ImageCache">Bilder herunterladen</string>
+	<string name="Main.ImageCacheCancel">\"Herunterladen\" abbrechen</string>
 	<string name="Preferences.Reset">Einstellungen zurücksetzen</string>
 	<string name="Preferences.Reset.Done">Einstellungen wurden zurückgesetzt.</string>
 	<string name="Preferences.ResetDatabase">Datenbank zurücksetzen</string>

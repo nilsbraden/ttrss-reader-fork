@@ -41,11 +41,17 @@ public class ForegroundService extends Service implements ICacheEndListener {
 	public static final String ACTION_LOAD_IMAGES = "load_images";
 	public static final String ACTION_LOAD_ARTICLES = "load_articles";
 
+	private static final Object LOCK_INSTANCE = new Object();
 	private static volatile ForegroundService instance = null;
 	private static ICacheEndListener parent;
+	private static ImageCacher imageCacher;
 
 	public static boolean isInstanceCreated() {
 		return instance != null;
+	}
+
+	public static void cancel() {
+		if (imageCacher != null) imageCacher.cancel();
 	}
 
 	public static void registerCallback(ICacheEndListener parentGUI) {
@@ -61,20 +67,16 @@ public class ForegroundService extends Service implements ICacheEndListener {
 	/**
 	 * Cleans up all running notifications, notifies waiting activities and clears the instance of the service.
 	 */
-	private void finishService() {
-		if (instance != null) {
-			stopForeground(true);
-			instance = null;
-		}
-		if (parent != null) parent.onCacheEnd();
-	}
-
 	@Override
 	public void onCacheEnd() {
 		WakeLocker.release();
-		finishService();
-		this.stopSelf();
+		if (instance != null) {
+			stopForeground(true);
+			imageCacher = null;
+			instance = null;
+		}
 		if (parent != null) parent.onCacheEnd();
+		this.stopSelf();
 	}
 
 	@Override
@@ -94,35 +96,36 @@ public class ForegroundService extends Service implements ICacheEndListener {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null && intent.getAction() != null) {
+		synchronized (LOCK_INSTANCE) {
+			if (imageCacher == null && intent != null && intent.getAction() != null) {
 
-			int networkType = intent.getIntExtra(PARAM_NETWORK, Utils.NETWORK_NONE);
+				int networkType = intent.getIntExtra(PARAM_NETWORK, Utils.NETWORK_NONE);
 
-			CharSequence title = "";
-			ImageCacher imageCacher;
-			if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
-				title = getText(R.string.Cache_service_imagecache);
-				imageCacher = new ImageCacher(this, this, false, networkType);
-				imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				Log.i(TAG, "Caching images started");
-			} else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
-				title = getText(R.string.Cache_service_articlecache);
-				imageCacher = new ImageCacher(this, this, true, networkType);
-				imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-				Log.i(TAG, "Caching (articles only) started");
+				CharSequence title = "";
+				if (ACTION_LOAD_IMAGES.equals(intent.getAction())) {
+					title = getText(R.string.Cache_service_imagecache);
+					imageCacher = new ImageCacher(this, this, false, networkType);
+					imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+					Log.i(TAG, "Caching images started");
+				} else if (ACTION_LOAD_ARTICLES.equals(intent.getAction())) {
+					title = getText(R.string.Cache_service_articlecache);
+					imageCacher = new ImageCacher(this, this, true, networkType);
+					imageCacher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+					Log.i(TAG, "Caching (articles only) started");
+				}
+
+				WakeLocker.acquire(this);
+
+				if (intent.getBooleanExtra(PARAM_SHOW_NOTIFICATION, false)) {
+					int icon = R.drawable.notification_icon;
+					CharSequence ticker = getText(R.string.Cache_service_started);
+					CharSequence text = getText(R.string.Cache_service_text);
+					Notification notification = Utils
+							.buildNotification(this, icon, ticker, title, text, true, new Intent());
+					startForeground(R.string.Cache_service_started, notification);
+				}
+
 			}
-
-			WakeLocker.acquire(this);
-
-			if (intent.getBooleanExtra(PARAM_SHOW_NOTIFICATION, false)) {
-				int icon = R.drawable.notification_icon;
-				CharSequence ticker = getText(R.string.Cache_service_started);
-				CharSequence text = getText(R.string.Cache_service_text);
-				Notification notification = Utils
-						.buildNotification(this, icon, ticker, title, text, true, new Intent());
-				startForeground(R.string.Cache_service_started, notification);
-			}
-
 		}
 		return START_STICKY;
 	}

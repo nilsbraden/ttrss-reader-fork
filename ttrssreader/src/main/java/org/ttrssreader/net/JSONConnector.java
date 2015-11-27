@@ -179,7 +179,8 @@ public class JSONConnector {
 			con.setConnectTimeout((int) (8 * Utils.SECOND));
 
 			// HTTP-Basic Authentication
-			if (base64NameAndPw != null) con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+			if (base64NameAndPw != null)
+				con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
 
 			// Add POST data
 			con.getOutputStream().write(outputBytes);
@@ -919,7 +920,7 @@ public class JSONConnector {
 	 *                   null})
 	 */
 	public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory,
-			Integer sinceId, String search, IArticleOmitter filter) {
+	                         Integer sinceId, String search, IArticleOmitter filter) {
 		long time = System.currentTimeMillis();
 		int offset = 0;
 		int count;

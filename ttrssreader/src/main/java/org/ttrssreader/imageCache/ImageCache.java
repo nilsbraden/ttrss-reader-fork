@@ -74,7 +74,8 @@ public class ImageCache {
 			File nomediaFile = new File(diskCacheDir + File.separator + ".nomedia");
 			if (!nomediaFile.exists()) {
 				try {
-					if (!nomediaFile.createNewFile()) Log.w(TAG, "Couldn't create .nomedia File for Disk-Cache!");
+					if (!nomediaFile.createNewFile())
+						Log.w(TAG, "Couldn't create .nomedia File for Disk-Cache!");
 				} catch (IOException e) {
 					// Empty!
 				}

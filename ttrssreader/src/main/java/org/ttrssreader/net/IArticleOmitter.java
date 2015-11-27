@@ -19,6 +19,8 @@ package org.ttrssreader.net;
 
 import org.ttrssreader.model.pojos.Article;
 
+import java.util.Set;
+
 /**
  * this interface is supposed to be used inside parseArticleArray of JSONConnector. The {@code omitArticle} method will
  * be called for each article field to determine if the article can be already omitted.
@@ -34,4 +36,11 @@ public interface IArticleOmitter {
 	 * @return {@code true} if given article should be omitted, {@code false} otherwise
 	 */
 	boolean omitArticle(Article.ArticleField field, Article a);
+
+	/**
+	 * Returns a list of articles that have been ignored in the last run.
+	 *
+	 * @return a list of article ids.
+	 */
+	Set<Integer> getOmittedArticles();
 }

@@ -56,12 +56,14 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 	private static final String TAG = ImageCacher.class.getSimpleName();
 
-	private static final int DEFAULT_TASK_COUNT = 6;
-
-	private static volatile int progressImageDownload;
+	private static final int DEFAULT_TASK_COUNT = 5;
+	private static final int ON_CACHE_END = -1;
+	private static final int ON_CACHE_INTERRUPTED = -2;
 
 	private ICacheEndListener parent;
 	ConnectivityManager cm;
+
+	private volatile boolean shouldBeStopped = false;
 
 	private boolean onlyArticles;
 	private int networkType;
@@ -88,10 +90,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		myHandler.start();
 	}
 
+	private static final Object LOCK_HANDLER = new Object();
 	private static Handler handler;
-
-	private static final Object lock = new Object();
-
 	private static volatile Boolean handlerInitialized = false;
 
 	private static class MyHandler extends Thread {
@@ -101,9 +101,9 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			try {
 				Looper.prepare();
 				handler = new Handler();
-				synchronized (lock) {
+				synchronized (LOCK_HANDLER) {
 					handlerInitialized = true;
-					lock.notifyAll();
+					LOCK_HANDLER.notifyAll();
 				}
 				Looper.loop();
 			} catch (Throwable t) {
@@ -117,11 +117,11 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		// Wait for the handler to be fully initialized:
 		long wait = Utils.SECOND * 2;
 		if (!handlerInitialized) {
-			synchronized (lock) {
+			synchronized (LOCK_HANDLER) {
 				while (!handlerInitialized && wait > 0) {
 					try {
 						wait = wait - 300;
-						lock.wait(300);
+						LOCK_HANDLER.wait(300);
 					} catch (InterruptedException e) {
 						// Empty!
 					}
@@ -147,67 +147,71 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 				cacheSizeMax / 1048576, (System.currentTimeMillis() - start) / Utils.SECOND));
 
 		// Cleanup
-		publishProgress(Integer.MAX_VALUE); // Call onCacheEnd()
+		publishProgress(ON_CACHE_END); // Call onCacheEnd()
 		requestStop();
 		return null;
 	}
 
 	private void doProcess() {
-		if (!Utils.checkConnected(cm)) {
-			Log.e(TAG, "No connectivity, aborting...");
-			return;
-		}
+		if (checkCancelRequested()) return;
 
 		// Update all articles
 		long timeArticles = System.currentTimeMillis();
 
-		// sync local status changes to server
-		Data.getInstance().synchronizeStatus();
+		// Loop only once, helps getting outta here when cancel was requested
+		//noinspection LoopStatementThatDoesntLoop
+		while (true) {
+			// sync local status changes to server
+			Data.getInstance().synchronizeStatus();
 
-		// Only use progress-updates and callbacks for downloading articles, images are done in background
-		// completely
-		Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
-		taskCount = DEFAULT_TASK_COUNT + labels.size();
+			// Only use progress-updates and callbacks for downloading articles, images are done in background
+			Set<Feed> labels = DBHelper.getInstance().getFeeds(-2);
+			taskCount = DEFAULT_TASK_COUNT + labels.size();
 
-		int progress = 0;
-		publishProgress(++progress);
-		// Data.getInstance().updateCounters(true, true);
-		publishProgress(++progress);
-		Data.getInstance().updateCategories(true);
-		publishProgress(++progress);
-		Data.getInstance().updateFeeds(Data.VCAT_ALL, true);
-
-		// Cache all articles
-		publishProgress(++progress);
-		Data.getInstance().cacheArticles(false, true);
-
-		for (Feed f : labels) {
-			if (f.unread == 0) continue;
+			int progress = 0;
 			publishProgress(++progress);
-			Data.getInstance().updateArticles(f.id, true, false, false, true);
+			if (checkCancelRequested()) return;
+			Data.getInstance().updateCategories(true);
+			publishProgress(++progress);
+			if (checkCancelRequested()) return;
+			Data.getInstance().updateFeeds(Data.VCAT_ALL, true);
+
+			// Cache all articles
+			publishProgress(++progress);
+			if (checkCancelRequested()) return;
+			Data.getInstance().cacheArticles(false, true);
+
+			for (Feed f : labels) {
+				if (f.unread == 0) continue;
+				publishProgress(++progress);
+				if (checkCancelRequested()) return;
+				Data.getInstance().updateArticles(f.id, true, false, false, true);
+			}
+
+			Data.getInstance().calculateCounters();
+			Data.getInstance().notifyListeners();
+
+			Log.i(TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
+			publishProgress(++progress);
+			if (checkCancelRequested()) return;
+
+			if (onlyArticles) // We are done here..
+				return;
+
+			// Initialize other preferences
+			this.cacheSizeMax = Controller.getInstance().cacheFolderMaxSize() * Utils.MB;
+			this.imageCache = Controller.getInstance().getImageCache();
+			if (imageCache == null) return;
+
+			downloadImages();
+
+			taskCount = DEFAULT_TASK_COUNT + labels.size();
+			publishProgress(++progress);
+
+			// Fall out of the loop
+			break;
 		}
 
-		Data.getInstance().calculateCounters();
-		Data.getInstance().notifyListeners();
-
-		publishProgress(++progress);
-		Log.i(TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
-
-		if (onlyArticles) // We are done here..
-			return;
-
-		// Initialize other preferences
-		this.cacheSizeMax = Controller.getInstance().cacheFolderMaxSize() * Utils.MB;
-		this.imageCache = Controller.getInstance().getImageCache();
-		if (imageCache == null) return;
-
-		// This actually isn't necessary if we handle the internal status of attached files correctly:
-		//imageCache.fillMemoryCacheFromDisk();
-
-		downloadImages();
-
-		taskCount = DEFAULT_TASK_COUNT + labels.size();
-		publishProgress(++progress);
 		purgeCache();
 	}
 
@@ -217,9 +221,11 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		if (parent != null) {
-			if (values[0] == Integer.MAX_VALUE) {
+			if (values[0] == ON_CACHE_END) {
 				parent.onCacheEnd();
-			} else if (values[0] == Integer.MIN_VALUE) {
+			} else if (values[0] == ON_CACHE_INTERRUPTED) {
+				Log.i(TAG, "Flag ON_CACHE_INTERRUPTED has been set...");
+				shouldBeStopped = true;
 				parent.onCacheInterrupted();
 			} else {
 				parent.onCacheProgress(taskCount, values[0]);
@@ -227,9 +233,17 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		}
 	}
 
-	private boolean checkConnectionChanged() {
-		if (Utils.getNetworkType(cm) < networkType) {
-			publishProgress(Integer.MIN_VALUE);
+	public void cancel() {
+		Log.i(TAG, "Method cancel() has been called...");
+		shouldBeStopped = true;
+	}
+
+	private boolean checkCancelRequested() {
+		Log.d(TAG, "Current Network-Type: " + Utils.getNetworkType(cm) + " Started with: " + networkType);
+		if (shouldBeStopped) {
+			return true;
+		} else if (Utils.getNetworkType(cm) < networkType) {
+			publishProgress(ON_CACHE_INTERRUPTED);
 			return true;
 		}
 		return false;
@@ -244,7 +258,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		int count = 0;
 		for (Article article : articles) {
-			if (count++ % 20 == 0 && checkConnectionChanged()) break;
+			if (count++ % 5 == 0 && checkCancelRequested()) break;
 
 			int articleId = article.id;
 			Set<String> set = new HashSet<>();
@@ -279,7 +293,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		long timeWait = System.currentTimeMillis();
 		while (!map.isEmpty()) {
-			if (count++ % 5 == 0 && checkConnectionChanged()) break;
+			if (count++ % 5 == 0 && checkCancelRequested()) break;
 			synchronized (map) {
 				try {
 					// Only wait for 30 Minutes, then stop all running tasks
@@ -309,12 +323,12 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	}
 
 	private class DownloadImageTask implements Runnable {
-		// Max size for one image
-		private final long maxFileSize = Controller.getInstance().cacheImageMaxSize() * Utils.KB;
 		private final long minFileSize = Controller.getInstance().cacheImageMinSize() * Utils.KB;
+		private final long maxFileSize = Controller.getInstance().cacheImageMaxSize() * Utils.KB;
 
 		private int articleId;
 		private String[] fileUrls;
+
 		// Thread-Local cache:
 		Map<Integer, String[]> articleFilesLocal = new HashMap<>();
 		Map<String, Long> remoteFilesLocal = new HashMap<>();
@@ -328,28 +342,27 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		@Override
 		public void run() {
-			if (checkConnectionChanged()) return;
+			if (checkCancelRequested()) return;
 
 			long size = 0;
 			try {
-				Log.d(TAG, "maxFileSize = " + maxFileSize + " and minFileSize = " + minFileSize);
+				// TODO Don't add files here if downloading failed or was cancelled!
 				articleFilesLocal.put(articleId, fileUrls);
 				for (String url : fileUrls) {
 					size = downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
 					remoteFilesLocal.put(url, size);
-					if (isCancelled) break;
+					if (isCancelled || checkCancelRequested()) break;
 				}
 			} catch (Throwable t) {
 				t.printStackTrace();
 			} finally {
 				synchronized (map) {
-					if (downloaded > 0) downloaded += size;
+					if (size > 0) downloaded += size;
 
 					articleFiles.putAll(articleFilesLocal);
 					remoteFiles.putAll(remoteFilesLocal);
 
 					map.remove(articleId);
-					publishProgress(++progressImageDownload);
 					map.notifyAll();
 				}
 			}
@@ -374,14 +387,14 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	 */
 	private long downloadToFile(String downloadUrl, File file, long maxSize, long minSize) {
 		if (file.exists() && file.length() > 0) return file.length();
-		if (!Utils.checkConnected(cm, true, true)) return 0;
+		if (checkCancelRequested()) return 0;
 
 		long byteWritten = 0;
 		boolean error = false;
 		InputStream is = null;
 
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			if (checkConnectionChanged()) return byteWritten;
+			if (checkCancelRequested()) return byteWritten;
 
 			URL url = new URL(downloadUrl);
 			URLConnection connection = Controller.getInstance().openConnection(url);
@@ -426,7 +439,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 				int count = 0;
 				while (((byteRead = is.read(buf)) != -1)) {
-					if (count++ % 20 == 0 && checkConnectionChanged()) break;
+					if (count++ % 20 == 0 && checkCancelRequested()) break;
 
 					fos.write(buf, 0, byteRead);
 					byteWritten += byteRead;
@@ -457,7 +470,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		if (error)
 			Log.w(TAG, String.format("Stopped download from url '%s'. Downloaded %d bytes", downloadUrl, byteWritten));
-		else Log.i(TAG, String.format("Download from '%s' finished. Downloaded %d bytes", downloadUrl, byteWritten));
+		else
+			Log.i(TAG, String.format("Download from '%s' finished. Downloaded %d bytes", downloadUrl, byteWritten));
 
 		if (error && file.exists())
 			if (!file.delete()) Log.w(TAG, "File could not be deleted: " + file.getAbsolutePath());
