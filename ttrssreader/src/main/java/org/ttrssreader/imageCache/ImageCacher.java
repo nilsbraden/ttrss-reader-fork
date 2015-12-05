@@ -194,7 +194,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 			Data.getInstance().calculateCounters();
 			Data.getInstance().notifyListeners();
 
-			Log.i(TAG, "Updating articles took " + (System.currentTimeMillis() - timeArticles) + "ms");
+			Log.i(TAG, String.format("Updating articles took %s ms", (System.currentTimeMillis() - timeArticles)));
 			publishProgress(++progress);
 			if (checkCancelRequested()) return;
 
@@ -244,8 +244,10 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	private boolean checkCancelRequested() {
 		if (shouldBeStopped) {
 			return true;
-		} else if (Utils.getNetworkType(cm) < networkType) {
-			Log.d(TAG, "Current Network-Type: " + Utils.getNetworkType(cm) + " Started with: " + networkType);
+		}
+		int currentType = Utils.getNetworkType(cm);
+		if (currentType < networkType) {
+			Log.d(TAG, String.format("Current Network-Type: %s, Started with: %s", currentType, networkType));
 			publishProgress(ON_CACHE_INTERRUPTED);
 			return true;
 		}
@@ -322,7 +324,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		DBHelper.getInstance().insertArticleFiles(articleFilesCopy);
 		DBHelper.getInstance().markRemoteFilesCached(remoteFilesCopy);
 
-		Log.i(TAG, "Downloading images took " + (System.currentTimeMillis() - time) + "ms");
+		Log.i(TAG, String.format("Downloading images took %s ms", (System.currentTimeMillis() - time)));
 	}
 
 	private class DownloadImageTask implements Runnable {
@@ -491,7 +493,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		if (folderSize > cacheSizeMax) {
 			Collection<RemoteFile> rfs = DBHelper.getInstance().getUncacheFiles(folderSize - cacheSizeMax);
-			Log.d(TAG, "Found " + rfs.size() + " cached files for deletion");
+			Log.d(TAG, String.format("Found %s cached files for deletion", rfs.size()));
 
 			ArrayList<Integer> rfIds = new ArrayList<>(rfs.size());
 			for (RemoteFile rf : rfs) {
@@ -505,7 +507,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 			DBHelper.getInstance().markRemoteFilesNonCached(rfIds);
 		}
-		Log.i(TAG, "Purging cache took " + (System.currentTimeMillis() - time) + "ms");
+		Log.i(TAG, String.format("Purging cache took %s ms", (System.currentTimeMillis() - time)));
 	}
 
 	/**
