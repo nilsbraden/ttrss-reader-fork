@@ -17,19 +17,6 @@
 
 package org.ttrssreader.controllers;
 
-import org.apache.commons.io.FileUtils;
-import org.ttrssreader.MyApplication;
-import org.ttrssreader.gui.dialogs.ErrorDialog;
-import org.ttrssreader.imageCache.ImageCache;
-import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.model.pojos.Category;
-import org.ttrssreader.model.pojos.Feed;
-import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.model.pojos.RemoteFile;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.StringSupport;
-import org.ttrssreader.utils.Utils;
-
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
@@ -44,6 +31,19 @@ import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.apache.commons.io.FileUtils;
+import org.ttrssreader.MyApplication;
+import org.ttrssreader.gui.dialogs.ErrorDialog;
+import org.ttrssreader.imageCache.ImageCache;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.model.pojos.Feed;
+import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.model.pojos.RemoteFile;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.StringSupport;
+import org.ttrssreader.utils.Utils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,6 +53,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -834,7 +835,7 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		if (label.id < -10) {
-			String[] args = new String[] {articleId + "", label.id + ""};
+			String[] args = new String[]{articleId + "", label.id + ""};
 
 			SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 			writeLock(true);
@@ -952,7 +953,7 @@ public class DBHelper {
 		readLock(true);
 		try {
 			// select id from articles where categoryId in (...)
-			c = db.query(TABLE_ARTICLES, new String[] {"_id"}, where.toString(), null, null, null, null);
+			c = db.query(TABLE_ARTICLES, new String[]{"_id"}, where.toString(), null, null, null, null);
 
 			int count = c.getCount();
 			if (count > 0) {
@@ -1063,7 +1064,7 @@ public class DBHelper {
 		try {
 			db.beginTransaction();
 			ret = db.update(TABLE_ARTICLES, cv, "_id IN (" + idList + ") AND ? != ?",
-					new String[] {mark, String.valueOf(state)});
+					new String[]{mark, String.valueOf(state)});
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
@@ -1172,7 +1173,7 @@ public class DBHelper {
 		db.beginTransaction();
 		try {
 			final ContentValues cv = new ContentValues(1);
-			c = db.query(TABLE_ARTICLES, new String[] {"feedId", "count(*)"}, "isUnread>0", null, "feedId", null, null,
+			c = db.query(TABLE_ARTICLES, new String[]{"feedId", "count(*)"}, "isUnread>0", null, "feedId", null, null,
 					null);
 
 			// update feeds
@@ -1201,7 +1202,7 @@ public class DBHelper {
 		db.beginTransaction();
 		try {
 			final ContentValues cv = new ContentValues(1);
-			c = db.query(TABLE_FEEDS, new String[] {"categoryId", "sum(unread)"}, "categoryId>=0", null, "categoryId",
+			c = db.query(TABLE_FEEDS, new String[]{"categoryId", "sum(unread)"}, "categoryId>=0", null, "categoryId",
 					null, null, null);
 
 			// update real categories
@@ -1261,7 +1262,7 @@ public class DBHelper {
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
 		writeLock(true);
 		try {
-			db.update(TABLE_ARTICLES, cv, "_id=?", new String[] {String.valueOf(id)});
+			db.update(TABLE_ARTICLES, cv, "_id=?", new String[]{String.valueOf(id)});
 		} finally {
 			writeLock(false);
 		}
@@ -1437,7 +1438,7 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_ARTICLES, null, "_id=?", new String[] {id + ""}, null, null, null, null);
+			c = db.query(TABLE_ARTICLES, null, "_id=?", new String[]{id + ""}, null, null, null, null);
 			if (c.moveToFirst()) ret = handleArticleCursor(c);
 		} finally {
 			if (c != null && !c.isClosed()) c.close();
@@ -1489,7 +1490,7 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_FEEDS, null, "_id=?", new String[] {id + ""}, null, null, null, null);
+			c = db.query(TABLE_FEEDS, null, "_id=?", new String[]{id + ""}, null, null, null, null);
 			if (c.moveToFirst()) ret = handleFeedCursor(c);
 		} finally {
 			if (c != null && !c.isClosed()) c.close();
@@ -1507,7 +1508,7 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_CATEGORIES, null, "_id=?", new String[] {id + ""}, null, null, null, null);
+			c = db.query(TABLE_CATEGORIES, null, "_id=?", new String[]{id + ""}, null, null, null, null);
 			if (c.moveToFirst()) ret = handleCategoryCursor(c);
 		} finally {
 			if (c != null && !c.isClosed()) c.close();
@@ -1533,7 +1534,7 @@ public class DBHelper {
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
 		readLock(true);
 		try {
-			c = db.query(TABLE_ARTICLES, new String[] {"_id", "updateDate"}, selection, null, null, null, null);
+			c = db.query(TABLE_ARTICLES, new String[]{"_id", "updateDate"}, selection, null, null, null, null);
 			ret = new HashMap<>(c.getCount());
 			while (c.moveToNext()) {
 				ret.put(c.getInt(0), c.getLong(1));
@@ -1611,7 +1612,7 @@ public class DBHelper {
 		if (!isDBAvailable()) return 0;
 
 		StringBuilder selection = new StringBuilder("isUnread>0");
-		String[] selectionArgs = new String[] {String.valueOf(id)};
+		String[] selectionArgs = new String[]{String.valueOf(id)};
 
 		if (isCat && id >= 0) {
 			// real categories
@@ -1628,7 +1629,7 @@ public class DBHelper {
 					// Fresh Articles
 					case Data.VCAT_FRESH:
 						selection.append(" and updateDate>?");
-						selectionArgs = new String[] {String.valueOf(
+						selectionArgs = new String[]{String.valueOf(
 								new Date().getTime() - Controller.getInstance().getFreshArticleMaxAge())};
 						break;
 
@@ -1660,7 +1661,7 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_ARTICLES, new String[] {"count(*)"}, selection.toString(), selectionArgs, null, null,
+			c = db.query(TABLE_ARTICLES, new String[]{"count(*)"}, selection.toString(), selectionArgs, null, null,
 					null, null);
 
 			if (c.moveToFirst()) ret = c.getInt(0);
@@ -1680,7 +1681,7 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_MARK, new String[] {"id"}, mark + "=" + status, null, null, null, null, null);
+			c = db.query(TABLE_MARK, new String[]{"id"}, mark + "=" + status, null, null, null, null, null);
 			Set<Integer> ret = new LinkedHashSet<>(c.getCount());
 			while (c.moveToNext()) {
 				ret.add(c.getInt(0));
@@ -1699,7 +1700,7 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_NOTES, new String[] {"_id", COL_NOTE}, null, null, null, null, null, null);
+			c = db.query(TABLE_NOTES, new String[]{"_id", COL_NOTE}, null, null, null, null, null, null);
 			Map<Integer, String> ret = new HashMap<>(c.getCount());
 			while (c.moveToNext()) {
 				ret.put(c.getInt(0), c.getString(1));
@@ -1847,7 +1848,7 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_ARTICLES, new String[] {"_id", "content", "attachments"},
+			c = db.query(TABLE_ARTICLES, new String[]{"_id", "content", "attachments"},
 					"cachedImages IS NULL AND isUnread>0", null, null, null, null, "1000");
 
 			ArrayList<Article> ret = new ArrayList<>(c.getCount());
@@ -1865,7 +1866,7 @@ public class DBHelper {
 		}
 	}
 
-	private void insertArticleFiles(int articleId, String[] fileUrls) {
+	private void insertArticleFiles(int articleId, List<String> fileUrls) {
 		if (!isDBAvailable()) return;
 
 		for (String url : fileUrls) {
@@ -1879,7 +1880,7 @@ public class DBHelper {
 	 *
 	 * @param map A map of arrays of remote file URLs mapped to ids of "parent" articles
 	 */
-	public void insertArticleFiles(Map<Integer, String[]> map) {
+	public void insertArticleFiles(Map<Integer, List<String>> map) {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
@@ -1910,7 +1911,7 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_REMOTEFILES, null, "url=?", new String[] {url}, null, null, null, null);
+			c = db.query(TABLE_REMOTEFILES, null, "url=?", new String[]{url}, null, null, null, null);
 			if (c.moveToFirst()) rf = handleRemoteFileCursor(c);
 
 		} catch (Exception e) {
@@ -2092,7 +2093,7 @@ public class DBHelper {
 					cv.put("cached", true);
 					cv.put("length", size);
 				}
-				db.update(TABLE_REMOTEFILES, cv, "url=?", new String[] {url});
+				db.update(TABLE_REMOTEFILES, cv, "url=?", new String[]{url});
 			}
 
 			db.setTransactionSuccessful();
@@ -2139,7 +2140,7 @@ public class DBHelper {
 		readLock(true);
 		Cursor c = null;
 		try {
-			c = db.query(TABLE_REMOTEFILES, new String[] {"SUM(length)"}, "cached=1", null, null, null, null);
+			c = db.query(TABLE_REMOTEFILES, new String[]{"SUM(length)"}, "cached=1", null, null, null, null);
 			if (c.moveToFirst()) ret = c.getLong(0);
 		} finally {
 			if (c != null && !c.isClosed()) c.close();

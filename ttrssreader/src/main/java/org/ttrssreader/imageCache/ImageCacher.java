@@ -17,6 +17,13 @@
 
 package org.ttrssreader.imageCache;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
@@ -29,24 +36,20 @@ import org.ttrssreader.utils.FileUtils;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -76,7 +79,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 	private final Map<Integer, DownloadImageTask> map = new HashMap<>();
 	// Cache values and insert them later:
-	Map<Integer, String[]> articleFiles = new HashMap<>();
+	Map<Integer, List<String>> articleFiles = new HashMap<>();
 	Map<String, Long> remoteFiles = new HashMap<>();
 
 	ImageCacher(ICacheEndListener parent, final Context context, boolean onlyArticles, int networkType) {
@@ -234,15 +237,15 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 	}
 
 	public void cancel() {
-		Log.i(TAG, "Method cancel() has been called...");
+		Log.i(TAG, "Method cancel() of ImageCacher has been called...");
 		shouldBeStopped = true;
 	}
 
 	private boolean checkCancelRequested() {
-		Log.d(TAG, "Current Network-Type: " + Utils.getNetworkType(cm) + " Started with: " + networkType);
 		if (shouldBeStopped) {
 			return true;
 		} else if (Utils.getNetworkType(cm) < networkType) {
+			Log.d(TAG, "Current Network-Type: " + Utils.getNetworkType(cm) + " Started with: " + networkType);
 			publishProgress(ON_CACHE_INTERRUPTED);
 			return true;
 		}
@@ -314,7 +317,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 		/* Insert cached values, clone map before to avoid ConcurrentModificationException if threads have not
 		cancelled yet. Ignore still running threads. */
-		Map<Integer, String[]> articleFilesCopy = new HashMap<>(articleFiles);
+		Map<Integer, List<String>> articleFilesCopy = new HashMap<>(articleFiles);
 		Map<String, Long> remoteFilesCopy = new HashMap<>(remoteFiles);
 		DBHelper.getInstance().insertArticleFiles(articleFilesCopy);
 		DBHelper.getInstance().markRemoteFilesCached(remoteFilesCopy);
@@ -327,17 +330,18 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		private final long maxFileSize = Controller.getInstance().cacheImageMaxSize() * Utils.KB;
 
 		private int articleId;
-		private String[] fileUrls;
+		private List<String> fileUrls;
 
 		// Thread-Local cache:
-		Map<Integer, String[]> articleFilesLocal = new HashMap<>();
-		Map<String, Long> remoteFilesLocal = new HashMap<>();
+		private final List<String> finishedFileUrls = new ArrayList<>();
+		private final Map<Integer, List<String>> articleFilesLocal = new HashMap<>();
+		private final Map<String, Long> remoteFilesLocal = new HashMap<>();
 
 		private volatile boolean isCancelled = false;
 
 		private DownloadImageTask(int articleId, String... params) {
 			this.articleId = articleId;
-			this.fileUrls = params;
+			this.fileUrls = Arrays.asList(params);
 		}
 
 		@Override
@@ -346,19 +350,22 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 			long size = 0;
 			try {
-				// TODO Don't add files here if downloading failed or was cancelled!
-				articleFilesLocal.put(articleId, fileUrls);
 				for (String url : fileUrls) {
-					size = downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
-					remoteFilesLocal.put(url, size);
+					long urlSize = downloadToFile(url, imageCache.getCacheFile(url), maxFileSize, minFileSize);
+					if (urlSize > 0) {
+						size += urlSize;
+						finishedFileUrls.add(url);
+						remoteFilesLocal.put(url, urlSize);
+					}
 					if (isCancelled || checkCancelRequested()) break;
 				}
 			} catch (Throwable t) {
 				t.printStackTrace();
 			} finally {
-				synchronized (map) {
-					if (size > 0) downloaded += size;
+				articleFilesLocal.put(articleId, finishedFileUrls);
+				if (size > 0) downloaded += size;
 
+				synchronized (map) {
 					articleFiles.putAll(articleFilesLocal);
 					remoteFiles.putAll(remoteFilesLocal);
 
@@ -394,7 +401,8 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 		InputStream is = null;
 
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			if (checkCancelRequested()) return byteWritten;
+			if (checkCancelRequested())
+				throw new InterruptedIOException("Download was cancelled.");
 
 			URL url = new URL(downloadUrl);
 			URLConnection connection = Controller.getInstance().openConnection(url);
@@ -439,19 +447,14 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 
 				int count = 0;
 				while (((byteRead = is.read(buf)) != -1)) {
-					if (count++ % 20 == 0 && checkCancelRequested()) break;
+					if (count++ % 20 == 0 && checkCancelRequested())
+						throw new InterruptedIOException("Download was cancelled.");
 
 					fos.write(buf, 0, byteRead);
 					byteWritten += byteRead;
 
 					if (byteWritten > maxSize) {
-						Log.w(TAG, String.format(
-								"Download interrupted, the size of %s bytes exceeds maximum " + "filesize.",
-								byteWritten));
-						// file length should be negated if file size exceeds {@code maxSize}
-						error = true;
-						byteWritten = -byteWritten;
-						break;
+						throw new InterruptedIOException(String.format("Download interrupted, the size of %s bytes exceeds maximum filesize.", byteWritten));
 					}
 				}
 			}
