@@ -17,7 +17,7 @@
 
 package org.ttrssreader.model.pojos;
 
-import org.jetbrains.annotations.NotNull;
+
 
 public class Feed implements Comparable<Feed> {
 
@@ -28,7 +28,7 @@ public class Feed implements Comparable<Feed> {
 	public int unread;
 
 	@Override
-	public int compareTo(@NotNull Feed fi) {
+	public int compareTo(Feed fi) {
 		return title.compareToIgnoreCase(fi.title);
 	}
 

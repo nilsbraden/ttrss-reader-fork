@@ -17,7 +17,7 @@
 
 package org.ttrssreader.model;
 
-import org.jetbrains.annotations.NotNull;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.model.pojos.Category;
@@ -83,7 +83,7 @@ public class CategoryAdapter extends MainAdapter {
 	}
 
 	@Override
-	public void bindView(@NotNull View view, Context context, @NotNull Cursor cursor) {
+	public void bindView(View view, Context context, Cursor cursor) {
 		super.bindView(view, context, cursor);
 
 		Category c = getCategory(cursor);

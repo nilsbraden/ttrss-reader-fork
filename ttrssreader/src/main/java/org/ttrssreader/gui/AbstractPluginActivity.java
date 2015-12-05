@@ -15,17 +15,16 @@
 
 package org.ttrssreader.gui;
 
-import com.twofortyfouram.locale.api.R;
-
-import org.jetbrains.annotations.NotNull;
-import org.ttrssreader.controllers.Controller;
-
 import android.app.Activity;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.twofortyfouram.locale.api.R;
+
+import org.ttrssreader.controllers.Controller;
 
 /**
  * Superclass for plug-in Activities. This class takes care of initializing aspects of the plug-in's UI to
@@ -86,7 +85,7 @@ public abstract class AbstractPluginActivity extends Activity {
 	}
 
 	@Override
-	public boolean onMenuItemSelected(final int featureId, @NotNull final MenuItem item) {
+	public boolean onMenuItemSelected(final int featureId, final MenuItem item) {
 		final int id = item.getItemId();
 
 		if (android.R.id.home == id) {

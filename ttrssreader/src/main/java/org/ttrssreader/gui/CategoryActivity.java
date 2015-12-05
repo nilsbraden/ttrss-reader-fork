@@ -17,7 +17,7 @@
 
 package org.ttrssreader.gui;
 
-import org.jetbrains.annotations.NotNull;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -133,13 +133,13 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	@Override
-	public void onSaveInstanceState(@NotNull Bundle outState) {
+	public void onSaveInstanceState(Bundle outState) {
 		outState.putInt(SELECTED, selectedCategoryId);
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
-	protected void onRestoreInstanceState(@NotNull Bundle instance) {
+	protected void onRestoreInstanceState(Bundle instance) {
 		selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
 		super.onRestoreInstanceState(instance);
 	}

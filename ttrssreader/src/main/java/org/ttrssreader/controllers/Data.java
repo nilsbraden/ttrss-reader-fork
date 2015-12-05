@@ -17,6 +17,11 @@
 
 package org.ttrssreader.controllers;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.util.Log;
+
 import org.ttrssreader.R;
 import org.ttrssreader.imageCache.ImageCache;
 import org.ttrssreader.model.pojos.Article;
@@ -28,11 +33,6 @@ import org.ttrssreader.net.IdUnreadArticleOmitter;
 import org.ttrssreader.net.IdUpdatedArticleOmitter;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.Utils;
-
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.util.Log;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,7 +59,9 @@ public class Data {
 	private long articlesCached;
 	private Map<Integer, Long> articlesChanged;
 
-	/** map of category id to last changed time */
+	/**
+	 * map of category id to last changed time
+	 */
 	private Map<Integer, Long> feedsChanged;
 	private long virtCategoriesChanged;
 	private long categoriesChanged;
@@ -89,7 +91,8 @@ public class Data {
 	}
 
 	public synchronized void initialize(final Context context) {
-		if (context != null) cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		if (context != null)
+			cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 	}
 
 	// *** ARTICLES *********************************************************************
@@ -122,7 +125,8 @@ public class Data {
 
 		final Article newestCachedArticle = DBHelper.getInstance().getArticle(sinceId);
 		IArticleOmitter updatedFilter = null;
-		if (newestCachedArticle != null) updatedFilter = new IdUnreadArticleOmitter(newestCachedArticle.updated);
+		if (newestCachedArticle != null)
+			updatedFilter = new IdUnreadArticleOmitter(newestCachedArticle.updated);
 
 		Controller.getInstance().getConnector()
 				.getHeadlines(articles, VCAT_ALL, limit, VIEW_ALL, true, sinceId, null, updatedFilter);
@@ -162,14 +166,15 @@ public class Data {
 	 * @param overrideDelay     should the last update time be ignored?
 	 */
 	public void updateArticles(int feedId, boolean displayOnlyUnread, boolean isCat, boolean overrideOffline,
-			boolean overrideDelay) {
+	                           boolean overrideDelay) {
 		Long time = articlesChanged.get(feedId);
 		if (isCat) // Category-Ids are in feedsChanged
 			time = feedsChanged.get(feedId);
 
 		if (time == null) time = 0L;
 
-		if (articlesCached > time && !(feedId == VCAT_PUB || feedId == VCAT_STAR)) time = articlesCached;
+		if (articlesCached > time && !(feedId == VCAT_PUB || feedId == VCAT_STAR))
+			time = articlesCached;
 
 		if (!overrideDelay && time > System.currentTimeMillis() - Utils.UPDATE_TIME) {
 			return;
@@ -250,7 +255,7 @@ public class Data {
 	}
 
 	private void handlePurgeMarked(Set<Article> articles, int feedId) {
-		// TODO Alle Artikel mit ID > minId als nicht starred und nicht published markieren
+		// TODO Mark all articles with ID > minId as "not starred" and "not published". But why?
 
 		// Search min and max ids
 		int minId = Integer.MAX_VALUE;
@@ -394,7 +399,8 @@ public class Data {
 
 	public void setArticleRead(Set<Integer> ids, int status) {
 		boolean erg = false;
-		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleRead(ids, status);
+		if (Utils.isConnected(cm))
+			erg = Controller.getInstance().getConnector().setArticleRead(ids, status);
 		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_READ, status);
 	}
 
@@ -403,7 +409,8 @@ public class Data {
 		Set<Integer> ids = new HashSet<>();
 		ids.add(articleId);
 
-		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleStarred(ids, status);
+		if (Utils.isConnected(cm))
+			erg = Controller.getInstance().getConnector().setArticleStarred(ids, status);
 		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_STAR, status);
 	}
 
@@ -412,8 +419,10 @@ public class Data {
 		Set<Integer> ids = new HashSet<>();
 		ids.add(articleId);
 
-		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticlePublished(ids, status);
-		if (!erg) DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_PUBLISH, status);
+		if (Utils.isConnected(cm))
+			erg = Controller.getInstance().getConnector().setArticlePublished(ids, status);
+		if (!erg)
+			DBHelper.getInstance().markUnsynchronizedStates(ids, DBHelper.MARK_PUBLISH, status);
 	}
 
 	public void setArticleNote(int articleId, String note) {
@@ -421,7 +430,8 @@ public class Data {
 		Map<Integer, String> ids = new HashMap<>();
 		ids.put(articleId, note);
 
-		if (Utils.isConnected(cm)) erg = Controller.getInstance().getConnector().setArticleNote(ids);
+		if (Utils.isConnected(cm))
+			erg = Controller.getInstance().getConnector().setArticleNote(ids);
 		if (!erg) DBHelper.getInstance().markUnsynchronizedNotes(ids);
 	}
 
@@ -436,8 +446,10 @@ public class Data {
 		Collection<Integer> markedArticleIds = DBHelper.getInstance().markRead(id, isCategory);
 		if (markedArticleIds != null) {
 			boolean isSync = false;
-			if (Utils.isConnected(cm)) isSync = Controller.getInstance().getConnector().setRead(id, isCategory);
-			if (!isSync) DBHelper.getInstance().markUnsynchronizedStates(markedArticleIds, DBHelper.MARK_READ, 0);
+			if (Utils.isConnected(cm))
+				isSync = Controller.getInstance().getConnector().setRead(id, isCategory);
+			if (!isSync)
+				DBHelper.getInstance().markUnsynchronizedStates(markedArticleIds, DBHelper.MARK_READ, 0);
 		}
 
 	}
@@ -447,7 +459,8 @@ public class Data {
 	}
 
 	public JSONConnector.SubscriptionResponse feedSubscribe(String feed_url, int category_id) {
-		if (Utils.isConnected(cm)) return Controller.getInstance().getConnector().feedSubscribe(feed_url, category_id);
+		if (Utils.isConnected(cm))
+			return Controller.getInstance().getConnector().feedSubscribe(feed_url, category_id);
 		return null;
 	}
 
@@ -491,7 +504,7 @@ public class Data {
 		long time = System.currentTimeMillis();
 
 		// Try to send all marked articles to the server, every synced status is removed from the DB afterwards
-		String[] marks = new String[] {DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH};
+		String[] marks = new String[]{DBHelper.MARK_READ, DBHelper.MARK_STAR, DBHelper.MARK_PUBLISH};
 		for (String mark : marks) {
 			Set<Integer> idsMark = DBHelper.getInstance().getMarked(mark, 1);
 			Set<Integer> idsUnmark = DBHelper.getInstance().getMarked(mark, 0);
@@ -530,7 +543,8 @@ public class Data {
 	}
 
 	public void purgeOrphanedArticles() {
-		if (Controller.getInstance().getLastCleanup() > System.currentTimeMillis() - Utils.CLEANUP_TIME) return;
+		if (Controller.getInstance().getLastCleanup() > System.currentTimeMillis() - Utils.CLEANUP_TIME)
+			return;
 
 		DBHelper.getInstance().purgeOrphanedArticles();
 		Controller.getInstance().setLastCleanup(System.currentTimeMillis());
@@ -541,7 +555,8 @@ public class Data {
 	}
 
 	public void notifyListeners() {
-		if (!Controller.getInstance().isHeadless()) UpdateController.getInstance().notifyListeners();
+		if (!Controller.getInstance().isHeadless())
+			UpdateController.getInstance().notifyListeners();
 	}
 
 	public boolean isConnected() {

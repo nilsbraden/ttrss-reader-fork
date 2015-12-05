@@ -17,7 +17,7 @@
 
 package org.ttrssreader.model.pojos;
 
-import org.jetbrains.annotations.NotNull;
+
 
 public class Category implements Comparable<Category> {
 
@@ -35,7 +35,7 @@ public class Category implements Comparable<Category> {
 	}
 
 	@Override
-	public int compareTo(@NotNull Category ci) {
+	public int compareTo(Category ci) {
 		// Sort by Id if Id is 0 or smaller, else sort by Title
 		if (id <= 0 || ci.id <= 0) {
 			Integer thisInt = id;

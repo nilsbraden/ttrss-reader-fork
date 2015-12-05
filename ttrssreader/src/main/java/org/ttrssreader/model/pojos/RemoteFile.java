@@ -17,7 +17,7 @@
 
 package org.ttrssreader.model.pojos;
 
-import org.jetbrains.annotations.NotNull;
+
 
 import java.util.Date;
 
@@ -44,7 +44,7 @@ public class RemoteFile implements Comparable<RemoteFile> {
 	public volatile boolean cached;
 
 	@Override
-	public int compareTo(@NotNull RemoteFile rf) {
+	public int compareTo(RemoteFile rf) {
 		return rf.updated.compareTo(this.updated);
 	}
 

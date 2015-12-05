@@ -16,7 +16,7 @@
 
 package org.ttrssreader.utils;
 
-import org.jetbrains.annotations.NotNull;
+
 
 import android.os.Handler;
 import android.os.Looper;
@@ -50,7 +50,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	private static final ThreadFactory sThreadFactory = new ThreadFactory() {
 		private final AtomicInteger mCount = new AtomicInteger(1);
 
-		public Thread newThread(@NotNull Runnable r) {
+		public Thread newThread(Runnable r) {
 			return new Thread(r, "AsyncTask #" + mCount.getAndIncrement());
 		}
 	};
@@ -87,7 +87,7 @@ public abstract class AsyncTask<Params, Progress, Result> {
 	//		final ArrayDeque<Runnable> mTasks = new ArrayDeque<>();
 	//		Runnable mActive;
 	//
-	//		public synchronized void execute(@NotNull final Runnable r) {
+	//		public synchronized void execute(final Runnable r) {
 	//			mTasks.offer(new Runnable() {
 	//				public void run() {
 	//					try {

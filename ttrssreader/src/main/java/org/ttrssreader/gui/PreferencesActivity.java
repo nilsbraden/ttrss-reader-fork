@@ -17,7 +17,7 @@
 
 package org.ttrssreader.gui;
 
-import org.jetbrains.annotations.NotNull;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -175,7 +175,7 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 	}
 
 	@Override
-	public void switchToHeader(@NotNull Header header) {
+	public void switchToHeader(Header header) {
 		if (header.fragment != null) {
 			super.switchToHeader(header);
 		}

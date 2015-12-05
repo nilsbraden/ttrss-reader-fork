@@ -17,7 +17,7 @@
 
 package org.ttrssreader.gui;
 
-import org.jetbrains.annotations.NotNull;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
@@ -101,7 +101,7 @@ public class ShareActivity extends MenuActivity {
 	}
 
 	@Override
-	public void onSaveInstanceState(@NotNull Bundle out) {
+	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
 
 		EditText url = (EditText) findViewById(R.id.share_url);
