@@ -17,7 +17,19 @@
   -->
 <resources>
 
-	<string-array name="updates">
+    <string-array name="updates">
+		<item>Version 1.88
+			 * Update french translation
+			 * Notes: Show notes within articles
+			 * Notes: Added notes are also internally set on the article, not just on the server
+			 * Notes: Disconnected notes and publishing since the two are not connected
+			 * Notes: Re-modeled temporary storage of notes and marked articles for later synchronization
+			 * Reset font when marked as read
+			 * Fixed problem with text-align mode
+			 * Fixed DB-reset method
+			 * Properly handle metered networks (eg. wifi with traffic restriction)
+			 * Stop ImageCache when connectivity changes (wifi to mobile)
+			 * Allow cancel of ImageCache via menu</item>
 		<item>Version 1.87
 			 * Fixed NPE when subscribing to a new feed and selecting a category
 			 * Removed remaining references to the preference \"Use old connector\"
@@ -190,343 +202,343 @@
 			 * Fixed Issue 155: category totals often don\'t update correctly
 			 * Fixed rotation of article with dark background</item>
 
-		<!-- Old Entries: -->
-		<!--
-		<item>Version 1.49
-			 * Added a preference to \"Invert browsing articles\"
-			 * Fixed problems with the new preference-dialog
-			 * Added confirmation dialog to unsubscribe from feed</item>
-		<item>Version 1.48
-			 * New Preference-Layout, new Icons
-			 * Fixed progressbar for ImageCache
-			 * Fixed Exceptions when returning from article
-			 * Fixed problem with ImageCache
-			 * Added spanish translation (thanks to Eduardo Ruiz from http://www.edubox.org)</item>
-		<item>Version 1.47
-			 * Fixed Activity-Indicators
-			 * Implemented "Subscribe to Feed" and \"Unsubscribe\" (only Server > 1.7.6)
-			 * Added Paste-Button for URLs in Subscribe-View
-			 * Dark background now without white border
-			 * Link-color for dark background set to light blue
-			 * Articleheader layout and borders fixed
-			 * Removed unnecessary preferences</item>
-		<item>Version 1.46
-			 * Fixed bugs in new connection method
-			 * Rewrote code for swipe, should work better now on all screen sizes
-			 * New Preference: Scale article font by n%
-			 * Fixed bugs in tasker integration
-			 * Disabled automatic vacuum, this can still be started manually via preferences
-			 * Added long-press options in article, share article and (if selected an URL) share URL.</item>
-		<item>Version 1.45
-			 * Remember reading position inside articles
-			 * Reduce memory usage
-			 * Several bugfixes</item>
-		<item>Version 1.44
-			 * Add preference for fallback to old connector which supports digest authentication but doesn\'t support SNI
-			 * Fixed http-auth for apache connector
-			 * Added preference to hide the button \"Mark Read\" from the actionbar
-			 * Restore position in list after orientation change
-			 * Fixed errors in ShareToPublish and Tasker-Integration</item>
-		<item>Version 1.43
-			 * Added ability to schedule updates with Tasker/Locale</item>
-		<item>Version 1.42
-			 * Switching to next or previous articles/feeds is much faster now
-			 * Major refactoring to make use of fragments and someday be able to implement a two-pane-layout…
-			 * Fixed several Bugs, closed forgotten cursors and layout-problems
-			 * Switched HTTP-Library (Apache -> HttpUrlConnection) for SSL-SNI Support</item>
-		<item>Version 1.41
-			 * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.</item>
-		<item>Version 1.4
-			 * Added Label-Editing for articles
-			 * Fixed some bugs preventing labels from beeing refreshed properly
-			 * Fixed some UI glitches in the progressbar</item>
-		<item>Version 1.39
-			 * Added preference for "Load images" which, when disabled, forces the Webview to not load any content from the web.
-			 * Fixed Issue #99 "Sharing with Firefox Sync"
-			 * Implemented Issue #81: Show temporarily read items in "new articles", the read articles now are all left in the displayed list.
-			 * Longer update-interval for background refresh</item>
-		<item>Version 1.38
-			 * Adapt to API-changes, number of articles to be fetched at once has been reduced to 60, got no idea why but am now dealing with it properly.
-			 * Fixed some bugs in the mechanism to fetch new articles.</item>
-		<item>Version 1.37
-			 * Changed events, refreshing of the UI should now be really fast
-			 * Changed update-mechanism
-			 * Fixed refresh-button
-			 * Added separate Build for old devices (below Android 2.1)
-			 * Bugfixes</item>
-		<item>Version 1.36
-			 * Notify user about upcoming DB-clean-up (VACUUM)
-			 * Improve DB-Locking by enabling it (please don\'t judge me, it\'s been years since I wrote the line db.setLockingEnabled(false))
-			 * UI refreshes again when items change (eg. are marked as read, published)
-			 * Added icons from SDK so all icons look the same
-			 * Cleaned up the ActionBar
-			 * Now using API-Level 17</item>
-		<item>Version 1.35
-			 * Articles are again marked as read when beeing read in the webinterface as long as there are new articles to be synced (API doesn\'t offer "changes since date/time", I can only guess what has changed)
-			 * Added long-press menu in Article-List: "Mark everything above as read"
-			 * Another attempt at fixing the IllegalStateExceptions
-			 * Small bugfixes</item>
-		<item>Version 1.34
-			 * Fixed some DB issues regarding closed cursors
-			 * Fixed automatic refresh of labels on startup
-			 * No error-reporting when using app in debug-mode
-			 * Several minor bugfixes for FCs and ANRs</item>
-		<item>Version 1.33
-			 * Issue #92: Introduced a new preference for the size of the title inside the ArticleHeaderView.
-			 * Fixed several bugs which were leading to FCs</item>
-		<item>Version 1.32
-			 * Reintroduced the "Progress_Indeterminate" notification for lower API-Levels
-			 * IllegalStateExceptions should not occur anymore
-			 * Fixed several bugs which were leading to FCs</item>
-		<item>Version 1.31
-			 * Fixed several bugs.</item>
-		<item>Version 1.3
-			 * Completely re-wrote the communication between interface and backend (Interface did active polling, now it registers as listener and gets notified about changes)
-			 * Completely changed the way the DB is accessed, drastically reduced the number of locks involved
-			 * Slight changes to the UI to work with the changed code
-			 * Lots of changes to reduce the amount of work for DB-Write-Accesses and necessary RAM for the ImageCache
-			 * Added ActionBarSherlock, included "mark all read" and "display all" in ActionBar, optionally if there is room also "offline" and "ImageCache"
-			 * Some minor fixes to portrait/landscape-mode and positioning of the swipe-area
-			 * Performance-optimizations</item>
-		<item>Version 1.26
-			 * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn\'t properly test with older versions.</item>
-		<item>Version 1.25
-			 * Reduced time to switch activities
-			 * Tried to prevent display of empty datasets
-			 * Fixed ImageCache for devices running Android 4.x
-			 * Minor Bugfixes</item>
-		<item>Version 1.24
-			 * Performance-Optimizations for faster startup
-			 * Fix starred/published articles never beeing purged
-			 * Minor Bugfixes</item>
-		<item>Version 1.23
-			 * Downloaded attachments are opened when tapping the notification now
-			 * Player for downloaded files is chosen depending on file-extension (internal display of media-files hasn\'t changed)
-			 * Minor Bugfixes</item>
-		<item>Version 1.22
-			 * Added support for new API of TTRSS 1.5.8.1
-			 * Added Enhancement #65: Publish with a note (Article-Menu)
-			 * Notes are also cached if working offline, later they are automatically synchronized with the server
-			 * Fixed not-working "mark as unread" menu entry
-			 * Ignore specific SSLExceptions which often occur on bad connections
-			 * Added check for http status code "401 Unauthorized"
-			 * All new articles are fetched once on startup for faster browsing</item>
-		<item>Version 1.21
-			 * Fixed wrong handling of Usage-options
-			 * Trying to fix ActivityNotFoundExceptions which affected some users
-			 * Added preference for "Inject Article-Link"</item>
-		<item>Version 1.2
-			 * Added compatibility-code for Android 4.0 (API-Level 14)
-			 * Started working on a thre-pane-layout for tablet-devices (not functional yet)
-			 * Fixed Issue #80: (Broken list in JSON request)
-			 * Enhancement #77: (Support lazy servers (no cron job for fetching feeds))
-			 * Enhancement #79: (Inject a link to the web article at the end of the RSS article)
-			 * Minor bugfixes and refactoring</item>
-		<item>Version 1.12
-			 * Added dialogs to preferences which allow to change the Cache-Folder and the download-location for attached Media-Files.</item>
-		<item>Version 1.11
-			 * Modified background-refresh of displayed content, empty lists should not happen anymore (or at least not so often).
-			 * Changed link-color for dark theme, links are now red and readable on dark background.
-			 * Added connection-timeouts (5 seconds for connection, 8 seconds for receiving any data) to avoid endless running jobs.</item>
-		<item>Version 1.1
-			 * Added display-preference for dark-background and white text.
-			 * Added preference "Start ImageCache only on Wifi", prevents the automatically scheduled ImageCache to run on a mobile connection.
-			 * Fixed bug: Error in case of disabled-API.</item>
-		<item>Version 1.09
-			 * Vibrate when last article is reached, not only when trying to move further but the moment you reach it
-			 * Changed buttons and layout for article-browsing
-			 * Added left-hand-mode for landscape display
-			 * Removed ArticleCache from menu. Same thing happens automatically when CategoryView is opened.
-			 * Fixed Issue #75 (Own keystore doesn\'t work any more)
-			 * Fixed Bug: Articles which had been marked while beeing offline where not synchronized with the server
-			 * Fixed ImageCache for unreliable connections.
-			 * Starred/Published articles are not purged anymore, article-limit in settings does not apply to these.</item>
-		<item>Version 1.08
-			 * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
-			 * Added preference to disable swipe and instead use buttons for browsing articles. Still a bit buggy.</item>
-		<item>Version 1.07
-			 * Improved speed of calls to API and DB access
-			 * Allow receiving of gzip-compressed data
-			 * New faster and stream-based JSON-parser
-			 * Fixed some problems with counters and faster refresh of the UI
-			 * Fixed Labels, should be fine now</item>
-		<item>Version 1.06
-			 * Removed support for server-versions lower then 1.5.3
-			 * Added progress-information and UI-refresh to ImageCache but only while articles are fetched
-			 * Added support for Labels</item>
-		<item>Version 1.05
-			 * Support for server-versions prior to 1.5.3 will be removed with the next release, please make sure you keep your server up-to-date!
-			 * Changes:
-			 * Refreshing more often during update, show progress
-			 * Reduced the number of updates beeing done, every piece of data is updated only once in 2 minutes if necessary or if you do refresh manually (via menu).
-			 * Store articles marked as read also for whole feeds/categoires. You can mark a feed as read while working offline, all articles in it the moment you marked it read will be synchronized with the server when you get online next time.
-			 * Fixed a problem with articles beeing marked as read only when opening the feed</item>
-		<item>Version 1.04
-			 * Do VACUUM only once a month or manually from preferences
-			 * Fixed encoding of passwords with special characters
-			 * Tried to fix bug due to wrong server-version detected</item>
-		<item>Version 1.03
-			 * Fixed Issue #67: New preferences allow you to change date and time formatting
-			 * Fixed Issue #68: New preference allows you to change display of articletext (justified or flush left)
-			 * Fixed reloading of preferences after changes, completely revamped the way preferences are handled and reloaded after beeing changed
-			 * Please contact me if this update introduced new issues with the HTTP-Auth, I can\'t test this here so I have to rely on your feedback.</item>
-		<item>Version 1.02
-			 * Added preference to automatically start ImageCache/ArticleCache on startup
-			 * No other updates will be started while Cache is running</item>
-		<item>Version 1.01
-			 * Automatically fetch all new articles for all feeds on startup, can take a moment but you can just start browsing anyway
-			 * Improved marking articles as read, not sure if everything is fixed but counts should be allright most of the time now
-			 * Fixed swipe in Headline-List (go to next/previous feed by swipe or volume-button)
-			 * Minor improvements</item>
-		<item>Version 1.0
-			 * Think we are in a pretty stable state now so I switched to Version 1.0
-			 * Added versionCode to StackTrace-Mails
-			 * Added safety-queries for failed DB operations
-			 * Fixed Feeds beeing displayed as read after opening
-			 * Fixed NPE when using old (pre 2.0) Service-API
-			 * New: Fixed some more bugs which lead to FCs. I won\'t develop much the next weeks, haven\'t got enough time right now.</item>
-		<item>Version 0.9.7
-			 * Fixed some bugs introduced with 0.9.6
-			 * Added compatibility-fixes for Android 3.0
-			 * Changed some DB-Operations, added SQLite-Vacuum to free space
-			 * Added preferences to delete Database on startup
-			 * Hopefully no more stale articles, unread-state should be completely synchronized now
-			 * Fixed Error-Messages not beeing displayed with Server v1.5.3
-			 * Fixed POST-Data not beeing interpreted correctly by the server, now sending JSON-encoded data
-			 * Two more bugs with starred/published articles fixed
-			 * Fixed OutOfMemoryException when opening virtual categories
-			 * Fixed ImageCache with non-standard HTML, fixed SQLiteException with broken SQLite on some Devices</item>
-		<item>Version 0.9.6
-			 * If you encounter problems with categories not beeing displayed sometimes try enabling categories in the webinterface.
-			 * Show read articles when browsing "only unread articles" and entering an empty feed
-			 * Minor refactoring and changes due to release of Tiny Tiny RSS 1.5.3
-			 * Added check for corrupted DB, it is moved to a backup-file and a new DB will be created
-			 * Show last-opened article/feed when returning from child-view, even if read content is filtered
-			 * Improved speed of update when using long-press on category -> \"Show all articles\"
-			 * Cleanup of old starred/published articles when refreshing
-			 * Fixed DB-Exceptions</item>
-		<item>Version 0.9.5
-			 * Fixed error-message for API_DISABLED not beeing displayed
-			 * Fixed swipe-here-notification not beeing displayed
-			 * Changed zoom-behaviour (default: Images are scaled, once zoomed: Images are displayed in right aspect-ratio)
-			 * Fixed broken next/previous article/feed jump when returning from article-view
-			 * Images are not fetched from online-sources anymore if browsing in Offline-mode
-			 * Some performance-issues fixed and some background-exceptions too</item>
-		<item>Version 0.9.4
-			 * Reduced permissions as requested by Issue #58</item>
-		<item>Version 0.9.3
-			 * Added French translation, thanks Régis
-			 * Long-press a category to show all articles in this category in one list
-			 * "Show all articles" now also allows browsing with volume-keys or swiping</item>
-		<item>Version 0.9.2
-			 * ImageCache now started as a service so it doesn\'t get killed anymore by the system
-			 * ImageCache accessible in menu of CategoryList, FeedList and FeedHeadlineList
-			 * Added notification for running downloads, using a grey icon to indicate the difference
-			 * Fixed DB-Problems which prevented efficient caching</item>
-		<item>Version 0.9.1
-			 * Added possibility to send error-reports after a crash
-			 * Removed donators-limitations, everyone can use the ImageCache now
-			 * blog.fefe.de now working (fixed relative links)
-			 * Added Exit-Button to error-dialog to allow completely exiting the app from the dialog
-			 * Refurbished the reset of preferences (Preferences -> Menu -> Reset)
-			 * Cleanup of preferences</item>
-		<item>Version 0.9
-			 * Added check for supported server-version on startup
-			 * Added check for saved crash-report and option to send report by mail, minor changes in network-access
-			 * Requests are faster now</item>
-		<item>Version 0.8.9
-			 * Added custom title-bar in Article-Display (can be disabled in preferences)
-			 * Added setting to change the display-order of all lists
-			 * Added long-press option to Category-View
-			 * Showing list of all articles inside
-			 * Addressed connectivity problems</item>
-		<item>Version 0.8.8
-			 * Fixed Issue #49 (FC on launch with wrong password)
-			 * Fixed Issue #50 (\"New Articles\" now shows only unread articles)
-			 * Fixed Issue #53 (crashed on new installations)
-			 * Small Fix which prevented new users from starting the app</item>
-		<item>Version 0.8.7
-			 * Performance improvements for ImageCache
-			 * Minor fixes for retrieving of articles
-			 * Fixed accidental jump to first feed while browsing</item>
-		<item>Version 0.8.6
-			 * ImageCache download now parallelized into 4 threads (ArticleCache: 8 threads)
-			 * Some performance tweaks
-			 * Fixed Issue #45: (SQL Error because of suhosin-blocked article_id)
-			 * Added preference to split long GET-Requests due to problems with server-side security scanners like Suhosin</item>
-		<item>Version 0.8.5
-			 * Synchronizing marked articles now also works for complete feeds and categories, when marking feeds/categories as read while beeing offline only local articles can be included, articles that are new on the server but not synchronized to the client cannot be included
-			 * Fixed FC on mark article read while beeing offline</item>
-		<item>Version 0.8.4
-			 * Added options for Image-/ArticleCache: cache for unread articles only
-			 * caching now independent from online/offline state
-			 * added Offline-Synchronisation (article-state/star/published is synchronized later when marked while browsing offline)
-			 * Navigate feeds/articles by keyboard: n for next/b for previous article/feed</item>
-		<item>Version 0.8.3
-			 * Fixed Articles not getting purged according to "Store articles limit"
-			 * probably fixed OutOfMemory problem while fetching articles</item>
-		<item>Version 0.8.2
-			 * ArticleCache (load all new articles at once) for Donators
-			 * Refresh unread-state while browsing unread articles
-			 * Scale images to match display-width (for other zoom-factors the original size is restored)
-			 * Set CSS: text-align:"justify"
-			 * More useful text when loading content
-			 * Minor bugfixes/refactoring</item>
-		<item>Version 0.8.1
-			 * Addressed severe memory-issues
-			 * Moved menu-definitions from code to xml files
-			 * Added information to preferences-screen
-			 * Refactored menus
-			 * Fixed articles not getting marked as read
-			 * Fixed offline-setting</item>
-		<item>Version 0.8
-			 * Donators: Added pre-downloading of images for offline viewing (see project page for more information)
-			 * Fixed several usability issues (Issues 36,37,38,41)
-			 * Fixed Issue #40 (Better error-handling for disabled API and Not logged in error)
-			 * Size of Swipe-Area now depends on density and screen-size
-			 * Icons got some polishing…</item>
-		<item>Version 0.7.8
-			 * Added HTTP-Authentication (Issue #32)
-			 * Fixed Issue with display of all articles (Issue #34)</item>
-		<item>Version 0.7.7
-			 * IMPORTANT: Please update your server to 1.5.0 from http://tt-rss.org/ and visit the TTRSS-Reader\'s project-page for full changelog. If you need to stay with server version 1.4.3.1 you should install TTRSS-Reader v0.7.3 from the project-page.</item>
-		<item>Version 0.7.6
-			 * New Application-Icon and Overlay-icons for star/publish
-			 * Added support for the star/unstar feature
-			 * Added support for the published-feature
-			 * Fixed display of fresh/starred/published articles in the virtual feeds
-			 * Fixed handling of URLs in Article-View
-			 * Fixed problems with marking articles as read/unread</item>
-		<item>Version 0.7.5
-			 * Fixed sorting of categories
-			 * Enhanced mediafile download and added notification for finished downloads</item>
-		<item>Version 0.7.4
-			 * Minor bugs fixed, Better fling-support for headline-list and articles, no recommendation when typing URL, Implemented new API-methods from http://tt-rss.org to avoid the manual hacking, added german localisation</item>
-		<item>Version 0.7.3
-			 * Problems with API from 1.4.3.1 are (hopefully) resolved. Please mail me if i am wrong :)</item>
-		<item>Version 0.7.2
-			 * Fixed wrong calculation of unread-counts, Added welcome-dialog for the first-run</item>
-		<item>Version 0.7.1
-			 * Fixed no virtual Categories beeing displayed on first start, fixed two unhandled Exceptions</item>
-		<item>Version 0.7
-			 * Improved updating of locally stored information, faster startup, better restarting of activities, fixed sorting-issues of feeds, fixed double-login, fixed progress-indicator</item>
-		<item>Version 0.6.8
-			 * Fixed only one article beeing displayed, Notification for finished downloads of attachments</item>
-		<item>Version 0.6.6
-			 * Fixed no articles beeing fetched with getArticles and problem with VirtualCategories</item>
-		<item>Version 0.6.5
-			 * Fixed problem with attached images, Changed update-behaviour</item>
-		<item>Version 0.6.4
-			 * Fix for concurrent DB-Access, SDCard not used anymore, smaller memory-footprint, added Changelog</item>
-		<item>Version 0.6.3
-			 * Refactored a lot, fixed some synchronisation issues, better Fling-Recognition</item>
-		<item>Version 0.6.2
-			 * Added the license to all files, added Update-Check</item>
-		<item>Version 0.6.1
-			 * Passwords can contain special characters, Download of attached Audio/Video files)</item>
-		<item>Version 0.6
-			 * Better check for connectivity, show attached videos and play music</item>
-		-->
-	</string-array>
+        <!-- Old Entries: -->
+        <!--
+        <item>Version 1.49
+             * Added a preference to \"Invert browsing articles\"
+             * Fixed problems with the new preference-dialog
+             * Added confirmation dialog to unsubscribe from feed</item>
+        <item>Version 1.48
+             * New Preference-Layout, new Icons
+             * Fixed progressbar for ImageCache
+             * Fixed Exceptions when returning from article
+             * Fixed problem with ImageCache
+             * Added spanish translation (thanks to Eduardo Ruiz from http://www.edubox.org)</item>
+        <item>Version 1.47
+             * Fixed Activity-Indicators
+             * Implemented "Subscribe to Feed" and \"Unsubscribe\" (only Server > 1.7.6)
+             * Added Paste-Button for URLs in Subscribe-View
+             * Dark background now without white border
+             * Link-color for dark background set to light blue
+             * Articleheader layout and borders fixed
+             * Removed unnecessary preferences</item>
+        <item>Version 1.46
+             * Fixed bugs in new connection method
+             * Rewrote code for swipe, should work better now on all screen sizes
+             * New Preference: Scale article font by n%
+             * Fixed bugs in tasker integration
+             * Disabled automatic vacuum, this can still be started manually via preferences
+             * Added long-press options in article, share article and (if selected an URL) share URL.</item>
+        <item>Version 1.45
+             * Remember reading position inside articles
+             * Reduce memory usage
+             * Several bugfixes</item>
+        <item>Version 1.44
+             * Add preference for fallback to old connector which supports digest authentication but doesn\'t support SNI
+             * Fixed http-auth for apache connector
+             * Added preference to hide the button \"Mark Read\" from the actionbar
+             * Restore position in list after orientation change
+             * Fixed errors in ShareToPublish and Tasker-Integration</item>
+        <item>Version 1.43
+             * Added ability to schedule updates with Tasker/Locale</item>
+        <item>Version 1.42
+             * Switching to next or previous articles/feeds is much faster now
+             * Major refactoring to make use of fragments and someday be able to implement a two-pane-layout…
+             * Fixed several Bugs, closed forgotten cursors and layout-problems
+             * Switched HTTP-Library (Apache -> HttpUrlConnection) for SSL-SNI Support</item>
+        <item>Version 1.41
+             * Added "Share to Published" ability, just select TTRSS when you want to share any content to your published-feed.</item>
+        <item>Version 1.4
+             * Added Label-Editing for articles
+             * Fixed some bugs preventing labels from beeing refreshed properly
+             * Fixed some UI glitches in the progressbar</item>
+        <item>Version 1.39
+             * Added preference for "Load images" which, when disabled, forces the Webview to not load any content from the web.
+             * Fixed Issue #99 "Sharing with Firefox Sync"
+             * Implemented Issue #81: Show temporarily read items in "new articles", the read articles now are all left in the displayed list.
+             * Longer update-interval for background refresh</item>
+        <item>Version 1.38
+             * Adapt to API-changes, number of articles to be fetched at once has been reduced to 60, got no idea why but am now dealing with it properly.
+             * Fixed some bugs in the mechanism to fetch new articles.</item>
+        <item>Version 1.37
+             * Changed events, refreshing of the UI should now be really fast
+             * Changed update-mechanism
+             * Fixed refresh-button
+             * Added separate Build for old devices (below Android 2.1)
+             * Bugfixes</item>
+        <item>Version 1.36
+             * Notify user about upcoming DB-clean-up (VACUUM)
+             * Improve DB-Locking by enabling it (please don\'t judge me, it\'s been years since I wrote the line db.setLockingEnabled(false))
+             * UI refreshes again when items change (eg. are marked as read, published)
+             * Added icons from SDK so all icons look the same
+             * Cleaned up the ActionBar
+             * Now using API-Level 17</item>
+        <item>Version 1.35
+             * Articles are again marked as read when beeing read in the webinterface as long as there are new articles to be synced (API doesn\'t offer "changes since date/time", I can only guess what has changed)
+             * Added long-press menu in Article-List: "Mark everything above as read"
+             * Another attempt at fixing the IllegalStateExceptions
+             * Small bugfixes</item>
+        <item>Version 1.34
+             * Fixed some DB issues regarding closed cursors
+             * Fixed automatic refresh of labels on startup
+             * No error-reporting when using app in debug-mode
+             * Several minor bugfixes for FCs and ANRs</item>
+        <item>Version 1.33
+             * Issue #92: Introduced a new preference for the size of the title inside the ArticleHeaderView.
+             * Fixed several bugs which were leading to FCs</item>
+        <item>Version 1.32
+             * Reintroduced the "Progress_Indeterminate" notification for lower API-Levels
+             * IllegalStateExceptions should not occur anymore
+             * Fixed several bugs which were leading to FCs</item>
+        <item>Version 1.31
+             * Fixed several bugs.</item>
+        <item>Version 1.3
+             * Completely re-wrote the communication between interface and backend (Interface did active polling, now it registers as listener and gets notified about changes)
+             * Completely changed the way the DB is accessed, drastically reduced the number of locks involved
+             * Slight changes to the UI to work with the changed code
+             * Lots of changes to reduce the amount of work for DB-Write-Accesses and necessary RAM for the ImageCache
+             * Added ActionBarSherlock, included "mark all read" and "display all" in ActionBar, optionally if there is room also "offline" and "ImageCache"
+             * Some minor fixes to portrait/landscape-mode and positioning of the swipe-area
+             * Performance-optimizations</item>
+        <item>Version 1.26
+             * Fixed FC on startup. Sry about that. I made changes for Android 4.0 and didn\'t properly test with older versions.</item>
+        <item>Version 1.25
+             * Reduced time to switch activities
+             * Tried to prevent display of empty datasets
+             * Fixed ImageCache for devices running Android 4.x
+             * Minor Bugfixes</item>
+        <item>Version 1.24
+             * Performance-Optimizations for faster startup
+             * Fix starred/published articles never beeing purged
+             * Minor Bugfixes</item>
+        <item>Version 1.23
+             * Downloaded attachments are opened when tapping the notification now
+             * Player for downloaded files is chosen depending on file-extension (internal display of media-files hasn\'t changed)
+             * Minor Bugfixes</item>
+        <item>Version 1.22
+             * Added support for new API of TTRSS 1.5.8.1
+             * Added Enhancement #65: Publish with a note (Article-Menu)
+             * Notes are also cached if working offline, later they are automatically synchronized with the server
+             * Fixed not-working "mark as unread" menu entry
+             * Ignore specific SSLExceptions which often occur on bad connections
+             * Added check for http status code "401 Unauthorized"
+             * All new articles are fetched once on startup for faster browsing</item>
+        <item>Version 1.21
+             * Fixed wrong handling of Usage-options
+             * Trying to fix ActivityNotFoundExceptions which affected some users
+             * Added preference for "Inject Article-Link"</item>
+        <item>Version 1.2
+             * Added compatibility-code for Android 4.0 (API-Level 14)
+             * Started working on a thre-pane-layout for tablet-devices (not functional yet)
+             * Fixed Issue #80: (Broken list in JSON request)
+             * Enhancement #77: (Support lazy servers (no cron job for fetching feeds))
+             * Enhancement #79: (Inject a link to the web article at the end of the RSS article)
+             * Minor bugfixes and refactoring</item>
+        <item>Version 1.12
+             * Added dialogs to preferences which allow to change the Cache-Folder and the download-location for attached Media-Files.</item>
+        <item>Version 1.11
+             * Modified background-refresh of displayed content, empty lists should not happen anymore (or at least not so often).
+             * Changed link-color for dark theme, links are now red and readable on dark background.
+             * Added connection-timeouts (5 seconds for connection, 8 seconds for receiving any data) to avoid endless running jobs.</item>
+        <item>Version 1.1
+             * Added display-preference for dark-background and white text.
+             * Added preference "Start ImageCache only on Wifi", prevents the automatically scheduled ImageCache to run on a mobile connection.
+             * Fixed bug: Error in case of disabled-API.</item>
+        <item>Version 1.09
+             * Vibrate when last article is reached, not only when trying to move further but the moment you reach it
+             * Changed buttons and layout for article-browsing
+             * Added left-hand-mode for landscape display
+             * Removed ArticleCache from menu. Same thing happens automatically when CategoryView is opened.
+             * Fixed Issue #75 (Own keystore doesn\'t work any more)
+             * Fixed Bug: Articles which had been marked while beeing offline where not synchronized with the server
+             * Fixed ImageCache for unreliable connections.
+             * Starred/Published articles are not purged anymore, article-limit in settings does not apply to these.</item>
+        <item>Version 1.08
+             * Fixed connectivity-problems (no more endless waiting with spinning activity-wheel)
+             * Added preference to disable swipe and instead use buttons for browsing articles. Still a bit buggy.</item>
+        <item>Version 1.07
+             * Improved speed of calls to API and DB access
+             * Allow receiving of gzip-compressed data
+             * New faster and stream-based JSON-parser
+             * Fixed some problems with counters and faster refresh of the UI
+             * Fixed Labels, should be fine now</item>
+        <item>Version 1.06
+             * Removed support for server-versions lower then 1.5.3
+             * Added progress-information and UI-refresh to ImageCache but only while articles are fetched
+             * Added support for Labels</item>
+        <item>Version 1.05
+             * Support for server-versions prior to 1.5.3 will be removed with the next release, please make sure you keep your server up-to-date!
+             * Changes:
+             * Refreshing more often during update, show progress
+             * Reduced the number of updates beeing done, every piece of data is updated only once in 2 minutes if necessary or if you do refresh manually (via menu).
+             * Store articles marked as read also for whole feeds/categoires. You can mark a feed as read while working offline, all articles in it the moment you marked it read will be synchronized with the server when you get online next time.
+             * Fixed a problem with articles beeing marked as read only when opening the feed</item>
+        <item>Version 1.04
+             * Do VACUUM only once a month or manually from preferences
+             * Fixed encoding of passwords with special characters
+             * Tried to fix bug due to wrong server-version detected</item>
+        <item>Version 1.03
+             * Fixed Issue #67: New preferences allow you to change date and time formatting
+             * Fixed Issue #68: New preference allows you to change display of articletext (justified or flush left)
+             * Fixed reloading of preferences after changes, completely revamped the way preferences are handled and reloaded after beeing changed
+             * Please contact me if this update introduced new issues with the HTTP-Auth, I can\'t test this here so I have to rely on your feedback.</item>
+        <item>Version 1.02
+             * Added preference to automatically start ImageCache/ArticleCache on startup
+             * No other updates will be started while Cache is running</item>
+        <item>Version 1.01
+             * Automatically fetch all new articles for all feeds on startup, can take a moment but you can just start browsing anyway
+             * Improved marking articles as read, not sure if everything is fixed but counts should be allright most of the time now
+             * Fixed swipe in Headline-List (go to next/previous feed by swipe or volume-button)
+             * Minor improvements</item>
+        <item>Version 1.0
+             * Think we are in a pretty stable state now so I switched to Version 1.0
+             * Added versionCode to StackTrace-Mails
+             * Added safety-queries for failed DB operations
+             * Fixed Feeds beeing displayed as read after opening
+             * Fixed NPE when using old (pre 2.0) Service-API
+             * New: Fixed some more bugs which lead to FCs. I won\'t develop much the next weeks, haven\'t got enough time right now.</item>
+        <item>Version 0.9.7
+             * Fixed some bugs introduced with 0.9.6
+             * Added compatibility-fixes for Android 3.0
+             * Changed some DB-Operations, added SQLite-Vacuum to free space
+             * Added preferences to delete Database on startup
+             * Hopefully no more stale articles, unread-state should be completely synchronized now
+             * Fixed Error-Messages not beeing displayed with Server v1.5.3
+             * Fixed POST-Data not beeing interpreted correctly by the server, now sending JSON-encoded data
+             * Two more bugs with starred/published articles fixed
+             * Fixed OutOfMemoryException when opening virtual categories
+             * Fixed ImageCache with non-standard HTML, fixed SQLiteException with broken SQLite on some Devices</item>
+        <item>Version 0.9.6
+             * If you encounter problems with categories not beeing displayed sometimes try enabling categories in the webinterface.
+             * Show read articles when browsing "only unread articles" and entering an empty feed
+             * Minor refactoring and changes due to release of Tiny Tiny RSS 1.5.3
+             * Added check for corrupted DB, it is moved to a backup-file and a new DB will be created
+             * Show last-opened article/feed when returning from child-view, even if read content is filtered
+             * Improved speed of update when using long-press on category -> \"Show all articles\"
+             * Cleanup of old starred/published articles when refreshing
+             * Fixed DB-Exceptions</item>
+        <item>Version 0.9.5
+             * Fixed error-message for API_DISABLED not beeing displayed
+             * Fixed swipe-here-notification not beeing displayed
+             * Changed zoom-behaviour (default: Images are scaled, once zoomed: Images are displayed in right aspect-ratio)
+             * Fixed broken next/previous article/feed jump when returning from article-view
+             * Images are not fetched from online-sources anymore if browsing in Offline-mode
+             * Some performance-issues fixed and some background-exceptions too</item>
+        <item>Version 0.9.4
+             * Reduced permissions as requested by Issue #58</item>
+        <item>Version 0.9.3
+             * Added French translation, thanks Régis
+             * Long-press a category to show all articles in this category in one list
+             * "Show all articles" now also allows browsing with volume-keys or swiping</item>
+        <item>Version 0.9.2
+             * ImageCache now started as a service so it doesn\'t get killed anymore by the system
+             * ImageCache accessible in menu of CategoryList, FeedList and FeedHeadlineList
+             * Added notification for running downloads, using a grey icon to indicate the difference
+             * Fixed DB-Problems which prevented efficient caching</item>
+        <item>Version 0.9.1
+             * Added possibility to send error-reports after a crash
+             * Removed donators-limitations, everyone can use the ImageCache now
+             * blog.fefe.de now working (fixed relative links)
+             * Added Exit-Button to error-dialog to allow completely exiting the app from the dialog
+             * Refurbished the reset of preferences (Preferences -> Menu -> Reset)
+             * Cleanup of preferences</item>
+        <item>Version 0.9
+             * Added check for supported server-version on startup
+             * Added check for saved crash-report and option to send report by mail, minor changes in network-access
+             * Requests are faster now</item>
+        <item>Version 0.8.9
+             * Added custom title-bar in Article-Display (can be disabled in preferences)
+             * Added setting to change the display-order of all lists
+             * Added long-press option to Category-View
+             * Showing list of all articles inside
+             * Addressed connectivity problems</item>
+        <item>Version 0.8.8
+             * Fixed Issue #49 (FC on launch with wrong password)
+             * Fixed Issue #50 (\"New Articles\" now shows only unread articles)
+             * Fixed Issue #53 (crashed on new installations)
+             * Small Fix which prevented new users from starting the app</item>
+        <item>Version 0.8.7
+             * Performance improvements for ImageCache
+             * Minor fixes for retrieving of articles
+             * Fixed accidental jump to first feed while browsing</item>
+        <item>Version 0.8.6
+             * ImageCache download now parallelized into 4 threads (ArticleCache: 8 threads)
+             * Some performance tweaks
+             * Fixed Issue #45: (SQL Error because of suhosin-blocked article_id)
+             * Added preference to split long GET-Requests due to problems with server-side security scanners like Suhosin</item>
+        <item>Version 0.8.5
+             * Synchronizing marked articles now also works for complete feeds and categories, when marking feeds/categories as read while beeing offline only local articles can be included, articles that are new on the server but not synchronized to the client cannot be included
+             * Fixed FC on mark article read while beeing offline</item>
+        <item>Version 0.8.4
+             * Added options for Image-/ArticleCache: cache for unread articles only
+             * caching now independent from online/offline state
+             * added Offline-Synchronisation (article-state/star/published is synchronized later when marked while browsing offline)
+             * Navigate feeds/articles by keyboard: n for next/b for previous article/feed</item>
+        <item>Version 0.8.3
+             * Fixed Articles not getting purged according to "Store articles limit"
+             * probably fixed OutOfMemory problem while fetching articles</item>
+        <item>Version 0.8.2
+             * ArticleCache (load all new articles at once) for Donators
+             * Refresh unread-state while browsing unread articles
+             * Scale images to match display-width (for other zoom-factors the original size is restored)
+             * Set CSS: text-align:"justify"
+             * More useful text when loading content
+             * Minor bugfixes/refactoring</item>
+        <item>Version 0.8.1
+             * Addressed severe memory-issues
+             * Moved menu-definitions from code to xml files
+             * Added information to preferences-screen
+             * Refactored menus
+             * Fixed articles not getting marked as read
+             * Fixed offline-setting</item>
+        <item>Version 0.8
+             * Donators: Added pre-downloading of images for offline viewing (see project page for more information)
+             * Fixed several usability issues (Issues 36,37,38,41)
+             * Fixed Issue #40 (Better error-handling for disabled API and Not logged in error)
+             * Size of Swipe-Area now depends on density and screen-size
+             * Icons got some polishing…</item>
+        <item>Version 0.7.8
+             * Added HTTP-Authentication (Issue #32)
+             * Fixed Issue with display of all articles (Issue #34)</item>
+        <item>Version 0.7.7
+             * IMPORTANT: Please update your server to 1.5.0 from http://tt-rss.org/ and visit the TTRSS-Reader\'s project-page for full changelog. If you need to stay with server version 1.4.3.1 you should install TTRSS-Reader v0.7.3 from the project-page.</item>
+        <item>Version 0.7.6
+             * New Application-Icon and Overlay-icons for star/publish
+             * Added support for the star/unstar feature
+             * Added support for the published-feature
+             * Fixed display of fresh/starred/published articles in the virtual feeds
+             * Fixed handling of URLs in Article-View
+             * Fixed problems with marking articles as read/unread</item>
+        <item>Version 0.7.5
+             * Fixed sorting of categories
+             * Enhanced mediafile download and added notification for finished downloads</item>
+        <item>Version 0.7.4
+             * Minor bugs fixed, Better fling-support for headline-list and articles, no recommendation when typing URL, Implemented new API-methods from http://tt-rss.org to avoid the manual hacking, added german localisation</item>
+        <item>Version 0.7.3
+             * Problems with API from 1.4.3.1 are (hopefully) resolved. Please mail me if i am wrong :)</item>
+        <item>Version 0.7.2
+             * Fixed wrong calculation of unread-counts, Added welcome-dialog for the first-run</item>
+        <item>Version 0.7.1
+             * Fixed no virtual Categories beeing displayed on first start, fixed two unhandled Exceptions</item>
+        <item>Version 0.7
+             * Improved updating of locally stored information, faster startup, better restarting of activities, fixed sorting-issues of feeds, fixed double-login, fixed progress-indicator</item>
+        <item>Version 0.6.8
+             * Fixed only one article beeing displayed, Notification for finished downloads of attachments</item>
+        <item>Version 0.6.6
+             * Fixed no articles beeing fetched with getArticles and problem with VirtualCategories</item>
+        <item>Version 0.6.5
+             * Fixed problem with attached images, Changed update-behaviour</item>
+        <item>Version 0.6.4
+             * Fix for concurrent DB-Access, SDCard not used anymore, smaller memory-footprint, added Changelog</item>
+        <item>Version 0.6.3
+             * Refactored a lot, fixed some synchronisation issues, better Fling-Recognition</item>
+        <item>Version 0.6.2
+             * Added the license to all files, added Update-Check</item>
+        <item>Version 0.6.1
+             * Passwords can contain special characters, Download of attached Audio/Video files)</item>
+        <item>Version 0.6
+             * Better check for connectivity, show attached videos and play music</item>
+        -->
+    </string-array>
 
 </resources>
