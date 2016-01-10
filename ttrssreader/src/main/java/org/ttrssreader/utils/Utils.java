@@ -17,10 +17,6 @@
 
 package org.ttrssreader.utils;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.preferences.Constants;
-
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -42,6 +38,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.preferences.Constants;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -129,7 +129,8 @@ public class Utils {
 		if (thisVersion.equals(lastVersionRun)) {
 			// No new version installed, perhaps a new version exists
 			// Only run task once for every session and only if we are online
-			if (!checkConnected((ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE))) return false;
+			if (!checkConnected((ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE)))
+				return false;
 			if (AsyncTask.Status.PENDING.equals(updateVersionTask.getStatus()))
 				updateVersionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			return false;
@@ -222,7 +223,7 @@ public class Utils {
 				return false;
 			}
 			if (onlyUnmeteredNetwork) {
-				return cm.isActiveNetworkMetered();
+				return !cm.isActiveNetworkMetered();
 			}
 			return true;
 		}
@@ -256,7 +257,7 @@ public class Utils {
 	 * @param context the context
 	 */
 	public static void showFinishedNotification(String content, int time, boolean error, Context context,
-			Intent intent) {
+	                                            Intent intent) {
 		if (context == null) return;
 
 		NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -349,7 +350,7 @@ public class Utils {
 
 	@SuppressWarnings("deprecation")
 	public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title,
-			CharSequence text, boolean autoCancel, Intent intent) {
+	                                             CharSequence text, boolean autoCancel, Intent intent) {
 		Notification notification = null;
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -403,7 +404,8 @@ public class Utils {
 		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
 		if (clipboard.hasPrimaryClip()) {
 
-			if (!clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) return null;
+			if (!clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
+				return null;
 
 			ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
 			CharSequence chars = item.getText();
