@@ -17,18 +17,6 @@
 
 package org.ttrssreader.controllers;
 
-import org.stringtemplate.v4.ST;
-import org.ttrssreader.R;
-import org.ttrssreader.gui.CategoryActivity;
-import org.ttrssreader.gui.FeedHeadlineActivity;
-import org.ttrssreader.gui.MenuActivity;
-import org.ttrssreader.imageCache.ImageCache;
-import org.ttrssreader.net.JSONConnector;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.SSLUtils;
-import org.ttrssreader.utils.Utils;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -48,6 +36,18 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.Toast;
+
+import org.stringtemplate.v4.ST;
+import org.ttrssreader.R;
+import org.ttrssreader.gui.CategoryActivity;
+import org.ttrssreader.gui.FeedHeadlineActivity;
+import org.ttrssreader.gui.MenuActivity;
+import org.ttrssreader.imageCache.ImageCache;
+import org.ttrssreader.net.JSONConnector;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.SSLUtils;
+import org.ttrssreader.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -211,16 +211,17 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 				protected Void doInBackground(Void... params) {
 					wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 
-					if (Controller.getInstance().useKeystore()) {
-						try {
-							// Trust certificates from keystore:
-							SSLUtils.initPrivateKeystore(Controller.getInstance().getKeystorePassword());
-						} catch (GeneralSecurityException e) {
-							String msg = context.getString(R.string.Error_SSL_Keystore);
-							Log.e(TAG, msg, e);
-							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-						}
-					} else if (Controller.getInstance().trustAllSsl()) {
+//					if (Controller.getInstance().useKeystore()) {
+//						try {
+//							// Trust certificates from keystore:
+//							SSLUtils.initPrivateKeystore(Controller.getInstance().getKeystorePassword());
+//						} catch (GeneralSecurityException e) {
+//							String msg = context.getString(R.string.Error_SSL_Keystore);
+//							Log.e(TAG, msg, e);
+//							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+//						}
+//					} else
+					if (Controller.getInstance().trustAllSsl()) {
 						try {
 							// Trust all certificates:
 							SSLUtils.trustAllCert();
@@ -229,15 +230,15 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 							Log.e(TAG, msg, e);
 							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
 						}
-					} else {
-						try {
-							// Normal certificate-checks:
-							SSLUtils.initSslSocketFactory(null, null);
-						} catch (GeneralSecurityException e) {
-							String msg = context.getString(R.string.Error_SSL_SocketFactory);
-							Log.e(TAG, msg, e);
-							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-						}
+//					} else {
+//						try {
+//							// Normal certificate-checks:
+//							SSLUtils.initSslSocketFactory(null, null);
+//						} catch (GeneralSecurityException e) {
+//							String msg = context.getString(R.string.Error_SSL_SocketFactory);
+//							Log.e(TAG, msg, e);
+//							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+//						}
 					}
 
 					if (Controller.getInstance().trustAllHosts()) {
@@ -381,8 +382,10 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		String key = getStringWithSSID(USE_OF_A_LAZY_SERVER, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
 
 		boolean useOfALazyServer;
-		if (prefs.contains(key)) useOfALazyServer = prefs.getBoolean(key, USE_OF_A_LAZY_SERVER_DEFAULT);
-		else useOfALazyServer = prefs.getBoolean(USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
+		if (prefs.contains(key))
+			useOfALazyServer = prefs.getBoolean(key, USE_OF_A_LAZY_SERVER_DEFAULT);
+		else
+			useOfALazyServer = prefs.getBoolean(USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
 
 		return useOfALazyServer;
 	}
@@ -549,7 +552,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean useVolumeKeys() {
-		if (useVolumeKeys == null) useVolumeKeys = prefs.getBoolean(USE_VOLUME_KEYS, USE_VOLUME_KEYS_DEFAULT);
+		if (useVolumeKeys == null)
+			useVolumeKeys = prefs.getBoolean(USE_VOLUME_KEYS, USE_VOLUME_KEYS_DEFAULT);
 		return useVolumeKeys;
 	}
 
@@ -569,7 +573,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean invertBrowsing() {
-		if (invertBrowsing == null) invertBrowsing = prefs.getBoolean(INVERT_BROWSING, INVERT_BROWSING_DEFAULT);
+		if (invertBrowsing == null)
+			invertBrowsing = prefs.getBoolean(INVERT_BROWSING, INVERT_BROWSING_DEFAULT);
 		return invertBrowsing;
 	}
 
@@ -579,7 +584,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean workOffline() {
-		if (workOffline == null) workOffline = prefs.getBoolean(WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
+		if (workOffline == null)
+			workOffline = prefs.getBoolean(WORK_OFFLINE, Constants.WORK_OFFLINE_DEFAULT);
 		return workOffline;
 	}
 
@@ -601,7 +607,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean hideActionbar() {
-		if (hideActionbar == null) hideActionbar = prefs.getBoolean(HIDE_ACTIONBAR, HIDE_ACTIONBAR_DEFAULT);
+		if (hideActionbar == null)
+			hideActionbar = prefs.getBoolean(HIDE_ACTIONBAR, HIDE_ACTIONBAR_DEFAULT);
 		return hideActionbar;
 	}
 
@@ -696,7 +703,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean showVirtual() {
-		if (showVirtual == null) showVirtual = prefs.getBoolean(SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
+		if (showVirtual == null)
+			showVirtual = prefs.getBoolean(SHOW_VIRTUAL, Constants.SHOW_VIRTUAL_DEFAULT);
 		return showVirtual;
 	}
 
@@ -760,7 +768,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean alignFlushLeft() {
-		if (alignFlushLeft == null) alignFlushLeft = prefs.getBoolean(ALIGN_FLUSH_LEFT, ALIGN_FLUSH_LEFT_DEFAULT);
+		if (alignFlushLeft == null)
+			alignFlushLeft = prefs.getBoolean(ALIGN_FLUSH_LEFT, ALIGN_FLUSH_LEFT_DEFAULT);
 		return alignFlushLeft;
 	}
 
@@ -770,7 +779,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean dateTimeSystem() {
-		if (dateTimeSystem == null) dateTimeSystem = prefs.getBoolean(DATE_TIME_SYSTEM, DATE_TIME_SYSTEM_DEFAULT);
+		if (dateTimeSystem == null)
+			dateTimeSystem = prefs.getBoolean(DATE_TIME_SYSTEM, DATE_TIME_SYSTEM_DEFAULT);
 		return dateTimeSystem;
 	}
 
@@ -800,7 +810,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public String dateTimeString() {
-		if (dateTimeString == null) dateTimeString = prefs.getString(DATE_TIME_STRING, DATE_TIME_STRING_DEFAULT);
+		if (dateTimeString == null)
+			dateTimeString = prefs.getString(DATE_TIME_STRING, DATE_TIME_STRING_DEFAULT);
 		return dateTimeString;
 	}
 
@@ -858,7 +869,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	// SYSTEM
 
 	public String saveAttachmentPath() {
-		if (saveAttachment == null) saveAttachment = prefs.getString(SAVE_ATTACHMENT, SAVE_ATTACHMENT_DEFAULT);
+		if (saveAttachment == null)
+			saveAttachment = prefs.getString(SAVE_ATTACHMENT, SAVE_ATTACHMENT_DEFAULT);
 		return saveAttachment;
 	}
 
@@ -945,7 +957,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean onlyUseWifi() {
-		if (onlyUseWifi == null) onlyUseWifi = prefs.getBoolean(ONLY_USE_WIFI, ONLY_USE_WIFI_DEFAULT);
+		if (onlyUseWifi == null)
+			onlyUseWifi = prefs.getBoolean(ONLY_USE_WIFI, ONLY_USE_WIFI_DEFAULT);
 		return onlyUseWifi;
 	}
 
@@ -956,7 +969,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	// Returns true if noCrashreports OR noCrashreportsUntilUpdate is true.
 	public boolean isNoCrashreports() {
-		if (noCrashreports == null) noCrashreports = prefs.getBoolean(NO_CRASHREPORTS, NO_CRASHREPORTS_DEFAULT);
+		if (noCrashreports == null)
+			noCrashreports = prefs.getBoolean(NO_CRASHREPORTS, NO_CRASHREPORTS_DEFAULT);
 		if (noCrashreportsUntilUpdate == null) noCrashreportsUntilUpdate = prefs
 				.getBoolean(NO_CRASHREPORTS_UNTIL_UPDATE, NO_CRASHREPORTS_UNTIL_UPDATE_DEFAULT);
 		return noCrashreports || noCrashreportsUntilUpdate;
@@ -1013,7 +1027,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public String getLastVersionRun() {
-		if (lastVersionRun == null) lastVersionRun = prefs.getString(LAST_VERSION_RUN, LAST_VERSION_RUN_DEFAULT);
+		if (lastVersionRun == null)
+			lastVersionRun = prefs.getString(LAST_VERSION_RUN, LAST_VERSION_RUN_DEFAULT);
 		return lastVersionRun;
 	}
 
@@ -1161,7 +1176,8 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			if (field.getName().endsWith(APPENDED_DEFAULT)) continue;
 
 			// Only use public static fields
-			if (!Modifier.isStatic(field.getModifiers()) || !Modifier.isPublic(field.getModifiers())) continue;
+			if (!Modifier.isStatic(field.getModifiers()) || !Modifier.isPublic(field.getModifiers()))
+				continue;
 
 			String fieldName = "";
 			try {
