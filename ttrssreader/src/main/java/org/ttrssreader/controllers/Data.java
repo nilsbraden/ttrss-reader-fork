@@ -569,9 +569,12 @@ public class Data {
 	public void deleteAllRemoteFiles() {
 		int count = DBHelper.getInstance().deleteAllRemoteFiles();
 		Log.w(TAG, String.format("Deleted %s Remotefiles from database.", count));
+
 		ImageCache cache = Controller.getInstance().getImageCache();
-		if (cache.deleteAllCachedFiles()) Log.d(TAG, "Deleting cached files was successful.");
-		else Log.e(TAG, "Deleting cached files failed at least partially, there were errors!");
+		if (cache != null && cache.deleteAllCachedFiles())
+			Log.d(TAG, "Deleting cached files was successful.");
+		else
+			Log.e(TAG, "Deleting cached files failed at least partially, there were errors!");
 	}
 
 }
