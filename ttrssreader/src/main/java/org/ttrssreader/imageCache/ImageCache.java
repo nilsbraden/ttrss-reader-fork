@@ -17,12 +17,14 @@
 
 package org.ttrssreader.imageCache;
 
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.FileUtils;
-
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
+
+import org.ttrssreader.MyApplication;
+import org.ttrssreader.utils.FileUtils;
+import org.ttrssreader.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,35 +45,26 @@ public class ImageCache {
 	protected Set<String> cache;
 
 	public ImageCache(int initialCapacity, String cacheDir) {
-		this.diskCacheDir = cacheDir;
 		this.cache = new HashSet<>(initialCapacity);
-	}
 
-	/**
-	 * Enable caching to the phone's SD card.
-	 */
-	public boolean enableDiskCache() {
 		if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 
 			// Use configured output directory
-			File folder = new File(diskCacheDir);
+			File folder = new File(cacheDir);
 
-			if (!folder.exists() && !folder.mkdirs()) {
+			boolean OK = folder.isDirectory() || folder.mkdirs();
+			if (!OK) {
 				// Folder could not be created, fallback to internal directory on sdcard
 				// Path: /sdcard/Android/data/org.ttrssreader/cache/
-				diskCacheDir = Constants.CACHE_FOLDER_DEFAULT;
-				folder = new File(diskCacheDir);
-			}
 
-			if (!folder.exists() && !folder.mkdirs()) {
-				Log.w(TAG, "Couldn't create Folder for Disk-Cache!");
-				isDiskCacheEnabled = false;
-			} else {
-				isDiskCacheEnabled = folder.exists();
+				folder = MyApplication.context().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+				if (folder != null) {
+					OK = folder.isDirectory() || folder.mkdirs();
+				}
 			}
 
 			// Create .nomedia File in Cache-Folder so android doesn't generate thumbnails
-			File nomediaFile = new File(diskCacheDir + File.separator + ".nomedia");
+			File nomediaFile = new File(folder + File.separator + ".nomedia");
 			if (!nomediaFile.exists()) {
 				try {
 					if (!nomediaFile.createNewFile())
@@ -80,10 +73,20 @@ public class ImageCache {
 					// Empty!
 				}
 			}
+
+			if (!OK) {
+				isDiskCacheEnabled = false;
+				final String msg = "Failed to create disk cache directory '" + cacheDir + "'";
+				Log.e(TAG, msg);
+				Utils.showBackgroundToast(MyApplication.context(), msg, Toast.LENGTH_LONG);
+			} else {
+				isDiskCacheEnabled = true;
+				diskCacheDir = folder.getAbsolutePath();
+			}
 		}
+	}
 
-		if (!isDiskCacheEnabled) Log.e(TAG, "Failed creating disk cache directory " + diskCacheDir);
-
+	public boolean isDiskCacheEnabled() {
 		return isDiskCacheEnabled;
 	}
 

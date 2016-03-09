@@ -305,13 +305,15 @@ public class DBHelper {
 					// Clear ImageCache since no files are in REMOTE_FILES anymore and we dont want to leave them
 					// there forever:
 					ImageCache imageCache = Controller.getInstance().getImageCache();
-					imageCache.fillMemoryCacheFromDisk();
-					File cacheFolder = new File(imageCache.getDiskCacheDirectory());
-					if (cacheFolder.isDirectory()) {
-						try {
-							FileUtils.deleteDirectory(cacheFolder);
-						} catch (IOException e) {
-							e.printStackTrace();
+					if (imageCache != null) {
+						imageCache.fillMemoryCacheFromDisk();
+						File cacheFolder = new File(imageCache.getDiskCacheDirectory());
+						if (cacheFolder.isDirectory()) {
+							try {
+								FileUtils.deleteDirectory(cacheFolder);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
 						}
 					}
 					return null;
@@ -461,9 +463,7 @@ public class DBHelper {
 					cv.putNull("cachedImages");
 					db.update(TABLE_ARTICLES, cv, null, null);
 					ImageCache ic = Controller.getInstance().getImageCache();
-					if (ic != null) {
-						ic.clear();
-					}
+					if (ic != null) ic.clear();
 				}
 			}
 
@@ -1318,9 +1318,12 @@ public class DBHelper {
 			Set<Integer> rfIds = new HashSet<>(rfs.size());
 			for (RemoteFile rf : rfs) {
 				rfIds.add(rf.id);
-				File file = Controller.getInstance().getImageCache().getCacheFile(rf.url);
-				boolean deleted = file.delete();
-				if (!deleted) Log.e(TAG, "Couldn't delete file: " + file.getAbsolutePath());
+				ImageCache imageCache = Controller.getInstance().getImageCache();
+				if (imageCache != null) {
+					File file = imageCache.getCacheFile(rf.url);
+					boolean deleted = file.delete();
+					if (!deleted) Log.e(TAG, "Couldn't delete file: " + file.getAbsolutePath());
+				}
 			}
 			deleteRemoteFiles(rfIds);
 		}

@@ -33,11 +33,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -242,6 +244,23 @@ public class Utils {
 		} else {
 			return NETWORK_WIFI;
 		}
+	}
+
+	/**
+	 * Allos to send a toast from a background thread
+	 *
+	 * @param context the context, eg. MyApplication.context()
+	 * @param message like Toast.makeText(...)
+	 * @param length  like Toast.makeText(...)
+	 */
+	public static void showBackgroundToast(final Context context, final String message, final int length) {
+		Handler handler = new Handler(context.getMainLooper());
+		handler.post(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(context, message, length).show();
+			}
+		});
 	}
 
 	public static void showFinishedNotification(String content, int time, boolean error, Context context) {

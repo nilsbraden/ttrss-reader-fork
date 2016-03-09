@@ -17,11 +17,11 @@
 
 package org.ttrssreader.utils;
 
-import org.ttrssreader.net.SSLSocketFactoryEx;
-
 import android.annotation.SuppressLint;
-import android.os.Environment;
 import android.util.Log;
+
+import org.ttrssreader.MyApplication;
+import org.ttrssreader.net.SSLSocketFactoryEx;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -73,9 +73,7 @@ public class SSLUtils {
 		try {
 			trusted = KeyStore.getInstance(KeyStore.getDefaultType());
 
-			File file = new File(
-					Environment.getExternalStorageDirectory() + File.separator + FileUtils.SDCARD_PATH_FILES
-							+ "store.bks");
+			File file = new File(MyApplication.context().getExternalFilesDir(null), "store.bks");
 
 			if (!file.exists()) return null;
 
@@ -109,13 +107,13 @@ public class SSLUtils {
 
 			@Override
 			public X509Certificate[] getAcceptedIssuers() {
-				return new X509Certificate[] {};
+				return new X509Certificate[]{};
 			}
 
 		};
 
 		// Create a trust manager that does not validate certificate chains
-		initSslSocketFactory(null, new TrustManager[] {easyTrustManager});
+		initSslSocketFactory(null, new TrustManager[]{easyTrustManager});
 	}
 
 	public static void trustAllHost() {

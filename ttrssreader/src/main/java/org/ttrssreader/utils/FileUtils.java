@@ -52,19 +52,9 @@ public class FileUtils {
 	public static final String VIDEO_MIME = "video/*";
 
 	/**
-	 * Path on sdcard to store files (DB, Certificates, ...)
-	 */
-	public static final String SDCARD_PATH_FILES = "/Android/data/org.ttrssreader/files/";
-
-	/**
-	 * Path on sdcard to store cache
-	 */
-	public static final String SDCARD_PATH_CACHE = "/Android/data/org.ttrssreader/cache/";
-
-	/**
 	 * At the moment this method just returns a generic mime-type for audio, video or image-files, a more specific way
 	 * of probing for the type (MIME-Sniffing or exact checks on the extension) are yet to be implemented.
-	 *
+	 * <p/>
 	 * Implementation-Hint: See
 	 * https://code.google.com/p/openintents/source/browse/trunk/filemanager/FileManager/src/org
 	 * /openintents/filemanager/FileManagerActivity.java

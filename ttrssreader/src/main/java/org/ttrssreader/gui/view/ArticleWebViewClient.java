@@ -17,14 +17,6 @@
 
 package org.ttrssreader.gui.view;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.MediaPlayerActivity;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.FileUtils;
-import org.ttrssreader.utils.Utils;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -37,6 +29,14 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import org.ttrssreader.MyApplication;
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.MediaPlayerActivity;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.FileUtils;
+import org.ttrssreader.utils.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -80,9 +80,9 @@ public class ArticleWebViewClient extends WebViewClient {
 		if (audio || video) {
 			// @formatter:off
 			final CharSequence[] items = {
-					(String) context.getText(R.string.WebViewClientActivity_Display),
-					(String) context.getText(R.string.WebViewClientActivity_Download),
-					(String) context.getText(R.string.WebViewClientActivity_ChooseApp)};
+					context.getText(R.string.WebViewClientActivity_Display),
+					context.getText(R.string.WebViewClientActivity_Download),
+					context.getText(R.string.WebViewClientActivity_ChooseApp)};
 			// @formatter:on
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -136,11 +136,6 @@ public class ArticleWebViewClient extends WebViewClient {
 		return true;
 	}
 
-	private boolean externalStorageState() {
-		String state = Environment.getExternalStorageState();
-		return Environment.MEDIA_MOUNTED.equals(state);
-	}
-
 	private class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
 		private final static int BUFFER = (int) Utils.KB;
 
@@ -157,7 +152,7 @@ public class ArticleWebViewClient extends WebViewClient {
 				Log.w(TAG, msg);
 				Utils.showFinishedNotification(msg, 0, true, contextRef.get());
 				return null;
-			} else if (!externalStorageState()) {
+			} else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 				String msg = "External Storage not available, skipping download...";
 				Log.w(TAG, msg);
 				Utils.showFinishedNotification(msg, 0, true, contextRef.get());
@@ -171,8 +166,8 @@ public class ArticleWebViewClient extends WebViewClient {
 			File folder = new File(Controller.getInstance().saveAttachmentPath());
 			if (!folder.exists() && !folder.mkdirs()) {
 				// Folder could not be created, fallback to internal directory on sdcard
-				folder = new File(Constants.SAVE_ATTACHMENT_DEFAULT);
-				if (!folder.exists() && !folder.mkdirs()) {
+				folder = MyApplication.context().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+				if (folder != null && !folder.exists() && !folder.mkdirs()) {
 					String msg = "Folder could not be created: " + folder.getAbsolutePath();
 					Log.w(TAG, msg);
 					Utils.showFinishedNotification(msg, 0, true, contextRef.get());
