@@ -17,13 +17,6 @@
 
 package org.ttrssreader.gui.fragments;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.WifiPreferencesActivity;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.preferences.FileBrowserHelper;
-import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -37,8 +30,18 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.WifiPreferencesActivity;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.preferences.FileBrowserHelper;
+import org.ttrssreader.preferences.FileBrowserHelper.FileBrowserFailOverCallback;
+
 import java.io.File;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class PreferencesFragment extends PreferenceFragment {
 
@@ -136,15 +139,28 @@ public class PreferencesFragment extends PreferenceFragment {
 		addPreferencesFromResource(R.xml.prefs_wifibased);
 		PreferenceCategory mWifibasedCategory = (PreferenceCategory) findPreference("wifibasedCategory");
 		WifiManager mWifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
-		List<WifiConfiguration> mWifiList = mWifiManager.getConfiguredNetworks();
 
+		List<WifiConfiguration> mWifiList = mWifiManager.getConfiguredNetworks();
 		if (mWifiList == null) return;
+
+		// Sort list by name (SSID) of the network, currently connected network is displayed on top
+		Collections.sort(mWifiList, new Comparator<WifiConfiguration>() {
+			@Override
+			public int compare(WifiConfiguration lhs, WifiConfiguration rhs) {
+				if (Objects.equals(lhs, rhs)) return 0;
+				if (lhs == null) return -1;
+				if (rhs == null) return 1;
+				if (WifiConfiguration.Status.CURRENT == lhs.status) return -1;
+				if (WifiConfiguration.Status.CURRENT == rhs.status) return 1;
+				return lhs.SSID.compareToIgnoreCase(rhs.SSID);
+			}
+		});
 
 		for (WifiConfiguration wifi : mWifiList) {
 			// Friendly SSID-Name
 			String ssid = wifi.SSID.replaceAll("\"", "");
-			// Add PreferenceScreen for each network
 
+			// Add PreferenceScreen for each network
 			PreferenceScreen pref = getPreferenceManager().createPreferenceScreen(getActivity());
 			pref.setPersistent(false);
 			pref.setKey("wifiNetwork" + ssid);
