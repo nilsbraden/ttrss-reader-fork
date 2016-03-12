@@ -235,7 +235,7 @@ public class Utils {
 	public static int getNetworkType(final ConnectivityManager cm) {
 		if (cm == null) return NETWORK_NONE;
 		final NetworkInfo info = cm.getActiveNetworkInfo();
-		if (!info.isConnected()) {
+		if (info == null || !info.isConnected()) {
 			return NETWORK_NONE;
 		} else if (info.getType() != ConnectivityManager.TYPE_WIFI) {
 			return NETWORK_MOBILE;
