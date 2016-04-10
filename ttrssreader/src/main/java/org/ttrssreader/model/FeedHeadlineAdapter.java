@@ -18,10 +18,6 @@
 package org.ttrssreader.model;
 
 
-import org.ttrssreader.R;
-import org.ttrssreader.model.pojos.Article;
-import org.ttrssreader.utils.DateUtils;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
@@ -30,6 +26,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.ttrssreader.R;
+import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.utils.DateUtils;
 
 import java.util.Date;
 
@@ -91,30 +91,37 @@ public class FeedHeadlineAdapter extends MainAdapter {
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		return View.inflate(context, R.layout.item_feedheadline, null);
+		return View.inflate(context, R.layout.item_feedheadline, parent);
 	}
 
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
 		super.bindView(view, context, cursor);
 
-		Article a = getArticle(cursor);
-		ImageView icon = (ImageView) view.findViewById(R.id.icon);
-		setImage(icon, a);
+		ViewHolder holder = (ViewHolder) view.getTag();
+		if (holder == null) {
+			holder = new ViewHolder();
+			holder.icon = (ImageView) view.findViewById(R.id.icon);
+			holder.title = (TextView) view.findViewById(R.id.title);
+			holder.updateDate = (TextView) view.findViewById(R.id.updateDate);
+			holder.dataSource = (TextView) view.findViewById(R.id.dataSource);
+			view.setTag(holder);
+		}
 
-		TextView title = (TextView) view.findViewById(R.id.title);
-		title.setText(a.title);
-		if (a.isUnread) title.setTypeface(Typeface.DEFAULT_BOLD);
-		else title.setTypeface(Typeface.DEFAULT);
+		final Article a = getArticle(cursor);
 
-		TextView updateDate = (TextView) view.findViewById(R.id.updateDate);
-		String date = DateUtils.getDateTime(context, a.updated);
-		updateDate.setText(date.length() > 0 ? "(" + date + ")" : "");
+		setImage(holder.icon, a);
 
-		TextView dataSource = (TextView) view.findViewById(R.id.dataSource);
+		holder.title.setText(a.title);
+		if (a.isUnread) holder.title.setTypeface(Typeface.DEFAULT_BOLD);
+		else holder.title.setTypeface(Typeface.DEFAULT);
+
+		final String date = DateUtils.getDateTime(context, a.updated);
+		holder.updateDate.setText(date.length() > 0 ? "(" + date + ")" : "");
+
 		// Display Feed-Title in Virtual-Categories or when displaying all Articles in a Category
 		if ((feedId < 0 && feedId >= -4) || (selectArticlesForCategory)) {
-			dataSource.setText(a.feedTitle);
+			holder.dataSource.setText(a.feedTitle);
 		}
 	}
 
@@ -130,6 +137,13 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		ret.note = cur.getString(7);
 		ret.feedTitle = cur.getString(8);
 		return ret;
+	}
+
+	private static class ViewHolder {
+		TextView title;
+		ImageView icon;
+		TextView updateDate;
+		TextView dataSource;
 	}
 
 }

@@ -94,6 +94,7 @@ public class SSLUtils {
 		return trusted;
 	}
 
+	@SuppressLint("TrustAllX509TrustManager")
 	public static void trustAllCert() throws KeyManagementException, NoSuchAlgorithmException {
 		Log.i(TAG, "Enabling SSLUtils to trust all CERTIFICATES.");
 		X509TrustManager easyTrustManager = new X509TrustManager() {
