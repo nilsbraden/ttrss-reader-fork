@@ -19,6 +19,13 @@
 
     <string-array name="updates">
 		<item>Version 1.88
+			 * Fixed errors when ImageCache couldn\'t be accessed
+			 * Fixed some problems with external storage access
+			 * Sort list of wifi networks by SSID in Preferences-per-Wifi dialog
+			 * Fixed crash when accessing NetworkInfo
+			 * Improved reuse of existing views
+		</item>
+		<item>Version 1.88
 			 * Update french translation
 			 * Notes: Show notes within articles
 			 * Notes: Added notes are also internally set on the article, not just on the server
