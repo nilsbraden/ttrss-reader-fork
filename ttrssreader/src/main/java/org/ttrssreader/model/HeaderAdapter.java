@@ -55,14 +55,11 @@ public class HeaderAdapter extends ArrayAdapter<Header> {
 	}
 
 	public HeaderAdapter(Context context, List<Header> objects) {
-
 		super(context, 0, objects);
-
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	private static int getHeaderType(Header header) {
-
 		if (header.fragment == null && header.intent == null) return HEADER_TYPE_CATEGORY;
 		else return HEADER_TYPE_NORMAL;
 	}

@@ -18,7 +18,7 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.88
+		<item>Version 1.89
 			 * Fixed errors when ImageCache couldn\'t be accessed
 			 * Fixed some problems with external storage access
 			 * Sort list of wifi networks by SSID in Preferences-per-Wifi dialog

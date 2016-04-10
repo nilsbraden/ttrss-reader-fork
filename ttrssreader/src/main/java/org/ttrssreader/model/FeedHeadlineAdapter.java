@@ -91,7 +91,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		return View.inflate(context, R.layout.item_feedheadline, parent);
+		return View.inflate(context, R.layout.item_feedheadline, null);
 	}
 
 	@Override

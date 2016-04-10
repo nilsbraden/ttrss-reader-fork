@@ -62,7 +62,7 @@ public class FeedAdapter extends MainAdapter {
 
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		return View.inflate(context, R.layout.item_feed, parent);
+		return View.inflate(context, R.layout.item_feed, null);
 	}
 
 	@Override
