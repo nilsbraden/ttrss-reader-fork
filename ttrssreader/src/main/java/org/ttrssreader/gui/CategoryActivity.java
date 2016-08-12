@@ -18,6 +18,17 @@
 package org.ttrssreader.gui;
 
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -32,17 +43,6 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
-
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -342,7 +342,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 		// Animation
 		if (Controller.isTablet)
-			ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out, android.R.anim.fade_in,
+			ft.setCustomAnimations(R.animator.slide_in_left, android.R.animator.fade_out, android.R.animator.fade_in,
 					R.animator.slide_out_left);
 		else ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 

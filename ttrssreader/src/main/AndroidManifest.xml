@@ -21,7 +21,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
     android:versionCode="1890"
-    android:versionName="1.89.0">
+    android:versionName="1.90.0">
 
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>

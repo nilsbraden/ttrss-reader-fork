@@ -18,6 +18,9 @@
 <resources>
 
     <string-array name="updates">
+		<item>Version 1.90
+			 * Bugifx-release: Fix FC while parsing new output from server api (added field for GUID)
+		</item>
 		<item>Version 1.89
 			 * Fixed errors when ImageCache couldn\'t be accessed
 			 * Fixed some problems with external storage access
