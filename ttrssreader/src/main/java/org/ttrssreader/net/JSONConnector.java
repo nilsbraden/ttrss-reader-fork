@@ -591,13 +591,16 @@ public class JSONConnector {
 			}
 
 			String name = reader.nextName();
-			Article.ArticleField field = Article.ArticleField.valueOf(name);
 
 			try {
+				Article.ArticleField field = Article.ArticleField.valueOf(name);
 
 				switch (field) {
 					case id:
 						a.id = reader.nextInt();
+						break;
+					case guid:
+						a.guid = reader.nextString();
 						break;
 					case title:
 						a.title = reader.nextString();
@@ -653,7 +656,7 @@ public class JSONConnector {
 				if (filter != null) skipObject = filter.omitArticle(field, a);
 
 			} catch (IllegalArgumentException | IOException e) {
-				Log.w(TAG, "Result contained illegal value for entry \"" + field + "\".");
+				Log.w(TAG, "Result contained illegal value for entry \"" + name + "\".");
 				reader.skipValue();
 			}
 		}
