@@ -10,7 +10,3 @@
 -dontwarn org.antlr.**
 -dontwarn org.stringtemplate.v4.**
 -dontwarn org.jdom2.**
-
-# StrongHttpsClient and its support classes are totally unused, so the
-# ch.boye.httpclientandroidlib.** classes are also unneeded
--dontwarn info.guardianproject.netcipher.client.**

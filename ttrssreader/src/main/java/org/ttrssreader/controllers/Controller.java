@@ -64,8 +64,6 @@ import java.security.MessageDigest;
 import java.util.HashSet;
 import java.util.Set;
 
-import info.guardianproject.netcipher.NetCipher;
-
 /**
  * Not entirely sure why this is called the "Controller". Actually, in terms of MVC, it isn't the controller. There
  * isn't one in here but it's called like that and I don't have a better name so we stay with it.
@@ -469,7 +467,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public URLConnection openConnection(URL url) throws IOException {
-		URLConnection c = NetCipher.getHttpsURLConnection(url); //url.openConnection();
+		URLConnection c = url.openConnection();
 
 		if (this.UrlNeedsAuthentication(url)) {
 			String auth = this.httpUsername() + ":" + this.httpPassword();

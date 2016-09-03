@@ -71,8 +71,5 @@ dependencies {
     // https://developer.android.com/training/articles/security-gms-provider.html
     // Only used in productFlavour "play"
     playCompile 'com.google.android.gms:play-services-base:9.4.0'
-
-    // Proveides sane standards for SSL connections, see https://guardianproject.info/code/netcipher/
-    compile 'info.guardianproject.netcipher:netcipher:1.2'
 }
 
