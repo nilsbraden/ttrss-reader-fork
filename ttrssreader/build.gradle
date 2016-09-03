@@ -17,13 +17,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "24.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "24.0.2"
 
     defaultConfig {
         applicationId "org.ttrssreader"
         minSdkVersion 14
-        targetSdkVersion 24
+        targetSdkVersion 23
     }
 
     buildTypes {
@@ -60,8 +60,8 @@ dependencies {
     compile 'org.antlr:ST4:4.0.8'
     compile 'com.google.guava:guava:18.0'
     // Use Material Design everywhere, see here for latest versions: https://developer.android.com/topic/libraries/support-library/features.html#v7
-    compile 'com.android.support:appcompat-v7:24.1.1'
-    compile 'com.android.support:recyclerview-v7:24.1.1'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:recyclerview-v7:23.3.0'
     // For @Nullable/@NonNull
     compile 'com.intellij:annotations:12.0'
     // Remove any potentially harmful script-tags from incoming content
@@ -70,6 +70,9 @@ dependencies {
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
     // Only used in productFlavour "play"
-    playCompile 'com.google.android.gms:play-services-base:9.2.0'
+    playCompile 'com.google.android.gms:play-services-base:9.4.0'
+
+    // Proveides sane standards for SSL connections, see https://guardianproject.info/code/netcipher/
+    //compile 'info.guardianproject.netcipher:netcipher:1.2'
 }
 
