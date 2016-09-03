@@ -73,6 +73,6 @@ dependencies {
     playCompile 'com.google.android.gms:play-services-base:9.4.0'
 
     // Proveides sane standards for SSL connections, see https://guardianproject.info/code/netcipher/
-    //compile 'info.guardianproject.netcipher:netcipher:1.2'
+    compile 'info.guardianproject.netcipher:netcipher:1.2'
 }
 
