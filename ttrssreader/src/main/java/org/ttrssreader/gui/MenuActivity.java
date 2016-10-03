@@ -231,14 +231,14 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
 
-			hideBackArrow();
-
 			header_unread = (TextView) findViewById(R.id.head_unread);
 			header_title = (TextView) findViewById(R.id.head_title);
 			header_title.setText(getString(R.string.ApplicationName));
 
 			progressbar = (ProgressBar) findViewById(R.id.progressbar);
 			progressspinner = (ProgressBar) findViewById(R.id.progressspinner);
+			hideBackArrow();
+
 		}
 	}
 
