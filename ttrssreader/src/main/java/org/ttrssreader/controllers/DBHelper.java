@@ -61,26 +61,22 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DBHelper {
 
-	private static final String TAG = DBHelper.class.getSimpleName();
-
-	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 64;
-
 	public static final String TABLE_CATEGORIES = "categories";
 	public static final String TABLE_FEEDS = "feeds";
 	public static final String TABLE_ARTICLES = "articles";
 	public static final String TABLE_ARTICLES2LABELS = "articles2labels";
-	private static final String TABLE_MARK = "marked";
-	private static final String TABLE_NOTES = "notes";
 	public static final String TABLE_REMOTEFILES = "remotefiles";
 	public static final String TABLE_REMOTEFILE2ARTICLE = "remotefile2article";
-
 	static final String MARK_READ = "isUnread";
 	static final String MARK_STAR = "isStarred";
 	static final String MARK_PUBLISH = "isPublished";
 	static final String COL_NOTE = "note";
 	static final String COL_UNREAD = "unread";
-
+	private static final String TAG = DBHelper.class.getSimpleName();
+	private static final String DATABASE_NAME = "ttrss.db";
+	private static final int DATABASE_VERSION = 64;
+	private static final String TABLE_MARK = "marked";
+	private static final String TABLE_NOTES = "notes";
 	// @formatter:off
 	private static final String CREATE_TABLE_CATEGORIES =
 			"CREATE TABLE "
@@ -177,12 +173,112 @@ public class DBHelper {
 					+ " (remotefileId, articleId)"
 					+ " VALUES (?, ?)";
 	// @formatter:on
-
-	private volatile boolean initialized = false;
-
+	private static boolean specialUpgradeSuccessful = false;
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 	private final Lock r = rwl.readLock();
 	private final Lock w = rwl.writeLock();
+	private final Object insertCategoryLock = new Object();
+	private final Object insertFeedLock = new Object();
+	private final Object insertArticleLock = new Object();
+	private final Object insertLabelLock = new Object();
+	private final Object insertRemoteFileLock = new Object();
+	private final Object insertRemoteFile2ArticleLock = new Object();
+	private volatile boolean initialized = false;
+	private OpenHelper openHelper;
+	private SQLiteStatement insertCategory;
+	private SQLiteStatement insertFeed;
+	private SQLiteStatement insertArticle;
+	private SQLiteStatement insertLabel;
+	private SQLiteStatement insertRemoteFile;
+	private SQLiteStatement insertRemoteFile2Article;
+	// Singleton (see http://stackoverflow.com/a/11165926)
+	private DBHelper() {
+	}
+
+	public static DBHelper getInstance() {
+		return InstanceHolder.instance;
+	}
+
+	private static Article handleArticleCursor(Cursor c) {
+		Article a = new Article();
+		a.id = c.getInt(0);
+		a.feedId = c.getInt(1);
+		a.title = c.getString(2);
+		a.isUnread = (c.getInt(3) != 0);
+		a.url = c.getString(4);
+		a.commentUrl = c.getString(5);
+		a.updated = new Date(c.getLong(6));
+		a.content = c.getString(7);
+		a.attachments = parseAttachments(c.getString(8));
+		a.isStarred = (c.getInt(9) != 0);
+		a.isPublished = (c.getInt(10) != 0);
+		a.labels = parseArticleLabels(c.getString(12));
+		a.author = c.getString(13);
+		a.note = c.getString(14);
+		return a;
+	}
+
+	private static Feed handleFeedCursor(Cursor c) {
+		Feed f = new Feed();
+		f.id = c.getInt(0);
+		f.categoryId = c.getInt(1);
+		f.title = c.getString(2);
+		f.url = c.getString(3);
+		f.unread = c.getInt(4);
+		return f;
+	}
+
+	private static Category handleCategoryCursor(Cursor c) {
+		Category cat = new Category();
+		cat.id = c.getInt(0);
+		cat.title = c.getString(1);
+		cat.unread = c.getInt(2);
+		return cat;
+	}
+
+	private static RemoteFile handleRemoteFileCursor(Cursor c) {
+		RemoteFile rf = new RemoteFile();
+		rf.id = c.getInt(0);
+		rf.url = c.getString(1);
+		rf.length = c.getInt(2);
+		rf.updated = new Date(c.getLong(4));
+		rf.cached = c.getInt(5) != 0;
+		return rf;
+	}
+
+	private static Set<String> parseAttachments(String att) {
+		Set<String> ret = new LinkedHashSet<>();
+		if (att == null) return ret;
+
+		ret.addAll(Arrays.asList(att.split(";")));
+		return ret;
+	}
+
+	/*
+	 * Parse labels from string of the form "label;;label;;...;;label" where each label is of the following format:
+	 * "caption;forground;background"
+	 */
+	private static Set<Label> parseArticleLabels(String labelStr) {
+		Set<Label> ret = new LinkedHashSet<>();
+		if (labelStr == null) return ret;
+
+		int i = 0;
+		for (String s : labelStr.split("---")) {
+			String[] l = s.split(";");
+			if (l.length > 0) {
+				i++;
+				Label label = new Label();
+				label.id = i;
+				label.checked = true;
+				label.caption = l[0];
+				if (l.length > 1 && l[1].startsWith("#")) label.foregroundColor = l[1];
+				if (l.length > 2 && l[1].startsWith("#")) label.backgroundColor = l[2];
+				ret.add(label);
+			}
+		}
+
+		return ret;
+	}
 
 	private void readLock(boolean lock) {
 		if (lock) r.lock();
@@ -194,38 +290,8 @@ public class DBHelper {
 		else w.unlock();
 	}
 
-	private OpenHelper openHelper;
-
 	public synchronized OpenHelper getOpenHelper() {
 		return openHelper;
-	}
-
-	private final Object insertCategoryLock = new Object();
-	private final Object insertFeedLock = new Object();
-	private final Object insertArticleLock = new Object();
-	private final Object insertLabelLock = new Object();
-	private final Object insertRemoteFileLock = new Object();
-	private final Object insertRemoteFile2ArticleLock = new Object();
-
-	private SQLiteStatement insertCategory;
-	private SQLiteStatement insertFeed;
-	private SQLiteStatement insertArticle;
-	private SQLiteStatement insertLabel;
-	private SQLiteStatement insertRemoteFile;
-	private SQLiteStatement insertRemoteFile2Article;
-
-	private static boolean specialUpgradeSuccessful = false;
-
-	// Singleton (see http://stackoverflow.com/a/11165926)
-	private DBHelper() {
-	}
-
-	private static class InstanceHolder {
-		private static final DBHelper instance = new DBHelper();
-	}
-
-	public static DBHelper getInstance() {
-		return InstanceHolder.instance;
 	}
 
 	public synchronized void initialize(final Context context) {
@@ -281,6 +347,8 @@ public class DBHelper {
 			}
 		}.execute();
 	}
+
+	// *******| INSERT |*******************************************************************
 
 	@SuppressWarnings("deprecation")
 	private synchronized boolean initializeDBHelper() {
@@ -364,337 +432,6 @@ public class DBHelper {
 	private synchronized boolean isDBAvailable() {
 		return getOpenHelper() != null;
 	}
-
-	public static class OpenHelper extends SQLiteOpenHelper {
-
-		public OpenHelper(Context context) {
-			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		}
-
-		/**
-		 * set wished DB modes on DB
-		 *
-		 * @param db DB to be used
-		 */
-		@Override
-		public void onOpen(SQLiteDatabase db) {
-			super.onOpen(db);
-			if (!db.isReadOnly()) {
-				// Enable foreign key constraints
-				db.execSQL("PRAGMA foreign_keys=ON;");
-			}
-		}
-
-		/**
-		 * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
-		 */
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			db.execSQL(CREATE_TABLE_CATEGORIES);
-			db.execSQL(CREATE_TABLE_FEEDS);
-			db.execSQL(CREATE_TABLE_ARTICLES);
-			db.execSQL(CREATE_TABLE_ARTICLES2LABELS);
-			db.execSQL(CREATE_TABLE_MARK);
-			db.execSQL(CREATE_TABLE_NOTES);
-			createRemoteFilesSupportDBObjects(db);
-		}
-
-		/**
-		 * upgrade the DB
-		 *
-		 * @param db         The database.
-		 * @param oldVersion The old database version.
-		 * @param newVersion The new database version.
-		 * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
-		 */
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			boolean didUpgrade = false;
-
-			if (oldVersion < 50) {
-				Log.i(TAG, String.format("Upgrading database from %s to 50.", oldVersion));
-				ContentValues cv = new ContentValues(1);
-				cv.put("cachedImages", 0);
-				db.update(TABLE_ARTICLES, cv, "cachedImages IS null", null);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 51) {
-				// @formatter:off
-				String sql = "DROP TABLE IF EXISTS "
-						+ TABLE_MARK;
-				String sql2 = "CREATE TABLE "
-						+ TABLE_MARK
-						+ " (id INTEGER,"
-						+ " type INTEGER,"
-						+ " " + MARK_READ + " INTEGER,"
-						+ " " + MARK_STAR + " INTEGER,"
-						+ " " + MARK_PUBLISH + " INTEGER,"
-						+ " note TEXT,"
-						+ " PRIMARY KEY(id, type))";
-				// @formatter:on
-
-				Log.i(TAG, String.format("Upgrading database from %s to 51.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s)", sql));
-				Log.i(TAG, String.format(" (Executing: %s)", sql2));
-
-				db.execSQL(sql);
-				db.execSQL(sql2);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 52) {
-				// @formatter:off
-				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN articleLabels TEXT";
-				// @formatter:on
-
-				Log.i(TAG, String.format("Upgrading database from %s to 52.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s)", sql));
-
-				db.execSQL(sql);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 53) {
-				Log.i(TAG, String.format("Upgrading database from %s to 53.", oldVersion));
-				didUpgrade = createRemoteFilesSupportDBObjects(db);
-				if (didUpgrade) {
-					ContentValues cv = new ContentValues(1);
-					cv.putNull("cachedImages");
-					db.update(TABLE_ARTICLES, cv, null, null);
-					ImageCache ic = Controller.getInstance().getImageCache();
-					if (ic != null) ic.clear();
-				}
-			}
-
-			if (oldVersion < 58) {
-				Log.i(TAG, String.format("Upgrading database from %s to 58.", oldVersion));
-
-				// Rename columns "id" to "_id" by modifying the table structure:
-				db.beginTransaction();
-				try {
-					db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
-					db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILE2ARTICLE);
-
-					db.execSQL("PRAGMA writable_schema=1;");
-					String sql = "UPDATE SQLITE_MASTER SET SQL = '%s' WHERE NAME = '%s';";
-					db.execSQL(String.format(sql, CREATE_TABLE_CATEGORIES, TABLE_CATEGORIES));
-					db.execSQL(String.format(sql, CREATE_TABLE_FEEDS, TABLE_FEEDS));
-					db.execSQL(String.format(sql, CREATE_TABLE_ARTICLES, TABLE_ARTICLES));
-					db.execSQL("PRAGMA writable_schema=0;");
-
-					if (createRemoteFilesSupportDBObjects(db)) {
-						db.setTransactionSuccessful();
-						didUpgrade = true;
-					}
-				} finally {
-					db.execSQL("PRAGMA foreign_keys=ON;");
-					db.endTransaction();
-					specialUpgradeSuccessful = true;
-				}
-			}
-
-			if (oldVersion < 59) {
-				// @formatter:off
-				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN author TEXT";
-				// @formatter:on
-
-				Log.i(TAG, String.format("Upgrading database from %s to 59.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s)", sql));
-
-				db.execSQL(sql);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 60) {
-				Log.i(TAG, String.format("Upgrading database from %s to 60.", oldVersion));
-				Log.i(TAG, " (Re-Creating View: remotefiles_sequence )");
-
-				createRemotefilesView(db);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 61) {
-				// @formatter:off
-				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN note TEXT";
-				// @formatter:on
-
-				Log.i(TAG, String.format("Upgrading database from %s to 61.", oldVersion));
-				Log.i(TAG, String.format(" (Executing: %s)", sql));
-
-				db.execSQL(sql);
-				didUpgrade = true;
-			}
-
-			if (oldVersion < 64) {
-				Log.i(TAG, String.format("Upgrading database from %s to 64.", oldVersion));
-
-				db.beginTransaction();
-				try {
-					db.execSQL("PRAGMA writable_schema=1;");
-					String sql = "UPDATE SQLITE_MASTER SET SQL = '%s' WHERE NAME = '%s';";
-					db.execSQL(String.format(sql, CREATE_TABLE_MARK, TABLE_MARK));
-					db.execSQL("PRAGMA writable_schema=0;");
-					db.execSQL(CREATE_TABLE_NOTES);
-					db.setTransactionSuccessful();
-				} finally {
-					db.endTransaction();
-				}
-
-				didUpgrade = true;
-			}
-
-			if (!didUpgrade) {
-				Log.i(TAG, "Upgrading database, this will drop tables and recreate.");
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARK);
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
-				onCreate(db);
-			}
-
-		}
-
-		/**
-		 * create DB objects (tables, triggers, views) which
-		 * are necessary for file cache support
-		 *
-		 * @param db current database
-		 */
-		private boolean createRemoteFilesSupportDBObjects(SQLiteDatabase db) {
-			boolean success = false;
-			try {
-				createRemotefiles(db);
-				createRemotefiles2Articles(db);
-				createRemotefilesView(db);
-				success = true;
-			} catch (SQLException e) {
-				Log.e(TAG, "Creation of remote file support DB objects failed.\n" + e);
-			}
-
-			return success;
-		}
-
-		private void createRemotefiles(SQLiteDatabase db) {
-			// @formatter:off
-			// remote files (images, attachments, etc) belonging to articles,
-			// which are locally stored (cached)
-			db.execSQL("CREATE TABLE "
-					+ TABLE_REMOTEFILES
-					+ " (id INTEGER PRIMARY KEY AUTOINCREMENT,"
-					// remote file URL
-					+ " url TEXT UNIQUE NOT NULL,"
-					// file size
-					+ " length INTEGER DEFAULT 0,"
-					// extension - some kind of additional info
-					// (i.e. file extension)
-					+ " ext TEXT NOT NULL,"
-					// unix timestamp of last change
-					// (set automatically by triggers)
-					+ " updateDate INTEGER,"
-					// boolean flag determining if the file is locally stored
-					+ " cached INTEGER DEFAULT 0)");
-
-			// index for quiicker search by by URL
-			db.execSQL("DROP INDEX IF EXISTS idx_remotefiles_by_url");
-			db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_remotefiles_by_url"
-					+ " ON " + TABLE_REMOTEFILES
-					+ " (url)");
-
-			// sets last change unix timestamp after row creation
-			db.execSQL("DROP TRIGGER IF EXISTS insert_remotefiles");
-			db.execSQL("CREATE TRIGGER IF NOT EXISTS insert_remotefiles AFTER INSERT"
-					+ " ON " + TABLE_REMOTEFILES
-					+ "   BEGIN"
-					+ "	 UPDATE " + TABLE_REMOTEFILES
-					+ "	   SET updateDate = strftime('%s', 'now')"
-					+ "	 WHERE id = new.id;"
-					+ "   END");
-
-			// sets last change unix timestamp after row update
-			db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_lastchanged");
-			db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_lastchanged AFTER UPDATE"
-					+ " ON " + TABLE_REMOTEFILES
-					+ "   BEGIN"
-					+ "	 UPDATE " + TABLE_REMOTEFILES
-					+ "	   SET updateDate = strftime('%s', 'now')"
-					+ "	 WHERE id = new.id;"
-					+ "   END");
-
-			// @formatter:on
-		}
-
-		private void createRemotefiles2Articles(SQLiteDatabase db) {
-			// @formatter:off
-			// m to n relations between articles and remote files
-			db.execSQL("CREATE TABLE "
-					+ TABLE_REMOTEFILE2ARTICLE
-					// ID of remote file
-					+ "(remotefileId INTEGER"
-					+ "   REFERENCES " + TABLE_REMOTEFILES + "(id)"
-					+ "	 ON DELETE CASCADE,"
-					// ID of article
-					+ " articleId INTEGER"
-					+ "   REFERENCES " + TABLE_ARTICLES + "(_id)"
-					+ "	 ON UPDATE CASCADE"
-					+ "	 ON DELETE NO ACTION,"
-					// if both IDs are known, then the row should be found faster
-					+ " PRIMARY KEY(remotefileId, articleId))");
-
-			// update count of cached images for article on change of "cached"
-			// field of remotefiles
-			db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_articlefiles");
-			db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_articlefiles AFTER UPDATE"
-					+ " OF cached"
-					+ " ON " + TABLE_REMOTEFILES
-					+ "   BEGIN"
-					+ "	 UPDATE " + TABLE_ARTICLES + ""
-					+ "	   SET"
-					+ "		 cachedImages = ("
-					+ "		   SELECT"
-					+ "			 COUNT(r.id)"
-					+ "		   FROM " + TABLE_REMOTEFILES + " r,"
-					+ TABLE_REMOTEFILE2ARTICLE + " m"
-					+ "		   WHERE"
-					+ "			 m.remotefileId=r.id"
-					+ "			 AND m.articleId=" + TABLE_ARTICLES + "._id"
-					+ "			 AND r.cached=1)"
-					+ "	   WHERE _id IN ("
-					+ "		 SELECT"
-					+ "		   a._id"
-					+ "		 FROM " + TABLE_REMOTEFILE2ARTICLE + " m,"
-					+ TABLE_ARTICLES + " a"
-					+ "		 WHERE"
-					+ "		   m.remotefileId=new.id AND m.articleId=a._id);"
-					+ "   END");
-			// @formatter:on
-		}
-
-		private void createRemotefilesView(SQLiteDatabase db) {
-			// @formatter:off
-			// represents importance of cached files
-			// the sequence is defined by
-			// 1. the article to which the remote file belongs to is not read
-			// 2. update date of the article to which the remote file belongs to
-			// 3. the file length
-			db.execSQL("DROP VIEW IF EXISTS remotefile_sequence");
-			db.execSQL("CREATE VIEW IF NOT EXISTS remotefile_sequence AS"
-					+ " SELECT r.*, MAX(a.isUnread) AS isUnread,"
-					+ "   MAX(a.updateDate) AS articleUpdateDate,"
-					+ "   MAX(a.isUnread)||MAX(a.updateDate)||(100000000000-r.length)"
-					+ "	 AS ord"
-					+ " FROM " + TABLE_REMOTEFILES + " r,"
-					+ TABLE_REMOTEFILE2ARTICLE + " m,"
-					+ TABLE_ARTICLES + " a"
-					+ " WHERE m.remotefileId=r.id AND m.articleId=a._id"
-					+ " GROUP BY r.id");
-			// @formatter:on
-		}
-
-	}
-
-	// *******| INSERT |*******************************************************************
 
 	private void insertCategory(int id, String title, int unread) {
 		if (title == null) title = "";
@@ -831,6 +568,8 @@ public class DBHelper {
 		}
 	}
 
+	// *******| UPDATE |*******************************************************************
+
 	private void removeLabel(int articleId, Label label) {
 		if (!isDBAvailable()) return;
 
@@ -905,8 +644,6 @@ public class DBHelper {
 			}
 		}
 	}
-
-	// *******| UPDATE |*******************************************************************
 
 	/**
 	 * set read status in DB for given category/feed
@@ -1357,6 +1094,8 @@ public class DBHelper {
 		return deletedCount;
 	}
 
+	// *******| SELECT |*******************************************************************
+
 	/**
 	 * Delete given amount of last updated articles from DB. Published and Starred articles are ignored
 	 * so the configured limit is not an exact upper limit to the number of articles in the database.
@@ -1429,8 +1168,6 @@ public class DBHelper {
 			writeLock(false);
 		}
 	}
-
-	// *******| SELECT |*******************************************************************
 
 	public Article getArticle(int id) {
 		Article ret = null;
@@ -1675,6 +1412,8 @@ public class DBHelper {
 		return ret;
 	}
 
+	// *******************************************
+
 	@SuppressLint("UseSparseArrays")
 	Set<Integer> getMarked(String mark, int status) {
 		if (!isDBAvailable()) return new LinkedHashSet<>();
@@ -1714,26 +1453,6 @@ public class DBHelper {
 		}
 	}
 
-	void setMarked(Set<Integer> ids, String mark) {
-		if (!isDBAvailable()) return;
-
-		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
-		try {
-			ContentValues cv = new ContentValues(1);
-			for (String idList : StringSupport.convertListToString(ids, 1000)) {
-				cv.putNull(mark);
-				db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
-			}
-			db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
-			db.setTransactionSuccessful();
-		} finally {
-			db.endTransaction();
-			writeLock(false);
-		}
-	}
-
 	/**
 	 * remove specified mark in the temporary mark table for specified
 	 * articles and then cleanup this table
@@ -1760,87 +1479,24 @@ public class DBHelper {
 		}
 	}
 
-	// *******************************************
+	void setMarked(Set<Integer> ids, String mark) {
+		if (!isDBAvailable()) return;
 
-	private static Article handleArticleCursor(Cursor c) {
-		Article a = new Article();
-		a.id = c.getInt(0);
-		a.feedId = c.getInt(1);
-		a.title = c.getString(2);
-		a.isUnread = (c.getInt(3) != 0);
-		a.url = c.getString(4);
-		a.commentUrl = c.getString(5);
-		a.updated = new Date(c.getLong(6));
-		a.content = c.getString(7);
-		a.attachments = parseAttachments(c.getString(8));
-		a.isStarred = (c.getInt(9) != 0);
-		a.isPublished = (c.getInt(10) != 0);
-		a.labels = parseArticleLabels(c.getString(12));
-		a.author = c.getString(13);
-		a.note = c.getString(14);
-		return a;
-	}
-
-	private static Feed handleFeedCursor(Cursor c) {
-		Feed f = new Feed();
-		f.id = c.getInt(0);
-		f.categoryId = c.getInt(1);
-		f.title = c.getString(2);
-		f.url = c.getString(3);
-		f.unread = c.getInt(4);
-		return f;
-	}
-
-	private static Category handleCategoryCursor(Cursor c) {
-		Category cat = new Category();
-		cat.id = c.getInt(0);
-		cat.title = c.getString(1);
-		cat.unread = c.getInt(2);
-		return cat;
-	}
-
-	private static RemoteFile handleRemoteFileCursor(Cursor c) {
-		RemoteFile rf = new RemoteFile();
-		rf.id = c.getInt(0);
-		rf.url = c.getString(1);
-		rf.length = c.getInt(2);
-		rf.updated = new Date(c.getLong(4));
-		rf.cached = c.getInt(5) != 0;
-		return rf;
-	}
-
-	private static Set<String> parseAttachments(String att) {
-		Set<String> ret = new LinkedHashSet<>();
-		if (att == null) return ret;
-
-		ret.addAll(Arrays.asList(att.split(";")));
-		return ret;
-	}
-
-	/*
-	 * Parse labels from string of the form "label;;label;;...;;label" where each label is of the following format:
-	 * "caption;forground;background"
-	 */
-	private static Set<Label> parseArticleLabels(String labelStr) {
-		Set<Label> ret = new LinkedHashSet<>();
-		if (labelStr == null) return ret;
-
-		int i = 0;
-		for (String s : labelStr.split("---")) {
-			String[] l = s.split(";");
-			if (l.length > 0) {
-				i++;
-				Label label = new Label();
-				label.id = i;
-				label.checked = true;
-				label.caption = l[0];
-				if (l.length > 1 && l[1].startsWith("#")) label.foregroundColor = l[1];
-				if (l.length > 2 && l[1].startsWith("#")) label.backgroundColor = l[2];
-				ret.add(label);
+		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		writeLock(true);
+		db.beginTransaction();
+		try {
+			ContentValues cv = new ContentValues(1);
+			for (String idList : StringSupport.convertListToString(ids, 1000)) {
+				cv.putNull(mark);
+				db.update(TABLE_MARK, cv, "id IN(" + idList + ")", null);
 			}
+			db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+			writeLock(false);
 		}
-
-		return ret;
 	}
 
 	public ArrayList<Article> queryArticlesForImagecache() {
@@ -2227,6 +1883,347 @@ public class DBHelper {
 		} finally {
 			writeLock(false);
 		}
+	}
+
+	private static class InstanceHolder {
+		private static final DBHelper instance = new DBHelper();
+	}
+
+	public static class OpenHelper extends SQLiteOpenHelper {
+
+		public OpenHelper(Context context) {
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		}
+
+		/**
+		 * set wished DB modes on DB
+		 *
+		 * @param db DB to be used
+		 */
+		@Override
+		public void onOpen(SQLiteDatabase db) {
+			super.onOpen(db);
+			if (!db.isReadOnly()) {
+				// Enable foreign key constraints
+				db.execSQL("PRAGMA foreign_keys=ON;");
+			}
+		}
+
+		/**
+		 * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
+		 */
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			db.execSQL(CREATE_TABLE_CATEGORIES);
+			db.execSQL(CREATE_TABLE_FEEDS);
+			db.execSQL(CREATE_TABLE_ARTICLES);
+			db.execSQL(CREATE_TABLE_ARTICLES2LABELS);
+			db.execSQL(CREATE_TABLE_MARK);
+			db.execSQL(CREATE_TABLE_NOTES);
+			createRemoteFilesSupportDBObjects(db);
+		}
+
+		@Override
+		public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			super.onDowngrade(db, oldVersion, newVersion);
+			// TODO - though this won't happen often, it may be useful to offer
+			// the user a choice to delete their database
+			// or explain why ttrss-reader won't start
+		}
+
+		/**
+		 * upgrade the DB
+		 *
+		 * @param db         The database.
+		 * @param oldVersion The old database version.
+		 * @param newVersion The new database version.
+		 * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
+		 */
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			boolean didUpgrade = false;
+
+			if (oldVersion < 50) {
+				Log.i(TAG, String.format("Upgrading database from %s to 50.", oldVersion));
+				ContentValues cv = new ContentValues(1);
+				cv.put("cachedImages", 0);
+				db.update(TABLE_ARTICLES, cv, "cachedImages IS null", null);
+				didUpgrade = true;
+			}
+
+			if (oldVersion < 51) {
+				// @formatter:off
+				String sql = "DROP TABLE IF EXISTS "
+						+ TABLE_MARK;
+				String sql2 = "CREATE TABLE "
+						+ TABLE_MARK
+						+ " (id INTEGER,"
+						+ " type INTEGER,"
+						+ " " + MARK_READ + " INTEGER,"
+						+ " " + MARK_STAR + " INTEGER,"
+						+ " " + MARK_PUBLISH + " INTEGER,"
+						+ " note TEXT,"
+						+ " PRIMARY KEY(id, type))";
+				// @formatter:on
+
+				Log.i(TAG, String.format("Upgrading database from %s to 51.", oldVersion));
+				Log.i(TAG, String.format(" (Executing: %s)", sql));
+				Log.i(TAG, String.format(" (Executing: %s)", sql2));
+
+				db.execSQL(sql);
+				db.execSQL(sql2);
+				didUpgrade = true;
+			}
+
+			if (oldVersion < 52) {
+				// @formatter:off
+				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN articleLabels TEXT";
+				// @formatter:on
+
+				Log.i(TAG, String.format("Upgrading database from %s to 52.", oldVersion));
+				Log.i(TAG, String.format(" (Executing: %s)", sql));
+
+				db.execSQL(sql);
+				didUpgrade = true;
+			}
+
+			if (oldVersion < 53) {
+				Log.i(TAG, String.format("Upgrading database from %s to 53.", oldVersion));
+				didUpgrade = createRemoteFilesSupportDBObjects(db);
+				if (didUpgrade) {
+					ContentValues cv = new ContentValues(1);
+					cv.putNull("cachedImages");
+					db.update(TABLE_ARTICLES, cv, null, null);
+					ImageCache ic = Controller.getInstance().getImageCache();
+					if (ic != null) ic.clear();
+				}
+			}
+
+			if (oldVersion < 58) {
+				Log.i(TAG, String.format("Upgrading database from %s to 58.", oldVersion));
+
+				// Rename columns "id" to "_id" by modifying the table structure:
+				db.beginTransaction();
+				try {
+					db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
+					db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILE2ARTICLE);
+
+					db.execSQL("PRAGMA writable_schema=1;");
+					String sql = "UPDATE SQLITE_MASTER SET SQL = '%s' WHERE NAME = '%s';";
+					db.execSQL(String.format(sql, CREATE_TABLE_CATEGORIES, TABLE_CATEGORIES));
+					db.execSQL(String.format(sql, CREATE_TABLE_FEEDS, TABLE_FEEDS));
+					db.execSQL(String.format(sql, CREATE_TABLE_ARTICLES, TABLE_ARTICLES));
+					db.execSQL("PRAGMA writable_schema=0;");
+
+					if (createRemoteFilesSupportDBObjects(db)) {
+						db.setTransactionSuccessful();
+						didUpgrade = true;
+					}
+				} finally {
+					db.execSQL("PRAGMA foreign_keys=ON;");
+					db.endTransaction();
+					specialUpgradeSuccessful = true;
+				}
+			}
+
+			if (oldVersion < 59) {
+				// @formatter:off
+				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN author TEXT";
+				// @formatter:on
+
+				Log.i(TAG, String.format("Upgrading database from %s to 59.", oldVersion));
+				Log.i(TAG, String.format(" (Executing: %s)", sql));
+
+				db.execSQL(sql);
+				didUpgrade = true;
+			}
+
+			if (oldVersion < 60) {
+				Log.i(TAG, String.format("Upgrading database from %s to 60.", oldVersion));
+				Log.i(TAG, " (Re-Creating View: remotefiles_sequence )");
+
+				createRemotefilesView(db);
+				didUpgrade = true;
+			}
+
+			if (oldVersion < 61) {
+				// @formatter:off
+				String sql = "ALTER TABLE " + TABLE_ARTICLES + " ADD COLUMN note TEXT";
+				// @formatter:on
+
+				Log.i(TAG, String.format("Upgrading database from %s to 61.", oldVersion));
+				Log.i(TAG, String.format(" (Executing: %s)", sql));
+
+				db.execSQL(sql);
+				didUpgrade = true;
+			}
+
+			if (oldVersion < 64) {
+				Log.i(TAG, String.format("Upgrading database from %s to 64.", oldVersion));
+
+				db.beginTransaction();
+				try {
+					db.execSQL("PRAGMA writable_schema=1;");
+					String sql = "UPDATE SQLITE_MASTER SET SQL = '%s' WHERE NAME = '%s';";
+					db.execSQL(String.format(sql, CREATE_TABLE_MARK, TABLE_MARK));
+					db.execSQL("PRAGMA writable_schema=0;");
+					db.execSQL(CREATE_TABLE_NOTES);
+					db.setTransactionSuccessful();
+				} finally {
+					db.endTransaction();
+				}
+
+				didUpgrade = true;
+			}
+
+			if (!didUpgrade) {
+				Log.i(TAG, "Upgrading database, this will drop tables and recreate.");
+				db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
+				db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
+				db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
+				db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARK);
+				db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
+				onCreate(db);
+			}
+
+		}
+
+		/**
+		 * create DB objects (tables, triggers, views) which
+		 * are necessary for file cache support
+		 *
+		 * @param db current database
+		 */
+		private boolean createRemoteFilesSupportDBObjects(SQLiteDatabase db) {
+			boolean success = false;
+			try {
+				createRemotefiles(db);
+				createRemotefiles2Articles(db);
+				createRemotefilesView(db);
+				success = true;
+			} catch (SQLException e) {
+				Log.e(TAG, "Creation of remote file support DB objects failed.\n" + e);
+			}
+
+			return success;
+		}
+
+		private void createRemotefiles(SQLiteDatabase db) {
+			// @formatter:off
+			// remote files (images, attachments, etc) belonging to articles,
+			// which are locally stored (cached)
+			db.execSQL("CREATE TABLE "
+					+ TABLE_REMOTEFILES
+					+ " (id INTEGER PRIMARY KEY AUTOINCREMENT,"
+					// remote file URL
+					+ " url TEXT UNIQUE NOT NULL,"
+					// file size
+					+ " length INTEGER DEFAULT 0,"
+					// extension - some kind of additional info
+					// (i.e. file extension)
+					+ " ext TEXT NOT NULL,"
+					// unix timestamp of last change
+					// (set automatically by triggers)
+					+ " updateDate INTEGER,"
+					// boolean flag determining if the file is locally stored
+					+ " cached INTEGER DEFAULT 0)");
+
+			// index for quiicker search by by URL
+			db.execSQL("DROP INDEX IF EXISTS idx_remotefiles_by_url");
+			db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_remotefiles_by_url"
+					+ " ON " + TABLE_REMOTEFILES
+					+ " (url)");
+
+			// sets last change unix timestamp after row creation
+			db.execSQL("DROP TRIGGER IF EXISTS insert_remotefiles");
+			db.execSQL("CREATE TRIGGER IF NOT EXISTS insert_remotefiles AFTER INSERT"
+					+ " ON " + TABLE_REMOTEFILES
+					+ "   BEGIN"
+					+ "	 UPDATE " + TABLE_REMOTEFILES
+					+ "	   SET updateDate = strftime('%s', 'now')"
+					+ "	 WHERE id = new.id;"
+					+ "   END");
+
+			// sets last change unix timestamp after row update
+			db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_lastchanged");
+			db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_lastchanged AFTER UPDATE"
+					+ " ON " + TABLE_REMOTEFILES
+					+ "   BEGIN"
+					+ "	 UPDATE " + TABLE_REMOTEFILES
+					+ "	   SET updateDate = strftime('%s', 'now')"
+					+ "	 WHERE id = new.id;"
+					+ "   END");
+
+			// @formatter:on
+		}
+
+		private void createRemotefiles2Articles(SQLiteDatabase db) {
+			// @formatter:off
+			// m to n relations between articles and remote files
+			db.execSQL("CREATE TABLE "
+					+ TABLE_REMOTEFILE2ARTICLE
+					// ID of remote file
+					+ "(remotefileId INTEGER"
+					+ "   REFERENCES " + TABLE_REMOTEFILES + "(id)"
+					+ "	 ON DELETE CASCADE,"
+					// ID of article
+					+ " articleId INTEGER"
+					+ "   REFERENCES " + TABLE_ARTICLES + "(_id)"
+					+ "	 ON UPDATE CASCADE"
+					+ "	 ON DELETE NO ACTION,"
+					// if both IDs are known, then the row should be found faster
+					+ " PRIMARY KEY(remotefileId, articleId))");
+
+			// update count of cached images for article on change of "cached"
+			// field of remotefiles
+			db.execSQL("DROP TRIGGER IF EXISTS update_remotefiles_articlefiles");
+			db.execSQL("CREATE TRIGGER IF NOT EXISTS update_remotefiles_articlefiles AFTER UPDATE"
+					+ " OF cached"
+					+ " ON " + TABLE_REMOTEFILES
+					+ "   BEGIN"
+					+ "	 UPDATE " + TABLE_ARTICLES + ""
+					+ "	   SET"
+					+ "		 cachedImages = ("
+					+ "		   SELECT"
+					+ "			 COUNT(r.id)"
+					+ "		   FROM " + TABLE_REMOTEFILES + " r,"
+					+ TABLE_REMOTEFILE2ARTICLE + " m"
+					+ "		   WHERE"
+					+ "			 m.remotefileId=r.id"
+					+ "			 AND m.articleId=" + TABLE_ARTICLES + "._id"
+					+ "			 AND r.cached=1)"
+					+ "	   WHERE _id IN ("
+					+ "		 SELECT"
+					+ "		   a._id"
+					+ "		 FROM " + TABLE_REMOTEFILE2ARTICLE + " m,"
+					+ TABLE_ARTICLES + " a"
+					+ "		 WHERE"
+					+ "		   m.remotefileId=new.id AND m.articleId=a._id);"
+					+ "   END");
+			// @formatter:on
+		}
+
+		private void createRemotefilesView(SQLiteDatabase db) {
+			// @formatter:off
+			// represents importance of cached files
+			// the sequence is defined by
+			// 1. the article to which the remote file belongs to is not read
+			// 2. update date of the article to which the remote file belongs to
+			// 3. the file length
+			db.execSQL("DROP VIEW IF EXISTS remotefile_sequence");
+			db.execSQL("CREATE VIEW IF NOT EXISTS remotefile_sequence AS"
+					+ " SELECT r.*, MAX(a.isUnread) AS isUnread,"
+					+ "   MAX(a.updateDate) AS articleUpdateDate,"
+					+ "   MAX(a.isUnread)||MAX(a.updateDate)||(100000000000-r.length)"
+					+ "	 AS ord"
+					+ " FROM " + TABLE_REMOTEFILES + " r,"
+					+ TABLE_REMOTEFILE2ARTICLE + " m,"
+					+ TABLE_ARTICLES + " a"
+					+ " WHERE m.remotefileId=r.id AND m.articleId=a._id"
+					+ " GROUP BY r.id");
+			// @formatter:on
+		}
+
 	}
 
 }

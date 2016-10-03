@@ -57,12 +57,20 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	private static final int SELECTED_VIRTUAL_CATEGORY = 1;
 	private static final int SELECTED_CATEGORY = 2;
 	private static final int SELECTED_LABEL = 3;
-
+	private static final String SELECTED = "SELECTED";
 	private boolean cacherStarted = false;
 	private CategoryUpdater categoryUpdater = null;
-
-	private static final String SELECTED = "SELECTED";
 	private int selectedCategoryId = Integer.MIN_VALUE;
+
+	private static int decideCategorySelection(int selectedId) {
+		if (selectedId < 0 && selectedId >= -4) {
+			return SELECTED_VIRTUAL_CATEGORY;
+		} else if (selectedId < -10) {
+			return SELECTED_LABEL;
+		} else {
+			return SELECTED_CATEGORY;
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle instance) {
@@ -86,11 +94,10 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 				.findFragmentByTag(CategoryListFragment.FRAGMENT);
 
 		if (categoryFragment == null) {
-			FragmentTransaction ft = fm.beginTransaction();
-			categoryFragment = CategoryListFragment.newInstance();
-			ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
+			fm.beginTransaction()
+					.add(R.id.frame_main, CategoryListFragment.newInstance(), CategoryListFragment.FRAGMENT)
+					.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+					.commit();
 		}
 
 		if (Utils.checkIsFirstRun()) {
@@ -153,31 +160,31 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	protected void doRefresh() {
 		super.doRefresh();
 
-		CategoryListFragment categoryFragment = (CategoryListFragment) getFragmentManager()
-				.findFragmentByTag(CategoryListFragment.FRAGMENT);
+		CategoryListFragment categoryFragment = getCategoryListFragment();
 		if (categoryFragment != null) categoryFragment.doRefresh();
 
-		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager()
-				.findFragmentByTag(FeedListFragment.FRAGMENT);
+		FeedListFragment feedFragment = getFeedListFragment();
 		if (feedFragment != null) feedFragment.doRefresh();
 
 		setTitleAndUnread();
 	}
 
-	private void setTitleAndUnread() {
+	public void setTitleAndUnread() {
 		// Title and unread information:
-
-		CategoryListFragment categoryFragment = (CategoryListFragment) getFragmentManager()
-				.findFragmentByTag(CategoryListFragment.FRAGMENT);
-		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager()
-				.findFragmentByTag(FeedListFragment.FRAGMENT);
-
-		if (feedFragment != null && !feedFragment.isEmptyPlaceholder()) {
+		FeedListFragment feedFragment = getFeedListFragment();
+		if (feedFragment != null && feedFragment.isVisible() && !feedFragment.isEmptyPlaceholder()) {
 			setTitle(feedFragment.getTitle());
 			setUnread(feedFragment.getUnread());
-		} else if (categoryFragment != null) {
-			setTitle(categoryFragment.getTitle());
-			setUnread(categoryFragment.getUnread());
+			showBackArrow();
+		} else {
+			CategoryListFragment categoryFragment = getCategoryListFragment();
+			if (categoryFragment != null && categoryFragment.isVisible()) {
+				setTitle(categoryFragment.getTitle());
+				setUnread(categoryFragment.getUnread());
+				hideBackArrow();
+			} else {
+				// we could be in onResume - just leave what's there right now
+			}
 		}
 	}
 
@@ -218,66 +225,6 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			}
 			default:
 				return false;
-		}
-	}
-
-	/**
-	 * This does a full update including all labels, feeds, categories and all articles.
-	 */
-	private class CategoryUpdater extends ActivityUpdater {
-		private static final int DEFAULT_TASK_COUNT = 6;
-
-		private CategoryUpdater(boolean forceUpdate) {
-			super(forceUpdate);
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
-
-			Set<Feed> labels = new LinkedHashSet<>();
-			for (Feed f : DBHelper.getInstance().getFeeds(-2)) {
-				if (f.unread == 0 && onlyUnreadArticles) continue;
-				labels.add(f);
-			}
-
-			taskCount = DEFAULT_TASK_COUNT + labels.size();
-			int progress = 0;
-			publishProgress(progress);
-
-			// Try to synchronize any ids left in TABLE_MARK:
-			Data.getInstance().synchronizeStatus();
-			publishProgress(++progress);
-
-			// Cache articles for all categories
-			Data.getInstance().cacheArticles(false, forceUpdate);
-			publishProgress(++progress);
-
-			// Refresh articles for all labels
-			for (Feed f : labels) {
-				Data.getInstance().updateArticles(f.id, false, false, false, forceUpdate);
-				publishProgress(++progress);
-			}
-
-			// This stuff will be done in background without UI-notification, but the progress-calls will be done
-			// anyway to ensure the UI is refreshed properly.
-			Data.getInstance().updateVirtualCategories(getApplicationContext());
-			publishProgress(++progress);
-
-			Data.getInstance().updateCategories(false);
-			publishProgress(++progress);
-
-			Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
-			publishProgress(++progress);
-
-			Data.getInstance().calculateCounters();
-			Data.getInstance().notifyListeners();
-			publishProgress(++progress);
-
-			// Silently remove articles which belong to feeds which do not exist on the server anymore:
-			Data.getInstance().purgeOrphanedArticles();
-			publishProgress(Integer.MAX_VALUE); // Move progress forward to 100%
-			return null;
 		}
 	}
 
@@ -349,25 +296,90 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 		ft.commit();
 	}
 
-	private static int decideCategorySelection(int selectedId) {
-		if (selectedId < 0 && selectedId >= -4) {
-			return SELECTED_VIRTUAL_CATEGORY;
-		} else if (selectedId < -10) {
-			return SELECTED_LABEL;
-		} else {
-			return SELECTED_CATEGORY;
-		}
-	}
-
 	@Override
 	public void onBackPressed() {
 		selectedCategoryId = Integer.MIN_VALUE;
-		/* Back button automatically finishes the activity since Lollipop so we have to work around by checking the
-		backstack before */
-		if (getFragmentManager().getBackStackEntryCount() > 0) {
-			getFragmentManager().popBackStack();
+		// Back button automatically finishes the activity since Lollipop
+		// so we have to work around by checking the backstack before
+		FragmentManager fm = getFragmentManager();
+		if (fm.getBackStackEntryCount() > 0) {
+			fm.popBackStack();
+			CategoryListFragment fragment = getCategoryListFragment();
+			if (fragment != null) {
+				fragment.doRefresh();
+			}
 		} else {
 			super.onBackPressed();
+		}
+	}
+
+	private FeedListFragment getFeedListFragment() {
+		return (FeedListFragment) getFragmentManager()
+				.findFragmentByTag(FeedListFragment.FRAGMENT);
+	}
+
+	private CategoryListFragment getCategoryListFragment() {
+		return (CategoryListFragment) getFragmentManager()
+				.findFragmentByTag(CategoryListFragment.FRAGMENT);
+	}
+
+	/**
+	 * This does a full update including all labels, feeds, categories and all articles.
+	 */
+	private class CategoryUpdater extends ActivityUpdater {
+		private static final int DEFAULT_TASK_COUNT = 6;
+
+		private CategoryUpdater(boolean forceUpdate) {
+			super(forceUpdate);
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			boolean onlyUnreadArticles = Controller.getInstance().onlyUnread();
+
+			Set<Feed> labels = new LinkedHashSet<>();
+			for (Feed f : DBHelper.getInstance().getFeeds(-2)) {
+				if (f.unread == 0 && onlyUnreadArticles) continue;
+				labels.add(f);
+			}
+
+			taskCount = DEFAULT_TASK_COUNT + labels.size();
+			int progress = 0;
+			publishProgress(progress);
+
+			// Try to synchronize any ids left in TABLE_MARK:
+			Data.getInstance().synchronizeStatus();
+			publishProgress(++progress);
+
+			// Cache articles for all categories
+			Data.getInstance().cacheArticles(false, forceUpdate);
+			publishProgress(++progress);
+
+			// Refresh articles for all labels
+			for (Feed f : labels) {
+				Data.getInstance().updateArticles(f.id, false, false, false, forceUpdate);
+				publishProgress(++progress);
+			}
+
+			// This stuff will be done in background without UI-notification, but the progress-calls will be done
+			// anyway to ensure the UI is refreshed properly.
+			Data.getInstance().updateVirtualCategories(getApplicationContext());
+			publishProgress(++progress);
+
+			Data.getInstance().updateCategories(false);
+			publishProgress(++progress);
+
+			Data.getInstance().updateFeeds(Data.VCAT_ALL, false);
+			publishProgress(++progress);
+
+			Data.getInstance().calculateCounters();
+			Data.getInstance().notifyListeners();
+			publishProgress(++progress);
+
+			// Silently remove articles which belong to feeds which do not exist on the server anymore:
+			Data.getInstance().purgeOrphanedArticles();
+			publishProgress(Integer.MAX_VALUE); // Move progress forward to 100%
+			return null;
 		}
 	}
 

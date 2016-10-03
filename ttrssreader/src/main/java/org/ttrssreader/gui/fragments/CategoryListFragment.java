@@ -17,6 +17,18 @@
 
 package org.ttrssreader.gui.fragments;
 
+import android.app.Activity;
+import android.content.CursorLoader;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -30,27 +42,12 @@ import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
 
-import android.app.Activity;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.net.Uri.Builder;
-import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-
 public class CategoryListFragment extends MainListFragment {
 
+	public static final String FRAGMENT = "CATEGORY_FRAGMENT";
 	@SuppressWarnings("unused")
 	private static final String TAG = CategoryListFragment.class.getSimpleName();
-
 	private static final TYPE THIS_TYPE = TYPE.CATEGORY;
-	public static final String FRAGMENT = "CATEGORY_FRAGMENT";
-
 	private static final int MARK_GROUP = 100;
 	private static final int MARK_READ = MARK_GROUP + 1;
 	private static final int SELECT_ARTICLES = MARK_GROUP + 2;
@@ -153,8 +150,7 @@ public class CategoryListFragment extends MainListFragment {
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		if (id == TYPE_CAT_ID) {
-			Builder builder = ListContentProvider.CONTENT_URI_CAT.buildUpon();
-			categoryUri = builder.build();
+			categoryUri = ListContentProvider.CONTENT_URI_CAT;
 			return new CursorLoader(getActivity(), categoryUri, null, null, null, null);
 		}
 		return null;
@@ -164,6 +160,7 @@ public class CategoryListFragment extends MainListFragment {
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 		if (loader.getId() == TYPE_CAT_ID) adapter.changeCursor(data);
 		super.onLoadFinished(loader, data);
+		((CategoryActivity) getActivity()).setTitleAndUnread();
 	}
 
 	@Override
@@ -174,7 +171,7 @@ public class CategoryListFragment extends MainListFragment {
 	@Override
 	protected void fetchOtherData() {
 		title = "TTRSS-Reader"; // Hardcoded since this does not change and we would need to be attached to an activity
-		// here to be able to read from the ressources.
+		// here to be able to read from the resources.
 		unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
 	}
 
