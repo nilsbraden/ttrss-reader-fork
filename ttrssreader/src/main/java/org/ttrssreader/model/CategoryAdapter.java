@@ -39,20 +39,6 @@ public class CategoryAdapter extends MainAdapter {
 		super(context);
 	}
 
-	@Override
-	public Object getItem(int position) {
-		Category ret = new Category();
-		Cursor cur = getCursor();
-		if (cur == null) return ret;
-
-		if (cur.getCount() >= position) {
-			if (cur.moveToPosition(position)) {
-				return getCategory(cur);
-			}
-		}
-		return ret;
-	}
-
 	private static int getImage(int id, boolean unread) {
 		if (id == Data.VCAT_STAR) {
 			return R.drawable.star48;
@@ -78,6 +64,20 @@ public class CategoryAdapter extends MainAdapter {
 	}
 
 	@Override
+	public Object getItem(int position) {
+		Category ret = new Category();
+		Cursor cur = getCursor();
+		if (cur == null) return ret;
+
+		if (cur.getCount() >= position) {
+			if (cur.moveToPosition(position)) {
+				return getCategory(cur);
+			}
+		}
+		return ret;
+	}
+
+	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		return View.inflate(context, R.layout.item_category, null);
 	}
@@ -85,21 +85,27 @@ public class CategoryAdapter extends MainAdapter {
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
 		super.bindView(view, context, cursor);
-
 		ViewHolder holder = (ViewHolder) view.getTag();
 		if (holder == null) {
 			holder = new ViewHolder();
 			holder.icon = (ImageView) view.findViewById(R.id.icon);
 			holder.title = (TextView) view.findViewById(R.id.title);
+			holder.unread = (TextView) view.findViewById(R.id.item_unread);
 			view.setTag(holder);
 		}
 
 		final Category c = getCategory(cursor);
 
 		holder.icon.setImageResource(getImage(c.id, c.unread > 0));
-		holder.title.setText(formatItemTitle(c.title, c.unread));
-		if (c.unread > 0) holder.title.setTypeface(Typeface.DEFAULT_BOLD);
-		else holder.title.setTypeface(Typeface.DEFAULT);
+		holder.title.setText(c.title);
+		holder.unread.setText(String.valueOf(c.unread));
+		if (c.unread > 0) {
+			holder.title.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.unread.setVisibility(View.VISIBLE);
+		} else {
+			holder.title.setTypeface(Typeface.DEFAULT);
+			holder.unread.setVisibility(View.GONE);
+		}
 	}
 
 	private Category getCategory(Cursor cur) {
@@ -112,6 +118,7 @@ public class CategoryAdapter extends MainAdapter {
 
 	private static class ViewHolder {
 		TextView title;
+		TextView unread;
 		ImageView icon;
 	}
 

@@ -240,7 +240,7 @@
 	</string>
 
 	<!-- BOTTOM NAVIGATION -->
-	<string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false">
+	<string name="BOTTOM_NAVIGATION_TEMPLATE" formatted="false" translatable="false">
 <![CDATA[
 <style type=\"text/css\">
 	.bottom_navigation {
@@ -265,8 +265,8 @@
 	</string>
 
 	<!-- ATTACHMENTS -->
-	<string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]></string>
-	<string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false"><![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]></string>
+	<string name="ATTACHMENT_IMAGES_TEMPLATE" formatted="false" translatable="false"><![CDATA[<items:{it|\\<img src=\"<it>\" />\\<br/>\n}>]]></string>
+	<string name="ATTACHMENT_MEDIA_TEMPLATE" formatted="false" translatable="false"><![CDATA[<items:{it|\\<a href=\"<it>\"><linkText>\\</a>\n}>]]></string>
 
 	<!-- NOTES -->
 	<string name="NOTE_TEMPLATE" formatted="false"><![CDATA[<div id=\"note\">$NOTE$</div>]]></string>

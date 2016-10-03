@@ -38,6 +38,14 @@ public class FeedAdapter extends MainAdapter {
 		super(context);
 	}
 
+	private static Feed getFeed(Cursor cur) {
+		Feed ret = new Feed();
+		ret.id = cur.getInt(0);
+		ret.title = cur.getString(1);
+		ret.unread = cur.getInt(2);
+		return ret;
+	}
+
 	@Override
 	public Object getItem(int position) {
 		Feed ret = new Feed();
@@ -74,27 +82,27 @@ public class FeedAdapter extends MainAdapter {
 			holder = new ViewHolder();
 			holder.icon = (ImageView) view.findViewById(R.id.icon);
 			holder.title = (TextView) view.findViewById(R.id.title);
+			holder.unread = (TextView) view.findViewById(R.id.item_unread);
 			view.setTag(holder);
 		}
 
 		final Feed f = getFeed(cursor);
 
 		holder.icon.setImageResource(getImage(f.unread > 0));
-		holder.title.setText(formatItemTitle(f.title, f.unread));
-		if (f.unread > 0) holder.title.setTypeface(Typeface.DEFAULT_BOLD);
-		else holder.title.setTypeface(Typeface.DEFAULT);
-	}
-
-	private static Feed getFeed(Cursor cur) {
-		Feed ret = new Feed();
-		ret.id = cur.getInt(0);
-		ret.title = cur.getString(1);
-		ret.unread = cur.getInt(2);
-		return ret;
+		holder.title.setText(f.title);
+		holder.unread.setText(String.valueOf(f.unread));
+		if (f.unread > 0) {
+			holder.title.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.unread.setVisibility(View.VISIBLE);
+		} else {
+			holder.title.setTypeface(Typeface.DEFAULT);
+			holder.unread.setVisibility(View.GONE);
+		}
 	}
 
 	private static class ViewHolder {
 		TextView title;
+		TextView unread;
 		ImageView icon;
 	}
 

@@ -52,50 +52,39 @@ import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 public class Utils {
 
-	private static final String TAG = Utils.class.getSimpleName();
-
 	public static final long SECOND = 1000;
 	public static final long MINUTE = 60 * SECOND;
 	public static final long HOUR = 60 * MINUTE;
 	public static final long DAY = 24 * HOUR;
-
 	public static final long KB = 1024;
 	public static final long MB = KB * KB;
-
 	/**
 	 * The maximum number of articles to store.
 	 */
 	public static final int ARTICLE_LIMIT = 5000;
-
 	/**
 	 * Vibrate-Time for vibration when end of list is reached
 	 */
 	public static final long SHORT_VIBRATE = 50;
-
 	/**
 	 * The time after which data will be fetched again from the server if asked for the data
 	 */
 	public static final long UPDATE_TIME = MINUTE * 30;
-
 	/**
 	 * The time after which the DB and other data will be cleaned up again,
 	 */
 	public static final long CLEANUP_TIME = DAY;
-
 	/**
 	 * The Pattern to match image-urls inside HTML img-tags.
 	 */
 	public static final Pattern findImageUrlsPattern = Pattern
 			.compile("<(?:img|video)[^>]+?src=[\"']([^\"']*)", Pattern.CASE_INSENSITIVE);
-
-	private static final int ID_RUNNING = 4564561;
-	private static final int ID_FINISHED = 7897891;
-
 	/**
 	 * Different network states
 	 */
@@ -103,6 +92,48 @@ public class Utils {
 	public static final int NETWORK_MOBILE = 1;
 	public static final int NETWORK_METERED = 2;
 	public static final int NETWORK_WIFI = 3;
+	private static final String TAG = Utils.class.getSimpleName();
+	private static final int ID_RUNNING = 4564561;
+	private static final int ID_FINISHED = 7897891;
+	private static final String REGEX_URL = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+	/**
+	 * Reads a file from my webserver and parses the content. It contains the version code of the latest supported
+	 * version. If the version of the installed app is lower then this the feature "Send mail with stacktrace on error"
+	 * will be disabled to make sure I only receive "new" Bugreports.
+	 */
+	private static AsyncTask<Void, Void, Void> updateVersionTask = new AsyncTask<Void, Void, Void>() {
+		@Override
+		protected Void doInBackground(Void... params) {
+			// Check last appVersionCheckDate
+			long last = Controller.getInstance().appVersionCheckTime();
+			if ((System.currentTimeMillis() - last) < (Utils.HOUR * 4)) return null;
+
+			if (Controller.getInstance().isNoCrashreports()) return null;
+
+			try {
+				URL url = new URL("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
+				HttpURLConnection con = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+				con.connect();
+				int code = con.getResponseCode();
+
+				if (code < 400 || code >= 600) {
+
+					BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
+					String content = br.readLine(); // Just read one line!
+
+					// Only ever read the integer if it matches the regex and is not too long
+					if (content.matches("[0-9]*[\\r\\n]*")) {
+						content = content.replaceAll("[^0-9]*", "");
+						Controller.getInstance().setAppLatestVersion(Integer.parseInt(content));
+					}
+				}
+			} catch (Exception e) {
+				// Empty!
+			}
+
+			return null;
+		}
+	};
 
 	/*
 	 * Check if this is the first run of the app.
@@ -328,45 +359,6 @@ public class Utils {
 		mNotMan.notify(ID_RUNNING, notification);
 	}
 
-	/**
-	 * Reads a file from my webserver and parses the content. It containts the version code of the latest supported
-	 * version. If the version of the installed app is lower then this the feature "Send mail with stacktrace on error"
-	 * will be disabled to make sure I only receive "new" Bugreports.
-	 */
-	private static AsyncTask<Void, Void, Void> updateVersionTask = new AsyncTask<Void, Void, Void>() {
-		@Override
-		protected Void doInBackground(Void... params) {
-			// Check last appVersionCheckDate
-			long last = Controller.getInstance().appVersionCheckTime();
-			if ((System.currentTimeMillis() - last) < (Utils.HOUR * 4)) return null;
-
-			if (Controller.getInstance().isNoCrashreports()) return null;
-
-			try {
-				URL url = new URL("http://nilsbraden.de/android/tt-rss/minSupportedVersion.txt");
-				HttpURLConnection con = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
-				con.connect();
-				int code = con.getResponseCode();
-
-				if (code < 400 || code >= 600) {
-
-					BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-					String content = br.readLine(); // Just read one line!
-
-					// Only ever read the integer if it matches the regex and is not too long
-					if (content.matches("[0-9]*[\\r\\n]*")) {
-						content = content.replaceAll("[^0-9]*", "");
-						Controller.getInstance().setAppLatestVersion(Integer.parseInt(content));
-					}
-				}
-			} catch (Exception e) {
-				// Empty!
-			}
-
-			return null;
-		}
-	};
-
 	@SuppressWarnings("deprecation")
 	public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title,
 	                                             CharSequence text, boolean autoCancel, Intent intent) {
@@ -410,8 +402,6 @@ public class Utils {
 
 		return ret;
 	}
-
-	private static final String REGEX_URL = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
 
 	public static boolean validateURL(String url) {
 		return url != null && url.matches(REGEX_URL);

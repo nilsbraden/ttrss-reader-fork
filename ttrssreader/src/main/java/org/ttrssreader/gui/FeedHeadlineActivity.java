@@ -18,6 +18,15 @@
 package org.ttrssreader.gui;
 
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.Data;
@@ -28,24 +37,13 @@ import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
-
 import java.util.List;
 
 public class FeedHeadlineActivity extends MenuActivity {
 
+	public static final int FEED_NO_ID = 37846914;
 	@SuppressWarnings("unused")
 	private static final String TAG = FeedHeadlineActivity.class.getSimpleName();
-
-	public static final int FEED_NO_ID = 37846914;
-
 	private int categoryId = Integer.MIN_VALUE;
 	private int feedId = Integer.MIN_VALUE;
 	private boolean selectArticlesForCategory = false;
@@ -53,6 +51,29 @@ public class FeedHeadlineActivity extends MenuActivity {
 	private FeedHeadlineUpdater headlineUpdater = null;
 
 	private int articleId = Integer.MIN_VALUE;
+
+	protected static int findNext(List<Integer> list, int current, int direction) {
+		int[] ids = getNextPrevIds(list, current);
+		return (direction < 0) ? ids[0] : ids[1];
+	}
+
+	protected static int[] getNextPrevIds(List<Integer> list, Integer search) {
+		int index = list.indexOf(search);
+		if (index < 0) return new int[]{Integer.MIN_VALUE, Integer.MIN_VALUE};
+
+		int prev = 0 <= (index - 1) ? list.get(index - 1) : Integer.MIN_VALUE;
+		int next = list.size() > (index + 1) ? list.get(index + 1) : Integer.MIN_VALUE;
+		return new int[]{prev, next};
+	}
+
+	private static FragmentTransaction setAnimationForDirection(final FragmentTransaction ft, final int direction) {
+		if (Controller.getInstance().animations()) {
+			if (direction >= 0)
+				ft.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
+			else ft.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
+		}
+		return ft;
+	}
 
 	@Override
 	protected void onCreate(Bundle instance) {
@@ -132,6 +153,12 @@ public class FeedHeadlineActivity extends MenuActivity {
 			setTitle(headlineFragment.getTitle());
 			setUnread(headlineFragment.getUnread());
 		}
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		showBackArrow();
 	}
 
 	@Override
@@ -242,52 +269,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 		displayArticle(newId, direction);
 	}
 
-	protected static int findNext(List<Integer> list, int current, int direction) {
-		int[] ids = getNextPrevIds(list, current);
-		return (direction < 0) ? ids[0] : ids[1];
-	}
-
-	protected static int[] getNextPrevIds(List<Integer> list, Integer search) {
-		int index = list.indexOf(search);
-		if (index < 0) return new int[] {Integer.MIN_VALUE, Integer.MIN_VALUE};
-
-		int prev = 0 <= (index - 1) ? list.get(index - 1) : Integer.MIN_VALUE;
-		int next = list.size() > (index + 1) ? list.get(index + 1) : Integer.MIN_VALUE;
-		return new int[] {prev, next};
-	}
-
-	/**
-	 * Updates all articles from the selected feed.
-	 */
-	private class FeedHeadlineUpdater extends ActivityUpdater {
-		private static final int DEFAULT_TASK_COUNT = 1;
-
-		private FeedHeadlineUpdater(boolean forceUpdate) {
-			super(forceUpdate);
-		}
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			taskCount = DEFAULT_TASK_COUNT;
-
-			boolean displayUnread = Controller.getInstance().onlyUnread();
-			int progress = 0;
-			publishProgress(progress);
-
-			if (selectArticlesForCategory) {
-				Data.getInstance().updateArticles(categoryId, displayUnread, true, false, forceUpdate);
-			} else {
-				Data.getInstance().updateArticles(feedId, displayUnread, false, false, forceUpdate);
-			}
-			publishProgress(++progress);
-
-			Data.getInstance().calculateCounters();
-			Data.getInstance().notifyListeners();
-			publishProgress(Integer.MAX_VALUE); // Move progress forward to 100%
-			return null;
-		}
-	}
-
 	@Override
 	public void itemSelected(MainListFragment source, int selectedId) {
 		switch (source.getType()) {
@@ -362,14 +343,6 @@ public class FeedHeadlineActivity extends MenuActivity {
 		}
 	}
 
-	private static FragmentTransaction setAnimationForDirection(final FragmentTransaction ft, final int direction) {
-		if (Controller.getInstance().animations()) {
-			if (direction >= 0) ft.setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_left);
-			else ft.setCustomAnimations(R.animator.slide_in_left, R.animator.slide_out_right);
-		}
-		return ft;
-	}
-
 	@Override
 	public void onBackPressed() {
 		articleId = Integer.MIN_VALUE;
@@ -388,6 +361,38 @@ public class FeedHeadlineActivity extends MenuActivity {
 
 	public int getFeedId() {
 		return feedId;
+	}
+
+	/**
+	 * Updates all articles from the selected feed.
+	 */
+	private class FeedHeadlineUpdater extends ActivityUpdater {
+		private static final int DEFAULT_TASK_COUNT = 1;
+
+		private FeedHeadlineUpdater(boolean forceUpdate) {
+			super(forceUpdate);
+		}
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			taskCount = DEFAULT_TASK_COUNT;
+
+			boolean displayUnread = Controller.getInstance().onlyUnread();
+			int progress = 0;
+			publishProgress(progress);
+
+			if (selectArticlesForCategory) {
+				Data.getInstance().updateArticles(categoryId, displayUnread, true, false, forceUpdate);
+			} else {
+				Data.getInstance().updateArticles(feedId, displayUnread, false, false, forceUpdate);
+			}
+			publishProgress(++progress);
+
+			Data.getInstance().calculateCounters();
+			Data.getInstance().notifyListeners();
+			publishProgress(Integer.MAX_VALUE); // Move progress forward to 100%
+			return null;
+		}
 	}
 
 }

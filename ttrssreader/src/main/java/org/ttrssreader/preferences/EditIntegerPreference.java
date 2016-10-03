@@ -43,7 +43,7 @@ public class EditIntegerPreference extends EditTextPreference {
 
 	@Override
 	protected boolean persistString(String value) {
-		return !(value == null || value.length() == 0) && persistInt(Integer.valueOf(value));
+		return !(value == null || value.length() == 0) && persistInt(Integer.parseInt(value));
 	}
 
 }

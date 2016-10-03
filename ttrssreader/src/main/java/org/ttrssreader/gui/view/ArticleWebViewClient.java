@@ -242,13 +242,13 @@ public class ArticleWebViewClient extends WebViewClient {
 	public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
 		Controller controller = Controller.getInstance();
 
-		/* Short-circuit ahead of UrlNeedsAuthentication to avoid needless URL building. */
+		/* Short-circuit ahead of urlNeedsAuthentication to avoid needless URL building. */
 		if (!controller.useHttpAuth()) return null;
 
 		try {
 			URL url = new URL(request.getUrl().toString());
 
-			if (!controller.UrlNeedsAuthentication(url)) return null;
+			if (!controller.urlNeedsAuthentication(url)) return null;
 
 			URLConnection c = controller.openConnection(url);
 

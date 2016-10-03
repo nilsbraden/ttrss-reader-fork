@@ -55,8 +55,8 @@ android {
 dependencies {
     compile project(':localeapi')
     compile 'com.google.code.gson:gson:2.4'
-    compile 'commons-io:commons-io:2.4'
-    compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.5'
+    compile 'commons-io:commons-io:2.5'
+    compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
     compile 'org.antlr:ST4:4.0.8'
     compile 'com.google.guava:guava:18.0'
     // Use Material Design everywhere, see here for latest versions: https://developer.android.com/topic/libraries/support-library/features.html#v7
@@ -65,7 +65,7 @@ dependencies {
     // For @Nullable/@NonNull
     compile 'com.intellij:annotations:12.0'
     // Remove any potentially harmful script-tags from incoming content
-    compile 'org.jsoup:jsoup:1.8.1'
+    compile 'org.jsoup:jsoup:1.9.2'
 
     // "Updating Your Security Provider to Protect Against SSL Exploits"
     // https://developer.android.com/training/articles/security-gms-provider.html
