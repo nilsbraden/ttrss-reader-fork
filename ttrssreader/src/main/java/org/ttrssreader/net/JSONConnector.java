@@ -17,6 +17,10 @@
 
 package org.ttrssreader.net;
 
+import android.content.Context;
+import android.util.Base64;
+import android.util.Log;
+
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -35,21 +39,16 @@ import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 
-import android.content.Context;
-import android.util.Base64;
-import android.util.Log;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.SocketException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -142,8 +141,6 @@ public class JSONConnector {
 	protected static final String SID = "sid";
 
 	protected boolean httpAuth = false;
-	protected String httpUsername;
-	protected String httpPassword;
 	protected String base64NameAndPw = null;
 
 	protected String sessionId = null;
@@ -224,29 +221,16 @@ public class JSONConnector {
 	}
 
 	public void init() {
-		httpAuth = Controller.getInstance().useHttpAuth();
-		if (!httpAuth) return;
 
-		if (httpUsername != null) return;
-		if (httpPassword != null) return;
-
-		// Refresh data
-		httpUsername = Controller.getInstance().httpUsername();
-		httpPassword = Controller.getInstance().httpPassword();
-
-		if (!httpAuth) return;
-
-		try {
-			base64NameAndPw = Base64
-					.encodeToString((httpUsername + ":" + httpPassword).getBytes("UTF-8"), Base64.NO_WRAP);
-		} catch (UnsupportedEncodingException e) {
-			base64NameAndPw = null;
+		if (Controller.getInstance().useHttpAuth()) {
+			this.httpAuth = true;
+			byte[] credentials = (Controller.getInstance().httpUsername() + ":" + Controller.getInstance().httpPassword()).getBytes(StandardCharsets.UTF_8);
+			this.base64NameAndPw = Base64.encodeToString(credentials, Base64.NO_WRAP);
+		} else {
+			this.httpAuth = false;
+			this.base64NameAndPw = null;
 		}
-		Authenticator.setDefault(new Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(httpUsername, httpPassword.toCharArray());
-			}
-		});
+
 	}
 
 	protected void logRequest(final JSONObject json) throws JSONException {
@@ -451,6 +435,22 @@ public class JSONConnector {
 	}
 
 	/**
+	 * At this time, we can only offer a best guess: if http authentication is on, and
+	 * the user has no tt-rss username and password, then it's likely.
+	 * In the future, it may be a better option to have an explicit setting for this.
+	 * The problem with that is that many people may not know what single-user mode is,
+	 * as it can only be set in server config files.
+	 *
+	 * @return true if the configured tt-rss instance is configured for single user
+	 *         (ie. no username, no password, no user management)
+	 */
+	private boolean isSingleUser() {
+		return httpAuth
+				&& StringSupport.isEmpty(Controller.getInstance().username())
+				&& StringSupport.isEmpty(Controller.getInstance().password());
+	}
+
+	/**
 	 * Tries to login to the ttrss-server with the base64-encoded password.
 	 *
 	 * @return true on success, false otherwise
@@ -462,37 +462,35 @@ public class JSONConnector {
 		if (sessionId != null && !lastError.equals(NOT_LOGGED_IN)) return true;
 
 		synchronized (lock) {
-			try {
-				if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
-					return true; // Login done while we were waiting for the lock
+			if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
+				return true; // Login done while we were waiting for the lock
 
-				Map<String, String> params = new HashMap<>();
-				params.put(PARAM_OP, VALUE_LOGIN);
+			Map<String, String> params = new HashMap<>();
+			params.put(PARAM_OP, VALUE_LOGIN);
+
+			if (!isSingleUser()) {
 				params.put(PARAM_USER, Controller.getInstance().username());
-				params.put(PARAM_PW,
-						Base64.encodeToString(Controller.getInstance().password().getBytes("UTF-8"), Base64.NO_WRAP));
+				String pass = Base64.encodeToString(Controller.getInstance().password().getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+				params.put(PARAM_PW, pass);
+			}
 
-				try {
-					sessionId = readResult(params, true, false);
-					if (sessionId != null) {
-						Log.d(TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
-						return true;
-					}
-				} catch (IOException e) {
-					if (!hasLastError) {
-						hasLastError = true;
-						lastError = formatException(e);
-					}
+			try {
+				sessionId = readResult(params, true, false);
+				if (sessionId != null) {
+					Log.d(TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+					return true;
 				}
-
+			} catch (IOException e) {
 				if (!hasLastError) {
-					// Login didnt succeed, write message
 					hasLastError = true;
-					lastError = MyApplication.context().getString(R.string.Error_NotLoggedIn);
+					lastError = formatException(e);
 				}
-			} catch (UnsupportedEncodingException e) {
+			}
+
+			if (!hasLastError) {
+				// Login didnt succeed, write message
 				hasLastError = true;
-				lastError = MyApplication.context().getString(R.string.Error_EncodePassword);
+				lastError = MyApplication.context().getString(R.string.Error_NotLoggedIn);
 			}
 			return false;
 		}
