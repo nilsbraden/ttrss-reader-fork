@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -65,6 +66,8 @@ public class DBHelper {
 
 	private static final String DATABASE_NAME = "ttrss.db";
 	private static final int DATABASE_VERSION = 64;
+
+	public static final String[] CATEGORIES_COLUMNS = new String[] {"_id", "title", "unread"};
 
 	public static final String TABLE_CATEGORIES = "categories";
 	public static final String TABLE_FEEDS = "feeds";
@@ -181,18 +184,8 @@ public class DBHelper {
 	private volatile boolean initialized = false;
 
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-	private final Lock r = rwl.readLock();
-	private final Lock w = rwl.writeLock();
-
-	private void readLock(boolean lock) {
-		if (lock) r.lock();
-		else r.unlock();
-	}
-
-	private void writeLock(boolean lock) {
-		if (lock) w.lock();
-		else w.unlock();
-	}
+	private final Lock read = rwl.readLock();
+	private final Lock write = rwl.writeLock();
 
 	private OpenHelper openHelper;
 
@@ -255,7 +248,7 @@ public class DBHelper {
 				// Test if DB is accessible, backup and delete if not
 				if (initialized) {
 					Cursor c = null;
-					readLock(true);
+					read.lock();
 					try {
 						// Try to access the DB
 						c = getOpenHelper().getReadableDatabase()
@@ -273,8 +266,8 @@ public class DBHelper {
 										+ "than once to you please let me know under what circumstances this "
 										+ "happened.");
 					} finally {
-						if (c != null && !c.isClosed()) c.close();
-						readLock(false);
+						close(c);
+						read.unlock();
 					}
 				}
 				return null;
@@ -352,12 +345,12 @@ public class DBHelper {
 	}
 
 	private synchronized void closeDB() {
-		writeLock(true);
+		write.lock();
 		try {
 			getOpenHelper().close();
 			openHelper = null;
 		} finally {
-			writeLock(false);
+			write.unlock();
 		}
 	}
 
@@ -397,6 +390,23 @@ public class DBHelper {
 			db.execSQL(CREATE_TABLE_MARK);
 			db.execSQL(CREATE_TABLE_NOTES);
 			createRemoteFilesSupportDBObjects(db);
+		}
+
+		@Override
+		public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			Log.i(TAG, "Downgrading database from " + oldVersion + " to version " + newVersion);
+			dropAllTables(db);
+			onCreate(db);
+		}
+
+		private void dropAllTables(SQLiteDatabase db) {
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES2LABELS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARK);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILE2ARTICLE);
 		}
 
 		/**
@@ -471,8 +481,8 @@ public class DBHelper {
 				Log.i(TAG, String.format("Upgrading database from %s to 58.", oldVersion));
 
 				// Rename columns "id" to "_id" by modifying the table structure:
-				db.beginTransaction();
 				try {
+					db.beginTransaction();
 					db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
 					db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILE2ARTICLE);
 
@@ -529,8 +539,8 @@ public class DBHelper {
 			if (oldVersion < 64) {
 				Log.i(TAG, String.format("Upgrading database from %s to 64.", oldVersion));
 
-				db.beginTransaction();
 				try {
+					db.beginTransaction();
 					db.execSQL("PRAGMA writable_schema=1;");
 					String sql = "UPDATE SQLITE_MASTER SET SQL = '%s' WHERE NAME = '%s';";
 					db.execSQL(String.format(sql, CREATE_TABLE_MARK, TABLE_MARK));
@@ -546,11 +556,7 @@ public class DBHelper {
 
 			if (!didUpgrade) {
 				Log.i(TAG, "Upgrading database, this will drop tables and recreate.");
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_FEEDS);
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_ARTICLES);
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARK);
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE_REMOTEFILES);
+				dropAllTables(db);
 				onCreate(db);
 			}
 
@@ -696,33 +702,34 @@ public class DBHelper {
 
 	// *******| INSERT |*******************************************************************
 
-	private void insertCategory(int id, String title, int unread) {
-		if (title == null) title = "";
-
-		synchronized (insertCategoryLock) {
-			insertCategory.bindLong(1, id);
-			insertCategory.bindString(2, title);
-			insertCategory.bindLong(3, unread);
-
-			if (!isDBAvailable()) return;
-			insertCategory.execute();
-		}
-	}
-
 	void insertCategories(Set<Category> set) {
-		if (!isDBAvailable() || set == null || set.isEmpty()) return;
+		if (!isDBAvailable() || set == null || set.isEmpty()) {
+			return;
+		}
+
+		List<Category> list = new ArrayList<>(set);
+		Collections.sort(list);
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
-			for (Category c : set) {
-				insertCategory(c.id, c.title, c.unread);
+			db.beginTransaction();
+			for (int i = 0; i < list.size(); i++) {
+				Category c = list.get(i);
+				insertCategory.bindLong(1, c.id);
+				insertCategory.bindString(2, c.title == null ? "" : c.title);
+				insertCategory.bindLong(3, c.unread);
+				if (isDBAvailable()) {
+					insertCategory.execute();
+				}
 			}
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -746,16 +753,19 @@ public class DBHelper {
 		if (!isDBAvailable() || set == null || set.isEmpty()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			for (Feed f : set) {
 				insertFeed(f.id, f.categoryId, f.title, f.url, f.unread);
 			}
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -800,16 +810,19 @@ public class DBHelper {
 		if (!isDBAvailable() || articles == null || articles.isEmpty()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			for (Article a : articles) {
 				insertArticleIntern(a);
 			}
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -838,11 +851,11 @@ public class DBHelper {
 			String[] args = new String[]{articleId + "", label.id + ""};
 
 			SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-			writeLock(true);
+			write.lock();
 			try {
 				db.delete(TABLE_ARTICLES2LABELS, "articleId=? AND labelId=?", args);
 			} finally {
-				writeLock(false);
+				write.unlock();
 			}
 		}
 	}
@@ -950,7 +963,7 @@ public class DBHelper {
 
 		Cursor c = null;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
+		read.lock();
 		try {
 			// select id from articles where categoryId in (...)
 			c = db.query(TABLE_ARTICLES, new String[]{"_id"}, where.toString(), null, null, null, null);
@@ -964,8 +977,8 @@ public class DBHelper {
 			}
 
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 
 		if (ret != null && !ret.isEmpty()) {
@@ -987,16 +1000,19 @@ public class DBHelper {
 
 		if (idList != null && !idList.isEmpty()) {
 			SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-			writeLock(true);
-			db.beginTransaction();
+			write.lock();
 			try {
+				db.beginTransaction();
 				for (String ids : StringSupport.convertListToString(idList, 400)) {
 					markArticles(ids, mark, "" + state);
 				}
 				db.setTransactionSuccessful();
 			} finally {
-				db.endTransaction();
-				writeLock(false);
+				try {
+					db.endTransaction();
+				} finally {
+					write.unlock();
+				}
 			}
 		}
 	}
@@ -1012,14 +1028,17 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			markArticles("" + id, mark, "" + state);
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -1033,14 +1052,17 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			markArticles("" + id, "note", note);
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -1060,15 +1082,18 @@ public class DBHelper {
 		cv.put(mark, state);
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
+		write.lock();
 		try {
 			db.beginTransaction();
 			ret = db.update(TABLE_ARTICLES, cv, "_id IN (" + idList + ") AND ? != ?",
 					new String[]{mark, String.valueOf(state)});
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 
 		return ret;
@@ -1078,9 +1103,9 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			for (Integer id : ids) {
 				// First update, then insert. If row exists it gets updated and second call ignores it, else the second
 				// call inserts it.
@@ -1090,8 +1115,11 @@ public class DBHelper {
 			}
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -1101,9 +1129,9 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			for (Integer id : ids.keySet()) {
 				String note = ids.get(id);
 				if (note == null) continue;
@@ -1115,8 +1143,11 @@ public class DBHelper {
 			}
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -1130,14 +1161,14 @@ public class DBHelper {
 		long time = System.currentTimeMillis();
 		int total = 0;
 
-		writeLock(true);
+		write.lock();
 		try {
 			countResetFeedsAndCategories();
 			total += countFeedsWithUnread();
 			countCategoriesWithUnread();
 			countSpecialCategories(total);
 		} finally {
-			writeLock(false);
+			write.unlock();
 		}
 
 		Log.i(TAG, String.format("Recalculated counters, total unread: %s (took %sms)", total,
@@ -1149,8 +1180,8 @@ public class DBHelper {
 	 */
 	private void countResetFeedsAndCategories() {
 		final SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		db.beginTransaction();
 		try {
+			db.beginTransaction();
 			final ContentValues cv = new ContentValues(1);
 			cv.put(COL_UNREAD, 0);
 			db.update(TABLE_FEEDS, cv, null, null);
@@ -1170,8 +1201,8 @@ public class DBHelper {
 		int total = 0;
 		Cursor c = null;
 		final SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		db.beginTransaction();
 		try {
+			db.beginTransaction();
 			final ContentValues cv = new ContentValues(1);
 			c = db.query(TABLE_ARTICLES, new String[]{"feedId", "count(*)"}, "isUnread>0", null, "feedId", null, null,
 					null);
@@ -1199,8 +1230,8 @@ public class DBHelper {
 	private void countCategoriesWithUnread() {
 		Cursor c = null;
 		final SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		db.beginTransaction();
 		try {
+			db.beginTransaction();
 			final ContentValues cv = new ContentValues(1);
 			c = db.query(TABLE_FEEDS, new String[]{"categoryId", "sum(unread)"}, "categoryId>=0", null, "categoryId",
 					null, null, null);
@@ -1215,7 +1246,7 @@ public class DBHelper {
 			}
 			db.setTransactionSuccessful();
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
+			close(c);
 			db.endTransaction();
 		}
 	}
@@ -1225,8 +1256,8 @@ public class DBHelper {
 	 */
 	private void countSpecialCategories(final int total) {
 		final SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		db.beginTransaction();
 		try {
+			db.beginTransaction();
 			final ContentValues cv = new ContentValues(1);
 			cv.put(COL_UNREAD, total);
 			db.update(TABLE_CATEGORIES, cv, "_id=" + Data.VCAT_ALL, null);
@@ -1260,11 +1291,11 @@ public class DBHelper {
 		else cv.put("cachedImages", filesCount);
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
+		write.lock();
 		try {
 			db.update(TABLE_ARTICLES, cv, "_id=?", new String[]{String.valueOf(id)});
 		} finally {
-			writeLock(false);
+			write.unlock();
 		}
 	}
 
@@ -1275,11 +1306,11 @@ public class DBHelper {
 		if (!withVirtualCategories) wherePart = "_id > 0";
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
+		write.lock();
 		try {
 			db.delete(TABLE_CATEGORIES, wherePart, null);
 		} finally {
-			writeLock(false);
+			write.unlock();
 		}
 	}
 
@@ -1290,11 +1321,11 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
+		write.lock();
 		try {
 			db.delete(TABLE_FEEDS, null, null);
 		} finally {
-			writeLock(false);
+			write.unlock();
 		}
 	}
 
@@ -1341,9 +1372,9 @@ public class DBHelper {
 		// @formatter:on
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			// first, delete article referencies from linking table to preserve foreign key constraint on the next step
 			db.delete(TABLE_REMOTEFILE2ARTICLE, query.toString(), whereArgs);
 
@@ -1351,8 +1382,11 @@ public class DBHelper {
 			purgeLabels();
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 
 		return deletedCount;
@@ -1403,12 +1437,12 @@ public class DBHelper {
 		// @formatter:on
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
+		write.lock();
 		try {
 			db.delete(TABLE_ARTICLES2LABELS, "articleId IN(" + idsArticles + ")", null);
 			db.delete(TABLE_ARTICLES2LABELS, "labelId IN(" + idsFeeds + ")", null);
 		} finally {
-			writeLock(false);
+			write.unlock();
 		}
 	}
 
@@ -1420,14 +1454,14 @@ public class DBHelper {
 		cv.put(vcat, 0);
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
+		write.lock();
 		try {
 			int count = db.update(TABLE_ARTICLES, cv, vcat + ">0 AND _id>" + minId + " AND _id NOT IN (" + idList +
 					")", null);
 			long timeDiff = (System.currentTimeMillis() - time);
 			Log.d(TAG, String.format("Marked %s articles %s=0 (%s ms)", count, vcat, timeDiff));
 		} finally {
-			writeLock(false);
+			write.unlock();
 		}
 	}
 
@@ -1438,14 +1472,14 @@ public class DBHelper {
 		if (!isDBAvailable()) return null;
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_ARTICLES, null, "_id=?", new String[]{id + ""}, null, null, null, null);
 			if (c.moveToFirst()) ret = handleArticleCursor(c);
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 
 		return ret;
@@ -1465,8 +1499,8 @@ public class DBHelper {
 		// @formatter:on
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.rawQuery(sql, null);
 			Set<Label> ret = new HashSet<>(c.getCount());
@@ -1480,8 +1514,8 @@ public class DBHelper {
 			return ret;
 
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 	}
 
@@ -1490,14 +1524,14 @@ public class DBHelper {
 		if (!isDBAvailable()) return ret;
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_FEEDS, null, "_id=?", new String[]{id + ""}, null, null, null, null);
 			if (c.moveToFirst()) ret = handleFeedCursor(c);
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 
 		return ret;
@@ -1508,17 +1542,87 @@ public class DBHelper {
 		if (!isDBAvailable()) return ret;
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_CATEGORIES, null, "_id=?", new String[]{id + ""}, null, null, null, null);
 			if (c.moveToFirst()) ret = handleCategoryCursor(c);
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 
 		return ret;
+	}
+
+	/**
+	 * Retrieves all rows in the categories table
+	 *
+	 * @param includeVirtual include virtual categories (eg. starred, published, ...)
+	 * @param includeRead include categories that have 0 unread articles
+	 * @return a List with all categories in the database, never {@code null}
+	 */
+	public List<Category> getCategories(boolean includeVirtual, boolean includeRead) {
+		if (!isDBAvailable()) {
+			return Collections.emptyList();
+		}
+		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
+		Cursor c = null;
+		read.lock();
+		try {
+			String selection;
+			if (includeVirtual) {
+				selection = includeRead ? null : " _id < 0 or unread > 0 ";
+			} else {
+				selection = includeRead ? " _id > -1 " : " _id > -1 and unread > 0 ";
+			}
+
+			c = db.query(TABLE_CATEGORIES, CATEGORIES_COLUMNS, selection, null, null, null, null, null);
+
+			List<Category> categories = new ArrayList<>(c.getCount());
+			while (c.moveToNext()) {
+				categories.add(handleCategoryCursor(c));
+			}
+			return categories;
+		} catch (SQLException e) {
+			Log.e(TAG, "getCategories()", e);
+			return Collections.emptyList();
+		} finally {
+			close(c);
+			read.unlock();
+		}
+	}
+
+	/**
+	 * Retrieves all labels as Category instance
+	 *
+	 * @return a List with all labels in the database, never {@code null}
+	 */
+	public List<Category> getLabelsAsCategories(boolean includeRead) {
+		if (!isDBAvailable()) {
+			return Collections.emptyList();
+		}
+		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
+		Cursor c = null;
+		read.lock();
+		try {
+			if (includeRead) {
+				c = db.query(TABLE_FEEDS, CATEGORIES_COLUMNS, " _id < -10 ", null, null, null, null, null);
+			} else {
+				c = db.query(TABLE_FEEDS, CATEGORIES_COLUMNS, " _id < -10 and unread > 0", null, null, null, null, null);
+			}
+			List<Category> categories = new ArrayList<>(c.getCount());
+			while (c.moveToNext()) {
+				categories.add(handleCategoryCursor(c));
+			}
+			return categories;
+		} catch (SQLException e) {
+			Log.e(TAG, "getCategories()", e);
+			return Collections.emptyList();
+		} finally {
+			close(c);
+			read.unlock();
+		}
 	}
 
 	/**
@@ -1535,7 +1639,7 @@ public class DBHelper {
 
 		Cursor c = null;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
+		read.lock();
 		try {
 			c = db.query(TABLE_ARTICLES, new String[]{"_id", "updateDate"}, selection, null, null, null, null);
 			ret = new HashMap<>(c.getCount());
@@ -1543,8 +1647,8 @@ public class DBHelper {
 				ret.put(c.getInt(0), c.getLong(1));
 			}
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 		return ret;
 	}
@@ -1577,8 +1681,8 @@ public class DBHelper {
 		}
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_FEEDS, null, where, null, null, null, "UPPER(title) ASC");
 			Set<Feed> ret = new LinkedHashSet<>(c.getCount());
@@ -1587,8 +1691,8 @@ public class DBHelper {
 			}
 			return ret;
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 	}
 
@@ -1596,8 +1700,8 @@ public class DBHelper {
 		if (!isDBAvailable()) return new LinkedHashSet<>();
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_CATEGORIES, null, "_id>=0", null, null, null, "title ASC");
 			Set<Category> ret = new LinkedHashSet<>(c.getCount());
@@ -1606,8 +1710,8 @@ public class DBHelper {
 			}
 			return ret;
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 	}
 
@@ -1661,16 +1765,16 @@ public class DBHelper {
 		// Read count for given feed
 		int ret = 0;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_ARTICLES, new String[]{"count(*)"}, selection.toString(), selectionArgs, null, null,
 					null, null);
 
 			if (c.moveToFirst()) ret = c.getInt(0);
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 
 		return ret;
@@ -1681,8 +1785,8 @@ public class DBHelper {
 		if (!isDBAvailable()) return new LinkedHashSet<>();
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_MARK, new String[]{"id"}, mark + "=" + status, null, null, null, null, null);
 			Set<Integer> ret = new LinkedHashSet<>(c.getCount());
@@ -1691,8 +1795,8 @@ public class DBHelper {
 			}
 			return ret;
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 	}
 
@@ -1700,8 +1804,8 @@ public class DBHelper {
 		if (!isDBAvailable()) return new HashMap<>();
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_NOTES, new String[]{"_id", COL_NOTE}, null, null, null, null, null, null);
 			Map<Integer, String> ret = new HashMap<>(c.getCount());
@@ -1710,8 +1814,8 @@ public class DBHelper {
 			}
 			return ret;
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 	}
 
@@ -1719,9 +1823,9 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			ContentValues cv = new ContentValues(1);
 			for (String idList : StringSupport.convertListToString(ids, 1000)) {
 				cv.putNull(mark);
@@ -1730,8 +1834,11 @@ public class DBHelper {
 			db.delete(TABLE_MARK, "isUnread IS null AND isStarred IS null AND isPublished IS null", null);
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -1745,9 +1852,9 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			ContentValues cv = new ContentValues(1);
 			for (String idList : StringSupport.convertListToString(ids.keySet(), 1000)) {
 				cv.putNull(COL_NOTE);
@@ -1756,8 +1863,11 @@ public class DBHelper {
 			db.delete(TABLE_NOTES, COL_NOTE + " IS null", null);
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -1848,8 +1958,8 @@ public class DBHelper {
 		if (!isDBAvailable()) return null;
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_ARTICLES, new String[]{"_id", "content", "attachments"},
 					"cachedImages IS NULL AND isUnread>0", null, null, null, null, "1000");
@@ -1864,8 +1974,8 @@ public class DBHelper {
 			}
 			return ret;
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 	}
 
@@ -1887,16 +1997,19 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			for (Integer articleId : map.keySet()) {
 				insertArticleFiles(articleId, map.get(articleId));
 			}
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -1911,8 +2024,8 @@ public class DBHelper {
 
 		RemoteFile rf = null;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_REMOTEFILES, null, "url=?", new String[]{url}, null, null, null, null);
 			if (c.moveToFirst()) rf = handleRemoteFileCursor(c);
@@ -1920,8 +2033,8 @@ public class DBHelper {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 		return rf;
 	}
@@ -1937,8 +2050,8 @@ public class DBHelper {
 
 		ArrayList<RemoteFile> rfs = null;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			// @formatter:off
 			c = db.rawQuery(" SELECT r.*"
@@ -1961,8 +2074,8 @@ public class DBHelper {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 		return rfs;
 	}
@@ -2050,8 +2163,8 @@ public class DBHelper {
 		// @formatter:on
 
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			long time = System.currentTimeMillis();
 			c = db.rawQuery(query.toString(), queryArgs);
@@ -2067,8 +2180,8 @@ public class DBHelper {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 		return rfs;
 	}
@@ -2082,9 +2195,9 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 
 			for (String url : remoteFiles.keySet()) {
 				ContentValues cv = new ContentValues(2);
@@ -2101,8 +2214,11 @@ public class DBHelper {
 
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -2115,9 +2231,9 @@ public class DBHelper {
 		if (!isDBAvailable()) return;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
-		db.beginTransaction();
+		write.lock();
 		try {
+			db.beginTransaction();
 			ContentValues cv = new ContentValues(1);
 			cv.put("cached", 0);
 			for (String ids : StringSupport.convertListToString(rfIds, 1000)) {
@@ -2125,8 +2241,11 @@ public class DBHelper {
 			}
 			db.setTransactionSuccessful();
 		} finally {
-			db.endTransaction();
-			writeLock(false);
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
 		}
 	}
 
@@ -2140,14 +2259,14 @@ public class DBHelper {
 
 		long ret = 0;
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query(TABLE_REMOTEFILES, new String[]{"SUM(length)"}, "cached=1", null, null, null, null);
 			if (c.moveToFirst()) ret = c.getLong(0);
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 		return ret;
 	}
@@ -2164,8 +2283,8 @@ public class DBHelper {
 
 		ArrayList<RemoteFile> rfs = new ArrayList<>();
 		SQLiteDatabase db = getOpenHelper().getReadableDatabase();
-		readLock(true);
 		Cursor c = null;
+		read.lock();
 		try {
 			c = db.query("remotefile_sequence", null, "cached = 1", null, null, null, "ord");
 
@@ -2176,8 +2295,8 @@ public class DBHelper {
 				rfs.add(rf);
 			}
 		} finally {
-			if (c != null && !c.isClosed()) c.close();
-			readLock(false);
+			close(c);
+			read.unlock();
 		}
 		return rfs;
 	}
@@ -2194,13 +2313,13 @@ public class DBHelper {
 		int deletedCount = 0;
 		if (idList != null && !idList.isEmpty()) {
 			SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-			writeLock(true);
+			write.lock();
 			try {
 				for (String ids : StringSupport.convertListToString(idList, 400)) {
 					deletedCount += db.delete(TABLE_REMOTEFILES, "id IN (" + ids + ")", null);
 				}
 			} finally {
-				writeLock(false);
+				write.unlock();
 			}
 		}
 		return deletedCount;
@@ -2215,7 +2334,7 @@ public class DBHelper {
 		if (!isDBAvailable()) return 0;
 
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
-		writeLock(true);
+		write.lock();
 		try {
 			db.delete(TABLE_REMOTEFILE2ARTICLE, null, null);
 			int count = db.delete(TABLE_REMOTEFILES, null, null);
@@ -2226,7 +2345,22 @@ public class DBHelper {
 
 			return count;
 		} finally {
-			writeLock(false);
+			write.unlock();
+		}
+	}
+
+	/**
+	 * Closes cursor quietly, logging any exceptions
+	 *
+	 * @param cursor a cursor, not {@code null}
+	 */
+	public static void close(Cursor cursor) {
+		try {
+			if (cursor != null && !cursor.isClosed()) {
+				cursor.close();
+			}
+		} catch (Exception e) {
+			Log.w(TAG, "close(cursor)", e);
 		}
 	}
 

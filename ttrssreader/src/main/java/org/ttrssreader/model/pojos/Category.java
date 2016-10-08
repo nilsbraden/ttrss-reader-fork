@@ -18,6 +18,7 @@
 package org.ttrssreader.model.pojos;
 
 
+import java.util.Comparator;
 
 public class Category implements Comparable<Category> {
 
@@ -32,6 +33,13 @@ public class Category implements Comparable<Category> {
 		this.id = id;
 		this.title = title;
 		this.unread = unread;
+	}
+
+	/**
+	 * @return true if this is a virtual category (eg. starred, fresh, published)
+	 */
+	public boolean isVirtualCategory() {
+		return id < 1 && id > -11;
 	}
 
 	@Override
@@ -58,6 +66,37 @@ public class Category implements Comparable<Category> {
 	@Override
 	public int hashCode() {
 		return id + "".hashCode();
+	}
+
+	public static class CategoryComparator implements Comparator<Category> {
+
+		private final boolean inverted;
+
+		public CategoryComparator(boolean inverted) {
+			this.inverted = inverted;
+		}
+
+		@Override
+		public int compare(Category left, Category right) {
+			// special categories are sorted before all others
+			// sort for these is by id
+			if (left.isVirtualCategory()) {
+				if (right.isVirtualCategory()) {
+					return Integer.compare(left.id, right.id);
+				}
+				return -1;
+			}
+			if (right.isVirtualCategory()) {
+				return 1;
+			}
+			// neither are special category -> sort by title
+			if (inverted) {
+				return right.title.compareToIgnoreCase(left.title);
+			} else {
+				return left.title.compareToIgnoreCase(right.title);
+			}
+		}
+
 	}
 
 }
