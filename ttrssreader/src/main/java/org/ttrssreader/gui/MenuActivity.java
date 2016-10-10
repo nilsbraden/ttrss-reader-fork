@@ -205,14 +205,6 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
-			if (getSupportActionBar() != null)
-				getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-			ActionBar ab = getSupportActionBar();
-			if (ab != null) {
-				ab.setDisplayHomeAsUpEnabled(true);
-				ab.setDisplayShowTitleEnabled(false);
-			}
 
 			header_unread = (TextView) findViewById(R.id.head_unread);
 			header_title = (TextView) findViewById(R.id.head_title);
@@ -220,6 +212,27 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 			progressbar = (ProgressBar) findViewById(R.id.progressbar);
 			progressspinner = (ProgressBar) findViewById(R.id.progressspinner);
+			hideBackArrow();
+
+		}
+	}
+
+	protected void showBackArrow() {
+		ActionBar ab = getSupportActionBar();
+		if (ab != null) {
+			ab.setDisplayHomeAsUpEnabled(true);
+			ab.setDisplayShowTitleEnabled(false);
+			header_title.setPadding(0, 0, 0, 0);
+
+		}
+	}
+
+	protected void hideBackArrow() {
+		ActionBar ab = getSupportActionBar();
+		if (ab != null) {
+			ab.setDisplayHomeAsUpEnabled(false);
+			ab.setDisplayShowTitleEnabled(false);
+			header_title.setPadding(48, 0, 0, 0);
 		}
 	}
 
@@ -231,7 +244,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 	public void setUnread(int unread) {
 		header_unread.setVisibility(unread > 0 ? View.VISIBLE : View.GONE);
-		header_unread.setText("( " + unread + " )");
+		header_unread.setText(String.valueOf(unread));
 	}
 
 	@Override

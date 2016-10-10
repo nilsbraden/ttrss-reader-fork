@@ -87,10 +87,10 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 	private WifiManager wifiManager;
 
-	private JSONConnector ttrssConnector;
+	private volatile JSONConnector ttrssConnector;
 	private static final Object lockConnector = new Object();
 
-	private ImageCache imageCache = null;
+	private volatile ImageCache imageCache = null;
 	private boolean imageCacheLoaded = false;
 
 	private boolean isHeadless = false;
@@ -454,7 +454,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		else return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
 	}
 
-	public boolean UrlNeedsAuthentication(URL url) {
+	public boolean urlNeedsAuthentication(URL url) {
 		if (!this.useHttpAuth()) return false;
 
 		try {
@@ -469,7 +469,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	public URLConnection openConnection(URL url) throws IOException {
 		URLConnection c = url.openConnection();
 
-		if (this.UrlNeedsAuthentication(url)) {
+		if (this.urlNeedsAuthentication(url)) {
 			String auth = this.httpUsername() + ":" + this.httpPassword();
 			try {
 				String encoded = Base64.encodeToString(auth.getBytes("UTF-8"), Base64.NO_WRAP);
@@ -486,19 +486,16 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	public JSONConnector getConnector() {
 		// Check if connector needs to be reinitialized because of per-wifi-settings:
 		// Initialized inside initializeController();
-		if (ttrssConnector != null) {
-			return ttrssConnector;
-		} else {
+		if (ttrssConnector == null) {
 			synchronized (lockConnector) {
 				if (ttrssConnector == null) {
-					ttrssConnector = new JSONConnector();
+					JSONConnector c = new JSONConnector();
+					c.init();
+					ttrssConnector = c;
 				}
 			}
-			if (ttrssConnector != null) {
-				ttrssConnector.init();
-				return ttrssConnector;
-			} else throw new RuntimeException("Connector could not be initialized.");
 		}
+		return ttrssConnector;
 	}
 
 	public ImageCache getImageCache() {
