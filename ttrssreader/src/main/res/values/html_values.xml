@@ -274,9 +274,9 @@
 	<!-- EVERYTHING ELSE -->
 	<string name="ALIGN_JUSTIFY">justify</string>
 	<string name="ALIGN_LEFT">left</string>
-	<string name="HTML_THEME_DARK">darkTheme</string>
-	<string name="HTML_THEME_LIGHT">lightTheme</string>
-	<string name="HTML_THEME_BLACK">blackTheme</string>
-	<string name="HTML_THEME_WHITE">whiteTheme</string>
+	<string name="HTML_THEME_DARK" translatable="false">darkTheme</string>
+	<string name="HTML_THEME_LIGHT" translatable="false">lightTheme</string>
+	<string name="HTML_THEME_BLACK" translatable="false">blackTheme</string>
+	<string name="HTML_THEME_WHITE" translatable="false">whiteTheme</string>
 
 </resources>
