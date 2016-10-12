@@ -16,17 +16,13 @@
  */
 
 package org.ttrssreader.model;
-
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Category;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +35,7 @@ class CategoryCursorHelper extends MainCursorHelper {
 	@Override
 	public Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery) {
 
-		boolean includeRead = Controller.getInstance().onlyUnread() && !overrideDisplayUnread;
+		boolean includeRead = !Controller.getInstance().onlyUnread() && !overrideDisplayUnread;
 		boolean inverted = Controller.getInstance().invertSortFeedscats();
 
 		List<Category> list = DBHelper.getInstance().getCategories(Controller.getInstance().showVirtual(), includeRead);
@@ -50,7 +46,7 @@ class CategoryCursorHelper extends MainCursorHelper {
 		Collections.sort(list, new Category.CategoryComparator(inverted));
 
 		for (Category category : list) {
-			cursor.addRow(new Object[] {category.id, category.title, category.unread});
+			cursor.addRow(new Object[]{category.id, category.title, category.unread});
 		}
 
 		return cursor;
