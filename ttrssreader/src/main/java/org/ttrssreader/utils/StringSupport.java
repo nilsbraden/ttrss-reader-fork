@@ -65,4 +65,8 @@ public class StringSupport {
 		return ret;
 	}
 
+	public static boolean isEmpty(String string) {
+		return string == null || string.isEmpty();
+	}
+
 }
