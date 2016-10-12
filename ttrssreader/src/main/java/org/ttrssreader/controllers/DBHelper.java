@@ -1132,13 +1132,11 @@ public class DBHelper {
 		write.lock();
 		try {
 			db.beginTransaction();
-			for (Integer id : ids.keySet()) {
-				String note = ids.get(id);
-				if (note == null) continue;
-
+			for (Map.Entry<Integer, String> entry : ids.entrySet()) {
+				if (entry.getValue() == null) continue;
 				ContentValues cv = new ContentValues(2);
-				cv.put("_id", id);
-				cv.put(COL_NOTE, note);
+				cv.put("_id", entry.getKey());
+				cv.put(COL_NOTE, entry.getValue());
 				db.insert(TABLE_NOTES, null, cv);
 			}
 			db.setTransactionSuccessful();
@@ -2000,8 +1998,8 @@ public class DBHelper {
 		write.lock();
 		try {
 			db.beginTransaction();
-			for (Integer articleId : map.keySet()) {
-				insertArticleFiles(articleId, map.get(articleId));
+			for (Map.Entry<Integer, List<String>> entry : map.entrySet()) {
+				insertArticleFiles(entry.getKey(), entry.getValue());
 			}
 			db.setTransactionSuccessful();
 		} finally {

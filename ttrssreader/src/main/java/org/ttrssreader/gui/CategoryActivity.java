@@ -86,11 +86,10 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 				.findFragmentByTag(CategoryListFragment.FRAGMENT);
 
 		if (categoryFragment == null) {
-			FragmentTransaction ft = fm.beginTransaction();
-			categoryFragment = CategoryListFragment.newInstance();
-			ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
+			fm.beginTransaction()
+					.add(R.id.frame_main, CategoryListFragment.newInstance(), CategoryListFragment.FRAGMENT)
+					.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+					.commit();
 		}
 
 		if (Utils.checkIsFirstRun()) {
@@ -153,31 +152,31 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	protected void doRefresh() {
 		super.doRefresh();
 
-		CategoryListFragment categoryFragment = (CategoryListFragment) getFragmentManager()
-				.findFragmentByTag(CategoryListFragment.FRAGMENT);
+		CategoryListFragment categoryFragment = getCategoryListFragment();
 		if (categoryFragment != null) categoryFragment.doRefresh();
 
-		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager()
-				.findFragmentByTag(FeedListFragment.FRAGMENT);
+		FeedListFragment feedFragment = getFeedListFragment();
 		if (feedFragment != null) feedFragment.doRefresh();
 
 		setTitleAndUnread();
 	}
 
-	private void setTitleAndUnread() {
+	public void setTitleAndUnread() {
 		// Title and unread information:
-
-		CategoryListFragment categoryFragment = (CategoryListFragment) getFragmentManager()
-				.findFragmentByTag(CategoryListFragment.FRAGMENT);
-		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager()
-				.findFragmentByTag(FeedListFragment.FRAGMENT);
-
-		if (feedFragment != null && !feedFragment.isEmptyPlaceholder()) {
+		FeedListFragment feedFragment = getFeedListFragment();
+		if (feedFragment != null && feedFragment.isVisible() && !feedFragment.isEmptyPlaceholder()) {
 			setTitle(feedFragment.getTitle());
 			setUnread(feedFragment.getUnread());
-		} else if (categoryFragment != null) {
-			setTitle(categoryFragment.getTitle());
-			setUnread(categoryFragment.getUnread());
+			showBackArrow();
+		} else {
+			CategoryListFragment categoryFragment = getCategoryListFragment();
+			if (categoryFragment != null && categoryFragment.isVisible()) {
+				setTitle(categoryFragment.getTitle());
+				setUnread(categoryFragment.getUnread());
+				hideBackArrow();
+			} else {
+				// we could be in onResume - just leave what's there right now
+			}
 		}
 	}
 
@@ -362,13 +361,28 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	@Override
 	public void onBackPressed() {
 		selectedCategoryId = Integer.MIN_VALUE;
-		/* Back button automatically finishes the activity since Lollipop so we have to work around by checking the
-		backstack before */
-		if (getFragmentManager().getBackStackEntryCount() > 0) {
-			getFragmentManager().popBackStack();
+		// Back button automatically finishes the activity since Lollipop
+		// so we have to work around by checking the backstack before
+		FragmentManager fm = getFragmentManager();
+		if (fm.getBackStackEntryCount() > 0) {
+			fm.popBackStack();
+			CategoryListFragment fragment = getCategoryListFragment();
+			if (fragment != null) {
+				fragment.doRefresh();
+			}
 		} else {
 			super.onBackPressed();
 		}
+	}
+
+	private FeedListFragment getFeedListFragment() {
+		return (FeedListFragment) getFragmentManager()
+				.findFragmentByTag(FeedListFragment.FRAGMENT);
+	}
+
+	private CategoryListFragment getCategoryListFragment() {
+		return (CategoryListFragment) getFragmentManager()
+				.findFragmentByTag(CategoryListFragment.FRAGMENT);
 	}
 
 }
