@@ -30,27 +30,42 @@
 		<LinearLayout
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:orientation="vertical">
+			android:orientation="horizontal">
 
 			<TextView
 				android:id="@+id/head_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:layout_marginRight="10dp"
+				android:layout_weight="1"
 				android:ellipsize="end"
 				android:maxLines="1"
 				android:textIsSelectable="false"
 				android:textScaleX=".9"
-				android:textSize="19sp"
-				android:textStyle="bold" />
+				android:textSize="18sp"
+				android:textStyle="bold"/>
 
 			<TextView
 				android:id="@+id/head_unread"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:layout_margin="0dp"
+				android:layout_weight="0"
+				android:background="@drawable/unread_count_title"
 				android:ellipsize="end"
+				android:paddingBottom="0dp"
+				android:paddingLeft="2.5dp"
+				android:paddingRight="4dp"
+				android:paddingTop="0dp"
+				android:textAlignment="center"
+				android:textColor="#ffffff"
 				android:textIsSelectable="false"
-				android:textSize="16sp"
-				android:visible="false" />
+				android:textSize="13sp"
+				android:textStyle="bold"
+				android:visible="false"
+				/>
 
 		</LinearLayout>
 

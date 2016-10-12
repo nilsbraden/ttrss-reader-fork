@@ -74,15 +74,22 @@ public class FeedAdapter extends MainAdapter {
 			holder = new ViewHolder();
 			holder.icon = (ImageView) view.findViewById(R.id.icon);
 			holder.title = (TextView) view.findViewById(R.id.title);
+			holder.unread = (TextView) view.findViewById(R.id.item_unread);
 			view.setTag(holder);
 		}
 
 		final Feed f = getFeed(cursor);
 
 		holder.icon.setImageResource(getImage(f.unread > 0));
-		holder.title.setText(formatItemTitle(f.title, f.unread));
-		if (f.unread > 0) holder.title.setTypeface(Typeface.DEFAULT_BOLD);
-		else holder.title.setTypeface(Typeface.DEFAULT);
+		holder.title.setText(f.title);
+		holder.unread.setText(String.valueOf(f.unread));
+		if (f.unread > 0) {
+			holder.title.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.unread.setVisibility(View.VISIBLE);
+		} else {
+			holder.title.setTypeface(Typeface.DEFAULT);
+			holder.unread.setVisibility(View.GONE);
+		}
 	}
 
 	private static Feed getFeed(Cursor cur) {
@@ -95,6 +102,7 @@ public class FeedAdapter extends MainAdapter {
 
 	private static class ViewHolder {
 		TextView title;
+		TextView unread;
 		ImageView icon;
 	}
 

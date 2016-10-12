@@ -135,6 +135,12 @@ public class FeedHeadlineActivity extends MenuActivity {
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		showBackArrow();
+	}
+
+	@Override
 	protected void doUpdate(boolean forceUpdate) {
 		// Only update if no headlineUpdater already running
 		if (headlineUpdater != null) {
