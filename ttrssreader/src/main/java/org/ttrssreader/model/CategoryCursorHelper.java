@@ -19,128 +19,42 @@ package org.ttrssreader.model;
 
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.model.pojos.Category;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+
+import java.util.Collections;
+import java.util.List;
 
 class CategoryCursorHelper extends MainCursorHelper {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = CategoryCursorHelper.class.getSimpleName();
 
-	/*
-	 * This is quite a hack. Since partial-sorting of sql-results is not possible I wasn't able to sort virtual
-	 * categories by id, Labels by title, insert uncategorized feeds there and sort categories by title again.
-	 * No I insert these results one by one in a memory-table in the right order, add an auto-increment-column
-	 * ("sortId INTEGER PRIMARY KEY") and afterwards select everything from this memory-table sorted by sortId.
-	 * Works fine!
-	 */
-	private static final String INSERT = "REPLACE INTO " + MemoryDBOpenHelper.TABLE_NAME
-			+ " (_id, title, unread, sortId) VALUES (?, ?, ?, null)";
-
-	private static final Object LOCK = new Object();
-	private SQLiteDatabase memoryDb;
-	private SQLiteStatement insert;
-
-	CategoryCursorHelper(SQLiteDatabase memoryDb) {
-		super();
-		this.memoryDb = memoryDb;
-		this.insert = memoryDb.compileStatement(INSERT);
-	}
-
 	@Override
 	public Cursor createCursor(SQLiteDatabase db, boolean overrideDisplayUnread, boolean buildSafeQuery) {
-		boolean displayUnread = Controller.getInstance().onlyUnread();
-		boolean invertSortFeedCats = Controller.getInstance().invertSortFeedscats();
 
-		if (overrideDisplayUnread) displayUnread = false;
+		boolean includeRead = Controller.getInstance().onlyUnread() && !overrideDisplayUnread;
+		boolean inverted = Controller.getInstance().invertSortFeedscats();
 
-		Cursor cur;
-		synchronized (LOCK) {
-			memoryDb.delete(MemoryDBOpenHelper.TABLE_NAME, null, null);
+		List<Category> list = DBHelper.getInstance().getCategories(Controller.getInstance().showVirtual(), includeRead);
+		list.addAll(DBHelper.getInstance().getLabelsAsCategories(includeRead));
 
-			StringBuilder query;
-			// Virtual Feeds
-			if (Controller.getInstance().showVirtual()) {
-				query = new StringBuilder();
-				query.append("SELECT _id,title,unread FROM ");
-				query.append(DBHelper.TABLE_CATEGORIES);
-				query.append(" WHERE _id>=-4 AND _id<0 ORDER BY _id");
-				insertValues(db, query.toString());
-			}
+		MatrixCursor cursor = new MatrixCursor(DBHelper.CATEGORIES_COLUMNS, list.size());
 
-			// Labels
-			query = new StringBuilder();
-			query.append("SELECT _id,title,unread FROM ");
-			query.append(DBHelper.TABLE_FEEDS);
-			query.append(" WHERE _id<-10");
-			query.append(displayUnread ? " AND unread>0" : "");
-			query.append(" ORDER BY UPPER(title) ASC");
-			query.append(" LIMIT 500 ");
-			insertValues(db, query.toString());
+		Collections.sort(list, new Category.CategoryComparator(inverted));
 
-			// "Uncategorized Feeds"
-			query = new StringBuilder();
-			query.append("SELECT _id,title,unread FROM ");
-			query.append(DBHelper.TABLE_CATEGORIES);
-			query.append(" WHERE _id=0");
-			insertValues(db, query.toString());
-
-			// Categories
-			query = new StringBuilder();
-			query.append("SELECT _id,title,unread FROM ");
-			query.append(DBHelper.TABLE_CATEGORIES);
-			query.append(" WHERE _id>0");
-			query.append(displayUnread ? " AND unread>0" : "");
-			query.append(" ORDER BY UPPER(title) ");
-			query.append(invertSortFeedCats ? "DESC" : "ASC");
-			query.append(" LIMIT 500 ");
-			insertValues(db, query.toString());
-
-			String[] columns = {"_id", "title", "unread"};
-			cur = memoryDb.query(MemoryDBOpenHelper.TABLE_NAME, columns, null, null, null, null, null, "600");
-		}
-		return cur;
-	}
-
-	private void insertValues(SQLiteDatabase db, String query) {
-		Cursor c = null;
-		try {
-			c = db.rawQuery(query, null);
-			if (c == null) return;
-			if (c.isBeforeFirst() && !c.moveToFirst()) return;
-
-			while (true) {
-				insert.bindLong(1, c.getInt(0)); // id
-				insert.bindString(2, c.getString(1)); // title
-				insert.bindLong(3, c.getInt(2)); // unread
-				insert.executeInsert();
-				if (!c.moveToNext()) break;
-			}
-		} finally {
-			if (c != null && !c.isClosed()) c.close();
-		}
-	}
-
-	static class MemoryDBOpenHelper extends SQLiteOpenHelper {
-		private static final String TABLE_NAME = "categories_memory_db";
-
-		MemoryDBOpenHelper(Context context) {
-			super(context, null, null, 1);
+		for (Category category : list) {
+			cursor.addRow(new Object[] {category.id, category.title, category.unread});
 		}
 
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + TABLE_NAME
-					+ " (_id INTEGER, title TEXT, unread INTEGER, sortId INTEGER PRIMARY KEY)");
-		}
+		return cursor;
 
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		}
 	}
 
 }
