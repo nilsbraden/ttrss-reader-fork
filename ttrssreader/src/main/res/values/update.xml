@@ -18,13 +18,15 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.91
+		<item>Version 1.91.1
 			 * Better display of unread count with badges
 			 * Improvements to toolbar back arrow behavior and unread notes
 			 * Dutch translation (and some changes to English strings)
 			 * Hide uncategorized feeds if hiding read categories and no uncategorized feeds with unread articles
 			 * Add support for single user tt-rss instances
 			 * Bugifx: Fix invisible menu items and image caption dialog (Issue #324)
+			 * Bugfix: Fixed crash described in issue #331
+			 * Bugfix: Fixed NoClassDefFoundError because of old API
 		</item>
         <item>Version 1.90
 			 * Bugifx-release: Fix FC while parsing new output from server api (added field for GUID)
