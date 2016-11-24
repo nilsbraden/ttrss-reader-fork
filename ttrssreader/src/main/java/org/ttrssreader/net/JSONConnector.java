@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.SocketException;
@@ -442,7 +441,7 @@ public class JSONConnector {
 	 * as it can only be set in server config files.
 	 *
 	 * @return true if the configured tt-rss instance is configured for single user
-	 *         (ie. no username, no password, no user management)
+	 * (ie. no username, no password, no user management)
 	 */
 	private boolean isSingleUser() {
 		return httpAuth
@@ -1206,8 +1205,17 @@ public class JSONConnector {
 		return ret;
 	}
 
-	protected static String formatException(Exception e) {
-		return e.getMessage() + (e.getCause() != null ? "(" + e.getCause() + ")" : "");
+	/**
+	 * Formats an exception message and cause, both only if available in the given exception
+	 *
+	 * @param e the exception
+	 * @return a string representing message and cause of the exception
+	 */
+	private static String formatException(Exception e) {
+		if (e == null) return "";
+		String msg = e.getMessage() != null ? "Exception-Message: " + e.getMessage() + " " : "No Exception-Message available. ";
+		String cause = e.getCause() != null ? "Exception-Cause: " + e.getCause() : "No Exception-Cause available.";
+		return msg + cause;
 	}
 
 }
