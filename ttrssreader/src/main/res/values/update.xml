@@ -18,17 +18,25 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.90
+		<item>Version 1.91
+			 * Better display of unread count with badges
+			 * Improvements to toolbar back arrow behavior and unread notes
+			 * Dutch translation (and some changes to English strings)
+			 * Hide uncategorized feeds if hiding read categories and no uncategorized feeds with unread articles
+			 * Add support for single user tt-rss instances
+			 * Bugifx: Fix invisible menu items and image caption dialog (Issue #324)
+		</item>
+        <item>Version 1.90
 			 * Bugifx-release: Fix FC while parsing new output from server api (added field for GUID)
 		</item>
-		<item>Version 1.89
+        <item>Version 1.89
 			 * Fixed errors when ImageCache couldn\'t be accessed
 			 * Fixed some problems with external storage access
 			 * Sort list of wifi networks by SSID in Preferences-per-Wifi dialog
 			 * Fixed crash when accessing NetworkInfo
 			 * Improved reuse of existing views
 		</item>
-		<item>Version 1.88
+        <item>Version 1.88
 			 * Update french translation
 			 * Notes: Show notes within articles
 			 * Notes: Added notes are also internally set on the article, not just on the server
@@ -40,7 +48,7 @@
 			 * Properly handle metered networks (eg. wifi with traffic restriction)
 			 * Stop ImageCache when connectivity changes (wifi to mobile)
 			 * Allow cancel of ImageCache via menu</item>
-		<item>Version 1.87
+        <item>Version 1.87
 			 * Fixed NPE when subscribing to a new feed and selecting a category
 			 * Removed remaining references to the preference \"Use old connector\"
 			 * Modified some DB operations
@@ -51,9 +59,9 @@
 			 * Fix Issue #308: How to stream a media file
 			 * Fixed Issue #305: Problem when serves doesn\'t use credentials
 			 * Adjusted text-colors and article background for better readablity</item>
-		<item>Version 1.86.1
+        <item>Version 1.86.1
 			 * Fixed FC</item>
-		<item>Version 1.86
+        <item>Version 1.86
 			 * Display server-side-cached-images behind http auth
 			 * Slightly adjusted order of menu items
 			 * Fixed Issue #293: blank screen when trying to publish articles in firefox
@@ -62,11 +70,11 @@
 			 * Avoid sending duplicate error reports
 			 * Removed deprecated connector based on old apache libraries
 			 * Moved reset-operations (Preferences->Menu) into background threads)</item>
-		<item>Version 1.85.2
+        <item>Version 1.85.2
 			 * Fixed several FCs</item>
-		<item>Version 1.85.1
+        <item>Version 1.85.1
 			 * Fixed Issue #287: SSL broken with self-signed certificates, added SSL-Preference to disable update of security provide via Google Play services.</item>
-		<item>Version 1.85
+        <item>Version 1.85
 			 * Fix FC when asynchronously adding remote files
 			 * Fixed FC when articleFragment was not attached to Activity anymore
 			 * Fixed FC \"IllegalStateException: Content view not yet created\"
@@ -76,11 +84,11 @@
 			 * Added some more translated strings and more precise error messages
 			 * Integrated updating of security provider with Google Play services
 			 * Fixed Issue #284: invisible background of dialogs</item>
-		<item>Version 1.84
+        <item>Version 1.84
 			 * Fixed a lot of bugs introduced by release v1.83
 			 * Implemented new dialog for the changelog
 			 * Slightly adjusted colors</item>
-		<item>Version 1.83
+        <item>Version 1.83
 			 * Modified theme, reduced complexity, introduced first Material theme stuff (slightly changed the layout and the spacing of items, changed some colors and so on)
 			 * Allow resetting the ImageCache from the preferences menu
 			 * Reduce impact on the UI when running the ImageCache, fixed bugs interfering with the ImageCache
@@ -88,7 +96,7 @@
 			 * Implemented new Toolbar as replacement for ActionBar which was removed with Lollipop for some reason
 			 * Added content filtering for API levels below 17 to avoid vulnerability for scripting attacks
 			 * If anyone else here is annoyed by the low-res icons of the app and is good with image processing: This app could do with a new icon set and I can\'t do it. :)\n</item>
-		<item>Version 1.82
+        <item>Version 1.82
 			 * Read ALT-Text from tags of type IMAGE_ANCHOR too (Read TITLE-Tag first, if empty read ALT-Tag)
 			 * Slight layout changes, buttons now appear a bit more Lollipop-Styled
 			 * Fixed synchronisation issues with virtual categories when rotating device
@@ -104,47 +112,47 @@
 			 * Tweaked swiping mechanism: Only accept movement as a swipe if the horizontal distance was greater then the vertical distance
 			 * Added animations for slide left/right
 			 * Reduced database operations while beeing offline</item>
-		<item>Version 1.81
+        <item>Version 1.81
 			 * Attempt to build with PRNGFixes again (fixes Issue #264)
 			 * Fixed  Issue #253: \"Adding a new feed will put it in a random category\"
 			 * Fixed some FCs (Issue #266)</item>
-		<item>Version 1.80
+        <item>Version 1.80
 			 * Revert to default implementation of SecureRandom because the suggested bugfix from Google (http://android-developers.blogspot.de/2013/08/some-securerandom-thoughts.html) seems to crash on some devices. Due to this the SSL implementation \"may not receive cryptographically strong values\". I\'m investigating solutions for this. Thank you for your patience. :)
 			 * Another thing I would like to mention: Thank you all for reporting bugs through the play store and/or by mail. I don\'t answer most of the time and have been made aware that this might be considered unthankful by some. Please know that your support is appreciated!\n</item>
-		<item>Version 1.79
+        <item>Version 1.79
 			 * Flash screen when notify is necessary and device has no vibrator
 			 * Store size of tablet view per feed
 			 * Fixed tab resizing in horizontal mode
 			 * Make sure to use only one SQLite Connection throughout the whole app. Makes the UI quite smooth and you can start reading while updates are fetched in the background which was quite annoying before.
 			 * Removed lots of dead code
 			 * Moved some DB-Access into background tasks, missed these bits before.</item>
-		<item>Version 1.78
+        <item>Version 1.78
 			 * Enable API-Level 21 (Lollipop, 5.0)
 			 * Fixed several bugs regarding the improved TLS-security (Issue #233)
 			 * Enabled SSL- and HTTP-Auth-Preferences to be specified per Wifi network too (Issue #261)
 			 * Fixed download of attached media files (Issue #256)</item>
-		<item>Version 1.77
+        <item>Version 1.77
 			 * Added support for TLS v1.3, dropped support for SSL v3
 			 * Fixed problems with ImageCache not downloading images
 			 * Added menuitem to filter \"articles with cached images\"
 			 * Fixed some locking problems
 			 * Updated translations, license statements and thanks
 			 * Dropped support for android versions below 4.0 (Api-Level 14)</item>
-		<item>Version 1.76
+        <item>Version 1.76
 			 * Fixed swiping gestures
 			 * Removed unnecessary preferences
 			 * Added Version-Code to about-box for easier debugging</item>
-		<item>Version 1.75
+        <item>Version 1.75
 			 * Fixed some FCs
 			 * Fixed broken themes
 			 * Fixed PRNG used for SSL connections
 			 * Fixed resizing of views in tablet layout</item>
-		<item>Version 1.74
+        <item>Version 1.74
 			 * Added preference for min and max size of cached files
 			 * Increased length of max size of ImageCache
 			 * Fixed some bugs regarding caching of files
 			 * Fixed crashes after rotating while dialogs are visible</item>
-		<item>Version 1.73
+        <item>Version 1.73
 			 * Fixed \"Go back after mark all read\"
 			 * Added style for blockquote-tag
 			 * Improved logging and error reporting
@@ -152,15 +160,15 @@
 			 * Fixed long-press on feed getting redirected to category
 			 * Fixed duplicate virtual categories when no unread articles exist
 			 * Attemted fix for large tablets getting no tablet layout</item>
-		<item>Version 1.72
+        <item>Version 1.72
 			 * Implemented better error reporting mechanism
 			 * Modified tablet layout, reduced complexity of code
 			 * Bugfixes</item>
-		<item>Version 1.71
+        <item>Version 1.71
 			 * Moved lots of stuff to the background so the UI should be more responsive
 			 * Fixed several bugs introduced with the christmas-update
 			 * Fixed a bug that slowed down article fetching quite much</item>
-		<item>Version 1.7
+        <item>Version 1.7
 			 * Completely rewrote DB-Adapters for lists, cursors are now managed by the system which should reduce the number of FCs
 			 * Added support for themes, initially there are two dark (dark and completely black) and two light (light and white) themes available
 			 * More lightweight operation when moving between articles/feeds
@@ -173,37 +181,37 @@
 			 * Scroll headlines when using two-pane layout and opening next article
 			 * Add warning dialog before marking several or all feeds as read
 			 * Security-Bugfix for fragment vulnerability</item>
-		<item>Version 1.62
+        <item>Version 1.62
 			 * Fixed some rotation related issues, app should not crash anymore but it might display wrong stuff sometimes
 			 * Fixed crash when entering preferences on some old devices
 			 * Fixed crash with foreign key error on article deletion
 			 * Add information about articles last sync time to \"about\" dialog</item>
-		<item>Version 1.61
+        <item>Version 1.61
 			 * Bugfixes
 			 * Please don\'t use the play store to ask for features, we got a bugtracker on the project page for this kind of thing.</item>
-		<item>Version 1.6
+        <item>Version 1.6
 			 * Added two-pane tablet-layout
 			 * Added preference to set some preference based on which wifi-network is currently used
 			 * Many changes to ImageCache and DB-access
 			 * Updated german translation (thanks to Martin Mueller)</item>
-		<item>Version 1.53
+        <item>Version 1.53
 			 * Added all drawables for different screen-sizes
 			 * Modified "Subscribe to feed" and "Share to published" layouts
 			 * Allow API-Level 18
 			 * French translation (thanks to Jean-François BILGER)
 			 * Lots of background changes and bugfixes</item>
-		<item>Version 1.52
+        <item>Version 1.52
 			 * Improvements by Igor Lyubimov (Hyphenation, HTML-Template, performance, date/time formatting, button navigation)
 			 * Hide ActionBar while scrolling down
 			 * Better dark/light themes for articles
 			 * Performance: faster refresh on startup
 			 * Counters managed locally (reduces server communication)
 			 * ActionBar buttons: read/unread, star, publish, share</item>
-		<item>Version 1.51
+        <item>Version 1.51
 			 * Replaced article-header with a custom actionbar-layout (click title to view the full title if it doesn\'t fit in the space)
 			 * Reduce memory usage when low-memory conditions are detected
 			 * Bugfixes</item>
-		<item>Version 1.50
+        <item>Version 1.50
 			 * Fixed Issue 140: View image captions (longpress on image)
 			 * Temporary workaround for devices without menubutton, Preferences \"Show Actionbar\" (Issue 144)
 			 * Fixed Issue 145: starred list won\'t fully sync
