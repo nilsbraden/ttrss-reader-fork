@@ -35,6 +35,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.v4.net.ConnectivityManagerCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -225,7 +226,7 @@ public class Utils {
 				return false;
 			}
 			if (onlyUnmeteredNetwork) {
-				return !cm.isActiveNetworkMetered();
+				return !isNetworkMetered(cm);
 			}
 			return true;
 		}
@@ -239,11 +240,18 @@ public class Utils {
 			return NETWORK_NONE;
 		} else if (info.getType() != ConnectivityManager.TYPE_WIFI) {
 			return NETWORK_MOBILE;
-		} else if (cm.isActiveNetworkMetered()) {
+		} else if (isNetworkMetered(cm)) {
 			return NETWORK_METERED;
 		} else {
 			return NETWORK_WIFI;
 		}
+	}
+
+	private static boolean isNetworkMetered(ConnectivityManager cm) {
+		if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
+			return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+		else
+			return cm.isActiveNetworkMetered();
 	}
 
 	/**
