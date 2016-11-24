@@ -18,6 +18,7 @@
 package org.ttrssreader.net;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
 
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.SocketException;
@@ -62,8 +64,8 @@ public class JSONConnector {
 
 	private static final String TAG = JSONConnector.class.getSimpleName();
 
-	protected static String lastError = "";
-	protected static boolean hasLastError = false;
+	private static String lastError = "";
+	private static boolean hasLastError = false;
 
 	private static final String PARAM_OP = "op";
 	private static final String PARAM_USER = "user";
@@ -137,19 +139,19 @@ public class JSONConnector {
 	private static final int MAX_ID_LIST_LENGTH = 100;
 
 	// session id as an IN parameter
-	protected static final String SID = "sid";
+	private static final String SID = "sid";
 
-	protected boolean httpAuth = false;
-	protected String base64NameAndPw = null;
+	private boolean httpAuth = false;
+	private String base64NameAndPw = null;
 
-	protected String sessionId = null;
+	private String sessionId = null;
 
 	private final Object lock = new Object();
 	private int apiLevel = -1;
 
 	public static final int PARAM_LIMIT_MAX_VALUE = 200;
 
-	protected InputStream doRequest(Map<String, String> params) {
+	private InputStream doRequest(Map<String, String> params) {
 		try {
 			if (sessionId != null) params.put(SID, sessionId);
 
@@ -223,8 +225,8 @@ public class JSONConnector {
 
 		if (Controller.getInstance().useHttpAuth()) {
 			this.httpAuth = true;
-			byte[] credentials = (Controller.getInstance().httpUsername() + ":" + Controller.getInstance().httpPassword()).getBytes(StandardCharsets.UTF_8);
-			this.base64NameAndPw = Base64.encodeToString(credentials, Base64.NO_WRAP);
+			String creds = Controller.getInstance().httpUsername() + ":" + Controller.getInstance().httpPassword();
+			this.base64NameAndPw = encodeBase64ToString(creds);
 		} else {
 			this.httpAuth = false;
 			this.base64NameAndPw = null;
@@ -232,7 +234,7 @@ public class JSONConnector {
 
 	}
 
-	protected void logRequest(final JSONObject json) throws JSONException {
+	private void logRequest(final JSONObject json) throws JSONException {
 		// Filter password and session-id
 		Object paramPw = json.remove(PARAM_PW);
 		Object paramSID = json.remove(SID);
@@ -450,6 +452,24 @@ public class JSONConnector {
 	}
 
 	/**
+	 * Returns a base64 encoded representation of the input string and considers the current android version to access the appropriate API.
+	 *
+	 * @param input the string to be encoded
+	 * @return the base64 encoded representation of the string
+	 */
+	private static String encodeBase64ToString(String input) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+			try {
+				return Base64.encodeToString(input.getBytes("UTF-8"), Base64.NO_WRAP);
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException("UnsupportedEncodingException: UTF-8 not supported. Should never happen.");
+			}
+		} else {
+			return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+		}
+	}
+
+	/**
 	 * Tries to login to the ttrss-server with the base64-encoded password.
 	 *
 	 * @return true on success, false otherwise
@@ -469,7 +489,7 @@ public class JSONConnector {
 
 			if (!isSingleUser()) {
 				params.put(PARAM_USER, Controller.getInstance().username());
-				String pass = Base64.encodeToString(Controller.getInstance().password().getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+				String pass = encodeBase64ToString(Controller.getInstance().password());
 				params.put(PARAM_PW, pass);
 			}
 
