@@ -138,7 +138,7 @@ public class PreferencesFragment extends PreferenceFragment {
 	private void initWifibasedPreferences() {
 		addPreferencesFromResource(R.xml.prefs_wifibased);
 		PreferenceCategory mWifibasedCategory = (PreferenceCategory) findPreference("wifibasedCategory");
-		WifiManager mWifiManager = (WifiManager) getActivity().getSystemService(Context.WIFI_SERVICE);
+		WifiManager mWifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
 		List<WifiConfiguration> mWifiList = mWifiManager.getConfiguredNetworks();
 		if (mWifiList == null) return;
