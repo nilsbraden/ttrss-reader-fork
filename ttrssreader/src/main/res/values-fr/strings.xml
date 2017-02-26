@@ -25,7 +25,7 @@
 	<string name="Preferences.Btn">Préférences</string>
 	<string name="Changelog.Title">Changements</string>
 	<string name="Welcome.Title">Bienvenue</string>
-	<string name="Welcome.Message">Bievenue sur TTRSS-Reader!\n\nNoter que ce lecteur ne fonctionne qu\'avec un serveur \"Tiny Tiny RSS\".\n\nSi c\'est la première fois que vous lancez TTRSS-Reader, vous devriez indiquer l\'adresse du serveur et configurer l\'utilisateur. Appuyer sur "Préférences" pour y accéder.</string>
+	<string name="Welcome.Message">Bienvenue sur TTRSS-Reader!\n\nNoter que ce lecteur ne fonctionne qu\'avec un serveur \"Tiny Tiny RSS\".\n\nSi c\'est la première fois que vous lancez TTRSS-Reader, vous devriez indiquer l\'adresse du serveur et configurer l\'utilisateur. Appuyer sur "Préférences" pour y accéder.</string>
 	<string name="Check.Crash">Un rapport de crash a été sauvé, voulez-vous l\'envoyer au développer par mail ?</string>
 	<string name="AboutActivity.Title">A propos</string>
 	<string name="AboutActivity.CloseBtn">Fermer</string>
