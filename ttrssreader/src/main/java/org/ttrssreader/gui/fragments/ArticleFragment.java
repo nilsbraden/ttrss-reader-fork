@@ -44,6 +44,7 @@ import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.model.pojos.RemoteFile;
 import org.ttrssreader.model.updaters.ArticleReadStateUpdater;
+import org.ttrssreader.model.updaters.NoteUpdater;
 import org.ttrssreader.model.updaters.PublishedStateUpdater;
 import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.Updater;
@@ -382,33 +383,26 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			// Load html from Controller and insert content// Article-Prefetch-Stuff from Raw-Ressources and System
 			ST htmlTmpl = new ST(getString(R.string.HTML_TEMPLATE), '$', '$');
 
-			// Replace alignment-marker with the requested layout, align:left or justified
-			String replaceAlign;
-			if (Controller.getInstance().alignFlushLeft()) {
-				replaceAlign = getString(R.string.ALIGN_LEFT);
-			} else {
-				replaceAlign = getString(R.string.ALIGN_JUSTIFY);
-			}
-
-			String javascriptHyphenation = "";
+			// Styles
 			if (Controller.getInstance().allowHyphenation()) {
 				ST javascriptST = new ST(getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE), '$', '$');
 				javascriptST.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
-				javascriptHyphenation = javascriptST.render();
+				htmlTmpl.add("HYPHENATION", javascriptST.render());
 			}
 
-			String buttons = "";
-			if (Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML)
-				buttons = getString(R.string.BOTTOM_NAVIGATION_TEMPLATE);
+			// Replace alignment-marker: align:left or align:justify
+			ST stylesST = new ST(getString(R.string.STYLE_TEMPLATE), '$', '$');
+			if (Controller.getInstance().alignFlushLeft()) {
+				stylesST.add("TEXT_ALIGN", getString(R.string.ALIGN_LEFT));
+			} else {
+				stylesST.add("TEXT_ALIGN", getString(R.string.ALIGN_JUSTIFY));
+			}
+			htmlTmpl.add("STYLE", stylesST.render());
 
 			// General values
-			htmlTmpl.add("STYLE", getResources().getString(R.string.STYLE_TEMPLATE));
-			htmlTmpl.add("TEXT_ALIGN", replaceAlign);
 			htmlTmpl.add("THEME", getResources().getString(Controller.getInstance().getThemeHTML()));
 			htmlTmpl.add("CACHE_DIR", Controller.getInstance().cacheFolder());
-			htmlTmpl.add("HYPHENATION", javascriptHyphenation);
 			htmlTmpl.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
-			htmlTmpl.add("NAVIGATION", buttons);
 
 			// Special values for this article
 			htmlTmpl.add("article", article);
@@ -416,8 +410,27 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			htmlTmpl.add("CACHED_IMAGES", cachedImages);
 			htmlTmpl.add("LABELS", labels.toString());
 			htmlTmpl.add("UPDATED", DateUtils.getDateTimeCustom(getActivity(), article.updated));
-			htmlTmpl.add("ATTACHMENTS", getAttachmentsMarkup(getActivity(), article.attachments));
+			htmlTmpl.add("ATTACHMENTS", getAttachmentsMarkup(article.attachments));
 			htmlTmpl.add("CONTENT", contentClean);
+
+			// Hyphenation Javascript
+			if (Controller.getInstance().allowHyphenation()) {
+				ST javascriptST = new ST(getString(R.string.JAVASCRIPT_HYPHENATION_TEMPLATE), '$', '$');
+				javascriptST.add("LANGUAGE", Controller.getInstance().hyphenationLanguage());
+				htmlTmpl.add("HYPHENATION", javascriptST.render());
+			}
+
+			// Navigation buttons
+			if (Controller.getInstance().showButtonsMode() == Constants.SHOW_BUTTONS_MODE_HTML) {
+				htmlTmpl.add("NAVIGATION", getString(R.string.BOTTOM_NAVIGATION_TEMPLATE));
+			}
+
+			// Note of the article
+			if (article.note != null && article.note.length() > 0) {
+				ST noteST = new ST(getResources().getString(R.string.NOTE_TEMPLATE), '$', '$');
+				noteST.add("NOTE", getResources().getString(R.string.Commons_HtmlPrefixNote) + " " + article.note);
+				htmlTmpl.add("NOTE_TEMPLATE", noteST.render());
+			}
 
 			content = htmlTmpl.render();
 
@@ -466,10 +479,9 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	/**
 	 * generate HTML code for attachments to be shown inside article
 	 *
-	 * @param context     current context
 	 * @param attachments collection of attachment URLs
 	 */
-	private static String getAttachmentsMarkup(Context context, Set<String> attachments) {
+	private String getAttachmentsMarkup(Set<String> attachments) {
 		StringBuilder content = new StringBuilder();
 		Map<String, Collection<String>> attachmentsByMimeType = FileUtils.groupFilesByMimeType(attachments);
 
@@ -480,15 +492,15 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 			if (mimeTypeUrls.isEmpty()) return "";
 
 			if (mimeType.equals(FileUtils.IMAGE_MIME)) {
-				ST st = new ST(context.getResources().getString(R.string.ATTACHMENT_IMAGES_TEMPLATE));
+				ST st = new ST(getResources().getString(R.string.ATTACHMENT_IMAGES_TEMPLATE));
 				st.add("items", mimeTypeUrls);
 				content.append(st.render());
 			} else {
-				ST st = new ST(context.getResources().getString(R.string.ATTACHMENT_MEDIA_TEMPLATE));
+				ST st = new ST(getResources().getString(R.string.ATTACHMENT_MEDIA_TEMPLATE));
 				st.add("items", mimeTypeUrls);
 				CharSequence linkText = mimeType.equals(FileUtils.AUDIO_MIME) || mimeType.equals(FileUtils.VIDEO_MIME)
-										? context.getText(R.string.ArticleActivity_MediaPlay)
-										: context.getText(R.string.ArticleActivity_MediaDisplayLink);
+										? getText(R.string.ArticleActivity_MediaPlay)
+										: getText(R.string.ArticleActivity_MediaDisplayLink);
 				st.add("linkText", linkText);
 				content.append(st.render());
 			}
@@ -587,7 +599,7 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 						.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 				return true;
 			}
-			case R.id.Article_Menu_MarkPublishNote: {
+			case R.id.Article_Menu_MarkNote: {
 				new TextInputAlert(this, article).show(getActivity());
 				return true;
 			}
@@ -911,9 +923,8 @@ public class ArticleFragment extends Fragment implements TextInputAlertCallback 
 	}
 
 	@Override
-	public void onPublishNoteResult(Article a, String note) {
-		new Updater(getActivity(), new PublishedStateUpdater(a, a.isPublished ? 0 : 1, note))
-				.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+	public void onAddNoteResult(Article a, String note) {
+		new Updater(getActivity(), new NoteUpdater(a, note)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
 	@Override

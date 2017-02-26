@@ -17,18 +17,19 @@
 
 package org.ttrssreader.gui;
 
-import org.jetbrains.annotations.NotNull;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.controllers.UpdateController;
 import org.ttrssreader.gui.dialogs.ErrorDialog;
+import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
 import org.ttrssreader.gui.interfaces.ICacheEndListener;
 import org.ttrssreader.gui.interfaces.IDataChangedListener;
 import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.imageCache.ForegroundService;
+import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.preferences.Constants;
@@ -36,10 +37,12 @@ import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -53,6 +56,7 @@ import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This class provides common functionality for Activities.
@@ -104,7 +108,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		divider = findViewById(R.id.list_divider);
 		frameSub = findViewById(R.id.frame_sub);
 
-		if (frameMain == null || frameSub == null || divider == null) return; // Do nothing, the views do not exist...
+		if (frameMain == null || frameSub == null || divider == null)
+			return; // Do nothing, the views do not exist...
 
 		// Initialize values for layout changes:
 		Controller
@@ -200,13 +205,6 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
-			if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-			ActionBar ab = getSupportActionBar();
-			if (ab != null) {
-				ab.setDisplayHomeAsUpEnabled(true);
-				ab.setDisplayShowTitleEnabled(false);
-			}
 
 			header_unread = (TextView) findViewById(R.id.head_unread);
 			header_title = (TextView) findViewById(R.id.head_title);
@@ -214,6 +212,27 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 			progressbar = (ProgressBar) findViewById(R.id.progressbar);
 			progressspinner = (ProgressBar) findViewById(R.id.progressspinner);
+			hideBackArrow();
+
+		}
+	}
+
+	protected void showBackArrow() {
+		ActionBar ab = getSupportActionBar();
+		if (ab != null) {
+			ab.setDisplayHomeAsUpEnabled(true);
+			ab.setDisplayShowTitleEnabled(false);
+			header_title.setPadding(0, 0, 0, 0);
+
+		}
+	}
+
+	protected void hideBackArrow() {
+		ActionBar ab = getSupportActionBar();
+		if (ab != null) {
+			ab.setDisplayHomeAsUpEnabled(false);
+			ab.setDisplayShowTitleEnabled(false);
+			header_title.setPadding(48, 0, 0, 0);
 		}
 	}
 
@@ -225,7 +244,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 	public void setUnread(int unread) {
 		header_unread.setVisibility(unread > 0 ? View.VISIBLE : View.GONE);
-		header_unread.setText("( " + unread + " )");
+		header_unread.setText(String.valueOf(unread));
 	}
 
 	@Override
@@ -262,7 +281,7 @@ public abstract class MenuActivity extends MenuFlavorActivity
 	}
 
 	@Override
-	public void onSaveInstanceState(@NotNull Bundle outState) {
+	public void onSaveInstanceState(Bundle outState) {
 		mOnSaveInstanceStateCalled = true;
 		super.onSaveInstanceState(outState);
 	}
@@ -275,6 +294,9 @@ public abstract class MenuActivity extends MenuFlavorActivity
 			refreshAndUpdate();
 		} else if (resultCode == ErrorActivity.ACTIVITY_EXIT) {
 			finish();
+		} else if (resultCode == PreferencesActivity.ACTIVITY_RELOAD) {
+			finish();
+			startActivity(getIntent());
 		}
 	}
 
@@ -339,6 +361,15 @@ public abstract class MenuActivity extends MenuFlavorActivity
 			menu.removeItem(R.id.Menu_MarkAllRead);
 		}
 
+		MenuItem cache = menu.findItem(R.id.Category_Menu_ImageCache);
+		if (cache != null) {
+			if (isCacherRunning()) {
+				cache.setTitle(getString(R.string.Main_ImageCacheCancel));
+			} else {
+				cache.setTitle(getString(R.string.Main_ImageCache));
+			}
+		}
+
 		return true;
 	}
 
@@ -387,7 +418,8 @@ public abstract class MenuActivity extends MenuFlavorActivity
 				startActivity(new Intent(this, AboutActivity.class));
 				return true;
 			case R.id.Category_Menu_ImageCache:
-				doCache(false);
+				if (isCacherRunning()) doStopImageCache();
+				else doStartImageCache();
 				return true;
 			case R.id.Menu_FeedSubscribe:
 				startActivity(new Intent(this, SubscribeActivity.class));
@@ -404,26 +436,56 @@ public abstract class MenuActivity extends MenuFlavorActivity
 		if (goBackAfterUpdate && !isFinishing()) onBackPressed();
 	}
 
+	protected void doStopImageCache() {
+		ForegroundService.cancel();
+		invalidateOptionsMenu();
+	}
+
+	protected void doStartImageCache() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		final int title = R.string.Main_ImageCache_YesNoTitle;
+		final FragmentManager fm = getFragmentManager();
+
+		switch (Utils.getNetworkType(cm)) {
+			case Utils.NETWORK_MOBILE:
+				YesNoUpdaterDialog.getInstance(new ImageCacheUpdater(Utils.NETWORK_MOBILE), title,
+						R.string.Main_ImageCache_NetworkMobile).show(fm, "imagecache");
+				break;
+			case Utils.NETWORK_METERED:
+				YesNoUpdaterDialog.getInstance(new ImageCacheUpdater(Utils.NETWORK_METERED), title,
+						R.string.Main_ImageCache_NetworkMetered).show(fm, "imagecache");
+				break;
+			case Utils.NETWORK_WIFI:
+				doCache(Utils.NETWORK_WIFI);
+				break;
+		}
+	}
+
+	private class ImageCacheUpdater implements IUpdatable {
+		int networkState;
+
+		public ImageCacheUpdater(int networkState) {
+			this.networkState = networkState;
+		}
+
+		@Override
+		public void update() {
+			doCache(networkState);
+		}
+	}
+
 	/* ############# BEGIN: Cache */
-	protected void doCache(boolean onlyArticles) {
+	private void doCache(final int networkState) {
 		// Register for progress-updates
 		ForegroundService.registerCallback(this);
 
-		if (isCacherRunning()) {
-			if (!onlyArticles) // Tell cacher to do images too
-				ForegroundService.loadImagesToo();
-			else
-				// Running and already caching images, no need to do anything
-				return;
-		}
+		if (isCacherRunning()) return;
+
+		invalidateOptionsMenu();
 
 		// Start new cacher
-		Intent intent;
-		if (onlyArticles) {
-			intent = new Intent(ForegroundService.ACTION_LOAD_ARTICLES);
-		} else {
-			intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
-		}
+		Intent intent = new Intent(ForegroundService.ACTION_LOAD_IMAGES);
+		intent.putExtra(ForegroundService.PARAM_NETWORK, networkState);
 		intent.setClass(this.getApplicationContext(), ForegroundService.class);
 
 		this.startService(intent);
@@ -434,6 +496,12 @@ public abstract class MenuActivity extends MenuFlavorActivity
 	@Override
 	public void onCacheEnd() {
 		ProgressBarManager.getInstance().removeProgress(this);
+	}
+
+	@Override
+	public void onCacheInterrupted() {
+		ProgressBarManager.getInstance().removeProgress(this);
+		Toast.makeText(this, R.string.Main_ImageCache_ConnectivityLost, Toast.LENGTH_SHORT).show();
 	}
 
 	@Override

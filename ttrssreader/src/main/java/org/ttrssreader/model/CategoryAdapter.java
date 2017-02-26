@@ -17,10 +17,6 @@
 
 package org.ttrssreader.model;
 
-import org.jetbrains.annotations.NotNull;
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.Category;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -29,6 +25,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Category;
 
 public class CategoryAdapter extends MainAdapter {
 
@@ -53,7 +53,7 @@ public class CategoryAdapter extends MainAdapter {
 		return ret;
 	}
 
-	private int getImage(int id, boolean unread) {
+	private static int getImage(int id, boolean unread) {
 		if (id == Data.VCAT_STAR) {
 			return R.drawable.star48;
 		} else if (id == Data.VCAT_PUB) {
@@ -83,16 +83,30 @@ public class CategoryAdapter extends MainAdapter {
 	}
 
 	@Override
-	public void bindView(@NotNull View view, Context context, @NotNull Cursor cursor) {
+	public void bindView(View view, Context context, Cursor cursor) {
 		super.bindView(view, context, cursor);
 
-		Category c = getCategory(cursor);
-		ImageView icon = (ImageView) view.findViewById(R.id.icon);
-		icon.setImageResource(getImage(c.id, c.unread > 0));
+		ViewHolder holder = (ViewHolder) view.getTag();
+		if (holder == null) {
+			holder = new ViewHolder();
+			holder.icon = (ImageView) view.findViewById(R.id.icon);
+			holder.title = (TextView) view.findViewById(R.id.title);
+			holder.unread = (TextView) view.findViewById(R.id.item_unread);
+			view.setTag(holder);
+		}
 
-		TextView title = (TextView) view.findViewById(R.id.title);
-		title.setText(formatItemTitle(c.title, c.unread));
-		if (c.unread > 0) title.setTypeface(Typeface.DEFAULT_BOLD);
+		final Category c = getCategory(cursor);
+
+		holder.icon.setImageResource(getImage(c.id, c.unread > 0));
+		holder.title.setText(c.title);
+		holder.unread.setText(String.valueOf(c.unread));
+		if (c.unread > 0) {
+			holder.title.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.unread.setVisibility(View.VISIBLE);
+		} else {
+			holder.title.setTypeface(Typeface.DEFAULT);
+			holder.unread.setVisibility(View.GONE);
+		}
 	}
 
 	private Category getCategory(Cursor cur) {
@@ -101,6 +115,12 @@ public class CategoryAdapter extends MainAdapter {
 		ret.title = cur.getString(1);
 		ret.unread = cur.getInt(2);
 		return ret;
+	}
+
+	private static class ViewHolder {
+		TextView title;
+		TextView unread;
+		ImageView icon;
 	}
 
 }

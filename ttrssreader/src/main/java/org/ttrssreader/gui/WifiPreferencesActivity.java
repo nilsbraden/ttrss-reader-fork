@@ -17,7 +17,7 @@
 
 package org.ttrssreader.gui;
 
-import org.jetbrains.annotations.NotNull;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.fragments.WifiPreferencesFragment;
@@ -119,7 +119,7 @@ public class WifiPreferencesActivity extends PreferenceActivity implements OnSha
 	}
 
 	@Override
-	public void switchToHeader(@NotNull Header header) {
+	public void switchToHeader(Header header) {
 		if (header.fragment != null) {
 			super.switchToHeader(header);
 		}

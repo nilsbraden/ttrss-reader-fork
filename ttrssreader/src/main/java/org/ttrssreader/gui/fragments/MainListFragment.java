@@ -17,7 +17,7 @@
 
 package org.ttrssreader.gui.fragments;
 
-import org.jetbrains.annotations.NotNull;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.gui.MenuActivity;
@@ -79,7 +79,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 	}
 
 	@Override
-	public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.item_list, container, false);
 	}
 

@@ -17,7 +17,7 @@
 
 package org.ttrssreader.model.pojos;
 
-import org.jetbrains.annotations.NotNull;
+
 
 import java.util.Date;
 import java.util.Set;
@@ -25,6 +25,7 @@ import java.util.Set;
 public class Article implements Comparable<Article> {
 
 	public int id;
+	public String guid;
 	public String title;
 	public int feedId;
 	public volatile boolean isUnread;
@@ -38,49 +39,10 @@ public class Article implements Comparable<Article> {
 	public Set<Label> labels;
 	public String author;
 	public String feedTitle;
-
-	public Article() {
-		id = -1;
-		title = null;
-		isUnread = false;
-		updated = null;
-		feedId = 0;
-		content = null;
-		url = null;
-		commentUrl = null;
-		attachments = null;
-		labels = null;
-		isStarred = false;
-		isPublished = false;
-		author = null;
-		feedTitle = null;
-	}
-
-	public Article(int id, int feedId, String title, boolean isUnread, String articleUrl, String articleCommentUrl,
-			Date updateDate, String content, Set<String> attachments, boolean isStarred, boolean isPublished,
-			Set<Label> labels, String author, String feedTitle) {
-		this.id = id;
-		this.title = title;
-		this.feedId = feedId;
-		this.isUnread = isUnread;
-		this.updated = updateDate;
-		this.url = articleUrl.trim();
-		this.commentUrl = articleCommentUrl;
-		if (content == null || content.equals("null")) {
-			this.content = null;
-		} else {
-			this.content = content;
-		}
-		this.attachments = attachments;
-		this.isStarred = isStarred;
-		this.isPublished = isPublished;
-		this.labels = labels;
-		this.author = author;
-		this.feedTitle = feedTitle;
-	}
+	public String note;
 
 	@Override
-	public int compareTo(@NotNull Article ai) {
+	public int compareTo(Article ai) {
 		return ai.updated.compareTo(this.updated);
 	}
 
@@ -100,7 +62,7 @@ public class Article implements Comparable<Article> {
 	}
 
 	public enum ArticleField {
-		id, title, unread, updated, feed_id, content, link, comments, attachments, marked, published, labels,
+		id, guid, title, unread, updated, feed_id, content, link, comments, attachments, marked, published, labels,
 		is_updated, tags, feed_title, comments_count, comments_link, always_display_attachments, author, score, lang,
 		note
 	}

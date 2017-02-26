@@ -17,7 +17,7 @@
 
 package org.ttrssreader.gui;
 
-import org.jetbrains.annotations.NotNull;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -131,7 +131,7 @@ public class SubscribeActivity extends MenuActivity {
 	}
 
 	@Override
-	public void onSaveInstanceState(@NotNull Bundle out) {
+	public void onSaveInstanceState(Bundle out) {
 		super.onSaveInstanceState(out);
 		EditText url = (EditText) findViewById(R.id.subscribe_url);
 		out.putString(PARAM_FEEDURL, url.getText().toString());

@@ -17,7 +17,18 @@
 
 package org.ttrssreader.gui;
 
-import org.jetbrains.annotations.NotNull;
+
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -32,17 +43,6 @@ import org.ttrssreader.gui.interfaces.IItemSelectedListener;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
-
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.Context;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -86,11 +86,10 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 				.findFragmentByTag(CategoryListFragment.FRAGMENT);
 
 		if (categoryFragment == null) {
-			FragmentTransaction ft = fm.beginTransaction();
-			categoryFragment = CategoryListFragment.newInstance();
-			ft.add(R.id.frame_main, categoryFragment, CategoryListFragment.FRAGMENT);
-			ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-			ft.commit();
+			fm.beginTransaction()
+					.add(R.id.frame_main, CategoryListFragment.newInstance(), CategoryListFragment.FRAGMENT)
+					.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+					.commit();
 		}
 
 		if (Utils.checkIsFirstRun()) {
@@ -110,7 +109,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 				// Check if Wifi is connected, if not don't start the ImageCache
 				ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-				if (!Utils.checkConnected(cm, true)) {
+				if (!Utils.checkConnected(cm, true, true)) {
 					Log.i(TAG, "Preference Start ImageCache only on WIFI set, doing nothing...");
 					startCache = false;
 				}
@@ -122,7 +121,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 			if (startCache) {
 				Log.i(TAG, "Starting ImageCache...");
-				doCache(false); // images
+				doStartImageCache();
 			}
 		}
 	}
@@ -133,13 +132,13 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	}
 
 	@Override
-	public void onSaveInstanceState(@NotNull Bundle outState) {
+	public void onSaveInstanceState(Bundle outState) {
 		outState.putInt(SELECTED, selectedCategoryId);
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
-	protected void onRestoreInstanceState(@NotNull Bundle instance) {
+	protected void onRestoreInstanceState(Bundle instance) {
 		selectedCategoryId = instance.getInt(SELECTED, Integer.MIN_VALUE);
 		super.onRestoreInstanceState(instance);
 	}
@@ -153,31 +152,31 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	protected void doRefresh() {
 		super.doRefresh();
 
-		CategoryListFragment categoryFragment = (CategoryListFragment) getFragmentManager()
-				.findFragmentByTag(CategoryListFragment.FRAGMENT);
+		CategoryListFragment categoryFragment = getCategoryListFragment();
 		if (categoryFragment != null) categoryFragment.doRefresh();
 
-		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager()
-				.findFragmentByTag(FeedListFragment.FRAGMENT);
+		FeedListFragment feedFragment = getFeedListFragment();
 		if (feedFragment != null) feedFragment.doRefresh();
 
 		setTitleAndUnread();
 	}
 
-	private void setTitleAndUnread() {
+	public void setTitleAndUnread() {
 		// Title and unread information:
-
-		CategoryListFragment categoryFragment = (CategoryListFragment) getFragmentManager()
-				.findFragmentByTag(CategoryListFragment.FRAGMENT);
-		FeedListFragment feedFragment = (FeedListFragment) getFragmentManager()
-				.findFragmentByTag(FeedListFragment.FRAGMENT);
-
-		if (feedFragment != null && !feedFragment.isEmptyPlaceholder()) {
+		FeedListFragment feedFragment = getFeedListFragment();
+		if (feedFragment != null && feedFragment.isVisible() && !feedFragment.isEmptyPlaceholder()) {
 			setTitle(feedFragment.getTitle());
 			setUnread(feedFragment.getUnread());
-		} else if (categoryFragment != null) {
-			setTitle(categoryFragment.getTitle());
-			setUnread(categoryFragment.getUnread());
+			showBackArrow();
+		} else {
+			CategoryListFragment categoryFragment = getCategoryListFragment();
+			if (categoryFragment != null && categoryFragment.isVisible()) {
+				setTitle(categoryFragment.getTitle());
+				setUnread(categoryFragment.getUnread());
+				hideBackArrow();
+			} else {
+				// we could be in onResume - just leave what's there right now
+			}
 		}
 	}
 
@@ -342,7 +341,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 
 		// Animation
 		if (Controller.isTablet)
-			ft.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.fade_out, android.R.anim.fade_in,
+			ft.setCustomAnimations(R.animator.slide_in_left, android.R.animator.fade_out, android.R.animator.fade_in,
 					R.animator.slide_out_left);
 		else ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 
@@ -362,13 +361,28 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 	@Override
 	public void onBackPressed() {
 		selectedCategoryId = Integer.MIN_VALUE;
-		/* Back button automatically finishes the activity since Lollipop so we have to work around by checking the
-		backstack before */
-		if (getFragmentManager().getBackStackEntryCount() > 0) {
-			getFragmentManager().popBackStack();
+		// Back button automatically finishes the activity since Lollipop
+		// so we have to work around by checking the backstack before
+		FragmentManager fm = getFragmentManager();
+		if (fm.getBackStackEntryCount() > 0) {
+			fm.popBackStack();
+			CategoryListFragment fragment = getCategoryListFragment();
+			if (fragment != null) {
+				fragment.doRefresh();
+			}
 		} else {
 			super.onBackPressed();
 		}
+	}
+
+	private FeedListFragment getFeedListFragment() {
+		return (FeedListFragment) getFragmentManager()
+				.findFragmentByTag(FeedListFragment.FRAGMENT);
+	}
+
+	private CategoryListFragment getCategoryListFragment() {
+		return (CategoryListFragment) getFragmentManager()
+				.findFragmentByTag(CategoryListFragment.FRAGMENT);
 	}
 
 }

@@ -23,6 +23,7 @@
 	<string name="Main.ShowPreferencesMenu">Einstellungen</string>
 	<string name="Main.RefreshMenu">Aktualisieren</string>
 	<string name="Main.ImageCache">Bilder herunterladen</string>
+	<string name="Main.ImageCacheCancel">\"Herunterladen\" abbrechen</string>
 	<string name="Preferences.Reset">Einstellungen zurücksetzen</string>
 	<string name="Preferences.Reset.Done">Einstellungen wurden zurückgesetzt.</string>
 	<string name="Preferences.ResetDatabase">Datenbank zurücksetzen</string>
@@ -74,11 +75,13 @@
 	<string name="Commons.MarkRead">Gelesen</string>
 	<string name="Commons.MarkUnread">Ungelesen</string>
 	<string name="Commons.MarkStar">Markieren</string>
-	<string name="Commons.MarkUnstar">Markiert</string>
+	<string name="Commons.MarkUnstar">Markierung entferne</string>
 	<string name="Commons.MarkPublish">Veröffentlichen</string>
-	<string name="Commons.MarkUnpublish">Veröffentlicht</string>
+	<string name="Commons.MarkNote">Notiz hinzufügen</string>
+	<string name="Commons.HtmlPrefixNote">Notiz:</string>
+	<string name="Commons.MarkUnpublish">Veröffentlichung entfernen</string>
 	<string name="Commons.AddArticleLabel">Label hinzufügen</string>
-	<string name="Commons.MarkAboveRead">Markiere obige Artikel als gelesen</string>
+	<string name="Commons.MarkAboveRead">Markiere Artikel über diesem als gelesen</string>
 	<string name="VCategory.AllArticles">Alle Artikel</string>
 	<string name="VCategory.FreshArticles">Neue Artikel</string>
 	<string name="VCategory.PublishedArticles">Veröffentlichte Artikel</string>

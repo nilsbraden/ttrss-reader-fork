@@ -14,12 +14,11 @@
  * copy of the GNU General Public License along with this program; If
  * not, see http://www.gnu.org/licenses/.
  */
-
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 24
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         minSdkVersion 14
@@ -33,3 +32,4 @@ android {
         }
     }
 }
+

@@ -58,7 +58,7 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		StringBuilder query = new StringBuilder();
 		query.append(" SELECT ");
 		query.append(" a._id AS _id, a.feedId, a.title, a.isUnread AS unread, a.updateDate, ");
-		query.append(" a.isStarred, a.isPublished, f.title AS feedTitle ");
+		query.append(" a.isStarred, a.isPublished, a.note, f.title AS feedTitle ");
 		query.append(" FROM ");
 		query.append(DBHelper.TABLE_ARTICLES).append(" a, ");
 		query.append(DBHelper.TABLE_FEEDS).append(" f ");
@@ -102,7 +102,7 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
 			query.append(" UNION SELECT ");
 			query.append(" c._id AS _id, c.feedId, c.title, c.isUnread AS unread, c.updateDate, ");
-			query.append(" c.isStarred, c.isPublished, d.title AS feedTitle ");
+			query.append(" c.isStarred, c.isPublished, c.note, d.title AS feedTitle ");
 			query.append(" FROM ");
 			query.append(DBHelper.TABLE_ARTICLES).append(" c, ");
 			query.append(DBHelper.TABLE_FEEDS).append(" d ");
@@ -126,7 +126,7 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		StringBuilder query = new StringBuilder();
 		query.append("SELECT ");
 		query.append(" a._id AS _id, a.feedId, a.title, a.isUnread AS unread, a.updateDate, ");
-		query.append(" a.isStarred, a.isPublished, f.title AS feedTitle ");
+		query.append(" a.isStarred, a.isPublished, a.note, f.title AS feedTitle ");
 		query.append(" FROM ");
 		query.append(DBHelper.TABLE_FEEDS).append(" f, ");
 		query.append(DBHelper.TABLE_ARTICLES).append(" a, ");
@@ -139,7 +139,7 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 		if (lastOpenedArticlesList.length() > 0 && !buildSafeQuery) {
 			query.append(" UNION SELECT ");
 			query.append(" b._id AS _id, b.feedId, b.title, b.isUnread AS unread, b.updateDate, ");
-			query.append(" b.isStarred, b.isPublished, f.title AS feedTitle ");
+			query.append(" b.isStarred, b.isPublished, b.note, f.title AS feedTitle ");
 			query.append(" FROM ");
 			query.append(DBHelper.TABLE_FEEDS).append(" f, ");
 			query.append(DBHelper.TABLE_ARTICLES).append(" b, ");

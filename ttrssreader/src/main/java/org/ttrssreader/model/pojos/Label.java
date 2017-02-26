@@ -17,7 +17,7 @@
 
 package org.ttrssreader.model.pojos;
 
-import org.jetbrains.annotations.NotNull;
+
 
 public class Label implements Comparable<Label> {
 
@@ -29,7 +29,7 @@ public class Label implements Comparable<Label> {
 	public String backgroundColor;
 
 	@Override
-	public int compareTo(@NotNull Label l) {
+	public int compareTo(Label l) {
 		return id.compareTo(l.id);
 	}
 

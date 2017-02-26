@@ -50,7 +50,7 @@
 	<string name="Commons.MarkStar">Destacado</string>
 	<string name="Commons.MarkUnstar">No destacado</string>
 	<string name="Commons.MarkPublish">Publicar</string>
-	<string name="Commons.MarkPublishNote">Publicar con una nota</string>
+	<string name="Commons.MarkNote">Añadir nota</string>
 	<string name="Commons.AddArticleLabel">Añadir etiqueta(s)</string>
 	<string name="Commons.MarkUnpublish">Des-publicar</string>
 	<string name="Commons.MarkAboveRead">Marcar artículos de arriba como leídos</string>

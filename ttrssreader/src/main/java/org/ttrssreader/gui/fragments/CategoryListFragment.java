@@ -153,8 +153,7 @@ public class CategoryListFragment extends MainListFragment {
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		if (id == TYPE_CAT_ID) {
-			Builder builder = ListContentProvider.CONTENT_URI_CAT.buildUpon();
-			categoryUri = builder.build();
+			categoryUri = ListContentProvider.CONTENT_URI_CAT;
 			return new CursorLoader(getActivity(), categoryUri, null, null, null, null);
 		}
 		return null;
@@ -164,6 +163,7 @@ public class CategoryListFragment extends MainListFragment {
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 		if (loader.getId() == TYPE_CAT_ID) adapter.changeCursor(data);
 		super.onLoadFinished(loader, data);
+		((CategoryActivity) getActivity()).setTitleAndUnread();
 	}
 
 	@Override
@@ -174,7 +174,7 @@ public class CategoryListFragment extends MainListFragment {
 	@Override
 	protected void fetchOtherData() {
 		title = "TTRSS-Reader"; // Hardcoded since this does not change and we would need to be attached to an activity
-		// here to be able to read from the ressources.
+		// here to be able to read from the resources.
 		unreadCount = DBHelper.getInstance().getUnreadCount(Data.VCAT_ALL, true);
 	}
 

@@ -20,5 +20,5 @@ package org.ttrssreader.gui.interfaces;
 import org.ttrssreader.model.pojos.Article;
 
 public interface TextInputAlertCallback {
-	void onPublishNoteResult(Article a, String note);
+	void onAddNoteResult(Article a, String note);
 }

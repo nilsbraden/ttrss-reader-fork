@@ -17,14 +17,6 @@
 
 package org.ttrssreader.gui.view;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.MediaPlayerActivity;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.FileUtils;
-import org.ttrssreader.utils.Utils;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -37,6 +29,14 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import org.ttrssreader.MyApplication;
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.MediaPlayerActivity;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.FileUtils;
+import org.ttrssreader.utils.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -53,9 +53,16 @@ public class ArticleWebViewClient extends WebViewClient {
 
 	private static final String TAG = ArticleWebViewClient.class.getSimpleName();
 
+	/*
+	 * Uses old deprecated method call and should be removed some day but until then I won't duplicate the code
+	 */
+	@Override
+	public boolean shouldOverrideUrlLoading(WebView view, final WebResourceRequest request) {
+		return shouldOverrideUrlLoading(view, request.getUrl().toString());
+	}
+
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, final String url) {
-
 		final Context context = view.getContext();
 
 		boolean audio = false;
@@ -80,9 +87,9 @@ public class ArticleWebViewClient extends WebViewClient {
 		if (audio || video) {
 			// @formatter:off
 			final CharSequence[] items = {
-					(String) context.getText(R.string.WebViewClientActivity_Display),
-					(String) context.getText(R.string.WebViewClientActivity_Download),
-					(String) context.getText(R.string.WebViewClientActivity_ChooseApp)};
+					context.getText(R.string.WebViewClientActivity_Display),
+					context.getText(R.string.WebViewClientActivity_Download),
+					context.getText(R.string.WebViewClientActivity_ChooseApp)};
 			// @formatter:on
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -136,17 +143,12 @@ public class ArticleWebViewClient extends WebViewClient {
 		return true;
 	}
 
-	private boolean externalStorageState() {
-		String state = Environment.getExternalStorageState();
-		return Environment.MEDIA_MOUNTED.equals(state);
-	}
-
 	private class AsyncMediaDownloader extends AsyncTask<URL, Void, Void> {
 		private final static int BUFFER = (int) Utils.KB;
 
 		private WeakReference<Context> contextRef;
 
-		public AsyncMediaDownloader(Context context) {
+		AsyncMediaDownloader(Context context) {
 			this.contextRef = new WeakReference<>(context);
 		}
 
@@ -157,7 +159,7 @@ public class ArticleWebViewClient extends WebViewClient {
 				Log.w(TAG, msg);
 				Utils.showFinishedNotification(msg, 0, true, contextRef.get());
 				return null;
-			} else if (!externalStorageState()) {
+			} else if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 				String msg = "External Storage not available, skipping download...";
 				Log.w(TAG, msg);
 				Utils.showFinishedNotification(msg, 0, true, contextRef.get());
@@ -171,8 +173,8 @@ public class ArticleWebViewClient extends WebViewClient {
 			File folder = new File(Controller.getInstance().saveAttachmentPath());
 			if (!folder.exists() && !folder.mkdirs()) {
 				// Folder could not be created, fallback to internal directory on sdcard
-				folder = new File(Constants.SAVE_ATTACHMENT_DEFAULT);
-				if (!folder.exists() && !folder.mkdirs()) {
+				folder = MyApplication.context().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+				if (folder != null && !folder.exists() && !folder.mkdirs()) {
 					String msg = "Folder could not be created: " + folder.getAbsolutePath();
 					Log.w(TAG, msg);
 					Utils.showFinishedNotification(msg, 0, true, contextRef.get());
@@ -239,29 +241,29 @@ public class ArticleWebViewClient extends WebViewClient {
 	}
 
 	/*
+	 * Uses old deprecated method call and should be removed some day but until then I won't duplicate the code
+	 */
+	@Override
+	public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+		return shouldInterceptRequest(view, request.getUrl().toString());
+	}
+
+	/*
 	 * WebKit does not call onReceivedHttpAuthRequest (or onReceivedError for that matter) when
 	 * processing resources within a rendered document. As a result, it is not possible to
 	 * inject authentication information without intercepting the resource loading itself.
 	 */
 	@Override
-	public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-		Controller controller = Controller.getInstance();
-
-		/* Short-circuit ahead of UrlNeedsAuthentication to avoid needless URL building. */
-		if (!controller.useHttpAuth()) return null;
-
+	public WebResourceResponse shouldInterceptRequest(WebView view, String urlStr) {
+		if (!Controller.getInstance().useHttpAuth()) return null;
 		try {
-			URL url = new URL(request.getUrl().toString());
-
-			if (!controller.UrlNeedsAuthentication(url)) return null;
-
-			URLConnection c = controller.openConnection(url);
-
+			URL url = new URL(urlStr);
+			if (!Controller.getInstance().urlNeedsAuthentication(url)) return null;
+			URLConnection c = Controller.getInstance().openConnection(url);
 			return new WebResourceResponse(c.getContentType(), c.getContentEncoding(), c.getInputStream());
 		} catch (IOException e) {
-			Log.e(TAG, "Failed to fetch " + request.getUrl().toString());
+			Log.e(TAG, "Failed to fetch " + urlStr);
 		}
-
 		return null;
 	}
 

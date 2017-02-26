@@ -15,24 +15,34 @@
  * not, see http://www.gnu.org/licenses/.
  */
 
-package org.ttrssreader.net;
+package org.ttrssreader.model.updaters;
 
-/**
- * this exception should be thrown if parsing of JSON object should be broken
- *
- * @author igor
- */
-public class StopJsonParsingException extends Exception {
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Article;
 
-	private static final long serialVersionUID = 1L;
+public class NoteUpdater implements IUpdatable {
+
+	@SuppressWarnings("unused")
+	private static final String TAG = NoteUpdater.class.getSimpleName();
+
+	private Article article;
+	private String note;
 
 	/**
-	 * constructor with detail message specification
-	 *
-	 * @param detailMessage detailed description of exception cause
+	 * Adds the given note to the article.
 	 */
-	public StopJsonParsingException(String detailMessage) {
-		super(detailMessage);
+	public NoteUpdater(Article article, String note) {
+		this.article = article;
+		this.note = note;
+	}
+
+	@Override
+	public void update() {
+		article.note = note;
+		DBHelper.getInstance().addArticleNote(article.id, note);
+		Data.getInstance().notifyListeners();
+		Data.getInstance().setArticleNote(article.id, note);
 	}
 
 }

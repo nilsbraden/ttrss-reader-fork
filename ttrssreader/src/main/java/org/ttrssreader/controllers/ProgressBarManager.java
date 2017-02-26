@@ -19,12 +19,14 @@ package org.ttrssreader.controllers;
 
 import org.ttrssreader.gui.MenuActivity;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ProgressBarManager {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = ProgressBarManager.class.getSimpleName();
 
-	private volatile int progressIndeterminateCount = 0;
+	private final AtomicInteger progressIndeterminateCount = new AtomicInteger();
 
 	// Singleton (see http://stackoverflow.com/a/11165926)
 	private ProgressBarManager() {
@@ -39,23 +41,22 @@ public class ProgressBarManager {
 	}
 
 	public void addProgress(MenuActivity activity) {
-		progressIndeterminateCount++;
+		progressIndeterminateCount.incrementAndGet();
 		setIndeterminateVisibility(activity);
 	}
 
 	public void removeProgress(MenuActivity activity) {
-		progressIndeterminateCount--;
-		if (progressIndeterminateCount <= 0) progressIndeterminateCount = 0;
+		if (progressIndeterminateCount.decrementAndGet() <= 0) progressIndeterminateCount.set(0);
 		setIndeterminateVisibility(activity);
 	}
 
 	public void resetProgress(MenuActivity activity) {
-		progressIndeterminateCount = 0;
+		progressIndeterminateCount.set(0);
 		setIndeterminateVisibility(activity);
 	}
 
 	public void setIndeterminateVisibility(MenuActivity activity) {
-		boolean visible = (progressIndeterminateCount > 0);
+		boolean visible = (progressIndeterminateCount.get() > 0);
 		if (activity != null) {
 			activity.setSupportProgressBarIndeterminateVisibility(visible);
 			activity.setSupportProgressBarVisibility(!visible);

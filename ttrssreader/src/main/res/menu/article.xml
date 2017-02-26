@@ -43,11 +43,11 @@
 		app:showAsAction="ifRoom|withText"
 		android:title="@string/Commons.MarkRead" />
 	<item
-		android:id="@+id/Article_Menu_MarkPublishNote"
-		android:icon="@drawable/menu_publish"
+		android:id="@+id/Article_Menu_MarkNote"
+		android:icon="@android:drawable/ic_menu_edit"
 		android:orderInCategory="300"
 		app:showAsAction="ifRoom|withText"
-		android:title="@string/Commons.MarkPublishNote" />
+		android:title="@string/Commons.MarkNote" />
 	<item
 		android:id="@+id/Article_Menu_AddArticleLabel"
 		android:icon="@drawable/perm_group_app_info"

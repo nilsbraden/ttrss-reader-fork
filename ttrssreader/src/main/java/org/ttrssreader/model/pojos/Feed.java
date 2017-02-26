@@ -17,7 +17,7 @@
 
 package org.ttrssreader.model.pojos;
 
-import org.jetbrains.annotations.NotNull;
+
 
 public class Feed implements Comparable<Feed> {
 
@@ -27,24 +27,8 @@ public class Feed implements Comparable<Feed> {
 	public String url;
 	public int unread;
 
-	public Feed() {
-		this.id = 0;
-		this.categoryId = 0;
-		this.title = "";
-		this.url = "";
-		this.unread = 0;
-	}
-
-	public Feed(int id, int categoryId, String title, String url, int unread) {
-		this.id = id;
-		this.categoryId = categoryId;
-		this.title = title;
-		this.url = url;
-		this.unread = unread;
-	}
-
 	@Override
-	public int compareTo(@NotNull Feed fi) {
+	public int compareTo(Feed fi) {
 		return title.compareToIgnoreCase(fi.title);
 	}
 

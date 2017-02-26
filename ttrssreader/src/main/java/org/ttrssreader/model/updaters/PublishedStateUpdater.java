@@ -28,7 +28,6 @@ public class PublishedStateUpdater implements IUpdatable {
 
 	private Article article;
 	private int articleState;
-	private String note;
 
 	/**
 	 * Sets the articles' Published-Status according to articleState
@@ -36,16 +35,6 @@ public class PublishedStateUpdater implements IUpdatable {
 	public PublishedStateUpdater(Article article, int articleState) {
 		this.article = article;
 		this.articleState = articleState;
-		this.note = null;
-	}
-
-	/**
-	 * Sets the articles' Published-Status according to articleState and adds the given note to the article.
-	 */
-	public PublishedStateUpdater(Article article, int articleState, String note) {
-		this.article = article;
-		this.articleState = articleState;
-		this.note = note;
 	}
 
 	@Override
@@ -55,7 +44,7 @@ public class PublishedStateUpdater implements IUpdatable {
 			DBHelper.getInstance().markArticle(article.id, "isPublished", articleState);
 			Data.getInstance().calculateCounters();
 			Data.getInstance().notifyListeners();
-			Data.getInstance().setArticlePublished(article.id, articleState, note);
+			Data.getInstance().setArticlePublished(article.id, articleState);
 		}
 	}
 

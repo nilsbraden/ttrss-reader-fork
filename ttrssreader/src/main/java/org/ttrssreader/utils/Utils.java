@@ -17,10 +17,6 @@
 
 package org.ttrssreader.utils;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.preferences.Constants;
-
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -37,11 +33,18 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Vibrator;
+import android.support.v4.net.ConnectivityManagerCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.preferences.Constants;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -94,6 +97,14 @@ public class Utils {
 	private static final int ID_RUNNING = 4564561;
 	private static final int ID_FINISHED = 7897891;
 
+	/**
+	 * Different network states
+	 */
+	public static final int NETWORK_NONE = 0;
+	public static final int NETWORK_MOBILE = 1;
+	public static final int NETWORK_METERED = 2;
+	public static final int NETWORK_WIFI = 3;
+
 	/*
 	 * Check if this is the first run of the app.
 	 */
@@ -121,7 +132,8 @@ public class Utils {
 		if (thisVersion.equals(lastVersionRun)) {
 			// No new version installed, perhaps a new version exists
 			// Only run task once for every session and only if we are online
-			if (!checkConnected((ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE))) return false;
+			if (!checkConnected((ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE)))
+				return false;
 			if (AsyncTask.Status.PENDING.equals(updateVersionTask.getStatus()))
 				updateVersionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			return false;
@@ -199,13 +211,13 @@ public class Utils {
 	 * Wrapper for Method checkConnected(ConnectivityManager cm, boolean onlyWifi)
 	 */
 	public static boolean checkConnected(ConnectivityManager cm) {
-		return checkConnected(cm, Controller.getInstance().onlyUseWifi());
+		return checkConnected(cm, Controller.getInstance().onlyUseWifi(), false);
 	}
 
 	/**
 	 * Only checks the connectivity without regard to the preferences
 	 */
-	public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi) {
+	public static boolean checkConnected(ConnectivityManager cm, boolean onlyWifi, boolean onlyUnmeteredNetwork) {
 		if (cm == null) return false;
 
 		NetworkInfo info = cm.getActiveNetworkInfo();
@@ -213,9 +225,50 @@ public class Utils {
 			if (onlyWifi && info.getType() != ConnectivityManager.TYPE_WIFI) {
 				return false;
 			}
+			if (onlyUnmeteredNetwork) {
+				return !isNetworkMetered(cm);
+			}
 			return true;
 		}
 		return false;
+	}
+
+	public static int getNetworkType(final ConnectivityManager cm) {
+		if (cm == null) return NETWORK_NONE;
+		final NetworkInfo info = cm.getActiveNetworkInfo();
+		if (info == null || !info.isConnected()) {
+			return NETWORK_NONE;
+		} else if (info.getType() != ConnectivityManager.TYPE_WIFI) {
+			return NETWORK_MOBILE;
+		} else if (isNetworkMetered(cm)) {
+			return NETWORK_METERED;
+		} else {
+			return NETWORK_WIFI;
+		}
+	}
+
+	private static boolean isNetworkMetered(ConnectivityManager cm) {
+		if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.JELLY_BEAN)
+			return ConnectivityManagerCompat.isActiveNetworkMetered(cm);
+		else
+			return cm.isActiveNetworkMetered();
+	}
+
+	/**
+	 * Allos to send a toast from a background thread
+	 *
+	 * @param context the context, eg. MyApplication.context()
+	 * @param message like Toast.makeText(...)
+	 * @param length  like Toast.makeText(...)
+	 */
+	public static void showBackgroundToast(final Context context, final String message, final int length) {
+		Handler handler = new Handler(context.getMainLooper());
+		handler.post(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(context, message, length).show();
+			}
+		});
 	}
 
 	public static void showFinishedNotification(String content, int time, boolean error, Context context) {
@@ -231,7 +284,7 @@ public class Utils {
 	 * @param context the context
 	 */
 	public static void showFinishedNotification(String content, int time, boolean error, Context context,
-			Intent intent) {
+	                                            Intent intent) {
 		if (context == null) return;
 
 		NotificationManager mNotMan = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -324,7 +377,7 @@ public class Utils {
 
 	@SuppressWarnings("deprecation")
 	public static Notification buildNotification(Context context, int icon, CharSequence ticker, CharSequence title,
-			CharSequence text, boolean autoCancel, Intent intent) {
+	                                             CharSequence text, boolean autoCancel, Intent intent) {
 		Notification notification = null;
 		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -378,7 +431,8 @@ public class Utils {
 		ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
 		if (clipboard.hasPrimaryClip()) {
 
-			if (!clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) return null;
+			if (!clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN))
+				return null;
 
 			ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
 			CharSequence chars = item.getText();

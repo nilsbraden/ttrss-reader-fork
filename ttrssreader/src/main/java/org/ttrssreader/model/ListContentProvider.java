@@ -18,7 +18,6 @@
 package org.ttrssreader.model;
 
 import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.CategoryCursorHelper.MemoryDBOpenHelper;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -52,7 +51,6 @@ public class ListContentProvider extends ContentProvider {
 	public static final Uri CONTENT_URI_FEED = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_FEEDS);
 	public static final Uri CONTENT_URI_HEAD = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_HEADLINES);
 
-	private static MemoryDBOpenHelper memoryDbOpenHelper;
 
 	private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -65,7 +63,6 @@ public class ListContentProvider extends ContentProvider {
 
 	@Override
 	public boolean onCreate() {
-		memoryDbOpenHelper = new MemoryDBOpenHelper(getContext());
 		return false;
 	}
 
@@ -91,8 +88,7 @@ public class ListContentProvider extends ContentProvider {
 		int uriType = sURIMatcher.match(uri);
 		switch (uriType) {
 			case CATS:
-				SQLiteDatabase memoryDb = memoryDbOpenHelper.getWritableDatabase();
-				cursorHelper = new CategoryCursorHelper(memoryDb);
+				cursorHelper = new CategoryCursorHelper();
 				break;
 			case FEEDS:
 				cursorHelper = new FeedCursorHelper(categoryId);

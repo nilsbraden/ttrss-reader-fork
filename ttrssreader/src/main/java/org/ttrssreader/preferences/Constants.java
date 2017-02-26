@@ -17,13 +17,10 @@
 
 package org.ttrssreader.preferences;
 
-import org.ttrssreader.utils.FileUtils;
+import android.content.SharedPreferences;
+
 import org.ttrssreader.utils.Utils;
 
-import android.content.SharedPreferences;
-import android.os.Environment;
-
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Locale;
 
@@ -31,13 +28,6 @@ public class Constants {
 
 	public static final String EMPTY = "";
 	public static final String APPENDED_DEFAULT = "_DEFAULT";
-
-	static {
-		SAVE_ATTACHMENT_DEFAULT = Environment.getExternalStorageDirectory() + File.separator
-				+ FileUtils.SDCARD_PATH_FILES;
-		CACHE_FOLDER_DEFAULT = Environment.getExternalStorageDirectory() + File.separator + FileUtils
-				.SDCARD_PATH_CACHE;
-	}
 
 	// Connection
 	public static final String URL = "ConnectionUrlPreference";
@@ -137,8 +127,6 @@ public class Constants {
 	public static final String NO_CRASHREPORTS_UNTIL_UPDATE = "NoCrashreportsUntilUpdatePreference";
 	public static final String IS_FIRST_RUN = "IsFirstRun";
 	// System Default Values
-	public static final String SAVE_ATTACHMENT_DEFAULT;
-	public static final String CACHE_FOLDER_DEFAULT;
 	public static final Integer CACHE_FOLDER_MAX_SIZE_DEFAULT = 80;
 	public static final Integer CACHE_IMAGE_MAX_SIZE_DEFAULT = 6 * (int) Utils.MB; // 6 MB
 	public static final Integer CACHE_IMAGE_MIN_SIZE_DEFAULT = 32 * (int) Utils.KB; // 64 KB
@@ -167,8 +155,8 @@ public class Constants {
 	public static final long FRESH_ARTICLE_MAX_AGE_DEFAULT = Utils.DAY;
 	public static final long FRESH_ARTICLE_MAX_AGE_DATE_DEFAULT = 0;
 	public static final int SINCE_ID_DEFAULT = 0;
-	public static final long LAST_SYNC_DEFAULT = 0l;
-	public static final long LAST_CLEANUP_DEFAULT = 0l;
+	public static final long LAST_SYNC_DEFAULT = 0;
+	public static final long LAST_CLEANUP_DEFAULT = 0;
 	public static final int ACTIVITY_SHOW_PREFERENCES = 43;
 
 	/*

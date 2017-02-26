@@ -17,7 +17,7 @@
 
 package org.ttrssreader.gui;
 
-import org.jetbrains.annotations.NotNull;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -30,9 +30,7 @@ import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 import org.ttrssreader.utils.Utils;
 
 import android.app.backup.BackupManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,6 +56,8 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 
 	@SuppressWarnings("unused")
 	private static final String TAG = PreferencesActivity.class.getSimpleName();
+
+	public static final int ACTIVITY_RELOAD = 45;
 
 	private PostMortemReportExceptionHandler mDamageReport = new PostMortemReportExceptionHandler(this);
 
@@ -175,7 +175,7 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 	}
 
 	@Override
-	public void switchToHeader(@NotNull Header header) {
+	public void switchToHeader(Header header) {
 		if (header.fragment != null) {
 			super.switchToHeader(header);
 		}
@@ -218,8 +218,7 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 		doReset |= (id == R.id.Preferences_Menu_ResetCache);
 		doReset |= (id == R.id.Preferences_Menu_ResetDatabase);
 
-		ComponentName comp = new ComponentName(getPackageName(), getClass().getName());
-		if (doReset) new ResetTask(this, comp).execute(menuItem.getItemId());
+		if (doReset) new ResetTask(this).execute(menuItem.getItemId());
 
 		return doReset;
 	}
@@ -230,12 +229,10 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 	private class ResetTask extends AsyncTask<Integer, Void, Void> {
 
 		private final Context context;
-		private final ComponentName comp;
 		private int textResource;
 
-		public ResetTask(Context context, ComponentName comp) {
+		public ResetTask(Context context) {
 			this.context = context;
-			this.comp = comp;
 		}
 
 		@Override
@@ -248,7 +245,9 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 					break;
 				case R.id.Preferences_Menu_ResetDatabase:
 					Controller.getInstance().setDeleteDBScheduled(true);
+					Controller.getInstance().setSinceId(0);
 					DBHelper.getInstance().initialize(context);
+					Data.getInstance().initTimers();
 					textResource = R.string.Preferences_ResetDatabase_Done;
 					break;
 				case R.id.Preferences_Menu_ResetCache:
@@ -263,8 +262,8 @@ public class PreferencesActivity extends PreferenceActivity implements Toolbar.O
 		@Override
 		protected void onPostExecute(Void aVoid) {
 			Toast.makeText(context, textResource, Toast.LENGTH_SHORT).show();
+			setResult(ACTIVITY_RELOAD);
 			finish();
-			startActivity(new Intent().setComponent(comp));
 			super.onPostExecute(aVoid);
 		}
 	}

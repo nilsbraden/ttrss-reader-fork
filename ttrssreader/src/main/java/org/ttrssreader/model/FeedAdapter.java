@@ -17,9 +17,6 @@
 
 package org.ttrssreader.model;
 
-import org.jetbrains.annotations.NotNull;
-import org.ttrssreader.R;
-import org.ttrssreader.model.pojos.Feed;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -28,6 +25,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.ttrssreader.R;
+import org.ttrssreader.model.pojos.Feed;
 
 public class FeedAdapter extends MainAdapter {
 
@@ -66,16 +66,30 @@ public class FeedAdapter extends MainAdapter {
 	}
 
 	@Override
-	public void bindView(@NotNull View view, Context context, @NotNull Cursor cursor) {
+	public void bindView(View view, Context context, Cursor cursor) {
 		super.bindView(view, context, cursor);
 
-		Feed f = getFeed(cursor);
-		ImageView icon = (ImageView) view.findViewById(R.id.icon);
-		icon.setImageResource(getImage(f.unread > 0));
+		ViewHolder holder = (ViewHolder) view.getTag();
+		if (holder == null) {
+			holder = new ViewHolder();
+			holder.icon = (ImageView) view.findViewById(R.id.icon);
+			holder.title = (TextView) view.findViewById(R.id.title);
+			holder.unread = (TextView) view.findViewById(R.id.item_unread);
+			view.setTag(holder);
+		}
 
-		TextView title = (TextView) view.findViewById(R.id.title);
-		title.setText(formatItemTitle(f.title, f.unread));
-		if (f.unread > 0) title.setTypeface(Typeface.DEFAULT_BOLD);
+		final Feed f = getFeed(cursor);
+
+		holder.icon.setImageResource(getImage(f.unread > 0));
+		holder.title.setText(f.title);
+		holder.unread.setText(String.valueOf(f.unread));
+		if (f.unread > 0) {
+			holder.title.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.unread.setVisibility(View.VISIBLE);
+		} else {
+			holder.title.setTypeface(Typeface.DEFAULT);
+			holder.unread.setVisibility(View.GONE);
+		}
 	}
 
 	private static Feed getFeed(Cursor cur) {
@@ -84,6 +98,12 @@ public class FeedAdapter extends MainAdapter {
 		ret.title = cur.getString(1);
 		ret.unread = cur.getInt(2);
 		return ret;
+	}
+
+	private static class ViewHolder {
+		TextView title;
+		TextView unread;
+		ImageView icon;
 	}
 
 }

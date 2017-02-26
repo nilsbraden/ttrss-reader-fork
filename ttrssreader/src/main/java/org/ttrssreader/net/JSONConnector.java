@@ -17,12 +17,16 @@
 
 package org.ttrssreader.net;
 
+import android.content.Context;
+import android.os.Build;
+import android.util.Base64;
+import android.util.Log;
+
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
 
-import org.intellij.lang.annotations.RegExp;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.ttrssreader.MyApplication;
@@ -36,28 +40,32 @@ import org.ttrssreader.model.pojos.Label;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 
-import android.content.Context;
-import android.util.Base64;
-import android.util.Log;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.net.SocketException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
-public abstract class JSONConnector {
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+public class JSONConnector {
 
 	private static final String TAG = JSONConnector.class.getSimpleName();
 
-	protected static String lastError = "";
-	protected static boolean hasLastError = false;
+	private static String lastError = "";
+	private static boolean hasLastError = false;
 
 	private static final String PARAM_OP = "op";
 	private static final String PARAM_USER = "user";
@@ -131,34 +139,102 @@ public abstract class JSONConnector {
 	private static final int MAX_ID_LIST_LENGTH = 100;
 
 	// session id as an IN parameter
-	protected static final String SID = "sid";
+	private static final String SID = "sid";
 
-	protected boolean httpAuth = false;
-	protected String httpUsername;
-	protected String httpPassword;
+	private boolean httpAuth = false;
+	private String base64NameAndPw = null;
 
-	protected String sessionId = null;
+	private String sessionId = null;
 
 	private final Object lock = new Object();
 	private int apiLevel = -1;
 
 	public static final int PARAM_LIMIT_MAX_VALUE = 200;
 
-	protected abstract InputStream doRequest(Map<String, String> params);
+	private InputStream doRequest(Map<String, String> params) {
+		try {
+			if (sessionId != null) params.put(SID, sessionId);
 
-	public void init() {
-		httpAuth = Controller.getInstance().useHttpAuth();
-		if (!httpAuth) return;
+			JSONObject json = new JSONObject(params);
+			byte[] outputBytes = json.toString().getBytes("UTF-8");
 
-		if (httpUsername != null) return;
-		if (httpPassword != null) return;
+			logRequest(json);
 
-		// Refresh data
-		httpUsername = Controller.getInstance().httpUsername();
-		httpPassword = Controller.getInstance().httpPassword();
+			URL url = Controller.getInstance().url();
+			HttpURLConnection con = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+			con.setDoInput(true);
+			con.setDoOutput(true);
+			con.setUseCaches(false);
+
+			// Content
+			con.setRequestProperty("Content-Type", "application/json");
+			con.setRequestProperty("Accept", "application/json");
+			con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
+
+			// Timeouts
+			long timeoutSocket = (Controller.getInstance().lazyServer()) ? 15 * Utils.MINUTE : 10 * Utils.SECOND;
+			con.setReadTimeout((int) timeoutSocket);
+			con.setConnectTimeout((int) (8 * Utils.SECOND));
+
+			// HTTP-Basic Authentication
+			if (base64NameAndPw != null)
+				con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+
+			// Add POST data
+			con.getOutputStream().write(outputBytes);
+
+			// Try to check for HTTP Status codes
+			int code = con.getResponseCode();
+			if (code >= 400 && code < 600) {
+				hasLastError = true;
+				lastError = "Server returned status: " + code + " (Message: " + con.getResponseMessage() + ")";
+				return null;
+			}
+
+			// Everything is fine!
+			return con.getInputStream();
+
+		} catch (SSLPeerUnverifiedException e) {
+			// Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
+			// Not doing anything here since this error should happen only when no certificate is received from the
+			// server.
+			Log.w(TAG, "SSLPeerUnverifiedException in doRequest(): " + formatException(e));
+		} catch (SSLException e) {
+			if ("No peer certificate".equals(e.getMessage())) {
+				// Handle this by ignoring it, this occurrs very often when the connection is instable.
+				Log.w(TAG, "SSLException in doRequest(): " + formatException(e));
+			} else {
+				hasLastError = true;
+				lastError = "SSLException in doRequest(): " + formatException(e);
+			}
+		} catch (InterruptedIOException e) {
+			Log.w(TAG, "InterruptedIOException in doRequest(): " + formatException(e));
+		} catch (SocketException e) {
+			// http://stackoverflow.com/questions/693997/how-to-set-httpresponse-timeout-for-android-in-java/1565243
+			// #1565243
+			Log.w(TAG, "SocketException in doRequest(): " + formatException(e));
+		} catch (Exception e) {
+			hasLastError = true;
+			lastError = "Exception in doRequest(): " + formatException(e);
+		}
+
+		return null;
 	}
 
-	protected void logRequest(final JSONObject json) throws JSONException {
+	public void init() {
+
+		if (Controller.getInstance().useHttpAuth()) {
+			this.httpAuth = true;
+			String creds = Controller.getInstance().httpUsername() + ":" + Controller.getInstance().httpPassword();
+			this.base64NameAndPw = encodeBase64ToString(creds);
+		} else {
+			this.httpAuth = false;
+			this.base64NameAndPw = null;
+		}
+
+	}
+
+	private void logRequest(final JSONObject json) throws JSONException {
 		// Filter password and session-id
 		Object paramPw = json.remove(PARAM_PW);
 		Object paramSID = json.remove(SID);
@@ -360,6 +436,40 @@ public abstract class JSONConnector {
 	}
 
 	/**
+	 * At this time, we can only offer a best guess: if http authentication is on, and
+	 * the user has no tt-rss username and password, then it's likely.
+	 * In the future, it may be a better option to have an explicit setting for this.
+	 * The problem with that is that many people may not know what single-user mode is,
+	 * as it can only be set in server config files.
+	 *
+	 * @return true if the configured tt-rss instance is configured for single user
+	 * (ie. no username, no password, no user management)
+	 */
+	private boolean isSingleUser() {
+		return httpAuth
+				&& StringSupport.isEmpty(Controller.getInstance().username())
+				&& StringSupport.isEmpty(Controller.getInstance().password());
+	}
+
+	/**
+	 * Returns a base64 encoded representation of the input string and considers the current android version to access the appropriate API.
+	 *
+	 * @param input the string to be encoded
+	 * @return the base64 encoded representation of the string
+	 */
+	private static String encodeBase64ToString(String input) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+			try {
+				return Base64.encodeToString(input.getBytes("UTF-8"), Base64.NO_WRAP);
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException("UnsupportedEncodingException: UTF-8 not supported. Should never happen.");
+			}
+		} else {
+			return Base64.encodeToString(input.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
+		}
+	}
+
+	/**
 	 * Tries to login to the ttrss-server with the base64-encoded password.
 	 *
 	 * @return true on success, false otherwise
@@ -371,37 +481,35 @@ public abstract class JSONConnector {
 		if (sessionId != null && !lastError.equals(NOT_LOGGED_IN)) return true;
 
 		synchronized (lock) {
-			try {
-				if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
-					return true; // Login done while we were waiting for the lock
+			if (sessionId != null && !lastError.equals(NOT_LOGGED_IN))
+				return true; // Login done while we were waiting for the lock
 
-				Map<String, String> params = new HashMap<>();
-				params.put(PARAM_OP, VALUE_LOGIN);
+			Map<String, String> params = new HashMap<>();
+			params.put(PARAM_OP, VALUE_LOGIN);
+
+			if (!isSingleUser()) {
 				params.put(PARAM_USER, Controller.getInstance().username());
-				params.put(PARAM_PW,
-						Base64.encodeToString(Controller.getInstance().password().getBytes("UTF-8"), Base64.NO_WRAP));
+				String pass = encodeBase64ToString(Controller.getInstance().password());
+				params.put(PARAM_PW, pass);
+			}
 
-				try {
-					sessionId = readResult(params, true, false);
-					if (sessionId != null) {
-						Log.d(TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
-						return true;
-					}
-				} catch (IOException e) {
-					if (!hasLastError) {
-						hasLastError = true;
-						lastError = formatException(e);
-					}
+			try {
+				sessionId = readResult(params, true, false);
+				if (sessionId != null) {
+					Log.d(TAG, "login: " + (System.currentTimeMillis() - time) + "ms");
+					return true;
 				}
-
+			} catch (IOException e) {
 				if (!hasLastError) {
-					// Login didnt succeed, write message
 					hasLastError = true;
-					lastError = MyApplication.context().getString(R.string.Error_NotLoggedIn);
+					lastError = formatException(e);
 				}
-			} catch (UnsupportedEncodingException e) {
+			}
+
+			if (!hasLastError) {
+				// Login didnt succeed, write message
 				hasLastError = true;
-				lastError = MyApplication.context().getString(R.string.Error_EncodePassword);
+				lastError = MyApplication.context().getString(R.string.Error_NotLoggedIn);
 			}
 			return false;
 		}
@@ -451,15 +559,13 @@ public abstract class JSONConnector {
 	/**
 	 * parse articles from JSON-reader
 	 *
-	 * @param articles  container, where parsed articles will be stored
-	 * @param reader    JSON-reader, containing articles (received from server)
-	 * @param skipNames set of names (article properties), which should not be processed (may be {@code null})
-	 * @param filter    filter for articles, defining which articles should be omitted while parsing (may be {@code
-	 *                  null})
+	 * @param articles container, where parsed articles will be stored
+	 * @param reader   JSON-reader, containing articles (received from server)
+	 * @param filter   filter for articles, defining which articles should be omitted while parsing (may be {@code
+	 *                 null})
 	 * @return amount of processed articles
 	 */
-	private int parseArticleArray(final Set<Article> articles, JsonReader reader, Set<Article.ArticleField> skipNames,
-			IArticleOmitter filter) {
+	private int parseArticleArray(final Set<Article> articles, JsonReader reader, IArticleOmitter filter) {
 		long time = System.currentTimeMillis();
 		int count = 0;
 
@@ -469,7 +575,7 @@ public abstract class JSONConnector {
 				Article article = new Article();
 
 				reader.beginObject();
-				boolean skipObject = parseArticle(article, reader, skipNames, filter);
+				boolean skipObject = parseArticle(article, reader, filter);
 				reader.endObject();
 
 				if (!skipObject && article.id != -1 && article.title != null) articles.add(article);
@@ -488,8 +594,8 @@ public abstract class JSONConnector {
 		return count;
 	}
 
-	private boolean parseArticle(final Article a, final JsonReader reader, final Set<Article.ArticleField> skipNames,
-			final IArticleOmitter filter) throws IOException {
+	private boolean parseArticle(final Article a, final JsonReader reader, final IArticleOmitter filter)
+			throws IOException {
 
 		boolean skipObject = false;
 		while (reader.hasNext() && reader.peek().equals(JsonToken.NAME)) {
@@ -502,18 +608,16 @@ public abstract class JSONConnector {
 			}
 
 			String name = reader.nextName();
-			Article.ArticleField field = Article.ArticleField.valueOf(name);
 
 			try {
-
-				if (skipNames != null && skipNames.contains(field)) {
-					reader.skipValue();
-					continue;
-				}
+				Article.ArticleField field = Article.ArticleField.valueOf(name);
 
 				switch (field) {
 					case id:
 						a.id = reader.nextInt();
+						break;
+					case guid:
+						a.guid = reader.nextString();
 						break;
 					case title:
 						a.title = reader.nextString();
@@ -529,7 +633,8 @@ public abstract class JSONConnector {
 						else a.feedId = reader.nextInt();
 						break;
 					case content:
-						a.content = reader.nextString().replaceAll("(<(?:img|video)[^>]+?src=[\"'])//([^\"']*)", "$1https://$2");
+						a.content = reader.nextString()
+								.replaceAll("(<(?:img|video)[^>]+?src=[\"'])//([^\"']*)", "$1https://$2");
 						break;
 					case link:
 						a.url = reader.nextString();
@@ -556,6 +661,10 @@ public abstract class JSONConnector {
 					case author:
 						a.author = reader.nextString();
 						break;
+					case note:
+						if (reader.peek() == JsonToken.NULL) reader.nextNull();
+						else a.note = reader.nextString();
+						break;
 					default:
 						reader.skipValue();
 						continue;
@@ -563,8 +672,8 @@ public abstract class JSONConnector {
 
 				if (filter != null) skipObject = filter.omitArticle(field, a);
 
-			} catch (IllegalArgumentException | StopJsonParsingException | IOException e) {
-				Log.w(TAG, "Result contained illegal value for entry \"" + field + "\".");
+			} catch (IllegalArgumentException | IOException e) {
+				Log.w(TAG, "Result contained illegal value for entry \"" + name + "\".");
 				reader.skipValue();
 			}
 		}
@@ -754,9 +863,17 @@ public abstract class JSONConnector {
 				}
 				reader.endObject();
 
-				if (id != -1 || categoryId == -2) // normal feed (>0) or label (-2)
-					if (title != null) // Dont like complicated if-statements..
-						ret.add(new Feed(id, categoryId, title, feedUrl, unread));
+				if (id != -1 || categoryId == -2) { // normal feed (>0) or label (-2)
+					if (title != null) {
+						Feed f = new Feed();
+						f.id = id;
+						f.categoryId = categoryId;
+						f.title = title;
+						f.url = feedUrl;
+						f.unread = unread;
+						ret.add(f);
+					}
+				}
 
 			}
 			reader.endArray();
@@ -809,22 +926,21 @@ public abstract class JSONConnector {
 	/**
 	 * Retrieves the specified articles.
 	 *
-	 * @param articles       container for retrieved articles
-	 * @param id             the id of the feed/category
-	 * @param limit          the maximum number of articles to be fetched
-	 * @param viewMode       indicates wether only unread articles should be included (Possible values: all_articles,
-	 *                       unread,
-	 *                       adaptive, marked, updated)
-	 * @param isCategory     indicates if we are dealing with a category or a feed
-	 * @param sinceId        the first ArticleId which is to be retrieved.
-	 * @param search         search query
-	 * @param skipProperties set of article fields, which should not be parsed (may be {@code null})
-	 * @param filter         filter for articles, defining which articles should be omitted while parsing (may be
-	 *                       {@code
-	 *                       null})
+	 * @param articles   container for retrieved articles
+	 * @param id         the id of the feed/category
+	 * @param limit      the maximum number of articles to be fetched
+	 * @param viewMode   indicates wether only unread articles should be included (Possible values: all_articles,
+	 *                   unread,
+	 *                   adaptive, marked, updated)
+	 * @param isCategory indicates if we are dealing with a category or a feed
+	 * @param sinceId    the first ArticleId which is to be retrieved.
+	 * @param search     search query
+	 * @param filter     filter for articles, defining which articles should be omitted while parsing (may be
+	 *                   {@code
+	 *                   null})
 	 */
 	public void getHeadlines(final Set<Article> articles, Integer id, int limit, String viewMode, boolean isCategory,
-			Integer sinceId, String search, Set<Article.ArticleField> skipProperties, IArticleOmitter filter) {
+	                         Integer sinceId, String search, IArticleOmitter filter) {
 		long time = System.currentTimeMillis();
 		int offset = 0;
 		int count;
@@ -845,10 +961,8 @@ public abstract class JSONConnector {
 			params.put(PARAM_SKIP, offset + "");
 			params.put(PARAM_VIEWMODE, viewMode);
 			params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
-			if (skipProperties == null || !skipProperties.contains(Article.ArticleField.content))
-				params.put(PARAM_SHOW_CONTENT, "1");
-			if (skipProperties == null || !skipProperties.contains(Article.ArticleField.attachments))
-				params.put(PARAM_INC_ATTACHMENTS, "1");
+			params.put(PARAM_SHOW_CONTENT, "1");
+			params.put(PARAM_INC_ATTACHMENTS, "1");
 			if (sinceId > 0) params.put(PARAM_SINCE_ID, sinceId + "");
 			if (search != null) params.put(PARAM_SEARCH, search);
 
@@ -859,7 +973,7 @@ public abstract class JSONConnector {
 				if (hasLastError) return;
 				if (reader == null) continue;
 
-				count = parseArticleArray(articles, reader, skipProperties, filter);
+				count = parseArticleArray(articles, reader, filter);
 
 				if (count < limitParam) break;
 				else offset += count;
@@ -924,40 +1038,6 @@ public abstract class JSONConnector {
 	}
 
 	/**
-	 * Marks the given Articles as "published"/"not published" depending on articleState.
-	 *
-	 * @param ids          a list of article-ids with corresponding notes (may be null).
-	 * @param articleState the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
-	 * @return true if the operation succeeded.
-	 */
-	public boolean setArticlePublished(Map<Integer, String> ids, int articleState) {
-		boolean ret = true;
-		if (ids.size() == 0) return true;
-
-		for (String idList : StringSupport.convertListToString(ids.keySet(), MAX_ID_LIST_LENGTH)) {
-			Map<String, String> params = new HashMap<>();
-			params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
-			params.put(PARAM_ARTICLE_IDS, idList);
-			params.put(PARAM_MODE, articleState + "");
-			params.put(PARAM_FIELD, "1");
-			ret = ret && doRequestNoAnswer(params);
-
-			// Add a note to the article(s)
-
-			for (Integer id : ids.keySet()) {
-				String note = ids.get(id);
-				if (note == null || note.equals("")) continue;
-
-				params.put(PARAM_FIELD, "3"); // Field 3 is the "Add note" field
-				params.put(PARAM_DATA, note);
-				ret = ret && doRequestNoAnswer(params);
-			}
-		}
-
-		return ret;
-	}
-
-	/**
 	 * Marks a feed or a category with all its feeds as read.
 	 *
 	 * @param id         the feed-id/category-id.
@@ -970,6 +1050,50 @@ public abstract class JSONConnector {
 		params.put(PARAM_FEED_ID, id + "");
 		params.put(PARAM_IS_CAT, (isCategory ? "1" : "0"));
 		return doRequestNoAnswer(params);
+	}
+
+	/**
+	 * Marks the given Articles as "published"/"not published" depending on articleState.
+	 *
+	 * @param ids          a list of article-ids.
+	 * @param articleState the new state of the articles (0 -> not published; 1 -> published; 2 -> toggle).
+	 * @return true if the operation succeeded.
+	 */
+	public boolean setArticlePublished(Set<Integer> ids, int articleState) {
+		if (ids.size() == 0) return true;
+		boolean ret = true;
+		for (String idList : StringSupport.convertListToString(ids, MAX_ID_LIST_LENGTH)) {
+			Map<String, String> params = new HashMap<>();
+			params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+			params.put(PARAM_ARTICLE_IDS, idList);
+			params.put(PARAM_MODE, articleState + "");
+			params.put(PARAM_FIELD, "1");
+			ret = ret && doRequestNoAnswer(params);
+		}
+		return ret;
+	}
+
+	/**
+	 * Adds a note to the given articles
+	 *
+	 * @param ids a list of article-ids with corresponding notes (may be null).
+	 * @return true if the operation succeeded.
+	 */
+	public boolean setArticleNote(Map<Integer, String> ids) {
+		if (ids.size() == 0) return true;
+		boolean ret = true;
+		for (Integer id : ids.keySet()) {
+			String note = ids.get(id);
+			if (note == null) continue;
+
+			Map<String, String> params = new HashMap<>();
+			params.put(PARAM_OP, VALUE_UPDATE_ARTICLE);
+			params.put(PARAM_ARTICLE_IDS, id + "");
+			params.put(PARAM_FIELD, "3"); // Field 3 is the "Add note" field
+			params.put(PARAM_DATA, note);
+			ret = ret && doRequestNoAnswer(params);
+		}
+		return ret;
 	}
 
 	public boolean feedUnsubscribe(int feed_id) {
@@ -1101,8 +1225,17 @@ public abstract class JSONConnector {
 		return ret;
 	}
 
-	protected static String formatException(Exception e) {
-		return e.getMessage() + (e.getCause() != null ? "(" + e.getCause() + ")" : "");
+	/**
+	 * Formats an exception message and cause, both only if available in the given exception
+	 *
+	 * @param e the exception
+	 * @return a string representing message and cause of the exception
+	 */
+	private static String formatException(Exception e) {
+		if (e == null) return "";
+		String msg = e.getMessage() != null ? "Exception-Message: " + e.getMessage() + " " : "No Exception-Message available. ";
+		String cause = e.getCause() != null ? "Exception-Cause: " + e.getCause() : "No Exception-Cause available.";
+		return msg + cause;
 	}
 
 }
