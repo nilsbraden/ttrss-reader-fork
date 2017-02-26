@@ -23,9 +23,9 @@
 	<string name="Main.ImageCache">Cache images</string>
 	<string name="Preferences.Reset">Mettre à zéro les préférences</string>
 	<string name="Preferences.Btn">Préférences</string>
-	<string name="Changelog.Title">Changelog</string>
-	<string name="Welcome.Title">Bienvenu</string>
-	<string name="Welcome.Message">Bievenu sur TTRSS-Reader!\n\nNoter que ce lecteur ne fonctionne qu\'avec un serveur \"Tiny Tiny RSS\".\n\nSi c\'est la première fois que vous lancez TTRSS-Reader, vous devriez indiquer l\'adresse du serveur et configurer l\'utilisateur. Appuyer sur "Préférences" pour y accéder.</string>
+	<string name="Changelog.Title">Changements</string>
+	<string name="Welcome.Title">Bienvenue</string>
+	<string name="Welcome.Message">Bievenue sur TTRSS-Reader!\n\nNoter que ce lecteur ne fonctionne qu\'avec un serveur \"Tiny Tiny RSS\".\n\nSi c\'est la première fois que vous lancez TTRSS-Reader, vous devriez indiquer l\'adresse du serveur et configurer l\'utilisateur. Appuyer sur "Préférences" pour y accéder.</string>
 	<string name="Check.Crash">Un rapport de crash a été sauvé, voulez-vous l\'envoyer au développer par mail ?</string>
 	<string name="AboutActivity.Title">A propos</string>
 	<string name="AboutActivity.CloseBtn">Fermer</string>
@@ -74,7 +74,7 @@
 	<string name="ConnectionHttpPreferenceSummary">Utiliser l\'authentification HTTP</string>
 	<string name="ConnectionHttpUsernamePreferenceTitle">Nom d\'utilisateur</string>
 	<string name="ConnectionHttpPasswordPreferenceTitle">Mot de passe</string>
-	<string name="ConnectionHttpPasswordPreferenceSummary">Le mot de passe d\'accès d\'authentitfaication HTTP</string>
+	<string name="ConnectionHttpPasswordPreferenceSummary">Le mot de passe d\'accès d\'authentification HTTP</string>
 	<string name="MiscellaneousPreferenceCategoryTitle">Préférences diverses</string>
 	<string name="UsagePreferenceCategoryTitle">Utilisation</string>
 	<string name="UsageOpenUrlEmptyArticleTitle">Pour les articles vides, ouvrir l\'URL</string>
@@ -87,7 +87,7 @@
 	<string name="DisplayVirtualPreferenceSummary">Décocher pour cacher les flux virtuels de TTRSS.</string>
 	<string name="SystemPreferenceCategoryTitle">Système</string>
 	<string name="ErrorActivity.Title">Erreur</string>
-	<string name="ErrorActivity.UserMessage">Impossible de se connection à votre instance de Tiny Tiny RSS, vérifiez la connection et les paramètres réseaux.</string>
+	<string name="ErrorActivity.UserMessage">Impossible de se connection à votre instance de Tiny Tiny RSS, vérifiez la connexion et les paramètres réseaux.</string>
 	<string name="ErrorActivity.ErrorTitle">Détail de l\'erreur :</string>
 	<string name="ErrorActivity.CloseBtn">Fermer</string>
 	<string name="ErrorActivity.ExitBtn">Quitter</string>
@@ -96,7 +96,7 @@
 	<string name="About.about">A propos</string>
 	<string name="About.about_hint">A propos de cette application</string>
 	<string name="About.project">Page du projet</string>
-	<string name="About.project_hint">Information sur le développement, Changelog etc…</string>
+	<string name="About.project_hint">Information sur le développement, changements, …</string>
 	<string name="About.feedback">Commentaires</string>
 	<string name="About.feedback_hint">Rapporter un bug, demandes de fonctionnalités …</string>
 	<string name="Utils.DownloadFinishedTitle">Téléchargement</string>
