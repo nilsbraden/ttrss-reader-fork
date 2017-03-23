@@ -32,8 +32,8 @@
     <string name="CacheFolderMaxSizeSummary">所有文件的最大缓存量，用MB表示</string>
     <string name="CacheFolderMaxSizeTitle">缓存文件上限</string>
     <string name="CategoryActivity.NoServer">未指定服务器地址</string>
-    <string name="CategoryActivity.Donate">想要捐赠？</string>
-    <string name="Changelog.Prefix"><![CDATA[请访问项目主页 <a href="%s">github.com</a>查看完整的更新日志。]]></string>
+    <string name="CategoryActivity.Donate">捐赠</string>
+    <string name="Changelog.Prefix"><![CDATA[请访问项目主页 <a href="%s">github.com</a> 查看完整的更新日志。]]></string>
     <string name="Changelog.Title">更新日志</string>
     <string name="Changelog.Suffix"><![CDATA[更早之前的更新日志已经被省略，要查看完整的更新日志，请访问项目主页 <a href="%s">github.com</a>。]]></string>
     <string name="Close">关闭</string>
@@ -138,7 +138,7 @@
     <string name="ErrorActivity.ErrorTitle">错误详情：</string>
     <string name="ErrorActivity.ExitBtn">退出</string>
     <string name="ErrorActivity.Title">错误</string>
-    <string name="ErrorActivity.UserMessage">无法连接到Tiny Tiny RSS服务器，请检查你的网络连接或者偏好设置中的连接设置</string>
+    <string name="ErrorActivity.UserMessage">无法连接到Tiny Tiny RSS服务器，请检查你的网络连接或者偏好设置中的连接设置。</string>
     <string name="Feed.UncategorizedFeeds">未分类</string>
     <string name="FeedSubscribeTitle">添加订阅源</string>
     <string name="FeedUnsubscribeTitle">取消订阅</string>
@@ -184,7 +184,7 @@
     <string name="Preferences.ResetCache.Done">图片缓存已经被重置</string>
     <string name="Preferences.ResetDatabase">重置数据库</string>
     <string name="Preferences.ResetDatabase.Done">数据库已经被重置</string>
-    <string name="SaveAttachmentTitle">保存附件……</string>
+    <string name="SaveAttachmentTitle">附件文件夹……</string>
     <string name="Share.content">内容</string>
     <string name="Share.ok_button">发送</string>
     <string name="Share.title">标题</string>
@@ -227,8 +227,8 @@
     <string name="Utils.DownloadFinishedTitle">下载</string>
     <string name="Utils.DownloadRunningTicker">正在下载……</string>
     <string name="Utils.DownloadRunningTitle">正在下载……</string>
-    <string name="Utils.FileSaveMessage">你的设备未安装文件浏览器。你想要在哪个路径下保存附件？</string>
-    <string name="Utils.FileSaveTitle">保存附件</string>
+    <string name="Utils.FileSaveMessage">未找到可用的文件浏览器，请手工输入保存路径</string>
+    <string name="Utils.FileSaveTitle">保存路径</string>
     <string name="Utils.OkayAction">确认</string>
     <string name="VCategory.AllArticles">所有文章</string>
     <string name="VCategory.FreshArticles">最近更新的文章</string>
@@ -239,7 +239,7 @@
     <string name="WebViewClientActivity.Download">下载</string>
     <string name="Welcome.Title">欢迎</string>
     <string name="WhiteTheme">白色主题</string>
-    <string name="Welcome.Message">欢迎使用TTRSS-Reader！请注意，要使用此应用，你必须要有“Tiny Tiny RSS”服务器。如果这是你第一次启动TTRSS-Reader，你应该先配置服务器地址和帐号信息。点击“偏好设置”以继续</string>
+    <string name="Welcome.Message">欢迎使用TTRSS-Reader！请注意，要使用此应用，你必须要有“Tiny Tiny RSS”服务器。如果这是你第一次启动TTRSS-Reader，你应该先配置服务器地址和帐号信息。点击“偏好设置”以继续。</string>
     <string name="OnlyUseWifiSummary">如果勾选，此应用将在你的设备连接到特定Wi-Fi网络时，才会连接服务器</string>
     <string name="NoCrashreportsUntilUpdateTitle">在下次更新前禁用崩溃报告</string>
     <string name="NoCrashreportsUntilUpdateSummary">禁用崩溃报告，直到此应用的新版本被安装。未经你的许可将不会发送任何数据，我只是打开邮件应用，在邮件发送前，你可以检查所有将要发送的数据，请知悉</string>
@@ -258,7 +258,7 @@
     <string name="CacheImageMinSizeSummary">图片文件最小缓存量，用KB表示</string>
     <string name="ArticleActivity.ShowCaption">显示图片标注</string>
     <string name="ArticleActivity.ArticleLink">-> 文章链接</string>
-    <string name="ApplicationDescription">Tiny Tiny RSS Reader是一款用于从你的Tiny Tiny RSS服务器获取订阅数据的应用程序</string>
+    <string name="ApplicationDescription">Tiny Tiny RSS Reader是一款用于从你的Tiny Tiny RSS服务器获取订阅数据的应用程序。</string>
     <string name="AllowTabletLayoutTitle">启用表格布局</string>
     <string name="AllowHyphenationSummary">在文章中启用字词断句</string>
     <string name="AllowHyphenationTitle">允许断句</string>
