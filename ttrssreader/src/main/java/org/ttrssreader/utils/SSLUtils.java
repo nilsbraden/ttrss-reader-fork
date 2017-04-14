@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.util.Log;
 
 import org.ttrssreader.MyApplication;
-import org.ttrssreader.net.SSLSocketFactoryEx;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,7 +37,9 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -47,10 +48,13 @@ public class SSLUtils {
 
 	private static final String TAG = SSLUtils.class.getSimpleName();
 
-	@SuppressLint("TrulyRandom")
 	public static void initSslSocketFactory(KeyManager[] km, TrustManager[] tm)
 			throws KeyManagementException, NoSuchAlgorithmException {
-		SSLSocketFactoryEx factory = new SSLSocketFactoryEx(km, tm);
+
+		SSLContext ctx = SSLContext.getInstance("TLS");
+		ctx.init(km, tm, null);
+		SSLSocketFactory factory = ctx.getSocketFactory();
+
 		HttpsURLConnection.setDefaultSSLSocketFactory(factory);
 	}
 
@@ -68,7 +72,7 @@ public class SSLUtils {
 		initSslSocketFactory(kmf.getKeyManagers(), tmf.getTrustManagers());
 	}
 
-	public static KeyStore loadKeystore(String keystorePassword) throws GeneralSecurityException {
+	private static KeyStore loadKeystore(String keystorePassword) throws GeneralSecurityException {
 		KeyStore trusted;
 		try {
 			trusted = KeyStore.getInstance(KeyStore.getDefaultType());
