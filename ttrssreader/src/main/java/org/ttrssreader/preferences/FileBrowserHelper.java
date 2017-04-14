@@ -17,6 +17,7 @@
 
 package org.ttrssreader.preferences;
 
+import org.ttrssreader.BuildConfig;
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 
@@ -24,10 +25,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v4.content.FileProvider;
 import android.text.InputType;
+import android.util.Log;
 import android.widget.EditText;
 
 import java.io.File;
@@ -40,13 +45,12 @@ public class FileBrowserHelper {
 	 * A string array that specifies the name of the intent to use, and the scheme to use with it
 	 * when setting the data for the intent.
 	 */
-	private static final String[][] PICK_DIRECTORY_INTENTS = {{"org.openintents.action.PICK_DIRECTORY", "file://"},
-			// OI
-			// File
-			// Manager
+	private static final String[][] PICK_DIRECTORY_INTENTS = {
+			{"org.openintents.action.PICK_DIRECTORY", "file://"}, // OI File Manager
 			{"com.estrongs.action.PICK_DIRECTORY", "file://"}, // ES File Explorer
 			{Intent.ACTION_PICK, "folder://"}, // Blackmoon File Browser (maybe others)
-			{"com.androidworkz.action.PICK_DIRECTORY", "file://"}}; // SystemExplorer
+			{"com.androidworkz.action.PICK_DIRECTORY", "file://"} // SystemExplorer
+	};
 
 	private static FileBrowserHelper instance;
 
@@ -93,7 +97,7 @@ public class FileBrowserHelper {
 	 * false: a fallback textinput has been shown. The Result will be sent with the callbackDownloadPath method
 	 */
 	public boolean showFileBrowserActivity(Fragment c, File startPath, int requestcode,
-			FileBrowserFailOverCallback callback) {
+	                                       FileBrowserFailOverCallback callback) {
 		boolean success = false;
 
 		if (startPath == null) {
@@ -105,8 +109,13 @@ public class FileBrowserHelper {
 			String intentAction = PICK_DIRECTORY_INTENTS[listIndex][0];
 			String uriPrefix = PICK_DIRECTORY_INTENTS[listIndex][1];
 			Intent intent = new Intent(intentAction);
-			intent.setData(Uri.parse(uriPrefix + startPath.getPath()));
-
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				String authority = BuildConfig.APPLICATION_ID + ".provider";
+				Uri uri = FileProvider.getUriForFile(c.getContext(), authority, startPath);
+				intent.setData(uri);
+			} else {
+				intent.setData(Uri.parse(uriPrefix + startPath.getPath()));
+			}
 			try {
 				c.startActivityForResult(intent, requestcode);
 				success = true;
