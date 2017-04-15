@@ -18,7 +18,13 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.91.1
+		<item>Version 1.92.0
+			 * Removed obsolete hardening code for SSL certificates
+			 * Fixed implementation of Media Downloader
+			 * Updated french translation (thanks to guillaume-uH57J9)
+			 * Chinese translation (thanks to Kevin Mao)
+		</item>
+        <item>Version 1.91.1
 			 * Better display of unread count with badges
 			 * Improvements to toolbar back arrow behavior and unread notes
 			 * Dutch translation (and some changes to English strings)

@@ -20,8 +20,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
-    android:versionCode="1911"
-    android:versionName="1.91.1">
+    android:versionCode="1920"
+    android:versionName="1.92.0">
 
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
