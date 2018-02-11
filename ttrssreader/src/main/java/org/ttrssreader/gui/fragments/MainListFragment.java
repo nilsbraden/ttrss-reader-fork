@@ -17,17 +17,6 @@
 
 package org.ttrssreader.gui.fragments;
 
-
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.MenuActivity;
-import org.ttrssreader.gui.interfaces.IDataChangedListener;
-import org.ttrssreader.gui.interfaces.IItemSelectedListener;
-import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
-import org.ttrssreader.gui.view.MyGestureDetector;
-import org.ttrssreader.model.MainAdapter;
-import org.ttrssreader.utils.AsyncTask;
-
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.app.Activity;
@@ -47,6 +36,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.MenuActivity;
+import org.ttrssreader.gui.interfaces.IDataChangedListener;
+import org.ttrssreader.gui.interfaces.IItemSelectedListener;
+import org.ttrssreader.gui.interfaces.IItemSelectedListener.TYPE;
+import org.ttrssreader.gui.view.MyGestureDetector;
+import org.ttrssreader.model.MainAdapter;
+import org.ttrssreader.utils.AsyncTask;
 
 public abstract class MainListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -69,6 +68,7 @@ public abstract class MainListFragment extends ListFragment implements LoaderMan
 
 	protected String title;
 	protected int unreadCount;
+	protected byte[] icon;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

@@ -46,13 +46,17 @@ import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.preferences.Constants;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -471,4 +475,40 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * Downloads the given URL and returns the body as an <code>byte[]</code>.
+	 * @param url URL to download
+	 * @return content as <code>byte[]</code>
+	 */
+	public static byte[] download(URL url) {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+			URLConnection connection = Controller.getInstance().openConnection(url);
+			connection.connect();
+
+			// download the file
+			InputStream input = new BufferedInputStream(url.openStream(), 8192);
+
+			byte data[] = new byte[1024];
+			int count = -1;
+			while ((count = input.read(data)) != -1) {
+				// writing data to file
+				output.write(data, 0, count);
+			}
+
+			// closing streams
+			output.close();
+			input.close();
+
+		} catch (Exception e) {
+			Log.e(TAG, "Error while downloading feed icon: " + e.getMessage());
+		}
+
+		if(output.size() != 0) {
+			Log.d(TAG, "Downloaded " + output.size() + " bytes as feed icon from " + url.toExternalForm());
+			return output.toByteArray();
+		} else {
+			return null;
+		}
+	}
 }

@@ -17,9 +17,9 @@
 
 package org.ttrssreader.model;
 
-
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.view.View;
@@ -28,7 +28,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.ttrssreader.R;
+import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.model.pojos.Article;
+import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.utils.DateUtils;
 
 import java.util.Date;
@@ -89,6 +91,12 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		}
 	}
 
+	private static void setFeedImage(ImageView icon, Feed f) {
+		if(f.icon != null) {
+			icon.setImageBitmap(BitmapFactory.decodeByteArray(f.icon, 0, f.icon.length));
+		}
+	}
+
 	@Override
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		return View.inflate(context, R.layout.item_feedheadline, null);
@@ -102,6 +110,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		if (holder == null) {
 			holder = new ViewHolder();
 			holder.icon = (ImageView) view.findViewById(R.id.icon);
+			holder.feedicon = (ImageView) view.findViewById(R.id.feedicon);
 			holder.title = (TextView) view.findViewById(R.id.title);
 			holder.updateDate = (TextView) view.findViewById(R.id.updateDate);
 			holder.dataSource = (TextView) view.findViewById(R.id.dataSource);
@@ -109,8 +118,10 @@ public class FeedHeadlineAdapter extends MainAdapter {
 		}
 
 		final Article a = getArticle(cursor);
+		final Feed f = DBHelper.getInstance().getFeed(a.feedId);
 
 		setImage(holder.icon, a);
+		setFeedImage(holder.feedicon, f);
 
 		holder.title.setText(a.title);
 		if (a.isUnread) holder.title.setTypeface(Typeface.DEFAULT_BOLD);
@@ -142,6 +153,7 @@ public class FeedHeadlineAdapter extends MainAdapter {
 	private static class ViewHolder {
 		TextView title;
 		ImageView icon;
+		ImageView feedicon;
 		TextView updateDate;
 		TextView dataSource;
 	}

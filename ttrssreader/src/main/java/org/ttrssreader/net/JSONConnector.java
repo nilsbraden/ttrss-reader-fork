@@ -831,6 +831,7 @@ public class JSONConnector {
 	private Set<Feed> getFeeds(boolean tolerateWrongUnreadInformation) {
 		long time = System.currentTimeMillis();
 		Set<Feed> ret = new LinkedHashSet<>();
+		Map<Integer, byte[]> iconsPerFeed = new HashMap<>();
 		if (sessionNotAlive()) return ret;
 
 		if (!tolerateWrongUnreadInformation) {
@@ -864,6 +865,11 @@ public class JSONConnector {
 						switch (reader.nextName()) {
 							case ID:
 								id = reader.nextInt();
+								// download only once
+								if(!iconsPerFeed.containsKey(id)) {
+									byte[] icon = Data.getInstance().downloadFeedIcon(id);
+									iconsPerFeed.put(id, icon);
+								}
 								break;
 							case CAT_ID:
 								categoryId = reader.nextInt();
@@ -882,7 +888,7 @@ public class JSONConnector {
 								break;
 						}
 					} catch (IllegalArgumentException e) {
-						e.printStackTrace();
+						Log.e(TAG, e.getMessage());
 						reader.skipValue();
 					}
 
@@ -897,6 +903,7 @@ public class JSONConnector {
 						f.title = title;
 						f.url = feedUrl;
 						f.unread = unread;
+						f.icon = iconsPerFeed.containsKey(id) ? iconsPerFeed.get(id) : null;
 						ret.add(f);
 					}
 				}
@@ -904,7 +911,7 @@ public class JSONConnector {
 			}
 			reader.endArray();
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e(TAG, e.getMessage());
 		} finally {
 			if (reader != null) try {
 				reader.close();

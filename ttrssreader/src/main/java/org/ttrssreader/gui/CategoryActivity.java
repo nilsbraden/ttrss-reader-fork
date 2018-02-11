@@ -17,7 +17,6 @@
 
 package org.ttrssreader.gui;
 
-
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
@@ -255,6 +254,7 @@ public class CategoryActivity extends MenuActivity implements IItemSelectedListe
 			// Refresh articles for all labels
 			for (Feed f : labels) {
 				Data.getInstance().updateArticles(f.id, false, false, false, forceUpdate);
+				Data.getInstance().updateFeedIcon(f.id);
 				publishProgress(++progress);
 			}
 

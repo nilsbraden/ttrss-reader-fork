@@ -17,12 +17,12 @@
 
 package org.ttrssreader.model;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.utils.Utils;
-
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 class FeedCursorHelper extends MainCursorHelper {
 
@@ -50,7 +50,7 @@ class FeedCursorHelper extends MainCursorHelper {
 			query.append("SELECT _id,title,unread FROM (");
 		}
 
-		query.append("SELECT _id,title,unread FROM ");
+		query.append("SELECT _id,title,unread,icon FROM ");
 		query.append(DBHelper.TABLE_FEEDS);
 		query.append(" WHERE categoryId=");
 		query.append(categoryId);
