@@ -142,7 +142,6 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private Boolean onlyUseWifi = null;
 	private Boolean noCrashreports = null;
 	private Boolean noCrashreportsUntilUpdate = null;
-	private Boolean isFirstRun = null;
 
 	// Set to true per default to avoid never getting reports for bugs during startup
 	private Boolean validInstallation = true;
@@ -1035,15 +1034,11 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public boolean isFirstRun() {
-		if (isFirstRun == null) isFirstRun = prefs.getBoolean(IS_FIRST_RUN, IS_FIRST_RUN_DEFAULT);
-		return isFirstRun;
+		return prefs.getBoolean(IS_FIRST_RUN, IS_FIRST_RUN_DEFAULT);
 	}
 
 	public void setFirstRun(boolean isFirstRun) {
 		put(IS_FIRST_RUN, isFirstRun);
-		// Don't reset variable. We keep the information that this is the first session with the app so we could
-		// use it later to show hints.
-		// this.isFirstRun = isFirstRun;
 	}
 
 	public void setSinceId(int sinceId) {
