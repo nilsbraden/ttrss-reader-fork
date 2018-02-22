@@ -41,6 +41,7 @@ public class Constants {
 	public static final String TRUST_ALL_HOSTS = "ConnectionTrustHostsPreference";
 	public static final String USE_KEYSTORE = "ConnectionUseKeystorePreference";
 	public static final String KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
+	public static final String CLIENT_CERTIFICATE = "ConnectionClientCertificatePreference";
 	public static final String USE_OF_A_LAZY_SERVER = "ConnectionLazyServerPreference";
 	public static final String IGNORE_UNSAFE_CONNECTION_ERROR = "IgnoreUnsafeConnectionError";
 	// Connection Default Values

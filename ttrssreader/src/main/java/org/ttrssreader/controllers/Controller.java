@@ -454,6 +454,14 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		else return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
 	}
 
+	public String getClientCertificateAlias() {
+		// Load from Wifi-Preferences:
+		String key = getStringWithSSID(CLIENT_CERTIFICATE, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+
+		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
+		else return prefs.getString(KEYSTORE_PASSWORD, EMPTY);
+	}
+
 	public boolean urlNeedsAuthentication(URL url) {
 		if (!this.useHttpAuth()) return false;
 

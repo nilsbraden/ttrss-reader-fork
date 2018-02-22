@@ -78,6 +78,8 @@
 	<string name="ConnectionKeystorePasswordPreferenceSummary">Password to unlock custom keystore</string>
 	<string name="ConnectionUseKeystorePreferenceTitle">Custom Keystore</string>
 	<string name="ConnectionUseKeystorePreferenceSummary">Use custom keystore</string>
+	<string name="ConnectionClientCertificatePreferenceTitle">Certificado Cliente</string>
+	<string name="ConnectionClientCertificatePreferenceSummary">Presente certificado cliente si se solicita</string>
 	<string name="ConnectionHttpPreferenceCategoryTitle">Ajustes de autentificación HTTP</string>
 	<string name="ConnectionHttpPreferenceTitle">Autentificación HTTP</string>
 	<string name="ConnectionHttpPreferenceSummary">Usar autentificación HTTP</string>

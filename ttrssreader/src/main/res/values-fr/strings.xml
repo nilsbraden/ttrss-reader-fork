@@ -69,6 +69,8 @@
 	<string name="ConnectionKeystorePasswordPreferenceSummary">Mot de passe pour dévérouiller le certificat personnel</string>
 	<string name="ConnectionUseKeystorePreferenceTitle">Certificat personnel</string>
 	<string name="ConnectionUseKeystorePreferenceSummary">Utiliser un certificat personnel</string>
+	<string name="ConnectionClientCertificatePreferenceTitle">Certificat client</string>
+	<string name="ConnectionClientCertificatePreferenceSummary">Présenter le certificat client si demandé</string>
 	<string name="ConnectionHttpPreferenceCategoryTitle">Paramètres d\'authentification HTTP</string>
 	<string name="ConnectionHttpPreferenceTitle">Authentification HTTP</string>
 	<string name="ConnectionHttpPreferenceSummary">Utiliser l\'authentification HTTP</string>
