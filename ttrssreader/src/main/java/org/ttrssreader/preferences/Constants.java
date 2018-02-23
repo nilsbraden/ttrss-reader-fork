@@ -42,7 +42,11 @@ public class Constants {
 	public static final String USE_KEYSTORE = "ConnectionUseKeystorePreference";
 	public static final String KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
 	public static final String USE_OF_A_LAZY_SERVER = "ConnectionLazyServerPreference";
+	public static final String USE_PROXY = "ConnectionProxyPreference";
+	public static final String PROXY_HOST = "ConnectionProxyHostPreference";
+	public static final String PROXY_PORT = "ConnectionProxyPortPreference";
 	public static final String IGNORE_UNSAFE_CONNECTION_ERROR = "IgnoreUnsafeConnectionError";
+
 	// Connection Default Values
 	public static final String URL_DEFAULT = "https://localhost/";
 	public static final boolean USE_HTTP_AUTH_DEFAULT = false;
@@ -52,6 +56,7 @@ public class Constants {
 	public static final boolean USE_KEYSTORE_DEFAULT = false;
 	public static final boolean USE_OF_A_LAZY_SERVER_DEFAULT = false;
 	public static final boolean IGNORE_UNSAFE_CONNECTION_ERROR_DEFAULT = false;
+	public static final int PROXY_PORT_DEFAULT = 1080;
 
 	// Usage
 	public static final String OPEN_URL_EMPTY_ARTICLE = "UsageOpenUrlEmptyArticlePreference";
