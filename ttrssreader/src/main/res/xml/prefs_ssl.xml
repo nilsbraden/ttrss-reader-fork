@@ -54,6 +54,12 @@
 			android:key="ConnectionKeystorePasswordPreference"
 			android:summary="@string/ConnectionKeystorePasswordPreferenceSummary"
 			android:title="@string/ConnectionKeystorePasswordPreferenceTitle" />
+		<org.ttrssreader.preferences.CertificatePreference
+			android:key="ConnectionClientCertificatePreference"
+			android:defaultValue=""
+			android:singleLine="true"
+			android:title="@string/ConnectionClientCertificatePreferenceTitle"
+			android:summary="@string/ConnectionClientCertificatePreferenceSummary"/>
 	</PreferenceCategory>
 
 </PreferenceScreen>

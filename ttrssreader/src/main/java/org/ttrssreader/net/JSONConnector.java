@@ -37,6 +37,7 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.utils.KeyChainKeyManager;
 import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
@@ -59,6 +60,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 
@@ -181,6 +185,14 @@ public class JSONConnector {
 			// HTTP-Basic Authentication
 			if (base64NameAndPw != null)
 				con.setRequestProperty("Authorization", "Basic " + base64NameAndPw);
+
+			// HTTPS client certificate
+			if (con instanceof HttpsURLConnection) {
+				KeyManager km = new KeyChainKeyManager();
+				SSLContext sslContext = SSLContext.getInstance("TLS");
+				sslContext.init(new KeyManager[]{km}, null, null);
+				((HttpsURLConnection) con).setSSLSocketFactory(sslContext.getSocketFactory());
+			}
 
 			// Add POST data
 			con.getOutputStream().write(outputBytes);

@@ -123,6 +123,8 @@
 	<string name="ConnectionKeystorePasswordPreferenceSummary">Password to unlock custom keystore</string>
 	<string name="ConnectionUseKeystorePreferenceTitle">Custom Keystore</string>
 	<string name="ConnectionUseKeystorePreferenceSummary">Use custom keystore</string>
+	<string name="ConnectionClientCertificatePreferenceTitle">Client Certificate</string>
+	<string name="ConnectionClientCertificatePreferenceSummary">Present client certificate if requested</string>
 	<string name="ConnectionHttpPreferenceCategoryTitle">HTTP-Authentication Settings</string>
 	<string name="ConnectionHttpPreferenceTitle">HTTP-Authentication</string>
 	<string name="ConnectionHttpPreferenceSummary">Use HTTP-Authentication</string>
