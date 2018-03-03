@@ -52,6 +52,33 @@
 			android:order="40"
 			android:summary="@string/ConnectionLazyServerPreferenceSummary"
 			android:title="@string/ConnectionLazyServerPreferenceTitle" />
+
+		<CheckBoxPreference
+			android:defaultValue="false"
+			android:disableDependentsState="false"
+			android:key="ConnectionProxyPreference"
+			android:order="50"
+			android:summary="@string/ConnectionProxyPreferenceSummary"
+			android:title="@string/ConnectionProxyPreferenceTitle" />
+		<EditTextPreference
+			android:name="@string/ConnectionProxyHostPreferenceTitle"
+			android:defaultValue=""
+			android:inputType="textFilter"
+			android:dependency="ConnectionProxyPreference"
+			android:key="ConnectionProxyHostPreference"
+			android:order="60"
+			android:summary="@string/ConnectionProxyHostPreferenceSummary"
+			android:title="@string/ConnectionProxyHostPreferenceTitle" />
+		<org.ttrssreader.preferences.EditIntegerPreference
+			android:name="@string/ConnectionProxyPortPreferenceTitle"
+			android:defaultValue="1080"
+			android:inputType="number"
+			android:dependency="ConnectionProxyPreference"
+			android:key="ConnectionProxyPortPreference"
+			android:maxLength="5"
+			android:order="70"
+			android:summary="@string/ConnectionProxyPortPreferenceSummary"
+			android:title="@string/ConnectionProxyPortPreferenceTitle" />
 	</PreferenceCategory>
 
 </PreferenceScreen>

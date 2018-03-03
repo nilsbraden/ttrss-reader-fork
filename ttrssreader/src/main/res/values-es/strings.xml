@@ -70,6 +70,13 @@
 	<string name="ConnectionPasswordPreferenceSummary">Contraseña de su cuenta Tiny Tiny RSS account.</string>
 	<string name="ConnectionLazyServerPreferenceTitle">Servidor \"Lazy\"</string>
 	<string name="ConnectionLazyServerPreferenceSummary">Configura el servidor para actualizar las fuentes antes que las cojamos.</string>
+	<string name="ConnectionProxyPreferenceCategoryTitle">Proxy SOCKS</string>
+	<string name="ConnectionProxyPreferenceTitle">Utilizar un proxy SOCKS</string>
+	<string name="ConnectionProxyPreferenceSummary"></string>
+	<string name="ConnectionProxyHostPreferenceTitle">Dirección</string>
+	<string name="ConnectionProxyHostPreferenceSummary">Dirección del servidor proxy</string>
+	<string name="ConnectionProxyPortPreferenceTitle">Puerto</string>
+	<string name="ConnectionProxyPortPreferenceSummary">Número de puerto del servidor proxy</string>
 	<string name="ConnectionSslPreferenceCategoryTitle">Ajustes SSL</string>
 	<string name="ConnectionSslPreferenceSummary">Aceptar todos los certificados SSL.</string>
 	<string name="ConnectionTrustHostsPreferenceTitle">Confiar en todos los Hosts</string>

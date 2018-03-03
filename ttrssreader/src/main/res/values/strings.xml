@@ -107,6 +107,13 @@
 	<string name="ConnectionPasswordPreferenceSummary">The password of your Tiny Tiny RSS account.</string>
 	<string name="ConnectionLazyServerPreferenceTitle">Lazy Server</string>
 	<string name="ConnectionLazyServerPreferenceSummary">Ask the server to update its feeds before we fetch them.</string>
+	<string name="ConnectionProxyPreferenceCategoryTitle">SOCKS Proxy</string>
+	<string name="ConnectionProxyPreferenceTitle">Use SOCKS Proxy</string>
+	<string name="ConnectionProxyPreferenceSummary"></string>
+	<string name="ConnectionProxyHostPreferenceTitle">Proxy Host</string>
+	<string name="ConnectionProxyHostPreferenceSummary">Host of the SOCKS proxy</string>
+	<string name="ConnectionProxyPortPreferenceTitle">Proxy Port</string>
+	<string name="ConnectionProxyPortPreferenceSummary">Port number of the SOCKS proxy</string>
 	<string name="ConnectionSslPreferenceCategoryTitle">SSL Settings</string>
 	<string name="ConnectionSslPreferenceTitle" translatable="false">SSL</string>
 	<string name="ConnectionSslPreferenceSummary">Accept all SSL certificates.</string>
