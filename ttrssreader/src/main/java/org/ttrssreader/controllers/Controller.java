@@ -389,6 +389,35 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		return useOfALazyServer;
 	}
 
+	public boolean useProxy() {
+		// Load from Wifi-Preferences:
+		String key = getStringWithSSID(USE_PROXY, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+
+		boolean useProxy;
+		if (prefs.contains(key))
+			useProxy = prefs.getBoolean(key, false);
+		else
+			useProxy = prefs.getBoolean(USE_PROXY, false);
+
+		return useProxy;
+	}
+
+	public String proxyHost() {
+		// Load from Wifi-Preferences:
+		String key = getStringWithSSID(PROXY_HOST, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+
+		if (prefs.contains(key)) return prefs.getString(key, EMPTY);
+		else return prefs.getString(PROXY_HOST, EMPTY);
+	}
+
+	public int proxyPort() {
+		// Load from Wifi-Preferences:
+		String key = getStringWithSSID(PROXY_PORT, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+
+		if (prefs.contains(key)) return prefs.getInt(key, Constants.PROXY_PORT_DEFAULT);
+		else return prefs.getInt(PROXY_HOST, Constants.PROXY_PORT_DEFAULT);
+	}
+
 	public boolean useHttpAuth() {
 		// Load from Wifi-Preferences:
 		String key = getStringWithSSID(USE_HTTP_AUTH, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());

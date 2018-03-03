@@ -37,6 +37,7 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.preferences.Constants;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 
@@ -46,6 +47,7 @@ import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketException;
 import java.net.URL;
@@ -161,7 +163,7 @@ public class JSONConnector {
 			logRequest(json);
 
 			URL url = Controller.getInstance().url();
-			HttpURLConnection con = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection(getProxy());
 			con.setDoInput(true);
 			con.setDoOutput(true);
 			con.setUseCaches(false);
@@ -219,6 +221,18 @@ public class JSONConnector {
 		}
 
 		return null;
+	}
+
+	private Proxy getProxy() {
+		Controller controller = Controller.getInstance();
+		if (controller.useProxy()) {
+			String host = controller.proxyHost();
+			if (!Constants.EMPTY.equals(host)) {
+				int port = controller.proxyPort();
+				return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(host, port));
+			}
+		}
+		return Proxy.NO_PROXY;
 	}
 
 	public void init() {

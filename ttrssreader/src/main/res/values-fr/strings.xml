@@ -131,6 +131,13 @@
 	<string name="Commons.SelectFeeds">Afficher tous les flux</string>
 	<string name="ConnectionLazyServerPreferenceSummary">Demander au serveur de mettre à jour les flux avant de les récupérer. </string>
 	<string name="ConnectionLazyServerPreferenceTitle">Serveur paresseux</string>
+	<string name="ConnectionProxyPreferenceCategoryTitle">Proxy SOCKS</string>
+	<string name="ConnectionProxyPreferenceTitle">Utiliser un proxy SOCKS</string>
+	<string name="ConnectionProxyPreferenceSummary"></string>
+	<string name="ConnectionProxyHostPreferenceTitle">Proxy hôte</string>
+	<string name="ConnectionProxyHostPreferenceSummary">Adresse hôte du serveur proxy</string>
+	<string name="ConnectionProxyPortPreferenceTitle">Port du proxy</string>
+	<string name="ConnectionProxyPortPreferenceSummary">Numéro du port du proxy</string>
 	<string name="ConnectionPreferenceCategory">Connectivité</string>
 	<string name="ConnectionTrustHostsPreferenceSummary">Accépter les certificats de tous les hôtes</string>
 	<string name="ConnectionTrustHostsPreferenceTitle">Faire confiance à tous les hôtes</string>
