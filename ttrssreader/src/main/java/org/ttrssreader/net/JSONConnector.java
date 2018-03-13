@@ -59,6 +59,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
@@ -160,7 +161,9 @@ public class JSONConnector {
 	private InputStream doRequest(Map<String, String> params) {
 		try {
 			if (sessionId != null) params.put(SID, sessionId);
-
+			// ask server to compress responses when available, except the login response
+			// note requests are not compressed
+			boolean askForResponseCompression = !("login".equals(params.get("op")));
 			JSONObject json = new JSONObject(params);
 			byte[] outputBytes = json.toString().getBytes("UTF-8");
 
@@ -173,8 +176,11 @@ public class JSONConnector {
 			con.setUseCaches(false);
 
 			// Content
-			con.setRequestProperty("Content-Type", "application/json");
+			con.setRequestProperty("Content-Type", "application/json"); // requests are never compressed
 			con.setRequestProperty("Accept", "application/json");
+			if (askForResponseCompression) {
+				con.setRequestProperty("Accept-Encoding", "gzip");
+			}
 			con.setRequestProperty("Content-Length", Integer.toString(outputBytes.length));
 
 			// Timeouts
@@ -205,8 +211,15 @@ public class JSONConnector {
 				return null;
 			}
 
+			// Decompress if necessary
+			String encoding = con.getContentEncoding();
+			InputStream data = con.getInputStream();
+			if (encoding != null && (encoding.contains("gzip") || encoding.endsWith("gz"))) {
+				data = new GZIPInputStream(data);
+			}
+
 			// Everything is fine!
-			return con.getInputStream();
+			return data;
 
 		} catch (SSLPeerUnverifiedException e) {
 			// Probably related: http://stackoverflow.com/questions/6035171/no-peer-cert-not-sure-which-route-to-take
