@@ -343,7 +343,9 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	}
 
 	public URL feedIconUrl(int feedId) throws MalformedURLException {
-		return new URL(base() + baseFeedIconPath() + "/" + feedId + ".ico");
+		String base = base();
+		if (!base.endsWith("/")) base = base + "/";
+		return new URL(base + baseFeedIconPath() + "/" + feedId + ".ico");
 	}
 
 	public URL baseUrl() throws MalformedURLException {
