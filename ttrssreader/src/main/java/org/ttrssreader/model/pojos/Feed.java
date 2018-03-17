@@ -26,6 +26,7 @@ public class Feed implements Comparable<Feed> {
 	public String title;
 	public String url;
 	public int unread;
+	public byte[] icon;
 
 	@Override
 	public int compareTo(Feed fi) {

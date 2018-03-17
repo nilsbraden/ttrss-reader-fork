@@ -45,11 +45,19 @@
 			android:order="30"
 			android:summary="@string/ConnectionPasswordPreferenceSummary"
 			android:title="@string/ConnectionPasswordPreferenceTitle" />
+		<EditTextPreference
+			android:name="@string/ConnectionFeedIconsUrlPreferenceTitle"
+			android:defaultValue="@string/ConnectionFeedIconsUrlPreferenceDefault"
+			android:inputType="textFilter"
+			android:key="ConnectionFeedIconsUrlPreference"
+			android:order="40"
+			android:summary="@string/ConnectionFeedIconsUrlPreferenceSummary"
+			android:title="@string/ConnectionFeedIconsUrlPreferenceTitle" />
 
 		<CheckBoxPreference
 			android:defaultValue="false"
 			android:key="ConnectionLazyServerPreference"
-			android:order="40"
+			android:order="50"
 			android:summary="@string/ConnectionLazyServerPreferenceSummary"
 			android:title="@string/ConnectionLazyServerPreferenceTitle" />
 

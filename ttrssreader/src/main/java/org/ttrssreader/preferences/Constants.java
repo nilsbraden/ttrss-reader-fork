@@ -31,6 +31,7 @@ public class Constants {
 
 	// Connection
 	public static final String URL = "ConnectionUrlPreference";
+	public static final String URL_FEEDICONS = "ConnectionUrlFeedIconsPreference";
 	public static final String USERNAME = "ConnectionUsernamePreference";
 	public static final String PASSWORD = "ConnectionPasswordPreference";
 	public static final String USE_HTTP_AUTH = "ConnectionHttpPreference";
@@ -50,6 +51,7 @@ public class Constants {
 
 	// Connection Default Values
 	public static final String URL_DEFAULT = "https://localhost/";
+	public static final String URL_DEFAULT_FEEDICONS = "feed-icons";
 	public static final boolean USE_HTTP_AUTH_DEFAULT = false;
 	public static final boolean USE_PROVIDER_INSTALLER_DEFAULT = true;
 	public static final boolean TRUST_ALL_SSL_DEFAULT = false;

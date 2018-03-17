@@ -17,6 +17,14 @@
 
 package org.ttrssreader.gui;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
@@ -27,15 +35,6 @@ import org.ttrssreader.gui.fragments.FeedListFragment;
 import org.ttrssreader.gui.fragments.MainListFragment;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.Utils;
-
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -284,6 +283,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 				Data.getInstance().updateArticles(categoryId, displayUnread, true, false, forceUpdate);
 			} else {
 				Data.getInstance().updateArticles(feedId, displayUnread, false, false, forceUpdate);
+				Data.getInstance().updateFeedIcon(feedId);
 			}
 			publishProgress(++progress);
 

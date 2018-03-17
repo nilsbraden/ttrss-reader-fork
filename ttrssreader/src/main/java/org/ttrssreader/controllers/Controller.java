@@ -342,13 +342,16 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		return new URL(hostname());
 	}
 
-	public String hostname() {
-		// Load from Wifi-Preferences:
-		String key = getStringWithSSID(URL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+	public URL feedIconUrl(int feedId) throws MalformedURLException {
+		return new URL(base() + baseFeedIconPath() + "/" + feedId + ".ico");
+	}
 
-		String url;
-		if (prefs.contains(key)) url = prefs.getString(key, URL_DEFAULT);
-		else url = prefs.getString(URL, URL_DEFAULT);
+	public URL baseUrl() throws MalformedURLException {
+		return new URL(base());
+	}
+
+	public String hostname() {
+		String url = base();
 
 		if (!url.endsWith(JSON_END_URL)) {
 			if (!url.endsWith("/")) {
@@ -356,6 +359,17 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			}
 			url += JSON_END_URL;
 		}
+
+		return url;
+	}
+
+	private String base() {
+		// Load from Wifi-Preferences:
+		String key = getStringWithSSID(URL, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+
+		String url;
+		if (prefs.contains(key)) url = prefs.getString(key, URL_DEFAULT);
+		else url = prefs.getString(URL, URL_DEFAULT);
 
 		return url;
 	}
@@ -387,6 +401,16 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 			useOfALazyServer = prefs.getBoolean(USE_OF_A_LAZY_SERVER, Constants.USE_OF_A_LAZY_SERVER_DEFAULT);
 
 		return useOfALazyServer;
+	}
+
+	public String baseFeedIconPath() {
+		// Load from Wifi-Preferences:
+		String key = getStringWithSSID(URL_FEEDICONS, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+
+		String url;
+		if (prefs.contains(key)) url = prefs.getString(key, URL_DEFAULT_FEEDICONS);
+		else url = prefs.getString(URL_FEEDICONS, URL_DEFAULT_FEEDICONS);
+		return url;
 	}
 
 	public boolean useProxy() {

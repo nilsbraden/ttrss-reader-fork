@@ -17,6 +17,26 @@
 
 package org.ttrssreader.gui.fragments;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
+import android.net.Uri.Builder;
+import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.view.ContextMenu;
+import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -42,26 +62,6 @@ import org.ttrssreader.model.updaters.StarredStateUpdater;
 import org.ttrssreader.model.updaters.UnsubscribeUpdater;
 import org.ttrssreader.model.updaters.Updater;
 import org.ttrssreader.utils.AsyncTask;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Intent;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.net.Uri.Builder;
-import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.view.ContextMenu;
-import android.view.GestureDetector;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -365,7 +365,10 @@ public class FeedHeadlineListFragment extends MainListFragment implements TextIn
 			if (category != null) title = category.title;
 		} else {
 			Feed feed = DBHelper.getInstance().getFeed(feedId);
-			if (feed != null) title = feed.title;
+			if (feed != null) {
+				title = feed.title;
+				if(feed.icon != null) icon = feed.icon;
+			}
 		}
 		unreadCount = DBHelper.getInstance()
 				.getUnreadCount(selectArticlesForCategory ? categoryId : feedId, selectArticlesForCategory);

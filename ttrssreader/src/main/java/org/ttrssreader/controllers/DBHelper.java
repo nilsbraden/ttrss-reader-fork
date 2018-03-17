@@ -65,7 +65,7 @@ public class DBHelper {
 	private static final String TAG = DBHelper.class.getSimpleName();
 
 	private static final String DATABASE_NAME = "ttrss.db";
-	private static final int DATABASE_VERSION = 64;
+	private static final int DATABASE_VERSION = 65;
 
 	public static final String[] CATEGORIES_COLUMNS = new String[] {"_id", "title", "unread"};
 
@@ -99,7 +99,8 @@ public class DBHelper {
 					+ " categoryId INTEGER,"
 					+ " title TEXT,"
 					+ " url TEXT,"
-					+ " unread INTEGER)";
+					+ " unread INTEGER,"
+					+ " icon BLOB)";
 
 	private static final String CREATE_TABLE_ARTICLES =
 			"CREATE TABLE "
@@ -149,8 +150,14 @@ public class DBHelper {
 	private static final String INSERT_FEED =
 			"REPLACE INTO "
 					+ TABLE_FEEDS
-					+ " (_id, categoryId, title, url, unread)"
-					+ " VALUES (?, ?, ?, ?, ?)";
+					+ " (_id, categoryId, title, url, unread, icon)"
+					+ " VALUES (?, ?, ?, ?, ?, ?)";
+
+	private static final String INSERT_FEED_ICON =
+			"INSERT OR REPLACE INTO "
+					+ TABLE_FEEDS
+					+ " (_id, icon)"
+					+ " VALUES (?, ?)";
 
 	private static final String INSERT_ARTICLE =
 			"INSERT OR REPLACE INTO "
@@ -202,6 +209,7 @@ public class DBHelper {
 
 	private SQLiteStatement insertCategory;
 	private SQLiteStatement insertFeed;
+	private SQLiteStatement insertFeedIcon;
 	private SQLiteStatement insertArticle;
 	private SQLiteStatement insertLabel;
 	private SQLiteStatement insertRemoteFile;
@@ -320,6 +328,7 @@ public class DBHelper {
 
 		insertCategory = db.compileStatement(INSERT_CATEGORY);
 		insertFeed = db.compileStatement(INSERT_FEED);
+		insertFeedIcon = db.compileStatement(INSERT_FEED_ICON);
 		insertArticle = db.compileStatement(INSERT_ARTICLE);
 		insertLabel = db.compileStatement(INSERT_LABEL);
 		insertRemoteFile = db.compileStatement(INSERT_REMOTEFILE);
@@ -554,6 +563,16 @@ public class DBHelper {
 				didUpgrade = true;
 			}
 
+			if (oldVersion < 65) {
+				String sql = "ALTER TABLE " + TABLE_FEEDS + " ADD COLUMN icon BLOB";
+
+				Log.i(TAG, String.format("Upgrading database from %s to 61.", oldVersion));
+				Log.i(TAG, String.format(" (Executing: %s", sql));
+
+				db.execSQL(sql);
+				didUpgrade = true;
+			}
+
 			if (!didUpgrade) {
 				Log.i(TAG, "Upgrading database, this will drop tables and recreate.");
 				dropAllTables(db);
@@ -733,7 +752,34 @@ public class DBHelper {
 		}
 	}
 
-	private void insertFeed(int id, int categoryId, String title, String url, int unread) {
+	void insertFeedIcon(int id, byte[] icon) {
+		if (!isDBAvailable() || icon == null || icon.length == 0) {
+			return;
+		}
+
+		//TODO really use a transaction for 1 insert?
+		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		write.lock();
+		try {
+			db.beginTransaction();
+
+			insertFeedIcon.bindLong(1, Integer.valueOf(id).longValue());
+			insertFeedIcon.bindBlob(2, icon);
+
+			if (isDBAvailable()) {
+				insertFeedIcon.execute();
+			}
+			db.setTransactionSuccessful();
+		} finally {
+			try {
+				db.endTransaction();
+			} finally {
+				write.unlock();
+			}
+		}
+	}
+
+	private void insertFeed(int id, int categoryId, String title, String url, int unread, byte[] icon) {
 		if (title == null) title = "";
 		if (url == null) url = "";
 
@@ -743,6 +789,11 @@ public class DBHelper {
 			insertFeed.bindString(3, title);
 			insertFeed.bindString(4, url);
 			insertFeed.bindLong(5, unread);
+			if (icon != null && icon.length > 0) {
+				insertFeed.bindBlob(6, icon);
+			} else {
+				insertFeed.bindNull(6);
+			}
 
 			if (!isDBAvailable()) return;
 			insertFeed.execute();
@@ -757,7 +808,7 @@ public class DBHelper {
 		try {
 			db.beginTransaction();
 			for (Feed f : set) {
-				insertFeed(f.id, f.categoryId, f.title, f.url, f.unread);
+				insertFeed(f.id, f.categoryId, f.title, f.url, f.unread, f.icon);
 			}
 			db.setTransactionSuccessful();
 		} finally {
@@ -1897,6 +1948,7 @@ public class DBHelper {
 		f.title = c.getString(2);
 		f.url = c.getString(3);
 		f.unread = c.getInt(4);
+		f.icon = c.getBlob(5);
 		return f;
 	}
 

@@ -189,6 +189,7 @@ class ImageCacher extends AsyncTask<Void, Integer, Void> {
 				publishProgress(++progress);
 				if (checkCancelRequested()) return;
 				Data.getInstance().updateArticles(f.id, true, false, false, true);
+				Data.getInstance().updateFeedIcon(f.id);
 			}
 
 			Data.getInstance().calculateCounters();

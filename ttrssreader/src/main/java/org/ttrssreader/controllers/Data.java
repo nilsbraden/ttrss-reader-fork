@@ -34,6 +34,8 @@ import org.ttrssreader.net.IdUpdatedArticleOmitter;
 import org.ttrssreader.net.JSONConnector;
 import org.ttrssreader.utils.Utils;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -154,6 +156,26 @@ public class Data {
 			DBHelper.getInstance().markArticles(articleUnreadIds, "isUnread", 1);
 		}
 		Log.d(TAG, "cacheArticles() Took: " + (System.currentTimeMillis() - timeStart) + "ms");
+	}
+
+	/**
+	 * Downloads the favicon for the given feed ID and inserts it into the database.
+	 *
+	 * @param feedId ID of the feed
+	 */
+	public void updateFeedIcon(int feedId) {
+		Log.d(TAG, "Updating icon for feed #" + feedId);
+		try {
+			byte[] icon = downloadFeedIcon(feedId);
+			DBHelper.getInstance().insertFeedIcon(feedId, icon);
+		} catch (MalformedURLException e) {
+			Log.e(TAG, "Error while downloading icon for feed #" + feedId, e);
+		}
+	}
+
+	public byte[] downloadFeedIcon(int feedId) throws MalformedURLException {
+		final URL iconUrl = Controller.getInstance().feedIconUrl(feedId);
+		return Utils.download(iconUrl);
 	}
 
 	/**
