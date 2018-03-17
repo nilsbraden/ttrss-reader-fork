@@ -20,8 +20,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
-    android:versionCode="1920"
-    android:versionName="1.92.0">
+    android:versionCode="1930"
+    android:versionName="1.93.0">
 
     <!-- Check connectivity -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -58,8 +58,8 @@
         android:hardwareAccelerated="true"
         android:icon="@drawable/icon"
         android:label="@string/ApplicationName"
-        android:supportsRtl="true"
-        android:networkSecurityConfig="@xml/network_security_config">
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:supportsRtl="true">
         <provider
             android:name=".model.ListContentProvider"
             android:authorities="org.ttrssreader"

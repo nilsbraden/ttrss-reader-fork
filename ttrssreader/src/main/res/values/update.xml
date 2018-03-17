@@ -18,7 +18,14 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.92.0
+		<item>Version 1.93.0
+			 * Add support for User-added-CAs from Android 7 (thx to maikbrueggemann)
+             * Add SOCKS5 proxy support (thx to Jon Rosenberger)
+             * Add support for ssl client certificates (thx to Jon Rosenberger)
+             * Support GZip for response compression (thx to Jon Rosenberger)
+             * Download feed icons and display them in feed list (thx to MoriTanosuke)
+		</item>
+        <item>Version 1.92.0
 			 * Removed obsolete hardening code for SSL certificates
 			 * Fixed implementation of Media Downloader
 			 * Updated french translation (thanks to guillaume-uH57J9)
