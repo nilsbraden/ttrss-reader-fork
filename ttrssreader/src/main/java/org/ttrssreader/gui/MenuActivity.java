@@ -17,26 +17,6 @@
 
 package org.ttrssreader.gui;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.ProgressBarManager;
-import org.ttrssreader.controllers.UpdateController;
-import org.ttrssreader.gui.dialogs.ErrorDialog;
-import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
-import org.ttrssreader.gui.interfaces.ICacheEndListener;
-import org.ttrssreader.gui.interfaces.IDataChangedListener;
-import org.ttrssreader.gui.interfaces.IItemSelectedListener;
-import org.ttrssreader.gui.interfaces.IUpdateEndListener;
-import org.ttrssreader.imageCache.ForegroundService;
-import org.ttrssreader.model.updaters.IUpdatable;
-import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
-import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-import org.ttrssreader.utils.Utils;
-
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
@@ -57,6 +37,26 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.controllers.UpdateController;
+import org.ttrssreader.gui.dialogs.ErrorDialog;
+import org.ttrssreader.gui.dialogs.YesNoUpdaterDialog;
+import org.ttrssreader.gui.interfaces.ICacheEndListener;
+import org.ttrssreader.gui.interfaces.IDataChangedListener;
+import org.ttrssreader.gui.interfaces.IItemSelectedListener;
+import org.ttrssreader.gui.interfaces.IUpdateEndListener;
+import org.ttrssreader.imageCache.ForegroundService;
+import org.ttrssreader.model.updaters.IUpdatable;
+import org.ttrssreader.model.updaters.StateSynchronisationUpdater;
+import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
+import org.ttrssreader.utils.Utils;
 
 /**
  * This class provides common functionality for Activities.
@@ -594,11 +594,11 @@ public abstract class MenuActivity extends MenuFlavorActivity
 
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
+		if (ev == null) return false;
 		if (!Controller.isTablet) return false;
 
 		// Only handle events when the list-divider is selected or we are already resizing:
-		View view = findViewAtPosition(getWindow().getDecorView().getRootView(), (int) ev.getRawX(),
-				(int) ev.getRawY());
+		View view = findViewAtPosition(getWindow().getDecorView().getRootView(), (int) ev.getRawX(), (int) ev.getRawY());
 		if (view == null && !resizing) return false;
 
 		switch (ev.getActionMasked()) {
