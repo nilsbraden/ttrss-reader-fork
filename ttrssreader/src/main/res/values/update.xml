@@ -18,7 +18,10 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.93.0
+		<item>Version 1.93.1
+			 * Fixed missing feed when going back
+		</item>
+        <item>Version 1.93.0
 			 * Add support for User-added-CAs from Android 7 (thx to maikbrueggemann)
              * Add SOCKS5 proxy support (thx to Jon Rosenberger)
              * Add support for ssl client certificates (thx to Jon Rosenberger)
