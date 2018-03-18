@@ -348,6 +348,13 @@ public class Data {
 					if (categoryId == VCAT_ALL || f.categoryId == categoryId) ret.add(f);
 
 					feedsChanged.put(f.categoryId, System.currentTimeMillis());
+
+					// Try to download icons for all feeds
+					try {
+						f.icon = downloadFeedIcon(f.id);
+					} catch (MalformedURLException e) {
+						Log.e(TAG, "Error while downloading icon for feed #" + f.id, e);
+					}
 				}
 				DBHelper.getInstance().deleteFeeds();
 				DBHelper.getInstance().insertFeeds(feeds);

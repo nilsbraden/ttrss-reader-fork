@@ -312,6 +312,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 			return;
 		}
 
+		Log.w(TAG, "displayFeed() has been called, newArticleId: " + newFeedId + ", direction: " + direction);
 		feedId = newFeedId;
 		FeedHeadlineListFragment headlineFragment = FeedHeadlineListFragment
 				.newInstance(feedId, categoryId, selectArticlesForCategory);
@@ -341,6 +342,7 @@ public class FeedHeadlineActivity extends MenuActivity {
 			return;
 		}
 
+		Log.w(TAG, "displayArticle() has been called, newArticleId: " + newArticleId + ", direction: " + direction);
 		articleId = newArticleId;
 		FeedHeadlineListFragment headlineFragment = (FeedHeadlineListFragment) getFragmentManager()
 				.findFragmentByTag(FeedHeadlineListFragment.FRAGMENT);

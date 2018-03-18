@@ -111,7 +111,7 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 
 		query.append(" ORDER BY a.updateDate ");
 		query.append(invertSortArticles ? "ASC" : "DESC");
-		query.append(" LIMIT 600 ");
+		query.append(" LIMIT 1000 ");
 		return query.toString();
 	}
 
@@ -151,7 +151,7 @@ class FeedHeadlineCursorHelper extends MainCursorHelper {
 
 		query.append(" ORDER BY updateDate ");
 		query.append(invertSortArticles ? "ASC" : "DESC");
-		query.append(" LIMIT 600 ");
+		query.append(" LIMIT 1000 ");
 		return query.toString();
 	}
 

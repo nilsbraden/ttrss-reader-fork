@@ -47,7 +47,7 @@ class FeedCursorHelper extends MainCursorHelper {
 		if (overrideDisplayUnread) displayUnread = false;
 
 		if (lastOpenedFeedsList.length() > 0 && !buildSafeQuery) {
-			query.append("SELECT _id,title,unread FROM (");
+			query.append("SELECT _id,title,unread,icon FROM (");
 		}
 
 		query.append("SELECT _id,title,unread,icon FROM ");
@@ -57,7 +57,7 @@ class FeedCursorHelper extends MainCursorHelper {
 		query.append(displayUnread ? " AND unread>0" : "");
 
 		if (lastOpenedFeedsList.length() > 0 && !buildSafeQuery) {
-			query.append(" UNION SELECT _id,title,unread");
+			query.append(" UNION SELECT _id,title,unread,icon");
 			query.append(" FROM feeds WHERE _id IN (");
 			query.append(lastOpenedFeedsList);
 			query.append(" ))");
@@ -65,7 +65,7 @@ class FeedCursorHelper extends MainCursorHelper {
 
 		query.append(" ORDER BY UPPER(title) ");
 		query.append(invertSortFeedCats ? "DESC" : "ASC");
-		query.append(buildSafeQuery ? " LIMIT 200" : " LIMIT 600");
+		query.append(buildSafeQuery ? " LIMIT 400" : " LIMIT 1000");
 
 		return db.rawQuery(query.toString(), null);
 	}

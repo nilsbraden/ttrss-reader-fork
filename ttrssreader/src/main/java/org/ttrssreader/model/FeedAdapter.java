@@ -20,7 +20,6 @@ package org.ttrssreader.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -97,11 +96,8 @@ public class FeedAdapter extends MainAdapter {
 		ret.id = cur.getInt(0);
 		ret.title = cur.getString(1);
 		ret.unread = cur.getInt(2);
-		if(!cur.isNull(3)) {
-			Log.d(TAG, "Icon found for feed " + ret.title);
+		if (!cur.isNull(3)) {
 			ret.icon = cur.getBlob(3);
-		} else {
-			Log.d(TAG, "No icon found for feed " + ret.title);
 		}
 		return ret;
 	}
