@@ -37,8 +37,8 @@ import org.ttrssreader.model.pojos.Article;
 import org.ttrssreader.model.pojos.Category;
 import org.ttrssreader.model.pojos.Feed;
 import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.utils.KeyChainKeyManager;
 import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.KeyChainKeyManager;
 import org.ttrssreader.utils.StringSupport;
 import org.ttrssreader.utils.Utils;
 

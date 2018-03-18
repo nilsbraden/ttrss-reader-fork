@@ -17,13 +17,6 @@
 
 package org.ttrssreader.gui.dialogs;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Data;
-import org.ttrssreader.model.pojos.Label;
-import org.ttrssreader.model.updaters.IUpdatable;
-import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.utils.LabelTitleComparator;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,6 +30,13 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.model.pojos.Label;
+import org.ttrssreader.model.updaters.IUpdatable;
+import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.LabelTitleComparator;
 
 import java.util.ArrayList;
 import java.util.Collections;

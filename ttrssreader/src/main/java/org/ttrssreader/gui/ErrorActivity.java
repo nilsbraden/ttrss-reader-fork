@@ -17,16 +17,16 @@
 
 package org.ttrssreader.gui;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
 public class ErrorActivity extends Activity {
 

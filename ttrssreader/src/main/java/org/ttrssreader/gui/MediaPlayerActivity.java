@@ -17,15 +17,15 @@
 
 package org.ttrssreader.gui;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.MediaController;
 import android.widget.VideoView;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
 public class MediaPlayerActivity extends Activity {
 

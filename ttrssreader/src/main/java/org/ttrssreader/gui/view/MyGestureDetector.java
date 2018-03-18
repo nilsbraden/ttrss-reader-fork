@@ -17,11 +17,11 @@
 
 package org.ttrssreader.gui.view;
 
-import org.ttrssreader.controllers.Controller;
-
 import android.support.v7.app.ActionBar;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+
+import org.ttrssreader.controllers.Controller;
 
 public class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 

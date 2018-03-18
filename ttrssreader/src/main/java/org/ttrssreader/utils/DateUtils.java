@@ -17,10 +17,10 @@
 
 package org.ttrssreader.utils;
 
+import android.content.Context;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
-
-import android.content.Context;
 
 import java.util.Date;
 

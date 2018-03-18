@@ -17,6 +17,18 @@
 
 package org.ttrssreader.gui.fragments;
 
+import android.app.Activity;
+import android.content.CursorLoader;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+
 import org.ttrssreader.R;
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
@@ -29,19 +41,6 @@ import org.ttrssreader.model.CategoryAdapter;
 import org.ttrssreader.model.ListContentProvider;
 import org.ttrssreader.model.updaters.IUpdatable;
 import org.ttrssreader.model.updaters.ReadStateUpdater;
-
-import android.app.Activity;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.net.Uri.Builder;
-import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class CategoryListFragment extends MainListFragment {
 

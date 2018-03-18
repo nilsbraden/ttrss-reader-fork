@@ -17,12 +17,12 @@
 
 package org.ttrssreader.gui.dialogs;
 
-import org.ttrssreader.R;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
+import org.ttrssreader.R;
 
 public class ImageCaptionDialog extends MyDialogFragment {
 

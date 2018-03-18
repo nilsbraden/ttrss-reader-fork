@@ -16,13 +16,14 @@
  */
 
 package org.ttrssreader.model;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.model.pojos.Category;
 
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.model.pojos.Category;
 
 import java.util.Collections;
 import java.util.List;

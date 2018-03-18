@@ -17,13 +17,13 @@
 
 package org.ttrssreader.gui.dialogs;
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 
 public class IgnorableErrorDialog extends ErrorDialog {
 

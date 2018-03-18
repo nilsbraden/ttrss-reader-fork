@@ -18,17 +18,6 @@
 package org.ttrssreader.gui;
 
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.fragments.PreferencesFragment;
-import org.ttrssreader.model.HeaderAdapter;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-import org.ttrssreader.utils.Utils;
-
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -49,6 +38,17 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.Toast;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.gui.fragments.PreferencesFragment;
+import org.ttrssreader.model.HeaderAdapter;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
+import org.ttrssreader.utils.Utils;
 
 import java.util.List;
 

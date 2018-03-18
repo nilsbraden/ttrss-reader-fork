@@ -17,10 +17,6 @@
 
 package org.ttrssreader.gui.fragments;
 
-import org.ttrssreader.R;
-import org.ttrssreader.gui.WifiPreferencesActivity;
-import org.ttrssreader.preferences.Constants;
-
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -29,6 +25,10 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import org.ttrssreader.R;
+import org.ttrssreader.gui.WifiPreferencesActivity;
+import org.ttrssreader.preferences.Constants;
 
 public class WifiPreferencesFragment extends PreferenceFragment {
 

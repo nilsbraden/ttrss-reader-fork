@@ -18,13 +18,6 @@
 package org.ttrssreader.gui;
 
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.gui.fragments.WifiPreferencesFragment;
-import org.ttrssreader.model.HeaderAdapter;
-import org.ttrssreader.preferences.Constants;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-
 import android.app.backup.BackupManager;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -32,6 +25,13 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.widget.ListAdapter;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.gui.fragments.WifiPreferencesFragment;
+import org.ttrssreader.model.HeaderAdapter;
+import org.ttrssreader.preferences.Constants;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
 import java.util.List;
 

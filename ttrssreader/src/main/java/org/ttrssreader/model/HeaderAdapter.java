@@ -17,8 +17,6 @@
 
 package org.ttrssreader.model;
 
-import org.ttrssreader.R;
-
 import android.content.Context;
 import android.preference.PreferenceActivity.Header;
 import android.text.TextUtils;
@@ -28,6 +26,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.ttrssreader.R;
 
 import java.util.List;
 

@@ -15,16 +15,16 @@
 
 package org.ttrssreader.gui;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.CheckBox;
+
 import org.ttrssreader.R;
 import org.ttrssreader.imageCache.PluginReceiver;
 import org.ttrssreader.imageCache.bundle.BundleScrubber;
 import org.ttrssreader.imageCache.bundle.PluginBundleManager;
 import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.CheckBox;
 
 /**
  * This is the "Edit" activity for a Locale Plug-in.

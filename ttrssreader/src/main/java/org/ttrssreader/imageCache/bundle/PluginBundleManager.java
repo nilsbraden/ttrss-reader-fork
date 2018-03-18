@@ -15,11 +15,11 @@
 
 package org.ttrssreader.imageCache.bundle;
 
-import org.ttrssreader.utils.Utils;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+
+import org.ttrssreader.utils.Utils;
 
 /**
  * Class for managing the {@link com.twofortyfouram.locale.Intent#EXTRA_BUNDLE} for this plug-in.

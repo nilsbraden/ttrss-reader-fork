@@ -18,13 +18,6 @@
 package org.ttrssreader.gui;
 
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.Data;
-import org.ttrssreader.gui.fragments.MainListFragment;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +27,13 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.gui.fragments.MainListFragment;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
 
 public class ShareActivity extends MenuActivity {
 

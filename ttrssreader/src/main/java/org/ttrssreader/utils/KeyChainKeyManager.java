@@ -2,7 +2,6 @@ package org.ttrssreader.utils;
 
 import android.security.KeyChain;
 import android.security.KeyChainException;
-import android.util.Log;
 
 import org.ttrssreader.MyApplication;
 import org.ttrssreader.controllers.Controller;

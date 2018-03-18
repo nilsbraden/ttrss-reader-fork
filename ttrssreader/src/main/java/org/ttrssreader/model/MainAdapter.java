@@ -17,11 +17,11 @@
 
 package org.ttrssreader.model;
 
-import org.ttrssreader.R;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.widget.SimpleCursorAdapter;
+
+import org.ttrssreader.R;
 
 import java.util.ArrayList;
 import java.util.List;

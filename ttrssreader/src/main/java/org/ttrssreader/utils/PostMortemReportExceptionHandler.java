@@ -17,8 +17,6 @@
 
 package org.ttrssreader.utils;
 
-import org.ttrssreader.controllers.Controller;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +26,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.util.Log;
+
+import org.ttrssreader.controllers.Controller;
 
 import java.io.BufferedReader;
 import java.io.File;

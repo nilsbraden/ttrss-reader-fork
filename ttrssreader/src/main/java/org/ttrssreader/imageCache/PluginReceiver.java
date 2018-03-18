@@ -15,15 +15,15 @@
 
 package org.ttrssreader.imageCache;
 
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.imageCache.bundle.BundleScrubber;
-import org.ttrssreader.imageCache.bundle.PluginBundleManager;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.imageCache.bundle.BundleScrubber;
+import org.ttrssreader.imageCache.bundle.PluginBundleManager;
 
 /**
  * This is the "fire" BroadcastReceiver for a Locale Plug-in setting.

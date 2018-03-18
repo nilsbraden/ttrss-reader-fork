@@ -17,16 +17,16 @@
 
 package org.ttrssreader.gui.dialogs;
 
-import org.ttrssreader.R;
-import org.ttrssreader.model.updaters.IUpdatable;
-import org.ttrssreader.model.updaters.Updater;
-import org.ttrssreader.utils.AsyncTask;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
+import org.ttrssreader.R;
+import org.ttrssreader.model.updaters.IUpdatable;
+import org.ttrssreader.model.updaters.Updater;
+import org.ttrssreader.utils.AsyncTask;
 
 public class ReadStateDialog extends MyDialogFragment {
 

@@ -17,16 +17,16 @@
 
 package org.ttrssreader.gui;
 
-import org.ttrssreader.R;
-import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
-import org.ttrssreader.model.pojos.Article;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
+
+import org.ttrssreader.R;
+import org.ttrssreader.gui.interfaces.TextInputAlertCallback;
+import org.ttrssreader.model.pojos.Article;
 
 public class TextInputAlert {
 

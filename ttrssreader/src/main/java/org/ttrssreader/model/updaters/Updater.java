@@ -17,11 +17,11 @@
 
 package org.ttrssreader.model.updaters;
 
+import android.app.Activity;
+
 import org.ttrssreader.gui.interfaces.IUpdateEndListener;
 import org.ttrssreader.utils.AsyncTask;
 import org.ttrssreader.utils.WeakReferenceHandler;
-
-import android.app.Activity;
 
 public class Updater extends AsyncTask<Void, Void, Void> {
 

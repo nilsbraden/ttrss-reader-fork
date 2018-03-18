@@ -17,10 +17,10 @@
 
 package org.ttrssreader.model;
 
-import org.ttrssreader.controllers.Controller;
-
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import org.ttrssreader.controllers.Controller;
 
 abstract class MainCursorHelper {
 

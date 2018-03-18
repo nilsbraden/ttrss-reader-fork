@@ -17,14 +17,14 @@
 
 package org.ttrssreader.gui.dialogs;
 
-import org.ttrssreader.R;
-import org.ttrssreader.gui.PreferencesActivity;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+
+import org.ttrssreader.R;
+import org.ttrssreader.gui.PreferencesActivity;
 
 public class WelcomeDialog extends MyDialogFragment {
 

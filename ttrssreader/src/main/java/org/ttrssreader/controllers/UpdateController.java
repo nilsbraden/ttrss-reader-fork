@@ -17,10 +17,10 @@
 
 package org.ttrssreader.controllers;
 
-import org.ttrssreader.gui.interfaces.IDataChangedListener;
-
 import android.os.Handler;
 import android.os.Message;
+
+import org.ttrssreader.gui.interfaces.IDataChangedListener;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -19,17 +19,17 @@
 
 package org.ttrssreader.imageCache;
 
-import org.ttrssreader.R;
-import org.ttrssreader.gui.interfaces.ICacheEndListener;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.Utils;
-import org.ttrssreader.utils.WakeLocker;
-
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
+import org.ttrssreader.R;
+import org.ttrssreader.gui.interfaces.ICacheEndListener;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.Utils;
+import org.ttrssreader.utils.WakeLocker;
 
 public class ForegroundService extends Service implements ICacheEndListener {
 

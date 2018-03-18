@@ -18,18 +18,6 @@
 package org.ttrssreader.gui;
 
 
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-import org.ttrssreader.controllers.DBHelper;
-import org.ttrssreader.controllers.Data;
-import org.ttrssreader.controllers.ProgressBarManager;
-import org.ttrssreader.gui.fragments.MainListFragment;
-import org.ttrssreader.model.pojos.Category;
-import org.ttrssreader.net.JSONConnector.SubscriptionResponse;
-import org.ttrssreader.utils.AsyncTask;
-import org.ttrssreader.utils.PostMortemReportExceptionHandler;
-import org.ttrssreader.utils.Utils;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -43,6 +31,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
+import org.ttrssreader.controllers.DBHelper;
+import org.ttrssreader.controllers.Data;
+import org.ttrssreader.controllers.ProgressBarManager;
+import org.ttrssreader.gui.fragments.MainListFragment;
+import org.ttrssreader.model.pojos.Category;
+import org.ttrssreader.net.JSONConnector.SubscriptionResponse;
+import org.ttrssreader.utils.AsyncTask;
+import org.ttrssreader.utils.PostMortemReportExceptionHandler;
+import org.ttrssreader.utils.Utils;
 
 import java.util.ArrayList;
 

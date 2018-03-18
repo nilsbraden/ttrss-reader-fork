@@ -17,13 +17,13 @@
 
 package org.ttrssreader.model;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.utils.Utils;
-
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
 class FeedHeadlineCursorHelper extends MainCursorHelper {
 

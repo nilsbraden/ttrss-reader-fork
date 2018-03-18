@@ -17,15 +17,15 @@
 
 package org.ttrssreader;
 
+import android.app.Application;
+import android.content.Context;
+import android.os.Build;
+
 import org.ttrssreader.controllers.Controller;
 import org.ttrssreader.controllers.DBHelper;
 import org.ttrssreader.controllers.Data;
 import org.ttrssreader.controllers.ProgressBarManager;
 import org.ttrssreader.utils.PRNGFixes;
-
-import android.app.Application;
-import android.content.Context;
-import android.os.Build;
 
 public class MyApplication extends Application {
 

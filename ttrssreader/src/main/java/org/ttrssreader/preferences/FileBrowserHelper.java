@@ -17,23 +17,21 @@
 
 package org.ttrssreader.preferences;
 
-import org.ttrssreader.BuildConfig;
-import org.ttrssreader.R;
-import org.ttrssreader.controllers.Controller;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
 import android.text.InputType;
-import android.util.Log;
 import android.widget.EditText;
+
+import org.ttrssreader.BuildConfig;
+import org.ttrssreader.R;
+import org.ttrssreader.controllers.Controller;
 
 import java.io.File;
 
