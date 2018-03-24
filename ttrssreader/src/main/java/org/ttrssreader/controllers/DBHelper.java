@@ -67,7 +67,7 @@ public class DBHelper {
 	private static final String DATABASE_NAME = "ttrss.db";
 	private static final int DATABASE_VERSION = 65;
 
-	public static final String[] CATEGORIES_COLUMNS = new String[] {"_id", "title", "unread"};
+	public static final String[] CATEGORIES_COLUMNS = new String[]{"_id", "title", "unread"};
 
 	public static final String TABLE_CATEGORIES = "categories";
 	public static final String TABLE_FEEDS = "feeds";
@@ -153,12 +153,6 @@ public class DBHelper {
 					+ " (_id, categoryId, title, url, unread, icon)"
 					+ " VALUES (?, ?, ?, ?, ?, ?)";
 
-	private static final String INSERT_FEED_ICON =
-			"INSERT OR REPLACE INTO "
-					+ TABLE_FEEDS
-					+ " (_id, icon)"
-					+ " VALUES (?, ?)";
-
 	private static final String INSERT_ARTICLE =
 			"INSERT OR REPLACE INTO "
 					+ TABLE_ARTICLES
@@ -209,7 +203,6 @@ public class DBHelper {
 
 	private SQLiteStatement insertCategory;
 	private SQLiteStatement insertFeed;
-	private SQLiteStatement insertFeedIcon;
 	private SQLiteStatement insertArticle;
 	private SQLiteStatement insertLabel;
 	private SQLiteStatement insertRemoteFile;
@@ -328,7 +321,6 @@ public class DBHelper {
 
 		insertCategory = db.compileStatement(INSERT_CATEGORY);
 		insertFeed = db.compileStatement(INSERT_FEED);
-		insertFeedIcon = db.compileStatement(INSERT_FEED_ICON);
 		insertArticle = db.compileStatement(INSERT_ARTICLE);
 		insertLabel = db.compileStatement(INSERT_LABEL);
 		insertRemoteFile = db.compileStatement(INSERT_REMOTEFILE);
@@ -752,23 +744,19 @@ public class DBHelper {
 		}
 	}
 
-	void insertFeedIcon(int id, byte[] icon) {
+	int insertFeedIcon(int id, byte[] icon) {
+		int ret = -1;
 		if (!isDBAvailable() || icon == null || icon.length == 0) {
-			return;
+			return ret;
 		}
 
-		//TODO really use a transaction for 1 insert?
 		SQLiteDatabase db = getOpenHelper().getWritableDatabase();
+		ContentValues cv = new ContentValues(1);
 		write.lock();
 		try {
 			db.beginTransaction();
-
-			insertFeedIcon.bindLong(1, Integer.valueOf(id).longValue());
-			insertFeedIcon.bindBlob(2, icon);
-
-			if (isDBAvailable()) {
-				insertFeedIcon.execute();
-			}
+			cv.put("icon", icon);
+			ret = db.update(TABLE_FEEDS, cv, "_id = " + id, null);
 			db.setTransactionSuccessful();
 		} finally {
 			try {
@@ -777,6 +765,7 @@ public class DBHelper {
 				write.unlock();
 			}
 		}
+		return ret;
 	}
 
 	private void insertFeed(int id, int categoryId, String title, String url, int unread, byte[] icon) {
@@ -1608,7 +1597,7 @@ public class DBHelper {
 	 * Retrieves all rows in the categories table
 	 *
 	 * @param includeVirtual include virtual categories (eg. starred, published, ...)
-	 * @param includeRead include categories that have 0 unread articles
+	 * @param includeRead    include categories that have 0 unread articles
 	 * @return a List with all categories in the database, never {@code null}
 	 */
 	public List<Category> getCategories(boolean includeVirtual, boolean includeRead) {
