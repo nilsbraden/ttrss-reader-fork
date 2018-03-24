@@ -339,6 +339,7 @@
     <string name="WhiteTheme">White Theme</string>
     <string name="Error.SSL.Keystore">Couldn\'t load private keystore.</string>
     <string name="Error.SSL.TrustAllHosts">Couldn\'t configure SSL to trust all hosts.</string>
+    <string name="Error.SSL.TrustClientCerts">Couldn\'t configure SSL to trust the provided client certificate.</string>
     <string name="Error.SSL.SocketFactory">Couldn\'t create SSLSocketFactory, SSL-Connections cannot be established.</string>
     <string name="Error.NotLoggedIn">Couldn\'t login to your account, please check your credentials.</string>
     <string name="Error.EncodePassword">Couldn\'t login to your account, your password could not be encoded properly.</string>
