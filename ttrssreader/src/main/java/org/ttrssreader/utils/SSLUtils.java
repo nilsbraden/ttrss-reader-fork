@@ -135,4 +135,10 @@ public class SSLUtils {
 		}
 	}
 
+	public static void trustClientCert() throws NoSuchAlgorithmException, KeyManagementException {
+		KeyManager km = new KeyChainKeyManager();
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+		sslContext.init(new KeyManager[]{km}, null, null);
+		HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+	}
 }

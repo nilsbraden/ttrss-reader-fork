@@ -229,6 +229,15 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 							Log.e(TAG, msg, e);
 							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
 						}
+					} else if (useClientCertificate()) {
+						try {
+							// Trust only client certificates:
+							SSLUtils.trustClientCert();
+						} catch (GeneralSecurityException e) {
+							String msg = context.getString(R.string.Error_SSL_TrustClientCerts);
+							Log.e(TAG, msg, e);
+							Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+						}
 					} else {
 						try {
 							// Normal certificate-checks:
@@ -250,8 +259,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 					//getImageCache();
 
 					// Only need once we are displaying the feed-list or an article...
-					Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE))
-							.getDefaultDisplay();
+					Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 					refreshDisplayMetrics(display);
 
 					enableHttpResponseCache(context.getCacheDir());
@@ -482,6 +490,14 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 
 		if (prefs.contains(key)) return prefs.getBoolean(key, USE_PROVIDER_INSTALLER_DEFAULT);
 		else return prefs.getBoolean(USE_PROVIDER_INSTALLER, USE_PROVIDER_INSTALLER_DEFAULT);
+	}
+
+	public boolean useClientCertificate() {
+		// Load from Wifi-Preferences:
+		String key = getStringWithSSID(USE_CLIENT_CERT, getCurrentSSID(wifiManager), wifibasedPrefsEnabled());
+
+		if (prefs.contains(key)) return prefs.getBoolean(key, USE_CLIENT_CERT_DEFAULT);
+		else return prefs.getBoolean(USE_CLIENT_CERT, USE_CLIENT_CERT_DEFAULT);
 	}
 
 	public boolean trustAllSsl() {

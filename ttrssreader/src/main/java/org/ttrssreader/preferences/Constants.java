@@ -39,6 +39,7 @@ public class Constants {
 	public static final String HTTP_PASSWORD = "ConnectionHttpPasswordPreference";
 	public static final String USE_PROVIDER_INSTALLER = "ConnectionProviderInstall";
 	public static final String TRUST_ALL_SSL = "ConnectionSSLPreference";
+	public static final String USE_CLIENT_CERT = "ConnectionUseClientCertPreference";
 	public static final String TRUST_ALL_HOSTS = "ConnectionTrustHostsPreference";
 	public static final String USE_KEYSTORE = "ConnectionUseKeystorePreference";
 	public static final String KEYSTORE_PASSWORD = "ConnectionKeystorePasswordPreference";
@@ -55,6 +56,7 @@ public class Constants {
 	public static final boolean USE_HTTP_AUTH_DEFAULT = false;
 	public static final boolean USE_PROVIDER_INSTALLER_DEFAULT = true;
 	public static final boolean TRUST_ALL_SSL_DEFAULT = false;
+	public static final boolean USE_CLIENT_CERT_DEFAULT = false;
 	public static final boolean TRUST_ALL_HOSTS_DEFAULT = false;
 	public static final boolean USE_KEYSTORE_DEFAULT = false;
 	public static final boolean USE_OF_A_LAZY_SERVER_DEFAULT = false;
