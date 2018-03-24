@@ -18,7 +18,10 @@
 <resources>
 
     <string-array name="updates">
-		<item>Version 1.93.1
+		<item>Version 1.93.2
+			 * Debug-build to test client-certificates
+		</item>
+        <item>Version 1.93.1
 			 * Fixed missing feed when going back
 		</item>
         <item>Version 1.93.0
