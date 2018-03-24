@@ -102,6 +102,7 @@ public class Constants {
 	public static final String DATE_STRING = "DisplayDateFormatPreference";
 	public static final String TIME_STRING = "DisplayTimeFormatPreference";
 	public static final String DATE_TIME_STRING = "DisplayDateTimeFormatPreference";
+	public static final String DISPLAY_FEED_ICONS = "DisplayFeedIconsPreference";
 	// Display Default Values
 	public static final String THEME_DEFAULT = "1";
 	public static final boolean ANIMATIONS_DEFAULT = true;
@@ -122,6 +123,7 @@ public class Constants {
 	public static final String DATE_STRING_DEFAULT = "dd.MM.yyyy";
 	public static final String TIME_STRING_DEFAULT = "kk:mm";
 	public static final String DATE_TIME_STRING_DEFAULT = "dd.MM.yyyy kk:mm";
+	public static final boolean DISPLAY_FEED_ICONS_DEFAULT = true;
 
 	// System
 	public static final String SAVE_ATTACHMENT = "SaveAttachmentPreference";

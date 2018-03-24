@@ -111,6 +111,7 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 	private Boolean hideActionbar = null;
 	private Boolean workOffline = null;
 	private Boolean allowTabletLayout = null;
+	private Boolean displayFeedIcons = null;
 	private Boolean hideFeedReadButtons = null;
 
 	private Boolean animations = null;
@@ -695,6 +696,12 @@ public class Controller extends Constants implements OnSharedPreferenceChangeLis
 		if (allowTabletLayout == null)
 			allowTabletLayout = prefs.getBoolean(ALLOW_TABLET_LAYOUT, ALLOW_TABLET_LAYOUT_DEFAULT);
 		return allowTabletLayout;
+	}
+
+	public boolean displayFeedIcons() {
+		if (displayFeedIcons == null)
+			displayFeedIcons = prefs.getBoolean(DISPLAY_FEED_ICONS, DISPLAY_FEED_ICONS_DEFAULT);
+		return displayFeedIcons;
 	}
 
 	public void setAllowTabletLayout(boolean allowTabletLayout) {

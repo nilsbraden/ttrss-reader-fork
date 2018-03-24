@@ -164,6 +164,9 @@ public class Data {
 	 * @param feedId ID of the feed
 	 */
 	public void updateFeedIcon(int feedId) {
+		if (!Controller.getInstance().displayFeedIcons())
+			return;
+
 		Log.d(TAG, "Updating icon for feed #" + feedId);
 		try {
 			byte[] icon = downloadFeedIcon(feedId);
@@ -173,7 +176,7 @@ public class Data {
 		}
 	}
 
-	public byte[] downloadFeedIcon(int feedId) throws MalformedURLException {
+	private byte[] downloadFeedIcon(int feedId) throws MalformedURLException {
 		final URL iconUrl = Controller.getInstance().feedIconUrl(feedId);
 		return Utils.download(iconUrl);
 	}
@@ -349,11 +352,12 @@ public class Data {
 
 					feedsChanged.put(f.categoryId, System.currentTimeMillis());
 
-					// Try to download icons for all feeds
-					try {
-						f.icon = downloadFeedIcon(f.id);
-					} catch (MalformedURLException e) {
-						Log.e(TAG, "Error while downloading icon for feed #" + f.id, e);
+					if (Controller.getInstance().displayFeedIcons()) {
+						try {
+							f.icon = downloadFeedIcon(f.id);
+						} catch (MalformedURLException e) {
+							Log.e(TAG, "Error while downloading icon for feed #" + f.id, e);
+						}
 					}
 				}
 				DBHelper.getInstance().deleteFeeds();

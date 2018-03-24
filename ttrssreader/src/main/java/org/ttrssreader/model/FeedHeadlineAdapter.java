@@ -92,8 +92,11 @@ public class FeedHeadlineAdapter extends MainAdapter {
 	}
 
 	private static void setFeedImage(ImageView icon, Feed f) {
-		if(f.icon != null) {
+		if (f.icon != null) {
+			icon.setVisibility(View.VISIBLE);
 			icon.setImageBitmap(BitmapFactory.decodeByteArray(f.icon, 0, f.icon.length));
+		} else {
+			icon.setVisibility(View.GONE);
 		}
 	}
 

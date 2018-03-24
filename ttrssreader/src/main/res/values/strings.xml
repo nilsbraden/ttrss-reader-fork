@@ -159,6 +159,8 @@
     <string name="HideFeedReadButtonsSummary">If checked, this disables the ability to mark an entire feed as read in a single button tap. The corresponding icons are hidden from the menu and ActionBar.</string>
     <string name="AllowTabletLayoutTitle">Enable Tablet-Layout</string>
     <string name="AllowTabletLayoutSummary">If checked, the tablet layout will be used if your screen is above 7\".</string>
+    <string name="DisplayFeedIconsPreferenceTitle">Display Feed icons</string>
+    <string name="DisplayFeedIconsPreferenceSummary">If checked, the favicons of all feeds will be loaded and displayed.</string>
     <string name="ShowButtonsModeTitle">Select Navigation Buttons Mode</string>
     <string name="ShowButtonsModeSummary">How navigation buttons in article view should be shown.</string>
     <string name="ShowButtonsMode_none">Do not show buttons</string>

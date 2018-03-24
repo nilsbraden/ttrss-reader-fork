@@ -31,7 +31,7 @@
             android:title="@string/ConnectionUrlPreferenceTitle"/>
         <EditTextPreference
             android:name="@string/ConnectionUsernamePreferenceTitle"
-            android:defaultValue=""
+            android:defaultValue="@string/Empty"
             android:inputType="textFilter"
             android:key="ConnectionUsernamePreference"
             android:order="20"
@@ -39,15 +39,24 @@
             android:title="@string/ConnectionUsernamePreferenceTitle"/>
         <EditTextPreference
             android:name="@string/ConnectionPasswordPreferenceTitle"
-            android:defaultValue=""
+            android:defaultValue="@string/Empty"
             android:inputType="textPassword"
             android:key="ConnectionPasswordPreference"
             android:order="30"
             android:summary="@string/ConnectionPasswordPreferenceSummary"
             android:title="@string/ConnectionPasswordPreferenceTitle"/>
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:disableDependentsState="false"
+            android:key="DisplayFeedIconsPreference"
+            android:order="39"
+            android:summary="@string/DisplayFeedIconsPreferenceSummary"
+            android:title="@string/DisplayFeedIconsPreferenceTitle"/>
         <EditTextPreference
             android:name="@string/ConnectionFeedIconsUrlPreferenceTitle"
             android:defaultValue="@string/ConnectionFeedIconsUrlPreferenceDefault"
+            android:dependency="DisplayFeedIconsPreference"
             android:inputType="textFilter"
             android:key="ConnectionUrlFeedIconsPreference"
             android:order="40"
@@ -70,7 +79,7 @@
             android:title="@string/ConnectionProxyPreferenceTitle"/>
         <EditTextPreference
             android:name="@string/ConnectionProxyHostPreferenceTitle"
-            android:defaultValue=""
+            android:defaultValue="@string/Empty"
             android:dependency="ConnectionProxyPreference"
             android:inputType="textFilter"
             android:key="ConnectionProxyHostPreference"
